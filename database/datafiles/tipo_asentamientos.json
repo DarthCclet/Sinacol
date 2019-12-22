@@ -1,0 +1,177 @@
+{
+    "datos": [
+        {
+            "cve_tipo_asen": "1",
+            "descripcion": "AEROPUERTO"
+        },
+        {
+            "cve_tipo_asen": "2",
+            "descripcion": "AMPLIACIÓN"
+        },
+        {
+            "cve_tipo_asen": "3",
+            "descripcion": "BARRIO"
+        },
+        {
+            "cve_tipo_asen": "4",
+            "descripcion": "CANTÓN"
+        },
+        {
+            "cve_tipo_asen": "5",
+            "descripcion": "CIUDAD"
+        },
+        {
+            "cve_tipo_asen": "6",
+            "descripcion": "CIUDAD INDUSTRIAL"
+        },
+        {
+            "cve_tipo_asen": "7",
+            "descripcion": "COLONIA"
+        },
+        {
+            "cve_tipo_asen": "8",
+            "descripcion": "CONDOMINIO"
+        },
+        {
+            "cve_tipo_asen": "9",
+            "descripcion": "CONJUNTO HABITACIONAL"
+        },
+        {
+            "cve_tipo_asen": "10",
+            "descripcion": "CORREDOR INDUSTRIAL"
+        },
+        {
+            "cve_tipo_asen": "11",
+            "descripcion": "COTO"
+        },
+        {
+            "cve_tipo_asen": "12",
+            "descripcion": "CUARTEL"
+        },
+        {
+            "cve_tipo_asen": "13",
+            "descripcion": "EJIDO"
+        },
+        {
+            "cve_tipo_asen": "14",
+            "descripcion": "EXHACIENDA"
+        },
+        {
+            "cve_tipo_asen": "15",
+            "descripcion": "FRACCIÓN"
+        },
+        {
+            "cve_tipo_asen": "16",
+            "descripcion": "FRACCIONAMIENTO"
+        },
+        {
+            "cve_tipo_asen": "17",
+            "descripcion": "GRANJA"
+        },
+        {
+            "cve_tipo_asen": "18",
+            "descripcion": "HACIENDA"
+        },
+        {
+            "cve_tipo_asen": "19",
+            "descripcion": "INGENIO"
+        },
+        {
+            "cve_tipo_asen": "20",
+            "descripcion": "MANZANA"
+        },
+        {
+            "cve_tipo_asen": "21",
+            "descripcion": "PARAJE"
+        },
+        {
+            "cve_tipo_asen": "22",
+            "descripcion": "PARQUE INDUSTRIAL"
+        },
+        {
+            "cve_tipo_asen": "23",
+            "descripcion": "PRIVADA"
+        },
+        {
+            "cve_tipo_asen": "24",
+            "descripcion": "PROLONGACIÓN"
+        },
+        {
+            "cve_tipo_asen": "25",
+            "descripcion": "PUEBLO"
+        },
+        {
+            "cve_tipo_asen": "26",
+            "descripcion": "PUERTO"
+        },
+        {
+            "cve_tipo_asen": "27",
+            "descripcion": "RANCHERÍA"
+        },
+        {
+            "cve_tipo_asen": "28",
+            "descripcion": "RANCHO"
+        },
+        {
+            "cve_tipo_asen": "29",
+            "descripcion": "REGIÓN"
+        },
+        {
+            "cve_tipo_asen": "30",
+            "descripcion": "RESIDENCIAL"
+        },
+        {
+            "cve_tipo_asen": "31",
+            "descripcion": "RINCONADA"
+        },
+        {
+            "cve_tipo_asen": "32",
+            "descripcion": "SECCIÓN"
+        },
+        {
+            "cve_tipo_asen": "33",
+            "descripcion": "SECTOR"
+        },
+        {
+            "cve_tipo_asen": "34",
+            "descripcion": "SUPERMANZANA"
+        },
+        {
+            "cve_tipo_asen": "35",
+            "descripcion": "UNIDAD"
+        },
+        {
+            "cve_tipo_asen": "36",
+            "descripcion": "UNIDAD HABITACIONAL"
+        },
+        {
+            "cve_tipo_asen": "37",
+            "descripcion": "VILLA"
+        },
+        {
+            "cve_tipo_asen": "38",
+            "descripcion": "ZONA FEDERAL"
+        },
+        {
+            "cve_tipo_asen": "39",
+            "descripcion": "ZONA INDUSTRIAL"
+        },
+        {
+            "cve_tipo_asen": "40",
+            "descripcion": "ZONA MILITAR"
+        },
+        {
+            "cve_tipo_asen": "41",
+            "descripcion": "NINGUNO"
+        },
+        {
+            "cve_tipo_asen": "43",
+            "descripcion": "ZONA NAVAL"
+        }
+    ],
+    "metadatos": {
+        "fechaActualizacion": "2018/12",
+        "fuenteInfo": " Marco Geoestadístico, 2018"
+    },
+    "numReg": 42
+}

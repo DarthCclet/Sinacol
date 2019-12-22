@@ -1,0 +1,97 @@
+{
+    "datos": [
+        {
+            "cve_tipo_vial": "1",
+            "descripcion": "AMPLIACIÓN"
+        },
+        {
+            "cve_tipo_vial": "2",
+            "descripcion": "ANDADOR"
+        },
+        {
+            "cve_tipo_vial": "3",
+            "descripcion": "AVENIDA"
+        },
+        {
+            "cve_tipo_vial": "4",
+            "descripcion": "BOULEVARD"
+        },
+        {
+            "cve_tipo_vial": "5",
+            "descripcion": "CALLE"
+        },
+        {
+            "cve_tipo_vial": "6",
+            "descripcion": "CALLEJÓN"
+        },
+        {
+            "cve_tipo_vial": "7",
+            "descripcion": "CALZADA"
+        },
+        {
+            "cve_tipo_vial": "8",
+            "descripcion": "CERRADA"
+        },
+        {
+            "cve_tipo_vial": "9",
+            "descripcion": "CIRCUITO"
+        },
+        {
+            "cve_tipo_vial": "10",
+            "descripcion": "CIRCUNVALACIÓN"
+        },
+        {
+            "cve_tipo_vial": "11",
+            "descripcion": "CONTINUACIÓN"
+        },
+        {
+            "cve_tipo_vial": "12",
+            "descripcion": "CORREDOR"
+        },
+        {
+            "cve_tipo_vial": "13",
+            "descripcion": "DIAGONAL"
+        },
+        {
+            "cve_tipo_vial": "14",
+            "descripcion": "EJE VIAL"
+        },
+        {
+            "cve_tipo_vial": "15",
+            "descripcion": "PASAJE"
+        },
+        {
+            "cve_tipo_vial": "16",
+            "descripcion": "PEATONAL"
+        },
+        {
+            "cve_tipo_vial": "17",
+            "descripcion": "PERIFÉRICO"
+        },
+        {
+            "cve_tipo_vial": "18",
+            "descripcion": "PRIVADA"
+        },
+        {
+            "cve_tipo_vial": "19",
+            "descripcion": "PROLONGACIÓN"
+        },
+        {
+            "cve_tipo_vial": "20",
+            "descripcion": "RETORNO"
+        },
+        {
+            "cve_tipo_vial": "21",
+            "descripcion": "VIADUCTO"
+        },
+        {
+            "cve_tipo_vial": "22",
+            "descripcion": "NINGUNO"
+        }
+    ],
+    "metadatos": {
+        "fechaActualizacion": "2018/12",
+        "fuenteInfo": " Marco Geoestadístico, 2018"
+    },
+    "numReg": 22
+}
