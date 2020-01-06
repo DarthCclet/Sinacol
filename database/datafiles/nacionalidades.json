@@ -1,0 +1,14 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "MEXICANA"
+        },
+        {
+            "id": "2",
+            "nombre": "OTRO"
+        }
+
+    ],
+    "numReg": 2
+}
