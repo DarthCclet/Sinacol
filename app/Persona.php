@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Persona extends Model
 {
     protected $table='personas';
-    public function TipoPersona(){
+    public function tipoPersona(){
     	return $this->belongsTo(TipoPersona::class);
     }
-    public function conciliador(){
+    public function conciliadores(){
     	return $this->hasMany(Conciliador::class);
     }
 }

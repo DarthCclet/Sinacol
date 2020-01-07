@@ -7,14 +7,31 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Centro extends Model
 {
+
     use SoftDeletes;
+
+    /**
+     * Funcion para asociar con modelo Solicitud con hasMany
+     * * Utilizando hasMany para relacion uno a muchos
+     */
     public function solicitudes(){
       return $this->hasMany('App\Solicitud');
     }
-	public function sala(){
+
+    /**
+     * Funcion para asociar con modelo Salas con hasMany
+     * * Utilizando hasMany para relacion uno a muchos
+     */
+	public function salas(){
       return $this->hasMany('App\Sala');
     }
-	public function conciliador(){
+
+  /**
+   * Funcion para asociar con modelo Solicitud con hasMany
+   * * Utilizando hasMany para relacion uno a muchos
+   */
+	public function conciliadores(){
 		return $this->hasMany('App\Conciliador');
 	}
+
 }

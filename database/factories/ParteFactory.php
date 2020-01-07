@@ -12,7 +12,7 @@ use App\Estado;
 use Faker\Generator as Faker;
 
 $factory->define(Parte::class, function (Faker $faker) {
-    $solicitud = Solicitud::inRandomOrder()->first();
+    $solicitud = factory(\App\Solicitud::class)->create();
     $tipo_parte = TipoParte::inRandomOrder()->first();
     $genero = Genero::inRandomOrder()->first();
     $tipo_persona = TipoPersona::inRandomOrder()->first();

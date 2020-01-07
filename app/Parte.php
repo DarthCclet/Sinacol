@@ -9,25 +9,54 @@ class Parte extends Model
 {
     //
     use SoftDeletes;
-    public function genero(){
+    /**
+     * Funcion para asociar con modelo Genero
+     * Utilizando belongsTo para relaciones 1 a 1
+     */
+    public function Genero(){
       return $this->belongsTo('App\Genero');
     }
+
+    /**
+     * Funcion para asociar con modelo Solicitud
+     * Utilizando belongsTo para relaciones 1 a 1
+     */
     public function solicitud(){
       return $this->belongsTo('App\Solicitud');
     }
-    public function tipo_parte(){
+    /**
+     * Funcion para asociar con modelo TipoParte
+     * Utilizando belongsTo para relaciones 1 a 1
+     */
+    public function tipoParte(){
       return $this->belongsTo('App\TipoParte');
     }
-    public function tipo_persona(){
+    /**
+     * Funcion para asociar con modelo TipoPersona
+     * Utilizando belongsTo para relaciones 1 a 1
+     */
+    public function tipoPersona(){
       return $this->belongsTo('App\TipoPersona');
     }
+    /**
+     * Funcion para asociar con modelo Nacionalidad
+     * Utilizando belongsTo para relaciones 1 a 1
+     */
     public function nacionalidad(){
       return $this->belongsTo('App\Nacionalidad');
     }
-    public function entidad_nacimiento(){
+    /**
+     * Funcion para asociar con modelo Estado
+     * Utilizando belongsTo para relaciones 1 a 1
+     */
+    public function entidadNacimiento(){
       return $this->belongsTo('App\Estado');
     }
-	public function audiencia(){
+    /**
+     * Funcion para asociar con modelo Audiencia con hasMany
+     * * Utilizando hasMany para relacion uno a muchos
+     */
+	public function audiencias(){
 		return $this->hasMany('App\Audiencia');
 	}
 }

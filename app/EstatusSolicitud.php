@@ -9,6 +9,10 @@ class EstatusSolicitud extends Model
 {
   use SoftDeletes;
   protected $table = 'estatus_solicitudes';
+  /**
+   * Funcion para asociar con modelo Solicitud con hasMany
+   * * Utilizando hasMany para relacion uno a muchos
+   */
   public function solicitudes(){
     return $this->hasMany('App\Solicitud');
   }
