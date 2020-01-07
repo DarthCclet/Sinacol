@@ -11,11 +11,11 @@ use App\User;
 use Faker\Generator as Faker;
 
 $factory->define(Solicitud::class, function (Faker $faker) {
-  $abogado = Abogado::inRandomOrder()->first();
+  $abogado = factory(\App\Abogado::class)->create();
   $estatus_solicitud = EstatusSolicitud::inRandomOrder()->first();
   $motivo_solicitud = MotivoSolicitud::inRandomOrder()->first();
   $centro = Centro::inRandomOrder()->first();
-  $usuario = User::inRandomOrder()->first();
+  $usuario = factory(\App\User::class)->create();
     return [
         'abogado_id' => $abogado->id,
         'estatus_solicitud_id' => $estatus_solicitud->id,

@@ -16,16 +16,15 @@ class ParteTest extends TestCase
         $this->assertTrue(true);
     }
     /**
-     * Test for Verify relation on parte
+     * Test for Verify relation on parte model
      */
     public function testVerifyRelationParte(){
-        // $parte = factory(\App\parte::class)->create();
         $parte = factory(\App\Parte::class)->create();
         $this->assertInstanceOf('\App\Genero',$parte->genero);
         $this->assertInstanceOf('\App\Solicitud',$parte->solicitud);
-        $this->assertInstanceOf('\App\TipoParte',$parte->tipo_parte);
-        $this->assertInstanceOf('\App\TipoPersona',$parte->tipo_persona);
+        $this->assertInstanceOf('\App\TipoParte',$parte->tipoParte);
+        $this->assertInstanceOf('\App\TipoPersona',$parte->tipoPersona);
         $this->assertInstanceOf('\App\Nacionalidad',$parte->nacionalidad);
-        $this->assertInstanceOf('\App\Estado',$parte->entidad_nacimiento);
+        $this->assertInstanceOf('\App\Estado',$parte->entidadNacimiento);
     }
 }

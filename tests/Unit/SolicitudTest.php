@@ -17,16 +17,13 @@ class SolicitudTest extends TestCase
     }
 
     /**
-     * Test for Verify relation on Solicitud
+     * Test for Verify relation on Solicitud model
      */
     public function testVerifyRelationSolicitud(){
-        // $solicitud = factory(\App\Solicitud::class)->create();
-        $solicitudes = new \App\Solicitud ;
-        $solicitud = $solicitudes::find(1);
-        $this->assertInstanceOf('\App\EstatusSolicitud',$solicitud->estatus_solicitud);
+        $solicitud =  factory(\App\Solicitud::class)->create();
         $this->assertInstanceOf('\App\Abogado',$solicitud->abogado);
-        $this->assertInstanceOf('\App\EstatusSolicitud',$solicitud->estatus_solicitud);
-        $this->assertInstanceOf('\App\MotivoSolicitud',$solicitud->motivo_solicitud);
+        $this->assertInstanceOf('\App\EstatusSolicitud',$solicitud->estatusSolicitud);
+        $this->assertInstanceOf('\App\MotivoSolicitud',$solicitud->motivoSolicitud);
         $this->assertInstanceOf('\App\Centro',$solicitud->centro);
         $this->assertInstanceOf('\App\User',$solicitud->user);
 
