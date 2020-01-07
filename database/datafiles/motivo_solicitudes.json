@@ -1,0 +1,14 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "DESPIDO"
+        },
+        {
+            "id": "2",
+            "nombre": "CONCILIACION PREVIA"
+        }
+
+    ],
+    "numReg": 2
+}

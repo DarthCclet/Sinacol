@@ -1,0 +1,22 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "CENTRO 1"
+        },
+        {
+            "id": "2",
+            "nombre": "CENTRO 2"
+        },
+        {
+            "id": "3",
+            "nombre": "CENTRO 3"
+        },
+        {
+            "id": "4",
+            "nombre": "CENTRO 4"
+        }
+
+    ],
+    "numReg": 2
+}

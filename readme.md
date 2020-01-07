@@ -54,5 +54,13 @@ Agregar la ip de la máquina guest al archivo de configuración hosts de la máq
       C:\Windows\System32\drivers\etc\hosts.
       
       192.168.10.10  conciliacion.test
+ 
       
 
+## Paquetes de terceros
+
+* Soft deletes en cascada [cascade-soft-deletes](https://github.com/michaeldyrynda/laravel-cascade-soft-deletes)
+* Representación y manejo de estructuras jerárquicas: [Nestedset](https://github.com/lazychaser/laravel-nestedset)
+* Auditoría de Entidades [laravel-auditing](https://github.com/owen-it/laravel-auditing)
+* Administración de permisos dinámicos [laravel-permission](https://github.com/spatie/laravel-permission)
+* Administración de menús dinámicos [laravel-menu](https://github.com/lavary/laravel-menu)

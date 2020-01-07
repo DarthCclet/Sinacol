@@ -1,0 +1,18 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "MASCULINO"
+        },
+        {
+            "id": "2",
+            "nombre": "FEMENINO"
+        },
+        {
+            "id": "3",
+            "nombre": "OTRO"
+        }
+    ],
+
+    "numReg": 3
+}
