@@ -11,4 +11,10 @@ class Centro extends Model
     public function solicitudes(){
       return $this->hasMany('App\Solicitud');
     }
+	public function sala(){
+      return $this->hasMany('App\Sala');
+    }
+	public function conciliador(){
+		return $this->hasMany('App\Conciliador');
+	}
 }

@@ -27,4 +27,7 @@ class Parte extends Model
     public function entidad_nacimiento(){
       return $this->belongsTo('App\Estado');
     }
+	public function audiencia(){
+		return $this->hasMany('App\Audiencia');
+	}
 }
