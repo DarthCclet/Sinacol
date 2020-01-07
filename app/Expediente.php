@@ -8,4 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Expediente extends Model
 {
     use SoftDeletes;
+	public function audiencia(){
+		return $this->hasMany('App\Audiencia');
+	}
 }
