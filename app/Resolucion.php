@@ -3,11 +3,17 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Resolucion extends Model
 {
+    use SoftDelete;
     protected $table = 'resoluciones';
-	public function audiencia(){
-		return $this->hasMany(Audiencia::class);
-	}
+    /*
+     * Relacion con la tabla audiencias
+     * una audiencia debe tener resolución
+     */
+    public function audiencias(){
+        return $this->hasMany(Audiencia::class);
+    }
 }

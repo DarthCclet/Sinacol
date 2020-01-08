@@ -4,7 +4,7 @@ namespace App\Traits;
 
 use App\Disponibilidad;
 
-trait Disponibiliable
+trait Disponible
 {
     /**
      * Relaciona la disponibilidad con un la salas, centros y conciliadores de "uno a muchos". 
@@ -12,6 +12,6 @@ trait Disponibiliable
      */
     public function disponibilidad()
     {
-        return $this->morphMany(Disponibilidad::class, 'disponibiliable');
+        return $this->morphMany(Disponibilidad::class, 'disponible');
     }
 }
