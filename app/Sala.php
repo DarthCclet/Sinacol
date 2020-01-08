@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Sala extends Model
 {
-   use SoftDelete; 
+   use SoftDeletes; 
     protected $table = 'salas';
     /*
      * Relación con la tabla Centros

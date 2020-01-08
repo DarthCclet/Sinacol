@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Documento extends Model
 {
-    use SoftDelete;
+    use SoftDeletes;
     protected $table = 'documentos';
     /*
      *  funcion que indica que es una relación polimorfica

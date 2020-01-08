@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Persona extends Model
 {
-    use SoftDelete;
+    use SoftDeletes;
     protected $table='personas';
     /*
      * Relacion con la tabla tipo personas

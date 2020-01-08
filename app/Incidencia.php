@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Incidencia extends Model
 {
-    use SoftDelete;
+    use SoftDeletes;
     protected $table = 'incidencias';
     /*
      *  funcion que indica que es una relación polimorfica

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Resolucion extends Model
 {
-    use SoftDelete;
+    use SoftDeletes;
     protected $table = 'resoluciones';
     /*
      * Relacion con la tabla audiencias

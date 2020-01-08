@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Conciliador extends Model
 {
-    use SoftDelete;
+    use SoftDeletes;
     protected $table = 'conciliadores';
     /*
      * Relacion con ta tabla de personas
