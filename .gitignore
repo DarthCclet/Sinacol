@@ -14,3 +14,4 @@ yarn-error.log
 
 /config/sidebar.php
 /public/assets/css/default/invoice-print.css
+/public/mix-manifest.json
