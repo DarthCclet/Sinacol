@@ -10,6 +10,11 @@ class Solicitante extends Model
     //
     use SoftDeletes;
     protected $softDelete = true;
+    /**
+    * Funcion para asociar con modelo Genero con hasMany
+    * * Utilizando hasMany para relacion uno a muchos
+    * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function genero(){
       return $this->belongsTo('App\Genero');
     }

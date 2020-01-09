@@ -12,12 +12,17 @@ use App\Estado;
 use Faker\Generator as Faker;
 
 $factory->define(Parte::class, function (Faker $faker) {
+    // se llama el factory de solicitud para crear un registro y probar su relacion
     $solicitud = factory(\App\Solicitud::class)->create();
+    // al ser catalogos se mada a llamar de forma aleatoria
+    //  tipoParte, genero, tipo persona, nacionalidad y estado
+    //  ya que se segura que existen registros al generar la migracion
     $tipo_parte = TipoParte::inRandomOrder()->first();
     $genero = Genero::inRandomOrder()->first();
     $tipo_persona = TipoPersona::inRandomOrder()->first();
     $nacionalidad = Nacionalidad::inRandomOrder()->first();
     $entidad_nacimiento = Estado::inRandomOrder()->first();
+    // se crea el registro de parte usando los datos obtenidos anteriormente
     return [
         'solicitud_id' => $solicitud->id,
         'tipo_parte_id' => $tipo_parte->id,
