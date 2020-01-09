@@ -15,3 +15,16 @@ yarn-error.log
 /config/sidebar.php
 /public/assets/css/default/invoice-print.css
 /public/mix-manifest.json
+/public/assets/css/default/theme/aqua.min.css
+/public/assets/css/default/theme/black.min.css
+/public/assets/css/default/theme/blue.min.css
+/public/assets/css/default/theme/green.min.css
+/public/assets/css/default/theme/indigo.min.css
+/public/assets/css/default/theme/lime.min.css
+/public/assets/css/default/theme/orange.min.css
+/public/assets/css/default/theme/pink.min.css
+/public/assets/css/default/theme/purple.min.css
+/public/assets/css/default/theme/red.min.css
+/public/assets/css/default/theme/teal.min.css
+/public/assets/css/default/theme/yellow.min.css
+/public/assets/css/default/invoice-print.min.css
