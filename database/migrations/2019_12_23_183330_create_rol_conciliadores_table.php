@@ -19,6 +19,17 @@ class CreateRolConciliadoresTable extends Migration
             $table->softDeletes();
             $table->timestamps();
         });
+        $path = base_path('database/datafiles');
+        $json = json_decode(file_get_contents($path . "/rol_conciliadores.json"));
+        //Se llena el catalogo desde el arvhivo json rol_conciliadores.json
+        foreach ($json->datos as $rol_conciliadores){
+            DB::table('rol_conciliadores')->insert(
+                [
+                    'id' => $rol_conciliadores->id,
+                    'nombre' => $rol_conciliadores->nombre
+                ]
+            );
+        }
     }
 
     /**

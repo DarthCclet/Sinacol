@@ -19,6 +19,17 @@ class CreateGiroComercialesTable extends Migration
             $table->softDeletes();
             $table->timestamps();
         });
+        $path = base_path('database/datafiles');
+        $json = json_decode(file_get_contents($path . "/giro_comerciales.json"));
+        //Se llena el catalogo desde el arvhivo json giro_comerciales.json
+        foreach ($json->datos as $giro_comerciales){
+            DB::table('giro_comerciales')->insert(
+                [
+                    'id' => $giro_comerciales->id,
+                    'nombre' => $giro_comerciales->nombre
+                ]
+            );
+        }
     }
 
     /**

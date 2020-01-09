@@ -21,7 +21,7 @@ class CreateJornadasTable extends Migration
         });
         $path = base_path('database/datafiles');
         $json = json_decode(file_get_contents($path . "/jornadas.json"));
-        //Se llena el catalogo desde el arvhivo json generos.json
+        //Se llena el catalogo desde el arvhivo json jornadas.json
         foreach ($json->datos as $jornadas){
             DB::table('jornadas')->insert(
                 [
