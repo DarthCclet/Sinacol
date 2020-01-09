@@ -13,4 +13,9 @@
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->middleware('auth');
+
+Route::get('/home','HomeController@index');
+
+Auth::routes(['register' => false]);
+
