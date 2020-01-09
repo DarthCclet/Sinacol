@@ -1,0 +1,13 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "corporativos"
+        },
+        {
+            "id": "2",
+            "nombre": "Cultivo de soya"
+        }
+    ],
+    "numReg": 2
+}

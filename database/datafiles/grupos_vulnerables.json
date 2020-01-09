@@ -1,0 +1,13 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Mujeres embarazadas"
+        },
+        {
+            "id": "2",
+            "nombre": "adultos mayores"
+        }
+    ],
+    "numReg": 2
+}
