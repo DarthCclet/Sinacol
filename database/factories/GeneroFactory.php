@@ -7,7 +7,9 @@ use Faker\Generator as Faker;
 use Illuminate\Database\Eloquent\Factory;
 
 $factory->define(Genero::class, function (Faker $faker) {
+    $genero =  Genero::inRandomOrder()->first();
     return [
-        'nombre' => $faker->randomElement(["Masculino","Femenino","Sin especificar"])
+        'id' => $genero->id,
+        'nombre' => $genero->nombre
     ];
 });

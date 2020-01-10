@@ -14,7 +14,7 @@ class CreateGeneroTable extends Migration
     public function up()
     {
         Schema::create('generos', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->bigInteger('id')->primary();
             $table->string('nombre');
             $table->softDeletes();
             $table->timestamps();
