@@ -8,30 +8,57 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Audiencia extends Model
 {
     use SoftDeletes;
+
+    /**
+     * Nombre de la tabla
+     * @var string
+     */
     protected $table = 'audiencias';
-    /*
-     * relación con expediente
+
+    /**
+     * Relación con expediente
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function expediente(){
       return $this->belongsTo('App\Expediente');
     }
-    //relación con conciliador
+
+    /**
+     * Relación con conciliador
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function conciliador(){
       return $this->belongsTo('App\Conciliador');
     }
-    //relación con sala
+
+    /**
+     * Relación con sala
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function sala(){
       return $this->belongsTo('App\Sala');
     }
-    //relación con parte
-    public function parte(){
-      return $this->belongsTo('App\Parte');
+
+    /**
+     * Relación con parte
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function parte()
+    {
+        return $this->belongsTo(Parte::class, 'parte_responsable_id');
     }
-    //relación con resolucion
+
+    /**
+     * Relación con resolución
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function resolucion(){
       return $this->belongsTo('App\Resolucion');
     }
-    //relación con compareciente
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function comparecientes(){
       return $this->hasMany('App\Compareciente');
     }
