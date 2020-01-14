@@ -9,6 +9,7 @@ class Resolucion extends Model
 {
     use SoftDeletes;
     protected $table = 'resoluciones';
+    protected $fillable = ['resolucion'];
     /*
      * Relacion con la tabla audiencias
      * una audiencia debe tener resolución
