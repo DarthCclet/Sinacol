@@ -6,7 +6,9 @@ use App\TipoPersona;
 use Faker\Generator as Faker;
 
 $factory->define(TipoPersona::class, function (Faker $faker) {
+    $tipoPersona = TipoPersona::inRandomOrder()->first();
     return [
-        'nombre' => $faker->randomElement(["Fisica","Moral"])
+        'nombre' => $tipoPersona->nombre,
+        'abreviatura' => $tipoPersona->abreviatura
     ];
 });
