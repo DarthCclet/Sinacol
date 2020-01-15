@@ -14,21 +14,21 @@ class CreatePersonasTable extends Migration
     public function up()
     {
         Schema::create('personas', function (Blueprint $table) {
-            $table->bigIncrements('id'); 
+            $table->bigIncrements('id');
             // nombre de la persona
             $table->string('nombre');
             // apellido paterno de la persona
-            $table->string('paterno');
+            $table->string('paterno')->nullable();
             // apellido materno de la persona
-            $table->string('materno');
+            $table->string('materno')->nullable();
             // razon social en caso de ser persona moral
-            $table->string('razon_social');
+            $table->string('razon_social')->nullable();
             // fecha de nacimiento de la persona
-            $table->string('curp');
+            $table->string('curp')->nullable();
 			// fecha de nacimiento de la persona
             $table->string('rfc');
 			// fecha de nacimiento de la persona
-            $table->date('fecha_nacimiento');
+            $table->date('fecha_nacimiento')->nullable();
             // id del tipo persona
             $table->integer('tipo_persona_id');
             $table->foreign('tipo_persona_id')->references('id')->on('tipo_personas');
