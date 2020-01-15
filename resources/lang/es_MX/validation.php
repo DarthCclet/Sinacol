@@ -129,9 +129,15 @@ return [
     */
 
     'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
+        'email' => [
+            'unique' => 'El email ya ha sido registrado anteriormente.',
+            'required' => 'El email es requerido',
         ],
+        'password' => [
+            'required' => 'La clave es requerida',
+            'min' => 'La clave debe ser mínimo de :min caracteres',
+            'max' => 'La clave debe ser máximo de :max caracteres',
+        ]
     ],
 
     /*

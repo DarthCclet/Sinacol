@@ -2,15 +2,18 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "MASCULINO"
+            "nombre": "MASCULINO",
+            "abreviatura": "M"
         },
         {
             "id": "2",
-            "nombre": "FEMENINO"
+            "nombre": "FEMENINO",
+            "abreviatura": "F"
         },
         {
             "id": "3",
-            "nombre": "OTRO"
+            "nombre": "OTRO",
+            "abreviatura": "O"
         }
     ],
 
