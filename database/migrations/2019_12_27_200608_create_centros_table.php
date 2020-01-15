@@ -14,23 +14,23 @@ class CreateCentrosTable extends Migration
     public function up()
     {
         Schema::create('centros', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('nombre');
-            $table->softDeletes();
+            $table->bigIncrements('id')->comment('PK de la tabla estatus_solicitudes');
+            $table->string('nombre')->comment('Nombre del centro de trabajo');
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
-        $path = base_path('database/datafiles');
-        $json = json_decode(file_get_contents($path . "/centros.json"));
-
-        //Se llena el catalogo desde el arvhivo json generos.json
-        foreach ($json->datos as $centro){
-            DB::table('centros')->insert(
-                [
-                    'id' => $centro->id,
-                    'nombre' => $centro->nombre
-                ]
-            );
-        }
+        // $path = base_path('database/datafiles');
+        // $json = json_decode(file_get_contents($path . "/centros.json"));
+        //
+        // //Se llena el catalogo desde el arvhivo json generos.json
+        // foreach ($json->datos as $centro){
+        //     DB::table('centros')->insert(
+        //         [
+        //             'id' => $centro->id,
+        //             'nombre' => $centro->nombre
+        //         ]
+        //     );
+        // }
     }
 
     /**

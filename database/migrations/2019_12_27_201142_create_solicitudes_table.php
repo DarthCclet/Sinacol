@@ -14,18 +14,18 @@ class CreateSolicitudesTable extends Migration
     public function up()
     {
         Schema::create('solicitudes', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('abogado_id');
-            $table->unsignedBigInteger('estatus_solicitud_id');
-            $table->unsignedBigInteger('motivo_solicitud_id');
-            $table->unsignedBigInteger('centro_id');
-            $table->unsignedBigInteger('user_id');
-            $table->boolean('ratificada');
-            $table->dateTime('fecha_ratificacion');
-            $table->dateTime('fecha_recepcion');
-            $table->string('observaciones');
-            $table->boolean('presenta_abogado');
-            $table->softDeletes();
+            $table->bigIncrements('id')->comment('PK de la tabla solicitudes');
+            $table->unsignedBigInteger('abogado_id')->comment('FK de la tabla abogados');
+            $table->unsignedBigInteger('estatus_solicitud_id')->comment('FK de la tabla estatus_solicitudes');
+            $table->unsignedBigInteger('motivo_solicitud_id')->comment('FK de la tabla motivo_solicitudes');
+            $table->unsignedBigInteger('centro_id')->comment('FK de la tabla centros');
+            $table->unsignedBigInteger('user_id')->comment('FK de la tabla users');
+            $table->boolean('ratificada')->comment('Indica si la solicitud fue ratificada');
+            $table->dateTime('fecha_ratificacion')->comment('Indica la fecha de ratificacion');
+            $table->dateTime('fecha_recepcion')->comment('Indica la fecha en que se recibio la solicitud');
+            $table->string('observaciones')->comment('Aqui se agregan las observaciones de la solicitud');
+            $table->boolean('presenta_abogado')->comment('Indica si se presenta el aborado');
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
 
             // Agrego referencia a Llave foranea a tabla Generos

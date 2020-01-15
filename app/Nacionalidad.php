@@ -11,4 +11,5 @@ class Nacionalidad extends Model
     use SoftDeletes;
     protected $table = 'nacionalidades';
     protected $softDelete = true;
+    public $incrementing = false;
 }

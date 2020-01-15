@@ -14,9 +14,9 @@ class CreateMotivoSolicitudesTable extends Migration
     public function up()
     {
         Schema::create('motivo_solicitudes', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('nombre');
-            $table->softDeletes();
+            $table->Integer('id')->primary()->comment('PK de la tabla motivo_solicitudes');
+            $table->string('nombre')->comment('Nombre del Motivo por el cual se dio la solicitud de conciliacion ');
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
         $path = base_path('database/datafiles');
