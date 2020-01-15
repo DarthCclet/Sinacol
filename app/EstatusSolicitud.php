@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class EstatusSolicitud extends Model
 {
   use SoftDeletes;
+  public $incrementing = false;
   protected $table = 'estatus_solicitudes';
   /**
    * Funcion para asociar con modelo Solicitud con hasMany

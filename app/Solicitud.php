@@ -9,6 +9,7 @@ class Solicitud extends Model
 {
     use SoftDeletes;
     protected $table = 'solicitudes';
+    protected $guarded = ['id','updated_at','created_at']; 
 
     /**
      * Funcion para asociar con modelo Abogado con belongsTo

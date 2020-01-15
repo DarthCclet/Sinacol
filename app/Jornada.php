@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Jornada extends Model
 {
   use SoftDeletes;
+  public $incrementing = false;
     //
 }

@@ -10,6 +10,7 @@ class TipoPersona extends Model
     //
     use SoftDeletes;
     protected $softDelete = true;
+    public $incrementing = false;
 	public function personas(){
       return $this->hasMany('App\Persona');
     }

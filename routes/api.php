@@ -15,7 +15,6 @@ use Illuminate\Http\Request;
 
 
 Route::resource('user','UserController')->middleware('auth');
+Route::resource('solicitud','SolicitudController');
 
 Route::post('login', 'ApiAuthController@login');
-
-

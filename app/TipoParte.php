@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class TipoParte extends Model
 {
     use SoftDeletes;
+    public $incrementing = false;
 }

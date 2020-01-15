@@ -14,9 +14,9 @@ class CreateTipoPartesTable extends Migration
     public function up()
     {
         Schema::create('tipo_partes', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('nombre');
-            $table->softDeletes();
+            $table->bigInteger('id')->primary()->comment('PK de la tabla tipo_partes');
+            $table->string('nombre')->comment('Nombre del tipo de la parte  ');
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
         $path = base_path('database/datafiles');
