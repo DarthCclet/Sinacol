@@ -16,5 +16,9 @@ use Illuminate\Http\Request;
 
 Route::resource('user','UserController')->middleware('auth');
 Route::resource('solicitud','SolicitudController');
+Route::resource('resoluciones','ResolucionController');
+Route::resource('salas','SalaController');
+Route::resource('persona','PersonaController');
+Route::resource('conciliador','ConciliadorController');
 
 Route::post('login', 'ApiAuthController@login');
