@@ -14,9 +14,10 @@ class CreateTipoPersonasTable extends Migration
     public function up()
     {
         Schema::create('tipo_personas', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('nombre');
-            $table->softDeletes();
+            $table->bigInteger('id')->primary()->comment('Llave primaria del catálogo de tipo de personas');
+            $table->string('nombre')->comment('Nombre del tipo de persona');
+            $table->string('abreviatura')->comment('Abreviatura del nombre de tipo de persona');
+            $table->softDeletes()->comment('Indica la fecha y hora en que fue borrado lóigcamente un registro');
             $table->timestamps();
         });
         $path = base_path('database/datafiles');
@@ -27,7 +28,8 @@ class CreateTipoPersonasTable extends Migration
             DB::table('tipo_personas')->insert(
                 [
                     'id' => $tipo_personas->id,
-                    'nombre' => $tipo_personas->nombre
+                    'nombre' => $tipo_personas->nombre,
+                    'abreviatura' => $tipo_personas->abreviatura
                 ]
             );
         }

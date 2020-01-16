@@ -14,9 +14,9 @@ class CreateNacionalidadesTable extends Migration
     public function up()
     {
         Schema::create('nacionalidades', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('nombre');
-            $table->softDeletes();
+            $table->bigInteger('id')->primary()->comment('PK de la tabla partes');
+            $table->string('nombre')->comment('Nombre de la nacionalidad');
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
         $path = base_path('database/datafiles');

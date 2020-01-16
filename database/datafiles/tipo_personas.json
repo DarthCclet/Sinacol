@@ -2,11 +2,13 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "FISICA"
+            "nombre": "FISICA",
+            "abreviatura": "F"
         },
         {
             "id": "2",
-            "nombre": "MORAL"
+            "nombre": "MORAL",
+            "abreviatura": "M"
         }
     ],
     "numReg": 2

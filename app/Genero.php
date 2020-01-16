@@ -10,4 +10,5 @@ class Genero extends Model
     //
     use SoftDeletes;
     protected $softDelete = true;
+    public $incrementing = false;
 }

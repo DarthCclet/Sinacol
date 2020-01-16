@@ -7,7 +7,9 @@
         "laravel"
     ],
     "license": "MIT",
+
     "require": {
+        "symfony/translation": "4.3.8",
         "php": "^7.2",
         "barryvdh/laravel-cors": "^0.11.4",
         "doctrine/dbal": "^2.10",
@@ -15,7 +17,9 @@
         "iatstuti/laravel-cascade-soft-deletes": "^2.0",
         "kalnoy/nestedset": "^5.0",
         "laravel/framework": "^6.0",
+        "laravel/passport": "^8.2",
         "laravel/tinker": "^1.0",
+        "laravelcollective/html": "^6.0",
         "lavary/laravel-menu": "^1.7",
         "owen-it/laravel-auditing": "^9.3",
         "spatie/laravel-permission": "^3.3"

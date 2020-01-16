@@ -14,15 +14,15 @@ class CreateAbogadosTable extends Migration
     public function up()
     {
         Schema::create('abogados', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('nombre');
-            $table->string('apellido_paterno');
-            $table->string('apellido_materno');
-            $table->string('cedula_profesional');
-            $table->string('numero_empleado');
-            $table->string('email');
-            $table->boolean('profedet');
-            $table->softDeletes();
+            $table->bigIncrements('id')->comment('PK de la tabla abogados');
+            $table->string('nombre')->comment('Nombre del abogado');
+            $table->string('primer_apellido')->comment('Primer apellido del abogado');
+            $table->string('segundo_apellido')->comment('Segundo apellido del abogado');
+            $table->string('cedula_profesional')->comment('Cedula profesional del abogado');
+            $table->string('numero_empleado')->comment('No. de empleado del abogado');
+            $table->string('email')->comment('Email del abogado');
+            $table->boolean('profedet')->comment('Indicador Booleano que indica si el defensor pertenece a la profedet');
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
     }

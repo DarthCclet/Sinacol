@@ -14,12 +14,12 @@ class CreateExpedientesTable extends Migration
     public function up()
     {
         Schema::create('expedientes', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('folio');
-            $table->string('anio');
-            $table->string('consecutivo');
-            $table->unsignedBigInteger('solicitud_id');
-            $table->softDeletes();
+            $table->bigIncrements('id')->comment('PK de la tabla expedientes');
+            $table->string('folio')->comment('Folio de identificacion del expediente');
+            $table->string('anio')->comment('Anio del expediente');
+            $table->string('consecutivo')->comment('Numero de idenficicacion del expediente');
+            $table->unsignedBigInteger('solicitud_id')->comment('FK de la tabla solicitudes');
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
     }

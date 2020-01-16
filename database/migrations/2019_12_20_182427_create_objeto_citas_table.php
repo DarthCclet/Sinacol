@@ -14,9 +14,9 @@ class CreateObjetoCitasTable extends Migration
     public function up()
     {
         Schema::create('objeto_citas', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('nombre');
-            $table->softDeletes();
+            $table->bigIncrements('id')->comment('PK del catálogo de objeto citas');
+            $table->string('nombre')->comment('Nombre del objeto de cita');
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
         $path = base_path('database/datafiles');
