@@ -13,8 +13,8 @@ $factory->define(Persona::class, function (Faker $faker) {
 	$tipoPersona = TipoPersona::inRandomOrder()->first();
     return [
         'nombre' => $faker->name,
-        'paterno' => $faker->lastName,
-        'materno' => $faker->lastName,
+        'primer_apellido' => $faker->lastName,
+        'segundo_apellido' => $faker->lastName,
         'razon_social' => $faker->sentence(1,false),
         'rfc' => strtoupper($faker->lexify("??????????????????")),
         'curp' => strtoupper($faker->lexify("?????????????")),

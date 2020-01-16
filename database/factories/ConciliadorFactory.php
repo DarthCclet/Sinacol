@@ -11,6 +11,7 @@ $factory->define(Conciliador::class, function (Faker $faker) {
     return [
         //
         'persona_id' => $persona->id,
-        'centro_id' => $centro->id
+        'centro_id' => $centro->id,
+        'rol_conciliador_id' => 1
     ];
 });
