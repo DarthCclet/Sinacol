@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Jornada;
 use Tests\TestCase;
 
 class JornadaTest extends TestCase
@@ -14,7 +15,8 @@ class JornadaTest extends TestCase
 
      public function testCreateJornada()
      {
-         $jornada = factory(\App\Jornada::class)->create();
+        //  $jornada = factory(\App\Jornada::class)->create();
+         $jornada = Jornada::inRandomOrder()->first();
          $this->assertInstanceOf('\App\Jornada',$jornada);
      }
 }

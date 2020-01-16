@@ -4,10 +4,18 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\AppendPolicies;
+use App\Traits\LazyAppends;
+use App\Traits\LazyLoads;
+use App\Traits\RequestsAppends;
 
 class Solicitud extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes,
+        LazyLoads,
+        LazyAppends,
+        RequestsAppends,
+        AppendPolicies;
     protected $table = 'solicitudes';
     protected $guarded = ['id','updated_at','created_at']; 
 
