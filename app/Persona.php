@@ -9,6 +9,7 @@ class Persona extends Model
 {
     use SoftDeletes;
     protected $table='personas';
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
     /*
      * Relacion con la tabla tipo personas
      * una persona debe tener un tipo persona

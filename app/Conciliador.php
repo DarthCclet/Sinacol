@@ -9,6 +9,7 @@ class Conciliador extends Model
 {
     use SoftDeletes;
     protected $table = 'conciliadores';
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
     /*
      * Relacion con ta tabla de personas
      * una conciliador debe tener una persona
@@ -22,6 +23,13 @@ class Conciliador extends Model
      */
     public function centro(){
     	return $this->belongsTo(Centro::class); 
+    }
+    /**
+     * relación con la tabla rol_conciliador
+     * @return type
+     */
+    public function rolConciliador(){
+    	return $this->belongsTo(RolConciliador::class); 
     }
     /*
      * Relacion con la tabla de audiencias

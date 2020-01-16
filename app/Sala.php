@@ -9,6 +9,7 @@ class Sala extends Model
 {
    use SoftDeletes; 
     protected $table = 'salas';
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
     /*
      * Relación con la tabla Centros
      * un centro puede tener muchas salas
