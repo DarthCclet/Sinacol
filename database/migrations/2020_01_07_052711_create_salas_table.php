@@ -15,13 +15,13 @@ class CreateSalasTable extends Migration
     {
         Schema::create('salas', function (Blueprint $table) {
             // llave primaria
-            $table->bigIncrements('id');
+            $table->bigIncrements('id')->comment('Llave primaria de la tabla salas');;
             // nombre de la sala
-            $table->string('sala');
+            $table->string('sala')->comment('nombre de la sala');;
             // id del centro donde esta la sala
-            $table->integer('centro_id');
+            $table->integer('centro_id')->comment('Fk de la tabla centros');;
             $table->foreign('centro_id')->references('id')->on('centros');
-            $table->softDeletes();
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');;
             $table->timestamps();
         });
     }

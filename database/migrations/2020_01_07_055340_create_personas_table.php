@@ -14,25 +14,25 @@ class CreatePersonasTable extends Migration
     public function up()
     {
         Schema::create('personas', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->bigIncrements('id')->comment('Pk de la tabla personas');
             // nombre de la persona
-            $table->string('nombre');
+            $table->string('nombre')->comment('Nombre de la persona');
             // apellido paterno de la persona
-            $table->string('paterno')->nullable();
+            $table->string('primer_apellido')->nullable()->comment('Primer apellido de la persona');
             // apellido materno de la persona
-            $table->string('materno')->nullable();
+            $table->string('segundo_apellido')->nullable()->comment('Segundo apellido de la persona');
             // razon social en caso de ser persona moral
-            $table->string('razon_social')->nullable();
+            $table->string('razon_social')->nullable()->comment('nombre de la razon social de la persona');
             // fecha de nacimiento de la persona
-            $table->string('curp')->nullable();
+            $table->string('curp')->nullable()->comment('Clave unica de registro de poblacion de la persona');
 			// fecha de nacimiento de la persona
-            $table->string('rfc');
+            $table->string('rfc')->comment('Registro federal de contribuyente de la persona');
 			// fecha de nacimiento de la persona
-            $table->date('fecha_nacimiento')->nullable();
+            $table->date('fecha_nacimiento')->nullable()->comment('Fecha de nacimiento de la persona');
             // id del tipo persona
-            $table->integer('tipo_persona_id');
+            $table->integer('tipo_persona_id')->comment('FK de la tabla tipos_personas');
             $table->foreign('tipo_persona_id')->references('id')->on('tipo_personas');
-            $table->softDeletes();
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');
             $table->timestamps();
         });
     }

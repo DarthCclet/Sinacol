@@ -15,17 +15,17 @@ class CreateDocumentosTable extends Migration
     {
         Schema::create('documentos', function (Blueprint $table) {
             // llave del documento
-            $table->bigIncrements('id');
+            $table->bigIncrements('id')->comment('PK de la tabla documentos');
             // descripcion del documento 
-            $table->string('descripcion');
+            $table->string('descripcion')->comment('descripcion u observaciones del documento');
             // ruta de almacenamiento del archivo
-            $table->string('ruta');
+            $table->string('ruta')->comment('ruta donde se almacena el documento');
             // LLave foranea que apunta al objeto que se asigna el documento
-            $table->bigInteger('documentable_id');
+            $table->bigInteger('documentable_id')->comment('FK que apunta al objeto que se asigna el documento');
             // Clase del objeto al que se está asignando el documento
-            $table->string('documentable_type');
+            $table->string('documentable_type')->comment('Nombre de la clase del objeto al que se esta asignando el documento');
             $table->index(['documentable_id', 'documentable_type']);
-            $table->softDeletes();
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');
             $table->timestamps();
         });
     }

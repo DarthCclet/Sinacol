@@ -15,37 +15,37 @@ class CreateAudienciasTable extends Migration
     {
         Schema::create('audiencias', function (Blueprint $table) {
             // llave primaria
-            $table->bigIncrements('id'); 
+            $table->bigIncrements('id')->comment('PK de la tabla audiencias'); 
             // id del expediente al que corresponde la audiencia
-            $table->integer('expediente_id');
+            $table->integer('expediente_id')->comment('FK de la tabla expedientes');
             $table->foreign('expediente_id')->references('id')->on('expedientes');
             // id del conciliador asignado a la audiencia
-            $table->integer('conciliador_id');
+            $table->integer('conciliador_id')->comment('FK de la tabla conciliadores');
             $table->foreign('conciliador_id')->references('id')->on('conciliadores');
             // id de la sala donde se celebrará la audiencia
-            $table->integer('sala_id');     
+            $table->integer('sala_id')->comment('FK de la tabla salas');
             $table->foreign('sala_id')->references('id')->on('salas');
             // id de la resolución de la audiencia
-            $table->integer('resolucion_id');
+            $table->integer('resolucion_id')->comment('FK de la tabla resoluciones');
             $table->foreign('resolucion_id')->references('id')->on('resoluciones');
             // id de la parte que sera el responsable de cumplir los acuerdos
-            $table->integer('parte_responsable_id');
+            $table->integer('parte_responsable_id')->comment('FK de la tabla partes');
             $table->foreign('parte_responsable_id')->references('id')->on('partes');
             // fecha en que se celebrará la audiencia
-            $table->date('fecha_audiencia');
+            $table->date('fecha_audiencia')->comment('Fecha en la que se celebrara la audiencia');
             // hora de inicio de la audiencia
-            $table->time('hora_inicio');
+            $table->time('hora_inicio')->comment('Hora inicio en la que se celebrara la audiencia');
             // hora fin de la audiencia
-            $table->time('hora_fin');
+            $table->time('hora_fin')->comment('Hora fin en la que se celebrara la audiencia');
             // numero consecutivo para las audiencias de un expediente
-            $table->integer('numero_audiencia');
+            $table->integer('numero_audiencia')->comment('Numero consecutivo de la audiencia para el expediente');
             // indicador de audiencia generada por reprogramacion
-            $table->boolean('reprogramada');
+            $table->boolean('reprogramada')->comment('Indicador de Audiencia reprogramada');
             // desahgo de la resolucion
-            $table->string('desahogo');
+            $table->string('desahogo')->comment('Desahogo de la audiencia');
             // convenio de la resolucion
-            $table->string('convenio');
-            $table->softDeletes();
+            $table->string('convenio')->comment('Convenio de la audiencia');
+            $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');
             $table->timestamps();
         });
     }
