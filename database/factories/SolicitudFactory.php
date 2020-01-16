@@ -30,6 +30,7 @@ $factory->define(Solicitud::class, function (Faker $faker) {
         'ratificada' => $faker->boolean(),
         'fecha_ratificacion' => $faker->dateTime,
         'fecha_recepcion' => $faker->dateTime,
+        'fecha_conflicto' => $faker->dateTime,
         'observaciones' => $faker->text(100),
         'presenta_abogado' => $faker->boolean(),
     ];
