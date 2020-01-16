@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -13,6 +14,10 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
+
+        $tabla_nombre = 'users';
+        $comentario_tabla = 'Tabla donde se almacenan las credenciales de acceso del sistema.';
+
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('Llave primaria de usuarios');
             $table->string('name')->comment('Nombre de usuario');
@@ -24,6 +29,8 @@ class CreateUsersTable extends Migration
             $table->softDeletes()->comment('Indica la hora y fecha que se ha realizado un borrado lógico del registro');
             $table->timestamps();
         });
+
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**
