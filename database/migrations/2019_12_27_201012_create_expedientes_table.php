@@ -17,7 +17,7 @@ class CreateExpedientesTable extends Migration
             $table->bigIncrements('id')->comment('PK de la tabla expedientes');
             $table->string('folio')->comment('Folio de identificacion del expediente');
             $table->string('anio')->comment('Anio del expediente');
-            $table->string('consecutivo')->comment('Numero de idenficicacion del expediente');
+            $table->string('consecutivo')->comment('Numero de identificacion del expediente');
             $table->unsignedBigInteger('solicitud_id')->comment('FK de la tabla solicitudes');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();

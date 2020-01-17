@@ -19,6 +19,11 @@ class CreateRolConciliadoresTable extends Migration
             $table->softDeletes();
             $table->timestamps();
         });
+
+        $tabla_nombre = 'rol_conciliadores';
+        $comentario_tabla = 'Tabla donde se almacena el catálogo de roles para conciliadores.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
+
         $path = base_path('database/datafiles');
         $json = json_decode(file_get_contents($path . "/rol_conciliadores.json"));
         //Se llena el catalogo desde el arvhivo json rol_conciliadores.json

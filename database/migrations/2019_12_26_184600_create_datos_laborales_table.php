@@ -33,6 +33,11 @@ class CreateDatosLaboralesTable extends Migration
 
             $table->foreign('jornada_id')->references('id')->on('jornadas');
         });
+        $tabla_nombre = 'datos_laborales';
+        $comentario_tabla = 'Tabla donde se almacenan los registros de los datos laborales de las partes.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
+
+
     }
 
     /**

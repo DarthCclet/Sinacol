@@ -15,10 +15,14 @@ class CreateObjetoCitasTable extends Migration
     {
         Schema::create('objeto_citas', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('PK del catálogo de objeto citas');
-            $table->string('nombre')->comment('Nombre del objeto de cita');
+            $table->string('nombre')->comment('Nombre del objeto de la cita');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
+        $tabla_nombre = 'objeto_citas';
+        $comentario_tabla = 'Tabla donde se almacena el catálogo de objeto de la citas de conciliación.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
+
         $path = base_path('database/datafiles');
         $json = json_decode(file_get_contents($path . "/objeto_citas.json"));
         //Se llena el catalogo desde el arvhivo json generos.json

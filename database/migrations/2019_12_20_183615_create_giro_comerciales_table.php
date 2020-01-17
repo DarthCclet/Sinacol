@@ -19,6 +19,11 @@ class CreateGiroComercialesTable extends Migration
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
+        $tabla_nombre = 'giro_comerciales';
+        $comentario_tabla = 'Tabla donde se almacena el catálogo de giros comerciales para empresas.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
+
+
         $path = base_path('database/datafiles');
         $json = json_decode(file_get_contents($path . "/giro_comerciales.json"));
         //Se llena el catalogo desde el arvhivo json giro_comerciales.json
