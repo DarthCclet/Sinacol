@@ -22,5 +22,10 @@ Route::resource('persona','PersonaController');
 Route::resource('conciliador','ConciliadorController');
 Route::resource('parte','ParteController');
 Route::resource('abogado','AbogadoController');
+Route::resource('documento','DocumentoController');
+Route::resource('disponibilidad','DisponibilidadController');
+Route::resource('incidencia','IncidenciaController');
+Route::resource('audiencia','AudienciaController');
+Route::resource('compareciente','ComparecienteController');
 
 Route::post('login', 'ApiAuthController@login');
