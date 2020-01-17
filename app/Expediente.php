@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Expediente extends Model
 {
     use SoftDeletes;
+    protected $guarded = ['id','updated_at','created_at'];
+    
     /**
      * Funcion para asociar con modelo Audiencia
      * Utilizando belongsTo para relaciones 1 a 1
