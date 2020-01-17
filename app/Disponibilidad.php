@@ -10,6 +10,7 @@ class Disponibilidad extends Model
 {
     use SoftDeletes;
     protected $table = 'disponibilidades';
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
     /*
      *  funcion que indica que es una relación polimorfica
      *  Disponibilidad puede ser usado por Conciliadores, Salas y centros
