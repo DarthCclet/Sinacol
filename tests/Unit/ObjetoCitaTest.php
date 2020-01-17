@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Tests\TestCase;
+use App\ObjetoCita;
 
 class ObjetoCitaTest extends TestCase
 {
@@ -13,7 +14,9 @@ class ObjetoCitaTest extends TestCase
      */
      public function testCreateObjetoCita()
      {
-         $objeto = factory(\App\ObjetoCita::class)->create();
+         
+        //  $objeto = factory(\App\ObjetoCita::class)->create();
+        $objeto = ObjetoCita::inRandomOrder()->first();
          $this->assertInstanceOf('\App\ObjetoCita',$objeto);
      }
 

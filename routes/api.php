@@ -20,5 +20,7 @@ Route::resource('resoluciones','ResolucionController');
 Route::resource('salas','SalaController');
 Route::resource('persona','PersonaController');
 Route::resource('conciliador','ConciliadorController');
+Route::resource('parte','ParteController');
+Route::resource('abogado','AbogadoController');
 
 Route::post('login', 'ApiAuthController@login');

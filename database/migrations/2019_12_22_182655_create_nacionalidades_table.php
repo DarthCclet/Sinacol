@@ -31,6 +31,10 @@ class CreateNacionalidadesTable extends Migration
                 ]
             );
         }
+
+        $tabla_nombre = 'nacionalidades';
+        $comentario_tabla = 'Tabla donde se almacena el catalogo de nacionalidades.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

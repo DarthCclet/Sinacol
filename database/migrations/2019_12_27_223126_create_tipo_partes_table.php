@@ -31,6 +31,9 @@ class CreateTipoPartesTable extends Migration
                 ]
             );
         }
+        $tabla_nombre = 'tipo_partes';
+        $comentario_tabla = 'Tabla donde se almacenan los tipos de parte que existen.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

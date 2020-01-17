@@ -4,11 +4,19 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\LazyLoads;
+use App\Traits\RequestsAppends;
+use App\Traits\LazyAppends;
+use App\Traits\AppendPolicies;
 
 class Parte extends Model
 {
-    //
-    use SoftDeletes;
+    use SoftDeletes,
+        LazyLoads,
+        LazyAppends,
+        RequestsAppends,
+        AppendPolicies;
+
     /**
      * Funcion para asociar con modelo Genero
      * Utilizando belongsTo para relaciones 1 a 1

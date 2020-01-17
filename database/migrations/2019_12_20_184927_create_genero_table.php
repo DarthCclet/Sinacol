@@ -20,6 +20,7 @@ class CreateGeneroTable extends Migration
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
+        
         $path = base_path('database/datafiles');
         $json = json_decode(file_get_contents($path . "/generos.json"));
         //Se llena el catalogo desde el arvhivo json generos.json
@@ -32,6 +33,9 @@ class CreateGeneroTable extends Migration
                 ]
             );
         }
+        $tabla_nombre = 'generos';
+        $comentario_tabla = 'Tabla donde se almacenan generos para personas.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

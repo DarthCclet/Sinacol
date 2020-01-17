@@ -19,6 +19,9 @@ class CreateCentrosTable extends Migration
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
+        $tabla_nombre = 'centros';
+        $comentario_tabla = 'Tabla donde se almacenan los centros de conciliacion.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
         // $path = base_path('database/datafiles');
         // $json = json_decode(file_get_contents($path . "/centros.json"));
         //

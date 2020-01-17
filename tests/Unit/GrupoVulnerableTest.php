@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Tests\TestCase;
+use App\GrupoVulnerable;
 
 class GrupoVulnerableTest extends TestCase
 {
@@ -13,7 +14,8 @@ class GrupoVulnerableTest extends TestCase
      */
     public function testCreateGrupoVulnerable()
     {
-        $grupo = factory(\App\GrupoVulnerable::class)->create();
-        $this->assertInstanceOf('\App\GrupoVulnerable',$grupo);
+        $grupo = GrupoVulnerable::inRandomOrder()->first();
+        // $grupo = factory(\App\GrupoVulnerable::class)->create();
+        $this->assertInstanceOf(GrupoVulnerable::class,$grupo);
     }
 }

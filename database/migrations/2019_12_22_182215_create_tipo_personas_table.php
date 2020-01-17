@@ -33,6 +33,10 @@ class CreateTipoPersonasTable extends Migration
                 ]
             );
         }
+
+        $tabla_nombre = 'tipo_personas';
+        $comentario_tabla = 'Tabla donde se almacenan el catalogo de tipo de personas.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

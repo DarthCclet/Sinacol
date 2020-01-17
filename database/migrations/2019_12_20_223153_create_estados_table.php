@@ -32,6 +32,10 @@ class CreateEstadosTable extends Migration
             );
         }
 
+        $tabla_nombre = 'estados';
+        $comentario_tabla = 'Tabla donde se almacenan el catalogo de Estados.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
+
     }
 
     /**

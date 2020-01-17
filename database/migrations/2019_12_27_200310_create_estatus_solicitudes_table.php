@@ -31,6 +31,9 @@ class CreateEstatusSolicitudesTable extends Migration
                 ]
             );
         }
+        $tabla_nombre = 'estatus_solicitudes';
+        $comentario_tabla = 'Tabla donde se almacena el catalogo de los estatus de la solicitud.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

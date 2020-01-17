@@ -35,6 +35,10 @@ class CreateSolicitudesTable extends Migration
             $table->foreign('centro_id')->references('id')->on('centros');
             $table->foreign('user_id')->references('id')->on('users');
         });
+
+        $tabla_nombre = 'solicitudes';
+        $comentario_tabla = 'Tabla donde se almacenan las solicitudes de conciliacion.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

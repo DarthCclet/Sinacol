@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\GiroComercial;
 use Tests\TestCase;
 
 class GiroComercialTest extends TestCase
@@ -13,7 +14,8 @@ class GiroComercialTest extends TestCase
      */
     public function testCreateGiro()
     {
-        $giro = factory(\App\GiroComercial::class)->create();
+        // $giro = factory(\App\GiroComercial::class)->create();
+        $giro = GiroComercial::inRandomOrder()->first();
         $this->assertInstanceOf('\App\GiroComercial',$giro);
     }
 }

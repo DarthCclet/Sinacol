@@ -43,6 +43,9 @@ class CreateSolicitantesTable extends Migration
             $table->foreign('genero_id')->references('id')->on('generos');
 
         });
+        $tabla_nombre = 'partes';
+        $comentario_tabla = 'Tabla donde se almacenan los nombres de los involucrados en el sistema.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

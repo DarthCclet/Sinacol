@@ -22,6 +22,9 @@ class CreateExpedientesTable extends Migration
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
+        $tabla_nombre = 'expedientes';
+        $comentario_tabla = 'Tabla donde se almacenan los expedientes que generan las solicitudes.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

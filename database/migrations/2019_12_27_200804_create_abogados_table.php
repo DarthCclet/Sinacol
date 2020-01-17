@@ -25,6 +25,9 @@ class CreateAbogadosTable extends Migration
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
+        $tabla_nombre = 'abogados';
+        $comentario_tabla = 'Tabla donde se almacenan los abogados que participan en la conciliacion.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

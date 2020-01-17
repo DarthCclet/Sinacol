@@ -31,6 +31,9 @@ class CreateMotivoSolicitudesTable extends Migration
                 ]
             );
         }
+        $tabla_nombre = 'motivo_solicitudes';
+        $comentario_tabla = 'Tabla donde se almacena el catalogo de motivo por el que se genera la solicitud.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

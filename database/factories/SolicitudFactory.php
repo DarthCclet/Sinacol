@@ -19,7 +19,7 @@ $factory->define(Solicitud::class, function (Faker $faker) {
   //  ya que se segura que existen registros al generar la migracion
   $estatus_solicitud = EstatusSolicitud::inRandomOrder()->first();
   $motivo_solicitud = MotivoSolicitud::inRandomOrder()->first();
-  $centro = Centro::inRandomOrder()->first();
+  $centro = factory(\App\Centro::class)->create();
   // se crea el registro de Solicitud usando los datos obtenidos anteriormente
     return [
         'abogado_id' => $abogado->id,
