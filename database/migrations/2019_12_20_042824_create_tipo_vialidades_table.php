@@ -18,8 +18,8 @@ class CreateTipoVialidadesTable extends Migration
     public function up()
     {
         Schema::create('tipo_vialidades', function (Blueprint $table) {
-            $table->integer('id')->primary();
-            $table->string('nombre');
+            $table->integer('id')->primary()->comment('Llave primaria del registro');
+            $table->string('nombre')->comment('Nombre del tipo de vialidad');
             $table->timestamps();
         });
 
