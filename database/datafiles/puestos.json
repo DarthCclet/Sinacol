@@ -1,0 +1,13 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Gerente comercial"
+        },
+        {
+            "id": "2",
+            "nombre": "programador"
+        }
+    ],
+    "numReg": 2
+}
