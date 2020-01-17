@@ -9,12 +9,13 @@ class RolConciliador extends Model
 {
     use SoftDeletes;
     protected $table = 'rol_conciliadores';
+    public $incrementing = false;
     //
     /**
-     * relación con la tabla conciliadores
+     * relaciï¿½n con la tabla conciliadores
      * @return type
      */
     public function rolConciliador(){
-    	return $this->hasMany(RolConciliador::class); 
+    	return $this->hasMany(RolConciliador::class);
     }
 }

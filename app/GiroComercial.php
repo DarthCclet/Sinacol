@@ -9,6 +9,6 @@ class GiroComercial extends Model
 {
   use SoftDeletes;
   protected $table = 'giro_comerciales';
-  
+  public $incrementing = false;
     //
 }

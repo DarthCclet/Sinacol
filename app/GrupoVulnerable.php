@@ -9,4 +9,5 @@ class GrupoVulnerable extends Model
 {
     use SoftDeletes;
     protected $table = 'grupos_vulnerables';
+    public $incrementing = false;
 }
