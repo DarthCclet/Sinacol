@@ -14,6 +14,7 @@ class Audiencia extends Model
      * @var string
      */
     protected $table = 'audiencias';
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
 
     /**
      * Relación con expediente

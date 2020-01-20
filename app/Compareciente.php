@@ -9,6 +9,7 @@ class Compareciente extends Model
 {
     use SoftDeletes;
     protected $table = 'comparecientes';
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
     /*
      * Funcion de la relación con la tabla de audiencias
      * una audiencia tiene varios comparecientes

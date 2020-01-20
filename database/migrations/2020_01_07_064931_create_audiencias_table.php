@@ -26,11 +26,11 @@ class CreateAudienciasTable extends Migration
             $table->integer('sala_id')->comment('FK de la tabla salas');
             $table->foreign('sala_id')->references('id')->on('salas');
             // id de la resolución de la audiencia
-            $table->integer('resolucion_id')->comment('FK de la tabla resoluciones');
-            $table->foreign('resolucion_id')->references('id')->on('resoluciones');
+            $table->integer('resolucion_id')->nullable()->comment('FK de la tabla resoluciones');
+            $table->foreign('resolucion_id')->nullable()->references('id')->on('resoluciones');
             // id de la parte que sera el responsable de cumplir los acuerdos
-            $table->integer('parte_responsable_id')->comment('FK de la tabla partes');
-            $table->foreign('parte_responsable_id')->references('id')->on('partes');
+            $table->integer('parte_responsable_id')->nullable()->comment('FK de la tabla partes');
+            $table->foreign('parte_responsable_id')->nullable()->references('id')->on('partes');
             // fecha en que se celebrará la audiencia
             $table->date('fecha_audiencia')->comment('Fecha en la que se celebrara la audiencia');
             // hora de inicio de la audiencia
@@ -42,9 +42,9 @@ class CreateAudienciasTable extends Migration
             // indicador de audiencia generada por reprogramacion
             $table->boolean('reprogramada')->comment('Indicador de Audiencia reprogramada');
             // desahgo de la resolucion
-            $table->string('desahogo')->comment('Desahogo de la audiencia');
+            $table->string('desahogo')->nullable()->comment('Desahogo de la audiencia');
             // convenio de la resolucion
-            $table->string('convenio')->comment('Convenio de la audiencia');
+            $table->string('convenio')->nullable()->comment('Convenio de la audiencia');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');
             $table->timestamps();
         });

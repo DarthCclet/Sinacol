@@ -10,6 +10,7 @@ class Incidencia extends Model
 {
     use SoftDeletes;
     protected $table = 'incidencias';
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
     /*
      *  funcion que indica que es una relación polimorfica
      *  incidenciable puede ser usado por Conciliadores, Salas y centros

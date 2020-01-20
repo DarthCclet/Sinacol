@@ -10,6 +10,7 @@ class Documento extends Model
 {
     use SoftDeletes;
     protected $table = 'documentos';
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
     /*
      *  funcion que indica que es una relación polimorfica
      *  Documentable puede ser usada por toda tabla que requiera subir documentos
