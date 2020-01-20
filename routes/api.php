@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 
 
 Route::resource('user','UserController')->middleware('auth');
+Route::resource('expediente','ExpedienteController');
+Route::resource('datoLaboral','DatoLaboralController');
 Route::resource('solicitud','SolicitudController');
 Route::resource('resoluciones','ResolucionController');
 Route::resource('salas','SalaController');
