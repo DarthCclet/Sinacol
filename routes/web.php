@@ -18,6 +18,9 @@ Route::get('/', function () {
 Route::get('/home','HomeController@index');
 
 Route::resource('users','UserController');
+Route::resource('salas','SalaController');
+Route::resource('centros','CentroController');
+Route::resource('solicitudes','SolicitudController');
+Route::resource('expedientes','ExpedienteController');
 
 Auth::routes(['register' => false]);
-
