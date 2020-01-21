@@ -78,7 +78,7 @@ class ParteApiTest extends TestCase
             'id', 'nombre','deleted_at', 'updated_at', 'created_at'
         ],
         'entidad_nacimiento' => [
-            'id', 'nombre','deleted_at', 'updated_at', 'created_at'
+            'id', 'nombre', 'updated_at', 'created_at'
         ],
         'giro_comercial' => [
             'id', 'nombre','deleted_at', 'updated_at', 'created_at'
