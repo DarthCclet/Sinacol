@@ -20,6 +20,13 @@ class Solicitud extends Model
     protected $guarded = ['id','updated_at','created_at']; 
 
     /**
+     * Las relaciones que son cargables.
+     *
+     * @var array
+     */
+    protected $loadable = ['abogado', 'estatusSolicitud','motivoSolicitud','centro','user'];
+
+    /**
      * Funcion para asociar con modelo Abogado con belongsTo
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

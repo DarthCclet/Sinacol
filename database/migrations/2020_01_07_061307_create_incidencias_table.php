@@ -32,6 +32,9 @@ class CreateIncidenciasTable extends Migration
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');
             $table->timestamps();
         });
+        $tabla_nombre = 'incidencias';
+        $comentario_tabla = 'Tabla donde se almacenan los horarios en los que no se podrá asignar una audiencia para centros, salas y conciliadores.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**
