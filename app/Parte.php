@@ -17,6 +17,12 @@ class Parte extends Model
         RequestsAppends,
         AppendPolicies;
 
+        /**
+     * Las relaciones que son cargables.
+     *
+     * @var array
+     */
+    protected $loadable = ['solicitud', 'tipoParte','genero','tipoPersona','nacionalidad','entidadNacimiento','giroComercial','grupoVulnerable'];
     /**
      * Funcion para asociar con modelo Genero
      * Utilizando belongsTo para relaciones 1 a 1
@@ -65,6 +71,24 @@ class Parte extends Model
      */
     public function entidadNacimiento(){
       return $this->belongsTo('App\Estado');
+    }
+
+    /**
+     * Funcion para asociar con modelo Estado
+     * Utilizando belongsTo para relaciones 1 a 1
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function giroComercial(){
+      return $this->belongsTo('App\GiroComercial');
+    }
+
+    /**
+     * Funcion para asociar con modelo Estado
+     * Utilizando belongsTo para relaciones 1 a 1
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function grupoVulnerable(){
+      return $this->belongsTo('App\GrupoVulnerable');
     }
     /**
      * Funcion para asociar con modelo Audiencia con hasMany
