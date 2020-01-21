@@ -223,15 +223,15 @@ class ParteApiTest extends TestCase
      * @test
      * @return void
      */
-    public function testParteConEntidadNacimiento(): void
-    {
-        $jsonRelaciones = $this->jsonPaginado;
-        $jsonRelaciones['data']['data'][0]['entidad_nacimiento'] = $this->jsonRelaciones['entidad_nacimiento'];
-        factory(Parte::class,20)->create();
-        $response = $this->json('GET', '/api/parte?load=entidadNacimiento');
-        $response->assertStatus(200);
-        $response->assertJsonStructure($jsonRelaciones);
-    }
+    // public function testParteConEntidadNacimiento(): void
+    // {
+    //     $jsonRelaciones = $this->jsonPaginado;
+    //     $jsonRelaciones['data']['data'][0]['entidad_nacimiento'] = $this->jsonRelaciones['entidad_nacimiento'];
+    //     factory(Parte::class,20)->create();
+    //     $response = $this->json('GET', '/api/parte?load=entidadNacimiento');
+    //     $response->assertStatus(200);
+    //     $response->assertJsonStructure($jsonRelaciones);
+    // }
     /**
      * Al solicitar la relación persona debe regresar la estructura con abogado
      *
