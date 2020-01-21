@@ -102,7 +102,7 @@ class ParteController extends Controller
      */
     public function show(Parte $parte)
     {
-        return response()->json( ['partes' => $parte]);
+        return $parte;
     }
 
     /**
