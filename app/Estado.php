@@ -11,4 +11,10 @@ class Estado extends Model
      * y de forma idéntica a lo que tengan las fuentes de estos catálogos.
      */
     public $incrementing = false;
+
+    /**
+     * La llave primaria es tipo caracter
+     * @var string
+     */
+    protected $keyType = 'string';
 }
