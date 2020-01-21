@@ -27,6 +27,9 @@ class CreateComparecientesTable extends Migration
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');
             $table->timestamps();
         });
+        $tabla_nombre = 'comparecientes';
+        $comentario_tabla = 'Tabla donde se almacenan las partes que asisten a la audiencia.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

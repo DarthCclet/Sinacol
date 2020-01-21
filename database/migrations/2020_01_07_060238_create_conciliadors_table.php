@@ -25,6 +25,9 @@ class CreateConciliadorsTable extends Migration
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');
             $table->timestamps();
         });
+        $tabla_nombre = 'conciliadores';
+        $comentario_tabla = 'Tabla donde se conciliadores que serán asignados a las audiencias.';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**
