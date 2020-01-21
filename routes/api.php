@@ -27,5 +27,8 @@ Route::resource('disponibilidad','DisponibilidadController');
 Route::resource('incidencia','IncidenciaController');
 Route::resource('audiencia','AudienciaController');
 Route::resource('compareciente','ComparecienteController');
+Route::resource('centro','CentroController');
+Route::resource('motivo-solicitud','MotivoSolicitudController');
+Route::resource('rol-conciliador','RolConciliadorController');
 
 Route::post('login', 'ApiAuthController@login');
