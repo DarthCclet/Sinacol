@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Disponibilidad;
+use Validator;
 
 class DisponibilidadController extends Controller
 {
@@ -36,6 +37,16 @@ class DisponibilidadController extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'dia' => 'required|max:1',
+            'hora_inicio' => 'required|date_format:H:i',
+            'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
+            'disponibilidad_id' => 'required|Integer',
+            'disponibilidad_type' => 'required|max:30'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
         return Disponibilidad::create($request->all());
     }
 
@@ -70,6 +81,16 @@ class DisponibilidadController extends Controller
      */
     public function update(Request $request,Disponibilidad $disponibilidad)
     {
+        $validator = Validator::make($request->all(), [
+            'dia' => 'required|max:1',
+            'hora_inicio' => 'required|date_format:H:i',
+            'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
+            'disponibilidad_id' => 'required|Integer',
+            'disponibilidad_type' => 'required|max:30'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
         $disponibilidad->fill($request->all())->save();
         return $disponibilidad;
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Filters\CatalogoFilter;
 use App\Sala;
+use Validator;
 use Illuminate\Http\Request;
 
 class SalaController extends Controller
@@ -68,7 +69,15 @@ class SalaController extends Controller
      */
     public function store(Request $request)
     {
-        return Sala::create($request->all());
+        $validator = Validator::make($request->all(), [
+            'sala' => 'required|max:100',
+            'centro_id' => 'required|Integer'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
+        $sala = Sala::create($request->all());
+        return response()->json($sala, 201);
     }
 
     /**
@@ -102,6 +111,13 @@ class SalaController extends Controller
      */
     public function update(Request $request, Sala $sala)
     {
+        $validator = Validator::make($request->all(), [
+            'sala' => 'required|max:100',
+            'centro_id' => 'required|Integer'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
         $sala->fill($request->all())->save();
         return $sala;
     }

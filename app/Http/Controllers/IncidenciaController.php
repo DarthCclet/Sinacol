@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Incidencia;
-
+use Validator;
 class IncidenciaController extends Controller
 {
     /**
@@ -35,6 +35,17 @@ class IncidenciaController extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'fecha_inicio' => 'required|Date',
+            'fecha_fin' => 'required|Date',
+            'hora_inicio' => 'required|date_format:H:i',
+            'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
+            'incidenciable_id' => 'required|Integer',
+            'incidenciable_type' => 'required|max:30'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
         return Incidencia::create($request->all());
     }
 
@@ -69,6 +80,17 @@ class IncidenciaController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+            'fecha_inicio' => 'required|Date',
+            'fecha_fin' => 'required|Date',
+            'hora_inicio' => 'required|date_format:H:i',
+            'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
+            'incidenciable_id' => 'required|Integer',
+            'incidenciable_type' => 'required|max:30'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
         $res = Incidencia::find($id);
         $res->update($request->all());
         return $res;
