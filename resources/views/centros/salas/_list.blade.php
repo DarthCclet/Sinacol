@@ -11,6 +11,11 @@
         <tr class="odd gradeX">
             <td width="1%" class="f-s-600 text-inverse">{{$sala->id}}</td>
             <td>{{$sala->sala}}</td>
+            <td><button class="btn btn-primary" onclick="location.href='{{ route('salas.edit', $sala->id)  }}'">Editar</button></td>
+
+
+
+            <!-- route('salas.create') -->
             <!-- <td><a class="button " href="{{ route('login') }}">{{ __('Login') }}</a></td> -->
 
         </tr>

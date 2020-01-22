@@ -58,6 +58,7 @@ class SalaController extends Controller
     public function create()
     {
         //
+        return view('centros.salas.create');
     }
 
     /**
@@ -79,7 +80,8 @@ class SalaController extends Controller
      */
     public function show($id)
     {
-        return Sala::find($id);
+        $sala = Sala::find($id);
+        return view('centros.salas.edit');
     }
 
     /**
@@ -90,7 +92,12 @@ class SalaController extends Controller
      */
     public function edit($id)
     {
-        //
+      $sala = Sala::find($id);
+
+      return view('centros.salas.edit')->with('sala', $sala);
+      // return view('centros.salas.edit', compact('sala'));
+
+      // return view('centros.salas.edit')->withSala($sala);
     }
 
     /**
