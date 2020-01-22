@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\compareciente;
-
+use Validator;
 class ComparecienteController extends Controller
 {
     /**
@@ -35,6 +35,14 @@ class ComparecienteController extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'audiencia_id' => 'required|Integer',
+            'parte_id' => 'required|Integer',
+            'presentado' => 'required|Boolean'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
         return Compareciente::create($request->all());
     }
 
@@ -69,6 +77,14 @@ class ComparecienteController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+            'audiencia_id' => 'required|Integer',
+            'parte_id' => 'required|Integer',
+            'presentado' => 'required|Boolean'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
         $res = Compareciente::find($id);
         $res->update($request->all());
         return $res;

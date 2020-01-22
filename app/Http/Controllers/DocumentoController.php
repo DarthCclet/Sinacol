@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Documento;
-
+use Validator;
 class DocumentoController extends Controller
 {
     /**
@@ -35,6 +35,15 @@ class DocumentoController extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'descripcion' => 'required|max:500',
+            'ruta' => 'required|max:100',
+            'documentable_id' => 'required|Integer',
+            'documentable_type' => 'required|max:30'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
         return Documento::create($request->all());
     }
 
@@ -69,6 +78,15 @@ class DocumentoController extends Controller
      */
     public function update(Request $request, Documento $documento)
     {
+        $validator = Validator::make($request->all(), [
+            'descripcion' => 'required|max:500',
+            'ruta' => 'required|max:100',
+            'documentable_id' => 'required|Integer',
+            'documentable_type' => 'required|max:30'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
         $documento->fill($request->all())->save();
         return $documento;
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Conciliador;
+use Validator;
 class ConciliadorController extends Controller
 {
     /**
@@ -34,6 +35,14 @@ class ConciliadorController extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'centro_id' => 'required|Integer',
+            'persona_id' => 'required|Integer',
+            'rol_conciliador_id' => 'required|Integer'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
         return Conciliador::create($request->all());
     }
 
@@ -68,6 +77,14 @@ class ConciliadorController extends Controller
      */
     public function update(Request $request, Conciliador $conciliador)
     {
+        $validator = Validator::make($request->all(), [
+            'centro_id' => 'required|Integer',
+            'persona_id' => 'required|Integer',
+            'rol_conciliador_id' => 'required|Integer'
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator, 201);
+        }
         $conciliador->fill($request->all())->save();
         return $conciliador;
     }

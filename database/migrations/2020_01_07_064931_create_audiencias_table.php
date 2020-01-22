@@ -42,9 +42,9 @@ class CreateAudienciasTable extends Migration
             // indicador de audiencia generada por reprogramacion
             $table->boolean('reprogramada')->comment('Indicador de Audiencia reprogramada');
             // desahgo de la resolucion
-            $table->string('desahogo')->nullable()->comment('Desahogo de la audiencia');
+            $table->mediumText('desahogo')->nullable()->comment('Desahogo de la audiencia');
             // convenio de la resolucion
-            $table->string('convenio')->nullable()->comment('Convenio de la audiencia');
+            $table->mediumText('convenio')->nullable()->comment('Convenio de la audiencia');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');
             $table->timestamps();
         });
