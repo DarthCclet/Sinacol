@@ -28,7 +28,8 @@ class ExpedienteController extends Controller
     {
         //
         $expediente = Expediente::all();
-        return $expediente;
+        // return $expediente;
+        return view('expediente.expediente.index', compact('expediente'));
     }
 
     /**

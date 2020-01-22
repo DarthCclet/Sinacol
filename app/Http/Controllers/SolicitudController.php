@@ -28,8 +28,10 @@ class SolicitudController extends Controller
      */
     public function index()
     {
-        $solicitud = Solicitud::all();
-        
+        Solicitud::with('estatusSolicitud', 'motivoSolicitud')->get();
+        // $solicitud = Solicitud::all();
+
+
         // Filtramos los usuarios con los parametros que vengan en el request
         $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
             ->searchWith(Solicitud::class)
@@ -48,7 +50,12 @@ class SolicitudController extends Controller
             $solicitud->loadDataFromRequest();
         });
 
-        return $this->sendResponse($solicitud, 'SUCCESS');
+        // return $this->sendResponse($solicitud, 'SUCCESS');
+
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($solicitud, 'SUCCESS');
+        }
+        return view('expediente.solicitud.index', compact('solicitud'));
     }
 
     /**
