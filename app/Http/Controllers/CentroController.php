@@ -4,9 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Centro;
+use App\Filters\CatalogoFilter;
+
 
 class CentroController extends Controller
 {
+    protected $request;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +22,29 @@ class CentroController extends Controller
      */
     public function index()
     {
-        return Centro::all();
+        // Filtramos los centros con los parametros que vengan en el request
+        $centros = (new CatalogoFilter(Centro::query(), $this->request))
+            ->searchWith(Centro::class)
+            ->filter();
+
+        // Si en el request viene el parametro all entonces regresamos todos los elementos
+        // de lo contrario paginamos
+        if ($this->request->get('all')) {
+            $centros = $centros->get();
+        } else {
+            $centros = $centros->paginate($this->request->get('per_page', 10));
+        }
+
+        // Para cada objeto obtenido cargamos sus relaciones.
+        // $salas = tap($salas)->each(function ($sala) {
+        //     $sala->loadDataFromRequest();
+        // });
+
+        // Si el request solicita respuesta en JSON (es el caso de API y requests ajax)
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($centros, 'SUCCESS');
+        }
+        return view('centros.centros.index', compact('centros'));
     }
 
     /**
@@ -24,7 +54,7 @@ class CentroController extends Controller
      */
     public function create()
     {
-        //
+        return view('centros.centros.create');
     }
 
     /**
@@ -35,7 +65,8 @@ class CentroController extends Controller
      */
     public function store(Request $request)
     {
-        return Centro::create($request->all());
+        Centro::create($request->all());
+        return redirect('centros');
     }
 
     /**
@@ -57,7 +88,8 @@ class CentroController extends Controller
      */
     public function edit($id)
     {
-        //
+        $centro = Centro::find($id);
+        return view('centros.centros.edit')->with('centro', $centro);
     }
 
     /**
@@ -70,7 +102,7 @@ class CentroController extends Controller
     public function update(Request $request, Centro $centro)
     {
         $centro->update($request->all());
-        return response()->json($centro, 200);
+        return redirect('centros');
     }
 
     /**
@@ -82,6 +114,6 @@ class CentroController extends Controller
     public function destroy(Centro $centro)
     {
         $centro->delete();
-        return response()->json(null,204);
+        return redirect('centros');
     }
 }
