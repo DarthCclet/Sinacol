@@ -22,6 +22,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de centros</h4>
             <div class="panel-heading-btn">
+                <button class="btn btn-primary" onclick="location.href='{{ route('centros.create')  }}'" >Nuevo</button>
             </div>
         </div>
         <!-- end panel-heading -->
