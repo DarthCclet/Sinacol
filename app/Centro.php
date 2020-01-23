@@ -9,6 +9,7 @@ class Centro extends Model
 {
 
     use SoftDeletes;
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
 
     /**
      * Funcion para asociar con modelo Solicitud con hasMany
