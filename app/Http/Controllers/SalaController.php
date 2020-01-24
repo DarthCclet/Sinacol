@@ -70,6 +70,7 @@ class SalaController extends Controller
      */
     public function store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'sala' => 'required|max:100',
             'centro_id' => 'required|Integer'
@@ -78,7 +79,11 @@ class SalaController extends Controller
             return response()->json($validator, 201);
         }
         $sala = Sala::create($request->all());
-        return response()->json($sala, 201);
+        // return response()->json($sala, 201);
+
+
+
+      return redirect()->back();
     }
 
     /**
@@ -90,7 +95,7 @@ class SalaController extends Controller
     public function show($id)
     {
         $sala = Sala::find($id);
-        return view('centros.salas.edit');
+        return $sala;
     }
 
     /**
@@ -118,15 +123,23 @@ class SalaController extends Controller
      */
     public function update(Request $request, Sala $sala)
     {
-        $validator = Validator::make($request->all(), [
-            'sala' => 'required|max:100',
-            'centro_id' => 'required|Integer'
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator, 201);
-        }
-        $sala->fill($request->all())->save();
-        return $sala;
+      //dd($sala);
+        // $validator = Validator::make($request->all(), [
+        //     'sala' => 'required|max:100',
+        //     'centro_id' => 'required|Integer'
+        // ]);
+        // //dd($validator->fails());
+        // if ($validator->fails()) {
+        //   return Redirect::to('salas/' . $sala->id . '/edit')
+        //         ->withErrors($validator);
+        //     // return response()->json($validator, 201);
+        // }else{
+        //   $sala->fill($request->all())->save();
+        // }
+        // return redirect()->back();
+        $sala->update($request->all());
+        return redirect('salas');
+        // return Redirect::to('salas');
     }
 
     /**
@@ -138,6 +151,7 @@ class SalaController extends Controller
     public function destroy($id)
     {
         $sala = Sala::findOrFail($id)->delete();
-        return 204;
+        return redirect('salas');
+        // return 204;
     }
 }
