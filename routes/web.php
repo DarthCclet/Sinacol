@@ -13,7 +13,7 @@
 
 Route::get('/', function () {
     return view('welcome');
-})->middleware('auth');
+});
 
 Route::get('/home','HomeController@index');
 
@@ -22,5 +22,6 @@ Route::resource('salas','SalaController');
 Route::resource('centros','CentroController');
 Route::resource('solicitudes','SolicitudController');
 Route::resource('expedientes','ExpedienteController');
+Route::resource('audiencias','AudienciaController');
 
 Auth::routes(['register' => false]);
