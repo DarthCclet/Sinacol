@@ -25,7 +25,7 @@ class Conciliador extends Model
     	return $this->belongsTo(Centro::class); 
     }
     /**
-     * relación con la tabla rol_conciliador
+     * relaciï¿½n con la tabla rol_conciliador
      * @return type
      */
     public function rolConciliador(){
@@ -37,5 +37,12 @@ class Conciliador extends Model
      */
     public function audiencias(){
         return $this->hasMany('App\Audiencia');
+    }
+    /**
+     * Relacion con la tabla disponibilidad
+     * @return type
+     */
+    public function disponibilidades(){
+        return $this->morphMany(Disponibilidad::class,'disponible');
     }
 }

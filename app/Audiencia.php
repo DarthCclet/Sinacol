@@ -4,10 +4,18 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\AppendPolicies;
+use App\Traits\LazyAppends;
+use App\Traits\LazyLoads;
+use App\Traits\RequestsAppends;
 
 class Audiencia extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes,
+        LazyLoads,
+        LazyAppends,
+        RequestsAppends,
+        AppendPolicies;
 
     /**
      * Nombre de la tabla
@@ -15,6 +23,7 @@ class Audiencia extends Model
      */
     protected $table = 'audiencias';
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
+    protected $loadable = ['conciliador', 'sala','parte','resolucion'];
 
     /**
      * Relación con expediente

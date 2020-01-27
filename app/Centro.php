@@ -34,8 +34,15 @@ class Centro extends Model
    * * Utilizando hasMany para relacion uno a muchos
    * * @return \Illuminate\Database\Eloquent\Relations\HasMany
    */
-	public function conciliadores(){
-		return $this->hasMany('App\Conciliador');
-	}
+    public function conciliadores(){
+            return $this->hasMany('App\Conciliador');
+    }
+    /**
+     * Relacion con la tabla disponibilidad
+     * @return type
+     */
+    public function disponibilidades(){
+        return $this->morphMany(Disponibilidad::class,'disponible');
+    }
 
 }
