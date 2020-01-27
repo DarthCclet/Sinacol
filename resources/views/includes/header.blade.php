@@ -129,18 +129,13 @@
 				<span class="d-none d-md-inline">{{isset($user->full_name)?:'Nombre Default'}}</span> <b class="caret"></b>
 			</a>
 			<div class="dropdown-menu dropdown-menu-right">
-				<a href="javascript:;" class="dropdown-item">Edit Profile</a>
-				<a href="javascript:;" class="dropdown-item"><span class="badge badge-danger pull-right">2</span> Inbox</a>
-				<a href="javascript:;" class="dropdown-item">Calendar</a>
-				<a href="javascript:;" class="dropdown-item">Setting</a>
+				<a href="javascript:;" class="dropdown-item">Configuración</a>
 				<div class="dropdown-divider"></div>
                 <a href="{{ route('logout') }}" class="dropdown-item"
                    onclick="event.preventDefault();
                                      document.getElementById('logout-form').submit();">
-                    {{ __('Logout') }}
+                    Salir
                 </a>
-
-
             </div>
 		</li>
 		@if($sidebarTwo)

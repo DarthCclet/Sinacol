@@ -37,7 +37,9 @@
 
 		@includeWhen($sidebarTwo, 'includes.sidebar-right')
 
+
 		<div id="content" class="content {{ $contentClass }}">
+            @include('includes.flash-messages')
 			@yield('content')
 		</div>
 
