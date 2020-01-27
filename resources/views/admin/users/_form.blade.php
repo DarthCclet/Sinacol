@@ -3,28 +3,37 @@
     <div class="col-md-6">
 
         <div class="form-group">
-            <label for="usuario" class="col-sm-2 control-label">Usuario</label>
+            <label for="usuario" class="control-label">Usuario</label>
             <div class="col-sm-10">
-                {!! Form::text('users[username]', null, ['class'=>'form-control', 'id'=>'usuario', 'placeholder'=>'Usuario', 'maxlength'=>'30', 'size'=>'10', 'autofocus'=>true]) !!}
-                {!! $errors->first('username', '<span class=text-danger>:message</span>') !!}
+                {!! Form::text('users[name]', isset($user) ? $user->name : null, ['class'=>'form-control', 'id'=>'usuario', 'placeholder'=>'Usuario', 'maxlength'=>'30', 'size'=>'10', 'autofocus'=>true]) !!}
+                {!! $errors->first('users.name', '<span class=text-danger>:message</span>') !!}
                 <p class="help-block">Es el nombre de usuario que usará para acceder al sistema</p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="email" class="control-label">Email</label>
+            <div class="col-sm-10">
+                {!! Form::text('users[email]', isset($user) ? $user->email : null, ['class'=>'form-control', 'id'=>'email', 'placeholder'=>'Email', 'maxlength'=>'100', 'size'=>'60',]) !!}
+                {!! $errors->first('users.email', '<span class=text-danger>:message</span>') !!}
+                <p class="help-block">Es el email de contacto del usuario.</p>
             </div>
         </div>
         <!-- / .form-group -->
         <div class="form-group">
-            <label for="password" class="col-sm-2 control-label">Contraseña</label>
+            <label for="password" class="control-label">Contraseña</label>
             <div class="col-sm-10">
-                {!! Form::password('users[password]', ['type'=>'password','class'=>'form-control', 'id'=>'password', 'placeholder'=>'******']) !!}
-                {!! $errors->first('password', '<span class=text-danger>:message</span>') !!}
+                {!! Form::password('users[password]', ['type'=>'password','class'=>'form-control', 'id'=>'password', 'placeholder'=>'']) !!}
+                {!! $errors->first('users.password', '<span class=text-danger>:message</span>') !!}
                 <p class="help-block">Mínimo seis caracteres alfanuméricos</p>
             </div>
         </div>
         <!-- / .form-group -->
         <div class="form-group">
-            <label for="password-confirmation" class="col-sm-2 control-label">Confirmar</label>
+            <label for="password-confirmation" class="control-label">Confirmar</label>
             <div class="col-sm-10">
-                {!! Form::password('users[password_confirmation]', ['class'=>'form-control', 'id'=>'password_confirmation', 'placeholder'=>'******']) !!}
-                {!! $errors->first('password_confirmation', '<span class=text-danger>:message</span>') !!}
+                {!! Form::password('users[password_confirmation]', ['class'=>'form-control', 'id'=>'password_confirmation', 'placeholder'=>'']) !!}
+                {!! $errors->first('users[password_confirmation]', '<span class=text-danger>:message</span>') !!}
                 <p class="help-block">Confirme la contraseña</p>
             </div>
         </div>
@@ -33,38 +42,37 @@
     <div class="col-md-6">
 
         <div class="form-group">
-            <label for="titulo" class="col-sm-2 control-label">Título</label>
+            <label for="nombre" class="control-label">Nombre</label>
             <div class="col-sm-10">
-                {!! Form::text('users[titulo]', null, ['class'=>'form-control', 'id'=>'titulo', 'placeholder'=>'Título', 'maxlength'=>'10','size'=>'10']) !!}
-                {!! $errors->first('titulo', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block">Título que ostenta la persona, Lic., Dr., Ing., etc.</p>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="nombre" class="col-sm-2 control-label">Nombre</label>
-            <div class="col-sm-10">
-                {!! Form::text('users[nombre]', null, ['class'=>'form-control', 'id'=>'nombre', 'placeholder'=>'Nombre']) !!}
-                {!! $errors->first('nombre', '<span class=text-danger>:message</span>') !!}
+                {!! Form::text('personas[nombre]', isset($user->persona) ? $user->persona->nombre : null, ['class'=>'form-control', 'id'=>'nombre', 'placeholder'=>'Nombre']) !!}
+                {!! $errors->first('personas.nombre', '<span class=text-danger>:message</span>') !!}
                 <p class="help-block">Nombre de la persona a la que pertenece esta cuenta</p>
             </div>
         </div>
 
         <div class="form-group">
-            <label for="apepat" class="col-sm-2 control-label">Apellido paterno</label>
+            <label for="apepat" class="control-label">Primer Apellido</label>
             <div class="col-sm-10">
-                {!! Form::text('users[apepat]', null, ['class'=>'form-control', 'id'=>'apepat', 'placeholder'=>'Apellido paterno']) !!}
-                {!! $errors->first('apepat', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block">Apellido paterno de la person a la que pertenece esta cuenta</p>
+                {!! Form::text('personas[primer_apellido]', isset($user->persona) ? $user->persona->primer_apellido : null, ['class'=>'form-control', 'id'=>'primer_apellido', 'placeholder'=>'Primer apellido']) !!}
+                {!! $errors->first('personas.primer_apellido', '<span class=text-danger>:message</span>') !!}
+                <p class="help-block">Primer Apellido de la person a la que pertenece esta cuenta</p>
             </div>
         </div>
 
         <div class="form-group">
-            <label for="apepat" class="col-sm-2 control-label">Apellido materno</label>
+            <label for="apepat" class="control-label">Segundo Apellido</label>
             <div class="col-sm-10">
-                {!! Form::text('users[apemat]', null, ['class'=>'form-control', 'id'=>'apemat', 'placeholder'=>'Apellido materno']) !!}
-                {!! $errors->first('apemat', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block">Apellido materno de la person a la que pertenece esta cuenta</p>
+                {!! Form::text('personas[segundo_apellido]', isset($user->persona) ? $user->persona->segundo_apellido : null, ['class'=>'form-control', 'id'=>'segundo_apellido', 'placeholder'=>'Segundo apellido']) !!}
+                {!! $errors->first('personas.segundo_apellido', '<span class=text-danger>:message</span>') !!}
+                <p class="help-block">Segundo Apellido de la person a la que pertenece esta cuenta</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="apepat" class="control-label">RFC</label>
+            <div class="col-sm-10">
+                {!! Form::text('personas[rfc]', isset($user->persona) ? $user->persona->rfc : null, ['class'=>'form-control', 'id'=>'rfc', 'placeholder'=>'RFC']) !!}
+                {!! $errors->first('personas.rfc', '<span class=text-danger>:message</span>') !!}
+                <p class="help-block">Registro Federal de Contribuyentes de la person a la que pertenece esta cuenta</p>
             </div>
         </div>
 
@@ -72,89 +80,5 @@
 
 </div>
 
-
-<hr/>
-
-
-
-<div class="form-group">
-    <label class="col-sm-2 control-label">Rol</label>
-    <div class="col-sm-10">
-        @foreach($roles as $rol)
-            <div class="radio">
-                <label>
-                    {!! Form::radio('users[rol_id]', $rol->id, isset($user) ? $user->roles->contains($rol->id) : null, ['class'=>'px']) !!}
-                    <span class="lbl">{{$rol->display_name}} - {{$rol->description}}</span>
-                </label>
-            </div> <!-- / .radio -->
-        @endforeach
-        {!! $errors->first('rol_id', '<span class=text-danger>:message</span>') !!}
-    </div> <!-- / .col-sm-10 -->
-</div> <!-- / .form-group -->
-
-
-<div class="form-group">
-    <label for="apepat" class="col-sm-2 control-label">Estatus</label>
-    <div class="col-sm-10">
-        <div class="radio">
-            <label>
-                {!! Form::radio('users[activo]', 1, isset($user) ? $user->activo : null, ['class'=>'px']) !!}
-                <span class="lbl">Activo</span>
-            </label>
-        </div> <!-- / .radio -->
-        <div class="radio">
-            <label>
-                {!! Form::radio('users[activo]', 0, isset($user) ? $user->activo : 1, ['class'=>'px']) !!}
-                <span class="lbl">Inactivo</span>
-            </label>
-        </div> <!-- / .radio -->
-
-        {!! $errors->first('users.activo', '<span class=text-danger>:message</span>') !!}
-        <p class="help-block">Indica si la cuenta del usuario está activa o inactiva</p>
-    </div>
-</div>
-
-<div class="form-group">
-    <label for="rotable" class="col-sm-2 control-label">Rotable</label>
-    <div class="col-sm-10">
-        <div class="radio">
-            <label>
-                {!! Form::radio('users[rotable]', 0, isset($user) ? $user->rotable: 0, ['class'=>'px']) !!}
-                <span class="lbl">Fijo</span>
-            </label>
-        </div> <!-- / .radio -->
-        <div class="radio">
-            <label>
-                {!! Form::radio('users[rotable]', 1, isset($user) ? $user->rotable : 1, ['class'=>'px']) !!}
-                <span class="lbl">Rotador</span>
-            </label>
-        </div> <!-- / .radio -->
-
-        {!! $errors->first('users.activo', '<span class=text-danger>:message</span>') !!}
-        <p class="help-block">Indica si la cuenta del usuario está activa o inactiva</p>
-    </div>
-</div>
-
-
-<div class="form-group">
-    <label for="password" class="col-sm-2 control-label">Junta</label>
-    <div class="col-sm-10">
-
-        {!! Form::select('users[junta_id]', [null => '']+$juntas->toArray(), null, ['class'=>'form-control', 'id'=>'password', 'placeholder'=>'Contraseña']) !!}
-        <p class="help-block">Junta especial a la que pertenece el usuario</p>
-    </div>
-</div>
-
-<div class="form-group">
-    <label for="region" class="col-sm-2 control-label">Región</label>
-    <div class="col-sm-10">
-
-        {!! Form::select('users[region]', [null => '',
-        1=>1,
-        2=>2,3=>3,4=>4,5=>5,6=>6,7=>7,8=>8,9=>9,10=>10,
-        11=>11,12=>12,13=>13,14=>14,15=>15], null, ['class'=>'form-control', 'id'=>'region', 'placeholder'=>'Región']) !!}
-        <p class="help-block">Región asignada al usuario</p>
-    </div>
-</div>
 <!-- / .form-group -->
 

@@ -12,7 +12,7 @@ use Faker\Generator as Faker;
 $factory->define(Persona::class, function (Faker $faker) {
 	$tipoPersona = TipoPersona::inRandomOrder()->first();
     return [
-        'nombre' => $faker->name,
+        'nombre' => $faker->firstName,
         'primer_apellido' => $faker->lastName,
         'segundo_apellido' => $faker->lastName,
         'razon_social' => $faker->sentence(1,false),

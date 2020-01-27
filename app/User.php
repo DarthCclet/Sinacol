@@ -33,7 +33,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $guarded = ['id', 'created_at', 'updated_at'];
+    protected $fillable = ['name', 'password', 'email'];
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -74,6 +74,7 @@ class User extends Authenticatable
      */
     public function persona()
     {
-        return $this->belongsTo(Persona::class);
+        return $this->belongsTo(Persona::class)
+            ->withDefault(['nombre'=>'No Asignado', 'primer_apellido'=>'', 'segundo_apellido'=>'']);
     }
 }
