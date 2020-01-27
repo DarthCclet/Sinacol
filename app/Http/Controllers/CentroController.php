@@ -86,10 +86,9 @@ class CentroController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Centro $centro)
     {
-        $centro = Centro::find($id);
-        return view('centros.centros.edit')->with('centro', $centro);
+        return view('centros.centros.edit', compact('centro'));
     }
 
     /**

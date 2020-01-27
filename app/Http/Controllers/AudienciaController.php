@@ -5,8 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Audiencia;
 use Validator;
+use App\Filters\CatalogoFilter;
+
 class AudienciaController extends Controller
 {
+    protected $request;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +22,35 @@ class AudienciaController extends Controller
      */
     public function index()
     {
-        return Audiencia::all();
+//        return Audiencia::all();
+        Audiencia::with('conciliador', 'sala')->get();
+        // $solicitud = Solicitud::all();
+
+
+        // Filtramos los usuarios con los parametros que vengan en el request
+        $audiencias = (new CatalogoFilter(Audiencia::query(), $this->request))
+            ->searchWith(Audiencia::class)
+            ->filter();
+
+         // Si en el request viene el parametro all entonces regresamos todos los elementos
+        // de lo contrario paginamos
+        if ($this->request->get('all')) {
+            $audiencias = $audiencias->get();
+        } else {
+            $audiencias = $audiencias->paginate($this->request->get('per_page', 10));
+        }
+
+        // // Para cada objeto obtenido cargamos sus relaciones.
+        $audiencias = tap($audiencias)->each(function ($audiencia) {
+            $audiencia->loadDataFromRequest();
+        });
+
+        // return $this->sendResponse($solicitud, 'SUCCESS');
+
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($audiencias, 'SUCCESS');
+        }
+        return view('expediente.audiencias.index', compact('audiencias'));
     }
 
     /**
