@@ -17,7 +17,7 @@
                     <a href="{{route('centros.edit',[$centro])}}" class="btn btn-xs btn-info">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
-                    <span class="disponibilidad" class="btn btn-xs btn-info">
+                    <a class="btn btn-xs btn-info disponibilidad" onclick="getCentroDisponibilidad({{$centro->id}})">
                         <i class="fa fa-calendar"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar">
