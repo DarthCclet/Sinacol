@@ -221,6 +221,7 @@
             $("input[data-change='switchDia']").each(function() {
                 if($(this).is(":checked")){
                     $(this).trigger('click');
+                    $(this).attr('data-id',"");
                 }
             });
             $(".horas").val("");
@@ -288,7 +289,7 @@
                 if($(this).is(":checked")){
                     datos.push({
                         dia:$(this).val(),
-//                        disponibilidad_id:$(this).data('id'),
+                        disponibilidad_id:$(this).data('id'),
                         hora_inicio:$(this).parent().next().children().next().val(),
                         hora_fin:$(this).parent().next().next().children().next().val()
                     });
