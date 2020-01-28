@@ -42,7 +42,7 @@ class Centro extends Model
      * @return type
      */
     public function disponibilidades(){
-        return $this->morphMany(Disponibilidad::class,'disponible');
+        return $this->morphMany(Disponibilidad::class,'disponibilidad');
     }
 
 }
