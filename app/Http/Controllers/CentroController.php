@@ -115,4 +115,23 @@ class CentroController extends Controller
         $centro->delete();
         return redirect('centros');
     }
+    
+    public function disponibilidad(Request $request){
+        $centro = Centro::find($request->id);
+        foreach($request->datos as $value){
+//            if($value["disponibilidad_id"] != ""){
+//                $disponibilidad = App\Disponibilidad::find($value["disponibilidad_id"]);
+//                $disponibilidad->update(['dia' => $value["dia"],'hora_inicio' => $value["hora_inicio"],'hora_fin' => $value["hora_fin"]]);
+//            }else{
+                $centro->disponibilidades()->create(['dia' => $value["dia"],'hora_inicio' => $value["hora_inicio"],'hora_fin' => $value["hora_fin"]]);
+//            }
+        }
+        return $centro;
+    }
+    
+    public function getDisponibilidades(Request $request){
+        $centro = Centro::find($request->id);
+        $centro->disponibilidades = $centro->disponibilidades;
+        return $centro;
+    }
 }
