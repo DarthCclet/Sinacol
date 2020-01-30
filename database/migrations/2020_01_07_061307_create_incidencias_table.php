@@ -16,14 +16,12 @@ class CreateIncidenciasTable extends Migration
         Schema::create('incidencias', function (Blueprint $table) {
             // llave principal
             $table->bigIncrements('id')->comment('PK de la tabla incidencias');
+            // justificacion incidencia 
+            $table->string('justificacion')->comment('Razon de la incidencia');
             // fecha inicio de la incidencia 
-            $table->date('fecha_inicio')->comment('Fecha inicio de la incidencia');
+            $table->dateTime('fecha_inicio')->comment('Fecha inicio de la incidencia');
             // fecha fin de la incidencia 
-            $table->date('fecha_fin')->comment('Fecha fin de la incidencia');
-            // hora inicio de la incidencia 
-            $table->time('hora_inicio')->comment('Hora inicio de la incidencia');
-            // hora fin de la incidencia 
-            $table->time('hora_fin')->comment('Hora fin de la incidencia');
+            $table->dateTime('fecha_fin')->comment('Fecha fin de la incidencia');
             // LLave foranea que apunta al objeto que se asigna la incidencia
             $table->bigInteger('incidenciable_id')->comment('FK que apunta al objeto que se asigna la incidencia');
             // Clase del objeto al que se está asignando la incidencia
