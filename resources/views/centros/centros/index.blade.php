@@ -221,7 +221,7 @@
     <script>
         $(document).ready(function() {
             $('#data-table-default').DataTable({
-                responsive: true
+//                responsive: true
             });
             /**
              * Funcion para permitir llenado de los dias disponibles
@@ -483,6 +483,7 @@
         });
         $("#btnGuardarIncidencia").on("click",function(){
             var validacion = validarCamposIncidencia();
+            console.log(validacion);
             if(!validacion.error){
                 $.ajax({
                     url:"/api/centros/incidencias",
@@ -507,7 +508,7 @@
             }else{
                 swal({
                     title: 'Algo salio mal',
-                    text: validar.errorMsg,
+                    text: validacion.msgError,
                     icon: 'warning'
                 });
             }
