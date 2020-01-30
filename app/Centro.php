@@ -44,5 +44,12 @@ class Centro extends Model
     public function disponibilidades(){
         return $this->morphMany(Disponibilidad::class,'disponibilidad');
     }
+    /**
+     * Relacion con la tabla incidencias
+     * @return type
+     */
+    public function incidencias(){
+        return $this->morphMany(Incidencia::class,'incidenciable');
+    }
 
 }
