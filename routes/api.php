@@ -32,6 +32,7 @@ Route::resource('compareciente','ComparecienteController');
 Route::resource('centro','CentroController');
 Route::post('centros/disponibilidad','CentroController@disponibilidad');
 Route::Post('centros/disponibilidades','CentroController@getDisponibilidades');
+Route::Post('centros/incidencias','CentroController@incidencia');
 Route::resource('motivo-solicitud','MotivoSolicitudController');
 Route::resource('rol-conciliador','RolConciliadorController');
 
