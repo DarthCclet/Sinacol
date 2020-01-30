@@ -12,7 +12,14 @@
 
 
   <div class="form-group">
-    {{ Form::submit('Edit', array('class' => 'btn btn-primary')) }}
+    <!-- {{ Form::submit('Editar', array('class' => 'btn btn-primary')) }} -->
+
+
+    <div class="panel-footer text-right">
+        <a href="{!! route('salas.index') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
+        <button class="btn btn-primary btn-sm m-l-5"><i class="fa fa-save"></i> Guardar</button>
+    </div>
+
   </div>
 {{ Form::close() }}
 @endsection
