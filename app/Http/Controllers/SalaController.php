@@ -21,11 +21,9 @@ class SalaController extends Controller
      */
     public function index()
     {
-        //
         // return Sala::all();
 
-
-        // Filtramos los usuarios con los parametros que vengan en el request
+        // Filtramos las salas con los parametros que vengan en el request
         $salas = (new CatalogoFilter(Sala::query(), $this->request))
             ->searchWith(Sala::class)
             ->filter();
@@ -58,7 +56,6 @@ class SalaController extends Controller
      */
     public function create()
     {
-        //
         return view('centros.salas.create');
     }
 
@@ -123,23 +120,21 @@ class SalaController extends Controller
      */
     public function update(Request $request, Sala $sala)
     {
-      //dd($sala);
-        // $validator = Validator::make($request->all(), [
-        //     'sala' => 'required|max:100',
-        //     'centro_id' => 'required|Integer'
-        // ]);
-        // //dd($validator->fails());
-        // if ($validator->fails()) {
-        //   return Redirect::to('salas/' . $sala->id . '/edit')
-        //         ->withErrors($validator);
-        //     // return response()->json($validator, 201);
-        // }else{
-        //   $sala->fill($request->all())->save();
-        // }
+        $validator = Validator::make($request->all(), [
+            'sala' => 'required|max:100',
+            'centro_id' => 'required|Integer'
+        ]);
+        if ($validator->fails()) {
+          return Redirect::to('salas/' . $sala->id . '/edit')
+                ->withErrors($validator);
+            // return response()->json($validator, 201);
+        }else{
+          $sala->update($request->all());
+          // $sala->fill($request->all())->save();
+        }
         // return redirect()->back();
-        $sala->update($request->all());
+
         return redirect('salas');
-        // return Redirect::to('salas');
     }
 
     /**
