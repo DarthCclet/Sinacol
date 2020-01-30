@@ -22,6 +22,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de salas</h4>
             <div class="panel-heading-btn">
+                <a href="{!! route('salas.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
         </div>
         <!-- end panel-heading -->
