@@ -13,9 +13,8 @@ $factory->define(Incidencia::class, function (Faker $faker) {
 	return [
 		'incidenciable_id' => $incidenciable_id,
 		'incidenciable_type' => $incidenciable_type,
-		'fecha_inicio' => $faker->date,
-		'fecha_fin' => $faker->date,
-		'hora_inicio' => $faker->time,
-		'hora_fin' => $faker->time
+		'justificacion' => $faker->text,
+		'fecha_inicio' => $faker->dateTime,
+		'fecha_fin' => $faker->dateTime,
 	];
 });
