@@ -20,6 +20,9 @@
                     <a class="btn btn-xs btn-info disponibilidad" onclick="getCentroDisponibilidad({{$centro->id}})">
                         <i class="fa fa-calendar"></i>
                     </a>
+                    <a class="btn btn-xs btn-info incidencia" onclick="getCentroIncidencias({{$centro->id}})">
+                        <i class="fa fa-calendar-times"></i>
+                    </a>
                     <button class="btn btn-xs btn-warning btn-borrar">
                         <i class="fa fa-trash btn-borrar"></i>
                     </button>
