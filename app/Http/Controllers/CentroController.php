@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Centro;
 use App\Disponibilidad;
+use App\Incidencia;
 use App\Filters\CatalogoFilter;
 
 
@@ -120,14 +121,27 @@ class CentroController extends Controller
     public function disponibilidad(Request $request){
         $centro = Centro::find($request->id);
         foreach($request->datos as $value){
-            if($value["disponibilidad_id"] != ""){
-//                dd($value["disponibilidad_id"]);
-                $disponibilidad = Disponibilidad::find($value["disponibilidad_id"]);
-//                dd($disponibilidad);
-                $disponibilidad->update(['dia' => $value["dia"],'hora_inicio' => $value["hora_inicio"],'hora_fin' => $value["hora_fin"]]);
+            if(!$value["borrar"] || $value["borrar"] == 'false'){
+                if($value["disponibilidad_id"] != ""){
+                    $disponibilidad = Disponibilidad::find($value["disponibilidad_id"]);
+                    $disponibilidad->update(['dia' => $value["dia"],'hora_inicio' => $value["hora_inicio"],'hora_fin' => $value["hora_fin"]]);
+                }else{
+                    $centro->disponibilidades()->create(['dia' => $value["dia"],'hora_inicio' => $value["hora_inicio"],'hora_fin' => $value["hora_fin"]]);
+                }
             }else{
-                $centro->disponibilidades()->create(['dia' => $value["dia"],'hora_inicio' => $value["hora_inicio"],'hora_fin' => $value["hora_fin"]]);
+                $disponibilidad = Disponibilidad::find($value["disponibilidad_id"])->delete();
             }
+        }
+        return $centro;
+    }
+    
+    public function incidencia(Request $request){
+        $centro = Centro::find($request->id);
+        if($request->incidencia_id == ""){
+            $centro->incidencias()->create(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio,"fecha_fin" => $request->fecha_fin]);
+        }else{
+            $incidencia = Incidencia::find($request->incidencia_id);
+            $incidencia->update(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio,"fecha_fin" => $request->fecha_fin]);
         }
         return $centro;
     }
@@ -135,6 +149,7 @@ class CentroController extends Controller
     public function getDisponibilidades(Request $request){
         $centro = Centro::find($request->id);
         $centro->disponibilidades = $centro->disponibilidades;
+        $centro->incidencias = $centro->incidencias;
         return $centro;
     }
 }
