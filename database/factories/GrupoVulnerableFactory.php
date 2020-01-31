@@ -4,9 +4,9 @@
 
 use App\Model;
 use Faker\Generator as Faker;
-use App\GrupoVulnerable;
+use App\GrupoPrioritario;
 
-$factory->define(GrupoVulnerable::class, function (Faker $faker) {
+$factory->define(GrupoPrioritario::class, function (Faker $faker) {
     return [
       'nombre'=> $faker->randomElement(['Mujeres embarazadas','adultos mayores','niños'])
         //
