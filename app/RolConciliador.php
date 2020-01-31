@@ -9,7 +9,9 @@ class RolConciliador extends Model
 {
     use SoftDeletes;
     protected $table = 'rol_conciliadores';
-    public $incrementing = false;
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
+
+    // public $incrementing = false;
     //
     /**
      * relaci�n con la tabla conciliadores

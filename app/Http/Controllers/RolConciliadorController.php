@@ -2,11 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\CatalogoFilter;
 use App\RolConciliador;
+use Validator;
 use Illuminate\Http\Request;
 
 class RolConciliadorController extends Controller
 {
+    protected $request;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +22,22 @@ class RolConciliadorController extends Controller
      */
     public function index()
     {
-        return RolConciliador::all();
+        $rolesConciliadores = (new CatalogoFilter(RolConciliador::query(), $this->request))
+            ->searchWith(RolConciliador::class)
+            ->filter();
+
+        // Si en el request viene el parametro all entonces regresamos todos los elementos
+        // de lo contrario paginamos
+        if ($this->request->get('all')) {
+            $rolesConciliadores = $rolesConciliadores->get();
+        } else {
+            $rolesConciliadores = $rolesConciliadores->paginate($this->request->get('per_page', 10));
+        }
+
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($rolesConciliadores, 'SUCCESS');
+        }
+        return view('admin.rolesConciliadores.index', compact('rolesConciliadores'));
     }
 
     /**
@@ -24,7 +47,7 @@ class RolConciliadorController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.rolesConciliadores.create');
     }
 
     /**
@@ -35,7 +58,8 @@ class RolConciliadorController extends Controller
      */
     public function store(Request $request)
     {
-        return RolConciliador::create($request->all());
+      RolConciliador::create($request->all());
+      return redirect('roles-conciliadores');
     }
 
     /**
@@ -57,7 +81,8 @@ class RolConciliadorController extends Controller
      */
     public function edit($id)
     {
-        //
+      $rolConciliador = RolConciliador::find($id);
+      return view('admin.rolesConciliadores.edit')->with('rolConciliador', $rolConciliador);
     }
 
     /**
@@ -67,10 +92,18 @@ class RolConciliadorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,RolConciliador $rolConciliador)
+    public function update(Request $request, $id)
     {
+      $rolConciliador = RolConciliador::find($id);
+      $request->validate(
+          [
+            'nombre' => 'required|max:100'
+          ]
+      );
+
         $rolConciliador->update($request->all());
-        return response()->json($rolConciliador, 200);
+
+        return redirect('roles-conciliadores')->with('success', 'Se ha actualizado el rol exitosamente');
     }
 
     /**
@@ -79,9 +112,14 @@ class RolConciliadorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(RolConciliador $rolConciliador)
+    public function destroy($id )
     {
-        $rolConciliador->delete();
-        return response()->json(null,204);
+
+        $rolConciliador = RolConciliador::findOrFail($id)->delete();
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($id, 'SUCCESS');
+        }
+
+        return redirect()->route('roles-conciliadores.index')->with('success', 'Se ha eliminado el rol exitosamente');
     }
 }
