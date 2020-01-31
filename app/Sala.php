@@ -4,12 +4,21 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\AppendPolicies;
+use App\Traits\LazyAppends;
+use App\Traits\LazyLoads;
+use App\Traits\RequestsAppends;
 
 class Sala extends Model
 {
-   use SoftDeletes; 
+    use SoftDeletes,
+        LazyLoads,
+        LazyAppends,
+        RequestsAppends,
+        AppendPolicies; 
     protected $table = 'salas';
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
+    protected $loadable = ['centro'];
     /*
      * Relación con la tabla Centros
      * un centro puede tener muchas salas
@@ -29,6 +38,13 @@ class Sala extends Model
      * @return type
      */
     public function disponibilidades(){
-        return $this->morphMany(Disponibilidad::class,'disponible');
+        return $this->morphMany(Disponibilidad::class,'disponibilidad');
+    }
+    /**
+     * Relacion con la tabla incidencias
+     * @return type
+     */
+    public function incidencias(){
+        return $this->morphMany(Incidencia::class,'incidenciable');
     }
 }
