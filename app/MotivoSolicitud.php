@@ -10,6 +10,7 @@ class MotivoSolicitud extends Model
   use SoftDeletes;
   public $incrementing = false;
   protected $table = 'motivo_solicitudes';
+  protected $guarded = ['id','created_at','updated_at','deleted_at'];
   /**
    * Funcion para asociar con modelo Solicitud con hasMany
    * * Utilizando hasMany para relacion uno a muchos

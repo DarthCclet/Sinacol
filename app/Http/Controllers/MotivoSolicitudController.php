@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\CatalogoFilter;
 use App\MotivoSolicitud;
+use Validator;
 use Illuminate\Http\Request;
-
 
 class MotivoSolicitudController extends Controller
 {
+    protected $request;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +22,22 @@ class MotivoSolicitudController extends Controller
      */
     public function index()
     {
-        return MotivoSolicitud::all();
+        $motivoSolicitud = (new CatalogoFilter(MotivoSolicitud::query(), $this->request))
+            ->searchWith(MotivoSolicitud::class)
+            ->filter();
+        // Si en el request viene el parametro all entonces regresamos todos los elementos
+        // de lo contrario paginamos
+        if ($this->request->get('all')) {
+            $motivoSolicitud = $motivoSolicitud->get();
+        } else {
+            $motivoSolicitud = $motivoSolicitud->paginate($this->request->get('per_page', 10));
+        }
+
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($motivoSolicitud, 'SUCCESS');
+        }
+        return view('catalogos.motivoSolicitud.index', compact('motivoSolicitud'));
+        // return MotivoSolicitud::all();
     }
 
     /**
@@ -25,7 +47,7 @@ class MotivoSolicitudController extends Controller
      */
     public function create()
     {
-        //
+        return view('catalogos.motivoSolicitud.create');
     }
 
     /**
@@ -36,7 +58,8 @@ class MotivoSolicitudController extends Controller
      */
     public function store(Request $request)
     {
-        return MotivoSolicitud::create($request->all());
+        MotivoSolicitud::create($request->all());
+        return redirect('motivos-solicitud');
     }
 
     /**
@@ -58,7 +81,9 @@ class MotivoSolicitudController extends Controller
      */
     public function edit($id)
     {
-        //
+        $motivoSolicitud = MotivoSolicitud::find($id);
+
+        return view('catalogos.motivoSolicitud.edit')->with('motivoSolicitud', $motivoSolicitud);
     }
 
     /**
@@ -68,10 +93,21 @@ class MotivoSolicitudController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,MotivoSolicitud $motivoSolicitud)
+    public function update(Request $request, $id)
     {
-        $motivoSolicitud->update($request->all());
-        return response()->json($motivoSolicitud, 200);
+        $motivoSolicitud = MotivoSolicitud::find($id);
+        $request->validate(
+            [
+              'nombre' => 'required|max:100'
+            ]
+        );
+
+          $motivoSolicitud->update($request->all());
+// dd($motivoSolicitud);
+          return redirect('motivos-solicitud')->with('success', 'Se ha actualizado exitosamente');
+
+        // $motivoSolicitud->update($request->all());
+        // return response()->json($motivoSolicitud, 200);
     }
 
     /**
@@ -82,7 +118,14 @@ class MotivoSolicitudController extends Controller
      */
     public function destroy(MotivoSolicitud $motivoSolicitud)
     {
-        $motivoSolicitud->delete();
-        return response()->json(null,204);
+
+      // $motivoSolicitud = RolConciliador::findOrFail($id)->delete();
+      $motivoSolicitud->delete();
+      if ($this->request->wantsJson()) {
+          return $this->sendResponse($motivoSolicitud->id, 'SUCCESS');
+      }
+
+      return redirect()->route('motivos-solicitud.index')->with('success', 'Se ha eliminado exitosamente');
+
     }
 }
