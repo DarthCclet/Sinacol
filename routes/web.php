@@ -25,5 +25,6 @@ Route::resource('expedientes','ExpedienteController');
 Route::resource('audiencias','AudienciaController');
 Route::resource('roles-conciliadores','RolConciliadorController');
 Route::resource('motivos-solicitud','MotivoSolicitudController');
+Route::resource('jornadas','JornadaController');
 
 Auth::routes(['register' => false]);

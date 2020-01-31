@@ -17,8 +17,8 @@ class AddGiroGrupoToPartesTable extends Migration
           //
           $table->unsignedBigInteger('giro_comercial_id')->comment('FK a catálogo de giros comerciales');
           $table->foreign('giro_comercial_id')->references('id')->on('giro_comerciales');
-          $table->unsignedBigInteger('grupo_vulnerable_id')->comment('FK a catálogo de gruos vulnerables');
-          $table->foreign('grupo_vulnerable_id')->references('id')->on('grupos_vulnerables');
+          $table->unsignedBigInteger('grupo_prioritario_id')->comment('FK a catálogo de gruos prioritarios');
+          $table->foreign('grupo_prioritario_id')->references('id')->on('grupos_prioritarios');
       });
     }
 
@@ -32,7 +32,7 @@ class AddGiroGrupoToPartesTable extends Migration
       Schema::table('partes', function (Blueprint $table) {
           //
           $table->dropColumn('giro_comercial_id');
-          $table->dropColumn('grupo_vulnerable_id');
+          $table->dropColumn('grupo_prioritario_id');
       });
     }
 }

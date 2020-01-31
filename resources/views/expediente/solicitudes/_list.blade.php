@@ -6,6 +6,7 @@
         <th class="text-nowrap">Motivo</th>
         <th class="text-nowrap">Estatus</th>
         <th class="text-nowrap">Fecha Ratificacion</th>
+        <th class="text-nowrap">Acciones</th>
         <!-- <th >Editar</th> -->
     </tr>
     </thead>
@@ -17,7 +18,18 @@
             <td>{{$solicitud->motivoSolicitud->nombre}}</td>
             <td>{{$solicitud->estatusSolicitud->nombre}}</td>
             <td>{{$solicitud->fecha_ratificacion}}</td>
-            <!-- <td><input type="button" class="button button-primary" value="Editar" href="{{ route('login') }}" /></td> -->
+            <td class="all">
+                {!! Form::open(['action' => ['SolicitudController@destroy', $solicitud->id], 'method'=>'DELETE']) !!}
+                <div style="display: inline-block;">
+                    <a href="{{route('solicitudes.edit',[$solicitud])}}" class="btn btn-xs btn-info">
+                        <i class="fa fa-pencil-alt"></i>
+                    </a>
+                    <button class="btn btn-xs btn-warning btn-borrar">
+                        <i class="fa fa-trash btn-borrar"></i>
+                    </button>
+                </div>
+                {!! Form::close() !!}
+            </td>
 
         </tr>
     @endforeach

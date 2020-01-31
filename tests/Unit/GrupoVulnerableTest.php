@@ -2,20 +2,20 @@
 
 namespace Tests\Unit;
 
+use App\GrupoPrioritario;
 use Tests\TestCase;
-use App\GrupoVulnerable;
 
-class GrupoVulnerableTest extends TestCase
+class GrupoPrioritarioTest extends TestCase
 {
     /**
      * A basic unit test example.
      *
      * @return void
      */
-    public function testCreateGrupoVulnerable()
+    public function testCreateGrupoPrioritario()
     {
-        $grupo = GrupoVulnerable::inRandomOrder()->first();
-        // $grupo = factory(\App\GrupoVulnerable::class)->create();
-        $this->assertInstanceOf(GrupoVulnerable::class,$grupo);
+        $grupo = GrupoPrioritario::inRandomOrder()->first();
+        // $grupo = factory(\App\GrupoPrioritario::class)->create();
+        $this->assertInstanceOf(GrupoPrioritario::class,$grupo);
     }
 }

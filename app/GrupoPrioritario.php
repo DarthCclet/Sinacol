@@ -5,9 +5,9 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class GrupoVulnerable extends Model
+class GrupoPrioritario extends Model
 {
     use SoftDeletes;
-    protected $table = 'grupos_vulnerables';
+    protected $table = 'grupos_prioritarios';
     public $incrementing = false;
 }

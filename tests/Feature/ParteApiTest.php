@@ -32,7 +32,7 @@ class ParteApiTest extends TestCase
                         'nombre_comercial',
                         'fecha_nacimiento',
                         'giro_comercial_id',
-                        'grupo_vulnerable_id',
+                        'grupo_prioritario_id',
                         'edad',
                         'rfc',
                         'curp', 
@@ -83,7 +83,7 @@ class ParteApiTest extends TestCase
         'giro_comercial' => [
             'id', 'nombre','deleted_at', 'updated_at', 'created_at'
         ],
-        'grupo_vulnerable' => [
+        'grupo_prioritario' => [
             'id', 'nombre','deleted_at', 'updated_at', 'created_at'
         ]
     ];
@@ -253,12 +253,12 @@ class ParteApiTest extends TestCase
      * @test
      * @return void
      */
-    public function testParteConGrupoVulnerable(): void
+    public function testParteConGrupoPrioritario(): void
     {
         $jsonRelaciones = $this->jsonPaginado;
-        $jsonRelaciones['data']['data'][0]['grupo_vulnerable'] = $this->jsonRelaciones['grupo_vulnerable'];
+        $jsonRelaciones['data']['data'][0]['grupo_prioritario'] = $this->jsonRelaciones['grupo_prioritario'];
         factory(Parte::class,20)->create();
-        $response = $this->json('GET', '/api/parte?load=grupoVulnerable');
+        $response = $this->json('GET', '/api/parte?load=grupoPrioritario');
         $response->assertStatus(200);
         $response->assertJsonStructure($jsonRelaciones);
     }

@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 
 class JornadaController extends Controller
 {
+    protected $request;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +20,11 @@ class JornadaController extends Controller
      */
     public function index()
     {
-        return Jornada::all();
+        $jornadas = Jornada::all();
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($jornadas, 'SUCCESS');
+        }
+        return view('catalogos.jornadas.index', compact('jornadas'));
     }
 
     /**
@@ -24,7 +34,7 @@ class JornadaController extends Controller
      */
     public function create()
     {
-        //
+        return view('catalogos.jornadas.create');
     }
 
     /**
@@ -35,7 +45,9 @@ class JornadaController extends Controller
      */
     public function store(Request $request)
     {
-        return Jornada::create($request->all());
+        // dd($request);
+        Jornada::create($request->all());
+        return redirect('jornadas');
     }
 
     /**
@@ -57,7 +69,8 @@ class JornadaController extends Controller
      */
     public function edit($id)
     {
-        //
+        $jornada = Jornada::find($id);
+        return view('catalogos.jornadas.edit')->with('jornada', $jornada);
     }
 
     /**
@@ -70,7 +83,7 @@ class JornadaController extends Controller
     public function update(Request $request, Jornada $jornada)
     {
         $jornada->update($request->all());
-        return response()->json($jornada, 200);
+        return redirect('jornadas');
     }
 
     /**

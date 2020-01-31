@@ -10,7 +10,7 @@ use App\TipoPersona;
 use App\Nacionalidad;
 use App\Estado;
 use App\GiroComercial;
-use App\GrupoVulnerable;
+use App\GrupoPrioritario;
 use Faker\Generator as Faker;
 
 $factory->define(Parte::class, function (Faker $faker) {
@@ -20,7 +20,7 @@ $factory->define(Parte::class, function (Faker $faker) {
     //  tipoParte, genero, tipo persona, nacionalidad y estado
     //  ya que se segura que existen registros al generar la migracion
     $tipo_parte = TipoParte::inRandomOrder()->first();
-    $grupo_vulnerable = GrupoVulnerable::inRandomOrder()->first();
+    $grupo_prioritario = GrupoPrioritario::inRandomOrder()->first();
     $giro_comercia = GiroComercial::inRandomOrder()->first();
     $genero = Genero::inRandomOrder()->first();
     $tipo_persona = TipoPersona::inRandomOrder()->first();
@@ -40,7 +40,7 @@ $factory->define(Parte::class, function (Faker $faker) {
         'nombre_comercial' => $faker->optional(0.6)->company,
         'fecha_nacimiento' => $faker->date,
         'giro_comercial_id' => $giro_comercia->id,
-        'grupo_vulnerable_id' => $grupo_vulnerable->id,
+        'grupo_prioritario_id' => $grupo_prioritario->id,
         'edad' => $faker->randomNumber(2),
         'rfc' => strtoupper($faker->lexify("??????????????????")),
         'curp' => strtoupper($faker->lexify("?????????????")),
