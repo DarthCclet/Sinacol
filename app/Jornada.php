@@ -9,5 +9,5 @@ class Jornada extends Model
 {
   use SoftDeletes;
   public $incrementing = false;
-    //
+  protected $guarded = ['updated_at','created_at']; 
 }

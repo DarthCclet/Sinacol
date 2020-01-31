@@ -22,7 +22,9 @@ class Parte extends Model
      *
      * @var array
      */
-    protected $loadable = ['solicitud', 'tipoParte','genero','tipoPersona','nacionalidad','entidadNacimiento','giroComercial','grupoVulnerable'];
+    protected $loadable = ['solicitud', 'tipoParte','genero','tipoPersona','nacionalidad','entidadNacimiento','giroComercial','grupoPrioritario'];
+    
+    protected $guarded = ['id','updated_at','created_at']; 
     /**
      * Funcion para asociar con modelo Genero
      * Utilizando belongsTo para relaciones 1 a 1
@@ -87,8 +89,8 @@ class Parte extends Model
      * Utilizando belongsTo para relaciones 1 a 1
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function grupoVulnerable(){
-      return $this->belongsTo('App\GrupoVulnerable');
+    public function grupoPrioritario(){
+      return $this->belongsTo('App\GrupoPrioritario');
     }
     /**
      * Funcion para asociar con modelo Audiencia con hasMany

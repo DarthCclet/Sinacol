@@ -67,4 +67,9 @@ class Solicitud extends Model
     public function user(){
       return $this->belongsTo('App\User');
     }
+
+    public function partes()
+    {
+        return $this->hasMany('App\Parte', 'solicitud_id', 'id');
+    }
 }
