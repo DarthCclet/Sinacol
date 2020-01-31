@@ -32,191 +32,193 @@
         </div>
     </div>
 
-@endsection
-<!-- inicio Modal de disponibilidad-->
-<div class="modal" id="modal-disponinbilidad" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Disponibilidad de <span id='nombreCentro'></span></h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-muted">
-                    - Activa el día que será laborable para el centro.<br>
-                    - Coloca la hora de inicio y fin de servicios en el centro.<br>
-                    - Da clik en guardar para registrar los cambios
-                </div>
-                <form id="formDisponibilidad">
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch1'>Lunes</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="1" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch1" name='switch1'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioLunes" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioLunes"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finLunes" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finLunes"/>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch2'>Martes</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="2" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch2" name='switch2'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioMartes" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioMartes"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finMartes" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finMartes"/>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch3'>Miercoles</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="3" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch3" name='switch3'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioMartes" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioMiercoles"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finMiercoles" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finMiercoles"/>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch4'>Jueves</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="4" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch4" name='switch4'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioJueves" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioJueves"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finJueves" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finJueves"/>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch5'>Viernes</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="5" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch5" name='switch15'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioViernes" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioViernes"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finViernes" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finViernes"/>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch6'>Sabado</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="6" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch6" name='switch6'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioSabado" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioSabado"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finSabado" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finSabado"/>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardar"><i class="fa fa-save"></i> Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Fin Modal de disponibilidad-->
 
-<!-- inicio Modal de incidencias-->
-<div class="modal" id="modal-incidencias" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Incidencias de <span id='nombreCentroIncidencia'></span></h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div id="divConsultaIncidencias">
-                    <div id="table_incidencias"></div>
+    <!-- inicio Modal de disponibilidad-->
+    <div class="modal" id="modal-disponinbilidad" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Disponibilidad de <span id='nombreCentro'></span></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
-                <div id="divRegistroIncidencias">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>Justificación</label>
-                            <input type="text" id="justificacion" class="form-control" />
-                        </div>
+                <div class="modal-body">
+                    <div class="alert alert-muted">
+                        - Activa el día que será laborable para el centro.<br>
+                        - Coloca la hora de inicio y fin de servicios en el centro.<br>
+                        - Da clik en guardar para registrar los cambios
                     </div>
-                    <div class="col-md-12 row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Fecha y hora de inicio</label>
-                                <input type="text" id="fecha_inicio" class="form-control" />
+                    <form id="formDisponibilidad">
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch1'>Lunes</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad"/>
+                                <input type="checkbox" value="1" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch1" name='switch1'/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioLunes" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioLunes"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finLunes" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finLunes"/>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Fecha y hora fin</label>
-                                <input type="text" id="fecha_fin" class="form-control" />
+                        <hr>
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch2'>Martes</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad"/>
+                                <input type="checkbox" value="2" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch2" name='switch2'/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioMartes" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioMartes"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finMartes" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finMartes"/>
                             </div>
                         </div>
-                    </div>
+                        <hr>
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch3'>Miercoles</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad"/>
+                                <input type="checkbox" value="3" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch3" name='switch3'/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioMartes" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioMiercoles"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finMiercoles" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finMiercoles"/>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch4'>Jueves</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad"/>
+                                <input type="checkbox" value="4" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch4" name='switch4'/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioJueves" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioJueves"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finJueves" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finJueves"/>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch5'>Viernes</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad"/>
+                                <input type="checkbox" value="5" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch5" name='switch15'/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioViernes" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioViernes"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finViernes" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finViernes"/>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch6'>Sabado</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad"/>
+                                <input type="checkbox" value="6" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch6" name='switch6'/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioSabado" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioSabado"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finSabado" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finSabado"/>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-sign-out"></i> Cerrar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnNuevaIncidencia"><i class="fa fa-plus-circle"></i> Nueva incidencia</button>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnRegresarIncidencia"><i class="fa fa-arrow-left"></i> Regresar</button>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarIncidencia"><i class="fa fa-save"></i> Guardar</button>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardar"><i class="fa fa-save"></i> Guardar</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<!-- Fin Modal de disponibilidad-->
-<input type="hidden" id="id" name="id">
-<input type="hidden" id="incidencia_id" name="incidencia_id">
+    <!-- Fin Modal de disponibilidad-->
+
+    <!-- inicio Modal de incidencias-->
+    <div class="modal" id="modal-incidencias" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Incidencias de <span id='nombreCentroIncidencia'></span></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="divConsultaIncidencias">
+                        <div id="table_incidencias"></div>
+                    </div>
+                    <div id="divRegistroIncidencias">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Justificación</label>
+                                <input type="text" id="justificacion" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-12 row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Fecha y hora de inicio</label>
+                                    <input type="text" id="fecha_inicio" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Fecha y hora fin</label>
+                                    <input type="text" id="fecha_fin" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-sign-out"></i> Cerrar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnNuevaIncidencia"><i class="fa fa-plus-circle"></i> Nueva incidencia</button>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnRegresarIncidencia"><i class="fa fa-arrow-left"></i> Regresar</button>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarIncidencia"><i class="fa fa-save"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin Modal de disponibilidad-->
+    <input type="hidden" id="id" name="id">
+    <input type="hidden" id="incidencia_id" name="incidencia_id">
+
+@endsection
 @push('scripts')
     <script>
         $(document).ready(function() {
@@ -344,7 +346,7 @@
                                     <th class="text-nowrap">Justificación</th>
                                     <th class="text-nowrap">Fecha y hora de inicio</th>
                                     <th class="text-nowrap">Fecha y hora fin</th>
-                                    <th class="text-nowrap all">Acciones</th> 
+                                    <th class="text-nowrap all">Acciones</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -471,7 +473,7 @@
                 $("#divRegistroIncidencias").show();
                 $("#btnNuevaIncidencia").hide();
                 $("#divConsultaIncidencias").hide();
-                
+
             }
         }
         $("#btnNuevaIncidencia").on("click",function(){
