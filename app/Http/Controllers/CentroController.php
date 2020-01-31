@@ -118,6 +118,11 @@ class CentroController extends Controller
         return redirect('centros');
     }
     
+    /**
+     * Función para guardar modificar y eliminar disponibilidades
+     * @param Request $request
+     * @return Centro $centro
+     */
     public function disponibilidad(Request $request){
         $centro = Centro::find($request->id);
         foreach($request->datos as $value){
@@ -135,6 +140,11 @@ class CentroController extends Controller
         return $centro;
     }
     
+    /**
+     * Funcion para guardar y modificar incidencias
+     * @param Request $request
+     * @return Centro $centro
+     */
     public function incidencia(Request $request){
         $centro = Centro::find($request->id);
         if($request->incidencia_id == ""){
@@ -146,6 +156,11 @@ class CentroController extends Controller
         return $centro;
     }
     
+    /**
+     * Funcion para obtener el objeto centro con sus disponibilidades e incidencias
+     * @param Request $request
+     * @return type
+     */
     public function getDisponibilidades(Request $request){
         $centro = Centro::find($request->id);
         $centro->disponibilidades = $centro->disponibilidades;

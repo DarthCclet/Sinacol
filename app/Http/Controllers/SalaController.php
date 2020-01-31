@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 use App\Filters\CatalogoFilter;
 use App\Sala;
+use App\Disponibilidad;
+use App\Incidencia;
 use Validator;
 use Illuminate\Http\Request;
 
@@ -21,7 +23,7 @@ class SalaController extends Controller
      */
     public function index()
     {
-        // return Sala::all();
+        Sala::with('centro')->get();
 
         // Filtramos las salas con los parametros que vengan en el request
         $salas = (new CatalogoFilter(Sala::query(), $this->request))
@@ -37,9 +39,9 @@ class SalaController extends Controller
         }
 
         // Para cada objeto obtenido cargamos sus relaciones.
-        // $salas = tap($salas)->each(function ($sala) {
-        //     $sala->loadDataFromRequest();
-        // });
+         $salas = tap($salas)->each(function ($sala) {
+             $sala->loadDataFromRequest();
+         });
 
         // Si el request solicita respuesta en JSON (es el caso de API y requests ajax)
         if ($this->request->wantsJson()) {
@@ -67,20 +69,13 @@ class SalaController extends Controller
      */
     public function store(Request $request)
     {
-
-        $validator = Validator::make($request->all(), [
-            'sala' => 'required|max:100',
-            'centro_id' => 'required|Integer'
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator, 201);
+        if($request->id != "" && $request->id != null){
+            $sala = Sala::find($request->id);
+            $sala->update(["sala" => $request->sala,"centro_id" => $request->centro_id]);
+        }else{
+            $sala = Sala::create($request->all());
         }
-        $sala = Sala::create($request->all());
-        // return response()->json($sala, 201);
-
-
-
-      return redirect()->back();
+        return $sala;
     }
 
     /**
@@ -148,5 +143,55 @@ class SalaController extends Controller
         $sala = Sala::findOrFail($id)->delete();
         return redirect('salas');
         // return 204;
+    }
+    
+    /**
+     * Función para guardar modificar y eliminar disponibilidades
+     * @param Request $request
+     * @return Sala $sala
+     */
+    public function disponibilidad(Request $request){
+        $sala = Sala::find($request->id);
+        foreach($request->datos as $value){
+            if(!$value["borrar"] || $value["borrar"] == 'false'){
+                if($value["disponibilidad_id"] != ""){
+                    $disponibilidad = Disponibilidad::find($value["disponibilidad_id"]);
+                    $disponibilidad->update(['dia' => $value["dia"],'hora_inicio' => $value["hora_inicio"],'hora_fin' => $value["hora_fin"]]);
+                }else{
+                    $sala->disponibilidades()->create(['dia' => $value["dia"],'hora_inicio' => $value["hora_inicio"],'hora_fin' => $value["hora_fin"]]);
+                }
+            }else{
+                $disponibilidad = Disponibilidad::find($value["disponibilidad_id"])->delete();
+            }
+        }
+        return $sala;
+    }
+    
+    /**
+     * Funcion para guardar y modificar incidencias
+     * @param Request $request
+     * @return Sala $sala
+     */
+    public function incidencia(Request $request){
+        $sala = Sala::find($request->id);
+        if($request->incidencia_id == ""){
+            $sala->incidencias()->create(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio,"fecha_fin" => $request->fecha_fin]);
+        }else{
+            $incidencia = Incidencia::find($request->incidencia_id);
+            $incidencia->update(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio,"fecha_fin" => $request->fecha_fin]);
+        }
+        return $sala;
+    }
+    
+    /**
+     * Funcion para obtener el objeto centro con sus disponibilidades e incidencias
+     * @param Request $request
+     * @return Sala $sala
+     */
+    public function getDisponibilidades(Request $request){
+        $sala = Sala::find($request->id);
+        $sala->disponibilidades = $sala->disponibilidades;
+        $sala->incidencias = $sala->incidencias;
+        return $sala;
     }
 }
