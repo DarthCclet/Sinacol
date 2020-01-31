@@ -23,5 +23,6 @@ Route::resource('centros','CentroController');
 Route::resource('solicitudes','SolicitudController');
 Route::resource('expedientes','ExpedienteController');
 Route::resource('audiencias','AudienciaController');
+Route::resource('jornadas','JornadaController');
 
 Auth::routes(['register' => false]);
