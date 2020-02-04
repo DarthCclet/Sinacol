@@ -17,7 +17,7 @@ class CreateResolucionsTable extends Migration
             // llave primaria
             $table->bigIncrements('id')->comment('PK de la tabla resoluciones');;
             // descripcion de la resolucion
-            $table->string('resolucion')->comment('Descripcion de la resolucion');;
+            $table->string('nombre')->comment('Descripcion de la resolucion');;
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');;
             $table->timestamps();
         });

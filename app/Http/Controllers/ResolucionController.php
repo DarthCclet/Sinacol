@@ -1,11 +1,20 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Filters\CatalogoFilter;
 use App\Resolucion;
+use Validator;
 use Illuminate\Http\Request;
 
 class ResolucionController extends Controller
 {
+    protected $request;
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -13,8 +22,20 @@ class ResolucionController extends Controller
      */
     public function index()
     {
-        //
-        return Resolucion::all();
+        $resolucionAudiencia = (new CatalogoFilter(Resolucion::query(), $this->request))
+            ->searchWith(Resolucion::class)
+            ->filter();
+        // Si en el request viene el parametro all entonces regresamos todos los elementos de lo contrario paginamos
+        if ($this->request->get('all')) {
+            $resolucionAudiencia = $resolucionAudiencia->get();
+        } else {
+            $resolucionAudiencia = $resolucionAudiencia->paginate($this->request->get('per_page', 10));
+        }
+
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($resolucionAudiencia, 'SUCCESS');
+        }
+        return view('catalogos.resolucion.index', compact('resolucionAudiencia'));
     }
 
     /**
@@ -24,8 +45,7 @@ class ResolucionController extends Controller
      */
     public function create()
     {
-        //
-        return 4;
+        return view('catalogos.resolucion.create');
     }
 
     /**
@@ -36,13 +56,16 @@ class ResolucionController extends Controller
      */
     public function store(Request $request)
     {
-        //Instanciamos la clase Resolucion
-        $resolucion = new Resolucion;
-        //Declaramos la resolucion con el dato enviado en el request
-        $resolucion->resolucion = $request->resolucion;
-        //Guardamos el cambio en nuestro modelo
-        $resolucion->save();
-        return response()->json($resolucion, 200);
+      Resolucion::create($request->all());
+      return redirect('resolucion-audiencia')->with('success', 'Se ha creado exitosamente');
+
+        // //Instanciamos la clase Resolucion
+        // $resolucion = new Resolucion;
+        // //Declaramos la resolucion con el dato enviado en el request
+        // $resolucion->resolucion = $request->resolucion;
+        // //Guardamos el cambio en nuestro modelo
+        // $resolucion->save();
+        // return response()->json($resolucion, 200);
     }
 
     /**
@@ -53,7 +76,6 @@ class ResolucionController extends Controller
      */
     public function show($id)
     {
-        //
         return Resolucion::find($id);
     }
 
@@ -65,8 +87,8 @@ class ResolucionController extends Controller
      */
     public function edit($id)
     {
-        //
-        return 1;
+        $resolucion = Resolucion::find($id);
+        return view('catalogos.resolucion.edit')->with('resolucion', $resolucion);
     }
 
     /**
@@ -78,11 +100,15 @@ class ResolucionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
-        $res = Resolucion::find($id);
-        $res->update($request->all());
+        $resolucion = Resolucion::find($id);
+        $request->validate(
+            [
+              'nombre' => 'required|max:100'
+            ]
+        );
 
-        return response()->json($res, 200);
+        $resolucion->update($request->all());
+        return redirect('resolucion-audiencia')->with('success', 'Se ha actualizado exitosamente');
     }
 
     /**
@@ -93,7 +119,11 @@ class ResolucionController extends Controller
      */
     public function destroy($id)
     {
-        Resolucion::find($id)->delete();
-        return 204;
+      Resolucion::find($id)->delete();
+      if ($this->request->wantsJson()) {
+          return $this->sendResponse($id, 'SUCCESS');
+      }
+
+      return redirect()->route('resolucion-audiencia.index')->with('success', 'Se ha eliminado exitosamente');
     }
 }
