@@ -9,5 +9,6 @@ class GrupoPrioritario extends Model
 {
     use SoftDeletes;
     protected $table = 'grupos_prioritarios';
-    public $incrementing = false;
+    // public $incrementing = false;
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
 }
