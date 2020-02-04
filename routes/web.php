@@ -24,7 +24,10 @@ Route::resource('solicitudes','SolicitudController');
 Route::resource('expedientes','ExpedienteController');
 Route::resource('audiencias','AudienciaController');
 Route::resource('roles-conciliadores','RolConciliadorController');
-Route::resource('motivos-solicitud','MotivoSolicitudController');
+Route::resource('objeto-solicitud','ObjetoSolicitudController');
+Route::resource('estatus-solicitud','EstatusSolicitudController');
+Route::resource('resolucion-audiencia','ResolucionController');
+Route::resource('grupo-prioritario','GrupoPrioritarioController');
 Route::resource('jornadas','JornadaController');
 
 Auth::routes(['register' => false]);

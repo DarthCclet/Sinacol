@@ -14,7 +14,7 @@ class CreateEstatusSolicitudesTable extends Migration
     public function up()
     {
         Schema::create('estatus_solicitudes', function (Blueprint $table) {
-            $table->bigInteger('id')->primary()->comment('PK de la tabla estatus_solicitudes');
+            $table->bigIncrements('id')->comment('PK de la tabla estatus_solicitudes');
             $table->string('nombre')->comment('Nombre del Estatus en el que se encuentra la solicitud de conciliacon');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
