@@ -26,17 +26,16 @@ class SolicitudApiTest extends TestCase
                 'data' => [
                     [
                         'id',
-                        'abogado_id',
                         'estatus_solicitud_id',
-                        'motivo_solicitud_id',
+                        'objeto_solicitud_id',
                         'centro_id',
                         'user_id',
                         'ratificada',
+                        'solicita_excepcion',
                         'fecha_ratificacion',
                         'fecha_recepcion',
                         'fecha_conflicto',
                         'observaciones',
-                        'presenta_abogado',
                         'deleted_at',
                         'created_at',
                         'updated_at',
@@ -62,17 +61,13 @@ class SolicitudApiTest extends TestCase
      * @var array
      */
     private $jsonRelaciones = [
-        'abogado' => [
-            'id', 'nombre', 'primer_apellido', 'segundo_apellido', 'cedula_profesional', 'numero_empleado',
-            'email', 'profedet', 'deleted_at', 'updated_at', 'created_at'
-        ],
         'user' => [
             'id','name','email','email_verified_at','deleted_at','created_at','updated_at','persona_id'
         ],
         'estatus_solicitud' => [
             'id', 'nombre','deleted_at', 'updated_at', 'created_at'
         ],
-        'motivo_solicitud' => [
+        'objeto_solicitud' => [
             'id', 'nombre','deleted_at', 'updated_at', 'created_at'
         ],
         'centro' => [
@@ -118,23 +113,6 @@ class SolicitudApiTest extends TestCase
     }
 
     /**
-     * Al solicitar la relación persona debe regresar la estructura con abogado
-     *
-     * @test
-     * @return void
-     */
-    public function testSolicitudConAbogado(): void
-    {
-        $jsonConAbogado = $this->jsonPaginado;
-        $jsonConAbogado['data']['data'][0]['abogado'] = $this->jsonRelaciones['abogado'];
-        factory(Solicitud::class,20)->create();
-        $response = $this->json('GET', '/api/solicitud?load=abogado');
-        $response->assertStatus(200);
-        $response->assertJsonStructure($jsonConAbogado);
-    }
-
-
-    /**
      * Al solicitar la relación persona debe regresar la estructura con user
      *
      * @test
@@ -167,17 +145,17 @@ class SolicitudApiTest extends TestCase
     }
 
     /**
-     * Al solicitar la relación persona debe regresar la estructura con motivo solicitud
+     * Al solicitar la relación persona debe regresar la estructura con objeto solicitud
      *
      * @test
      * @return void
      */
-    public function testSolicitudConMotivoSolicitud(): void
+    public function testSolicitudConObjetoSolicitud(): void
     {
         $jsonCompuesto = $this->jsonPaginado;
-        $jsonCompuesto['data']['data'][0]['motivo_solicitud'] = $this->jsonRelaciones['motivo_solicitud'];
+        $jsonCompuesto['data']['data'][0]['objeto_solicitud'] = $this->jsonRelaciones['objeto_solicitud'];
         factory(Solicitud::class,20)->create();
-        $response = $this->json('GET', '/api/solicitud?load=motivoSolicitud');
+        $response = $this->json('GET', '/api/solicitud?load=objetoSolicitud');
         $response->assertStatus(200);
         $response->assertJsonStructure($jsonCompuesto);
     }

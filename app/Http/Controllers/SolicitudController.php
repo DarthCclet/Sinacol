@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Abogado;
 use App\Centro;
 use App\EstatusSolicitud;
 use Illuminate\Http\Request;
 use \App\Solicitud;
 use Validator;
 use App\Filters\SolicitudFilter;
-use App\MotivoSolicitud;
+use App\ObjetoSolicitud;
 use App\Parte;
 
 class SolicitudController extends Controller
@@ -33,7 +32,7 @@ class SolicitudController extends Controller
      */
     public function index()
     {
-        Solicitud::with('estatusSolicitud', 'motivoSolicitud')->get();
+        Solicitud::with('estatusSolicitud', 'objetoSolicitud')->get();
         // $solicitud = Solicitud::all();
 
 
@@ -55,7 +54,7 @@ class SolicitudController extends Controller
         $solicitud = tap($solicitud)->each(function ($solicitud) {
             $solicitud->loadDataFromRequest();
         });
-        $motivoSolicitudes = MotivoSolicitud::all();
+        $objetoSolicitudes = ObjetoSolicitud::all();
         $estatusSolicitudes = EstatusSolicitud::all();
         $centros = Centro::all();
         // return $this->sendResponse($solicitud, 'SUCCESS');
@@ -63,7 +62,7 @@ class SolicitudController extends Controller
         if ($this->request->wantsJson()) {
             return $this->sendResponse($solicitud, 'SUCCESS');
         }
-        return view('expediente.solicitudes.index', compact('solicitud','motivoSolicitudes','estatusSolicitudes','centros'));
+        return view('expediente.solicitudes.index', compact('solicitud','objetoSolicitudes','estatusSolicitudes','centros'));
     }
 
     /**
@@ -73,10 +72,10 @@ class SolicitudController extends Controller
      */
     public function create()
     {
-        $motivo_solicitudes = array_pluck(MotivoSolicitud::all(),'nombre','id');
+        $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
         $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
         $centros = array_pluck(Centro::all(),'nombre','id');
-        return view('expediente.solicitudes.create', compact('motivo_solicitudes','estatus_solicitudes','centros'));
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','centros'));
     }
 
     /**
@@ -94,10 +93,8 @@ class SolicitudController extends Controller
     //         'fecha_recepcion' => 'required|Date',
     //         'fecha_conflicto' => 'required|Date',
     //         'observaciones' => 'required|max:500',
-    //         'presenta_abogado' => 'required',
-    //         'abogado_id' => 'required|Integer',
     //         'estatus_solicitud_id' => 'required|Integer',
-    //         'motivo_solicitud_id' => 'required|Integer',
+    //         'objeto_solicitud_id' => 'required|Integer',
     //         'centro_id' => 'required|Integer',
     //         'user_id' => 'required|Integer',
     //     ]);
@@ -112,15 +109,7 @@ class SolicitudController extends Controller
         
         $solicitud = $request->input('solicitud');
 
-        $abogado = $request->input('abogado');
-        //dd($abogado);
-        if(!isset($abogado['profedet'])){
-            $abogado['profedet'] = false;
-        }
-        $abogado = Abogado::create($abogado);
-        
         // Solicitud
-        $solicitud['abogado_id'] = $abogado['id'];
         $solicitud['user_id'] = 1;
         
         if(!isset($solicitud['ratificada'])){
@@ -183,10 +172,10 @@ class SolicitudController extends Controller
         $solicitud->solicitante = $partes->where('tipo_parte_id',1)->first();
         
         $solicitud->solicitado = $partes->where('tipo_parte_id',2)->first();
-        $motivo_solicitudes = array_pluck(MotivoSolicitud::all(),'nombre','id');
+        $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
         $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
         $centros = array_pluck(Centro::all(),'nombre','id');
-        return view('expediente.solicitudes.edit', compact('solicitud','motivo_solicitudes','estatus_solicitudes','centros'));
+        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros'));
     }
 
     /**
@@ -204,10 +193,8 @@ class SolicitudController extends Controller
     //       'fecha_recepcion' => 'required|Date',
     //       'fecha_conflicto' => 'required|Date',
     //       'observaciones' => 'required|max:500',
-    //       'presenta_abogado' => 'required|Boolean',
-    //       'abogado_id' => 'required|Integer',
     //       'estatus_solicitud_id' => 'required|Integer',
-    //       'motivo_solicitud_id' => 'required|Integer',
+    //       'objeto_solicitud_id' => 'required|Integer',
     //       'centro_id' => 'required|Integer',
     //       'user_id' => 'required|Integer',
     //   ]);
@@ -219,9 +206,6 @@ class SolicitudController extends Controller
 
     //   return response()->json($solicitud, 200);
         $solicitudReq = $request->input('solicitud');
-        $abogadoReq = $request->input('abogado');
-        $abogado = Abogado::find($abogadoReq['id']);
-        $abogado->update($abogadoReq);
         
         $solicitanteReq = $request->input('solicitante');
         $solicitante = Parte::find($solicitanteReq['id']);

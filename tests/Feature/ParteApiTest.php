@@ -61,9 +61,9 @@ class ParteApiTest extends TestCase
      */
     private $jsonRelaciones = [
         'solicitud' => [
-            'id','abogado_id',
-            'estatus_solicitud_id','motivo_solicitud_id','centro_id','user_id','ratificada','fecha_ratificacion','fecha_recepcion','fecha_conflicto',
-            'observaciones','presenta_abogado','deleted_at','created_at','updated_at',
+            'id',
+            'estatus_solicitud_id','objeto_solicitud_id','centro_id','user_id','ratificada','fecha_ratificacion','fecha_recepcion','fecha_conflicto',
+            'observaciones','deleted_at','created_at','updated_at',
         ],
         'tipo_parte' => [
             'id', 'nombre','deleted_at', 'updated_at', 'created_at'
@@ -141,7 +141,7 @@ class ParteApiTest extends TestCase
         $response->assertJsonStructure($this->jsonPaginado["data"]["data"][0]);
     }
      /**
-     * Al solicitar la relación persona debe regresar la estructura con abogado
+     * Al solicitar la relación persona debe regresar la estructura con solicitud
      *
      * @test
      * @return void
@@ -157,7 +157,7 @@ class ParteApiTest extends TestCase
     }
 
      /**
-     * Al solicitar la relación persona debe regresar la estructura con abogado
+     * Al solicitar la relación persona debe regresar la estructura con tipoParte
      *
      * @test
      * @return void
@@ -173,7 +173,7 @@ class ParteApiTest extends TestCase
     }
 
      /**
-     * Al solicitar la relación persona debe regresar la estructura con abogado
+     * Al solicitar la relación persona debe regresar la estructura con Genero
      *
      * @test
      * @return void
@@ -188,7 +188,7 @@ class ParteApiTest extends TestCase
         $response->assertJsonStructure($jsonRelaciones);
     }
     /**
-     * Al solicitar la relación persona debe regresar la estructura con abogado
+     * Al solicitar la relación persona debe regresar la estructura con tipo Persona
      *
      * @test
      * @return void
@@ -203,7 +203,7 @@ class ParteApiTest extends TestCase
         $response->assertJsonStructure($jsonRelaciones);
     }
     /**
-     * Al solicitar la relación persona debe regresar la estructura con abogado
+     * Al solicitar la relación persona debe regresar la estructura con Nacionalidad
      *
      * @test
      * @return void
@@ -218,7 +218,7 @@ class ParteApiTest extends TestCase
         $response->assertJsonStructure($jsonRelaciones);
     }
     /**
-     * Al solicitar la relación persona debe regresar la estructura con abogado
+     * Al solicitar la relación persona debe regresar la estructura con Entidad nacimiento
      *
      * @test
      * @return void
@@ -233,7 +233,7 @@ class ParteApiTest extends TestCase
         $response->assertJsonStructure($jsonRelaciones);
     }
     /**
-     * Al solicitar la relación persona debe regresar la estructura con abogado
+     * Al solicitar la relación persona debe regresar la estructura con giro comercial
      *
      * @test
      * @return void
@@ -248,7 +248,7 @@ class ParteApiTest extends TestCase
         $response->assertJsonStructure($jsonRelaciones);
     }
     /**
-     * Al solicitar la relación persona debe regresar la estructura con abogado
+     * Al solicitar la relación persona debe regresar la estructura con grupo prioritario
      *
      * @test
      * @return void

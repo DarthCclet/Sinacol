@@ -21,9 +21,8 @@ class SolicitudTest extends TestCase
      */
     public function testVerifyRelationSolicitud(){
         $solicitud =  factory(\App\Solicitud::class)->create();
-        $this->assertInstanceOf('\App\Abogado',$solicitud->abogado);
         $this->assertInstanceOf('\App\EstatusSolicitud',$solicitud->estatusSolicitud);
-        $this->assertInstanceOf('\App\MotivoSolicitud',$solicitud->motivoSolicitud);
+        $this->assertInstanceOf('\App\ObjetoSolicitud',$solicitud->objetoSolicitud);
         $this->assertInstanceOf('\App\Centro',$solicitud->centro);
         $this->assertInstanceOf('\App\User',$solicitud->user);
 

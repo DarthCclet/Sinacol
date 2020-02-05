@@ -24,15 +24,8 @@ class Solicitud extends Model
      *
      * @var array
      */
-    protected $loadable = ['abogado', 'estatusSolicitud','motivoSolicitud','centro','user'];
+    protected $loadable = [ 'estatusSolicitud','objetoSolicitud','centro','user'];
 
-    /**
-     * Funcion para asociar con modelo Abogado con belongsTo
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function abogado(){
-      return $this->belongsTo('App\Abogado');
-    }
     /**
      * Funcion para asociar con modelo EstatusSolicitud
      * Utilizando belongsTo para relaciones 1 a 1
@@ -42,12 +35,12 @@ class Solicitud extends Model
       return $this->belongsTo('App\EstatusSolicitud');
     }
     /**
-     * Funcion para asociar con modelo MotivoSolicitud con belongsTo
+     * Funcion para asociar con modelo ObjetoSolicitud con belongsTo
      * * Utilizando belongsTo para relaciones 1 a 1
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function motivoSolicitud(){
-      return $this->belongsTo('App\MotivoSolicitud');
+    public function objetoSolicitud(){
+      return $this->belongsTo('App\ObjetoSolicitud');
     }
 
     /**
