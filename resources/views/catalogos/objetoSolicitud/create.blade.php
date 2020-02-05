@@ -1,6 +1,6 @@
 @extends('layouts.default', ['paceTop' => true])
 
-@section('title', 'Motivos Solicitud')
+@section('title', 'Objeto Solicitud')
 
 @include('includes.component.datatables')
 
@@ -13,25 +13,25 @@
   </ol>
   <!-- end breadcrumb -->
   <!-- begin page-header -->
-  <h1 class="page-header">Administrar motivos de solicitud <small>Nuevo </small></h1>
+  <h1 class="page-header">Administrar objetos de solicitud <small>Nuevo </small></h1>
   <!-- end page-header -->
 
 
-{!! Form::open([ 'route' => 'motivos-solicitud.store' ]) !!}
+{!! Form::open([ 'route' => 'objeto-solicitud.store' ]) !!}
 
   <div class="panel panel-default">
       <!-- begin panel-heading -->
       <div class="panel-heading">
-          <h4 class="panel-title">Nuevo motivo solicitud</h4>
+          <h4 class="panel-title">Nuevo objeto solicitud</h4>
           <div class="panel-heading-btn">
-              <a href="{!! route('motivos-solicitud.index') !!}" class="btn btn-info btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
+              <a href="{!! route('objeto-solicitud.index') !!}" class="btn btn-info btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
           </div>
       </div>
       <div class="panel-body">
-        @include('catalogos.motivoSolicitud._form')
+        @include('catalogos.objetoSolicitud._form')
       </div>
       <div class="panel-footer text-right">
-          <a href="{!! route('motivos-solicitud.index') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
+          <a href="{!! route('objeto-solicitud.index') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
           <button class="btn btn-primary btn-sm m-l-5"><i class="fa fa-save"></i> Guardar</button>
       </div>
   </div>

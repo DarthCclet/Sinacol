@@ -17,7 +17,7 @@ class CreateSolicitudesTable extends Migration
             $table->bigIncrements('id')->comment('PK de la tabla solicitudes');
             $table->unsignedBigInteger('abogado_id')->comment('FK de la tabla abogados');
             $table->unsignedBigInteger('estatus_solicitud_id')->comment('FK de la tabla estatus_solicitudes');
-            $table->unsignedBigInteger('motivo_solicitud_id')->comment('FK de la tabla motivo_solicitudes');
+            $table->unsignedBigInteger('objeto_solicitud_id')->comment('FK de la tabla motivo_solicitudes');
             $table->unsignedBigInteger('centro_id')->comment('FK de la tabla centros');
             $table->unsignedBigInteger('user_id')->comment('FK de la tabla users');
             $table->boolean('ratificada')->comment('Indica si la solicitud fue ratificada');
@@ -31,7 +31,7 @@ class CreateSolicitudesTable extends Migration
             // Agrego referencia a Llave foranea a tabla Generos
             $table->foreign('abogado_id')->references('id')->on('abogados');
             $table->foreign('estatus_solicitud_id')->references('id')->on('estatus_solicitudes');
-            $table->foreign('motivo_solicitud_id')->references('id')->on('motivo_solicitudes');
+            $table->foreign('objeto_solicitud_id')->references('id')->on('objeto_solicitudes');
             $table->foreign('centro_id')->references('id')->on('centros');
             $table->foreign('user_id')->references('id')->on('users');
         });

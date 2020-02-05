@@ -14,7 +14,7 @@ class CreateJornadasTable extends Migration
     public function up()
     {
         Schema::create('jornadas', function (Blueprint $table) {
-            $table->bigInteger('id')->primary()->comment('PK del catálogo de jornadas');
+            $table->bigIncrements('id')->comment('PK del catálogo de jornadas');
             $table->string('nombre')->comment('Nombre de la jornada');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();

@@ -7,14 +7,14 @@
     </tr>
     </thead>
     <tbody>
-    @foreach($motivoSolicitud as $motivo)
+    @foreach($objetoSolicitud as $objeto)
         <tr class="odd gradeX">
-            <td width="1%" class="f-s-600 text-inverse">{{$motivo->id}}</td>
-            <td>{{$motivo->nombre}}</td>
+            <td width="1%" class="f-s-600 text-inverse">{{$objeto->id}}</td>
+            <td>{{$objeto->nombre}}</td>
             <td class="all">
-                {!! Form::open(['action' => ['MotivoSolicitudController@destroy', $motivo->id], 'method'=>'DELETE']) !!}
+                {!! Form::open(['action' => ['ObjetoSolicitudController@destroy', $objeto->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
-                    <a href="{{route('motivos-solicitud.edit',[$motivo])}}" class="btn btn-xs btn-info">
+                    <a href="{{route('objeto-solicitud.edit',[$objeto])}}" class="btn btn-xs btn-info">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar">

@@ -1,6 +1,6 @@
 @extends('layouts.default', ['paceTop' => true])
 
-@section('title', 'Motivo Solicitud')
+@section('title', 'Objeto Solicitud')
 
 @include('includes.component.datatables')
 
@@ -13,28 +13,28 @@
 </ol>
 <!-- end breadcrumb -->
 <!-- begin page-header -->
-<h1 class="page-header">Administrar motivos de solicitudes <small>Editar</small></h1>
+<h1 class="page-header">Administrar objetos de solicitudes <small>Editar</small></h1>
 <!-- end page-header -->
 
 <!-- begin panel -->
-{!! Form::model($motivoSolicitud, ['route' => ['motivos-solicitud.update', $motivoSolicitud->id], 'method' => 'PUT'] ) !!}
+{!! Form::model($objetoSolicitud, ['route' => ['objeto-solicitud.update', $objetoSolicitud->id], 'method' => 'PUT'] ) !!}
     <div class="panel panel-default">
         <!-- begin panel-heading -->
         <div class="panel-heading">
             <h4 class="panel-title">Nuevo</h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('motivos-solicitud.index') !!}" class="btn btn-info btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
+                <a href="{!! route('objeto-solicitud.index') !!}" class="btn btn-info btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
             </div>
         </div>
         <!-- end panel-heading -->
         <!-- begin panel-body -->
         <div class="panel-body">
-          @include('catalogos.motivoSolicitud._form')
+          @include('catalogos.objetoSolicitud._form')
         </div>
         <!-- end panel-body -->
         <!-- begin panel-footer -->
         <div class="panel-footer text-right">
-            <a href="{!! route('motivos-solicitud.index') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
+            <a href="{!! route('objeto-solicitud.index') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
             <button class="btn btn-primary btn-sm m-l-5"><i class="fa fa-save"></i> Modificar</button>
         </div>
         <!-- end panel-footer -->

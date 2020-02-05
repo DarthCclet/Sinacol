@@ -1,6 +1,6 @@
 @extends('layouts.default', ['paceTop' => true])
 
-@section('title', 'Motivos Solicitud')
+@section('title', 'Objeto Solicitud')
 
 @include('includes.component.datatables')
 
@@ -14,7 +14,7 @@
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->
-    <h1 class="page-header">Administrar motivos de solicitud <small>Listado de Motivos de Solicitud</small></h1>
+    <h1 class="page-header">Administrar objetos de solicitud <small>Listado de Objetos de Solicitud</small></h1>
     <!-- end page-header -->
     <!-- begin panel -->
     <div class="panel panel-default">
@@ -22,14 +22,14 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado </h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('motivos-solicitud.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo</a>
+                <a href="{!! route('objeto-solicitud.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
         </div>
 
         <!-- end panel-heading -->
         <!-- begin panel-body -->
         <div class="panel-body">
-            @include('catalogos.motivoSolicitud._list')
+            @include('catalogos.objetoSolicitud._list')
         </div>
     </div>
 
