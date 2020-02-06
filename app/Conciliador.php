@@ -34,11 +34,10 @@ class Conciliador extends Model
     	return $this->belongsTo(Centro::class); 
     }
     /**
-     * relaci�n con la tabla rol_conciliador
-     * @return type
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function rolConciliador(){
-    	return $this->belongsTo(RolConciliador::class); 
+    public function RolesConciliador(){
+      return $this->hasMany('App\RolConciliador');
     }
     /*
      * Relacion con la tabla de audiencias

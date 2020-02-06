@@ -8,16 +8,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class RolConciliador extends Model
 {
     use SoftDeletes;
-    protected $table = 'rol_conciliadores';
+    protected $table = 'roles_conciliadores';
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
 
-    // public $incrementing = false;
-    //
     /**
-     * relaci�n con la tabla conciliadores
-     * @return type
+     * Relación con conciliador
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function rolConciliador(){
-    	return $this->hasMany(RolConciliador::class);
+    public function conciliador(){
+      return $this->belongsTo('App\Conciliador');
+    }
+    
+    /**
+     * Relación con roles_atencion
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function rolAtencion(){
+      return $this->belongsTo('App\RolAtencion');
     }
 }
