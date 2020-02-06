@@ -13,28 +13,28 @@ class CreateRolConciliadoresTable extends Migration
      */
     public function up()
     {
-        Schema::create('rol_conciliadores', function (Blueprint $table) {
+        Schema::create('roles_atencion', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('nombre');
             $table->softDeletes();
             $table->timestamps();
         });
 
-        $tabla_nombre = 'rol_conciliadores';
+        $tabla_nombre = 'roles_atencion';
         $comentario_tabla = 'Tabla donde se almacena el catálogo de roles para conciliadores.';
         DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
 
-        $path = base_path('database/datafiles');
-        $json = json_decode(file_get_contents($path . "/rol_conciliadores.json"));
+        //$path = base_path('database/datafiles');
+        //$json = json_decode(file_get_contents($path . "/rol_conciliadores.json"));
         //Se llena el catalogo desde el arvhivo json rol_conciliadores.json
-        foreach ($json->datos as $rol_conciliadores){
-            DB::table('rol_conciliadores')->insert(
-                [
-                    'id' => $rol_conciliadores->id,
-                    'nombre' => $rol_conciliadores->nombre
-                ]
-            );
-        }
+//        foreach ($json->datos as $rol_conciliadores){
+//            DB::table('roles_atencion')->insert(
+//                [
+//                    'id' => $rol_conciliadores->id,
+//                    'nombre' => $rol_conciliadores->nombre
+//                ]
+//            );
+//        }
     }
 
     /**
@@ -44,6 +44,6 @@ class CreateRolConciliadoresTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rol_conciliadores');
+        Schema::dropIfExists('roles_atencion');
     }
 }
