@@ -39,6 +39,6 @@ Route::post('centros/disponibilidad','CentroController@disponibilidad');
 Route::Post('centros/disponibilidades','CentroController@getDisponibilidades');
 Route::Post('centros/incidencias','CentroController@incidencia');
 Route::resource('objeto-solicitud','ObjetoSolicitudController');
-Route::resource('rol-conciliador','RolConciliadorController');
+Route::resource('rol-atencion','RolAtencionController');
 
 Route::post('login', 'ApiAuthController@login');
