@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class RolConciliador extends Model
 {
     use SoftDeletes;
-    protected $table = 'roles_conciliadores';
+    protected $table = 'roles_conciliador';
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
 
     /**

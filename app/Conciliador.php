@@ -36,7 +36,7 @@ class Conciliador extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function RolesConciliador(){
+    public function rolesConciliador(){
       return $this->hasMany('App\RolConciliador');
     }
     /*
