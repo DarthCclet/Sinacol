@@ -75,23 +75,6 @@
                     $("#persona_id").select2();
                 }
             });
-            $.ajax({
-                url:"/api/rol-conciliador",
-                type:"GET",
-                dataType:"json",
-                success:function(data){
-                    console.log(data);
-                    if(data.data.data != null && data.data.data != ""){
-                        $("#rol_conciliador_id").html("<option value=''>-- Selecciona un rol</option>");
-                        $.each(data.data.data,function(index,element){
-                            $("#rol_conciliador_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
-                        });
-                    }else{
-                        $("#rol_conciliador_id").html("<option value=''>-- Selecciona un rol</option>");
-                    }
-                    $("#rol_conciliador_id").select2();
-                }
-            });
         });
         $("#btnGuardar").on("click",function(){
             var validar = validarConciliador();
@@ -102,7 +85,6 @@
                     dataType:"json",
                     data:{
                         id:$("#id").val(),
-                        rol_conciliador_id:$("#rol_conciliador_id").val(),
                         persona_id:$("#persona_id").val(),
                         centro_id:$("#centro_id").val()
                     },
@@ -130,10 +112,6 @@
             $(".select2-selection").css("border-color","");
             var error=false;
             var msgError="";
-            if($("#rol_conciliador_id").val() == ""){
-                $("#rol_conciliador_id").css("border-color","red");
-                error = true;
-            }
             if($("#centro_id").val() == ""){
                 $("#select2-selection").css("border-color","red");
                 error = true;
