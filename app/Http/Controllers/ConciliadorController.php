@@ -7,6 +7,7 @@ use App\Filters\CatalogoFilter;
 use App\Conciliador;
 use App\Disponibilidad;
 use App\Incidencia;
+use App\RolConciliador;
 use Validator;
 class ConciliadorController extends Controller
 {
@@ -23,7 +24,7 @@ class ConciliadorController extends Controller
      */
     public function index()
     {
-        Conciliador::with('persona','rolConciliador')->get();
+        Conciliador::with('persona')->get();
 
         // Filtramos las salas con los parametros que vengan en el request
         $conciliadores = (new CatalogoFilter(Conciliador::query(), $this->request))
@@ -71,14 +72,13 @@ class ConciliadorController extends Controller
         $validator = Validator::make($request->all(), [
             'centro_id' => 'required|Integer',
             'persona_id' => 'required|Integer',
-            'rol_conciliador_id' => 'required|Integer'
         ]);
         if ($validator->fails()) {
             return response()->json($validator, 201);
         }
         if($request->id != "" && $request->id != null){
             $conciliador = Conciliador::find($request->id);
-            $conciliador->update(["persona_id" => $request->persona_id,"centro_id" => $request->centro_id,"rol_conciliador_id" => $request->rol_conciliador_id]);
+            $conciliador->update(["persona_id" => $request->persona_id,"centro_id" => $request->centro_id]);
         }else{
             $conciliador = Conciliador::create($request->all());
         }
@@ -189,6 +189,21 @@ class ConciliadorController extends Controller
         $conciliador->disponibilidades = $conciliador->disponibilidades;
         $conciliador->incidencias = $conciliador->incidencias;
         $conciliador->persona = $conciliador->persona;
+        $conciliador->RolesConciliador = $conciliador->RolesConciliador;
+        return $conciliador;
+    }
+    /**
+     * Funcion guardar y eliminar los roles asignados a los conciliadores
+     * @param Request $request
+     * @return Sala $conciliador
+     */
+    public function roles(Request $request){
+        $conciliador = Conciliador::find($request->id);
+        if($request->rol_conciliador_id != "" && $request->borrar){            
+            $roles = RolConciliador::find($request->rol_conciliador_id)->delete();
+        }else{
+            $conciliadorRol = RolConciliador::create(["conciliador_id" => $request->id, "rol_atencion_id" => $request->rol_atencion_id]);
+        }
         return $conciliador;
     }
 }
