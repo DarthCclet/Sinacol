@@ -8,7 +8,7 @@
   <!-- begin breadcrumb -->
   <ol class="breadcrumb float-xl-right">
       <li class="breadcrumb-item"><a href="/">Home</a></li>
-      <li class="breadcrumb-item"><a href="{!! route('roles-conciliadores.index') !!}">Administración</a></li>
+      <li class="breadcrumb-item"><a href="{!! route('roles-atencion.index') !!}">Administración</a></li>
       <li class="breadcrumb-item active">Usuarios</li>
   </ol>
   <!-- end breadcrumb -->
@@ -17,21 +17,21 @@
   <!-- end page-header -->
 
 
-{!! Form::open([ 'route' => 'roles-conciliadores.store' ]) !!}
+{!! Form::open([ 'route' => 'rol-atencion.store' ]) !!}
 
   <div class="panel panel-default">
       <!-- begin panel-heading -->
       <div class="panel-heading">
           <h4 class="panel-title">Nuevo rol conciliador</h4>
           <div class="panel-heading-btn">
-              <a href="{!! route('roles-conciliadores.index') !!}" class="btn btn-info btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
+              <a href="{!! route('roles-atencion.index') !!}" class="btn btn-info btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
           </div>
       </div>
       <div class="panel-body">
-        @include('admin.rolesConciliadores._form')
+        @include('admin.rolesAtencion._form')
       </div>
       <div class="panel-footer text-right">
-          <a href="{!! route('roles-conciliadores.index') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
+          <a href="{!! route('roles-atencion.index') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
           <button class="btn btn-primary btn-sm m-l-5"><i class="fa fa-save"></i> Guardar</button>
       </div>
   </div>

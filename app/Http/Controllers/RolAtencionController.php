@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Filters\CatalogoFilter;
-use App\RolConciliador;
+use App\RolAtencion;
 use Validator;
 use Illuminate\Http\Request;
 
-class RolConciliadorController extends Controller
+class RolAtencionController extends Controller
 {
     protected $request;
 
@@ -22,22 +22,22 @@ class RolConciliadorController extends Controller
      */
     public function index()
     {
-        $rolesConciliadores = (new CatalogoFilter(RolConciliador::query(), $this->request))
-            ->searchWith(RolConciliador::class)
+        $rolesAtencion = (new CatalogoFilter(RolAtencion::query(), $this->request))
+            ->searchWith(RolAtencion::class)
             ->filter();
 
         // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
         if ($this->request->get('all')) {
-            $rolesConciliadores = $rolesConciliadores->get();
+            $rolesAtencion = $rolesAtencion->get();
         } else {
-            $rolesConciliadores = $rolesConciliadores->paginate($this->request->get('per_page', 10));
+            $rolesAtencion = $rolesAtencion->paginate($this->request->get('per_page', 10));
         }
 
         if ($this->request->wantsJson()) {
-            return $this->sendResponse($rolesConciliadores, 'SUCCESS');
+            return $this->sendResponse($rolesAtencion, 'SUCCESS');
         }
-        return view('admin.rolesConciliadores.index', compact('rolesConciliadores'));
+        return view('admin.rolesAtencion.index', compact('rolesAtencion'));
     }
 
     /**
@@ -47,7 +47,7 @@ class RolConciliadorController extends Controller
      */
     public function create()
     {
-        return view('admin.rolesConciliadores.create');
+        return view('admin.rolesAtencion.create');
     }
 
     /**
@@ -58,8 +58,8 @@ class RolConciliadorController extends Controller
      */
     public function store(Request $request)
     {
-      RolConciliador::create($request->all());
-      return redirect('roles-conciliadores');
+        RolAtencion::create($request->all());
+      return redirect('roles-atencion');
     }
 
     /**
@@ -68,9 +68,9 @@ class RolConciliadorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(RolConciliador $rolConciliador)
+    public function show(RolAtencion $rolAtencion)
     {
-        return $rolConciliador;
+        return $rolAtencion;
     }
 
     /**
@@ -81,8 +81,8 @@ class RolConciliadorController extends Controller
      */
     public function edit($id)
     {
-      $rolConciliador = RolConciliador::find($id);
-      return view('admin.rolesConciliadores.edit')->with('rolConciliador', $rolConciliador);
+      $rolAtencion = RolAtencion::find($id);
+      return view('admin.rolesAtencion.edit')->with('rolAtencion', $rolAtencion);
     }
 
     /**
@@ -94,16 +94,16 @@ class RolConciliadorController extends Controller
      */
     public function update(Request $request, $id)
     {
-      $rolConciliador = RolConciliador::find($id);
+      $rolAtencion = RolAtencion::find($id);
       $request->validate(
           [
             'nombre' => 'required|max:100'
           ]
       );
 
-        $rolConciliador->update($request->all());
+        $rolAtencion->update($request->all());
 
-        return redirect('roles-conciliadores')->with('success', 'Se ha actualizado el rol exitosamente');
+        return redirect('roles-atencion')->with('success', 'Se ha actualizado el rol exitosamente');
     }
 
     /**
@@ -115,11 +115,11 @@ class RolConciliadorController extends Controller
     public function destroy($id )
     {
 
-        $rolConciliador = RolConciliador::findOrFail($id)->delete();
+        $rolAtencion = RolAtencion::findOrFail($id)->delete();
         if ($this->request->wantsJson()) {
             return $this->sendResponse($id, 'SUCCESS');
         }
 
-        return redirect()->route('roles-conciliadores.index')->with('success', 'Se ha eliminado el rol exitosamente');
+        return redirect()->route('roles-atencion.index')->with('success', 'Se ha eliminado el rol exitosamente');
     }
 }

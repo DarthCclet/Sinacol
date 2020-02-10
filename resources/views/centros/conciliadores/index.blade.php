@@ -214,6 +214,37 @@
     </div>
 </div>
 <!-- Fin Modal de disponibilidad-->
+
+<!-- inicio Modal de disponibilidad-->
+<div class="modal" id="modal-roles" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Roles para <span id='nombreConciliador'></span></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    - Marca cada uno de los roles que atenderá el conciliador
+                </div>
+                <table class="table table-hover table-borderless" id="table-roles" style="text-align: center">
+                    <thead>
+                        <tr>
+                            <th class="with-checkbox">
+                                Activar
+                            </th>
+                            <th>Rol</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal de disponibilidad-->
 <input type="hidden" id="id" name="id">
 <input type="hidden" id="incidencia_id" name="incidencia_id">
 @endsection
@@ -263,6 +294,7 @@
                 });
                 return false;
             });
+            getRoles();
             limpiarModal();
         });
         $(document).on("change",'[data-change="switchDia"]',function(){
@@ -599,6 +631,88 @@
                     });
                 }
             });
+        }
+        
+        //funciones para roles
+        function getRolesConciliador(id){
+            $.ajax({
+                url:"/api/conciliador/disponibilidades",
+                type:"POST",
+                dataType:"json",
+                async:false,
+                data:{
+                    id:id
+                },
+                success:function(data){
+                    if(data != null){
+                        $("#id").val(data.id);
+                        limpiarRoles();
+                        $.each(data.RolesConciliador, function(index,element){
+                            $("#check"+element.rol_atencion_id).prop("checked",true);
+                            $("#rol_conciliador_id"+element.rol_atencion_id).val(element.id);
+                        });
+                        $("#modal-roles").modal("show");
+                    }
+                }
+            });
+        }
+        function getRoles(){
+            $.ajax({
+                url:"/api/rol-atencion",
+                type:"GET",
+                dataType:"json",
+                success:function(data){
+                    console.log(data);
+                     if(data.data.data != null && data.data.data != ""){
+                         var table='';
+                        $.each(data.data.data,function(index,element){
+                            table +='<tr>';
+                            table +='   <td class="with-checkbox">';
+                            table +='       <input type="hidden" class="hddRoles" id="rol_conciliador_id'+element.id+'">';
+                            table +='       <div class="checkbox checkbox-css" >';
+                            table +='           <input class="checkRol" type="checkbox" value="'+element.id+'" id="check'+element.id+'" onchange="cambio(this.value)"/>';
+                            table +='           <label for="check'+element.id+'"></label>';
+                            table +='       </div>';
+                            table +='   </td>';
+                            table +='   <td>'+element.nombre+'</td>';
+                            table +='</tr>';
+                        });
+                        $("#table-roles tbody").html(table);
+                    }else{
+                        $("#table-roles tbody").html("");
+                    }
+                }
+            });
+        }
+        function cambio(id){
+            var borrar = false;
+            if($("#rol_conciliador_id"+id).val() != "" && !$("#check"+id).is(":checked")){
+                borrar = true;
+            }
+            $.ajax({
+                url:"/api/conciliador/roles",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    rol_atencion_id:id,
+                    rol_conciliador_id:$("#rol_conciliador_id"+id).val(),
+                    id:$("#id").val(),
+                    borrar:borrar
+                },
+                success:function(data){
+                    if(data != "" && data != null){
+//                        swal({
+//                            title: 'Exito',
+//                            text: 'Se guardarón los datos de la disponibilidad',
+//                            icon: 'success'
+//                        });
+                    }
+                }
+            });
+        }
+        function limpiarRoles(){
+            $(".checkRol").prop("checked",false);   
+            $(".hddRoles").val("");   
         }
     </script>
 @endpush

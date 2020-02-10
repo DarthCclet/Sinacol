@@ -7,7 +7,6 @@
         <th class="text-nowrap">Segundo apellido</th>
         <th class="text-nowrap">RFC</th>
         <th class="text-nowrap">Centro</th>
-        <th class="text-nowrap">Rol</th>
         <th class="text-nowrap" width="15%">Acciones</th>
     </tr>
     </thead>
@@ -20,12 +19,14 @@
             <td>{{$conciliador->persona->segundo_apellido}}</td>
             <td>{{$conciliador->persona->rfc}}</td>
             <td>{{$conciliador->centro->nombre}}</td>
-            <td>{{$conciliador->rolConciliador->nombre}}</td>
             <td class="all">
                 {!! Form::open(['action' => ['ConciliadorController@destroy', $conciliador->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
                     <a href="{{route('conciliadores.edit',[$conciliador])}}" class="btn btn-xs btn-info">
                         <i class="fa fa-pencil-alt"></i>
+                    </a>
+                    <a class="btn btn-xs btn-info disponibilidad" onclick="getRolesConciliador({{$conciliador->id}})">
+                        <i style="color:white;" class="fa fa-user-cog"></i>
                     </a>
                     <a class="btn btn-xs btn-info disponibilidad" onclick="getConciliadorDisponibilidad({{$conciliador->id}})">
                         <i style="color:white;" class="fa fa-calendar"></i>

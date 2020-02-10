@@ -28,6 +28,7 @@ Route::resource('conciliador','ConciliadorController');
 Route::post('conciliador/disponibilidad','ConciliadorController@disponibilidad');
 Route::Post('conciliador/disponibilidades','ConciliadorController@getDisponibilidades');
 Route::Post('conciliador/incidencias','ConciliadorController@incidencia');
+Route::Post('conciliador/roles','ConciliadorController@roles');
 Route::resource('parte','ParteController');
 Route::resource('documento','DocumentoController');
 Route::resource('disponibilidad','DisponibilidadController');
@@ -39,6 +40,7 @@ Route::post('centros/disponibilidad','CentroController@disponibilidad');
 Route::Post('centros/disponibilidades','CentroController@getDisponibilidades');
 Route::Post('centros/incidencias','CentroController@incidencia');
 Route::resource('objeto-solicitud','ObjetoSolicitudController');
-Route::resource('rol-conciliador','RolConciliadorController');
+Route::resource('rol-atencion','RolAtencionController');
+//Route::resource('rol-conciliador','RolAtencionController');
 
 Route::post('login', 'ApiAuthController@login');
