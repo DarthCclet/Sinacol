@@ -3,7 +3,7 @@
     <tr>
         <th width="1%"></th>
         <th class="text-nowrap">Fecha Recepcion</th>
-        <th class="text-nowrap">Motivo</th>
+        <th class="text-nowrap">Objeto</th>
         <th class="text-nowrap">Estatus</th>
         <th class="text-nowrap">Fecha Ratificacion</th>
         <th class="text-nowrap">Acciones</th>
@@ -15,7 +15,7 @@
         <tr class="odd gradeX">
             <td width="1%" class="f-s-600 text-inverse">{{$solicitud->id}}</td>
             <td>{{$solicitud->fecha_recepcion}}</td>
-            <td>{{$solicitud->motivoSolicitud->nombre}}</td>
+            <td>{{$solicitud->objetoSolicitud->nombre}}</td>
             <td>{{$solicitud->estatusSolicitud->nombre}}</td>
             <td>{{$solicitud->fecha_ratificacion}}</td>
             <td class="all">

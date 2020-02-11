@@ -15,6 +15,7 @@ class CreateDatosLaboralesTable extends Migration
     {
         Schema::create('datos_laborales', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('PK de datos laborales de la parte');
+            $table->unsignedBigInteger('parte_id')->comment('FK de la tabla partes');
             $table->string('nombre_jefe_directo')->comment('Nombre del jefe directo');
             // $table->unsignedBigInteger('puesto_id')->comment('FK del puesto ocupado');
             $table->string('puesto')->comment('Nombre del puesto laboral');
@@ -32,6 +33,7 @@ class CreateDatosLaboralesTable extends Migration
             $table->timestamps();
 
             $table->foreign('jornada_id')->references('id')->on('jornadas');
+            $table->foreign('parte_id')->references('id')->on('partes');
         });
         $tabla_nombre = 'datos_laborales';
         $comentario_tabla = 'Tabla donde se almacenan los registros de los datos laborales de las partes.';

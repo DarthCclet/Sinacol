@@ -3,13 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Centro;
+use App\Estado;
 use App\EstatusSolicitud;
 use Illuminate\Http\Request;
 use \App\Solicitud;
 use Validator;
 use App\Filters\SolicitudFilter;
+use App\Genero;
+use App\GiroComercial;
+use App\Jornada;
+use App\Nacionalidad;
 use App\ObjetoSolicitud;
 use App\Parte;
+use App\TipoAsentamiento;
+use App\TipoVialidad;
+use Illuminate\Support\Facades\Auth;
+
 
 class SolicitudController extends Controller
 {
@@ -54,15 +63,12 @@ class SolicitudController extends Controller
         $solicitud = tap($solicitud)->each(function ($solicitud) {
             $solicitud->loadDataFromRequest();
         });
-        $objetoSolicitudes = ObjetoSolicitud::all();
-        $estatusSolicitudes = EstatusSolicitud::all();
-        $centros = Centro::all();
         // return $this->sendResponse($solicitud, 'SUCCESS');
 
         if ($this->request->wantsJson()) {
             return $this->sendResponse($solicitud, 'SUCCESS');
         }
-        return view('expediente.solicitudes.index', compact('solicitud','objetoSolicitudes','estatusSolicitudes','centros'));
+        return view('expediente.solicitudes.index', compact('solicitud'));
     }
 
     /**
@@ -75,7 +81,14 @@ class SolicitudController extends Controller
         $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
         $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
         $centros = array_pluck(Centro::all(),'nombre','id');
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','centros'));
+        $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
+        $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
+        $estados = array_pluck(Estado::all(),'nombre','id');
+        $jornadas = array_pluck(Jornada::all(),'nombre','id');
+        $generos = array_pluck(Genero::all(),'nombre','id');
+        $nacionalidades = array_pluck(Nacionalidad::all(),'nombre','id');
+        $giros_comerciales = array_pluck(GiroComercial::all(),'nombre','id');
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales'));
     }
 
     /**
@@ -87,60 +100,67 @@ class SolicitudController extends Controller
     public function store(Request $request)
     {
 
-    //     $validator = Validator::make($request->all(), [
-    //         'ratificada' => 'Boolean',
-    //         'fecha_ratificacion' => 'required|Date',
-    //         'fecha_recepcion' => 'required|Date',
-    //         'fecha_conflicto' => 'required|Date',
-    //         'observaciones' => 'required|max:500',
-    //         'estatus_solicitud_id' => 'required|Integer',
-    //         'objeto_solicitud_id' => 'required|Integer',
-    //         'centro_id' => 'required|Integer',
-    //         'user_id' => 'required|Integer',
-    //     ]);
+        $request->validate([
+            'solicitud.observaciones' => 'required|max:500',
+            'solicitante.*'
+        ]);
 
-    //     if ($validator->fails()) {
-    //         return response()->json($validator, 201);
-    //                     // ->withInput();
-    //     }
-    //    $solicitud = Solicitud::create($request->all());
-
-    //    return response()->json($solicitud, 201);
+        
+        //    return response()->json($solicitud, 201);
         
         $solicitud = $request->input('solicitud');
-
-        // Solicitud
+        
+        // // Solicitud
         $solicitud['user_id'] = 1;
-        
-        if(!isset($solicitud['ratificada'])){
-            $solicitud['ratificada'] = false;
-        }
-        $solicitud = Solicitud::create($solicitud);
-        
-        // solicitado
-        $solicitado = $request->input('solicitado');
-        $solicitado["solicitud_id"] = $solicitud['id'];
-        $solicitado["tipo_parte_id"] = 2;
-        $solicitado["genero_id"] = 1;
-        $solicitado["nacionalidad_id"] = 1;
-        $solicitado["entidad_nacimiento_id"] = '01';
-        $solicitado["giro_comercial_id"] = 1;
-        $solicitado["grupo_prioritario_id"] = 1;
-        
-        $solicitado = Parte::create($solicitado);
-        // Solicitante 
-        $solicitante = $request->input('solicitante');
-        $solicitante["solicitud_id"] = $solicitud['id'];
-        $solicitante["tipo_parte_id"] = 1;
-        $solicitante["genero_id"] = 1;
-        $solicitante["nacionalidad_id"] = 1;
-        $solicitante["entidad_nacimiento_id"] = '01';
-        $solicitante["giro_comercial_id"] = 1;
-        $solicitante["grupo_prioritario_id"] = 1;
-
-        $solicitante = Parte::create($solicitante);
-        // dd($solicitante['id']);
+        $solicitud['estatus_solicitud_id'] = 1;
         // dd($solicitud);
+        $solicitudSaved = Solicitud::create($solicitud);
+        $solicitantes = $request->input('solicitantes');
+        foreach ($solicitantes as $key => $value) {
+            $value['solicitud_id'] = $solicitudSaved['id'];
+            $dato_laboral = $value['datos_laborales'];
+            unset($value['datos_laborales']);
+            if(isset($value["domicilios"])){
+                $domicilios = $value["domicilios"];
+                unset($value['domicilios']);
+                
+            }
+            
+            $parteSaved = ((Parte::create($value))->dato_laboral()->create($dato_laboral)->parte);
+            foreach ($domicilios as $key => $domicilio) {
+                unset($domicilio["tipoParteDomicilio"]);
+                
+                $domicilio["tipo_vialidad"] = "as";
+                $domicilio["vialidad"] = "as";
+                $domicilio["estado"] = "as";
+                $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+            }
+        }
+
+        $solicitados = $request->input('solicitados');
+        foreach ($solicitados as $key => $value) {
+            if(isset($value["domicilios"])){
+                $domicilios = $value["domicilios"];
+                unset($value['domicilios']);
+            }
+            
+            $value['solicitud_id'] = $solicitudSaved['id'];
+            $parteSaved = Parte::create($value);  
+            foreach ($domicilios as $key => $domicilio) {
+                unset($domicilio["tipoParteDomicilio"]);
+                $domicilio["tipo_vialidad"] = "as";
+                $domicilio["vialidad"] = "as";
+                $domicilio["estado"] = "as";
+                $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+            } 
+        }
+        // // Para cada objeto obtenido cargamos sus relaciones.
+        $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
+            $solicitudSaved->loadDataFromRequest();
+        });
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($solicitudSaved, 'SUCCESS');
+        }
         return redirect('solicitudes')->with('success', 'Se ha creado la solicitud exitosamente');
     }
 
@@ -166,7 +186,6 @@ class SolicitudController extends Controller
         $solicitud = Solicitud::find($id);
         $parte = Parte::all()->where('solicitud_id',$solicitud->id);
 
-        // dd([$parte->first(),$solicitud->partes()->where('tipo_parte_id',3)->get()]);
         $partes = $solicitud->partes()->get();//->where('tipo_parte_id',3)->get()->first()
         
         $solicitud->solicitante = $partes->where('tipo_parte_id',1)->first();
@@ -175,7 +194,14 @@ class SolicitudController extends Controller
         $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
         $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
         $centros = array_pluck(Centro::all(),'nombre','id');
-        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros'));
+        $giros_comerciales = array_pluck(GiroComercial::all(),'nombre','id');
+        $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
+        $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
+        $estados = array_pluck(Estado::all(),'nombre','id');
+        $jornadas = array_pluck(Jornada::all(),'nombre','id');
+        $generos = array_pluck(Genero::all(),'nombre','id');
+        $nacionalidades = array_pluck(Nacionalidad::all(),'nombre','id');
+        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales'));
     }
 
     /**

@@ -26,5 +26,14 @@ class DatoLaboral extends Model
 
   }
 
+  /**
+ * asocia datos_laborales con la tabla de parte
+ * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+ */
+public function parte(){
+  return $this->belongsTo('App\Parte');
+
+}
+
     //
 }

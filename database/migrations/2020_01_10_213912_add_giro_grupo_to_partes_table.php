@@ -17,7 +17,7 @@ class AddGiroGrupoToPartesTable extends Migration
           //
           $table->unsignedBigInteger('giro_comercial_id')->comment('FK a catálogo de giros comerciales');
           $table->foreign('giro_comercial_id')->references('id')->on('giro_comerciales');
-          $table->unsignedBigInteger('grupo_prioritario_id')->comment('FK a catálogo de gruos prioritarios');
+          $table->unsignedBigInteger('grupo_prioritario_id')->nullable()->comment('FK a catálogo de gruos prioritarios');
           $table->foreign('grupo_prioritario_id')->references('id')->on('grupos_prioritarios');
       });
     }

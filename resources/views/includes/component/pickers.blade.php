@@ -11,6 +11,7 @@
     
     <!--Librerias select2-->
     <link href="/assets/plugins/select2/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="/assets/plugins/smartwizard/dist/css/smart_wizard.css" rel="stylesheet" />
 @endpush
 
 @push('scripts')
@@ -27,4 +28,7 @@
     
     <!--Librerias select2-->
     <script src="/assets/plugins/select2/dist/js/select2.min.js"></script>
+    <!-- Libreria Wizard -->
+    <script src="/assets/plugins/smartwizard/dist/js/jquery.smartWizard.js"></script>
+    <script src="/assets/js/demo/form-wizards.demo.js"></script>
 @endpush

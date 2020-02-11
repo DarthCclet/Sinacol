@@ -97,7 +97,22 @@ class Parte extends Model
      * * Utilizando hasMany para relacion uno a muchos
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-	public function audiencias(){
-		return $this->hasMany('App\Audiencia');
-	}
+    public function audiencias(){
+      return $this->hasMany('App\Audiencia');
+    }
+     /**
+     * Dato laboral tiene relacion 
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function dato_laboral()
+    {
+        return $this->hasOne(DatoLaboral::class);
+    }
+    /**
+     * Relacion con la tabla domicilio
+     * @return type
+     */
+    public function domicilios(){
+      return $this->morphMany(Domicilio::class,'domiciliable');
+  }
 }

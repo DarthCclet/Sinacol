@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSolicitantesTable extends Migration
+class CreatePartesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -28,11 +28,11 @@ class CreateSolicitantesTable extends Migration
             //Llave foranea a entidad de nacimiento
             $table->char('entidad_nacimiento_id',2)->comment('FK de la tabla estados');
 
-            $table->string('nombre')->comment('Nombre de la parte');
+            $table->string('nombre')->nullable()->comment('Nombre de la parte');
             $table->string('primer_apellido')->nullable()->comment('Primer apelldo de la parte');
             $table->string('segundo_apellido')->nullable()->comment('Segundo apellido de la parte');
             $table->string('nombre_comercial')->nullable()->comment('Nombre de persona moral');
-            $table->date('fecha_nacimiento')->comment('Fecha de nacimiento de la parte');
+            $table->date('fecha_nacimiento')->nullable()->comment('Fecha de nacimiento de la parte');
             $table->string('edad')->nullable()->comment('Edad de la parte');
             $table->string('rfc')->comment('RFC de la parte');
             $table->string('curp')->nullable()->comment('Curp de la parte');

@@ -45,7 +45,7 @@
                 $('#data-table-default').DataTable({
                     responsive: true
                 });
-                $('.btn-borrar').on('click', function (e) {
+            $('.btn-borrar').on('click', function (e) {
                 let that = this;
                 console.log('boton clic');
                 e.preventDefault();
@@ -76,7 +76,8 @@
                 });
                 return false;
             });
-
+          
+            
         });
     </script>
 @endpush

@@ -11,9 +11,11 @@ use App\Jornada;
 $factory->define(DatoLaboral::class, function (Faker $faker) {
   //$jornada = factory(\App\Jornada::class)->create();
   $jornada = Jornada::inRandomOrder()->first();
+  $parte =  factory(\App\Parte::class)->create();
 
     return [
       'jornada_id' => $jornada->id,
+      'parte_id' => $parte->id,
       'nombre_jefe_directo' => $faker->randomElement(['Luis Lopez','Juana Martinez','Eduardo Sanchez','Ana Juarez']),
       'puesto' =>$faker->randomElement(['obrero','administrador','gerente','contador']),
       'nss'=> $faker->randomNumber(6),
