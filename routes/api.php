@@ -34,6 +34,7 @@ Route::resource('documento','DocumentoController');
 Route::resource('disponibilidad','DisponibilidadController');
 Route::resource('incidencia','IncidenciaController');
 Route::resource('audiencia','AudienciaController');
+Route::Post('audiencia/conciliadoresDisponibles','CentroController@incidencia');
 Route::resource('compareciente','ComparecienteController');
 Route::resource('centro','CentroController');
 Route::post('centros/disponibilidad','CentroController@disponibilidad');
