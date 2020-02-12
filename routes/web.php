@@ -30,5 +30,6 @@ Route::resource('estatus-solicitud','EstatusSolicitudController');
 Route::resource('resolucion-audiencia','ResolucionController');
 Route::resource('grupo-prioritario','GrupoPrioritarioController');
 Route::resource('jornadas','JornadaController');
+Route::resource('ocupaciones','OcupacionController');
 
 Auth::routes(['register' => false]);

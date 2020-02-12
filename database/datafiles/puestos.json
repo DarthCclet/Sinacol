@@ -2,11 +2,24 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "Gerente comercial"
+            "nombre": "Albañilería, oficial de",
+            "salario_zona_libre":"1.00",
+            "salario_resto_del_pais":"1.00",
+            "vigencia_de":"01/01/2020"
         },
         {
             "id": "2",
-            "nombre": "programador"
+            "nombre": "Boticas, farmacias y droguerías, dependiente(a) de mostrador en",
+            "salario_zona_libre":"1.00",
+            "salario_resto_del_pais":"1.00",
+            "vigencia_de":"01/01/2020"
+        },
+        {
+            "id": "3",
+            "nombre": "Buldózer y/o traxcavo",
+            "salario_zona_libre":"1.00",
+            "salario_resto_del_pais":"1.00",
+            "vigencia_de":"01/01/2020"
         }
     ],
     "numReg": 2
