@@ -155,4 +155,25 @@ class AudienciaController extends Controller
         $audiencia = Audiencia::findOrFail($id)->delete();
         return 204;
     }
+    
+    /**
+     * Muestra el calendario de las audiencias a celebrar
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function calendario()
+    {
+        return view('expediente.audiencias.calendario');
+    }
+    /**
+     * Funcion para obtener los conciliadores disponibles
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function conciliadoresDisponibles(Request $request)
+    {
+        dd($request);
+    }
 }
