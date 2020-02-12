@@ -24,6 +24,7 @@ Route::resource('conciliadores','ConciliadorController');
 Route::resource('solicitudes','SolicitudController');
 Route::resource('expedientes','ExpedienteController');
 Route::resource('audiencias','AudienciaController');
+Route::resource('calendario','AudienciaController@calendario');
 Route::resource('roles-atencion','RolAtencionController');
 Route::resource('objeto-solicitud','ObjetoSolicitudController');
 Route::resource('estatus-solicitud','EstatusSolicitudController');
