@@ -7,8 +7,10 @@ use Faker\Generator as Faker;
 use App\RolConciliador;
 
 $factory->define(RolConciliador::class, function (Faker $faker) {
+    $rol_atencion = factory(\App\RolAtencion::class)->create();
+    $conciliador = factory(\App\Conciliador::class)->create();
     return [
-      'nombre'=> $faker->randomElement(['en sala','con preacuerdo'])
-        //
+      'rol_atencion_id'=> $rol_atencion->id,
+      'conciliador_id'=> $conciliador->id
     ];
 });
