@@ -19,18 +19,17 @@ class CreateAudienciasTable extends Migration
             // id del expediente al que corresponde la audiencia
             $table->integer('expediente_id')->comment('FK de la tabla expedientes');
             $table->foreign('expediente_id')->references('id')->on('expedientes');
-            // id del conciliador asignado a la audiencia
+            // id del conciliador que da la resolución
             $table->integer('conciliador_id')->comment('FK de la tabla conciliadores');
             $table->foreign('conciliador_id')->references('id')->on('conciliadores');
-            // id de la sala donde se celebrará la audiencia
-            $table->integer('sala_id')->comment('FK de la tabla salas');
-            $table->foreign('sala_id')->references('id')->on('salas');
             // id de la resolución de la audiencia
             $table->integer('resolucion_id')->nullable()->comment('FK de la tabla resoluciones');
             $table->foreign('resolucion_id')->nullable()->references('id')->on('resoluciones');
             // id de la parte que sera el responsable de cumplir los acuerdos
             $table->integer('parte_responsable_id')->nullable()->comment('FK de la tabla partes');
             $table->foreign('parte_responsable_id')->nullable()->references('id')->on('partes');
+            // indicador de que la audiencia se celebra junta
+            $table->boolean('multiple')->comment('indicador de que la audiencia se celebra junta');
             // fecha en que se celebrará la audiencia
             $table->date('fecha_audiencia')->comment('Fecha en la que se celebrara la audiencia');
             // hora de inicio de la audiencia
