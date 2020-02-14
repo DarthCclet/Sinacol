@@ -4,17 +4,20 @@
 
 use App\Audiencia;
 use App\Expediente;
+use App\Conciliador;
 use App\Resolucion;
 use App\Parte;
 use Faker\Generator as Faker;
 
 $factory->define(Audiencia::class, function (Faker $faker) {
 	$expediente = factory(App\Expediente::class)->create();
+        $conciliador = factory(App\Conciliador::class)->create();
 	$resolucion = factory(App\Resolucion::class)->create();
 	$parteR = factory(App\Parte::class)->create();
     return [
         //
 	'expediente_id' => $expediente->id,
+        'conciliador_id' => $conciliador->id,
 	'resolucion_id' => $resolucion->id,
 	'parte_responsable_id' => $parteR->id,
 	'fecha_audiencia' => $faker->date,
