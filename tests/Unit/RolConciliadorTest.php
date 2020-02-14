@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\RolConciliador;
+use App\RolAtencion;
 
 class RolConciliadorTest extends TestCase
 {
@@ -15,8 +16,8 @@ class RolConciliadorTest extends TestCase
 
      public function testCreateRolConciliador()
      {
-        $rol = RolConciliador::inRandomOrder()->first();
-        //  $rol = factory(\App\RolConciliador::class)->create();
-         $this->assertInstanceOf('\App\RolConciliador',$rol);
+        $rol = factory(\App\RolConciliador::class)->create();
+//        dd($rol);
+        $this->assertInstanceOf(\App\RolAtencion::class,$rol->rolAtencion);
      }
 }

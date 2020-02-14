@@ -13,11 +13,8 @@ class AudineciaTest extends TestCase
      */
     public function testVerifyRelationAudiencia(){
         $audiencia = factory(\App\Audiencia::class)->create();
-        //$audiencias = new \App\Audiencia ;
-        //$audiencia = $audiencias::find(1);
-        $this->assertInstanceOf('\App\Expediente',$audiencia->expediente);
         $this->assertInstanceOf('\App\Conciliador',$audiencia->conciliador);
-        $this->assertInstanceOf('\App\Sala',$audiencia->sala);
+        $this->assertInstanceOf('\App\Expediente',$audiencia->expediente);
         $this->assertInstanceOf('\App\Resolucion',$audiencia->resolucion);
         $this->assertInstanceOf('\App\Parte',$audiencia->parte);
     }
