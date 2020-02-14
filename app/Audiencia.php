@@ -42,14 +42,6 @@ class Audiencia extends Model
     }
 
     /**
-     * Relación con sala
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function sala(){
-      return $this->belongsTo('App\Sala');
-    }
-
-    /**
      * Relación con parte
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -71,5 +63,18 @@ class Audiencia extends Model
      */
     public function comparecientes(){
       return $this->hasMany('App\Compareciente');
+    }
+    
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function salasAudiencias(){
+      return $this->hasMany('App\SalaAudiencia');
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function conciliadoresAudiencias(){
+      return $this->hasMany('App\ConciliadorAudiencia');
     }
 }
