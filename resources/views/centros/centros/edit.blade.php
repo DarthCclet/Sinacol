@@ -3,6 +3,7 @@
 @section('title', 'Centros')
 
 @include('includes.component.datatables')
+@include('includes.component.pickers')
 
 @section('content')
     <!-- begin breadcrumb -->
@@ -41,3 +42,10 @@
         {!! Form::close() !!}
 
 @endsection
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            $("#duracionAudiencia").datetimepicker({format:"HH:mm"});
+        });
+    </script>
+@endpush

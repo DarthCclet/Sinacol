@@ -3,6 +3,7 @@
     <tr>
         <th class="text-nowrap"></th>
         <th class="text-nowrap">Centro de Conciliacion</th>
+        <th class="text-nowrap">Duración de Audiencias(promedio)</th>
         <th class="text-nowrap">Acciones</th>
     </tr>
     </thead>
@@ -11,6 +12,7 @@
         <tr class="odd gradeX">
             <td width="1%" class="f-s-600 text-inverse">{{$centro->id}}</td>
             <td>{{$centro->nombre}}</td>
+            <td>{{$centro->duracionAudiencia}}</td>
             <td>
                 {!! Form::open(['action' => ['CentroController@destroy', $centro->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">

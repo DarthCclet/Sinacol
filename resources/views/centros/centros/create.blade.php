@@ -3,7 +3,7 @@
 @section('title', 'Centros')
 
 @include('includes.component.datatables')
-
+@include('includes.component.pickers')
 @section('content')
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
@@ -44,3 +44,12 @@
     {!! Form::close() !!}
 
 @endsection
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            var dateNow = new Date();
+            var hora = moment(dateNow).hours(1).minutes(0).seconds(0).milliseconds(0);
+            $("#duracionAudiencia").datetimepicker({format:"HH:mm",defaultDate:hora}).val("");
+        });
+    </script>
+@endpush
