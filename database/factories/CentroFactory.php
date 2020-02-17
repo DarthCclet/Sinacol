@@ -7,6 +7,7 @@ use Faker\Generator as Faker;
 
 $factory->define(Centro::class, function (Faker $faker) {
     return [
-        'nombre' => $faker->randomElement(["Estado de Mexico","CDMX","Nayarit","Puebla"])
+        'nombre' => $faker->randomElement(["Estado de Mexico","CDMX","Nayarit","Puebla"]),
+        'duracionAudiencia' => $faker->time
     ];
 });
