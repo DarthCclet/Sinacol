@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Filters\CatalogoFilter;
 use App\Conciliador;
+use App\Persona;
 use App\Disponibilidad;
 use App\Incidencia;
 use App\RolConciliador;
@@ -205,5 +206,18 @@ class ConciliadorController extends Controller
             $conciliadorRol = RolConciliador::create(["conciliador_id" => $request->id, "rol_atencion_id" => $request->rol_atencion_id]);
         }
         return $conciliador;
+    }
+    /**
+     * Funcion para obtener conciliadores disponibles
+     * @param Request $request
+     * @return Sala $conciliador
+     */
+    public function conciliadoresDisponibles(Request $request){
+        $conciliadores = Conciliador::all();
+        foreach ($conciliadores as $key => $value){
+            $persona = Persona::find($value->id);
+            $conciliadores[$key]["persona"] = $persona;
+        }
+        return $conciliadores;
     }
 }

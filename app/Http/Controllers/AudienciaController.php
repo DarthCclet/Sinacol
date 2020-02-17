@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Audiencia;
+use App\ConciliadorAudiencia;
+use App\SalaAudiencia;
 use Validator;
 use App\Filters\CatalogoFilter;
 
@@ -175,5 +177,25 @@ class AudienciaController extends Controller
     public function conciliadoresDisponibles(Request $request)
     {
         dd($request);
+    }
+    /**
+     * Funcion para obtener los conciliadores disponibles
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function calendarizar(Request $request)
+    {
+        $audiencia = Audiencia::find($request->audiencia_id);
+        $id_conciliador = 0;
+        foreach ($request->asignacion as $value) {
+            if($value["resolucion"]){
+                $id_conciliador = $value["conciliador"];
+            }
+            ConciliadorAudiencia::create(["audiencia_id" => $request->audiencia_id, "conciliador_id" => $value["conciliador"]]);
+            SalaAudiencia::create(["audiencia_id" => $request->audiencia_id, "sala_id" => $value["sala"]]);
+        }
+        $audiencia->update(["fecha_audiencia" => $request->fecha_audiencia,"hora_inicio" => $request->hora_inicio, "hora_fin" => $request->hora_fin,"conciliador_id" => $id_conciliador]);
+        return $audiencia;
     }
 }
