@@ -29,12 +29,14 @@ Route::post('conciliador/disponibilidad','ConciliadorController@disponibilidad')
 Route::Post('conciliador/disponibilidades','ConciliadorController@getDisponibilidades');
 Route::Post('conciliador/incidencias','ConciliadorController@incidencia');
 Route::Post('conciliador/roles','ConciliadorController@roles');
+Route::Post('conciliador/ConciliadoresDisponibles','ConciliadorController@conciliadoresDisponibles');
 Route::resource('parte','ParteController');
 Route::resource('documento','DocumentoController');
 Route::resource('disponibilidad','DisponibilidadController');
 Route::resource('incidencia','IncidenciaController');
 Route::resource('audiencia','AudienciaController');
-Route::Post('audiencia/conciliadoresDisponibles','CentroController@incidencia');
+Route::Post('audiencia/conciliadoresDisponibles','AudienciaController@incidencia');
+Route::Post('audiencia/calendarizar','AudienciaController@calendarizar');
 Route::resource('compareciente','ComparecienteController');
 Route::resource('centro','CentroController');
 Route::post('centros/disponibilidad','CentroController@disponibilidad');
