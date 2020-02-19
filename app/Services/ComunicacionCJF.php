@@ -62,8 +62,12 @@ class ComunicacionCJF
     {
       try
       {
+<<<<<<< HEAD
         // $urlEnvio = env('API_CJF');
         $urlEnvio = 'http://189.240.126.44:96/wsInterconexion/STPS/DemandaSTPSService.svc/DemandaSTPS';
+=======
+        $urlEnvio = env('API_CJF');
+>>>>>>> 9dc726a5216175c36127ae88510a37e42d9a9eb3
         // $client = new Client();
         $client = new Client(['headers' => [ 'Content-Type' => 'application/json' ]]);
         $response = $client->post($urlEnvio, ['body' => $envioDocumento]);
