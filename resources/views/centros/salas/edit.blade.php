@@ -22,7 +22,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Nuevo centro</h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('centros.index') !!}" class="btn btn-info btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
+                <a href="{!! route('salas.index') !!}" class="btn btn-info btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
             </div>
         </div>
         <!-- end panel-heading -->
@@ -33,7 +33,7 @@
         <!-- end panel-body -->
         <!-- begin panel-footer -->
         <div class="panel-footer text-right">
-            <a href="{!! route('centros.index') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
+            <a href="{!! route('salas.index') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
             <a class="btn btn-primary btn-sm m-l-5" id="btnGuardar"><i class="fa fa-save"></i> Modificar</a>
         </div>
         <!-- end panel-footer -->
