@@ -5,7 +5,13 @@
 @include('includes.component.datatables')
 @include('includes.component.pickers')
 @include('includes.component.calendar')
-
+@push('styles')
+<style>
+    .clickThrough{
+        border-color: red;
+    }
+</style>
+@endpush
 @section('content')
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
@@ -143,6 +149,26 @@
 @push('scripts')
         <script>
             $(document).ready(function(){
+                $.ajax({
+                    url:"/api/audiencia/getCalendario",
+                    type:"POST",
+                    data:{
+                        centro_id:1
+                    },
+                    dataType:"json",
+                    success:function(data){
+                        construirCalendario(data);
+                    }
+                });
+            });
+            function construirCalendario(arregloGeneral){
+                $('#external-events .fc-event').each(function() {
+                    // store data so the calendar knows to render an event upon drop
+                    $(this).data('event', {
+                            title: $.trim($(this).text()), // use the element's text as the event title
+                            stick: true // maintain when user navigates (see docs on the renderEvent method)
+                    });
+                });
                 $('#calendar').fullCalendar({
                     header: {
                         left: 'month,agendaWeek',
@@ -155,26 +181,37 @@
                     },
                     selectable: true,
                     selectHelper: true,
-                    slotDuration:"01:00:00",
+                    slotDuration:arregloGeneral.duracionPromedio,
+                    eventConstraint: {
+                        start: moment().format('YYYY-MM-DD'),
+                        end: '2100-01-01' // hard coded goodness unfortunately
+                    },
                     select: function(start, end,a,b) {
                         var ahora = new Date();
-                        if(start > ahora){ //validar si la fecha es mayor que hoy
+                        end=moment(end).format('Y-MM-DD HH:mm:ss');
+                        start=moment(start).format('Y-MM-DD HH:mm:ss');
+                        var startVal = new Date(start);
+                        if(startVal > ahora){ //validar si la fecha es mayor que hoy
                             if(b.type == "month"){ // si es la vista de mes, abrir la vista de semana
                                 $('#calendar').fullCalendar("gotoDate",start);
                                 $(".fc-agendaWeek-button").click();
                                 $("#fecha_audiencia").val(start);
                             }else{
-                                start=moment(start).format('Y-MM-DD HH:mm:ss');
-                                end=moment(end).format('Y-MM-DD HH:mm:ss');
                                 SolicitarAudiencia(start,end);
                             }
-                            $('#calendar').fullCalendar('unselect');
                         }
+                        $('#calendar').fullCalendar('unselect');
                     },
-                    editable: true,
-                    eventLimit: true, // allow "more" link when too many events
+                    selectOverlap: function(event) {
+                        return ($('#calendar').fullCalendar('getView').name == "week");
+                    },
+                    editable: false,
+                    allDaySlot:false,
+                    eventLimit: true,
+                    businessHours: arregloGeneral.laboresCentro,
+                    events: arregloGeneral.incidenciasCentro,
                 });
-            });
+            }
             function SolicitarAudiencia(inicio,fin){
                 swal({
                     title: '¿Concilian juntos?',
@@ -216,15 +253,15 @@
                     $("#divAsignarDos").show();
                     $("#tipoAsignacion").val(2);
                 }
-                getConciliadores();
-                getSalas();
+                getConciliadores(inicio,fin);
+                getSalas(inicio,fin);
                 $("#hora_inicio").val(inicio);
                 $("#hora_fin").val(fin);
                 $("#modal-asignar").modal("show");
             }
             getConciliadores = function(fechaInicio,fechaFin){
                 $.ajax({
-                    url:"/api/conciliador/ConciliadoresDisponibles",
+                    url:"/api/audiencia/ConciliadoresDisponibles",
                     type:"POST",
                     data:{
                         fechaInicio:fechaInicio,
@@ -233,7 +270,6 @@
                     },
                     dataType:"json",
                     success:function(data){
-                        console.log(data);
                         if(data != null && data != ""){
                             $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un centro</option>");
                             $.each(data,function(index,element){
@@ -248,8 +284,8 @@
             };
             function getSalas(fechaInicio,fechaFin){
                 $.ajax({
-                    url:"/api/sala",
-                    type:"GET",
+                    url:"/api/audiencia/SalasDisponibles",
+                    type:"POST",
                     data:{
                         fechaInicio:fechaInicio,
                         fechaFin:fechaFin,
@@ -257,10 +293,9 @@
                     },
                     dataType:"json",
                     success:function(data){
-                        console.log(data);
                         $("#sala_id,#sala_solicitado_id,#sala_solicitante_id").html("<option value=''>-- Selecciona una sala</option>");
-                        if(data.data.data != null && data.data.data != ""){
-                            $.each(data.data.data,function(index,element){
+                        if(data != null && data != ""){
+                            $.each(data,function(index,element){
                                 $("#sala_id,#sala_solicitado_id,#sala_solicitante_id").append("<option value='"+element.id+"'>"+element.sala+"</option>");
                             });
                         }
@@ -286,7 +321,7 @@
                         success:function(data){
                             console.log(data);
                             if(data != null && data != ""){
-                                
+                                window.location.href = "{{ route('audiencias.index')}}";
                             }else{
                                 swal({
                                     title: 'Algo salio mal',
