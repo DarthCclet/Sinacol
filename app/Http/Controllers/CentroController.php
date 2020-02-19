@@ -148,10 +148,10 @@ class CentroController extends Controller
     public function incidencia(Request $request){
         $centro = Centro::find($request->id);
         if($request->incidencia_id == ""){
-            $centro->incidencias()->create(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio,"fecha_fin" => $request->fecha_fin]);
+            $centro->incidencias()->create(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio." 00:00:00","fecha_fin" => $request->fecha_fin." 23:59:00"]);
         }else{
             $incidencia = Incidencia::find($request->incidencia_id);
-            $incidencia->update(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio,"fecha_fin" => $request->fecha_fin]);
+            $incidencia->update(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio." 00:00:00","fecha_fin" => $request->fecha_fin." 23:59:00"]);
         }
         return $centro;
     }
