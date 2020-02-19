@@ -240,7 +240,7 @@
                 }
             });
             $(".horas").datetimepicker({format:"HH:mm"});
-            $('#fecha_fin,#fecha_inicio').datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm'});
+            $('#fecha_fin,#fecha_inicio').datetimepicker({useCurrent: false,format:'DD/MM/YYYY'});
             $("#fecha_inicio").on("dp.change", function (e) {
                 $('#fecha_fin').data("DateTimePicker").minDate(e.date);
             });
