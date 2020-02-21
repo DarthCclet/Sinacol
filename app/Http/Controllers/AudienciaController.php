@@ -29,7 +29,7 @@ class AudienciaController extends Controller
     public function index()
     {
 //        return Audiencia::all();
-        Audiencia::with('conciliador', 'sala')->get();
+        Audiencia::with('conciliador')->get();
         // $solicitud = Solicitud::all();
 
 
@@ -246,17 +246,17 @@ class AudienciaController extends Controller
      */
     public function calendarizar(Request $request)
     {
-        $audiencia = Audiencia::find($request->audiencia_id);
-        $id_conciliador = 0;
-        foreach ($request->asignacion as $value) {
-            if($value["resolucion"]){
-                $id_conciliador = $value["conciliador"];
+            $audiencia = Audiencia::find($request->audiencia_id);
+            $id_conciliador = 0;
+            foreach ($request->asignacion as $value) {
+                if($value["resolucion"]){
+                    $id_conciliador = $value["conciliador"];
+                }
+                ConciliadorAudiencia::create(["audiencia_id" => $request->audiencia_id, "conciliador_id" => $value["conciliador"]]);
+                $sala=SalaAudiencia::create(["audiencia_id" => $request->audiencia_id, "sala_id" => $value["sala"]]);
             }
-            ConciliadorAudiencia::create(["audiencia_id" => $request->audiencia_id, "conciliador_id" => $value["conciliador"]]);
-            SalaAudiencia::create(["audiencia_id" => $request->audiencia_id, "sala_id" => $value["sala"]]);
-        }
-        $audiencia->update(["fecha_audiencia" => $request->fecha_audiencia,"hora_inicio" => $request->hora_inicio, "hora_fin" => $request->hora_fin,"conciliador_id" => $id_conciliador]);
-        return $audiencia;
+            $audiencia->update(["fecha_audiencia" => $request->fecha_audiencia,"hora_inicio" => $request->hora_inicio, "hora_fin" => $request->hora_fin,"conciliador_id" => $id_conciliador]);
+            return $audiencia;
     }
     /**
      * Funcion para obtener los momentos ocupados
@@ -281,10 +281,12 @@ class AudienciaController extends Controller
         foreach($centroIncidencias as $key => $value){
             $arrayFechas = $this->validarIncidenciasCentro($value,$arrayFechas);
         }
+        $arrayAudiencias=$this->getTodasAudiencias($request->centro_id);
+        $ev=array_merge($arrayFechas,$arrayAudiencias);
         //construimos el arreglo general
         $arregloGeneral = array();
         $arregloGeneral["laboresCentro"] = $laboresCentro;
-        $arregloGeneral["incidenciasCentro"] = $arrayFechas;
+        $arregloGeneral["incidenciasCentro"] = $ev;
         $arregloGeneral["duracionPromedio"] = $centro->duracionAudiencia;
         return $arregloGeneral;
     }
@@ -301,5 +303,22 @@ class AudienciaController extends Controller
             $current = strtotime($step, $current);
         }
         return $arrayFechas;
+    }
+    
+    public function getTodasAudiencias($centro_id){
+        $Audiencias = DB::table('audiencias')
+                ->join('expedientes', 'audiencias.expediente_id', '=', 'expedientes.id')
+                ->join('solicitudes', 'expedientes.solicitud_id', '=', 'solicitudes.id')
+                ->where("solicitudes.centro_id","=",$centro_id)
+                ->where("audiencias.fecha_audiencia",">",date("Y-m-d"))
+                ->select("audiencias.*","expedientes.folio","expedientes.anio")
+                ->get();
+        $arrayEventos=[];
+        foreach($Audiencias as $audiencia){
+            $start = $audiencia->fecha_audiencia ." ". $audiencia->hora_inicio;
+            $end = $audiencia->fecha_audiencia ." ". $audiencia->hora_fin;
+            array_push($arrayEventos,array("start" => $start ,"end" => $end,"title" => $audiencia->folio."/".$audiencia->anio,"color" => "#00ACAC"));
+        }
+        return $arrayEventos;
     }
 }
