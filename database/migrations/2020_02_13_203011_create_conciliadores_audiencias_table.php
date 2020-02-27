@@ -22,6 +22,8 @@ class CreateConciliadoresAudienciasTable extends Migration
             // id de la audiencia 
             $table->integer('audiencia_id')->comment('FK de la tabla audiencias');
             $table->foreign('audiencia_id')->references('id')->on('audiencias');
+            // indicador de que atiende al solicitante
+            $table->boolean('solicitante')->comment('indicador de que atiende al solicitante');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');
             $table->timestamps();
         });
