@@ -5,6 +5,7 @@
 @include('includes.component.datatables')
 @include('includes.component.pickers')
 
+
 @section('content')
 <button class="btn btn-info" onclick="location.href='{{ route('solicitudes.index')  }}'" > <i class="fa fa-arrow-alt-circle-left"></i> Regresar</button>
 <div class="panel panel-inverse">
@@ -20,4 +21,7 @@
         {{-- </form> --}}
     </div>
 </div>
+<script>
+    var edit = false;
+</script>
 @endsection

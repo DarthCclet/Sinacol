@@ -65,4 +65,9 @@ class Solicitud extends Model
     {
         return $this->hasMany('App\Parte', 'solicitud_id', 'id');
     }
+
+    public function objeto_solicitudes()
+    {
+        return $this->belongsToMany('App\ObjetoSolicitud');
+    }
 }

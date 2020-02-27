@@ -15,7 +15,6 @@
         <tr class="odd gradeX">
             <td width="1%" class="f-s-600 text-inverse">{{$solicitud->id}}</td>
             <td>{{$solicitud->fecha_recepcion}}</td>
-            <td>{{$solicitud->objetoSolicitud->nombre}}</td>
             <td>{{$solicitud->estatusSolicitud->nombre}}</td>
             <td>{{$solicitud->fecha_ratificacion}}</td>
             <td class="all">

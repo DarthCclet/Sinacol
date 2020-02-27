@@ -20,13 +20,13 @@ class CreatePartesTable extends Migration
             //LLave foranea a generos
             $table->unsignedBigInteger('tipo_parte_id')->comment('FK de la tabla tipo_partes');
             //LLave foranea a generos
-            $table->unsignedBigInteger('genero_id')->comment('FK de la tabla partes');
+            $table->unsignedBigInteger('genero_id')->nullable()->comment('FK de la tabla partes');
             // LLave foranea a tipo Persona
             $table->unsignedBigInteger('tipo_persona_id')->comment('FK de la tabla tipo_personas');
             // LLave foranea a nacionalidad
-            $table->unsignedBigInteger('nacionalidad_id')->comment('FK de la tabla nacionalidades');
+            $table->unsignedBigInteger('nacionalidad_id')->nullable()->comment('FK de la tabla nacionalidades');
             //Llave foranea a entidad de nacimiento
-            $table->char('entidad_nacimiento_id',2)->comment('FK de la tabla estados');
+            $table->char('entidad_nacimiento_id',2)->nullable()->comment('FK de la tabla estados');
 
             $table->string('nombre')->nullable()->comment('Nombre de la parte');
             $table->string('primer_apellido')->nullable()->comment('Primer apelldo de la parte');

@@ -84,7 +84,7 @@ class SolicitudApiTest extends TestCase
      */
     public function testRegistrosPaginadosTest(): void
     {
-        factory(Solicitud::class,20)->create();
+        factory(Solicitud::class,1)->create();
         $response = $this->json('GET', '/api/solicitud');
         $response->assertStatus(200);
 
