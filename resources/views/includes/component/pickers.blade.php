@@ -12,6 +12,9 @@
     <!--Librerias select2-->
     <link href="/assets/plugins/select2/dist/css/select2.min.css" rel="stylesheet" />
     <link href="/assets/plugins/smartwizard/dist/css/smart_wizard.css" rel="stylesheet" />
+    
+    <!--Librerias wysihtml5-->
+    <link href="/assets/plugins/bootstrap3-wysihtml5-bower/dist/bootstrap3-wysihtml5.min.css" rel="stylesheet" />
 @endpush
 
 @push('scripts')
@@ -31,4 +34,9 @@
     <!-- Libreria Wizard -->
     <script src="/assets/plugins/smartwizard/dist/js/jquery.smartWizard.js"></script>
     <script src="/assets/js/demo/form-wizards.demo.js"></script>
+    
+    <!--Librerias wysihtml5-->
+    <script src="/assets/plugins/ckeditor/ckeditor.js"></script>
+    <script src="/assets/plugins/bootstrap3-wysihtml5-bower/dist/bootstrap3-wysihtml5.all.min.js"></script>
+    <script src="/assets/js/demo/form-wysiwyg.demo.js"></script>
 @endpush

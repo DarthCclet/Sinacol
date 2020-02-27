@@ -10,6 +10,7 @@ $factory->define(ConciliadorAudiencia::class, function (Faker $faker) {
     $audiencia = factory(Audiencia::class)->create();
     return [
         'conciliador_id' => $conciliador->id,
-        'audiencia_id' => $audiencia->id
+        'audiencia_id' => $audiencia->id,
+        'solicitante' => $faker->boolean
     ];
 });

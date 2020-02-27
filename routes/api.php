@@ -39,6 +39,7 @@ Route::Post('audiencia/ConciliadoresDisponibles','AudienciaController@Conciliado
 Route::Post('audiencia/SalasDisponibles','AudienciaController@SalasDisponibles');
 Route::Post('audiencia/calendarizar','AudienciaController@calendarizar');
 Route::Post('audiencia/getCalendario','AudienciaController@getCalendario');
+Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
 Route::resource('compareciente','ComparecienteController');
 Route::resource('centro','CentroController');
 Route::post('centros/disponibilidad','CentroController@disponibilidad');

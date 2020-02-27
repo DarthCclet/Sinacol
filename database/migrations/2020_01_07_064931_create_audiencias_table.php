@@ -29,7 +29,7 @@ class CreateAudienciasTable extends Migration
             $table->integer('parte_responsable_id')->nullable()->comment('FK de la tabla partes');
             $table->foreign('parte_responsable_id')->nullable()->references('id')->on('partes');
             // indicador de que la audiencia se celebra junta
-            $table->boolean('multiple')->comment('indicador de que la audiencia se celebra junta');
+            $table->boolean('multiple')->nullable()->comment('indicador de que la audiencia se celebra junta');
             // fecha en que se celebrará la audiencia
             $table->date('fecha_audiencia')->comment('Fecha en la que se celebrara la audiencia');
             // hora de inicio de la audiencia

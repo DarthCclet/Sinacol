@@ -7,8 +7,8 @@
 @include('includes.component.calendar')
 @push('styles')
 <style>
-    .clickThrough{
-        border-color: red;
+    .fc-event{
+        height:60px !important;
     }
 </style>
 @endpush
@@ -175,20 +175,14 @@
                         center: 'title',
                         right: 'prev,today,next '
                     },
-                    droppable: true, // this allows things to be dropped onto the calendar
-                    drop: function() {
-                        $(this).remove();
-                    },
                     selectable: true,
                     selectHelper: true,
-                    slotDuration:arregloGeneral.duracionPromedio,
-                    eventConstraint: {
-                        start: moment().format('YYYY-MM-DD'),
-                        end: '2100-01-01' // hard coded goodness unfortunately
-                    },
+//                    slotDuration:arregloGeneral.duracionPromedio,
+//                    slotDuration:"01:00:00",
                     select: function(start, end,a,b) {
                         var ahora = new Date();
-                        end=moment(end).format('Y-MM-DD HH:mm:ss');
+                        end=moment(end).add(1, 'hours').add(30,'minutes').format('Y-MM-DD HH:mm:ss');
+                        console.log(end);
                         start=moment(start).format('Y-MM-DD HH:mm:ss');
                         var startVal = new Date(start);
                         if(startVal > ahora){ //validar si la fecha es mayor que hoy
@@ -199,17 +193,24 @@
                             }else{
                                 SolicitarAudiencia(start,end);
                             }
+                        }else{
+                            swal({
+                                title: 'Error',
+                                text: 'No puedes seleccionar una fecha previa',
+                                icon: 'warning'
+                            });
                         }
                         $('#calendar').fullCalendar('unselect');
                     },
                     selectOverlap: function(event) {
-                        return ($('#calendar').fullCalendar('getView').name == "week");
+                        return event.rendering !== 'background';
                     },
                     editable: false,
                     allDaySlot:false,
-                    eventLimit: true,
+                    eventLimit: false,
                     businessHours: arregloGeneral.laboresCentro,
                     events: arregloGeneral.incidenciasCentro,
+                    eventConstraint: "businessHours"
                 });
             }
             function SolicitarAudiencia(inicio,fin){
@@ -242,8 +243,8 @@
                 });
             }
             function CargarModal(aux,inicio,fin){
-                console.log(inicio);
-                console.log(fin);
+//                console.log(inicio);
+//                console.log(fin);
                 if(aux == 1){
                     $("#divAsignarUno").show();
                     $("#divAsignarDos").hide();
@@ -305,7 +306,6 @@
             }
             $("#btnGuardar").on("click",function(){
                 var validacion = validarAsignacion();
-                console.log(validacion);
                 if(!validacion.error){
                     $.ajax({
                         url:"/api/audiencia/calendarizar",
@@ -314,6 +314,7 @@
                             fecha_audiencia:new Date($("#fecha_audiencia").val()).toISOString(),
                             hora_inicio:$("#hora_inicio").val(),
                             hora_fin:$("#hora_fin").val(),
+                            tipoAsignacion:$("#tipoAsignacion").val(),
                             audiencia_id:1,
                             asignacion:validacion.arrayEnvio
                         },
