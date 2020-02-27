@@ -7,6 +7,7 @@
         <th class="text-nowrap">Fecha de audiencia</th>
         <th class="text-nowrap">Hora inicio</th>
         <th class="text-nowrap">Hora fin</th>
+        <th class="text-nowrap">Acciones</th>
         <!-- <th >Editar</th> -->
     </tr>
     </thead>
@@ -19,6 +20,13 @@
             <td>{{$audiencia->fecha_audiencia}}</td>
             <td>{{$audiencia->hora_inicio}}</td>
             <td>{{$audiencia->hora_fin}}</td>
+            <td>
+                <div style="display: inline-block;">
+                    <a href="{{route('audiencias.edit',[$audiencia])}}" class="btn btn-xs btn-info" title="Editar">
+                        <i class="fa fa-pencil-alt"></i>
+                    </a>
+                </div>
+            </td>
         </tr>
     @endforeach
 

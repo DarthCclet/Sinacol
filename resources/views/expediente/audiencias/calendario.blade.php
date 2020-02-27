@@ -314,6 +314,7 @@
                             fecha_audiencia:new Date($("#fecha_audiencia").val()).toISOString(),
                             hora_inicio:$("#hora_inicio").val(),
                             hora_fin:$("#hora_fin").val(),
+                            tipoAsignacion:$("#tipoAsignacion").val(),
                             audiencia_id:1,
                             asignacion:validacion.arrayEnvio
                         },
