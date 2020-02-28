@@ -1362,6 +1362,13 @@
           zoomControl: true,
           mapTypeId: google.maps.MapTypeId.ROADMAP
       });
+      map.panorama = map.getStreetView();
+      map.panorama.addListener('visible_changed', function() {
+        if(!this.visible){
+            console.log("entro");
+            seteaMarker(map, this.position);
+        }
+    });
     //   map2 = new google.maps.Map(document.getElementById('widget-maps2'), {
     //       zoom: 15,
     //       center: {lat: parseFloat(lat), lng: parseFloat(lon)},
