@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Centro;
+use App\DatoLaboral;
+use App\Domicilio;
 use App\Estado;
 use App\EstatusSolicitud;
 use Illuminate\Http\Request;
@@ -14,6 +16,7 @@ use App\GiroComercial;
 use App\Jornada;
 use App\Nacionalidad;
 use App\ObjetoSolicitud;
+use App\Ocupacion;
 use App\Parte;
 use App\TipoAsentamiento;
 use App\TipoVialidad;
@@ -41,10 +44,6 @@ class SolicitudController extends Controller
      */
     public function index()
     {
-        Solicitud::with('estatusSolicitud', 'objetoSolicitud')->get();
-        // $solicitud = Solicitud::all();
-
-
         // Filtramos los usuarios con los parametros que vengan en el request
         $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
             ->searchWith(Solicitud::class)
@@ -88,7 +87,8 @@ class SolicitudController extends Controller
         $generos = array_pluck(Genero::all(),'nombre','id');
         $nacionalidades = array_pluck(Nacionalidad::all(),'nombre','id');
         $giros_comerciales = array_pluck(GiroComercial::all(),'nombre','id');
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales'));
+        $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones'));
     }
 
     /**
@@ -102,11 +102,39 @@ class SolicitudController extends Controller
 
         $request->validate([
             'solicitud.observaciones' => 'required|max:500',
-            'solicitante.*'
-        ]);
+            'solicitud.estatus_solicitud_id' => 'required',
+            'solicitud.fecha_conflicto' => 'required',
+            'solicitud.fecha_ratificacion' => 'required',
+            'solicitud.fecha_recepcion' => 'required',
+            'solicitud.ratificada' => 'required',
+            'solicitud.solicita_excepcion' => 'required',
 
-        
-        //    return response()->json($solicitud, 201);
+            'solicitante.*.nombre' => 'required',
+            'solicitante.*.primer_apellido' => 'required',
+            'solicitante.*.rfc' => 'required',
+            'solicitante.*.tipo_parte_id' => 'required',
+            'solicitante.*.tipo_persona_id' => 'required',
+            'solicitante.*.curp' => 'required',
+            'solicitante.*.edad' => 'required',
+            'solicitante.*.entidad_nacimiento_id' => 'required',
+            'solicitante.*.fecha_nacimiento' => 'required',
+            'solicitante.*.genero_id' => 'required',
+            'solicitante.*.giro_comercial_id' => 'required',
+            'solicitante.*.nacionalidad_id' => 'required',
+
+            'solicitado.*.nombre' => 'required',
+            'solicitado.*.primer_apellido' => 'required',
+            'solicitado.*.rfc' => 'required',
+            'solicitado.*.tipo_parte_id' => 'required',
+            'solicitado.*.tipo_persona_id' => 'required',
+            'solicitado.*.curp' => 'required',
+            'solicitado.*.edad' => 'required',
+            'solicitado.*.entidad_nacimiento_id' => 'required',
+            'solicitado.*.fecha_nacimiento' => 'required',
+            'solicitado.*.genero_id' => 'required',
+            'solicitado.*.giro_comercial_id' => 'required',
+            'solicitado.*.nacionalidad_id' => 'required',
+        ]);
         
         $solicitud = $request->input('solicitud');
         
@@ -115,30 +143,42 @@ class SolicitudController extends Controller
         $solicitud['estatus_solicitud_id'] = 1;
         // dd($solicitud);
         $solicitudSaved = Solicitud::create($solicitud);
+
+        $objeto_solicitudes = $request->input('objeto_solicitudes');
+        
+        foreach ($objeto_solicitudes as $key => $value) {
+            $solicitudSaved->objeto_solicitudes()->attach($value['objeto_solicitud_id']);   
+        }
+        
         $solicitantes = $request->input('solicitantes');
+        
         foreach ($solicitantes as $key => $value) {
             $value['solicitud_id'] = $solicitudSaved['id'];
-            $dato_laboral = $value['datos_laborales'];
-            unset($value['datos_laborales']);
+            unset($value['activo']);
+            $dato_laboral = $value['dato_laboral'];
+            
+            unset($value['dato_laboral']);
             if(isset($value["domicilios"])){
-                $domicilios = $value["domicilios"];
+                $domicilio = $value["domicilios"][0];
                 unset($value['domicilios']);
-                
             }
             
+            // dd($value);
             $parteSaved = ((Parte::create($value))->dato_laboral()->create($dato_laboral)->parte);
-            foreach ($domicilios as $key => $domicilio) {
-                unset($domicilio["tipoParteDomicilio"]);
-                
+            // dd($domicilio);
+            // foreach ($domicilios as $key => $domicilio) {
                 $domicilio["tipo_vialidad"] = "as";
                 $domicilio["vialidad"] = "as";
                 $domicilio["estado"] = "as";
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
-            }
+            // }
         }
-
+        
         $solicitados = $request->input('solicitados');
+        
         foreach ($solicitados as $key => $value) {
+            unset($value['activo']);
+            $domicilios = Array();
             if(isset($value["domicilios"])){
                 $domicilios = $value["domicilios"];
                 unset($value['domicilios']);
@@ -146,14 +186,16 @@ class SolicitudController extends Controller
             
             $value['solicitud_id'] = $solicitudSaved['id'];
             $parteSaved = Parte::create($value);  
-            foreach ($domicilios as $key => $domicilio) {
-                unset($domicilio["tipoParteDomicilio"]);
-                $domicilio["tipo_vialidad"] = "as";
-                $domicilio["vialidad"] = "as";
-                $domicilio["estado"] = "as";
-                $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+            if(count($domicilios) > 0){
+                foreach ($domicilios as $key => $domicilio) {
+                    $domicilio["tipo_vialidad"] = "as";
+                    $domicilio["vialidad"] = "as";
+                    $domicilio["estado"] = "as";
+                    $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                }
             } 
         }
+
         // // Para cada objeto obtenido cargamos sus relaciones.
         $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
             $solicitudSaved->loadDataFromRequest();
@@ -170,9 +212,29 @@ class SolicitudController extends Controller
      * @param  Solicitud  $solicitud
      * @return \Illuminate\Http\Response
      */
-    public function show(Solicitud $solicitud)
+    public function show($id)
     {
-        return response()->json( ['solicitudes' => $solicitud]);
+        $solicitud = Solicitud::find($id);
+        $parte = Parte::all()->where('solicitud_id',$solicitud->id);
+
+        $partes = $solicitud->partes()->get();//->where('tipo_parte_id',3)->get()->first()
+        
+        $solicitantes = $partes->where('tipo_parte_id',1);
+        
+        foreach ($solicitantes as $key => $value) {
+            $value->dato_laboral;
+            $value->domicilios;
+            $solicitantes[$key]["activo"] = 1;
+        }
+        $solicitados = $partes->where('tipo_parte_id',2);
+        foreach ($solicitados as $key => $value) {
+            $value->domicilios;
+            $solicitados[$key]["activo"] = 1;
+        }
+        $solicitud->objeto_solicitudes;
+        $solicitud["solicitados"] = $solicitados;
+        $solicitud["solicitantes"] = $solicitantes;
+        return $solicitud;
     }
 
     /**
@@ -188,9 +250,7 @@ class SolicitudController extends Controller
 
         $partes = $solicitud->partes()->get();//->where('tipo_parte_id',3)->get()->first()
         
-        $solicitud->solicitante = $partes->where('tipo_parte_id',1)->first();
         
-        $solicitud->solicitado = $partes->where('tipo_parte_id',2)->first();
         $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
         $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
         $centros = array_pluck(Centro::all(),'nombre','id');
@@ -201,7 +261,8 @@ class SolicitudController extends Controller
         $jornadas = array_pluck(Jornada::all(),'nombre','id');
         $generos = array_pluck(Genero::all(),'nombre','id');
         $nacionalidades = array_pluck(Nacionalidad::all(),'nombre','id');
-        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales'));
+        $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
+        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones'));
     }
 
     /**
@@ -213,37 +274,135 @@ class SolicitudController extends Controller
      */
     public function update(Request $request, Solicitud $solicitud)
     {
-    //   $validator = Validator::make($request->all(), [
-    //       'ratificada' => 'Boolean|required',
-    //       'fecha_ratificacion' => 'required|Date',
-    //       'fecha_recepcion' => 'required|Date',
-    //       'fecha_conflicto' => 'required|Date',
-    //       'observaciones' => 'required|max:500',
-    //       'estatus_solicitud_id' => 'required|Integer',
-    //       'objeto_solicitud_id' => 'required|Integer',
-    //       'centro_id' => 'required|Integer',
-    //       'user_id' => 'required|Integer',
-    //   ]);
-    //   if ($validator->fails()) {
-    //       return response()->json($validator, 201);
-    //                   // ->withInput();
-    //   }
-    //   $solicitud->update($request->all());
+        $request->validate([
+            'solicitud.observaciones' => 'required|max:500',
+            'solicitud.estatus_solicitud_id' => 'required',
+            'solicitud.fecha_conflicto' => 'required',
+            'solicitud.fecha_ratificacion' => 'required',
+            'solicitud.fecha_recepcion' => 'required',
+            'solicitud.ratificada' => 'required',
+            'solicitud.solicita_excepcion' => 'required',
 
-    //   return response()->json($solicitud, 200);
-        $solicitudReq = $request->input('solicitud');
+            'solicitante.*.nombre' => 'required',
+            'solicitante.*.primer_apellido' => 'required',
+            'solicitante.*.rfc' => 'required',
+            'solicitante.*.tipo_parte_id' => 'required',
+            'solicitante.*.tipo_persona_id' => 'required',
+            'solicitante.*.curp' => 'required',
+            'solicitante.*.edad' => 'required',
+            'solicitante.*.entidad_nacimiento_id' => 'required',
+            'solicitante.*.fecha_nacimiento' => 'required',
+            'solicitante.*.genero_id' => 'required',
+            'solicitante.*.giro_comercial_id' => 'required',
+            'solicitante.*.nacionalidad_id' => 'required',
+            
+            'solicitado.*.nombre' => 'required',
+            'solicitado.*.primer_apellido' => 'required',
+            'solicitado.*.rfc' => 'required',
+            'solicitado.*.tipo_parte_id' => 'required',
+            'solicitado.*.tipo_persona_id' => 'required',
+            'solicitado.*.curp' => 'required',
+            'solicitado.*.edad' => 'required',
+            'solicitado.*.entidad_nacimiento_id' => 'required',
+            'solicitado.*.fecha_nacimiento' => 'required',
+            'solicitado.*.genero_id' => 'required',
+            'solicitado.*.giro_comercial_id' => 'required',
+            'solicitado.*.nacionalidad_id' => 'required',
+        ]);
+        $solicitud = $request->input('solicitud');
         
-        $solicitanteReq = $request->input('solicitante');
-        $solicitante = Parte::find($solicitanteReq['id']);
-        $solicitante->update($solicitanteReq);
+        // // Solicitud
+        $solicitud['user_id'] = 1;
+        $solicitud['estatus_solicitud_id'] = 1;
+        // dd($solicitud);
+        $solicitudUp = Solicitud::find($solicitud['id']);
+        $exito = $solicitudUp->update($solicitud);
+        if($exito){
+            $solicitudSaved = Solicitud::find($solicitud['id']);
+        }
         
-        $solicitadoReq = $request->input('solicitado');
-        $solicitado = Parte::find($solicitadoReq['id']);
-        $solicitado->update($solicitadoReq);
+
+        $objeto_solicitudes = $request->input('objeto_solicitudes');
         
-        // dd($solicitado );
-        $solicitud->update($solicitudReq);
-        return redirect('solicitudes')->with('success', 'Se actualizo la solicitud exitosamente');;
+        $arrObjetoSolicitudes = [];
+        foreach ($objeto_solicitudes as $key => $value) {
+            array_push($arrObjetoSolicitudes,$value['objeto_solicitud_id']);
+        }
+        $solicitudSaved->objeto_solicitudes()->sync($arrObjetoSolicitudes);
+        
+        $solicitantes = $request->input('solicitantes');
+        
+        foreach ($solicitantes as $key => $value) {
+            $value['solicitud_id'] = $solicitudSaved['id'];
+            unset($value['activo']);
+            $dato_laboral = $value['dato_laboral'];
+            
+            unset($value['dato_laboral']);
+            if(isset($value["domicilios"])){
+                $domicilio = $value["domicilios"][0];
+                unset($value['domicilios']);
+            }
+            
+            // dd($value);
+            if(!isset($value["id"]) || $value["id"] == ""){
+                $parteSaved = ((Parte::create($value))->dato_laboral()->create($dato_laboral)->parte);
+            // dd($domicilio);
+            // foreach ($domicilios as $key => $domicilio) {
+                $domicilio["tipo_vialidad"] = "as";
+                $domicilio["estado"] = "as";
+                $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+            }else{
+                $parteSaved = Parte::find($value['id']);
+                $parteSaved = $parteSaved->update($value);
+                $dato_laboralUp =  DatoLaboral::find($dato_laboral["id"]);
+                $dato_laboralUp->update($dato_laboral);
+                $domicilioUp =  Domicilio::find($domicilio["id"]);
+                $domicilioUp->update($domicilio);
+            }
+            
+            // }
+        }
+        
+        $solicitados = $request->input('solicitados');
+        
+        foreach ($solicitados as $key => $value) {
+            unset($value['activo']);
+            $domicilios = Array();
+            if(isset($value["domicilios"])){
+                $domicilios = $value["domicilios"];
+                unset($value['domicilios']);
+            }
+            
+            $value['solicitud_id'] = $solicitudSaved['id'];
+            if(!isset($value["id"]) || $value["id"] == ""){
+                $parteSaved = Parte::create($value);  
+                if(count($domicilios) > 0){
+                    foreach ($domicilios as $key => $domicilio) {
+                        $domicilio["tipo_vialidad"] = "as";
+                        $domicilio["vialidad"] = "as";
+                        $domicilio["estado"] = "as";
+                        $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                    }
+                }     
+            }else{
+                $parteSaved = Parte::find($value['id']);
+                $parteSaved = $parteSaved->update($value);
+                foreach ($domicilios as $key => $domicilio) {
+                    $domicilioUp =  Domicilio::find($domicilio["id"]);
+                    $domicilioUp->update($domicilio);
+                }
+            }
+            
+        }
+
+        // // Para cada objeto obtenido cargamos sus relaciones.
+        $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
+            $solicitudSaved->loadDataFromRequest();
+        });
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($solicitudSaved, 'SUCCESS');
+        }
+        return redirect('solicitudes')->with('success', 'Se ha creado la solicitud exitosamente');
     }
 
     /**

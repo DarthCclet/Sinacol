@@ -12,6 +12,7 @@ $factory->define(SalaAudiencia::class, function (Faker $faker) {
     $audiencia = factory(Audiencia::class)->create();
     return [
         'sala_id' => $sala->id,
-        'audiencia_id' => $audiencia->id
+        'audiencia_id' => $audiencia->id,
+        'solicitante' => $faker->boolean
     ];
 });

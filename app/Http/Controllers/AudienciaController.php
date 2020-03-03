@@ -114,9 +114,35 @@ class AudienciaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Audiencia $audiencia)
     {
-        //
+        // obtenemos los conciliadores
+        $partes = DB::table('audiencias')
+                ->join('expedientes', 'audiencias.expediente_id', '=', 'expedientes.id')
+                ->join('solicitudes', 'expedientes.solicitud_id', '=', 'solicitudes.id')
+                ->join('partes', 'solicitudes.id', '=', 'partes.solicitud_id')
+                ->join('tipo_partes', 'partes.tipo_parte_id', '=', 'tipo_partes.id')
+                ->where("partes.solicitud_id","=",$audiencia->expediente_id)
+                ->select("partes.*","tipo_partes.*","tipo_partes.nombre as nombreParte","partes.nombre as nombrePersona")
+                ->get();
+        $conciliadores = DB::table('conciliadores_audiencias')
+                ->join('conciliadores', 'conciliadores_audiencias.conciliador_id', '=', 'conciliadores.id')
+                ->join('personas', 'conciliadores.persona_id', '=', 'personas.id')
+                ->where("conciliadores_audiencias.audiencia_id","=",$audiencia->id)
+                ->where("conciliadores_audiencias.deleted_at","=",null)
+                ->select("personas.*","conciliadores.*","conciliadores_audiencias.solicitante")
+                ->get();
+        $salas = DB::table('salas_audiencias')
+                ->join('salas', 'salas_audiencias.sala_id', '=', 'salas.id')
+                ->where("salas_audiencias.audiencia_id","=",$audiencia->id)
+                ->where("salas_audiencias.deleted_at","=",null)
+                ->select("salas.*","salas_audiencias.solicitante")
+                ->get();
+        $audiencia->partes = $partes;
+        $audiencia->conciliadores = $conciliadores;
+        $audiencia->salas = $salas;
+//        dd($audiencia);
+        return view('expediente.audiencias.edit', compact('audiencia'));
     }
 
     /**
@@ -247,15 +273,22 @@ class AudienciaController extends Controller
     public function calendarizar(Request $request)
     {
             $audiencia = Audiencia::find($request->audiencia_id);
-            $id_conciliador = 0;
+            $id_conciliador = null;
+            
             foreach ($request->asignacion as $value) {
                 if($value["resolucion"]){
                     $id_conciliador = $value["conciliador"];
                 }
-                ConciliadorAudiencia::create(["audiencia_id" => $request->audiencia_id, "conciliador_id" => $value["conciliador"]]);
-                $sala=SalaAudiencia::create(["audiencia_id" => $request->audiencia_id, "sala_id" => $value["sala"]]);
+                ConciliadorAudiencia::create(["audiencia_id" => $request->audiencia_id, "conciliador_id" => $value["conciliador"],"solicitante" => $value["resolucion"]]);
+                SalaAudiencia::create(["audiencia_id" => $request->audiencia_id, "sala_id" => $value["sala"],"solicitante" => $value["resolucion"]]);
             }
-            $audiencia->update(["fecha_audiencia" => $request->fecha_audiencia,"hora_inicio" => $request->hora_inicio, "hora_fin" => $request->hora_fin,"conciliador_id" => $id_conciliador]);
+            if($request->tipoAsignacion == 1){
+                $multiple = false;
+            }else{
+                $multiple = true;
+                
+            }
+            $audiencia->update(["fecha_audiencia" => $request->fecha_audiencia,"hora_inicio" => $request->hora_inicio, "hora_fin" => $request->hora_fin,"conciliador_id" => $id_conciliador,"multiple"=>$multiple]);
             return $audiencia;
     }
     /**
@@ -290,7 +323,12 @@ class AudienciaController extends Controller
         $arregloGeneral["duracionPromedio"] = $centro->duracionAudiencia;
         return $arregloGeneral;
     }
-    
+    /**
+     * Funcion para desglosar las fechas de las incidencias
+     * @param type $incidencia
+     * @param type $arrayFechas
+     * @return string
+     */
     public function validarIncidenciasCentro($incidencia,$arrayFechas){
         $dates = array();
         $current = strtotime($incidencia["fecha_inicio"]);
@@ -304,7 +342,11 @@ class AudienciaController extends Controller
         }
         return $arrayFechas;
     }
-    
+    /**
+     * Funcion para obtener las audiencias de el centro
+     * @param id $centro_id
+     * @return array
+     */
     public function getTodasAudiencias($centro_id){
         $Audiencias = DB::table('audiencias')
                 ->join('expedientes', 'audiencias.expediente_id', '=', 'expedientes.id')
@@ -320,5 +362,15 @@ class AudienciaController extends Controller
             array_push($arrayEventos,array("start" => $start ,"end" => $end,"title" => $audiencia->folio."/".$audiencia->anio,"color" => "#00ACAC"));
         }
         return $arrayEventos;
+    }
+    /**
+     * Funcion para guardar la resolución de la audiencia
+     * @param id $centro_id
+     * @return array
+     */
+    function Resolucion(Request $request){
+        $audiencia = Audiencia::find($request->audiencia_id);
+        $audiencia->update(array("convenio" => $request->convenio,"desahogo" => $request->desahogo,"resolucion_id"=>$request->resolucion_id));
+        return $audiencia;
     }
 }

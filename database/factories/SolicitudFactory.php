@@ -15,12 +15,11 @@ $factory->define(Solicitud::class, function (Faker $faker) {
   // estatus solicitud, objeto solicitud, centro,
   //  ya que se segura que existen registros al generar la migracion
   $estatus_solicitud = EstatusSolicitud::inRandomOrder()->first();
-  $objeto_solicitud = ObjetoSolicitud::inRandomOrder()->first();
+
   $centro = factory(\App\Centro::class)->create();
   // se crea el registro de Solicitud usando los datos obtenidos anteriormente
     return [
         'estatus_solicitud_id' => $estatus_solicitud->id,
-        'objeto_solicitud_id' => $objeto_solicitud->id,
         'centro_id' => $centro->id,
         'user_id' => $usuario->id,
         'ratificada' => $faker->boolean(),
