@@ -18,20 +18,20 @@ class Conciliador extends Model
         AppendPolicies; 
     protected $table = 'conciliadores';
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
-    protected $loadable = ['persona'];
+    protected $loadable = ['persona','centro'];
     /*
      * Relacion con ta tabla de personas
      * una conciliador debe tener una persona
      */
     public function persona(){
-    	return $this->belongsTo(Persona::class); 
+    	return $this->belongsTo('App\Persona')->withDefault(); 
     }
     /*
      * Relacion con la tabla de centros
      * una conciliador debe tener un centro
      */
     public function centro(){
-    	return $this->belongsTo(Centro::class); 
+    	return $this->belongsTo(Centro::class)->withDefault(); 
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -59,5 +59,12 @@ class Conciliador extends Model
      */
     public function incidencias(){
         return $this->morphMany(Incidencia::class,'incidenciable');
+    }
+    /**
+     * Relacion con tabla agendas audiencias
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function agendasAudiencia(){
+      return $this->hasMany(AgendaAudiencia::class);
     }
 }

@@ -77,4 +77,11 @@ class Audiencia extends Model
     public function conciliadoresAudiencias(){
       return $this->hasMany('App\ConciliadorAudiencia');
     }
+    /**
+     * Relacion con tabla agendas audiencias
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function agendasAudiencia(){
+      return $this->hasMany(AgendaAudiencia::class);
+    }
 }

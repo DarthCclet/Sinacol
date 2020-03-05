@@ -47,4 +47,11 @@ class Sala extends Model
     public function incidencias(){
         return $this->morphMany(Incidencia::class,'incidenciable');
     }
+    /**
+     * Relacion con tabla agendas audiencias
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function agendasAudiencia(){
+      return $this->hasMany(AgendaAudiencia::class);
+    }
 }
