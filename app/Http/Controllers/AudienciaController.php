@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Audiencia;
 use App\Conciliador;
 use App\Sala;
+use App\AgendaAudiencia;
 use App\ConciliadorAudiencia;
 use App\SalaAudiencia;
 use App\Centro;
@@ -117,30 +118,22 @@ class AudienciaController extends Controller
     public function edit(Audiencia $audiencia)
     {
         // obtenemos los conciliadores
-        $partes = DB::table('audiencias')
-                ->join('expedientes', 'audiencias.expediente_id', '=', 'expedientes.id')
-                ->join('solicitudes', 'expedientes.solicitud_id', '=', 'solicitudes.id')
-                ->join('partes', 'solicitudes.id', '=', 'partes.solicitud_id')
+        $partes = DB::table('partes')
                 ->join('tipo_partes', 'partes.tipo_parte_id', '=', 'tipo_partes.id')
-                ->where("partes.solicitud_id","=",$audiencia->expediente_id)
-                ->select("partes.*","tipo_partes.*","tipo_partes.nombre as nombreParte","partes.nombre as nombrePersona")
+                ->join('expedientes', 'partes.solicitud_id', '=', 'expedientes.solicitud_id')
+                ->where("expedientes.id","=",$audiencia->expediente_id)
+                ->select("partes.*","tipo_partes.nombre as nombreParte")
                 ->get();
-        $conciliadores = DB::table('conciliadores_audiencias')
-                ->join('conciliadores', 'conciliadores_audiencias.conciliador_id', '=', 'conciliadores.id')
+        $agenda = DB::table('agenda_audiencias')
+                ->join('conciliadores', 'agenda_audiencias.conciliador_id', '=', 'conciliadores.id')
                 ->join('personas', 'conciliadores.persona_id', '=', 'personas.id')
-                ->where("conciliadores_audiencias.audiencia_id","=",$audiencia->id)
-                ->where("conciliadores_audiencias.deleted_at","=",null)
-                ->select("personas.*","conciliadores.*","conciliadores_audiencias.solicitante")
-                ->get();
-        $salas = DB::table('salas_audiencias')
-                ->join('salas', 'salas_audiencias.sala_id', '=', 'salas.id')
-                ->where("salas_audiencias.audiencia_id","=",$audiencia->id)
-                ->where("salas_audiencias.deleted_at","=",null)
-                ->select("salas.*","salas_audiencias.solicitante")
+                ->join('salas', 'agenda_audiencias.sala_id', '=', 'salas.id')
+                ->where("agenda_audiencias.audiencia_id","=",$audiencia->id)
+                ->where("agenda_audiencias.deleted_at","=",null)
+                ->select("personas.*","conciliadores.*","salas.*","agenda_audiencias.solicitante")
                 ->get();
         $audiencia->partes = $partes;
-        $audiencia->conciliadores = $conciliadores;
-        $audiencia->salas = $salas;
+        $audiencia->agenda = $agenda;
 //        dd($audiencia);
         return view('expediente.audiencias.edit', compact('audiencia'));
     }
@@ -272,24 +265,22 @@ class AudienciaController extends Controller
      */
     public function calendarizar(Request $request)
     {
-            $audiencia = Audiencia::find($request->audiencia_id);
-            $id_conciliador = null;
-            
-            foreach ($request->asignacion as $value) {
-                if($value["resolucion"]){
-                    $id_conciliador = $value["conciliador"];
-                }
-                ConciliadorAudiencia::create(["audiencia_id" => $request->audiencia_id, "conciliador_id" => $value["conciliador"],"solicitante" => $value["resolucion"]]);
-                SalaAudiencia::create(["audiencia_id" => $request->audiencia_id, "sala_id" => $value["sala"],"solicitante" => $value["resolucion"]]);
+        $audiencia = Audiencia::find($request->audiencia_id);
+        $id_conciliador = null;
+        AgendaAudiencia::where("audiencia_id","=",$request->audiencia_id)->delete();
+        foreach ($request->asignacion as $value) {
+            if($value["resolucion"]){
+                $id_conciliador = $value["conciliador"];
             }
-            if($request->tipoAsignacion == 1){
-                $multiple = false;
-            }else{
-                $multiple = true;
-                
-            }
-            $audiencia->update(["fecha_audiencia" => $request->fecha_audiencia,"hora_inicio" => $request->hora_inicio, "hora_fin" => $request->hora_fin,"conciliador_id" => $id_conciliador,"multiple"=>$multiple]);
-            return $audiencia;
+            AgendaAudiencia::create(["audiencia_id" => $request->audiencia_id, "conciliador_id" => $value["conciliador"],"sala_id" => $value["sala"],"solicitante" => $value["resolucion"]]);
+        }
+        if($request->tipoAsignacion == 1){
+            $multiple = false;
+        }else{
+            $multiple = true;
+        }
+        $audiencia->update(["fecha_audiencia" => $request->fecha_audiencia,"hora_inicio" => $request->hora_inicio, "hora_fin" => $request->hora_fin,"conciliador_id" => $id_conciliador,"multiple"=>$multiple]);
+        return $audiencia;
     }
     /**
      * Funcion para obtener los momentos ocupados
@@ -372,5 +363,83 @@ class AudienciaController extends Controller
         $audiencia = Audiencia::find($request->audiencia_id);
         $audiencia->update(array("convenio" => $request->convenio,"desahogo" => $request->desahogo,"resolucion_id"=>$request->resolucion_id));
         return $audiencia;
+    }
+    /**
+     * 
+     * @param Conciliador $conciliador
+     * @return Audiencias
+     */
+    public function getAgenda(Request $request){
+        $conciliador = Conciliador::find($request->id);
+        $audiencias = DB::table('agenda_audiencias')
+                ->join('salas', 'agenda_audiencias.sala_id', '=', 'salas.id')
+                ->join('audiencias', 'agenda_audiencias.audiencia_id', '=', 'audiencias.id')
+                ->join('expedientes', 'audiencias.expediente_id', '=', 'expedientes.id')
+                ->where("agenda_audiencias.conciliador_id","=",$conciliador->id)
+                ->where("audiencias.fecha_audiencia",">",date("Y-m-d"))
+                ->select("audiencias.*","expedientes.folio","expedientes.anio","agenda_audiencias.id as agenda_audiencias_id","salas.sala")
+                ->get();
+//        dd($audiencias);
+        $arrayResponse = array();
+        foreach($audiencias as $audiencia){
+            $start = $audiencia->fecha_audiencia ." ". $audiencia->hora_inicio;
+            $end = $audiencia->fecha_audiencia ." ". $audiencia->hora_fin;
+            $audiencia->partes = $this->GetPartesConciliador($audiencia->id);
+            array_push($arrayResponse,array(
+                "start" => $start ,
+                "end" => $end,
+                "title" => $audiencia->folio."/".$audiencia->anio,
+                "color" => "#00ACAC",
+                "audiencia" => $audiencia,
+            ));
+        }
+        return $arrayResponse;
+    }
+    private function GetPartesConciliador($audiencia_id){
+//         obtenemos la audiencia
+        $audiencia = Audiencia::find($audiencia_id);
+//         buscamos las partes
+        $partesAudiencia=DB::table('partes')
+                ->join('tipo_partes',"partes.tipo_parte_id","=","tipo_partes.id")
+                ->join('solicitudes',"partes.solicitud_id","=","solicitudes.id")
+                ->join('expedientes',"solicitudes.id","=","expedientes.solicitud_id")
+                ->where("expedientes.id","=",$audiencia->expediente_id)
+                ->select("partes.*","tipo_partes.nombre as tipo_parte")
+                ->get();
+//         validamos si la audiencia se celebrará en conjunto o separados
+//         Recorremos las partes
+        foreach($partesAudiencia as $key => $parte){
+//                Buscamos a los conciliadores
+            $conciliador = DB::table("agenda_audiencias")
+                    ->join("conciliadores","agenda_audiencias.conciliador_id","=","conciliadores.id")
+                    ->join("personas","conciliadores.persona_id","=","personas.id")
+                    ->join("salas","agenda_audiencias.sala_id","=","salas.id")
+                    ->where("agenda_audiencias.audiencia_id","=",$audiencia->id)
+                    ->select("personas.*","agenda_audiencias.*","salas.sala")
+                    ->get();
+            if(!$audiencia->multiple || $audiencia->multiple == null){
+//                  Asignamos el unico conciliador               
+                $partesAudiencia[$key]->nombreConciliador = $conciliador[0]->nombre." ".$conciliador[0]->primer_apellido." ".$conciliador[0]->segundo_apellido;
+                $partesAudiencia[$key]->sala = $conciliador[0]->sala;
+            }else{
+//                si la parte es el solicinte asignamos al responsable
+                if($parte->tipo_parte_id == 1){
+                    foreach($conciliador as $key2 => $value){
+                        if($value->solicitante){
+                            $partesAudiencia[$key]->nombreConciliador = $value->nombre." ".$value->primer_apellido."".$value->segundo_apellido;
+                            $partesAudiencia[$key]->sala = $value->sala;
+                        }
+                    }
+                }else{
+                    foreach($conciliador as $key2 => $value){
+                        if(!$value->solicitante){
+                            $partesAudiencia[$key]->nombreConciliador = $value->nombre." ".$value->primer_apellido."".$value->segundo_apellido;
+                            $partesAudiencia[$key]->sala = $value->sala;
+                        }
+                    }
+                }
+            }
+        }
+        return $partesAudiencia;
     }
 }
