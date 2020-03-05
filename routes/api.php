@@ -30,6 +30,7 @@ Route::Post('conciliador/disponibilidades','ConciliadorController@getDisponibili
 Route::Post('conciliador/incidencias','ConciliadorController@incidencia');
 Route::Post('conciliador/roles','ConciliadorController@roles');
 Route::Post('conciliador/ConciliadoresDisponibles','ConciliadorController@conciliadoresDisponibles');
+Route::Get('conciliador/ConciliadorAudiencias','ConciliadorController@conciliadorAudiencias');
 Route::resource('parte','ParteController');
 Route::resource('documento','DocumentoController');
 Route::resource('disponibilidad','DisponibilidadController');
@@ -39,6 +40,7 @@ Route::Post('audiencia/ConciliadoresDisponibles','AudienciaController@Conciliado
 Route::Post('audiencia/SalasDisponibles','AudienciaController@SalasDisponibles');
 Route::Post('audiencia/calendarizar','AudienciaController@calendarizar');
 Route::Post('audiencia/getCalendario','AudienciaController@getCalendario');
+Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
 Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
 Route::resource('compareciente','ComparecienteController');
 Route::resource('centro','CentroController');
