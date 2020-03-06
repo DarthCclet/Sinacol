@@ -163,6 +163,14 @@
                                 <input type="hidden" id="direccion_marker">
                                 <input type="hidden" id="latitud_solicitante">
                                 <input type="hidden" id="longitud_solicitante">
+                                <div class="col-md-10">
+                                    <input id="autocomplete"
+                                    class="form-control"
+                                    onfocus="geolocate()"
+                                    placeholder="Escriba la dirección y seleccione la opción correcta o más cercana."
+                                    type="text"/>
+                                    <p class="help-block needed">Escriba la dirección y seleccione la opción correcta o más cercana.</p>
+                                </div>
                                 <div class="col-md-4">    
                                     {!! Form::select('estado_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'estado_id_solicitante','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect direccionUpd']);  !!}
                                     {!! $errors->first('estado_id_solicitante', '<span class=text-danger>:message</span>') !!}
@@ -783,7 +791,7 @@
 
         function getSolicitudFromBD(){
             $.ajax({
-            url:'https://192.168.10.10/solicitudes/'+$("#solicitud_id").val(),
+            url:'/api/solicitudes/'+$("#solicitud_id").val(),
             type:"GET",
             dataType:"json",
             async:false,
@@ -1258,7 +1266,7 @@
                 upd = "/"+$("#solicitud_id").val();
             }
             $.ajax({
-                url:'https://192.168.10.10/solicitudes'+upd,
+                url:'/api/solicitudes'+upd,
                 type:method,
                 dataType:"json",
                 async:false,
@@ -1349,13 +1357,32 @@
             
         }
     }
+    var componentForm = {
+        street_number: 'short_name',
+        route: 'long_name',
+        locality: 'long_name',
+        administrative_area_level_1: 'short_name',
+        sublocality_level_1: 'short_name',
+        country: 'long_name',
+        postal_code: 'short_name'
+    };
+
+    var campos = {
+        street_number: 'num_ext',
+        route: 'calle',
+        locality: 'municipio_solicitante',
+        sublocality_level_1: 'vialidad_solicitante',
+        administrative_area_level_1: 'estado',
+        country: 'pais',
+        postal_code: 'cp_solicitante'
+    }
     var map;
     var marker;
     // var map2;
     function initMap() {
       var lat = $('#latitud_solicitante').val() ? $('#latitud_solicitante').val() : "19.398606";
       var lon = $('#longitud_solicitante').val() ? $('#longitud_solicitante').val() : "-99.158581";
-      console.log("Al iniciar el mapa latlon %s %s confirmada: %s", lat,lon);
+      
       map = new google.maps.Map(document.getElementById('widget-maps'), {
           zoom: 15,
           center: {lat: parseFloat(lat), lng: parseFloat(lon)},
@@ -1363,12 +1390,13 @@
           mapTypeId: google.maps.MapTypeId.ROADMAP
       });
       map.panorama = map.getStreetView();
+      console.log("Al iniciar el mapa latlon %s %s confirmada: %s", lat,lon);
       map.panorama.addListener('visible_changed', function() {
         if(!this.visible){
             console.log("entro");
             seteaMarker(map, this.position);
         }
-    });
+       
     //   map2 = new google.maps.Map(document.getElementById('widget-maps2'), {
     //       zoom: 15,
     //       center: {lat: parseFloat(lat), lng: parseFloat(lon)},
@@ -1382,6 +1410,48 @@
       else{
           geocodeAddress(map);
       }
+    });
+
+        //Autocomplete section
+        autocomplete = new google.maps.places.Autocomplete(
+            document.getElementById('autocomplete'), 
+            {types: ['geocode']}
+        );
+        autocomplete.setFields(['address_component']);
+        autocomplete.addListener('place_changed', fillInAddress);
+    }
+
+    function geolocate() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var geolocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                var circle = new google.maps.Circle(
+                    {center: geolocation, radius: position.coords.accuracy});
+                autocomplete.setBounds(circle.getBounds());
+            });
+        }
+    }
+
+    function fillInAddress() {
+        var place = autocomplete.getPlace();
+        console.log(place);
+        for (var component in componentForm) {
+            console.log(campos[component]);
+            document.getElementById(campos[component]).value = '';
+            document.getElementById(campos[component]).disabled = false;
+        }
+
+        for (var i = 0; i < place.address_components.length; i++) {
+            var addressType = place.address_components[i].types[0];
+            if (componentForm[addressType]) {
+                var val = place.address_components[i][componentForm[addressType]];
+
+                document.getElementById(campos[addressType]).value = val;
+            }
+        }
     }
 
     function geocodeAddress(resultsMap) {
@@ -1438,7 +1508,7 @@
 
 </script>
 
-<script src="https://maps.googleapis.com/maps/api/js?callback=initMap&key=AIzaSyBx0RdMGMOYgE_eLXfCblBP9RhYDQXjrqY"></script>
+<script src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=places&key=AIzaSyBx0RdMGMOYgE_eLXfCblBP9RhYDQXjrqY"></script>
 <script src="/assets/plugins/parsleyjs/dist/parsley.min.js"></script>
 <script src="/assets/plugins/highlight.js/highlight.min.js"></script>
 <script src="/assets/plugins/highlight.js/es.js"></script>

@@ -22,7 +22,7 @@ class DatoLaboral extends Model
  * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
  */
   public function jornada(){
-    return $this->belongsTo('App\Jornada');
+    return $this->belongsTo('App\Jornada')->withDefault();;
 
   }
 
@@ -31,7 +31,7 @@ class DatoLaboral extends Model
  * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
  */
 public function parte(){
-  return $this->belongsTo('App\Parte');
+  return $this->belongsTo('App\Parte')->withDefault();;
 
 }
 

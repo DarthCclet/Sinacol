@@ -32,7 +32,7 @@ class Solicitud extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function estatusSolicitud(){
-      return $this->belongsTo('App\EstatusSolicitud');
+      return $this->belongsTo('App\EstatusSolicitud')->withDefault();;
     }
     /**
      * Funcion para asociar con modelo ObjetoSolicitud con belongsTo
@@ -40,7 +40,7 @@ class Solicitud extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function objetoSolicitud(){
-      return $this->belongsTo('App\ObjetoSolicitud');
+      return $this->belongsTo('App\ObjetoSolicitud')->withDefault();;
     }
 
     /**
@@ -49,7 +49,7 @@ class Solicitud extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function centro(){
-      return $this->belongsTo('App\Centro');
+      return $this->belongsTo('App\Centro')->withDefault();;
     }
 
     /**
@@ -58,7 +58,7 @@ class Solicitud extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user(){
-      return $this->belongsTo('App\User');
+      return $this->belongsTo('App\User')->withDefault();;
     }
 
     public function partes()
