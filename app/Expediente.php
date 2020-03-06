@@ -25,6 +25,6 @@ class Expediente extends Model
    * * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
    */
   public function solicitud(){
-    return $this->belongsTo('App\Solicitud');
+    return $this->belongsTo('App\Solicitud')->withDefault();
   }
 }

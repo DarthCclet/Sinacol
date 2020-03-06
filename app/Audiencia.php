@@ -30,7 +30,7 @@ class Audiencia extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function expediente(){
-      return $this->belongsTo('App\Expediente');
+      return $this->belongsTo('App\Expediente')->withDefault();
     }
 
     /**
@@ -38,7 +38,7 @@ class Audiencia extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function conciliador(){
-      return $this->belongsTo('App\Conciliador');
+      return $this->belongsTo('App\Conciliador')->withDefault();
     }
 
     /**
@@ -47,7 +47,7 @@ class Audiencia extends Model
      */
     public function parte()
     {
-        return $this->belongsTo(Parte::class, 'parte_responsable_id');
+        return $this->belongsTo(Parte::class, 'parte_responsable_id')->withDefault();
     }
 
     /**
@@ -55,7 +55,7 @@ class Audiencia extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function resolucion(){
-      return $this->belongsTo('App\Resolucion');
+      return $this->belongsTo('App\Resolucion')->withDefault();
     }
 
     /**
