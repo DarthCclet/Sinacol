@@ -53,10 +53,20 @@
         <!-- El paso 4 solo se muestra cuando se selecciona excepcion de conciliacion -->
         <li class="step-4">
             <a href="#step-4">
-                <span class="number">4</span>
+                <!--<span class="number">4</span>-->
                 <span class="info">
                     Excepci&oacute;n
                     <small>Excepcion de conciliacion</small>
+                </span>
+            </a>
+        </li>
+        <!-- El paso 5 Es para asignar Audiencias -->
+        <li class="step-5">
+            <a href="#step-5">
+                <span class="number">4</span>
+                <span class="info">
+                    Audiencias
+                    <small>Audiencias de conciliación</small>
                 </span>
             </a>
         </li>
@@ -538,6 +548,15 @@
             </div>
         </div>
         <!-- end step-4 -->
+        <!-- begin step-5 -->
+        <div id="step-5" class="step-5">
+            <div class="row">
+                <div class="col-md-12">
+                @include('expediente.audiencias._list',$audiencias)
+                </div>
+            </div>
+        </div>
+        <!-- end step-5 -->
     </div>
     <!-- end wizard-content -->
 </div>
