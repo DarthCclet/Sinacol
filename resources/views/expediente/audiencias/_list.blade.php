@@ -1,4 +1,4 @@
-<table id="data-table-default" class="table table-striped table-bordered table-td-valign-middle">
+<table id="data-table-default-audiencias" class="table table-striped table-bordered" width='100%'>
     <thead>
     <tr>
         <th width="1%"></th>
@@ -32,3 +32,12 @@
 
     </tbody>
 </table>
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            $('#data-table-default-audiencias').DataTable({
+                responsive: true
+            });
+        });
+    </script>
+@endpush

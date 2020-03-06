@@ -33,12 +33,4 @@
 
 @endsection
 
-@push('scripts')
-    <script>
-        $(document).ready(function() {
-            $('#data-table-default').DataTable({
-                responsive: true
-            });
-        });
-    </script>
-@endpush
+
