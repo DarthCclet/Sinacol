@@ -513,9 +513,11 @@
             @if (isset($audiencias))
             <div class="row">
                 <div class="col-md-12">
-                    
-                    @include('expediente.audiencias._list',$audiencias)
-                    
+                    @if(Count($audiencias) > 0)
+                        @include('expediente.audiencias._list',$audiencias)
+                    @else
+                        @include('expediente.audiencias.calendarioWizard')
+                    @endif
                 </div>
             </div>
             @else
