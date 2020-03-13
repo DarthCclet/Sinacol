@@ -425,4 +425,13 @@ class SolicitudController extends Controller
       $solicitud->delete();
       return response()->json(null,204);
     }
+    
+    public function Ratificar(Request $request){
+        $solicitud= Solicitud::find($request->id);
+        //Indicamos que la solicitud ha sido ratificada
+        $solicitud->update(["estatus_solicitud_id" => 2,"ratificada" => true]);
+        //Creamos el expediente de la solicitud
+        $expediente = Expediente::create(["solicitud_id" => $request->id,"folio" => "2","anio" => "2020","consecutivo" => "1"]);
+        return $solicitud;
+    }
 }
