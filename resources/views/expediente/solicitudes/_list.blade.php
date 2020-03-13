@@ -3,7 +3,7 @@
     <tr>
         <th width="1%"></th>
         <th class="text-nowrap">Fecha Recepcion</th>
-        <th class="text-nowrap">Objeto</th>
+        <!--<th class="text-nowrap">Objeto</th>-->
         <th class="text-nowrap">Estatus</th>
         <th class="text-nowrap">Fecha Ratificacion</th>
         <th class="text-nowrap">Acciones</th>

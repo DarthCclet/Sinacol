@@ -41,7 +41,7 @@
                 </span>
             </a>
         </li>
-        <li>
+        <li >
             <a href="#step-3">
                 <span class="number">3</span>
                 <span class="info">
@@ -50,19 +50,9 @@
                 </span>
             </a>
         </li>
-        <!-- El paso 4 solo se muestra cuando se selecciona excepcion de conciliacion -->
+        <!-- El paso 5 Es para asignar Audiencias -->
         <li class="step-4">
             <a href="#step-4">
-                <!--<span class="number">4</span>-->
-                <span class="info">
-                    Excepci&oacute;n
-                    <small>Excepcion de conciliacion</small>
-                </span>
-            </a>
-        </li>
-        <!-- El paso 5 Es para asignar Audiencias -->
-        <li class="step-5">
-            <a href="#step-5">
                 <span class="number">4</span>
                 <span class="info">
                     Audiencias
@@ -79,7 +69,7 @@
             <!-- begin fieldset -->
             <fieldset>
                 <!-- begin row -->
-                <div class="row" id="form" >
+                <div class="row" id="form">
                     <div class="col-xl-10 offset-xl-1">
                         <div>
                             <center>  <h1>Solicitante</h1></center>
@@ -89,44 +79,38 @@
                             <input type="hidden" id="edit_key">
                             <label>Tipo Persona</label>
                             <div class="row">
-                                <div class="col-md-offset-6">
-                                    <input checked="checked" id="tipo_persona_fisica_solicitante" name="tipo_persona_solicitante" type="radio" value="1">
+                                <div class="radio radio-css radio-inline">
+                                    <input checked="checked" name="tipo_persona_solicitante" type="radio" id="tipo_persona_fisica_solicitante" value="1"/>
                                     <label for="tipo_persona_fisica_solicitante">Fisica</label>
                                 </div>
-                                <div class="col-md-offset-6">
-                                    <input name="tipo_persona_solicitante" id="tipo_persona_moral_solicitante" type="radio" value="2">
+                                <div class="radio radio-css radio-inline">
+                                    <input name="tipo_persona_solicitante" type="radio" id="tipo_persona_moral_solicitante" value="2"/>
                                     <label for="tipo_persona_moral_solicitante">Moral</label>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-8 personaFisicaSolicitante">
-                            <input class="form-control" id="idSolicitanteCURP" placeholder="CURP del solicitante"  autofocus="" type="text" value="">
-                            <p class="help-block">CURP del solicitante</p>
-                        </div>
-                        <div class="col-md-12 row">
-                            <div class="col-md-4" style="display:none;">
-                                <input class="form-control" id="idsolicitante" type="text" value="253">
+                            <div class="col-md-8 personaFisicaSolicitante">
+                                <input class="form-control" id="idSolicitanteCURP" placeholder="CURP del solicitante"  autofocus="" type="text" value="">
+                                <p class="help-block">CURP del solicitante</p>
                             </div>
+                        <div class="col-md-12 row">
+                            <input class="form-control" id="idsolicitante" type="hidden" value="253">
                             <div class="col-md-4 personaFisicaSolicitante">
                                 <input class="form-control" id="idNombreSolicitante" required placeholder="Nombre del solicitante" type="text" value="">
                                 <p class="help-block needed">Nombre del solicitante</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitante">
                                 <input class="form-control" id="idPrimerASolicitante" required placeholder="Primer apellido del solicitante" type="text" value="">
-                                
                                 <p class="help-block needed">Primer apellido</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitante">
                                 <input class="form-control" id="idSegundoASolicitante" placeholder="Segundo apellido del solicitante" type="text" value="">
-                                
                                 <p class="help-block">Segundo apellido</p>
                             </div>
-                        </div>
-                        <div class="col-md-12 row personaMoralSolicitante">
-                            <input class="form-control" id="idNombreCSolicitante" placeholder="Nombre comercial" type="text" value="">
-                            <p class="help-block">Nombre comercia</p>
-                        </div>
-                        <div class="col-md-12 row ">
+                            <div class="col-md-12 personaMoralSolicitante">
+                                <input class="form-control" id="idNombreCSolicitante" placeholder="Nombre comercial" type="text" value="">
+                                <p class="help-block">Nombre comercial</p>
+                            </div>
                             <div class="col-md-4 personaFisicaSolicitante">
                                 <input class="form-control date" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimeinto del solicitante" type="text" value="">
                                 <p class="help-block needed">Fecha de nacimiento</p>
@@ -139,21 +123,16 @@
                                 <input class="form-control" required id="idSolicitanteRfc" placeholder="Rfc del solicitante" type="text" value="">
                                 <p class="help-block needed">Rfc del solicitante</p>
                             </div>
-                        </div>
-                        <div class="col-md-12 row personaFisicaSolicitante">
-                            <div class="col-md-4">
+                            <div class="col-md-4 personaFisicaSolicitante">
                                 {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Genero</p>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4 personaFisicaSolicitante">
                                 {!! Form::select('giro_comercial_solicitante', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('giro_comercial_solicitante', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Giro Comercial</p>
                             </div>
-                            
-                        </div>
-                        <div class="col-md-12 row">
                             <div class="col-md-4">
                                 {!! Form::select('nacionalidad_id_solicitante', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('nacionalidad_id_solicitante', '<span class=text-danger>:message</span>') !!}
@@ -166,86 +145,83 @@
                             </div>
                         </div>
                         <!-- seccion de domicilios solicitante -->
-                        <div style="margin-top: 1%;" >
-                            <h4>Domicilios</h4>
-                            <div class="col-md-12 row">
-                                <input type="hidden" id="domicilio_solicitante_id">
-                                <input type="hidden" id="direccion_marker">
-                                <input type="hidden" id="latitud_solicitante">
-                                <input type="hidden" id="longitud_solicitante">
-                                <div class="col-md-10">
-                                    <input id="autocomplete"
-                                    class="form-control"
-                                    onfocus="geolocate()"
-                                    placeholder="Escriba la dirección y seleccione la opción correcta o más cercana."
-                                    type="text"/>
-                                    <p class="help-block needed">Escriba la dirección y seleccione la opción correcta o más cercana.</p>
-                                </div>
-                                <div class="col-md-4">    
-                                    {!! Form::select('estado_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'estado_id_solicitante','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect direccionUpd']);  !!}
-                                    {!! $errors->first('estado_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Estado</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control direccionUpd" id="municipio_solicitante" required placeholder="Municipio" type="text" value="">
-                                    <p class="help-block needed">Nombre del municipio</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control numero" id="cp_solicitante" required placeholder="Codigo Postal" maxlength="5" type="text" value="">
-                                    
-                                    <p class="help-block needed">Codigo postal</p>
-                                </div>
-                                <div class="col-md-4">    
-                                    {!! Form::select('tipo_asentamiento_id_solicitante', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , null, ['id'=>'tipo_asentamiento_id_solicitante','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('tipo_asentamiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block">Tipo de asentamiento</p>
-                                </div>
-                                <div class="col-md-4"   >    
-                                    {!! Form::select('tipo_vialidad_id_solicitante', isset($tipos_vialidades) ? $tipos_vialidades : [] , null, ['id'=>'tipo_vialidad_id_solicitante','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect direccionUpd']);  !!}
-                                    {!! $errors->first('tipo_vialidad_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block">Tipo de vialidad</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control direccionUpd" id="vialidad_solicitante" placeholder="Vialidad" required type="text" value="">
-                                    <p class="help-block">Vialidad</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control numero direccionUpd" id="num_ext_solicitante" placeholder="Num Exterior" required type="text" value="">
-                                    <p class="help-block">Numero exterior</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control numero" id="num_int_solicitante" placeholder="Num Interior" required type="text" value="">
-                                    
-                                    <p class="help-block">Numero interior</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control direccionUpd" id="asentamiento_solicitante" placeholder="Asentamiento" required type="text" value="">
-                                    <p class="help-block">Nombre asentamiento</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control" id="referencias_solicitante" placeholder="Referencias" required type="text" value="">
-                                    <p class="help-block">Referencias</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control" id="entre_calle1_solicitante" placeholder="Entre calle" required type="text" value="">
-                                    
-                                    <p class="help-block">Entre calle</p>
-                                </div>
-                                y
-                                <div class="col-md-4">
-                                    <input class="form-control" id="entre_calle2_solicitante" placeholder="Entre calle 2" required type="text" value="">
-                                    <p class="help-block">Entre calle</p>
-                                </div>
+                        <div class="col-md-12 row">
+                            <div class="col-md-12" align="center">
+                                <h4>Domicilios</h4>
+                            </div>
+                            <input type="hidden" id="domicilio_solicitante_id">
+                            <input type="hidden" id="direccion_marker">
+                            <input type="hidden" id="latitud_solicitante">
+                            <input type="hidden" id="longitud_solicitante">
+                            <div class="col-md-10">
+                                <input id="autocomplete"
+                                class="form-control"
+                                onfocus="geolocate()"
+                                placeholder="Escriba la dirección y seleccione la opción correcta o más cercana."
+                                type="text"/>
+                                <p class="help-block needed">Escriba la dirección y seleccione la opción correcta o más cercana.</p>
+                            </div>
+                            <div class="col-md-4">    
+                                {!! Form::select('estado_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'estado_id_solicitante','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect direccionUpd']);  !!}
+                                {!! $errors->first('estado_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Estado</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control direccionUpd" id="municipio_solicitante" required placeholder="Municipio" type="text" value="">
+                                <p class="help-block needed">Nombre del municipio</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control numero" id="cp_solicitante" required placeholder="Codigo Postal" maxlength="5" type="text" value="">
+
+                                <p class="help-block needed">Codigo postal</p>
+                            </div>
+                            <div class="col-md-4">    
+                                {!! Form::select('tipo_asentamiento_id_solicitante', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , null, ['id'=>'tipo_asentamiento_id_solicitante','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                {!! $errors->first('tipo_asentamiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block">Tipo de asentamiento</p>
+                            </div>
+                            <div class="col-md-4"   >    
+                                {!! Form::select('tipo_vialidad_id_solicitante', isset($tipos_vialidades) ? $tipos_vialidades : [] , null, ['id'=>'tipo_vialidad_id_solicitante','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect direccionUpd']);  !!}
+                                {!! $errors->first('tipo_vialidad_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block">Tipo de vialidad</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control direccionUpd" id="vialidad_solicitante" placeholder="Vialidad" required type="text" value="">
+                                <p class="help-block">Vialidad</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control numero direccionUpd" id="num_ext_solicitante" placeholder="Num Exterior" required type="text" value="">
+                                <p class="help-block">Numero exterior</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control numero" id="num_int_solicitante" placeholder="Num Interior" required type="text" value="">
+
+                                <p class="help-block">Numero interior</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control direccionUpd" id="asentamiento_solicitante" placeholder="Asentamiento" required type="text" value="">
+                                <p class="help-block">Nombre asentamiento</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control" id="referencias_solicitante" placeholder="Referencias" required type="text" value="">
+                                <p class="help-block">Referencias</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control" id="entre_calle1_solicitante" placeholder="Entre calle" required type="text" value="">
+                                <p class="help-block">Entre calle</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control" id="entre_calle2_solicitante" placeholder="Entre calle 2" required type="text" value="">
+                                <p class="help-block">y calle</p>
                             </div>
                             <div class="widget-maps" id="widget-maps"></div>
-                        
-                                  
-                        
                         </div>
                         <!-- end seccion de domicilios solicitante -->
                         <!-- Seccion de Datos laborales -->
-                        <div>
-                            <h4>Datos Laborales</h4>
+                        <div class="col-md-12 row">
+                            <div class="col-md-12" align="center">
+                                <h4>Datos Laborales</h4>
+                            </div>
                             <input type="hidden" id="dato_laboral_id">
                             <div class="col-md-12">
                                 <input class="form-control" required id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
@@ -295,12 +271,17 @@
                                     <p class="help-block">Horas semanales</p>
                                 </div>
                             </div>
-                            {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control col-md-4 catSelect']);  !!}
-                            {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
-                            <p class="help-block needed">Jornada</p>
                             <div class="col-md-4">
-                                <input id="labora_actualmente" type="checkbox" value="1">
-                                <label for="labora_actualmente">Labora actualmente</label>
+                                {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Jornada</p>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad"/>
+                                <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
                             </div>
                         </div>
                         <!-- end Seccion de Datos laborales -->
@@ -339,28 +320,28 @@
                 <div class="row">
                     <div class="col-xl-10 offset-xl-1">
                         <div>
-                            <center>  <h1>Solicitado</h1></center>
+                            <center><h1>Solicitado</h1></center>
                         </div>
                         <div style="margin-left:5%; margin-bottom:3%; ">
                             <label>Tipo Persona</label>
                             <input type="hidden" id="solicitado_id">
                             <input type="hidden" id="solicitado_key">
                             <div class="row">
-                                <div class="col-md-offset-6">
-                                    <input checked="checked" id="tipo_persona_fisica_solicitado" name="tipo_persona_solicitado" type="radio" value="1">
+                                <div class="radio radio-css radio-inline">
+                                    <input checked="checked" name="tipo_persona_solicitado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
                                     <label for="tipo_persona_fisica_solicitado">Fisica</label>
                                 </div>
-                                <div class="col-md-offset-6">
-                                    <input id="tipo_persona_moral_solicitado" name="tipo_persona_solicitado" type="radio" value="2">
+                                <div class="radio radio-css radio-inline">
+                                    <input name="tipo_persona_solicitado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
                                     <label for="tipo_persona_moral_solicitado">Moral</label>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-8 personaFisicaSolicitado">
-                            <input class="form-control" required id="idSolicitadoCURP" placeholder="CURP del solicitado" type="text" value="">
-                            <p class="help-block">CURP del solicitado</p>
-                        </div>
                         <div class="col-md-12 row">
+                            <div class="col-md-8 personaFisicaSolicitado">
+                                <input class="form-control" required id="idSolicitadoCURP" placeholder="CURP del solicitado" type="text" value="">
+                                <p class="help-block">CURP del solicitado</p>
+                            </div>
                             <div class="col-md-4" style="display:none;">
                                 <input class="form-control" id="idsolicitado" type="text" value="253">
                             </div>
@@ -378,14 +359,10 @@
                                 
                                 <p class="help-block">Segundo apellido</p>
                             </div>
-                        </div>
-                        <div class="col-md-12 row personaMoralSolicitado">
-                            <div class="col-md-8">
+                            <div class="col-md-8 personaMoralSolicitado">
                                 <input class="form-control" id="idNombreCSolicitado" required placeholder="Nombre comercial del solicitado" type="text" value="">
                                 <p class="help-block needed">Nombre comercia</p>
                             </div>
-                        </div>
-                        <div class="col-md-12 row ">
                             <div class="col-md-4 personaFisicaSolicitado">
                                 <input class="form-control date" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimeinto del solicitado" type="text" value="">
                                 <p class="help-block needed">Fecha de nacimiento</p>
@@ -398,20 +375,16 @@
                                 <input class="form-control" required id="idSolicitadoRfc" placeholder="Rfc del solicitado" type="text" value="">
                                 <p class="help-block needed">Rfc del solicitado</p>
                             </div>
-                        </div>
-                        <div class="col-md-12 row personaFisicaSolicitado">
-                            <div class="col-md-4">
+                            <div class="col-md-4 personaFisicaSolicitado">
                                 {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Genero</p>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" personaFisicaSolicitado>
                                 {!! Form::select('giro_comercial_solicitado', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('giro_comercial_solicitando', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Giro Comercial</p>
                             </div>
-                        </div>
-                        <div class="col-md-12 row">
                             <div class="col-md-4">
                                 {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('nacionalidad_id_solicitado', '<span class=text-danger>:message</span>') !!}
@@ -424,17 +397,17 @@
                             </div>
                         </div>
                         <!-- seccion de domicilios solicitado -->
-                        <div >
+                        <div class="col-md-12 row">
                             <div class="row">
                                 <h4>Domicilio(s)</h4>
-                                <a style="font-size:large; margin-left:1%; color:#49b6d6;" onclick="$('#modal-domicilio').modal('show');"  > <i class="fa fa-plus-circle"></i></a>
+                                <a style="font-size:large; margin-left:1%; color:#49b6d6;" onclick="$('#modal-domicilio').modal('show');"> <i class="fa fa-plus-circle"></i></a>
                             </div>
-                            <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                            <div class="col-md-10 offset-md-1" >
                                 <table class="table table-bordered" >
                                     <thead>
                                         <tr>
-                                            <th>Domicilio</th>
-                                            <th>Accion</th>
+                                            <th style="width:80%;">Domicilio</th>
+                                            <th style="width:20%; text-align: center;">Accion</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbodyDomicilioSolicitado">
@@ -455,7 +428,7 @@
                                         <th>Nombre</th>
                                         <th>Curp</th>
                                         <th>RFC</th>
-                                        <th>Accion</th>
+                                        <th style="width:15%; text-align: center;">Accion</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbodySolicitado">
@@ -485,9 +458,6 @@
                         {!! $errors->first('centro_di', '<span class=text-danger>:message</span>') !!}
                         <p class="help-block needed">Centro de la solicitud</p>
                     </div>
-                    
-                </div>
-                <div class="col-md-12 row">
                     <div class="col-md-4">
                         <input class="form-control dateTime" required id="fechaRatificacion" placeholder="Fecha de ratificacion" type="text" value="">
                         <p class="help-block needed">Fecha de Ratificación</p>
@@ -500,8 +470,6 @@
                         <input class="form-control date" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
                         <p class="help-block needed">Fecha de Conflicto</p>
                     </div>
-                </div>
-                <div>
                     <div class="col-md-4">
                         {!! Form::select('objeto_solicitud_id', isset($objeto_solicitudes) ? $objeto_solicitudes : [] , null, ['id'=>'objeto_solicitud_id','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                         {!! $errors->first('objeto_solicitud_id', '<span class=text-danger>:message</span>') !!}
@@ -513,50 +481,49 @@
                             <thead>
                                 <tr>
                                     <th>Objeto</th>
-                                    <th>Accion</th>
+                                    <th style="width:15%; text-align: center;">Accion</th>
                                 </tr>
                             </thead>
                             <tbody id="tbodyObjetoSol">
                             </tbody>
                         </table>  
                     </div>
-                </div>
-                <div>
-                    <div class="">
-                        <input id="ratificada" type="checkbox" value="1">
-                        <label for="ratificada">Ratificada</label>
+                    <div class="col-md-12 row">
+                        <div class="col-md-4">
+                            <span class="text-muted m-l-5 m-r-20" for='ratificada'>Ratificada</span>
+                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="ratificada" name='ratificada'/>
+                        </div>
                     </div>
-                    <div class="">
-                        <input id="solicita_excepcion" type="checkbox" value="1">
-                        <label for="solicita_excepcion">Solicita excepcion</label>
+                    <br>
+                    <br>
+                    <div class="col-md-12 form-group">
+                        <textarea rows="4" class="form-control" id="observaciones" data-parsley-maxlength='250'></textarea>
+                        <p class="help-block">Observaciones de la solicitud</p>
                     </div>
                 </div>
-
-                <textarea rows="4" class="form-control" id="observaciones" data-parsley-maxlength='250'></textarea>
-                <p class="help-block">Observaciones de la solicitud</p>
-                
+            </div>
+            <div class="form-group">
+                <button class="btn btn-info btn-sm m-l-5" id="btnRatificarSolicitud"><i class="fa fa-check"></i> Ratificar Solicitud</button>
             </div>
         </div>
         </div>
         <!-- end step-3 -->
         <!-- begin step-4 -->
-        <div id="step-4" class="step-4">
-            <div class="row">
-                <div class="col-xl-10 offset-xl-1">
-                
-                </div>
-            </div>
-        </div>
-        <!-- end step-4 -->
-        <!-- begin step-5 -->
-        <div id="step-5" class="step-5">
+        <div id="step-4">
+            @if (isset($audiencias))
             <div class="row">
                 <div class="col-md-12">
-                @include('expediente.audiencias._list',$audiencias)
+                    
+                    @include('expediente.audiencias._list',$audiencias)
+                    
                 </div>
             </div>
+            @else
+            <div> <h1> Audiencia disponible despues de Ratificaci&oacute;n </h1> </div>
+            @endif
+
         </div>
-        <!-- end step-5 -->
+        <!-- end step-4 -->
     </div>
     <!-- end wizard-content -->
 </div>
@@ -651,13 +618,27 @@
     var arrayObjetoSolicitudes = new Array(); // Array de objeto_solicitude para el solicitado
 
     $(document).ready(function() {
+        $('#wizard').smartWizard({
+            selected: 0,
+            theme: 'default',
+            transitionEffect: 'fade',
+            showStepURLhash: false,
+            anchorSettings: {
+                anchorClickable: true, // Enable/Disable anchor navigation
+                enableAllAnchors: true, // Activates all anchors clickable all times
+                markDoneStep: true, // add done css
+                enableAnchorOnDoneStep: true // Enable/Disable the done steps navigation
+            },
+            lang: { next: 'Siguiente', previous: 'Anterior' }
+        });
+
         $(".personaMoralSolicitado").hide();
         $(".personaMoralSolicitante").hide();
         $(".personaFisicaSolicitante input").attr("required","");
         $(".personaFisicaSolicitado input").attr("required","");
         $(".personaMoralSolicitante input").removeAttr("required");
         $(".personaMoralSolicitado input").removeAttr("required");
-        $(".step-4").hide();
+//        $(".step-4").hide();
 
         $("#agregarSolicitante").click(function(){
             //Informacion de solicitante
@@ -808,8 +789,15 @@
             }
         });
 
-        function getSolicitudFromBD(){
-            $.ajax({
+        
+        if(edit){
+            getSolicitudFromBD();
+        }
+        
+    });
+    function getSolicitudFromBD(){
+        console.log("llego");
+        $.ajax({
             url:'/api/solicitudes/'+$("#solicitud_id").val(),
             type:"GET",
             dataType:"json",
@@ -820,7 +808,7 @@
                 formarTablaSolicitado();
                 arraySolicitantes = Object.values(data.solicitantes);
                 formarTablaSolicitante();
-                
+
                 $.each(data.objeto_solicitudes, function (key, value) {
                     var objeto_solicitud = {};
                     objeto_solicitud.id = value.id;
@@ -835,6 +823,13 @@
                 $("#centro_id").val(data.centro_id);
                 if(data.ratificada){
                     $("#ratificada").prop("checked",true);
+                    $('#wizard').smartWizard("stepState", [3], "show");
+                    $(".step-4").show();
+                    $("#btnRatificarSolicitud").hide();
+                }else{
+                    $('#wizard').smartWizard("stepState", [3], "hide");
+                    $(".step-4").hide();
+                    $("#btnRatificarSolicitud").show();
                 }
                 if(data.solicita_excepcion){
                     $("#solicita_excepcion").prop("checked",true);
@@ -842,16 +837,9 @@
                 $("#fechaRatificacion").val(dateFormat(data.fecha_ratificacion,2));
                 $("#fechaRecepcion").val(dateFormat(data.fecha_recepcion,2));
                 $("#fechaConflicto").val(dateFormat(data.fecha_conflicto,0));
-                
             }
-            });
-        }
-        if(edit){
-            getSolicitudFromBD();
-        }
-        
-    });
-
+        });
+    }
     /**
         *Funcion para limpiar campos de solicitante
         */
@@ -961,7 +949,7 @@
                 html += "<tr>";
                 $("#objeto_solicitud_id").val(value.objeto_solicitud_id);
                 html += "<td> " + $("#objeto_solicitud_id :selected").text(); + " </td>";
-                html += "<td><a class='btn btn-xs btn-warning' onclick='eliminarObjetoSol("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                html += "<td style='text-align: center;'><a class='btn btn-xs btn-warning' onclick='eliminarObjetoSol("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
                 html += "</tr>";
             }
         });
@@ -993,8 +981,8 @@
                     html += "<td></td>";    
                 }
                 
-                html += "<td><a class='btn btn-xs btn-info' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
-                html += "<a class='btn btn-xs btn-warning' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt' style='color:white;'></i></a> ";
+                html += "<a class='btn btn-xs btn-warning' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
                 html += "</tr>";
             }
         });
@@ -1025,8 +1013,8 @@
                     html += "<td></td>";    
                 }
                 
-                html += "<td><a class='btn btn-xs btn-info' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
-                html += "<a class='btn btn-xs btn-warning' onclick='eliminarSolicitado("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt' style='color:white;'></i></a> ";
+                html += "<a class='btn btn-xs btn-warning' onclick='eliminarSolicitado("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
                 html += "</tr>";
             }
         });
@@ -1089,60 +1077,61 @@
     *@argument key posicion de array a editar
     */
     function cargarEditarSolicitante(key){
-            $("#edit_key").val(key);
-            $("#solicitante_id").val(arraySolicitantes[key].id);
-            if(arraySolicitantes[key].tipo_persona_id == 1){
-                $("#idNombreSolicitante").val(arraySolicitantes[key].nombre);
-                $("#idPrimerASolicitante").val(arraySolicitantes[key].primer_apellido);
-                $("#idSegundoASolicitante").val(arraySolicitantes[key].segundo_apellido);
-                $("#idFechaNacimientoSolicitante").val(dateFormat(arraySolicitantes[key].fecha_nacimiento,0));
-                $("#idSolicitanteCURP").val(arraySolicitantes[key].curp);    
-                $("#genero_id_solicitante").val(arraySolicitantes[key].genero_id);    
-                $("#idEdadSolicitante").val(arraySolicitantes[key].edad);    
-                $("#nacionalidad_id_solicitante").val(arraySolicitantes[key].nacionalidad_id);    
-                $("#entidad_nacimiento_id_solicitante").val(arraySolicitantes[key].entidad_nacimiento_id);
-                $("#tipo_persona_fisica_solicitante").prop("checked", true);
-                $(".personaMoralSolicitante").hide();
-                $(".personaFisicaSolicitante").show();
-            }else{
-                $(".personaMoralSolicitante").show();
-                $(".personaFisicaSolicitante").hide();
-                $("#tipo_persona_moral_solicitante").prop("checked", true);
-                $("#idNombreCSolicitante").val(arraySolicitantes[key].nombre_comercial);
-            }
-            $("#giro_comercial_solicitante").val(arraySolicitantes[key].giro_comercial_id);
-            $("#idSolicitanteRfc").val(arraySolicitantes[key].rfc);
-            // datos laborales en la solicitante
-            $("#dato_laboral_id").val(arraySolicitantes[key].dato_laboral.id);
-            $("#nombre_jefe_directo").val(arraySolicitantes[key].dato_laboral.nombre_jefe_directo);
-            $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
-            $("#nss").val(arraySolicitantes[key].dato_laboral.nss);
-            $("#no_issste").val(arraySolicitantes[key].dato_laboral.no_issste);
-            $("#no_afore").val(arraySolicitantes[key].dato_laboral.no_afore);
-            $("#percepcion_mensual_neta").val(arraySolicitantes[key].dato_laboral.percepcion_mensual_neta);
-            $("#percepcion_mensual_bruta").val(arraySolicitantes[key].dato_laboral.percepcion_mensual_bruta);
-            $("#labora_actualmente").is(":checked"); arraySolicitantes[key].dato_laboral.labora_actualmente
-            $("#fecha_ingreso").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_ingreso,0));
-            $("#fecha_salida").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_salida,0));
-            $("#jornada_id").val(arraySolicitantes[key].dato_laboral.jornada_id);
-            $("#horas_semanales").val(arraySolicitantes[key].dato_laboral.horas_semanales);
+        $("#edit_key").val(key);
+        $("#solicitante_id").val(arraySolicitantes[key].id);
+        if(arraySolicitantes[key].tipo_persona_id == 1){
+            $("#idNombreSolicitante").val(arraySolicitantes[key].nombre);
+            $("#idPrimerASolicitante").val(arraySolicitantes[key].primer_apellido);
+            $("#idSegundoASolicitante").val(arraySolicitantes[key].segundo_apellido);
+            $("#idFechaNacimientoSolicitante").val(dateFormat(arraySolicitantes[key].fecha_nacimiento,0));
+            $("#idSolicitanteCURP").val(arraySolicitantes[key].curp);    
+            $("#genero_id_solicitante").val(arraySolicitantes[key].genero_id);    
+            $("#idEdadSolicitante").val(arraySolicitantes[key].edad);    
+            $("#nacionalidad_id_solicitante").val(arraySolicitantes[key].nacionalidad_id);    
+            $("#entidad_nacimiento_id_solicitante").val(arraySolicitantes[key].entidad_nacimiento_id);
+            $("#tipo_persona_fisica_solicitante").prop("checked", true);
+            $(".personaMoralSolicitante").hide();
+            $(".personaFisicaSolicitante").show();
+        }else{
+            $(".personaMoralSolicitante").show();
+            $(".personaFisicaSolicitante").hide();
+            $("#tipo_persona_moral_solicitante").prop("checked", true);
+            $("#idNombreCSolicitante").val(arraySolicitantes[key].nombre_comercial);
+        }
+        $("#giro_comercial_solicitante").val(arraySolicitantes[key].giro_comercial_id);
+        $("#idSolicitanteRfc").val(arraySolicitantes[key].rfc);
+        // datos laborales en la solicitante
+        $("#dato_laboral_id").val(arraySolicitantes[key].dato_laboral.id);
+        $("#nombre_jefe_directo").val(arraySolicitantes[key].dato_laboral.nombre_jefe_directo);
+        $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
+        $("#nss").val(arraySolicitantes[key].dato_laboral.nss);
+        $("#no_issste").val(arraySolicitantes[key].dato_laboral.no_issste);
+        $("#no_afore").val(arraySolicitantes[key].dato_laboral.no_afore);
+        $("#percepcion_mensual_neta").val(arraySolicitantes[key].dato_laboral.percepcion_mensual_neta);
+        $("#percepcion_mensual_bruta").val(arraySolicitantes[key].dato_laboral.percepcion_mensual_bruta);
+        if(arraySolicitantes[key].dato_laboral.labora_actualmente != $("#labora_actualmente").is(":checked")){
+            $("#labora_actualmente").trigger('click');
+        }
+        $("#fecha_ingreso").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_ingreso,0));
+        $("#fecha_salida").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_salida,0));
+        $("#jornada_id").val(arraySolicitantes[key].dato_laboral.jornada_id);
+        $("#horas_semanales").val(arraySolicitantes[key].dato_laboral.horas_semanales);
 
-            //domicilio del solicitante
-            $("#domicilio_solicitante_id").val(arraySolicitantes[key].domicilios[0].id);
-            $("#num_ext_solicitante").val(arraySolicitantes[key].domicilios[0].num_ext);
-            $("#num_int_solicitante").val(arraySolicitantes[key].domicilios[0].num_int);
-            $("#asentamiento_solicitante").val(arraySolicitantes[key].domicilios[0].asentamiento);
-            $("#municipio_solicitante").val(arraySolicitantes[key].domicilios[0].municipio);
-            $("#cp_solicitante").val(arraySolicitantes[key].domicilios[0].cp);
-            $("#entre_calle1_solicitante").val(arraySolicitantes[key].domicilios[0].entre_calle1);
-            $("#entre_calle2_solicitante").val(arraySolicitantes[key].domicilios[0].entre_calle2);
-            $("#referencias_solicitante").val(arraySolicitantes[key].domicilios[0].referencias);
-            $("#tipo_vialidad_id_solicitante").val(arraySolicitantes[key].domicilios[0].tipo_vialidad_id);
-            $("#vialidad_solicitante").val(arraySolicitantes[key].domicilios[0].vialidad);
-            $("#tipo_asentamiento_id_solicitante").val(arraySolicitantes[key].domicilios[0].tipo_asentamiento_id);
-            $("#estado_id_solicitante").val(arraySolicitantes[key].domicilios[0].estado_id);
-            $('.catSelect').trigger('change');
-
+        //domicilio del solicitante
+        $("#domicilio_solicitante_id").val(arraySolicitantes[key].domicilios[0].id);
+        $("#num_ext_solicitante").val(arraySolicitantes[key].domicilios[0].num_ext);
+        $("#num_int_solicitante").val(arraySolicitantes[key].domicilios[0].num_int);
+        $("#asentamiento_solicitante").val(arraySolicitantes[key].domicilios[0].asentamiento);
+        $("#municipio_solicitante").val(arraySolicitantes[key].domicilios[0].municipio);
+        $("#cp_solicitante").val(arraySolicitantes[key].domicilios[0].cp);
+        $("#entre_calle1_solicitante").val(arraySolicitantes[key].domicilios[0].entre_calle1);
+        $("#entre_calle2_solicitante").val(arraySolicitantes[key].domicilios[0].entre_calle2);
+        $("#referencias_solicitante").val(arraySolicitantes[key].domicilios[0].referencias);
+        $("#tipo_vialidad_id_solicitante").val(arraySolicitantes[key].domicilios[0].tipo_vialidad_id);
+        $("#vialidad_solicitante").val(arraySolicitantes[key].domicilios[0].vialidad);
+        $("#tipo_asentamiento_id_solicitante").val(arraySolicitantes[key].domicilios[0].tipo_asentamiento_id);
+        $("#estado_id_solicitante").val(arraySolicitantes[key].domicilios[0].estado_id);
+        $('.catSelect').trigger('change');
     }
 
     /**
@@ -1207,13 +1196,13 @@
     */
     function formarTablaDomiciliosSolicitado(){
         var html = "";
-        
+
         $("#tbodyDomicilioSolicitado").html("");
-        
+
         $.each(arrayDomiciliosSolicitado, function (key, value) {
             html += "<tr>";
             html += "<td>" + value.asentamiento + " " + value.cp + "</td>";
-            html += "<td><a class='btn btn-xs btn-info' onclick='cargarEditarDomicilioSolicitado("+key+")' ><i class='fa fa-pencil-alt'></i> </a> <a class='btn btn-xs btn-warning' onclick='eliminarDomicilio("+key+")' ><i class='fa fa-trash'></i></a></td>";
+            html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarDomicilioSolicitado("+key+")' ><i class='fa fa-pencil-alt' style='color:white;'></i> </a> <a class='btn btn-xs btn-warning' onclick='eliminarDomicilio("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
             html += "</tr>";
         });
         $("#tbodyDomicilioSolicitado").html(html);
@@ -1253,7 +1242,7 @@
     * Funcion para agregar Domicilio de solicitante y solicitado 
     */
     function agregarObjetoSol(){
-        
+       
         if($("#objeto_solicitud_id").val() != ""){
             var objeto_solicitud = {};
             objeto_solicitud.id = "";
@@ -1264,7 +1253,7 @@
             formarTablaObjetoSol();
             $("#objeto_solicitud_id").val("").trigger('change');
         }
-        
+
     }
 
     /**
@@ -1328,13 +1317,74 @@
         solicitud.fecha_conflicto = dateFormat($("#fechaConflicto").val());
         return solicitud;
     }
+    
+    // Funcion para ratificar solicitudes
+    $("#btnRatificarSolicitud").on("click",function(){
+        if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
+            swal({
+                title: '¿Estas seguro?',
+                text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Cancelar',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-default',
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: 'Aceptar',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-warning',
+                        closeModal: true
+                    }
+                }
+            }).then(function(isConfirm){
+                if(isConfirm){
+                    $.ajax({
+                        url:'/api/solicitud/ratificar',
+                        type:'POST',
+                        dataType:"json",
+                        async:true,
+                        data:{
+                            id:$("#solicitud_id").val()
+                        },
+                        success:function(data){
+                            if(data != null && data != ""){
+                                swal({
+                                    title: 'Correcto',
+                                    text: 'Solicitud ratificada correctamente',
+                                    icon: 'success'
+                                });
+                                getSolicitudFromBD();
+                            }else{
+                                swal({
+                                    title: 'Error',
+                                    text: 'No se pudo ratificar',
+                                    icon: 'error'
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Llena todos los campos',
+                icon: 'warning'
+            });
+        }
+    });
 
     //funcion para obtener informacion de la excepcion
     function getExcepcion(){
         var excepcion = {};
         return excepcion;
     }
-    $(".catSelect").select2();
+    $(".catSelect").select2({width: '100%'});
     $(".date").datetimepicker({useCurrent: false,format:'DD/MM/YYYY'});
     $(".dateTime").datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm:ss'});
     $(".date").keypress(function(event){
@@ -1513,17 +1563,17 @@
         $('#btn-confirmar-direccion').removeClass('disabled');
         marker.addListener('dragend', seteaNuevaPosicionManual);
      };
-     function borraMarker(){
+    function borraMarker(){
             marker.setMap(null);
         }
-     $(".direccionUpd").blur(function(){
-         if($("#tipo_vialidad_id_solicitante").val() != "" && $("#vialidad_solicitante").val() != "" && $("#num_ext_solicitante").val() != "" && $("#asentamiento_solicitante").val() && $("#municipio_solicitante").val() != "" && $("#estado_id_solicitante").val() != "" ){
-             var direccion = $("#tipo_vialidad_id_solicitante :selected").text() + "," + $("#vialidad_solicitante").val() + "," + $("#num_ext_solicitante").val() + "," + $("#asentamiento_solicitante").val() + "," + $("#municipio_solicitante").val() + "." + $("#estado_id_solicitante :selected").text();
+    $(".direccionUpd").blur(function(){
+        if($("#tipo_vialidad_id_solicitante").val() != "" && $("#vialidad_solicitante").val() != "" && $("#num_ext_solicitante").val() != "" && $("#asentamiento_solicitante").val() && $("#municipio_solicitante").val() != "" && $("#estado_id_solicitante").val() != "" ){
+            var direccion = $("#tipo_vialidad_id_solicitante :selected").text() + "," + $("#vialidad_solicitante").val() + "," + $("#num_ext_solicitante").val() + "," + $("#asentamiento_solicitante").val() + "," + $("#municipio_solicitante").val() + "." + $("#estado_id_solicitante :selected").text();
             $("#direccion_marker").val(direccion);
             geocodeAddress(map);
          }
      });
-    
+
 
 </script>
 
