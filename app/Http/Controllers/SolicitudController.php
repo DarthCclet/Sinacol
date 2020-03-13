@@ -253,7 +253,7 @@ class SolicitudController extends Controller
         $partes = $solicitud->partes()->get();//->where('tipo_parte_id',3)->get()->first()
         $expediente = Expediente::where("solicitud_id" ,"=",$solicitud->id)->get();
         if(count($expediente) > 0){
-            $audiencias = Audiencia::where("expediente_id" ,"=",$expediente->id)->get();
+            $audiencias = Audiencia::where("expediente_id" ,"=",$expediente[0]->id)->get();
         }else{
             $audiencias = array();
         }
