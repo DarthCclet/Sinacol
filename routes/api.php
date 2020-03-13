@@ -18,6 +18,7 @@ Route::resource('user','UserController')->middleware('auth');
 Route::resource('expediente','ExpedienteController');
 Route::resource('datoLaboral','DatoLaboralController');
 Route::resource('solicitud','SolicitudController');
+Route::POST('solicitud/ratificar','SolicitudController@Ratificar');
 Route::resource('resoluciones','ResolucionController');
 Route::resource('sala','SalaController');
 Route::post('salas/disponibilidad','SalaController@disponibilidad');
