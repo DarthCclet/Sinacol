@@ -31,7 +31,7 @@ class Parte extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function Genero(){
-      return $this->belongsTo('App\Genero');
+      return $this->belongsTo('App\Genero')->withDefault();
     }
 
     /**
@@ -40,7 +40,7 @@ class Parte extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function solicitud(){
-      return $this->belongsTo('App\Solicitud');
+      return $this->belongsTo('App\Solicitud')->withDefault();
     }
     /**
      * Funcion para asociar con modelo TipoParte
@@ -48,7 +48,7 @@ class Parte extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function tipoParte(){
-      return $this->belongsTo('App\TipoParte');
+      return $this->belongsTo('App\TipoParte')->withDefault();
     }
     /**
      * Funcion para asociar con modelo TipoPersona
@@ -56,7 +56,7 @@ class Parte extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function tipoPersona(){
-      return $this->belongsTo('App\TipoPersona');
+      return $this->belongsTo('App\TipoPersona')->withDefault();
     }
     /**
      * Funcion para asociar con modelo Nacionalidad
@@ -64,7 +64,7 @@ class Parte extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function nacionalidad(){
-      return $this->belongsTo('App\Nacionalidad');
+      return $this->belongsTo('App\Nacionalidad')->withDefault();
     }
     /**
      * Funcion para asociar con modelo Estado
@@ -72,7 +72,7 @@ class Parte extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function entidadNacimiento(){
-      return $this->belongsTo('App\Estado');
+      return $this->belongsTo('App\Estado')->withDefault();
     }
 
     /**
@@ -81,7 +81,7 @@ class Parte extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function giroComercial(){
-      return $this->belongsTo('App\GiroComercial');
+      return $this->belongsTo('App\GiroComercial')->withDefault();
     }
 
     /**
@@ -90,7 +90,7 @@ class Parte extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function grupoPrioritario(){
-      return $this->belongsTo('App\GrupoPrioritario');
+      return $this->belongsTo('App\GrupoPrioritario')->withDefault();
     }
     /**
      * Funcion para asociar con modelo Audiencia con hasMany
