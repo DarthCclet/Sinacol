@@ -12,6 +12,21 @@
         position: relative;
         border: thin solid #c0c0c0;
         width:100%;
+        height: 100%;
+    }
+    #panel-botones {
+        position: absolute;
+        right: 10%;
+        z-index: 5;
+        padding: 5px;
+        text-align: center;
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+    }
+    #panel-botones {
+        display: none;
+        margin-left: 50%;
     }
 
 </style>
@@ -90,7 +105,7 @@
                             </div>
                         </div>
                         <div class="col-md-8 personaFisicaSolicitante">
-                            <input class="form-control" id="idSolicitanteCURP" placeholder="CURP del solicitante"  autofocus="" type="text" value="">
+                            <input class="form-control" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" autofocus="" type="text" value="">
                             <p class="help-block">CURP del solicitante</p>
                         </div>
                         <div class="col-md-12 row">
@@ -219,7 +234,13 @@
                                     <p class="help-block">Entre calle</p>
                                 </div>
                             </div>
-                            <div class="widget-maps" id="widget-maps"></div>
+                            <div id="mapContainer">
+                                <div id="panel-botones">
+                                    <button class="btn btn-info" type="button" onclick="tomarGeoreferencia()" > <i class="fa fa-map-marker"></i> Validar direcci&oacute;n</button>
+                                </div>
+                                <div class="widget-maps" id="widget-maps"></div>
+                            </div>
+                            
                         
                                   
                         
@@ -339,7 +360,7 @@
                             </div>
                         </div>
                         <div class="col-md-8 personaFisicaSolicitado">
-                            <input class="form-control" required id="idSolicitadoCURP" placeholder="CURP del solicitado" type="text" value="">
+                            <input class="form-control" required id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del solicitado" type="text" value="">
                             <p class="help-block">CURP del solicitado</p>
                         </div>
                         <div class="col-md-12 row">
@@ -1272,6 +1293,7 @@
 
                 },
                 success:function(data){
+                    alert("entro1");
                     if(data.success){
                         swal({
                             title: 'Correcto',
@@ -1281,7 +1303,15 @@
                         });
                         setTimeout('', 5000);
                         location.href='{{ route('solicitudes.index')  }}'
+                    }else{
+                        
                     }
+                    
+                },error:function(data){
+                    console.log(data.responseJSON);
+                    $.each(data.responseJSON.errors, function (key, value) {
+                        console.log(value);
+                    });
                 }
             });
         }
@@ -1365,10 +1395,13 @@
       map.panorama = map.getStreetView();
       map.panorama.addListener('visible_changed', function() {
         if(!this.visible){
-            console.log("entro");
-            seteaMarker(map, this.position);
+            // console.log("entro");
+            document.getElementById('panel-botones').style.display = "none";
+        }else{
+            document.getElementById('panel-botones').style.display = "block";
         }
     });
+    
     //   map2 = new google.maps.Map(document.getElementById('widget-maps2'), {
     //       zoom: 15,
     //       center: {lat: parseFloat(lat), lng: parseFloat(lon)},
@@ -1383,7 +1416,12 @@
           geocodeAddress(map);
       }
     }
+    function tomarGeoreferencia() {
+        var pos = map.panorama.getPosition() ;
 
+        seteaMarker(map,pos);
+        console.log(pos);
+    }
     function geocodeAddress(resultsMap) {
         var geocoder = new google.maps.Geocoder();
         var address = $("#direccion_marker").val();
@@ -1435,6 +1473,91 @@
          }
      });
     
+
+    //validacion curp
+     
+var CURP = (function () {
+
+    var modulo = {};
+
+    /**
+     * Valida que la cadena proporcionada se apegue a la definición de la CURP
+     */
+    modulo.valida = function (curp) {
+    var reg = "";
+    if(curp.length == 18)
+    {
+        var digito = this.verifica(curp);
+
+        reg = /[A-Z]{4}\d{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9][0-9]/;
+
+        if(curp.search(reg))
+        {
+        return false;
+        }
+
+        if(!(parseInt(digito) == parseInt(curp.substring(17,18))))
+        {
+        return false;
+        }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+    };
+
+    /**
+     * Comprueba el dígito verificador mediante el algoritmo de LUHN "tropicalizado"
+     */
+    modulo.verifica = function(curp){
+    var segRaiz      = curp.substring(0,17);
+    var chrCaracter  = "0123456789ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+    var intFactor    = new Array(17);
+    var lngSuma      = 0.0;
+    var lngDigito    = 0.0;
+
+    for(var i=0; i<17; i++)
+    {
+        for(var j=0;j<37; j++)
+        {
+            
+        if(segRaiz.substring(i,i+1)==chrCaracter.substring(j,j+1))
+        {
+            intFactor[i]=j;
+        }
+        }
+    }
+console.log(intFactor);
+    for(var k = 0; k < 17; k++)
+    {
+        lngSuma= lngSuma + ((intFactor[k]) * (18 - k));
+    }
+    console.log(lngSuma);
+    lngDigito= (10 - (lngSuma % 10));
+
+    if(lngDigito==10)
+    {
+        lngDigito=0;
+    }
+
+    return lngDigito;
+    };
+
+    return modulo;
+}());
+
+function validaCURP(curp){
+
+    if(CURP.valida(curp)){
+    //   document.getElementById('msg').innerText = 'CURP Válida';
+    return;
+    }
+
+    swal({title: 'Error',text: 'La curp no es valida',icon: 'warning',});
+    
+}
 
 </script>
 
