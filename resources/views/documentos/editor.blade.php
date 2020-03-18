@@ -76,7 +76,10 @@
                       text: 'Insert Date',
                       tooltip: 'Insert Current Date',
                       onAction: function (_) {
-                        editor.insertContent(new Date());
+                        // editor.insertContent(new Date());
+                         // editor.insertContent('<strong class="mceNonEditable" data-nombre="nombre_empresa">[NOMBRE EMPRESA]</strong>&nbsp;\n');
+
+                         editor.insertContent('<strong class="mceNonEditable" data-nombre="fecha_conflicto">[FECHA]</strong>&nbsp;\n');
                       }
                     });
                     editor.ui.registry.addMenuButton('mybutton', {
@@ -87,7 +90,7 @@
                         var items = [
                             {
                                 type: 'menuitem',
-                                text: 'Empresa',
+                                text: 'Fecha Actual',
                                 onAction: function (_) {
                                   editor.insertContent(new Date());
                                 }
@@ -107,12 +110,12 @@
                     //                 },
                     //             ]
                             },
-                            {
-                                type: 'menuitem',
-                                text: 'Vehículo',
-                                onAction: function (_) {
-                                  editor.insertContent(new Date());
-                                }
+                            // {
+                            //     type: 'menuitem',
+                            //     text: 'Vehículo',
+                            //     onAction: function (_) {
+                            //       editor.insertContent(new Date());
+                            //     }
                     //             menu:
                     //                 [
                     //                     {
@@ -170,26 +173,74 @@
                     //                         }
                     //                     }
                     //                 ]
-                            },
+                            // },
 
                             {
                                 type: 'nestedmenuitem',
-                                text: 'Other formats',
+                                text: 'Solicitante',
                                 getSubmenuItems: function () {
                                   return [
                                     {
                                       type: 'menuitem',
-                                      text: 'GMT',
+                                      text: 'Nombre',
                                       onAction: function (_) {
-                                        editor.insertContent(new Date());
+                                        // editor.insertContent(new Date());
+                                        editor.insertContent('<strong class="mceNonEditable" data-nombre="nombre">[NOMBRE]</strong>&nbsp;\n');
                                       }
                                     },
                                     {
                                       type: 'menuitem',
-                                      text: 'ISO',
+                                      text: 'Primer apellido',
                                       onAction: function (_) {
-                                        editor.insertContent("new ISO");
+                                        editor.insertContent('<strong class="mceNonEditable" data-nombre="primer_apellido">[PRIMER APELLIDO]</strong>&nbsp;\n');
                                       }
+                                    }
+                                  ];
+                                }
+
+                            },
+                            {
+                                type: 'nestedmenuitem',
+                                text: 'Solicitado',
+                                getSubmenuItems: function () {
+                                  return [
+                                    {
+                                      type: 'menuitem',
+                                      text: 'Nombre',
+                                      onAction: function (_) {
+                                        editor.insertContent('<strong class="mceNonEditable" data-nombre="nombre">[NOMBRE]</strong>&nbsp;\n');
+                                      }
+                                    },
+                                    {
+                                      type: 'menuitem',
+                                      text: 'Primer apellido',
+                                      onAction: function (_) {
+                                        editor.insertContent('<strong class="mceNonEditable" data-nombre="primer_apellido">[PRIMER APELLIDO]</strong>&nbsp;\n');
+                                      }
+                                    }
+                                  ];
+                                }
+
+                            },
+                            {
+                                type: 'nestedmenuitem',
+                                text: 'Solicitud',
+                                getSubmenuItems: function () {
+                                  return [
+                                    {
+                                      type: 'menuitem',
+                                      text: 'Fecha Conflicto',
+                                      onAction: function (_) {
+                                        editor.insertContent('<strong class="mceNonEditable" data-nombre="fecha_conflicto">[FECHA]</strong>&nbsp;\n');
+                                      }
+                                    // },
+                                    // {
+                                    //   type: 'menuitem',
+                                    //   text: 'Motivo',
+                                    //   onAction: function (_) {
+                                    //     // editor.insertContent('<strong class="mceNonEditable" data-nombre="primer_apellido">[PRIMER APELLIDO]</strong>&nbsp;\n');
+                                    //     editor.insertContent("new ISO");
+                                    //   }
                                     }
                                   ];
                                 }
