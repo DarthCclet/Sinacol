@@ -25,7 +25,7 @@ class ConciliadorController extends Controller
      */
     public function index()
     {
-        Conciliador::with('persona')->get();
+        Conciliador::with('persona','centro')->get();
 
         // Filtramos las salas con los parametros que vengan en el request
         $conciliadores = (new CatalogoFilter(Conciliador::query(), $this->request))
@@ -219,5 +219,9 @@ class ConciliadorController extends Controller
             $conciliadores[$key]["persona"] = $persona;
         }
         return $conciliadores;
+    }
+    
+    public function conciliadorAudiencias(){
+        return view('centros.conciliadores.agenda');
     }
 }
