@@ -15,8 +15,8 @@ class CreateContadorsTable extends Migration
     {
         Schema::create('contadores', function (Blueprint $table) {
             $table->bigInteger('id')->primary()->comment('PK de la tabla tipo_contadores');
-            $table->int('anio')->comment('Nombre del tipo del contador  ');
-            $table->int('contador')->comment('Nombre del tipo del contador  ');
+            $table->integer('anio')->comment('Nombre del tipo del contador  ');
+            $table->integer('contador')->comment('Nombre del tipo del contador  ');
             $table->integer('tipo_contador_id')->comment('Fk de la tabla tipo_contadores');
             $table->foreign('tipo_contador_id')->references('id')->on('tipo_contadores');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro, modifica y se borra lógicamente.');
