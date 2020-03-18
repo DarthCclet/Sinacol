@@ -16,7 +16,10 @@
             @include('documentos.editor')
           <div class="form-group">
             <button class="btn btn-info btn-sm m-l-5"><i class="fa fa-save"></i> Modificar</button>
-            <a href="{{ url('plantilla-documento/imprimirPDF') }}" class="btn btn-danger">Ver PDF</a>
+            <a href="{{ route('plantilla-documento/imprimirPDF',[$plantillaDocumento])}}" class="btn btn-danger btn-sm m-l-5">
+                <i class="fas fa-file-pdf"></i></i> Ver PDF
+            </a>
+
           </div>
 
       {{ Form::close() }}

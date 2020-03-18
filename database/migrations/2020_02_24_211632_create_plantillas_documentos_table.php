@@ -21,6 +21,10 @@ class CreatePlantillasDocumentosTable extends Migration
             $table->text('plantilla_body')->comment('body');
             $table->text('plantilla_footer')->nullable()->comment('footer');
 
+            $table->unsignedBigInteger('tipo_documento_id')->nullable()->comment('FK de la tabla tipo documentos');
+            // Agrego referencia a Llave foranea a tabla Generos
+            $table->foreign('tipo_documento_id')->references('id')->on('tipo_documentos');
+
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });

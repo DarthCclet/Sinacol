@@ -9,6 +9,8 @@ use App\Services\StringTemplate;
 use App\Filters\CatalogoFilter;
 use Barryvdh\DomPDF\PDF;
 use App\PlantillaDocumento;
+use App\TipoDocumento;
+use App\Parte;
 use App\Centro;
 
 use Illuminate\Support\Facades\App;
@@ -62,13 +64,40 @@ class PlantillasDocumentosController extends Controller
      */
     public function store(Request $request)
     {
+      $datos = $request->all();
+// dd($datos["plantilla-body"] == null);
+        if ($datos["plantilla-body"]== null) {
+            $header = view('documentos._header_documentos_default');
+            $body = view('documentos._body_documentos_default');
+            $footer = view('documentos._footer_documentos_default');
+        }
+        else
+        {
+            $header = $datos["plantilla-header"];
+            $body = $datos["plantilla-body"];
+            $footer = $datos["plantilla-footer"];
+        }
+
+
+      // dd($request);
       // $user = Auth::user();
        // $user_id = $user->id;
-       $datos = $request->all();
+
+
+       // $datos = $request->all();
+       // $datosP['nombre_plantilla'] = $datos["nombre-plantilla"];
+       // $datosP['tipo_documento_id'] = 1;
+       // $datosP['plantilla_header'] = $datos["plantilla-header"];
+       // $datosP['plantilla_body'] = $datos["plantilla-body"];
+       // $datosP['plantilla_footer'] = $datos["plantilla-footer"];
+
+$datos["nombre-plantilla"] = $datos["nombre-plantilla"] == "" ? "Plantilla default" : $datos["nombre-plantilla"];
        $datosP['nombre_plantilla'] = $datos["nombre-plantilla"];
-       $datosP['plantilla_header'] = $datos["plantilla-header"];
-       $datosP['plantilla_body'] = $datos["plantilla-body"];
-       $datosP['plantilla_footer'] = $datos["plantilla-footer"];
+       $datosP['tipo_documento_id'] = 1;
+       $datosP['plantilla_header'] = $header;
+       $datosP['plantilla_body'] = $body;
+       $datosP['plantilla_footer'] = $footer;
+
        // $datos['user_id'] = $user_id;
        PlantillaDocumento::create($datosP);
 
@@ -125,11 +154,12 @@ class PlantillasDocumentosController extends Controller
     {
         $plantilla = PlantillaDocumento::find($id);
         $datos = $request->all();
-
+$datos["nombre-plantilla"] = $datos["nombre-plantilla"] == "" ? "Plantilla default" : $datos["nombre-plantilla"];
         $datosP['nombre_plantilla'] = $datos["nombre-plantilla"];
         $datosP['plantilla_header'] = $datos["plantilla-header"];
         $datosP['plantilla_body'] = $datos["plantilla-body"];
         $datosP['plantilla_footer'] = $datos["plantilla-footer"];
+        $datosP['tipo_documento_id'] = 2;
 
         $plantilla->update($datosP);
         return redirect('plantilla-documentos')->with('success', 'Se ha actualizado exitosamente');
@@ -155,9 +185,9 @@ class PlantillasDocumentosController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function imprimirPDF()
+    public function imprimirPDF($id)
     {
-       $html = $this->renderDocumento(1, 1);
+       $html = $this->renderDocumento($id);
        $pdf = App::make('dompdf.wrapper');
        $pdf->loadHTML($html)->setPaper('letter');
        return $pdf->stream('carta.pdf');
@@ -166,23 +196,29 @@ class PlantillasDocumentosController extends Controller
      }
 
 
-     private function renderDocumento($user_id, $vehiculo_id)
+     private function renderDocumento($id)
      {
-        // $usuario = Centro::find($user_id);
+       $vars = [];
+
+        $plantilla = PlantillaDocumento::find($id);
+        // dd()
+        $tipo_plantilla = TipoDocumento::find($plantilla->tipo_documento_id);
+        $objetos = explode (",", $tipo_plantilla->objetos);
+        foreach ($objetos as $key => $value) {
+          $model_name = 'App\\' . $value;
+          $Objeto = $model_name::first();
+          foreach ($Objeto->getAttributes() as $k => $val) {
+            $vars[$k] = $val;
+          }
+        }
+        // dd($vars);
         // $vehiculo = Vehiculo::find($vehiculo_id);
         // $empresa = Empresa::first();
 
-        $area = "";
-        // $ccosto = Ccosto::traduceCcosto($usuario->ccosto);
-        // if ($ccosto) {
-        //     $area = $ccosto->nombre;
-        // }
-
-        $vars = [];
-        $vars['nombre_empresa'] = "empresa";
+        $vars['nombre_empresa'] = "Empresa";
         $vars['nombre_legal_empresa'] = "legal";
 
-        $vars['nombre'] = "nombre";
+        // $vars['nombre'] = "nombre";
         $vars['apellidos'] = "apellidos";
         $vars['num_empleado'] = 11;
         $vars['area'] = "area";
@@ -194,12 +230,12 @@ class PlantillasDocumentosController extends Controller
         $vars['numero_inventario'] = 11;
         $vars['numero_motor'] = 11;
         $vars['odometro'] = 11;
-        $vars['marca'] = "marca";
-        $vars['submarca'] = "submarca";
-        $vars['modelo'] = 11;
-        $vars['version'] = 11;
 
-        $style = "<html xmlns=\"http://www.w3.org/1999/html\">
+       $vars['marca'] = "marca";
+       $vars['submarca'] = "subMarca";
+       $vars['modelo'] = "2021";
+       $vars['version'] = 1;
+      $style = "<html xmlns=\"http://www.w3.org/1999/html\">
                 <head>
                 <style>
                 @page { margin: 160px 60px 60px 80px;  }
@@ -212,7 +248,10 @@ class PlantillasDocumentosController extends Controller
                 ";
         $end = "</body></html>";
 
-        $config = PlantillaDocumento::orderBy('created_at', 'desc')->first();
+        // $config = PlantillaDocumento::orderBy('created_at', 'desc')->first();
+
+        $config = PlantillaDocumento::find($id);
+
         if (!$config) {
             $header = view('documentos._header_documentos_default');
             $body = view('documentos._body_documentos_default');
