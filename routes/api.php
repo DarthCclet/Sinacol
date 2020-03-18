@@ -53,6 +53,8 @@ Route::resource('rol-atencion','RolAtencionController');
 Route::Post('ocupacion/multiples','OcupacionController@editMultiple');
 Route::resource('plantilla-documento','PlantillasDocumentosController');
 Route::resource('solicitudes','SolicitudController');
+Route::resource('contadores','ContadorController');
+Route::resource('tipo_contadores','TipoContadorController');
 
 //Route::resource('rol-conciliador','RolAtencionController');
 
