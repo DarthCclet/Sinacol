@@ -14,14 +14,19 @@ class CreateContadorsTable extends Migration
     public function up()
     {
         Schema::create('contadores', function (Blueprint $table) {
-            $table->bigInteger('id')->primary()->comment('PK de la tabla tipo_contadores');
-            $table->int('anio')->comment('Nombre del tipo del contador  ');
-            $table->int('contador')->comment('Nombre del tipo del contador  ');
+            $table->bigIncrements('id')->comment('PK de la tabla tipo_contadores');
+            $table->integer('anio')->comment('Nombre del tipo del contador  ');
+            $table->integer('contador')->comment('Nombre del tipo del contador  ');
+            $table->integer('centro_id')->comment('Fk de la tabla centros');
+            $table->foreign('centro_id')->references('id')->on('centros');
             $table->integer('tipo_contador_id')->comment('Fk de la tabla tipo_contadores');
             $table->foreign('tipo_contador_id')->references('id')->on('tipo_contadores');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro, modifica y se borra lógicamente.');
             $table->timestamps();
         });
+        $tabla_nombre = 'contadores';
+        $comentario_tabla = 'Tabla donde se almacenan Los contadores';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
     }
 
     /**

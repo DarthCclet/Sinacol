@@ -19,6 +19,21 @@ class CreateTipoContadorsTable extends Migration
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro, modifica y se borra lógicamente.');
             $table->timestamps();
         });
+        
+        // Agregamos los datos del archivo
+        $path = base_path('database/datafiles');
+        $json = json_decode(file_get_contents($path . "/tipo_contadores.json"));
+
+        //Se llena el catalogo desde el arvhivo json generos.json
+        foreach ($json->datos as $tipo_contadores){
+            DB::table('tipo_contadores')->insert(
+                [
+                    'id' => $tipo_contadores->id,
+                    'nombre' => $tipo_contadores->nombre,
+                ]
+            );
+        }
+        
         $tabla_nombre = 'tipo_contadores';
         $comentario_tabla = 'Tabla donde se almacenan los tipos de contadores que existen.';
         DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
