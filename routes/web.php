@@ -33,6 +33,7 @@ Route::resource('grupo-prioritario','GrupoPrioritarioController');
 Route::resource('jornadas','JornadaController');
 Route::resource('ocupaciones','OcupacionController');
 Route::resource('plantilla-documentos','PlantillasDocumentosController');
+Route::resource('contadores','ContadorController');
 Route::get('plantilla-documento/imprimirPDF','PlantillasDocumentosController@imprimirPDF');
 
 
