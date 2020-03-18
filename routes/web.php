@@ -34,7 +34,8 @@ Route::resource('jornadas','JornadaController');
 Route::resource('ocupaciones','OcupacionController');
 Route::resource('plantilla-documentos','PlantillasDocumentosController');
 Route::resource('contadores','ContadorController');
-Route::get('plantilla-documento/imprimirPDF','PlantillasDocumentosController@imprimirPDF');
+Route::get('plantilla-documento/{id}/imprimirPDF','PlantillasDocumentosController@imprimirPDF')->name('plantilla-documento/imprimirPDF');
+
 
 
 Auth::routes(['register' => false]);
