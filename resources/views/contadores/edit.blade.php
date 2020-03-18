@@ -85,7 +85,7 @@
             var validar = validarContador();
             if(!validar){
                 $.ajax({
-                    url:"/api/contador",
+                    url:"/api/contadores",
                     type:"POST",
                     dataType:"json",
                     data:{
