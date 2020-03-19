@@ -37,14 +37,6 @@ class Centro extends Model
     public function conciliadores(){
             return $this->hasMany('App\Conciliador');
     }
-  /**
-   * Funcion para asociar con modelo Solicitud con hasMany
-   * * Utilizando hasMany para relacion uno a muchos
-   * * @return \Illuminate\Database\Eloquent\Relations\HasMany
-   */
-    public function contadores(){
-            return $this->hasMany(Contador::class);
-    }
     /**
      * Relacion con la tabla disponibilidad
      * @return type

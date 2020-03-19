@@ -7,8 +7,6 @@ use App\Centro;
 use App\DatoLaboral;
 use App\Domicilio;
 use App\Estado;
-use App\Expediente;
-use App\Audiencia;
 use App\EstatusSolicitud;
 use App\Expediente;
 use Illuminate\Http\Request;
@@ -170,7 +168,7 @@ class SolicitudController extends Controller
             }
             
             // dd($value);
-            $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+            $parteSaved = ((Parte::create($value))->dato_laboral()->create($dato_laboral)->parte);
             // dd($domicilio);
             // foreach ($domicilios as $key => $domicilio) {
                 $domicilio["tipo_vialidad"] = "as";
@@ -272,7 +270,6 @@ class SolicitudController extends Controller
             $audiencias = array();
         }
         
-        
         $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
         $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
         $centros = array_pluck(Centro::all(),'nombre','id');
@@ -284,7 +281,6 @@ class SolicitudController extends Controller
         $generos = array_pluck(Genero::all(),'nombre','id');
         $nacionalidades = array_pluck(Nacionalidad::all(),'nombre','id');
         $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
-//        dd($solicitud);
         return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','expediente','audiencias'));
     }
 
@@ -368,7 +364,7 @@ class SolicitudController extends Controller
             
             // dd($value);
             if(!isset($value["id"]) || $value["id"] == ""){
-                $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+                $parteSaved = ((Parte::create($value))->dato_laboral()->create($dato_laboral)->parte);
             // dd($domicilio);
             // foreach ($domicilios as $key => $domicilio) {
                 $domicilio["tipo_vialidad"] = "as";
@@ -438,14 +434,5 @@ class SolicitudController extends Controller
     {
       $solicitud->delete();
       return response()->json(null,204);
-    }
-    
-    public function Ratificar(Request $request){
-        $solicitud= Solicitud::find($request->id);
-        //Indicamos que la solicitud ha sido ratificada
-        $solicitud->update(["estatus_solicitud_id" => 2,"ratificada" => true]);
-        //Creamos el expediente de la solicitud
-        $expediente = Expediente::create(["solicitud_id" => $request->id,"folio" => "2","anio" => "2020","consecutivo" => "1"]);
-        return $solicitud;
     }
 }
