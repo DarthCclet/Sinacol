@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Audiencia;
 use App\Centro;
 use App\DatoLaboral;
 use App\Domicilio;
@@ -9,6 +10,7 @@ use App\Estado;
 use App\Expediente;
 use App\Audiencia;
 use App\EstatusSolicitud;
+use App\Expediente;
 use Illuminate\Http\Request;
 use \App\Solicitud;
 use Validator;
@@ -144,6 +146,7 @@ class SolicitudController extends Controller
         // // Solicitud
         $solicitud['user_id'] = 1;
         $solicitud['estatus_solicitud_id'] = 1;
+        $solicitud['centro_id'] = $this->getCentroId();
         // dd($solicitud);
         $solicitudSaved = Solicitud::create($solicitud);
 
@@ -207,6 +210,16 @@ class SolicitudController extends Controller
             return $this->sendResponse($solicitudSaved, 'SUCCESS');
         }
         return redirect('solicitudes')->with('success', 'Se ha creado la solicitud exitosamente');
+    }
+
+    /**
+     * Funcion para obtener el centro asignado
+     *
+     * @return int
+     */
+    private function getCentroId(){
+        $centro = Centro::inRandomOrder()->first();
+        return $centro->id;
     }
 
     /**

@@ -481,16 +481,6 @@
                 <div class="col-md-12 row">
                     <input type="hidden" id="solicitud_id">
                     <div class="col-md-4">
-                        {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , null, ['id'=>'estatus_solicitud_id','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                        {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
-                        <p class="help-block needed">Estatus de la solicitud</p>
-                    </div>    
-                    <div class="col-md-4">
-                        {!! Form::select('centro_id', isset($centros) ? $centros : [] , null, ['id'=>'centro_id','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                        {!! $errors->first('centro_di', '<span class=text-danger>:message</span>') !!}
-                        <p class="help-block needed">Centro de la solicitud</p>
-                    </div>
-                    <div class="col-md-4">
                         <input class="form-control dateTime" required id="fechaRatificacion" placeholder="Fecha de ratificacion" type="text" value="">
                         <p class="help-block needed">Fecha de Ratificación</p>
                     </div>
@@ -857,8 +847,6 @@
                 // arrayObjetoSolicitudes = data.objeto_solicitudes;
                 formarTablaObjetoSol();
                 $("#observaciones").val(data.observaciones);
-                $("#estatus_solicitud_id").val(data.estatus_solicitud_id);
-                $("#centro_id").val(data.centro_id);
                 if(data.ratificada){
                     $("#ratificada").prop("checked",true);
                     $('#wizard').smartWizard("stepState", [3], "show");
@@ -1351,8 +1339,6 @@
         var solicitud = {};
         solicitud.id = $("#solicitud_id").val();
         solicitud.observaciones = $("#observaciones").val();
-        solicitud.estatus_solicitud_id = $("#estatus_solicitud_id").val();
-        solicitud.centro_id = $("#centro_id").val();
         solicitud.ratificada = $("#ratificada").is(":checked");
         solicitud.solicita_excepcion = $("#solicita_excepcion").is(":checked");
         solicitud.fecha_ratificacion = dateFormat($("#fechaRatificacion").val(),3);
