@@ -64,3 +64,5 @@ Agregar la ip de la máquina guest al archivo de configuración hosts de la máq
 * Auditoría de Entidades [laravel-auditing](https://github.com/owen-it/laravel-auditing)
 * Administración de permisos dinámicos [laravel-permission](https://github.com/spatie/laravel-permission)
 * Administración de menús dinámicos [laravel-menu](https://github.com/lavary/laravel-menu)
+
+//PAG
