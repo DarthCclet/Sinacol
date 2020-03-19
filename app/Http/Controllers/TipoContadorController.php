@@ -14,7 +14,7 @@ class TipoContadorController extends Controller
      */
     public function index()
     {
-        //
+        return TipoContador::all();
     }
 
     /**

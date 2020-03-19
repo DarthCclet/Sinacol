@@ -9,6 +9,7 @@ class TipoContador extends Model
 {
     use SoftDeletes;
     public $incrementing = false;
+    public $table='tipo_contadores';
     public function contador(){
         return $this->hasMany(Contador::class);
     }
