@@ -97,6 +97,11 @@ class CreateDomiciliosTable extends Migration
             $table->softDeletes();
             $table->timestamps();
         });
+
+        $tabla_nombre = 'domicilios';
+        $comentario_tabla = 'Tabla donde se almacenan los domicilios de cualquier entidad domiciliable. Estructura basada en el "ACUERDO por el que aprueba la Norma Técnica sobre Domicilios Geográficos" que aparece en el DOF del 12/11/2010';
+        DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
+
     }
 
     /**
