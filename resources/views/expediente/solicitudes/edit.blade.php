@@ -4,6 +4,7 @@
 
 @include('includes.component.datatables')
 @include('includes.component.pickers')
+@include('includes.component.calendar')
 
 @section('content')
 <button class="btn btn-info" onclick="location.href='{{ route('solicitudes.index')  }}'" ><i class="fa fa-arrow-alt-circle-left"></i> Regresar</button>
@@ -21,10 +22,10 @@
         {{-- {{ Form::close() }} --}}
     </div>
 </div>
-<script>
-  var edit = true;
-  
-  
-</script>
 
 @endsection
+@push('scripts')
+<script>
+  var edit = true;
+</script>
+@endpush

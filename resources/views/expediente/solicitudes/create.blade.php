@@ -21,7 +21,9 @@
         {{-- </form> --}}
     </div>
 </div>
-<script>
-    var edit = false;
-</script>
 @endsection
+@push('scripts')
+<script>
+  var edit = false;
+</script>
+@endpush
