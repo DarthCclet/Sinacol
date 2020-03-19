@@ -65,3 +65,5 @@ Agregar la ip de la máquina guest al archivo de configuración hosts de la máq
 * Administración de permisos dinámicos [laravel-permission](https://github.com/spatie/laravel-permission)
 * Administración de menús dinámicos [laravel-menu](https://github.com/lavary/laravel-menu)
 * Oauth 2 Server con Passport. [laravel/passport](https://laravel.com/docs/6.x/passport)
+
+//PAG
