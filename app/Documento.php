@@ -11,12 +11,22 @@ class Documento extends Model
     use SoftDeletes;
     protected $table = 'documentos';
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
-    /*
+
+    /**
      *  funcion que indica que es una relación polimorfica
      *  Documentable puede ser usada por toda tabla que requiera subir documentos
      */
     public function documentable()
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Relación con la clasificación del archivo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function clasificacionArchivo()
+    {
+        return $this->belongsTo(ClasificacionArchivo::class);
     }
 }
