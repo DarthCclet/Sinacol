@@ -250,7 +250,12 @@ class SolicitudController extends Controller
         $parte = Parte::all()->where('solicitud_id',$solicitud->id);
 
         $partes = $solicitud->partes()->get();//->where('tipo_parte_id',3)->get()->first()
-        
+        $expediente = Expediente::where("solicitud_id" ,"=",$solicitud->id)->get();
+        if(count($expediente) > 0){
+            $audiencias = Audiencia::where("expediente_id" ,"=",$expediente[0]->id)->get();
+        }else{
+            $audiencias = array();
+        }
         
         $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
         $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
@@ -263,7 +268,7 @@ class SolicitudController extends Controller
         $generos = array_pluck(Genero::all(),'nombre','id');
         $nacionalidades = array_pluck(Nacionalidad::all(),'nombre','id');
         $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
-        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones'));
+        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','expediente','audiencias'));
     }
 
     /**
