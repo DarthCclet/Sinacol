@@ -57,3 +57,7 @@ Route::resource('solicitudes','SolicitudController');
 //Route::resource('rol-conciliador','RolAtencionController');
 
 Route::post('login', 'ApiAuthController@login');
+
+Route::get('audiencias/no-conciliacion', function () {
+    return ['test'=>'ok'];
+})->middleware('client');
