@@ -10,6 +10,7 @@ $factory->define(Expediente::class, function (Faker $faker) {
   // se llama el factory de solicitud para crear un registro y probar su relacion
   $solicitud = factory(\App\Solicitud::class)->create();
   $solicitud->objeto_solicitudes()->sync([1]);
+  
   // se crea parte solicitado
   $parteSolicitado = factory(App\Parte::class)->states('solicitado')->create(['solicitud_id'=>$solicitud->id]);
   $domicilioSolicitado = factory(App\Domicilio::class)->create(['domiciliable_id'=>$parteSolicitado->id, 'domiciliable_type'=>'App\Parte']);
