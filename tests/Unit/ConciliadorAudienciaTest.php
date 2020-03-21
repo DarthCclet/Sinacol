@@ -10,7 +10,7 @@ class ConciliadorAudienciaTest extends TestCase
      */
     public function testVerifyRelationConciliadorAudiencia(){
         $sala = factory(\App\ConciliadorAudiencia::class)->create();
-        $this->assertInstanceOf(\App\Conciliador::class,$sala->sala);
+        $this->assertInstanceOf(\App\Conciliador::class,$sala->conciliador);
         $this->assertInstanceOf(\App\Audiencia::class,$sala->audiencia);
     }
 }

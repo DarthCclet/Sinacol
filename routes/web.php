@@ -32,6 +32,7 @@ Route::resource('resolucion-audiencia','ResolucionController');
 Route::resource('grupo-prioritario','GrupoPrioritarioController');
 Route::resource('jornadas','JornadaController');
 Route::resource('ocupaciones','OcupacionController');
+Route::resource('contadores','ContadorController');
 Route::resource('plantilla-documentos','PlantillasDocumentosController');
 Route::get('plantilla-documento/imprimirPDF','PlantillasDocumentosController@imprimirPDF');
 
