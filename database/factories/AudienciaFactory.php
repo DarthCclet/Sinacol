@@ -20,7 +20,7 @@ $factory->define(Audiencia::class, function (Faker $faker) {
         'conciliador_id' => $conciliador->id,
 	'resolucion_id' => $resolucion->id,
 	'parte_responsable_id' => $parteR->id,
-	'fecha_audiencia' => $faker->date,
+	'fecha_audiencia' => $faker->dateTimeBetween('-2 years')->format("Y-m-d"),
 	'multiple' => $faker->boolean,
 	'hora_inicio' => $faker->time,
 	'hora_fin' => $faker->time,

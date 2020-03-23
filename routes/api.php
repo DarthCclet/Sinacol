@@ -62,8 +62,8 @@ Route::post('login', 'ApiAuthController@login');
 
 // Rutas para trabajar web services con el CJF
 Route::post('audiencias/no-conciliacion/fechas', 'ServiciosCJFController@listadoPorFechas')->middleware('client');
-Route::post('audiencias/no-conciliacion/parte-actora', 'ServiciosCJFController@listadoPorFechas')->middleware('client');
-Route::post('audiencias/no-conciliacion/parte-demandada', 'ServiciosCJFController@listadoPorFechas')->middleware('client');
+Route::post('audiencias/no-conciliacion/parte-actora', 'ServiciosCJFController@listadoPorNombreParteActora')->middleware('client');
+Route::post('audiencias/no-conciliacion/parte-demandada', 'ServiciosCJFController@listadoPorNombreParteDemandada')->middleware('client');
 Route::get('audiencias/no-conciliacion/curp/{curp}', 'ServiciosCJFController@listadoPorCurp')->middleware('client');
 Route::get('audiencias/no-conciliacion/rfc/{rfc}', 'ServiciosCJFController@listadoPorRfc')->middleware('client');
 Route::get('audiencias/no-conciliacion/constancia/{folio}', 'ServiciosCJFController@consultaExpediente')->middleware('client');

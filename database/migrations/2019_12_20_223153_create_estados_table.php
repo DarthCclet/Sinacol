@@ -16,7 +16,8 @@ class CreateEstadosTable extends Migration
     {
         Schema::create('estados', function (Blueprint $table) {
             $table->char('id',2)->primary();
-            $table->string('nombre');
+            $table->string('nombre')->comment('NOMBRE DEL ESTADO');
+            $table->string('abreviatura')->comment('ABREVIATURA DEL ESTADO ISO-3166-2');
             $table->timestamps();
         });
 
@@ -27,7 +28,8 @@ class CreateEstadosTable extends Migration
             DB::table('estados')->insert(
                 [
                     'id' => $estado->cve_agee,
-                    'nombre' => $estado->nom_agee
+                    'nombre' => $estado->nom_agee,
+                    'abreviatura' => $estado->nom_abrev
                 ]
             );
         }

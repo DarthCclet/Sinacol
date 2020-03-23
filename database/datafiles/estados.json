@@ -3,7 +3,7 @@
         {
             "cve_agee": "01",
             "nom_agee": "Aguascalientes",
-            "nom_abrev": "Ags.",
+            "nom_abrev": "AGU",
             "pob": "1184996",
             "pob_fem": "608358",
             "pob_mas": "576638",
@@ -12,7 +12,7 @@
         {
             "cve_agee": "02",
             "nom_agee": "Baja California",
-            "nom_abrev": "BC",
+            "nom_abrev": "BCN",
             "pob": "3155070",
             "pob_fem": "1563460",
             "pob_mas": "1591610",
@@ -30,7 +30,7 @@
         {
             "cve_agee": "04",
             "nom_agee": "Campeche",
-            "nom_abrev": "Camp.",
+            "nom_abrev": "CAM",
             "pob": "822441",
             "pob_fem": "414720",
             "pob_mas": "407721",
@@ -39,7 +39,7 @@
         {
             "cve_agee": "05",
             "nom_agee": "Coahuila de Zaragoza",
-            "nom_abrev": "Coah.",
+            "nom_abrev": "COA",
             "pob": "2748391",
             "pob_fem": "1384194",
             "pob_mas": "1364197",
@@ -48,7 +48,7 @@
         {
             "cve_agee": "06",
             "nom_agee": "Colima",
-            "nom_abrev": "Col.",
+            "nom_abrev": "COL",
             "pob": "650555",
             "pob_fem": "327765",
             "pob_mas": "322790",
@@ -57,7 +57,7 @@
         {
             "cve_agee": "07",
             "nom_agee": "Chiapas",
-            "nom_abrev": "Chis.",
+            "nom_abrev": "CHP",
             "pob": "4796580",
             "pob_fem": "2443773",
             "pob_mas": "2352807",
@@ -66,7 +66,7 @@
         {
             "cve_agee": "08",
             "nom_agee": "Chihuahua",
-            "nom_abrev": "Chih.",
+            "nom_abrev": "CHH",
             "pob": "3406465",
             "pob_fem": "1713920",
             "pob_mas": "1692545",
@@ -84,7 +84,7 @@
         {
             "cve_agee": "10",
             "nom_agee": "Durango",
-            "nom_abrev": "Dgo.",
+            "nom_abrev": "DUR",
             "pob": "1632934",
             "pob_fem": "829044",
             "pob_mas": "803890",
@@ -93,7 +93,7 @@
         {
             "cve_agee": "11",
             "nom_agee": "Guanajuato",
-            "nom_abrev": "Gto.",
+            "nom_abrev": "GUA",
             "pob": "5486372",
             "pob_fem": "2846947",
             "pob_mas": "2639425",
@@ -102,7 +102,7 @@
         {
             "cve_agee": "12",
             "nom_agee": "Guerrero",
-            "nom_abrev": "Gro.",
+            "nom_abrev": "GRO",
             "pob": "3388768",
             "pob_fem": "1743207",
             "pob_mas": "1645561",
@@ -111,7 +111,7 @@
         {
             "cve_agee": "13",
             "nom_agee": "Hidalgo",
-            "nom_abrev": "Hgo.",
+            "nom_abrev": "HID",
             "pob": "2665018",
             "pob_fem": "1379796",
             "pob_mas": "1285222",
@@ -120,7 +120,7 @@
         {
             "cve_agee": "14",
             "nom_agee": "Jalisco",
-            "nom_abrev": "Jal.",
+            "nom_abrev": "JAL",
             "pob": "7350682",
             "pob_fem": "3750041",
             "pob_mas": "3600641",
@@ -129,7 +129,7 @@
         {
             "cve_agee": "15",
             "nom_agee": "México",
-            "nom_abrev": "Mex.",
+            "nom_abrev": "MEX",
             "pob": "15175862",
             "pob_fem": "7778876",
             "pob_mas": "7396986",
@@ -138,7 +138,7 @@
         {
             "cve_agee": "16",
             "nom_agee": "Michoacán de Ocampo",
-            "nom_abrev": "Mich.",
+            "nom_abrev": "MIC",
             "pob": "4351037",
             "pob_fem": "2248928",
             "pob_mas": "2102109",
@@ -147,7 +147,7 @@
         {
             "cve_agee": "17",
             "nom_agee": "Morelos",
-            "nom_abrev": "Mor.",
+            "nom_abrev": "MOR",
             "pob": "1777227",
             "pob_fem": "918639",
             "pob_mas": "858588",
@@ -156,7 +156,7 @@
         {
             "cve_agee": "18",
             "nom_agee": "Nayarit",
-            "nom_abrev": "Nay.",
+            "nom_abrev": "NAY",
             "pob": "1084979",
             "pob_fem": "543972",
             "pob_mas": "541007",
@@ -165,7 +165,7 @@
         {
             "cve_agee": "19",
             "nom_agee": "Nuevo León",
-            "nom_abrev": "NL",
+            "nom_abrev": "NLE",
             "pob": "4653458",
             "pob_fem": "2333273",
             "pob_mas": "2320185",
@@ -174,7 +174,7 @@
         {
             "cve_agee": "20",
             "nom_agee": "Oaxaca",
-            "nom_abrev": "Oax.",
+            "nom_abrev": "OAX",
             "pob": "3801962",
             "pob_fem": "1982954",
             "pob_mas": "1819008",
@@ -183,7 +183,7 @@
         {
             "cve_agee": "21",
             "nom_agee": "Puebla",
-            "nom_abrev": "Pue.",
+            "nom_abrev": "PUE",
             "pob": "5779829",
             "pob_fem": "3009974",
             "pob_mas": "2769855",
@@ -192,7 +192,7 @@
         {
             "cve_agee": "22",
             "nom_agee": "Querétaro",
-            "nom_abrev": "Qro.",
+            "nom_abrev": "QUE",
             "pob": "1827937",
             "pob_fem": "940749",
             "pob_mas": "887188",
@@ -201,7 +201,7 @@
         {
             "cve_agee": "23",
             "nom_agee": "Quintana Roo",
-            "nom_abrev": "Q. Roo",
+            "nom_abrev": "ROO",
             "pob": "1325578",
             "pob_fem": "652358",
             "pob_mas": "673220",
@@ -219,7 +219,7 @@
         {
             "cve_agee": "25",
             "nom_agee": "Sinaloa",
-            "nom_abrev": "Sin.",
+            "nom_abrev": "SIN",
             "pob": "2767761",
             "pob_fem": "1391560",
             "pob_mas": "1376201",
@@ -228,7 +228,7 @@
         {
             "cve_agee": "26",
             "nom_agee": "Sonora",
-            "nom_abrev": "Son.",
+            "nom_abrev": "SON",
             "pob": "2662480",
             "pob_fem": "1322868",
             "pob_mas": "1339612",
@@ -237,7 +237,7 @@
         {
             "cve_agee": "27",
             "nom_agee": "Tabasco",
-            "nom_abrev": "Tab.",
+            "nom_abrev": "TAB",
             "pob": "2238603",
             "pob_fem": "1137845",
             "pob_mas": "1100758",
@@ -246,7 +246,7 @@
         {
             "cve_agee": "28",
             "nom_agee": "Tamaulipas",
-            "nom_abrev": "Tamps.",
+            "nom_abrev": "TAM",
             "pob": "3268554",
             "pob_fem": "1652353",
             "pob_mas": "1616201",
@@ -255,7 +255,7 @@
         {
             "cve_agee": "29",
             "nom_agee": "Tlaxcala",
-            "nom_abrev": "Tlax.",
+            "nom_abrev": "TLA",
             "pob": "1169936",
             "pob_fem": "604161",
             "pob_mas": "565775",
@@ -264,7 +264,7 @@
         {
             "cve_agee": "30",
             "nom_agee": "Veracruz de Ignacio de la Llave",
-            "nom_abrev": "Ver.",
+            "nom_abrev": "VER",
             "pob": "7643194",
             "pob_fem": "3947515",
             "pob_mas": "3695679",
@@ -273,7 +273,7 @@
         {
             "cve_agee": "31",
             "nom_agee": "Yucatán",
-            "nom_abrev": "Yuc.",
+            "nom_abrev": "YUC",
             "pob": "1955577",
             "pob_fem": "992244",
             "pob_mas": "963333",
@@ -282,7 +282,7 @@
         {
             "cve_agee": "32",
             "nom_agee": "Zacatecas",
-            "nom_abrev": "Zac.",
+            "nom_abrev": "ZAC",
             "pob": "1490668",
             "pob_fem": "763771",
             "pob_mas": "726897",

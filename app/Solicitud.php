@@ -17,7 +17,7 @@ class Solicitud extends Model
         RequestsAppends,
         AppendPolicies;
     protected $table = 'solicitudes';
-    protected $guarded = ['id','updated_at','created_at']; 
+    protected $guarded = ['id','updated_at','created_at'];
 
     /**
      * Las relaciones que son cargables.
@@ -69,5 +69,10 @@ class Solicitud extends Model
     public function objeto_solicitudes()
     {
         return $this->belongsToMany('App\ObjetoSolicitud');
+    }
+
+    public function expediente()
+    {
+        return $this->hasOne(Expediente::class);
     }
 }
