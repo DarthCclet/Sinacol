@@ -19,7 +19,7 @@ class ConsultaConciliacionesPorRfc
 {
     public function consulta($rfc, $limit=15, $page=1)
     {
-        $partes = Parte::where('rfc','=',$rfc)->get();
+        $partes = Parte::where('rfc','ilike',$rfc)->get();
         // obtenemos la solicitud y el expediente
         $resultado = [];
         $cont == 0;
@@ -44,7 +44,7 @@ class ConsultaConciliacionesPorRfc
         }
         if($cont == 0){
             return [
-                'data' => $resultado,
+                'data' => [],
                 'total' => 0,
                 'per_page' => 15,
                 'current_page' => 1,
@@ -67,17 +67,6 @@ class ConsultaConciliacionesPorRfc
                 'url' => $audiencias->url($audiencias->currentPage()),
             ];
         }
-//        return [
-//            'data' => $resultado,
-//            'total' => $audiencias->total(),
-//            'per_page' => $audiencias->perPage(),
-//            'current_page' => $audiencias->currentPage(),
-//            'last_page' => $audiencias->lastPage(),
-//            'has_more_pages' => $audiencias->hasMorePages(),
-//            'previous_page_url' => $audiencias->previousPageUrl(),
-//            'next_page_url' => $audiencias->nextPageUrl(),
-//            'url' => $audiencias->url($audiencias->currentPage()),
-//        ];
     }
 
     public function validaFechas($fecha)

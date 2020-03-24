@@ -19,9 +19,10 @@ class ConsultaConciliacionesPorCurp
 {
     public function consulta($curp, $limit=15, $page=1)
     {
-        $partes = Parte::where('curp','=',$curp)->get();
+        $partes = Parte::where('curp','ilike',$curp)->get();
         // obtenemos la solicitud y el expediente
         $resultado = [];
+        $cont = 0;
         foreach($partes as $parte){
             $exp=Solicitud::find($parte->solicitud_id);
             if($exp->expediente != null){
@@ -32,6 +33,7 @@ class ConsultaConciliacionesPorCurp
                     }
                 }
                 if($validar){
+                    $cont++;
                     $audiencias = $exp->expediente->audiencia()->paginate();
                     $arreglo = array_merge($exp->toArray(),$exp->expediente->toArray());
                     unset($arreglo['expediente']);
@@ -40,18 +42,31 @@ class ConsultaConciliacionesPorCurp
                 }
             }
         }
-
-        return [
-            'data' => $resultado,
-            'total' => $audiencias->total(),
-            'per_page' => $audiencias->perPage(),
-            'current_page' => $audiencias->currentPage(),
-            'last_page' => $audiencias->lastPage(),
-            'has_more_pages' => $audiencias->hasMorePages(),
-            'previous_page_url' => $audiencias->previousPageUrl(),
-            'next_page_url' => $audiencias->nextPageUrl(),
-            'url' => $audiencias->url($audiencias->currentPage()),
-        ];
+        if($cont == 0){
+            return [
+                'data' => [],
+                'total' => 0,
+                'per_page' => 15,
+                'current_page' => 1,
+                'last_page' => 1,
+                'has_more_pages' => false,
+                'previous_page_url' => null,
+                'next_page_url' => null,
+                'url' => "",
+            ];
+        }else{
+            return [
+                'data' => $resultado,
+                'total' => $audiencias->total(),
+                'per_page' => $audiencias->perPage(),
+                'current_page' => $audiencias->currentPage(),
+                'last_page' => $audiencias->lastPage(),
+                'has_more_pages' => $audiencias->hasMorePages(),
+                'previous_page_url' => $audiencias->previousPageUrl(),
+                'next_page_url' => $audiencias->nextPageUrl(),
+                'url' => $audiencias->url($audiencias->currentPage()),
+            ];
+        }
     }
 
     public function validaFechas($fecha)

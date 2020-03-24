@@ -28,14 +28,14 @@ class CreatePartesTable extends Migration
             //Llave foranea a entidad de nacimiento
             $table->char('entidad_nacimiento_id',2)->nullable()->comment('FK de la tabla estados');
 
-            $table->string('nombre')->nullable()->comment('Nombre de la parte');
-            $table->string('primer_apellido')->nullable()->comment('Primer apelldo de la parte');
-            $table->string('segundo_apellido')->nullable()->comment('Segundo apellido de la parte');
-            $table->string('nombre_comercial')->nullable()->comment('Nombre de persona moral');
+            $table->string('nombre')->nullable()->comment('Nombre de la parte')->index();
+            $table->string('primer_apellido')->nullable()->comment('Primer apelldo de la parte')->index();
+            $table->string('segundo_apellido')->nullable()->comment('Segundo apellido de la parte')->index();
+            $table->string('nombre_comercial')->nullable()->comment('Nombre de persona moral')->index();
             $table->date('fecha_nacimiento')->nullable()->comment('Fecha de nacimiento de la parte');
             $table->string('edad')->nullable()->comment('Edad de la parte');
-            $table->string('rfc')->comment('RFC de la parte');
-            $table->string('curp')->nullable()->comment('Curp de la parte');
+            $table->string('rfc')->comment('RFC de la parte')->index();
+            $table->string('curp')->nullable()->comment('Curp de la parte')->index();
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
 
