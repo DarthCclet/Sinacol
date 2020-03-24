@@ -12,13 +12,15 @@ use Faker\Generator as Faker;
 $factory->define(Audiencia::class, function (Faker $faker) {
 	$expediente = factory(App\Expediente::class)->create();
         $conciliador = factory(App\Conciliador::class)->create();
-	$resolucion = factory(App\Resolucion::class)->create();
+//	$resolucion = Resolucion::inRandomOrder()->first();
+	$resolucion = 3;
 	$parteR = factory(App\Parte::class)->create();
     return [
         //
 	'expediente_id' => $expediente->id,
         'conciliador_id' => $conciliador->id,
-	'resolucion_id' => $resolucion->id,
+//	'resolucion_id' => $resolucion->id,
+	'resolucion_id' => $resolucion,
 	'parte_responsable_id' => $parteR->id,
 	'fecha_audiencia' => $faker->dateTimeBetween('-2 years')->format("Y-m-d"),
 	'multiple' => $faker->boolean,

@@ -1,0 +1,18 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Hubo conciliacion"
+        },
+        {
+            "id": "2",
+            "nombre": "No hubo conciliación, pero se desea realizar una nueva"
+        },
+        {
+            "id": "3",
+            "nombre": "No hubo conciliación"
+        }
+
+    ],
+    "numReg": 2
+}

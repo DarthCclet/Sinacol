@@ -4,11 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Services\ConsultaConciliacionesPorNombre;
 use App\Services\ConsultaConciliacionesPorRangoFechas;
+use App\Services\ConsultaConciliacionesPorCurp;
+use App\Services\ConsultaConciliacionesPorRfc;
 use App\TipoParte;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use App\Parte;
+use App\Audiencia;
+use App\Solicitud;
 
 class ServiciosCJFController extends Controller
 {
@@ -112,19 +118,31 @@ class ServiciosCJFController extends Controller
      */
     public function listadoPorRFC($rfc)
     {
-
+        Cache::put("folio_confirmacion",Cache::get('folio_confirmacion',0)+1);
         try {
-
+            
+            $ConsultaConciliacionesPorRFC = new ConsultaConciliacionesPorRfc();
+            $solicitudes = $ConsultaConciliacionesPorRFC->consulta($rfc);
+            
             //TODO: implementar la consulta y devolución de datos mediante el service
-            $resultado = [];
-
-            return $this->sendResponse($resultado);
+            $acuse = [
+                'codigo_retorno' => 1,
+                'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
+                'folio_confirmacion' => sprintf("%06d", Cache::get('folio_confirmacion')),
+                'mensaje' => 'EXITO'
+            ];
+            return response()->json(array_merge($solicitudes, $acuse), 200);
+//            return $this->sendResponse($resultado,'Resultados de busqueda del CURP: '.$curp);
 
         }catch (\Exception $e){
-            Log::error("[Error listadoPorRfc]:".$rfc, $e->getMessage());
-            return $this->sendError("Se ha producido un error al procesar la consulta", [
-                $e->getMessage()
-            ] ,401);
+            Log::error("[Error listadoPorCURP]:");
+            $acuse = [
+                'codigo_retorno' => 0,
+                'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
+                'folio_confirmacion' => sprintf("%06d", Cache::get('folio_confirmacion')),
+                'mensaje' => 'ERROR: '.$e->getMessage()
+            ];
+            return response()->json(array_merge([], $acuse), 400);
         }
     }
 
@@ -135,18 +153,31 @@ class ServiciosCJFController extends Controller
      */
     public function listadoPorCURP($curp)
     {
+        Cache::put("folio_confirmacion",Cache::get('folio_confirmacion',0)+1);
         try {
-
+            
+            $ConsultaConciliacionesPorCURP = new ConsultaConciliacionesPorCurp();
+            $solicitudes = $ConsultaConciliacionesPorCURP->consulta($curp);
+            
             //TODO: implementar la consulta y devolución de datos mediante el service
-            $resultado = [];
-
-            return $this->sendResponse($resultado);
+            $acuse = [
+                'codigo_retorno' => 1,
+                'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
+                'folio_confirmacion' => sprintf("%06d", Cache::get('folio_confirmacion')),
+                'mensaje' => 'EXITO'
+            ];
+            return response()->json(array_merge($solicitudes, $acuse), 200);
+//            return $this->sendResponse($resultado,'Resultados de busqueda del CURP: '.$curp);
 
         }catch (\Exception $e){
-            Log::error("[Error listadoPorRfc]:".$curp, $e->getMessage());
-            return $this->sendError("Se ha producido un error al procesar la consulta", [
-                $e->getMessage()
-            ] ,401);
+            Log::error("[Error listadoPorCURP]:");
+            $acuse = [
+                'codigo_retorno' => 0,
+                'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
+                'folio_confirmacion' => sprintf("%06d", Cache::get('folio_confirmacion')),
+                'mensaje' => 'ERROR: '.$e->getMessage()
+            ];
+            return response()->json(array_merge([], $acuse), 400);
         }
     }
 

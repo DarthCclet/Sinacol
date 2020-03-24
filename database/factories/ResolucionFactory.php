@@ -8,6 +8,6 @@ use Faker\Generator as Faker;
 $factory->define(Resolucion::class, function (Faker $faker) {
     return [
         //
-        'nombre' => $faker->sentence
+//        'nombre' => $faker->sentence
     ];
 });
