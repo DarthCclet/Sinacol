@@ -109,10 +109,6 @@ class SolicitudController extends Controller
 
         $request->validate([
             'solicitud.observaciones' => 'required|max:500',
-<<<<<<< HEAD
-=======
-//            'solicitud.estatus_solicitud_id' => 'required',
->>>>>>> a038c4755d94a21f7df21b0b65743f78f177e0bf
             'solicitud.fecha_conflicto' => 'required',
             'solicitud.fecha_ratificacion' => 'required',
             'solicitud.fecha_recepcion' => 'required',
