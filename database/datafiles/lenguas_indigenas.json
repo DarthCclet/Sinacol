@@ -1,0 +1,369 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Amuzgo del Norte"
+        },
+        {
+            "id": "2",
+            "nombre": "Chatino Oriental bajo"
+        },
+        {
+            "id": "3",
+            "nombre": "Chatino central"
+        },
+        {
+            "id": "4",
+            "nombre": "Chinanteco del norte"
+        },
+        {
+            "id": "5",
+            "nombre": "Chinanteco de la Sierra"
+        },
+        {
+            "id": "6",
+            "nombre": "Ch'ol del Noreste"
+        },
+        {
+            "id": "7",
+            "nombre": "Chontal de Tabasco Central"
+        },
+        {
+            "id": "8",
+            "nombre": "Cora de Jesús María"
+        },
+        {
+            "id": "9",
+            "nombre": "Cora Meseño"
+        },
+        {
+            "id": "10",
+            "nombre": "Cuicateco del oriente"
+        },
+        {
+            "id": "11",
+            "nombre": "Huasteco del occidente"
+        },
+        {
+            "id": "12",
+            "nombre": "Huichol del norte"
+        },
+        {
+            "id": "13",
+            "nombre": "Maya"
+        },
+        {
+            "id": "14",
+            "nombre": "Mayo"
+        },
+        {
+            "id": "15",
+            "nombre": "Mazateco del Centro"
+        },
+        {
+            "id": "16",
+            "nombre": "Mazateco de la presa alto"
+        },
+        {
+            "id": "17",
+            "nombre": "Mazateco del norte"
+        },
+        {
+            "id": "18",
+            "nombre": "Mixe Bajo"
+        },
+        {
+            "id": "19",
+            "nombre": "Mixe medio del este"
+        },
+        {
+            "id": "20",
+            "nombre": "Mixteco de oeste central"
+        },
+        {
+            "id": "21",
+            "nombre": "Mixteco del Noreste"
+        },
+        {
+            "id": "22",
+            "nombre": "Mixteco de Cañada Bajo"
+        },
+        {
+            "id": "23",
+            "nombre": "Mixteco noroeste central Bajo"
+        },
+        {
+            "id": "24",
+            "nombre": "Mixteco del noroeste medio"
+        },
+        {
+            "id": "25",
+            "nombre": "Mixteco de Sierra sur noroeste"
+        },
+        {
+            "id": "26",
+            "nombre": "Mixteco de Ñumi"
+        },
+        {
+            "id": "27",
+            "nombre": "Mixteco de Oaxaca de la Costa Central"
+        },
+        {
+            "id": "28",
+            "nombre": "Mixteco de Guerrero del noreste central"
+        },
+        {
+            "id": "29",
+            "nombre": "Mixteco de Oaxaca de la costa noroeste"
+        },
+        {
+            "id": "30",
+            "nombre": "Mixteco de Oaxaca de costa central baja"
+        },
+        {
+            "id": "31",
+            "nombre": "Mixteco de Sierra sur oeste"
+        },
+        {
+            "id": "32",
+            "nombre": "Mixteco de Santo Domingo Tonalá"
+        },
+        {
+            "id": "33",
+            "nombre": "Mixteco de Atlamajalcingo"
+        },
+        {
+            "id": "34",
+            "nombre": "Mixteco de Chochoapa"
+        },
+        {
+            "id": "35",
+            "nombre": "Mixteco de Coapanatoyac"
+        },
+        {
+            "id": "36",
+            "nombre": "Mixteco de Igualapa"
+        },
+        {
+            "id": "37",
+            "nombre": "Mixteco central de Guerrero"
+        },
+        {
+            "id": "38",
+            "nombre": "Mixteco de Guerrero del este medio"
+        },
+        {
+            "id": "39",
+            "nombre": "Mixteco del oeste alto"
+        },
+        {
+            "id": "40",
+            "nombre": "Mixteco de Tlacoachistlahuaca"
+        },
+        {
+            "id": "41",
+            "nombre": "Mixteco de Guerrero del norte central"
+        },
+        {
+            "id": "42",
+            "nombre": "Mixteco de Xochistlahuaca"
+        },
+        {
+            "id": "43",
+            "nombre": "Mixteco de San Antonio Huitepec"
+        },
+        {
+            "id": "44",
+            "nombre": "Mixteco de San Luis Acatlán"
+        },
+        {
+            "id": "45",
+            "nombre": "Mixteco de Guerrero de la costa este"
+        },
+        {
+            "id": "46",
+            "nombre": "Mixteco del oeste"
+        },
+        {
+            "id": "47",
+            "nombre": "Mixteco del norte bajo"
+        },
+        {
+            "id": "48",
+            "nombre": "Náhuatl de la Huasteca Potosina"
+        },
+        {
+            "id": "49",
+            "nombre": "Náhuatl de la Huasteca Hidalguense"
+        },
+        {
+            "id": "50",
+            "nombre": "Otomí bajo del noroeste"
+        },
+        {
+            "id": "51",
+            "nombre": "Otomí del centro"
+        },
+        {
+            "id": "52",
+            "nombre": "Tarahumara del centro"
+        },
+        {
+            "id": "53",
+            "nombre": "Purépecha"
+        },
+        {
+            "id": "54",
+            "nombre": "Tepehuano del sur bajo"
+        },
+        {
+            "id": "55",
+            "nombre": "Tepehuano del sur central"
+        },
+        {
+            "id": "56",
+            "nombre": "Tepehuano del sur alto"
+        },
+        {
+            "id": "57",
+            "nombre": "Tlapaneco del centro"
+        },
+        {
+            "id": "58",
+            "nombre": "Tlapaneco central bajo"
+        },
+        {
+            "id": "59",
+            "nombre": "Totonaco central del norte"
+        },
+        {
+            "id": "60",
+            "nombre": "Triqui de la baja"
+        },
+        {
+            "id": "61",
+            "nombre": "Triqui de San Juan Copala"
+        },
+        {
+            "id": "62",
+            "nombre": "Tseltal del oriente"
+        },
+        {
+            "id": "63",
+            "nombre": "Tseltal del sur"
+        },
+        {
+            "id": "64",
+            "nombre": "Tseltal del norte"
+        },
+        {
+            "id": "65",
+            "nombre": "Tseltal del occidente"
+        },
+        {
+            "id": "66",
+            "nombre": "Tsotsil del noroeste"
+        },
+        {
+            "id": "67",
+            "nombre": "Tsotsil del este alto"
+        },
+        {
+            "id": "68",
+            "nombre": "Tsotsil del centro"
+        },
+        {
+            "id": "69",
+            "nombre": "Tsotsil del norte bajo"
+        },
+        {
+            "id": "70",
+            "nombre": "Tsotsil del norte alto"
+        },
+        {
+            "id": "71",
+            "nombre": "Tsotsil de los Altos"
+        },
+        {
+            "id": "72",
+            "nombre": "Tsotsil del este bajo"
+        },
+        {
+            "id": "73",
+            "nombre": "Yaqui"
+        },
+        {
+            "id": "74",
+            "nombre": "Zapoteco de la planicie costera"
+        },
+        {
+            "id": "75",
+            "nombre": "Zapoteco de la sierra sur, del este bajo"
+        },
+        {
+            "id": "76",
+            "nombre": "Zapoteco de la montaña del Itsmo"
+        },
+        {
+            "id": "77",
+            "nombre": "Zapoteco de valles del norte central"
+        },
+        {
+            "id": "78",
+            "nombre": "Zapoteco de la Costa Central"
+        },
+        {
+            "id": "79",
+            "nombre": "Zapoteco de la Costa Oeste"
+        },
+        {
+            "id": "80",
+            "nombre": "Zapoteco de la Sierra sur, del norte"
+        },
+        {
+            "id": "81",
+            "nombre": "Zapoteco de Valles, del este central"
+        },
+        {
+            "id": "82",
+            "nombre": "Zapoteco de Valles, del este medio"
+        },
+        {
+            "id": "83",
+            "nombre": "Zapoteco Serrano, del este"
+        },
+        {
+            "id": "84",
+            "nombre": "Zapoteco serrano, del sureste bajo"
+        },
+        {
+            "id": "85",
+            "nombre": "Zapoteco serrano, del sureste medio"
+        },
+        {
+            "id": "86",
+            "nombre": "Zapoteco de la sierra sur, noreste"
+        },
+        {
+            "id": "87",
+            "nombre": "Zapoteco de San Vicente Coatlán"
+        },
+        {
+            "id": "88",
+            "nombre": "Zapoteco de la Sierra sur, central"
+        },
+        {
+            "id": "89",
+            "nombre": "zapoteco serrano, del sureste"
+        },
+        {
+            "id": "90",
+            "nombre": "Zoque del norte bajo"
+        }
+    ],
+    "metadatos": {
+        "fechaActualizacion": "2020/03",
+        "fuenteInfo": "https://www.ifdp.cjf.gob.mx/index.htm#Lenguas"
+    },
+    "numReg": 90
+}
