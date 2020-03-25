@@ -11,6 +11,10 @@
         {
             "id": "3",
             "nombre": "AUDIENCIA"
+        },
+        {
+            "id": "4",
+            "nombre": "CONFIRMACIONESCJF"
         }
 
     ],

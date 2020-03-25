@@ -16,6 +16,8 @@ class CreateSolicitudesTable extends Migration
         Schema::create('solicitudes', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('PK de la tabla solicitudes');
             $table->unsignedBigInteger('estatus_solicitud_id')->comment('FK de la tabla estatus_solicitudes');
+            $table->integer('folio')->comment('Folio de la solitud, se usa con el anio');
+            $table->integer('anio')->comment('Anio de la solitud, se usa con el folio');
             $table->unsignedBigInteger('centro_id')->comment('FK de la tabla centros');
             $table->unsignedBigInteger('user_id')->comment('FK de la tabla users');
             $table->boolean('ratificada')->comment('Indica si la solicitud fue ratificada');

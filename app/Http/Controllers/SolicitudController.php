@@ -9,7 +9,6 @@ use App\Estado;
 use App\Expediente;
 use App\Audiencia;
 use App\EstatusSolicitud;
-use App\Expediente;
 use Illuminate\Http\Request;
 use \App\Solicitud;
 use Validator;
@@ -106,7 +105,7 @@ class SolicitudController extends Controller
 
         $request->validate([
             'solicitud.observaciones' => 'required|max:500',
-            'solicitud.estatus_solicitud_id' => 'required',
+//            'solicitud.estatus_solicitud_id' => 'required',
             'solicitud.fecha_conflicto' => 'required',
             'solicitud.fecha_ratificacion' => 'required',
             'solicitud.fecha_recepcion' => 'required',
@@ -147,6 +146,13 @@ class SolicitudController extends Controller
         $solicitud['estatus_solicitud_id'] = 1;
         $solicitud['centro_id'] = $this->getCentroId();
         // dd($solicitud);
+        
+        //Obtenemos el contador
+        $ContadorController = new ContadorController();
+        $folio = $ContadorController->getContador(1,1);
+        $solicitud['folio'] = $folio->contador;
+        $solicitud['anio'] = $folio->anio;
+//        dd($solicitud);
         $solicitudSaved = Solicitud::create($solicitud);
 
         $objeto_solicitudes = $request->input('objeto_solicitudes');
@@ -443,8 +449,11 @@ class SolicitudController extends Controller
         $solicitud= Solicitud::find($request->id);
         //Indicamos que la solicitud ha sido ratificada
         $solicitud->update(["estatus_solicitud_id" => 2,"ratificada" => true]);
+        //Obtenemos el contador
+        $ContadorController = new ContadorController();
+        $folio = $ContadorController->getContador(1,1);
         //Creamos el expediente de la solicitud
-        $expediente = Expediente::create(["solicitud_id" => $request->id,"folio" => "2","anio" => "2020","consecutivo" => "1"]);
+        $expediente = Expediente::create(["solicitud_id" => $request->id,"folio" => "2","anio" => $folio->anio,"consecutivo" => $folio->contador]);
         return $solicitud;
     }
 }

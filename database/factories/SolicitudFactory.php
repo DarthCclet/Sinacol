@@ -22,6 +22,8 @@ $factory->define(Solicitud::class, function (Faker $faker) {
         'estatus_solicitud_id' => $estatus_solicitud->id,
         'centro_id' => $centro->id,
         'user_id' => $usuario->id,
+        'folio' => $faker->randomNumber(3),
+        'anio' => $faker->year(),
         'ratificada' => $faker->boolean(),
         'solicita_excepcion' => $faker->boolean(),
         'fecha_ratificacion' => $faker->dateTime,

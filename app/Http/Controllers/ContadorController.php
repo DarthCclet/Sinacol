@@ -10,7 +10,7 @@ class ContadorController extends Controller
 {
     protected $request;
 
-    public function __construct(Request $request)
+    public function __construct(Request $request = null)
     {
         $this->request = $request;
     }
@@ -127,15 +127,22 @@ class ContadorController extends Controller
         //
     }
     
-    public function getContador($TipoContador){
-        $error=false;
+    public function getContador($tipo_contador_id, $centro_id){
         $anio=date("Y");
-        $contador = [];
-        DB::transaction(function () {
-            $contador = Contador::where("anio","=",$anio)->where("tipo_contador_id","=",$TipoContador);
-            $nuevoContador = (int)$contador[0]->contador + 1;
-            Contador::find($contador[0]->id)->update(["contador" => $nuevoContador]);
-        });
-        return $contador[0];
+        $contador = Contador::where("anio","=",$anio)->where("tipo_contador_id","=",$tipo_contador_id)->where("centro_id","=",$centro_id)->first();
+        if($contador != null){
+            Contador::find($contador->id)->update(["contador" => (int)$contador->contador + 1]);
+        }else{
+            $contador = Contador::create([
+                "anio" => $anio,
+                "tipo_contador_id" => $tipo_contador_id,
+                "centro_id" => $centro_id,
+                "contador" => 2,
+            ]);
+            $contador->contador = 1;
+        }
+//        $contador->abreviatura = $contador->centro->abreviatura;
+        unset($contador->centro);
+        return $contador;
     }
 }
