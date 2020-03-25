@@ -7,27 +7,6 @@
       color:darkred;
       content: " (*)";
    }
-   .widget-maps{
-        min-height: 350px;
-        position: relative;
-        border: thin solid #c0c0c0;
-        width:100%;
-        height: 100%;
-    }
-    #panel-botones {
-        position: absolute;
-        right: 10%;
-        z-index: 5;
-        padding: 5px;
-        text-align: center;
-        font-family: 'Roboto','sans-serif';
-        line-height: 30px;
-        padding-left: 10px;
-    }
-    #panel-botones {
-        display: none;
-        margin-left: 50%;
-    }
 
 </style>
 
@@ -135,7 +114,7 @@
                                 <p class="help-block needed">Fecha de nacimiento</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitante">
-                                <input class="form-control numero" required data-parsley-type='integer' id="idEdadSolicitante" placeholder="Edad del solicitante" type="text" value="">
+                                <input class="form-control numero" disabled required data-parsley-type='integer' id="idEdadSolicitante" placeholder="Edad del solicitante" type="text" value="">
                                 <p class="help-block needed">Edad del solicitante</p>
                             </div>
                             <div class="col-md-4">
@@ -162,88 +141,29 @@
                                 {!! $errors->first('entidad_nacimiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Estado de nacimiento</p>
                             </div>
+                            
+                            
                         </div>
-                        <!-- seccion de domicilios solicitante -->
                         <div class="col-md-12 row">
-                            <div class="col-md-12" align="center">
-                                <h4>Domicilios</h4>
-                            </div>
-                            <input type="hidden" id="domicilio_solicitante_id">
-                            <input type="hidden" id="direccion_marker">
-                            <input type="hidden" id="latitud_solicitante">
-                            <input type="hidden" id="longitud_solicitante">
-                            <div class="col-md-10">
-                                <input id="autocomplete"
-                                class="form-control"
-                                onfocus="geolocate()"
-                                placeholder="Escriba la dirección y seleccione la opción correcta o más cercana."
-                                type="text"/>
-                                <p class="help-block needed">Escriba la dirección y seleccione la opción correcta o más cercana.</p>
-                            </div>
-                            <div class="col-md-4">    
-                                {!! Form::select('estado_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'estado_id_solicitante','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect direccionUpd']);  !!}
-                                {!! $errors->first('estado_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Estado</p>
-                            </div>
                             <div class="col-md-4">
-                                <input class="form-control direccionUpd" id="municipio_solicitante" required placeholder="Municipio" type="text" value="">
-                                <p class="help-block needed">Nombre del municipio</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control numero" id="cp_solicitante" required placeholder="Codigo Postal" maxlength="5" type="text" value="">
-
-                                <p class="help-block needed">Codigo postal</p>
-                            </div>
-                            <div class="col-md-4">    
-                                {!! Form::select('tipo_asentamiento_id_solicitante', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , null, ['id'=>'tipo_asentamiento_id_solicitante','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('tipo_asentamiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block">Tipo de asentamiento</p>
-                            </div>
-                            <div class="col-md-4"   >    
-                                {!! Form::select('tipo_vialidad_id_solicitante', isset($tipos_vialidades) ? $tipos_vialidades : [] , null, ['id'=>'tipo_vialidad_id_solicitante','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect direccionUpd']);  !!}
-                                {!! $errors->first('tipo_vialidad_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block">Tipo de vialidad</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control direccionUpd" id="vialidad_solicitante" placeholder="Vialidad" required type="text" value="">
-                                <p class="help-block">Vialidad</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control numero direccionUpd" id="num_ext_solicitante" placeholder="Num Exterior" required type="text" value="">
-                                <p class="help-block">Numero exterior</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control numero" id="num_int_solicitante" placeholder="Num Interior" required type="text" value="">
-
-                                <p class="help-block">Numero interior</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control direccionUpd" id="asentamiento_solicitante" placeholder="Asentamiento" required type="text" value="">
-                                <p class="help-block">Nombre asentamiento</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control" id="referencias_solicitante" placeholder="Referencias" required type="text" value="">
-                                <p class="help-block">Referencias</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control" id="entre_calle1_solicitante" placeholder="Entre calle" required type="text" value="">
-                                <p class="help-block">Entre calle</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control" id="entre_calle2_solicitante" placeholder="Entre calle 2" required type="text" value="">
-                                <p class="help-block">y calle</p>
-                            </div>
-                            <div id="mapContainer">
-                                <div id="panel-botones">
-                                    <button class="btn btn-info" type="button" onclick="tomarGeoreferencia()" > <i class="fa fa-map-marker"></i> Validar direcci&oacute;n</button>
+                                <div >
+                                    <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
                                 </div>
-                                <div class="widget-maps" id="widget-maps"></div>
+                                <div >
+                                    <input type="hidden" />
+                                    <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitante" name='solicita_traductor_solicitante'/>
+                                </div>
                             </div>
                             
-                        
-                                  
-                        
+                            <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
+                                {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Lengua Indigena</p>
+                            </div>
                         </div>
+                        <!-- seccion de domicilios solicitante -->
+                        @include('includes.component.map',['identificador' => 'solicitante', 'instancia' => '1'])
+
                         <!-- end seccion de domicilios solicitante -->
                         <!-- Seccion de Datos laborales -->
                         <div class="col-md-12 row">
@@ -308,7 +228,7 @@
                                 <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
                             </div>
                             <div class="col-md-2">
-                                <input type="hidden" class="hddDisponibilidad"/>
+                                <input type="hidden" />
                                 <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
                             </div>
                         </div>
@@ -370,10 +290,6 @@
                             <p class="help-block">CURP del solicitado</p>
                         </div>
                         <div class="col-md-12 row">
-                            <div class="col-md-8 personaFisicaSolicitado">
-                                <input class="form-control" required id="idSolicitadoCURP" placeholder="CURP del solicitado" type="text" value="">
-                                <p class="help-block">CURP del solicitado</p>
-                            </div>
                             <div class="col-md-4" style="display:none;">
                                 <input class="form-control" id="idsolicitado" type="text" value="253">
                             </div>
@@ -400,7 +316,7 @@
                                 <p class="help-block needed">Fecha de nacimiento</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
-                                <input class="form-control numero" required id="idEdadSolicitado" placeholder="Edad del solicitado" type="text" value="">
+                                <input class="form-control numero" required disabled id="idEdadSolicitado" placeholder="Edad del solicitado" type="text" value="">
                                 <p class="help-block needed">Edad del solicitado</p>
                             </div>
                             <div class="col-md-4">
@@ -426,6 +342,22 @@
                                 {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Estado de nacimiento</p>
+                            </div>
+                        </div>
+                        <div class="col-md-12 row">
+                            <div class="col-md-4">
+                                <div  >
+                                    <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
+                                </div>
+                                <div >
+                                    <input type="hidden" />
+                                    <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitado" name='solicita_traductor_solicitado'/>
+                                </div>
+                            </div>
+                            <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
+                                {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Lengua Indigena</p>
                             </div>
                         </div>
                         <!-- seccion de domicilios solicitado -->
@@ -554,7 +486,8 @@
 <!-- end wizard -->
 
 <!-- inicio Modal Domicilio-->
-<div class="modal" id="modal-domicilio" aria-hidden="true" style="display:none;">
+
+ <div class="modal" id="modal-domicilio" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -562,7 +495,16 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <div class="col-md-12 row">
+                @include('includes.component.map',['identificador' => 'solicitado', 'instancia' => 2])
+                {{-- @push('scripts')
+                <script>
+                    alert();    
+                    console.log(DomicilioObject);
+                    var solicitado = DomicilioObject;
+                </script>
+                @endpush --}}
+                {{-- @include('includes.component.map') --}}
+               {{-- <div class="col-md-12 row">
                     <input type="hidden" id="domicilio_id_modal">
                     <input type="hidden" id="domicilio_key">
                     <div>    
@@ -618,17 +560,17 @@
                         <p class="help-block">Entre calle 2</p>
                     </div>
                     <div class="widget-maps" id="widget-maps2"></div>
-                </div>
+                </div>--}}
             </div>
             <div class="modal-footer">
                 <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="limpiarDomicilios()"><i class="fa fa-times"></i> Cancelar</a>
+                    <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="dom2.limpiarDomicilios()"><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" onclick="agregarDomicilio()"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</div> 
 <!-- Fin Modal de Domicilio-->
 @push('scripts')
 
@@ -683,9 +625,11 @@
                     solicitante.genero_id = $("#genero_id_solicitante").val();    
                     solicitante.nacionalidad_id = $("#nacionalidad_id_solicitante").val();    
                     solicitante.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitante").val();    
+                    solicitante.lengua_indigena_id = $("#lengua_indigena_id_solicitante").val();    
                 }else{
                     solicitante.nombre_comercial = $("#idNombreCSolicitante").val();
                 }
+                solicitante.solicita_traductor = $("input[name='solicita_traductor_solicitante']:checked").val()
                 solicitante.tipo_persona_id = $("input[name='tipo_persona_solicitante']:checked").val()
                 solicitante.giro_comercial_id = $("#giro_comercial_solicitante").val()
                 solicitante.tipo_parte_id = 1;
@@ -709,20 +653,11 @@
                 solicitante.dato_laboral = dato_laboral;
 
                 //domicilio del solicitante
+                
                 var domicilio = {};
-                domicilio.id = $("#domicilio_solicitante_id").val();
-                domicilio.num_ext = $("#num_ext_solicitante").val();
-                domicilio.num_int = $("#num_int_solicitante").val();
-                domicilio.asentamiento = $("#asentamiento_solicitante").val();
-                domicilio.municipio = $("#municipio_solicitante").val();
-                domicilio.cp = $("#cp_solicitante").val();
-                domicilio.entre_calle1 = $("#entre_calle1_solicitante").val();
-                domicilio.entre_calle2 = $("#entre_calle2_solicitante").val();
-                domicilio.referencias = $("#referencias_solicitante").val();
-                domicilio.tipo_vialidad_id = $("#tipo_vialidad_id_solicitante").val();
-                domicilio.vialidad = $("#vialidad_solicitante").val();
-                domicilio.tipo_asentamiento_id = $("#tipo_asentamiento_id_solicitante").val();
-                domicilio.estado_id = $("#estado_id_solicitante").val();
+                domicilio = dom.getDomicilio();
+                
+                
                 solicitante.domicilios = [domicilio];
                 //domicilio
                 if(key == ""){
@@ -756,9 +691,11 @@
                     solicitado.genero_id = $("#genero_id_solicitado").val();    
                     solicitado.nacionalidad_id = $("#nacionalidad_id_solicitado").val();    
                     solicitado.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitado").val();    
+                    solicitado.lengua_indigena_id = $("#lengua_indigena_id_solicitado").val();    
                 }else{
                     solicitado.nombre_comercial = $("#idNombreCSolicitado").val();
                 }
+                solicitado.solicita_traductor = $("input[name='solicita_traductor_solicitado']:checked").val();
                 solicitado.tipo_persona_id = $("input[name='tipo_persona_solicitado']:checked").val();
                 solicitado.giro_comercial_id = $("#giro_comercial_solicitado").val()
                 solicitado.tipo_parte_id = 2;
@@ -818,13 +755,11 @@
         
         if(edit){
             $("#solicitud_id").val(solicitud);
-            console.log('sol',solicitud);
             getSolicitudFromBD(solicitud);
         }
         
     });
     function getSolicitudFromBD(solicitud){
-        console.log("llego");
         $.ajax({
             url:'/api/solicitudes/'+solicitud,
             type:"GET",
@@ -871,7 +806,7 @@
         */
         function limpiarSolicitante(){
             $("#edit_key").val("");
-            $("#domicilio_solicitante_id").val("");
+            
             $("#dato_laboral_id").val("");
             $("#solicitante_id").val("");
             $("#idNombreSolicitante").val("");
@@ -901,21 +836,16 @@
             $("#genero_id_solicitante").val("");    
             $("#nacionalidad_id_solicitante").val("");    
             $("#entidad_nacimiento_id_solicitante").val("");
-            $("#num_ext_solicitante").val("");
-            $("#num_int_solicitante").val("");
-            $("#asentamiento_solicitante").val("");
-            $("#municipio_solicitante").val("");
-            $("#cp_solicitante").val("");
-            $("#entre_calle1_solicitante").val("");
-            $("#entre_calle2_solicitante").val("");
-            $("#referencias_solicitante").val("");
-            $("#tipo_vialidad_id_solicitante").val("");
-            $("#vialidad_solicitante").val("");
-            $("#tipo_asentamiento_id_solicitante").val("");
-            $("#estado_id_solicitante").val("");    
+            $("#lengua_indigena_id_solicitante").val("");
+            if($("#solicita_traductor_solicitante").is(":checked")){
+                $("#solicita_traductor_solicitante").trigger('click');
+            }
+            
             $('#step-1').parsley().reset();
             $('.catSelect').trigger('change');
+            dom.limpiarDomicilios();
         }
+
 
         /**
         *Funcion para limpiar campos de solicitante
@@ -937,28 +867,12 @@
             $("#genero_id_solicitado").val("");    
             $("#nacionalidad_id_solicitado").val("");    
             $("#entidad_nacimiento_id_solicitado").val("");
+            $("#lengua_indigena_id_solicitado").val("");
+            if($("#solicita_traductor_solicitado").is(":checked")){
+                $("#solicita_traductor_solicitado").trigger('click');
+            }
             $('.catSelect').trigger('change');  
-            limpiarDomicilios();
-        }
-
-        /**
-        * Funcion para limpiar domicilios
-        */
-        function limpiarDomicilios(){
-            $("#num_ext").val("");
-            $("#num_int").val("");
-            $("#asentamiento").val("");
-            $("#municipio").val("");
-            $("#cp").val("");
-            $("#entre_calle1").val("");
-            $("#entre_calle2").val("");
-            $("#referencias").val("");
-            $("#tipo_vialidad_id").val("");
-            $("#tipo_asentamiento_id").val("");
-            $("#estado_id").val("");
-            $("#domicilio_id_modal").val("");
-            $("#domicilio_key").val("");
-            $('.catSelect').trigger('change');
+            dom2.limpiarDomicilios();
         }
     
     /**
@@ -1115,6 +1029,16 @@
             $("#idEdadSolicitante").val(arraySolicitantes[key].edad);    
             $("#nacionalidad_id_solicitante").val(arraySolicitantes[key].nacionalidad_id);    
             $("#entidad_nacimiento_id_solicitante").val(arraySolicitantes[key].entidad_nacimiento_id);
+            $("#lengua_indigena_id_solicitante").val(arraySolicitantes[key].lengua_indigena_id);
+            if(arraySolicitantes[key].solicita_traductor == 1){
+                if(!$("#solicita_traductor_solicitante").is(":checked")){
+                    $("#solicita_traductor_solicitante").trigger('click');
+                }
+            }else{
+                if($("#solicita_traductor_solicitante").is(":checked")){
+                    $("#solicita_traductor_solicitante").trigger('click');
+                }
+            }
             $("#tipo_persona_fisica_solicitante").prop("checked", true);
             $(".personaMoralSolicitante").hide();
             $(".personaFisicaSolicitante").show();
@@ -1136,7 +1060,7 @@
         $("#percepcion_mensual_neta").val(arraySolicitantes[key].dato_laboral.percepcion_mensual_neta);
         $("#percepcion_mensual_bruta").val(arraySolicitantes[key].dato_laboral.percepcion_mensual_bruta);
         if(arraySolicitantes[key].dato_laboral.labora_actualmente != $("#labora_actualmente").is(":checked")){
-            $("#labora_actualmente").trigger('click');
+            $("#labora_actualmente").prop("checked", true);;
         }
         $("#fecha_ingreso").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_ingreso,0));
         $("#fecha_salida").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_salida,0));
@@ -1144,19 +1068,7 @@
         $("#horas_semanales").val(arraySolicitantes[key].dato_laboral.horas_semanales);
 
         //domicilio del solicitante
-        $("#domicilio_solicitante_id").val(arraySolicitantes[key].domicilios[0].id);
-        $("#num_ext_solicitante").val(arraySolicitantes[key].domicilios[0].num_ext);
-        $("#num_int_solicitante").val(arraySolicitantes[key].domicilios[0].num_int);
-        $("#asentamiento_solicitante").val(arraySolicitantes[key].domicilios[0].asentamiento);
-        $("#municipio_solicitante").val(arraySolicitantes[key].domicilios[0].municipio);
-        $("#cp_solicitante").val(arraySolicitantes[key].domicilios[0].cp);
-        $("#entre_calle1_solicitante").val(arraySolicitantes[key].domicilios[0].entre_calle1);
-        $("#entre_calle2_solicitante").val(arraySolicitantes[key].domicilios[0].entre_calle2);
-        $("#referencias_solicitante").val(arraySolicitantes[key].domicilios[0].referencias);
-        $("#tipo_vialidad_id_solicitante").val(arraySolicitantes[key].domicilios[0].tipo_vialidad_id);
-        $("#vialidad_solicitante").val(arraySolicitantes[key].domicilios[0].vialidad);
-        $("#tipo_asentamiento_id_solicitante").val(arraySolicitantes[key].domicilios[0].tipo_asentamiento_id);
-        $("#estado_id_solicitante").val(arraySolicitantes[key].domicilios[0].estado_id);
+        dom.cargarDomicilio(arraySolicitantes[key].domicilios[0]);
         $('.catSelect').trigger('change');
     }
 
@@ -1178,6 +1090,16 @@
             $("#genero_id_solicitado").val(arraySolicitados[key].genero_id);
             $("#nacionalidad_id_solicitado").val(arraySolicitados[key].nacionalidad_id);
             $("#entidad_nacimiento_id_solicitado").val(arraySolicitados[key].entidad_nacimiento_id);
+            $("#lengua_indigena_id_solicitado").val(arraySolicitados[key].lengua_indigena_id);
+            if(arraySolicitados[key].solicita_traductor == 1){
+                if(!$("#solicita_traductor_solicitado").is(":checked")){
+                    $("#solicita_traductor_solicitado").trigger('click');
+                }
+            }else{
+                if($("#solicita_traductor_solicitado").is(":checked")){
+                    $("#solicita_traductor_solicitado").trigger('click');
+                }
+            }
             $("#tipo_persona_fisica_solicitado").prop("checked", true);
             $(".personaMoralSolicitado").hide();
             $(".personaFisicaSolicitado").show();
@@ -1199,19 +1121,8 @@
     *@argument key posicion de array a editar
     */
     function cargarEditarDomicilioSolicitado(key){
-        $("#domicilio_key").val(key);
-        $("#domicilio_id_modal").val(arrayDomiciliosSolicitado[key].id);
-        $("#num_ext").val(arrayDomiciliosSolicitado[key].num_ext);
-        $("#num_int").val(arrayDomiciliosSolicitado[key].num_int);
-        $("#asentamiento").val(arrayDomiciliosSolicitado[key].asentamiento);
-        $("#municipio").val(arrayDomiciliosSolicitado[key].municipio);
-        $("#cp").val(arrayDomiciliosSolicitado[key].cp);
-        $("#entre_calle1").val(arrayDomiciliosSolicitado[key].entre_calle1);
-        $("#entre_calle2").val(arrayDomiciliosSolicitado[key].entre_calle2);
-        $("#referencias").val(arrayDomiciliosSolicitado[key].referencias);
-        $("#tipo_vialidad_id").val(arrayDomiciliosSolicitado[key].tipo_vialidad_id);
-        $("#tipo_asentamiento_id").val(arrayDomiciliosSolicitado[key].tipo_asentamiento_id);
-        $("#estado_id").val(arrayDomiciliosSolicitado[key].estado_id);
+        
+        dom2.cargarDomicilio(arrayDomiciliosSolicitado[key]);
         $('#modal-domicilio').modal('show');
         $('.catSelect').trigger('change');
     }
@@ -1260,7 +1171,7 @@
         
         formarTablaDomiciliosSolicitado();
         $('#modal-domicilio').modal('hide');
-        limpiarDomicilios();
+        dom2.limpiarDomicilios();
     }
     /**
     * Funcion para agregar Domicilio de solicitante y solicitado 
@@ -1310,7 +1221,6 @@
 
                 },
                 success:function(data){
-                    alert("entro1");
                     if(data.success){
                         swal({
                             title: 'Correcto',
@@ -1325,7 +1235,6 @@
                     }
                     
                 },error:function(data){
-                    console.log(data.responseJSON);
                     $.each(data.responseJSON.errors, function (key, value) {
                         console.log(value);
                     });
@@ -1413,6 +1322,31 @@
         var excepcion = {};
         return excepcion;
     }
+
+    
+
+    $("#solicita_traductor_solicitado").change(function(){
+        if($("#solicita_traductor_solicitado").is(":checked")){
+            $("#selectIndigenaSolicitado").show();
+        }else{
+            $("#selectIndigenaSolicitado").hide();
+            
+        }
+    });
+
+    $("#idFechaNacimientoSolicitante").blur(function(){
+        $("#idEdadSolicitante").val(Edad($("#idFechaNacimientoSolicitante").val()))
+    });
+    $("#idFechaNacimientoSolicitado").blur(function(){
+        $("#idEdadSolicitado").val(Edad($("#idFechaNacimientoSolicitado").val()))
+    });
+    $("#solicita_traductor_solicitante").change(function(){
+        if($("#solicita_traductor_solicitante").is(":checked")){
+            $("#selectIndigenaSolicitante").show();
+        }else{
+            $("#selectIndigenaSolicitante").hide();
+        }
+    });
     $(".catSelect").select2({width: '100%'});
     $(".date").datetimepicker({useCurrent: false,format:'DD/MM/YYYY'});
     $(".dateTime").datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm:ss'});
@@ -1452,118 +1386,6 @@
             
         }
     }
-    var componentForm = {
-        street_number: 'short_name',
-        route: 'long_name',
-        locality: 'long_name',
-        administrative_area_level_1: 'short_name',
-        sublocality_level_1: 'short_name',
-        country: 'long_name',
-        postal_code: 'short_name'
-    };
-    var campos = {
-        street_number: 'num_ext',
-        route: 'calle',
-        locality: 'municipio_solicitante',
-        sublocality_level_1: 'vialidad_solicitante',
-        administrative_area_level_1: 'estado',
-        country: 'pais',
-        postal_code: 'cp_solicitante'
-    }
-    var map;
-    var marker;
-    // var map2;
-    function initMap() {
-      var lat = $('#latitud_solicitante').val() ? $('#latitud_solicitante').val() : "19.398606";
-      var lon = $('#longitud_solicitante').val() ? $('#longitud_solicitante').val() : "-99.158581";
-      
-      map = new google.maps.Map(document.getElementById('widget-maps'), {
-          zoom: 15,
-          center: {lat: parseFloat(lat), lng: parseFloat(lon)},
-          zoomControl: true,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-      });
-      map.panorama = map.getStreetView();
-      console.log("Al iniciar el mapa latlon %s %s confirmada: %s", lat,lon);
-      map.panorama.addListener('visible_changed', function() {
-        if(!this.visible){
-            // console.log("entro");
-            document.getElementById('panel-botones').style.display = "none";
-        }else{
-            document.getElementById('panel-botones').style.display = "block";
-        }
-    });
-    
-    //   map2 = new google.maps.Map(document.getElementById('widget-maps2'), {
-    //       zoom: 15,
-    //       center: {lat: parseFloat(lat), lng: parseFloat(lon)},
-    //       zoomControl: true,
-    //       mapTypeId: google.maps.MapTypeId.ROADMAP
-    //   });
-      if($("#direccion_marker").val() == ""){
-          seteaMarker(map, {lat: parseFloat(lat), lng: parseFloat(lon)});
-        //   seteaMarker(map2, {lat: parseFloat(lat), lng: parseFloat(lon)});
-      }
-      else{
-          geocodeAddress(map);
-      }
-    }
-    function tomarGeoreferencia() {
-        var pos = map.panorama.getPosition() ;
-
-        seteaMarker(map,pos);
-        console.log(pos);
-    }
-    function geocodeAddress(resultsMap) {
-        var geocoder = new google.maps.Geocoder();
-        var address = $("#direccion_marker").val();
-        console.log(address);
-        geocoder.geocode({'address': address}, function(results, status) {
-            if (status === 'OK') {
-                resultsMap.setCenter(results[0].geometry.location);
-                seteaMarker(resultsMap, results[0].geometry.location);
-                $('#btn-confirmar-direccion').removeClass('disabled');
-            } else {
-                console.log('No se pudo completar el geocoding: %s', status);
-            }
-        });
-    }
-    function seteaNuevaPosicionManual(ev){
-        console.log("Punto donde se suelta el cursor: Latitud: %s Longitud: %s", ev.latLng.lat(), ev.latLng.lng());
-        $('#latitud_solicitante').val(ev.latLng.lat());
-        $('#longitud_solicitante').val(ev.latLng.lng());
-        $('#btn-confirmar-direccion').removeClass('disabled');
-    }
-    var seteaMarker = function (resultsMap, coords) {
-        if(marker) borraMarker();
-         marker = new google.maps.Marker({
-             map: resultsMap,
-             draggable: true,
-             animation: google.maps.Animation.DROP,
-             position: coords
-         });
-        //  marker = new google.maps.Marker({
-        //      map2: resultsMap,
-        //      draggable: true,
-        //      animation: google.maps.Animation.DROP,
-        //      position: coords
-        //  });
-         $('#latitud_solicitante').val(coords.lat);
-        $('#longitud_solicitante').val(coords.lng);
-        $('#btn-confirmar-direccion').removeClass('disabled');
-        marker.addListener('dragend', seteaNuevaPosicionManual);
-     };
-    function borraMarker(){
-            marker.setMap(null);
-        }
-    $(".direccionUpd").blur(function(){
-        if($("#tipo_vialidad_id_solicitante").val() != "" && $("#vialidad_solicitante").val() != "" && $("#num_ext_solicitante").val() != "" && $("#asentamiento_solicitante").val() && $("#municipio_solicitante").val() != "" && $("#estado_id_solicitante").val() != "" ){
-            var direccion = $("#tipo_vialidad_id_solicitante :selected").text() + "," + $("#vialidad_solicitante").val() + "," + $("#num_ext_solicitante").val() + "," + $("#asentamiento_solicitante").val() + "," + $("#municipio_solicitante").val() + "." + $("#estado_id_solicitante :selected").text();
-            $("#direccion_marker").val(direccion);
-            geocodeAddress(map);
-         }
-     });
-    
 
     //validacion curp
      
@@ -1620,12 +1442,10 @@ var CURP = (function () {
         }
         }
     }
-console.log(intFactor);
     for(var k = 0; k < 17; k++)
     {
         lngSuma= lngSuma + ((intFactor[k]) * (18 - k));
     }
-    console.log(lngSuma);
     lngDigito= (10 - (lngSuma % 10));
 
     if(lngDigito==10)
@@ -1640,19 +1460,39 @@ console.log(intFactor);
 }());
 
 function validaCURP(curp){
-
+    if(curp.length == 0){
+        return;
+    }
     if(CURP.valida(curp)){
     //   document.getElementById('msg').innerText = 'CURP Válida';
     return;
     }
 
-    swal({title: 'Error',text: 'La curp no es valida',icon: 'warning',});
-    
+    swal({title: 'Error',text: 'La curp no es valida',icon: 'warning',});   
+}
+
+/**
+  *  Funcion para calcular edad
+**/
+function Edad(FechaNacimiento) {
+    var fechaNace = new Date(dateFormat(FechaNacimiento));
+    var fechaActual = new Date()
+
+    var mes = fechaActual.getMonth();
+    var dia = fechaActual.getDate();
+    var año = fechaActual.getFullYear();
+
+    fechaActual.setDate(dia);
+    fechaActual.setMonth(mes);
+    fechaActual.setFullYear(año);
+    edad = Math.floor(((fechaActual - fechaNace) / (1000 * 60 * 60 * 24) / 365));
+
+    return edad;
 }
 
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=places&key=AIzaSyBx0RdMGMOYgE_eLXfCblBP9RhYDQXjrqY"></script>
+
 <script src="/assets/plugins/parsleyjs/dist/parsley.min.js"></script>
 <script src="/assets/plugins/highlight.js/highlight.min.js"></script>
-<script src="/assets/plugins/highlight.js/es.js"></script>
+
 @endpush

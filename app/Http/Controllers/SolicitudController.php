@@ -9,14 +9,15 @@ use App\Estado;
 use App\Expediente;
 use App\Audiencia;
 use App\EstatusSolicitud;
-use App\Expediente;
 use Illuminate\Http\Request;
 use \App\Solicitud;
 use Validator;
 use App\Filters\SolicitudFilter;
 use App\Genero;
 use App\GiroComercial;
+use App\GrupoPrioritario;
 use App\Jornada;
+use App\LenguaIndigena;
 use App\Nacionalidad;
 use App\ObjetoSolicitud;
 use App\Ocupacion;
@@ -92,7 +93,9 @@ class SolicitudController extends Controller
         $nacionalidades = array_pluck(Nacionalidad::all(),'nombre','id');
         $giros_comerciales = array_pluck(GiroComercial::all(),'nombre','id');
         $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones'));
+        $grupo_prioritario = array_pluck(GrupoPrioritario::all(),'nombre','id');
+        $lengua_indigena = array_pluck(LenguaIndigena::all(),'nombre','id');
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena'));
     }
 
     /**
@@ -106,7 +109,6 @@ class SolicitudController extends Controller
 
         $request->validate([
             'solicitud.observaciones' => 'required|max:500',
-            'solicitud.estatus_solicitud_id' => 'required',
             'solicitud.fecha_conflicto' => 'required',
             'solicitud.fecha_ratificacion' => 'required',
             'solicitud.fecha_recepcion' => 'required',
@@ -283,8 +285,9 @@ class SolicitudController extends Controller
         $generos = array_pluck(Genero::all(),'nombre','id');
         $nacionalidades = array_pluck(Nacionalidad::all(),'nombre','id');
         $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
-//        dd($solicitud);
-        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','expediente','audiencias'));
+        $grupo_prioritario = array_pluck(GrupoPrioritario::all(),'nombre','id');
+        $lengua_indigena = array_pluck(LenguaIndigena::all(),'nombre','id');
+        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','expediente','audiencias','grupo_prioritario','lengua_indigena'));
     }
 
     /**
@@ -298,7 +301,6 @@ class SolicitudController extends Controller
     {
         $request->validate([
             'solicitud.observaciones' => 'required|max:500',
-            'solicitud.estatus_solicitud_id' => 'required',
             'solicitud.fecha_conflicto' => 'required',
             'solicitud.fecha_ratificacion' => 'required',
             'solicitud.fecha_recepcion' => 'required',

@@ -22,7 +22,7 @@ class Parte extends Model
      *
      * @var array
      */
-    protected $loadable = ['solicitud', 'tipoParte','genero','tipoPersona','nacionalidad','entidadNacimiento','giroComercial','grupoPrioritario'];
+    protected $loadable = ['solicitud', 'tipoParte','genero','tipoPersona','nacionalidad','entidadNacimiento','giroComercial','grupoPrioritario','lenguaIndigena'];
     
     protected $guarded = ['id','updated_at','created_at']; 
     /**
@@ -114,5 +114,13 @@ class Parte extends Model
      */
     public function domicilios(){
       return $this->morphMany(Domicilio::class,'domiciliable');
-  }
+    }
+    /**
+     * Funcion para asociar con modelo Estado
+     * Utilizando belongsTo para relaciones 1 a 1
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function lenguaIndigena(){
+      return $this->belongsTo('App\LenguaIndigena');
+    }
 }
