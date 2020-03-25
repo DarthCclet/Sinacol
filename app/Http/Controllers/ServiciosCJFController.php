@@ -6,6 +6,7 @@ use App\Services\ConsultaConciliacionesPorNombre;
 use App\Services\ConsultaConciliacionesPorRangoFechas;
 use App\Services\ConsultaConciliacionesPorCurp;
 use App\Services\ConsultaConciliacionesPorRfc;
+use App\Http\Controllers\ContadorController;
 use App\TipoParte;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -32,7 +33,9 @@ class ServiciosCJFController extends Controller
      */
     public function listadoPorFechas(ConsultaConciliacionesPorRangoFechas $consulta)
     {
-        Cache::put("folio_confirmacion",Cache::get('folio_confirmacion',0)+1);
+//        Cache::put("folio_confirmacion",Cache::get('folio_confirmacion',0)+1);
+        $ContadorController = new ContadorController();
+        $folio = $ContadorController->getContador(4,null);
         $parametros = $this->request->getContent();
         try {
             $fechas = json_decode($parametros);
@@ -42,7 +45,7 @@ class ServiciosCJFController extends Controller
             $acuse = [
                 'codigo_retorno' => 1,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
-                'folio_confirmacion' => sprintf("%06d", Cache::get('folio_confirmacion')),
+                'folio_confirmacion' => sprintf("%06d", $folio->contador),
                 'mensaje' => 'EXITO'
             ];
             return response()->json(array_merge($fechas, $acuse), 200);
@@ -51,7 +54,7 @@ class ServiciosCJFController extends Controller
             $acuse = [
                 'codigo_retorno' => 0,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
-                'folio_confirmacion' => sprintf("%06d", Cache::get('folio_confirmacion')),
+                'folio_confirmacion' => sprintf("%06d", $folio->contador),
                 'mensaje' => 'ERROR: '.$e->getMessage()
             ];
             return response()->json(array_merge([], $acuse), 400);
@@ -118,7 +121,10 @@ class ServiciosCJFController extends Controller
      */
     public function listadoPorRFC($rfc)
     {
-        Cache::put("folio_confirmacion",Cache::get('folio_confirmacion',0)+1);
+        //Obtenemos el contador
+        $ContadorController = new ContadorController();
+        $folio = $ContadorController->getContador(4,null);
+//        Cache::put("folio_confirmacion",Cache::get('folio_confirmacion',0)+1);
         try {
             
             $ConsultaConciliacionesPorRFC = new ConsultaConciliacionesPorRfc();
@@ -128,7 +134,7 @@ class ServiciosCJFController extends Controller
             $acuse = [
                 'codigo_retorno' => 1,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
-                'folio_confirmacion' => sprintf("%06d", Cache::get('folio_confirmacion')),
+                'folio_confirmacion' => sprintf("%06d", $folio->contador),
                 'mensaje' => 'EXITO'
             ];
             return response()->json(array_merge($solicitudes, $acuse), 200);
@@ -139,7 +145,7 @@ class ServiciosCJFController extends Controller
             $acuse = [
                 'codigo_retorno' => 0,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
-                'folio_confirmacion' => sprintf("%06d", Cache::get('folio_confirmacion')),
+                'folio_confirmacion' => sprintf("%06d", $folio->contador),
                 'mensaje' => 'ERROR: '.$e->getMessage()
             ];
             return response()->json(array_merge([], $acuse), 400);
@@ -153,7 +159,8 @@ class ServiciosCJFController extends Controller
      */
     public function listadoPorCURP($curp)
     {
-        Cache::put("folio_confirmacion",Cache::get('folio_confirmacion',0)+1);
+        $ContadorController = new ContadorController();
+        $folio = $ContadorController->getContador(4,null);
         try {
             
             $ConsultaConciliacionesPorCURP = new ConsultaConciliacionesPorCurp();
@@ -163,7 +170,7 @@ class ServiciosCJFController extends Controller
             $acuse = [
                 'codigo_retorno' => 1,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
-                'folio_confirmacion' => sprintf("%06d", Cache::get('folio_confirmacion')),
+                'folio_confirmacion' => sprintf("%06d", $folio->contador),
                 'mensaje' => 'EXITO'
             ];
             return response()->json(array_merge($solicitudes, $acuse), 200);
@@ -174,7 +181,7 @@ class ServiciosCJFController extends Controller
             $acuse = [
                 'codigo_retorno' => 0,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
-                'folio_confirmacion' => sprintf("%06d", Cache::get('folio_confirmacion')),
+                'folio_confirmacion' => sprintf("%06d", $folio->contador),
                 'mensaje' => 'ERROR: '.$e->getMessage()
             ];
             return response()->json(array_merge([], $acuse), 400);

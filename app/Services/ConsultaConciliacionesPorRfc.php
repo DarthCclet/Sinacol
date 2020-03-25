@@ -22,7 +22,7 @@ class ConsultaConciliacionesPorRfc
         $partes = Parte::where('rfc','ilike',$rfc)->get();
         // obtenemos la solicitud y el expediente
         $resultado = [];
-        $cont == 0;
+        $cont = 0;
         foreach($partes as $parte){
             $exp=Solicitud::find($parte->solicitud_id);
             if($exp->expediente != null){

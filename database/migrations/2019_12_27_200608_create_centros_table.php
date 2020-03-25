@@ -17,6 +17,7 @@ class CreateCentrosTable extends Migration
             $table->bigIncrements('id')->comment('PK de la tabla estatus_solicitudes');
             $table->string('nombre')->comment('Nombre del centro de trabajo');
             $table->time('duracionAudiencia')->comment('Tiempo promedio que dura una audiencia en el centro');
+            $table->string('abreviatura')->comment('Abreviatura del centro');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
