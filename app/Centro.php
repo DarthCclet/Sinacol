@@ -2,14 +2,13 @@
 
 namespace App;
 
-use App\Traits\Domiciliable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Centro extends Model
 {
 
-    use SoftDeletes, Domiciliable;
+    use SoftDeletes;
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
 
     /**
@@ -64,8 +63,9 @@ class Centro extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function domicilio()
+    
+    public function domicilios()
     {
-        return $this->morphTo(Domicilio::class, 'domiciliable');
+        return $this->morphMany(Domicilio::class, 'domiciliable');
     }
 }

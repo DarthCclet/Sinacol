@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Centro;
 use App\Disponibilidad;
+use App\Estado;
 use App\Incidencia;
 use App\Filters\CatalogoFilter;
-
+use App\TipoAsentamiento;
+use App\TipoVialidad;
 
 class CentroController extends Controller
 {
@@ -56,7 +58,10 @@ class CentroController extends Controller
      */
     public function create()
     {
-        return view('centros.centros.create');
+        $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
+        $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
+        $estados = array_pluck(Estado::all(),'nombre','id');
+        return view('centros.centros.create', compact('estados','tipos_asentamientos','tipos_vialidades'));
     }
 
     /**
@@ -68,6 +73,9 @@ class CentroController extends Controller
     public function store(Request $request)
     {
         Centro::create($request->all());
+        $centro = Centro::create($request->input('centro'));
+        $domicilio = $request->input('domicilio');
+        $centro->domicilios()->create($domicilio);
         return redirect('centros');
     }
 
@@ -90,7 +98,11 @@ class CentroController extends Controller
      */
     public function edit(Centro $centro)
     {
-        return view('centros.centros.edit', compact('centro'));
+        $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
+        $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
+        $estados = array_pluck(Estado::all(),'nombre','id');
+        $domicilio = $centro->domicilios()->get()->first();
+        return view('centros.centros.edit', compact('centro','estados','tipos_asentamientos','tipos_vialidades','domicilio'));
     }
 
     /**
@@ -102,7 +114,9 @@ class CentroController extends Controller
      */
     public function update(Request $request, Centro $centro)
     {
-        $centro->update($request->all());
+        $centro->update($request->input('centro'));
+        $domicilio = $request->input('domicilio');
+        $centro->domicilios()->create($domicilio);
         return redirect('centros');
     }
 
