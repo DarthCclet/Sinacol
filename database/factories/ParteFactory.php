@@ -10,8 +10,9 @@ use App\Nacionalidad;
 use App\Parte;
 use App\TipoParte;
 use App\TipoPersona;
+use Faker\Generator as Faker;
 
-$factory->define(Parte::class, function () {
+$factory->define(Parte::class, function (Faker $faker) {
     $faker = app('FakerCurp');
     // se llama el factory de solicitud para crear un registro y probar su relacion
     $solicitud = factory(\App\Solicitud::class)->create();
