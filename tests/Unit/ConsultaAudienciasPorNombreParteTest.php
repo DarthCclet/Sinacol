@@ -35,9 +35,8 @@ class ConsultaAudienciasPorNombreParteTest extends TestCase
                 $solicitante->tipo_parte_id
             );
 
-            dd($res);
-        }else{
         }
-        //$this->assertInstanceOf('App\Parte', $persona);
+
+        $this->assertInstanceOf('App\Parte', $solicitante);
     }
 }
