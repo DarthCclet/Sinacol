@@ -101,8 +101,8 @@ class CentroController extends Controller
         $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
         $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
         $estados = array_pluck(Estado::all(),'nombre','id');
-        $domicilio = $centro->domicilios()->get()->first();
-        return view('centros.centros.edit', compact('centro','estados','tipos_asentamientos','tipos_vialidades','domicilio'));
+        $centro->domicilios;
+        return view('centros.centros.edit', compact('centro','estados','tipos_asentamientos','tipos_vialidades'));
     }
 
     /**

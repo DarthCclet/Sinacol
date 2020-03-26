@@ -1,4 +1,11 @@
 <style>
+    .inputError {
+        border: 1px red solid;
+    }
+    .needed:after {
+      color:darkred;
+      content: " (*)";
+   }
 	.widget-maps{
         min-height: 350px;
         position: relative;
@@ -27,12 +34,12 @@
 	</div>
 	<input type="hidden" id="domicilio_id{{$identificador}}">
 	<input type="hidden" id="direccion_marker{{$identificador}}">
-	<input type="hidden" name="domicilio[latitud]" id="latitud{{$identificador}}">
-	<input type="hidden" name="domicilio[longitud]" id="longitud{{$identificador}}">
+    <input type="hidden" name="domicilio[latitud]" value="{{isset($domicilio->latitud) ? $domicilio->latitud : '' }}" id="latitud{{$identificador}}">
+	<input type="hidden" name="domicilio[longitud]" value="{{isset($domicilio->longitud) ? $domicilio->longitud : '' }}" id="longitud{{$identificador}}">
     <input type="hidden" id="pais{{$identificador}}">
-    <input type="hidden" id="tipo_vialidad{{$identificador}}" name="domicilio[tipo_vialidad]">
-    <input type="hidden" id="tipo_asentamiento{{$identificador}}" name="domicilio[tipo_asentamiento]">
-    <input type="hidden" id="estado{{$identificador}}" name="domicilio[estado]">
+    <input type="hidden" id="tipo_vialidad{{$identificador}}" value="{{isset($domicilio->tipo_vialidad) ? $domicilio->tipo_vialidad : '' }}" name="domicilio[tipo_vialidad]">
+    <input type="hidden" id="tipo_asentamiento{{$identificador}}" value="{{isset($domicilio->tipo_asentamiento) ? $domicilio->tipo_asentamiento : '' }}" name="domicilio[tipo_asentamiento]">
+    <input type="hidden" id="estado{{$identificador}}" value="{{isset($domicilio->estado) ? $domicilio->estado : '' }}" name="domicilio[estado]">
 	<div class="col-md-10">
 		<input id="autocomplete{{$identificador}}"
 		class="form-control"
@@ -42,57 +49,73 @@
 		<p class="help-block needed">Escriba la dirección y seleccione la opción correcta o más cercana.</p>
 	</div>
 	<div class="col-md-4">    
-		{!! Form::select('domicilio[estado_id]', isset($estados) ? $estados : [] , null, ['id'=>'estado_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect{{$identificador}} direccionUpd{{$identificador}}']);  !!}
+		{!! Form::select('domicilio[estado_id]', isset($estados) ? $estados : [] , isset($domicilio->estado_id) ? $domicilio->estado_id : 0, ['id'=>'estado_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect{{$identificador}} direccionUpd{{$identificador}}']);  !!}
 		{!! $errors->first('domicilio[estado_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block needed">Estado </p>
 	</div>
 	<div class="col-md-4">
-		<input class="form-control direccionUpd{{$identificador}}" name="domicilio[municipio]" id="municipio{{$identificador}}" required placeholder="Municipio" type="text" value="">
+        {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[municipio]" id="municipio{{$identificador}}" required placeholder="Municipio" type="text" value=""> --}}
+        {!! Form::text('domicilio[municipio]', isset($domicilio->municipio) ? $domicilio->municipio : null, ['id'=>'municipio'.$identificador,'required', 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Municipio']) !!}
+        {!! $errors->first('domicilio[municipio]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block needed">Nombre del municipio</p>
 	</div>
 	<div class="col-md-4">
-		<input class="form-control numero" id="cp{{$identificador}}" name="domicilio[cp]" required placeholder="Codigo Postal" maxlength="5" type="text" value="">
-
+		{{-- <input class="form-control numero" id="cp{{$identificador}}" name="domicilio[cp]" required placeholder="Codigo Postal" maxlength="5" type="text" value=""> --}}
+        {!! Form::text('domicilio[cp]', isset($domicilio->cp) ? $domicilio->cp : null, ['id'=>'cp'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Codigo Postal']) !!}
+        {!! $errors->first('domicilio[cp]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block needed">Codigo postal</p>
 	</div>
 	<div class="col-md-4">    
-		{!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect{{$identificador}}']);  !!}
+		{!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect{{$identificador}}']);  !!}
 		{!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Tipo de asentamiento</p>
 	</div>
 	<div class="col-md-4"   >    
-		{!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , null, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect{{$identificador}} direccionUpd'.$identificador]);  !!}
+		{!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , isset($domicilio->tipo_vialidad_id) ? $domicilio->tipo_vialidad_id : 0, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect{{$identificador}} direccionUpd'.$identificador]);  !!}
 		{!! $errors->first('domicilio[tipo_vialidad_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Tipo de vialidad</p>
     </div>
     
 	<div class="col-md-4">
-		<input class="form-control direccionUpd{{$identificador}}" name="domicilio[vialidad]" id="vialidad{{$identificador}}" placeholder="Vialidad" required type="text" value="">
-		<p class="help-block">Vialidad</p>
+        {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[vialidad]" id="vialidad{{$identificador}}" placeholder="Vialidad" required type="text" value=""> --}}
+        {!! Form::text('domicilio[vialidad]', isset($domicilio->vialidad) ? $domicilio->vialidad : null, ['id'=>'vialidad'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Calle']) !!}
+        {!! $errors->first('domicilio[vialidad]', '<span class=text-danger>:message</span>') !!}
+		<p class="help-block">Calle (vialidad)</p>
 	</div>
 	<div class="col-md-4">
-		<input class="form-control numero direccionUpd{{$identificador}}" name="domicilio[num_ext]" id="num_ext{{$identificador}}" placeholder="Num Exterior" required type="text" value="">
+        {{-- <input class="form-control numero direccionUpd{{$identificador}}" name="domicilio[num_ext]" id="num_ext{{$identificador}}" placeholder="Num Exterior" required type="text" value=""> --}}
+        {!! Form::text('domicilio[num_ext]', isset($domicilio->num_ext) ? $domicilio->num_ext : null, ['id'=>'num_ext'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Numero Exterior']) !!}
+        {!! $errors->first('domicilio[num_ext]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Numero exterior</p>
 	</div>
 	<div class="col-md-4">
-		<input class="form-control numero" id="num_int{{$identificador}}" name="domicilio[num_int]" placeholder="Num Interior" required type="text" value="">
-
+		{{-- <input class="form-control numero" id="num_int{{$identificador}}" name="domicilio[num_int]" placeholder="Num Interior" required type="text" value=""> --}}
+        {!! Form::text('domicilio[num_int]', isset($domicilio->num_int) ? $domicilio->num_int : null, ['id'=>'num_int'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Numero Interior']) !!}
+        {!! $errors->first('domicilio[num_int]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Numero interior</p>
 	</div>
 	<div class="col-md-4">
-		<input class="form-control direccionUpd{{$identificador}}" name="domicilio[asentamiento]" id="asentamiento{{$identificador}}" placeholder="Asentamiento" required type="text" value="">
-		<p class="help-block">Nombre asentamiento</p>
+        {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[asentamiento]" id="asentamiento{{$identificador}}" placeholder="Asentamiento" required type="text" value=""> --}}
+        {!! Form::text('domicilio[asentamiento]', isset($domicilio->asentamiento) ? $domicilio->asentamiento : null, ['id'=>'asentamiento'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Asentamiento']) !!}
+        {!! $errors->first('domicilio[asentamiento]', '<span class=text-danger>:message</span>') !!}
+		<p class="help-block">Colonia (asentamiento)</p>
 	</div>
 	<div class="col-md-4">
-		<input class="form-control" id="referencias{{$identificador}}" name="domicilio[referencias]" placeholder="Referencias" required type="text" value="">
+        {{-- <input class="form-control" id="referencias{{$identificador}}" name="domicilio[referencias]" placeholder="Referencias" required type="text" value=""> --}}
+        {!! Form::text('domicilio[referencias]', isset($domicilio->referencias) ? $domicilio->referencias : null, ['id'=>'referencias'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Referencias']) !!}
+        {!! $errors->first('domicilio[referencias]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Referencias</p>
 	</div>
 	<div class="col-md-4">
-		<input class="form-control" id="entre_calle1{{$identificador}}" name="domicilio[entre_calle1]" placeholder="Entre calle" required type="text" value="">
+        {{-- <input class="form-control" id="entre_calle1{{$identificador}}" name="domicilio[entre_calle1]" placeholder="Entre calle" required type="text" value=""> --}}
+        {!! Form::text('domicilio[entre_calle1]', isset($domicilio->entre_calle1) ? $domicilio->entre_calle1 : null, ['id'=>'entre_calle1'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Entre Calle']) !!}
+        {!! $errors->first('domicilio[entre_calle1]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Entre calle</p>
 	</div>
 	<div class="col-md-4">
-		<input class="form-control" id="entre_calle2{{$identificador}}" name="domicilio[entre_calle2]" placeholder="Entre calle 2" required type="text" value="">
+        {{-- <input class="form-control" id="entre_calle2{{$identificador}}" name="domicilio[entre_calle2]" placeholder="Entre calle 2" required type="text" value=""> --}}
+        {!! Form::text('domicilio[entre_calle2]', isset($domicilio->entre_calle2) ? $domicilio->entre_calle2 : null, ['id'=>'entre_calle2'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Y calle']) !!}
+        {!! $errors->first('domicilio[entre_calle2]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">y calle</p>
 	</div>
 	<div style="width:100%">
@@ -309,18 +332,26 @@
 
         return domicilio;
     }(identificador));
+    (function (a) {
+        a.fn.limitKeyPress = function (b) {
+            a(this).on({keypress: function (a) {
+                    var c = a.which, d = a.keyCode, e = String.fromCharCode(c).toLowerCase(), f = b;
+                    (-1 != f.indexOf(e) || 9 == d || 37 != c && 37 == d || 39 == d && 39 != c || 8 == d || 46 == d && 46 != c) && 161 != c || a.preventDefault()
+                }})
+        }
+    })(jQuery);
+    $(".numero").limitKeyPress('1234567890.');
 </script>
 
 @if($instancia <= 1)
 	<script src="https://maps.googleapis.com/maps/api/js?callback=DomicilioObject.initMap&libraries=places&key=AIzaSyBx0RdMGMOYgE_eLXfCblBP9RhYDQXjrqY"></script>
 	<script>
-		var dom =  DomicilioObject;	
+		var domicilioObj =  DomicilioObject;	
 	</script>
-	
 @else
 <script>
-	var dom2 =  DomicilioObject;
-	dom2.initMap();
+	var domicilioObj2 =  DomicilioObject;
+	domicilioObj2.initMap();
 </script>
 @endif
 @endpush 

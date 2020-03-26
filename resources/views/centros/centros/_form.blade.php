@@ -19,6 +19,5 @@
             </div>
         </div>
     </div>
-    {{-- {{dd($domicilio)}} --}}
-    @include('includes.component.map',['identificador' => '', 'instancia' => '1'])
+    @include('includes.component.map',['identificador' => '', 'instancia' => '1','domicilio'=>isset($centro) ? $centro->domicilios[0] : null])
 </div>

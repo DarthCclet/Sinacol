@@ -564,7 +564,7 @@
             </div>
             <div class="modal-footer">
                 <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="dom2.limpiarDomicilios()"><i class="fa fa-times"></i> Cancelar</a>
+                    <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="domicilioObj2.limpiarDomicilios()"><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" onclick="agregarDomicilio()"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
@@ -655,7 +655,7 @@
                 //domicilio del solicitante
                 
                 var domicilio = {};
-                domicilio = dom.getDomicilio();
+                domicilio = domicilioObj.getDomicilio();
                 
                 
                 solicitante.domicilios = [domicilio];
@@ -843,7 +843,7 @@
             
             $('#step-1').parsley().reset();
             $('.catSelect').trigger('change');
-            dom.limpiarDomicilios();
+            domicilioObj.limpiarDomicilios();
         }
 
 
@@ -872,7 +872,7 @@
                 $("#solicita_traductor_solicitado").trigger('click');
             }
             $('.catSelect').trigger('change');  
-            dom2.limpiarDomicilios();
+            domicilioObj2.limpiarDomicilios();
         }
     
     /**
@@ -1068,7 +1068,7 @@
         $("#horas_semanales").val(arraySolicitantes[key].dato_laboral.horas_semanales);
 
         //domicilio del solicitante
-        dom.cargarDomicilio(arraySolicitantes[key].domicilios[0]);
+        domicilioObj.cargarDomicilio(arraySolicitantes[key].domicilios[0]);
         $('.catSelect').trigger('change');
     }
 
@@ -1122,7 +1122,7 @@
     */
     function cargarEditarDomicilioSolicitado(key){
         
-        dom2.cargarDomicilio(arrayDomiciliosSolicitado[key]);
+        domicilioObj2.cargarDomicilio(arrayDomiciliosSolicitado[key]);
         $('#modal-domicilio').modal('show');
         $('.catSelect').trigger('change');
     }
@@ -1171,7 +1171,7 @@
         
         formarTablaDomiciliosSolicitado();
         $('#modal-domicilio').modal('hide');
-        dom2.limpiarDomicilios();
+        domicilioObj2.limpiarDomicilios();
     }
     /**
     * Funcion para agregar Domicilio de solicitante y solicitado 
