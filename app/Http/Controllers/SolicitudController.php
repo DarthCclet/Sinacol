@@ -56,11 +56,10 @@ class SolicitudController extends Controller
 
          // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
-        if ($this->request->get('paginate')) {
-            $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
-            
-        } else {
+        if ($this->request->get('all') ) {
             $solicitud = $solicitud->get();
+        } else {
+            $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
         }
 
         // // Para cada objeto obtenido cargamos sus relaciones.
