@@ -5,7 +5,9 @@ namespace App\Services;
 
 use App\Audiencia;
 use App\Exceptions\FechaInvalidaException;
+use App\Exceptions\ParametroNoValidoException;
 use App\TipoParte;
+use App\Traits\Transformer;
 use Carbon\Carbon;
 
 /**
@@ -15,6 +17,8 @@ use Carbon\Carbon;
  */
 class ConsultaConciliacionesPorRangoFechas
 {
+    use Transformer;
+
     public function consulta($fecha_inicio, $fecha_fin, $limit=15, $page=1)
     {
 
@@ -48,6 +52,12 @@ class ConsultaConciliacionesPorRangoFechas
         ];
     }
 
+    /**
+     * Valida fechas
+     * @param $fecha
+     * @return Carbon
+     * @throws FechaInvalidaException
+     */
     public function validaFechas($fecha)
     {
         //Se espera que la fecha venga en epoch milisegundos con timezone
@@ -70,58 +80,28 @@ class ConsultaConciliacionesPorRangoFechas
         }
     }
 
-    public function partesTransformer($datos, $parte, $domicilio = false)
-    {
-        $parteCat = TipoParte::where('nombre', 'ilike', $parte)->first();
-        $persona =  $datos->where('tipo_parte_id', $parteCat->id)->first();
 
-        $resultado = [];
-        if($persona->tipoPersona->abreviatura == 'F'){
-            $resultado = [
-                'nombre' => $persona->nombre,
-                'primer_apellido' => $persona->primer_apellido,
-                'segundo_apellido' => $persona->segundo_apellido,
-                'rfc' => $persona->rfc,
-                'curp' => $persona->curp,
-                'caracter_persona' => $persona->tipoPersona->nombre,
-                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
-            ];
-        }
-        if($persona->tipoPersona->abreviatura == 'M'){
-            $resultado = [
-                'nombre_comercial' => $persona->nombre,
-                'rfc' => $persona->rfc,
-                'caracter_persona' => $persona->tipoPersona->nombre,
-                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
-            ];
-        }
-        if(!$domicilio){
-            unset($resultado['domicilios']);
-        }
-        return $resultado;
-    }
-
-    public function domiciliosTransformer($datos)
+    /**
+     * Valida la estructura de los parametros enviados
+     * @param $params
+     * @return mixed|null
+     * @throws ParametroNoValidoException
+     */
+    public function validaEstructuraParametros($params)
     {
-        $domicilios = [];
-        foreach($datos as $domicilio){
-            $domicilios[] = [
-                'tipo_vialidad' => $domicilio->tipo_vialidad,
-                'vialidad' => $domicilio->vialidad,
-                'num_ext' => $domicilio->num_ext,
-                'num_int' => $domicilio->num_int,
-                'tipo_asentamiento' => $domicilio->tipo_asentamiento,
-                'asentamiento' => $domicilio->asentamiento,
-                'municipio' => $domicilio->municipio,
-                'estado' => $domicilio->estado,
-                'cp' => $domicilio->cp,
-                'latitud' => $domicilio->latitud,
-                'longitud' => $domicilio->longitud,
-                'entre_calle1' => $domicilio->entre_calle1,
-                'entre_calle2' => $domicilio->entre_calle2,
-                'referencias' => $domicilio->referencias,
-            ];
+        $paramsJSON = json_decode($params);
+        if($paramsJSON === NULL){
+            throw new ParametroNoValidoException("Los datos enviados no pueden interpretarse como una estructura JSON válida, favor de revisar.", 1000);
+            return null;
         }
-        return $domicilios;
+        if(!isset($paramsJSON->fechaInicio)){
+            throw new ParametroNoValidoException("La fecha de inicio a consultar es requierida.", 1010);
+            return null;
+        }
+        if(!isset($paramsJSON->fechaFin)){
+            throw new ParametroNoValidoException("La fecha final a consultar es requierida.", 1011);
+            return null;
+        }
+        return $paramsJSON;
     }
 }

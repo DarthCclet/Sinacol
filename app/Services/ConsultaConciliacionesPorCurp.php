@@ -17,6 +17,7 @@ use Carbon\Carbon;
  */
 class ConsultaConciliacionesPorCurp
 {
+    //TODO: Regresar los datos como en la consulta por rango de fechas, sólo resumen.
     public function consulta($curp, $limit=15, $page=1)
     {
         $partes = Parte::where('curp','ilike',$curp)->get();

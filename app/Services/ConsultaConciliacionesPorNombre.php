@@ -5,7 +5,9 @@ namespace App\Services;
 
 use App\Audiencia;
 use App\Exceptions\FechaInvalidaException;
+use App\Exceptions\ParametroNoValidoException;
 use App\Parte;
+use App\Solicitud;
 use App\TipoParte;
 use Carbon\Carbon;
 
@@ -16,49 +18,65 @@ use Carbon\Carbon;
  */
 class ConsultaConciliacionesPorNombre
 {
-    public function consulta($nombre, $primer_apellido, $segundo_apellido, $tipo_persona, $tipo_parte, $limit=15, $page=1)
+    //TODO: Regresar los datos como en la consulta por rango de fechas, sólo resumen.
+    public function consulta($nombre_denominacion, $primer_apellido, $segundo_apellido, $tipo_persona, $tipo_parte, $limit=15, $page=1)
     {
         $partes = [];
         if($tipo_persona == 1) {
-            $partes = Parte::where('nombre', 'ilike', $nombre)
+            $partes = Parte::where('nombre', 'ilike', $nombre_denominacion)
                 ->where('primer_apellido', 'ilike', $primer_apellido)
                 ->where('tipo_parte_id', $tipo_parte)
                 ->where('segundo_apellido', 'ilike', $segundo_apellido)->get();
         }
         if($tipo_persona == 2){
-            $partes = Parte::where('nombre_comercial', 'ilike', mb_strtoupper($nombre))->get();
+            $partes = Parte::where('nombre_comercial', 'ilike', mb_strtoupper($nombre_denominacion))->get();
         }
-
+        $resultado = [];
         foreach($partes as $parte){
-            $audiencias = $parte->solicitud->expediente->audiencia()->paginate();
+            $exp=Solicitud::find($parte->solicitud_id);
+            if($exp->expediente != null){
+                $validar = false;
+                foreach($exp->expediente->audiencia as $audiencia){
+                    if($audiencia->resolucion_id == 3){
+                        $validar = true;
+                    }
+                }
+                if($validar){
+                    $audiencias = $exp->expediente->audiencia()->paginate();
+                    $arreglo = array_merge($exp->toArray(),$exp->expediente->toArray());
+                    unset($arreglo['expediente']);
+                    $arreglo["partes"] = $exp->partes;
+                    $resultado[]=$arreglo;
+                }
+            }
         }
 
-        $res = [];
+        if(!count($resultado)){
+            return [
+                'data' => [],
+                'total' => 0,
+                'per_page' => 15,
+                'current_page' => 1,
+                'last_page' => 1,
+                'has_more_pages' => false,
+                'previous_page_url' => null,
+                'next_page_url' => null,
+                'url' => "",
+            ];
+        }else{
 
-        foreach ($audiencias as $audiencia){
-            $parte_actora = $this->partesTransformer($audiencia->expediente->solicitud->partes, 'solicitante');
-            $parte_demandada = $this->partesTransformer($audiencia->expediente->solicitud->partes, 'solicitado');
-            $res[] = [
-                'numero_expediente_oij' => $audiencia->expediente->folio,
-                'fecha_audiencia' => $audiencia->fecha_audiencia,
-                'organo_impartidor_de_justicia' => $audiencia->expediente->solicitud->centro->id,
-                'organo_impartidor_de_justicia_nombre' => $audiencia->expediente->solicitud->centro->nombre,
-                'parte_actora' => $parte_actora,
-                'parte_demandada' => $parte_demandada,
+            return [
+                'data' => $resultado,
+                'total' => $audiencias->total(),
+                'per_page' => $audiencias->perPage(),
+                'current_page' => $audiencias->currentPage(),
+                'last_page' => $audiencias->lastPage(),
+                'has_more_pages' => $audiencias->hasMorePages(),
+                'previous_page_url' => $audiencias->previousPageUrl(),
+                'next_page_url' => $audiencias->nextPageUrl(),
+                'url' => $audiencias->url($audiencias->currentPage()),
             ];
         }
-
-        return [
-            'data' => $res,
-            'total' => $audiencias->total(),
-            'per_page' => $audiencias->perPage(),
-            'current_page' => $audiencias->currentPage(),
-            'last_page' => $audiencias->lastPage(),
-            'has_more_pages' => $audiencias->hasMorePages(),
-            'previous_page_url' => $audiencias->previousPageUrl(),
-            'next_page_url' => $audiencias->nextPageUrl(),
-            'url' => $audiencias->url($audiencias->currentPage()),
-        ];
     }
 
     public function validaFechas($fecha)
@@ -83,36 +101,6 @@ class ConsultaConciliacionesPorNombre
         }
     }
 
-    public function partesTransformer($datos, $parte, $domicilio = false)
-    {
-        $parteCat = TipoParte::where('nombre', 'ilike', $parte)->first();
-        $persona =  $datos->where('tipo_parte_id', $parteCat->id)->first();
-
-        $resultado = [];
-        if($persona->tipoPersona->abreviatura == 'F'){
-            $resultado = [
-                'nombre' => $persona->nombre,
-                'primer_apellido' => $persona->primer_apellido,
-                'segundo_apellido' => $persona->segundo_apellido,
-                'rfc' => $persona->rfc,
-                'curp' => $persona->curp,
-                'caracter_persona' => $persona->tipoPersona->nombre,
-                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
-            ];
-        }
-        if($persona->tipoPersona->abreviatura == 'M'){
-            $resultado = [
-                'denominacion' => $persona->nombre,
-                'rfc' => $persona->rfc,
-                'caracter_persona' => $persona->tipoPersona->nombre,
-                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
-            ];
-        }
-        if(!$domicilio){
-            unset($resultado['domicilios']);
-        }
-        return $resultado;
-    }
 
     public function domiciliosTransformer($datos)
     {
@@ -137,4 +125,58 @@ class ConsultaConciliacionesPorNombre
         }
         return $domicilios;
     }
+
+    /**
+     * Valida la estructura de los parametros enviados
+     * @param $params
+     * @return mixed|null
+     * @throws ParametroNoValidoException
+     */
+    public function validaEstructuraParametros($params)
+    {
+        $paramsJSON = json_decode($params);
+        if($paramsJSON === NULL){
+            throw new ParametroNoValidoException("Los datos enviados no pueden interpretarse como una estructura JSON válida, favor de revisar.", 1000);
+            return null;
+        }
+        if(!isset($paramsJSON->caracter_persona) || !$paramsJSON->caracter_persona ){
+            throw new ParametroNoValidoException("El caracter de la persona es requerido.", 1020);
+            return null;
+        }
+        elseif(isset($paramsJSON->caracter_persona) && !in_array(mb_strtolower($paramsJSON->caracter_persona), ['física','fisica','moral', 'f', 'm'])){
+            throw new ParametroNoValidoException("El caracter de la persona no es una opción reconocida.", 1020);
+            return null;
+        }
+
+        //Valida para persona física
+        if(isset($paramsJSON->caracter_persona) && in_array(mb_strtolower($paramsJSON->caracter_persona), ['física','fisica','f'])){
+            $paramsJSON->caracter_persona = 'FISICA';
+            if(!isset($paramsJSON->nombre) || !trim($paramsJSON->nombre)){
+                throw new ParametroNoValidoException("El nombre de la parte es requerido.", 1020);
+                return null;
+            }
+            if(!isset($paramsJSON->primer_apellido) || !trim($paramsJSON->primer_apellido)){
+                throw new ParametroNoValidoException("El primer apellido de la parte es requerido.", 1021);
+                return null;
+            }
+            if(!isset($paramsJSON->segundo_apellido)){
+                throw new ParametroNoValidoException("El parámetro del segundo apellido es requerido aunque el dato sea vacío .", 1022);
+                return null;
+            }
+        }
+
+        //Valida para persona moral
+        if(isset($paramsJSON->caracter_persona) && in_array(mb_strtolower($paramsJSON->caracter_persona), ['moral','m'])){
+            $paramsJSON->caracter_persona = 'MORAL';
+            $paramsJSON->primer_apellido = '';
+            $paramsJSON->segundo_apellido = '';
+            $paramsJSON->nombre = $paramsJSON->denominacion;
+            if(!isset($paramsJSON->denominacion) || !trim($paramsJSON->nombre)){
+                throw new ParametroNoValidoException("La denominación o razón social de la persona moral es requerido.", 1020);
+                return null;
+            }
+        }
+        return $paramsJSON;
+    }
+
 }

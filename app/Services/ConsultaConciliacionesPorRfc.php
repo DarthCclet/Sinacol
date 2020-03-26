@@ -17,6 +17,7 @@ use Carbon\Carbon;
  */
 class ConsultaConciliacionesPorRfc
 {
+    //TODO: Regresar los datos como en la consulta por rango de fechas, sólo resumen.
     public function consulta($rfc, $limit=15, $page=1)
     {
         $partes = Parte::where('rfc','ilike',$rfc)->get();

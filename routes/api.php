@@ -66,4 +66,4 @@ Route::post('audiencias/no-conciliacion/parte-actora', 'ServiciosCJFController@l
 Route::post('audiencias/no-conciliacion/parte-demandada', 'ServiciosCJFController@listadoPorNombreParteDemandada')->middleware('client');
 Route::get('audiencias/no-conciliacion/curp/{curp}', 'ServiciosCJFController@listadoPorCurp')->middleware('client');
 Route::get('audiencias/no-conciliacion/rfc/{rfc}', 'ServiciosCJFController@listadoPorRfc')->middleware('client');
-Route::get('audiencias/no-conciliacion/constancia/{folio}', 'ServiciosCJFController@consultaExpediente')->middleware('client');
+Route::post('audiencias/no-conciliacion/constancia', 'ServiciosCJFController@consultaExpediente')->middleware('client');
