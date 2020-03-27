@@ -25,21 +25,32 @@ class ConsultaConciliacionesPorCurp
         $resultado = [];
         $cont = 0;
         foreach($partes as $parte){
+            // Validamos el tipo parte del CURP buscado
+            $parteCat = $parte->tipoParte;
+            // Buscamos la solicitud de este registro
             $exp=Solicitud::find($parte->solicitud_id);
             if($exp->expediente != null){
-                $validar = false;
                 foreach($exp->expediente->audiencia as $audiencia){
                     if($audiencia->resolucion_id == 3){
-                        $validar = true;
+                        $cont++;
+                        $audiencias = $exp->expediente->audiencia()->paginate();
+                        if(strtoupper($parteCat->nombre) == 'SOLICITANTE'){
+                            $parte_actora = $this->partesTransformer($parte, 'solicitante');
+                            $parte_demandada = $this->partesTransformer($exp->partes, 'solicitado');
+                        }else if(strtoupper($parteCat->nombre) == 'SOLICITADO'){
+                            $parte_actora = $this->partesTransformer($exp->partes, 'solicitante',true);
+                            $parte_demandada = $this->partesTransformer($parte, 'solicitado',false);
+                        }
+                        
+                        $resultado[] = [
+                            'numero_expediente_oij' => $exp->expediente->folio,
+                            'fecha_audiencia' => $audiencia->fecha_audiencia,
+                            'organo_impartidor_de_justicia' => $audiencia->expediente->solicitud->centro->id,
+                            'organo_impartidor_de_justicia_nombre' => $audiencia->expediente->solicitud->centro->nombre,
+                            'parte_actora' => $parte_actora,
+                            'parte_demandada' => $parte_demandada,
+                        ];
                     }
-                }
-                if($validar){
-                    $cont++;
-                    $audiencias = $exp->expediente->audiencia()->paginate();
-                    $arreglo = array_merge($exp->toArray(),$exp->expediente->toArray());
-                    unset($arreglo['expediente']);
-                    $arreglo["partes"] = $exp->partes;
-                    $resultado[]=$arreglo;
                 }
             }
         }
@@ -92,10 +103,14 @@ class ConsultaConciliacionesPorCurp
         }
     }
 
-    public function partesTransformer($datos, $parte, $domicilio = false)
+    public function partesTransformer($datos, $parte,$busqueda,$domicilio = false)
     {
-        $parteCat = TipoParte::where('nombre', 'ilike', $parte)->first();
-        $persona =  $datos->where('tipo_parte_id', $parteCat->id)->first();
+        if($busqueda){
+            $parteCat = TipoParte::where('nombre', 'ilike', $parte)->first();
+            $persona =  $datos->where('tipo_parte_id', $parteCat->id)->first();
+        }else{
+            $persona = $datos;
+        }
 
         $resultado = [];
         if($persona->tipoPersona->abreviatura == 'F'){
@@ -111,7 +126,7 @@ class ConsultaConciliacionesPorCurp
         }
         if($persona->tipoPersona->abreviatura == 'M'){
             $resultado = [
-                'denominacion' => $persona->nombre,
+                'denominacion' => $persona->nombre_comercial,
                 'rfc' => $persona->rfc,
                 'caracter_persona' => $persona->tipoPersona->nombre,
                 'domicilios' => $this->domiciliosTransformer($persona->domicilios)
@@ -121,6 +136,10 @@ class ConsultaConciliacionesPorCurp
             unset($resultado['domicilios']);
         }
         return $resultado;
+    }
+    
+    public function parteBuscadaTransformer(){
+        
     }
 
     public function domiciliosTransformer($datos)

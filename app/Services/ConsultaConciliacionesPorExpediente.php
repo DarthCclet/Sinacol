@@ -12,6 +12,7 @@ use App\Solicitud;
 use App\TipoParte;
 use App\Traits\Transformer;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Operaciones para la consulta de expedientes por rango de fechas
@@ -33,12 +34,12 @@ class ConsultaConciliacionesPorExpediente
             return ['data'=>[]];
         }
 
-        //TODO: Extraer todos los involucrados, si hay mas solicitados o solicitantes hay que ponerlos todos aqui:
-        //TODO: Integrar en la estructura los datos laborales de cada demandante o solicitante
-        //TODO: Integrar los datos telefónicos y de contacto de las personas en la estructura que se responde
-
-        $parte_actora = $this->partesTransformer($audiencia->expediente->solicitud->partes, 'solicitante', true);
-        $parte_demandada = $this->partesTransformer($audiencia->expediente->solicitud->partes, 'solicitado', true);
+        //TODO: Extraer todos los involucrados, si hay mas solicitados o solicitantes hay que ponerlos todos aqui: (Atendido)
+        //TODO: Integrar en la estructura los datos laborales de cada demandante o solicitante (Atendido)
+        //TODO: Integrar los datos telefónicos y de contacto de las personas en la estructura que se responde (Revizar)
+        $partes = $expediente->solicitud->partes;
+        $parte_demandada = $this->partesTransformer($partes, 'solicitado', true);
+        $parte_actora= $this->partesTransformer($partes, 'solicitante', true);
 
         $res[] = [
             'numero_expediente_oij' => $audiencia->expediente->folio,
@@ -49,23 +50,78 @@ class ConsultaConciliacionesPorExpediente
             'demandados' => [$parte_demandada],
         ];
 
-        //TODO: Mandar llamar el documento real relacionado con el registro.
-        //TODO: Firma de documentos
-        //TODO: Implementar el catálogo de clasificación de archivo.
-        return [
-            'data' => $res,
-            'documento' => [
-                'documento_id' => 1553,
-                'nombre' => "ConstanciaNoConciliacion2020000001201.pdf",
-                'extension' => "pdf",
-                'filebase64'=> "JVBERi0xLjUKJcOkw7zDtsOfCjIgMCBvYmoKPDwvTGVuZ3RoIDMgMCBSL0ZpbHRlci9GbGF0ZURlY29kZT....",
-                'longitud' => '30541',
-                'firmado' => 0,
-                'pkcs7base64' => "",
-                'fecha_firmado' => '',
-                'clasificacion_archivo' => 1
-            ]
-        ];
+        //TODO: Mandar llamar el documento real relacionado con el registro (Atendido).
+        //TODO: Firma de documentos (PEndiente)
+        //TODO: Implementar el catálogo de clasificación de archivo (Pendiente).
+        if(Storage::disk('local')->exists('Prueba.pdf')){
+            $contents = base64_encode(Storage::get('Prueba.pdf'));
+            $info = pathinfo('Prueba.pdf');
+            $size = Storage::size('Prueba.pdf');
+            return [
+                'data' => $res,
+                'documento' => [
+                    'documento_id' => 1553,
+                    'nombre' => $info["basename"],
+                    'extension' => $info["extension"],
+                    'filebase64'=> $contents,
+                    'longitud' => $size,
+                    'firmado' => 0,
+                    'pkcs7base64' => "",
+                    'fecha_firmado' => '',
+                    'clasificacion_archivo' => 1
+                ]
+            ];
+        }else{
+            return [
+                'data' => $res,
+                'documento' => []
+            ];
+        }
+        
+    }
+    
+    /**
+     * Transforma los datos de las partes
+     * @param $datos
+     * @param $parte
+     * @param bool $domicilio
+     * @return array
+     */
+    public function partesTransformer($datos, $parte, $domicilio = false)
+    {
+        $array = array();
+        $parteCat = TipoParte::where('nombre', 'ilike', $parte)->first();
+        $personas =  $datos->where('tipo_parte_id', $parteCat->id);
+        $resultado = [];
+        foreach($personas as $persona){
+            if($persona->tipoPersona->abreviatura == 'F'){
+                $resultado = [
+                    'nombre' => $persona->nombre,
+                    'primer_apellido' => $persona->primer_apellido,
+                    'segundo_apellido' => $persona->segundo_apellido,
+                    'rfc' => $persona->rfc,
+                    'curp' => $persona->curp,
+                    'caracter_persona' => $persona->tipoPersona->nombre,
+                    'domicilios' => $this->domiciliosTransformer($persona->domicilios),
+                    'dato_laboral' => $persona->dato_laboral
+                ];
+            }
+            if($persona->tipoPersona->abreviatura == 'M'){
+                $resultado = [
+                    'denominacion' => $persona->nombre_comercial,
+                    'rfc' => $persona->rfc,
+                    'caracter_persona' => $persona->tipoPersona->nombre,
+                    'domicilios' => $this->domiciliosTransformer($persona->domicilios),
+                    'dato_laboral' => $persona->dato_laboral
+                ];
+            }
+            if(!$domicilio){
+                unset($resultado['domicilios']);
+            }
+            
+        }
+
+        return $resultado;
     }
 
     /**
