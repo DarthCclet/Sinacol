@@ -49,7 +49,7 @@
 		<p class="help-block needed">Escriba la dirección y seleccione la opción correcta o más cercana.</p>
 	</div>
 	<div class="col-md-4">    
-		{!! Form::select('domicilio[estado_id]', isset($estados) ? $estados : [] , isset($domicilio->estado_id) ? $domicilio->estado_id : 0, ['id'=>'estado_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect{{$identificador}} direccionUpd{{$identificador}}']);  !!}
+		{!! Form::select('domicilio[estado_id]', isset($estados) ? $estados : [] , isset($domicilio->estado_id) ? $domicilio->estado_id : 0, ['id'=>'estado_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
 		{!! $errors->first('domicilio[estado_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block needed">Estado </p>
 	</div>
@@ -66,12 +66,12 @@
 		<p class="help-block needed">Codigo postal</p>
 	</div>
 	<div class="col-md-4">    
-		{!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect{{$identificador}}']);  !!}
+		{!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect'.$identificador]);  !!}
 		{!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Tipo de asentamiento</p>
 	</div>
 	<div class="col-md-4"   >    
-		{!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , isset($domicilio->tipo_vialidad_id) ? $domicilio->tipo_vialidad_id : 0, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect{{$identificador}} direccionUpd'.$identificador]);  !!}
+		{!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , isset($domicilio->tipo_vialidad_id) ? $domicilio->tipo_vialidad_id : 0, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
 		{!! $errors->first('domicilio[tipo_vialidad_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Tipo de vialidad</p>
     </div>
@@ -136,7 +136,7 @@
           street_number: 'short_name',
           route: 'long_name',
           locality: 'long_name',
-          administrative_area_level_1: 'short_name',
+          administrative_area_level_1: 'long_name',
           sublocality_level_1: 'short_name',
           country: 'long_name',
           postal_code: 'short_name'
@@ -153,6 +153,7 @@
 
         domicilio.map;
         domicilio.marker;
+        domicilio.autocomplete;
 
         domicilio.initMap = function() {
             var lat = $('#latitud'+identifier).val() ? $('#latitud'+identifier).val() : "19.398606";
@@ -182,10 +183,10 @@
                 this.geocodeAddress();
             }
 
-            autocomplete = new google.maps.places.Autocomplete(
+            domicilio.autocomplete = new google.maps.places.Autocomplete(
             document.getElementById('autocomplete'+identifier), {types: ['geocode']});
-            autocomplete.setFields(['address_component']);
-            autocomplete.addListener('place_changed', this.fillInAddress);
+            domicilio.autocomplete.setFields(['address_component']);
+            domicilio.autocomplete.addListener('place_changed', this.fillInAddress);
         };
         domicilio.tomarGeoreferencia = function () {
             var pos = this.map.panorama.getPosition() ;
@@ -218,7 +219,6 @@
             this.marker.addListener('dragend', this.seteaNuevaPosicionManual);
         };
         domicilio.seteaNuevaPosicionManual = function(ev){
-            console.log("Punto donde se suelta el cursor: Latitud: %s Longitud: %s", ev.latLng.lat(), ev.latLng.lng());
             $('#latitud'+identifier).val(ev.latLng.lat());
             $('#longitud'+identifier).val(ev.latLng.lng());
             $('#btn-confirmar-direccion'+identifier).removeClass('disabled');
@@ -289,12 +289,11 @@
             var lat = "19.398606";
             var lon ="-99.158581";
             // this.seteaMarker(this.map, {lat: parseFloat(lat), lng: parseFloat(lon)});
-            $(".direccionUpdsolicitante").trigger('blur')
+            $(".direccionUpd"+identifier).trigger('blur')
         }
 
         domicilio.fillInAddress = function() {
-            var place = autocomplete.getPlace();
-			console.log(place);
+            var place = domicilio.autocomplete.getPlace();
             for (var component in domicilio.componentForm) {
                 document.getElementById(domicilio.campos[component]).value = '';
                 document.getElementById(domicilio.campos[component]).disabled = false;
@@ -303,11 +302,21 @@
                 var addressType = place.address_components[i].types[0];
                 if (domicilio.componentForm[addressType]) {
                     var val = place.address_components[i][domicilio.componentForm[addressType]];
-                    console.log(domicilio.campos[addressType]);
-                    console.log(val);
-                    document.getElementById(domicilio.campos[addressType]).value = val;
+                    if($("#"+domicilio.campos[addressType])[0].type != 'select-one'){
+                        $("#"+domicilio.campos[addressType]).val(val);
+                    }else{
+                        if(val == 'Estado de México'){
+                            val = 'México';
+                        }
+                        $("#"+domicilio.campos[addressType]+" option:contains("+ val +")").prop("selected",true);
+                        
+                    }
+                    
                 }
             }
+            $("#tipo_asentamiento_id"+identifier).val(7);
+            $("#tipo_vialidad_id"+identifier).val(5);
+            $(".direccionUpd"+identifier).trigger('blur')
         }
 		$("#validaDir"+identifier).click(function(){
 			domicilio.tomarGeoreferencia();
@@ -325,7 +334,6 @@
 			if($("#tipo_vialidad_id"+identifier).val() != "" && $("#vialidad"+identifier).val() != "" && $("#num_ext"+identifier).val() != "" && $("#asentamiento"+identifier).val() && $("#municipio"+identifier).val() != "" && $("#estado_id"+identifier).val() != "" ){
 				var direccion = $("#tipo_vialidad_id"+identifier+" :selected").text() + "," + $("#vialidad"+identifier).val() + "," + $("#num_ext"+identifier).val() + "," + $("#asentamiento"+identifier).val() + "," + $("#municipio"+identifier).val() + "." + $("#estado_id"+identifier+" :selected").text();
 				$("#direccion_marker"+identifier).val(direccion);
-				console.log(direccion);
 				domicilio.geocodeAddress();
 			}
 		});
