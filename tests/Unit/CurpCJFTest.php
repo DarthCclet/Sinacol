@@ -40,9 +40,10 @@ class CurpCJFTest extends TestCase
                 $solicitante->curp
             );
 
-            dd($res);
+//            dd($res);
         }else{
         }
+        $this->assertInstanceOf('App\Parte', $solicitante);
          
 //       $contentType = $response->getHeaders()["Content-Type"][0];
 //       $this->assertEquals("application/json; charset=utf-8", $contentType);

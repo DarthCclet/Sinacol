@@ -15,7 +15,7 @@ use App\TipoPersona;
 // use GuzzleHttp\Psr7\Request;
 // use GuzzleHttp\Exception\RequestException;
 
-class CurpCJFTest extends TestCase
+class RfcCJFTest extends TestCase
 {
     /**
      * A basic unit test example.
@@ -38,13 +38,13 @@ class CurpCJFTest extends TestCase
 //            dd($solicitante);
 
             $res = $consultas->consulta(
-                $solicitante->curp
+                $solicitante->rfc
             );
 
-            dd($res);
+//            dd($res);
         }else{
         }
-         
+         $this->assertInstanceOf('App\Parte', $solicitante);
 //       $contentType = $response->getHeaders()["Content-Type"][0];
 //       $this->assertEquals("application/json; charset=utf-8", $contentType);
 
