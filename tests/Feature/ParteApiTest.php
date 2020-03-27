@@ -62,7 +62,7 @@ class ParteApiTest extends TestCase
     private $jsonRelaciones = [
         'solicitud' => [
             'id',
-            'estatus_solicitud_id','objeto_solicitud_id','centro_id','user_id','ratificada','fecha_ratificacion','fecha_recepcion','fecha_conflicto',
+            'estatus_solicitud_id','centro_id','user_id','ratificada','fecha_ratificacion','fecha_recepcion','fecha_conflicto',
             'observaciones','deleted_at','created_at','updated_at',
         ],
         'tipo_parte' => [
