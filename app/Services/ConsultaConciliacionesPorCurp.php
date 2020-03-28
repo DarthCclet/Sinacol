@@ -23,7 +23,6 @@ class ConsultaConciliacionesPorCurp
         $partes = Parte::where('curp','ilike',$curp)->get();
         // obtenemos la solicitud y el expediente
         $resultado = [];
-        $cont = 0;
         foreach($partes as $parte){
             // Validamos el tipo parte del CURP buscado
             $parteCat = $parte->tipoParte;
@@ -32,11 +31,10 @@ class ConsultaConciliacionesPorCurp
             if($exp->expediente != null){
                 foreach($exp->expediente->audiencia as $audiencia){
                     if($audiencia->resolucion_id == 3){
-                        $cont++;
                         $audiencias = $exp->expediente->audiencia()->paginate();
                         if(strtoupper($parteCat->nombre) == 'SOLICITANTE'){
-                            $parte_actora = $this->partesTransformer($parte, 'solicitante');
-                            $parte_demandada = $this->partesTransformer($exp->partes, 'solicitado');
+                            $parte_actora = $this->partesTransformer($parte, 'solicitante',false);
+                            $parte_demandada = $this->partesTransformer($exp->partes, 'solicitado',true);
                         }else if(strtoupper($parteCat->nombre) == 'SOLICITADO'){
                             $parte_actora = $this->partesTransformer($exp->partes, 'solicitante',true);
                             $parte_demandada = $this->partesTransformer($parte, 'solicitado',false);
@@ -54,7 +52,7 @@ class ConsultaConciliacionesPorCurp
                 }
             }
         }
-        if($cont == 0){
+        if(!count($resultado)){
             return [
                 'data' => [],
                 'total' => 0,
