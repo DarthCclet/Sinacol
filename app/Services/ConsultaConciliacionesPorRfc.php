@@ -23,7 +23,6 @@ class ConsultaConciliacionesPorRfc
         $partes = Parte::where('rfc','ilike',$rfc)->get();
         // obtenemos la solicitud y el expediente
         $resultado = [];
-        $cont = 0;
         foreach($partes as $parte){
             // Validamos el tipo parte del CURP buscado
             $parteCat = $parte->tipoParte;
@@ -32,7 +31,6 @@ class ConsultaConciliacionesPorRfc
             if($exp->expediente != null){
                 foreach($exp->expediente->audiencia as $audiencia){
                     if($audiencia->resolucion_id == 3){
-                        $cont++;
                         $audiencias = $exp->expediente->audiencia()->paginate();
                         if(strtoupper($parteCat->nombre) == 'SOLICITANTE'){
                             $parte_actora = $this->partesTransformer($parte, 'solicitante',false);
@@ -54,7 +52,7 @@ class ConsultaConciliacionesPorRfc
                 }
             }
         }
-        if($cont == 0){
+        if(!count($resultado)){
             return [
                 'data' => [],
                 'total' => 0,

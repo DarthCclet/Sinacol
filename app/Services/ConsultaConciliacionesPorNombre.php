@@ -29,24 +29,36 @@ class ConsultaConciliacionesPorNombre
                 ->where('segundo_apellido', 'ilike', $segundo_apellido)->get();
         }
         if($tipo_persona == 2){
-            $partes = Parte::where('nombre_comercial', 'ilike', mb_strtoupper($nombre_denominacion))->get();
+            $partes = Parte::where('nombre_comercial', 'ilike', mb_strtoupper($nombre_denominacion))->where('tipo_parte_id', $tipo_parte)->get();
         }
         $resultado = [];
         foreach($partes as $parte){
+            // Validamos el tipo parte del CURP buscado
+            $parteCat = $parte->tipoParte;
+            // Buscamos la solicitud de este registro
             $exp=Solicitud::find($parte->solicitud_id);
             if($exp->expediente != null){
-                $validar = false;
                 foreach($exp->expediente->audiencia as $audiencia){
                     if($audiencia->resolucion_id == 3){
-                        $validar = true;
+                        
+                        $audiencias = $exp->expediente->audiencia()->paginate();
+                        if(strtoupper($parteCat->nombre) == 'SOLICITANTE'){
+                            $parte_actora = $this->partesTransformer($parte, 'solicitante',false);
+                            $parte_demandada = $this->partesTransformer($exp->partes, 'solicitado',true);
+                        }else if(strtoupper($parteCat->nombre) == 'SOLICITADO'){
+                            $parte_actora = $this->partesTransformer($exp->partes, 'solicitante',true);
+                            $parte_demandada = $this->partesTransformer($parte, 'solicitado',false);
+                        }
+                                  
+                        $resultado[] = [
+                            'numero_expediente_oij' => $exp->expediente->folio,
+                            'fecha_audiencia' => $audiencia->fecha_audiencia,
+                            'organo_impartidor_de_justicia' => $audiencia->expediente->solicitud->centro->id,
+                            'organo_impartidor_de_justicia_nombre' => $audiencia->expediente->solicitud->centro->nombre,
+                            'parte_actora' => $parte_actora,
+                            'parte_demandada' => $parte_demandada,
+                        ];
                     }
-                }
-                if($validar){
-                    $audiencias = $exp->expediente->audiencia()->paginate();
-                    $arreglo = array_merge($exp->toArray(),$exp->expediente->toArray());
-                    unset($arreglo['expediente']);
-                    $arreglo["partes"] = $exp->partes;
-                    $resultado[]=$arreglo;
                 }
             }
         }
@@ -64,7 +76,6 @@ class ConsultaConciliacionesPorNombre
                 'url' => "",
             ];
         }else{
-
             return [
                 'data' => $resultado,
                 'total' => $audiencias->total(),
@@ -101,6 +112,40 @@ class ConsultaConciliacionesPorNombre
         }
     }
 
+    public function partesTransformer($datos, $parte,$busqueda,$domicilio = false)
+    {
+        if($busqueda){
+            $parteCat = TipoParte::where('nombre', 'ilike', $parte)->first();
+            $persona =  $datos->where('tipo_parte_id', $parteCat->id)->first();
+        }else{
+            $persona = $datos;
+        }
+
+        $resultado = [];
+        if($persona->tipoPersona->abreviatura == 'F'){
+            $resultado = [
+                'nombre' => $persona->nombre,
+                'primer_apellido' => $persona->primer_apellido,
+                'segundo_apellido' => $persona->segundo_apellido,
+                'rfc' => $persona->rfc,
+                'curp' => $persona->curp,
+                'caracter_persona' => $persona->tipoPersona->nombre,
+                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
+            ];
+        }
+        if($persona->tipoPersona->abreviatura == 'M'){
+            $resultado = [
+                'denominacion' => $persona->nombre_comercial,
+                'rfc' => $persona->rfc,
+                'caracter_persona' => $persona->tipoPersona->nombre,
+                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
+            ];
+        }
+        if(!$domicilio){
+            unset($resultado['domicilios']);
+        }
+        return $resultado;
+    }
 
     public function domiciliosTransformer($datos)
     {
