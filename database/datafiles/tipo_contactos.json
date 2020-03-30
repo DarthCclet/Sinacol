@@ -1,0 +1,12 @@
+{
+    "datos": [
+        {
+            "nombre": "TELEFONO"
+        },
+        {
+            "nombre": "EMAIL"
+        }
+
+    ],
+    "numReg": 3
+}

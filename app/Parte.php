@@ -116,6 +116,13 @@ class Parte extends Model
       return $this->morphMany(Domicilio::class,'domiciliable');
     }
     /**
+     * Relacion con la tabla domicilio
+     * @return type
+     */
+    public function contactos(){
+      return $this->morphMany(Contacto::class,'contactable');
+    }
+    /**
      * Funcion para asociar con modelo Estado
      * Utilizando belongsTo para relaciones 1 a 1
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
