@@ -45,10 +45,8 @@ class StringTemplate
      */
     public static function sustituyePlaceholders($string){
         $string = preg_replace('/\[ESPACIO_FIRMA\]/','&nbsp;&nbsp;&nbsp;&nbsp;', $string);
-        $blade = preg_replace('/<strong class="mceNonEditable" data-nombre="(\w+)">\[([\\p{L} &;]+)\]<\/strong>/i',
+        $blade = preg_replace('/<strong class="mceNonEditable" data-nombre="(\w+)">\[([\\p{L}_ &;]+)\]<\/strong>/i',
             '<strong>{!! \$$1 !!}</strong>', $string);
-
-
         return $blade;
     }
 
@@ -63,6 +61,7 @@ class StringTemplate
      */
     public static function renderPlantillaPlaceholders($string, $vars)
     {
+
         $blade = self::sustituyePlaceholders($string);
         return self::render($blade, $vars);
     }
