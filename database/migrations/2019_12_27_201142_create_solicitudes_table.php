@@ -22,9 +22,9 @@ class CreateSolicitudesTable extends Migration
             $table->unsignedBigInteger('user_id')->comment('FK de la tabla users');
             $table->boolean('ratificada')->comment('Indica si la solicitud fue ratificada');
             $table->boolean('solicita_excepcion')->comment('Indica si la solicitud fue ratificada');
-            $table->dateTime('fecha_ratificacion')->comment('Indica la fecha de ratificacion');
+            $table->dateTime('fecha_ratificacion')->nullable()->comment('Indica la fecha de ratificacion');
             $table->dateTime('fecha_recepcion')->comment('Indica la fecha en que se recibio la solicitud');
-            $table->string('observaciones')->comment('Aqui se agregan las observaciones de la solicitud');
+            $table->string('observaciones')->nullable()->comment('Aqui se agregan las observaciones de la solicitud');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
 
