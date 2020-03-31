@@ -7,6 +7,7 @@ use App\Services\ConsultaConciliacionesPorNombre;
 use App\Services\ConsultaConciliacionesPorRangoFechas;
 use App\Services\ConsultaConciliacionesPorCurp;
 use App\Services\ConsultaConciliacionesPorRfc;
+use App\Services\RegistroSolicitudExterna;
 use App\Http\Controllers\ContadorController;
 use App\TipoParte;
 use App\TipoPersona;
@@ -253,5 +254,33 @@ class ServiciosCJFController extends Controller
             return response()->json(array_merge([], $acuse), 400);
         }
 
+    }
+    
+    public function solicitudExterna(RegistroSolicitudExterna $solicitud){
+        $ContadorController = new ContadorController();
+        $folio = $ContadorController->getContador(4,null);
+        try {
+            $parametros = $this->request->getContent();
+            $solicitudRequest = $solicitud->validaEstructuraParametros($parametros);
+            $solicitud = $solicitud->registro($solicitudRequest);
+            $acuse = [
+                'codigo_retorno' => 1,
+                'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
+                'folio_confirmacion' => sprintf("%06d", $folio->contador),
+                'mensaje' => 'EXITO'
+            ];
+            return response()->json(array_merge($solicitud, $acuse), 200);
+//            return $this->sendResponse($resultado,'Resultados de busqueda del CURP: '.$curp);
+
+        }catch (\Exception $e){
+            Log::error("[Error registroSolicitud]:");
+            $acuse = [
+                'codigo_retorno' => 0,
+                'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
+                'folio_confirmacion' => sprintf("%06d", $folio->contador),
+                'mensaje' => 'ERROR: '.$e->getMessage()
+            ];
+            return response()->json(array_merge([], $acuse), 400);
+        }
     }
 }
