@@ -6,6 +6,7 @@ use App\Estado;
 use App\Genero;
 use App\GiroComercial;
 use App\GrupoPrioritario;
+use App\LenguaIndigena;
 use App\Nacionalidad;
 use App\Parte;
 use App\TipoParte;
@@ -28,7 +29,8 @@ $factory->define(Parte::class, function (Faker $faker) {
     $entidad_nacimiento = Estado::inRandomOrder()->first();
     $fecha_nacimiento = $faker->dateTimeBetween('-70 years', '-15 years');
     $edad = $fecha_nacimiento->diff(now(), true)->y;
-    
+    $solicita_traductor = $faker->boolean();
+    $lengua_indigena = LenguaIndigena::inRandomOrder()->first();
     // se crea el registro de parte usando los datos obtenidos anteriormente
     return [
         'solicitud_id' => $solicitud->id,
@@ -42,6 +44,8 @@ $factory->define(Parte::class, function (Faker $faker) {
         'segundo_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
         'nombre_comercial' => ($tipo_persona->abreviatura == 'M') ? $faker->company : null,
         'fecha_nacimiento' => $fecha_nacimiento->format("Y-m-d"),
+        'solicita_traductor' =>  $solicita_traductor,
+        'lengua_indigena_id' =>  ($solicita_traductor) ? $lengua_indigena->id : null,
 //        'giro_comercial_id' => ($tipo_persona->abreviatura == 'M') ? $giro_comercia->id : null,
         'giro_comercial_id' =>  $giro_comercia->id,
         'grupo_prioritario_id' => ($tipo_persona->abreviatura == 'F') ? $grupo_prioritario->id : null,

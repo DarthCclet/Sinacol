@@ -66,7 +66,7 @@ class UserApiTest extends TestCase
     private $jsonSolicitudes = [
         'solicitudes' => [
             [
-                'id', 'estatus_solicitud_id','solicita_excepcion', 'objeto_solicitud_id',
+                'id', 'estatus_solicitud_id','solicita_excepcion',
                 'centro_id', 'user_id', 'ratificada', 'fecha_ratificacion', 'fecha_recepcion',
                 'observaciones', 'deleted_at', 'created_at', 'fecha_conflicto'
             ]

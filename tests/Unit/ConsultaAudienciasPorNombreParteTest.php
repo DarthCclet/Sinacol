@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Services\ConsultaConciliacionesPorNombre;
 use App\TipoParte;
 use App\TipoPersona;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class ConsultaAudienciasPorNombreParteTest extends TestCase
 {

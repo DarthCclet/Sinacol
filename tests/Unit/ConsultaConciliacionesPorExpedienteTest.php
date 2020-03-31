@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Expediente;
 use App\Resolucion;
 use App\Services\ConsultaConciliacionesPorExpediente;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class ConsultaConciliacionesPorExpedienteTest extends TestCase
 {
