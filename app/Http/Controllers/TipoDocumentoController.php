@@ -53,7 +53,7 @@ class TipoDocumentoController extends Controller
         foreach ($json->datos as $key => $value){
             $objetoDocumento [] =
                 [
-                    'objeto' => $value->objeto,
+                    'objeto' => $value->id,
                     'nombre' => $value->nombre,
                     'checked'=> ""
                 ];
@@ -103,10 +103,11 @@ class TipoDocumentoController extends Controller
         $json = json_decode(file_get_contents($path . "/elemento_documentos.json"));
         //Se llena el catalogo desde el arvhivo json elemento_documentos.json
         foreach ($json->datos as $key => $value){
-            $check = ( strpos($obj,$value->objeto) !== false )? "checked": "" ;
+          // dd($value);
+            $check = ( strpos($obj,$value->id) !== false )? "checked": "" ;
             $objetoDocumento [] =
                 [
-                    'objeto' => $value->objeto,
+                    'objeto' => $value->id,
                     'nombre' => $value->nombre,
                     'checked'=> $check
                 ];
@@ -132,6 +133,7 @@ class TipoDocumentoController extends Controller
         );
 
         $objetos = implode(",", array_unique($request->input('objetoD')) );
+        // dd($objetos);
         $datosTipoD['nombre'] = $request->input('nombre');
         $datosTipoD['objetos'] = $objetos;
 

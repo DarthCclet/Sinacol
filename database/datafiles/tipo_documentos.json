@@ -3,17 +3,17 @@
         {
             "id": "1",
             "nombre": "ACUERDO",
-            "objetos":"Parte"
+            "objetos":"1"
         },
         {
             "id": "2",
             "nombre": "CONVENIO",
-            "objetos":"Parte,Solicitud"
+            "objetos":"1,2,3"
         },
         {
             "id": "3",
             "nombre": "CITATORIO",
-            "objetos":"Parte"
+            "objetos":"1"
         }
 
     ],
