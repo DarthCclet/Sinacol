@@ -71,6 +71,10 @@ class RegistroSolicitudExterna
                 $domicilio->estado = "as";
                 $domicilioSaved = $parteSaved->domicilios()->create((array)$domicilio);
             }
+            // Guardamos los datos de contacto
+            foreach($parte->contacto as $contacto){
+                $parteSaved->contactos()->create((array)$contacto);
+            }
             // validamos si es solicitante para guardar sus datos laborales
             if($parte->tipo_parte_id == 1 && isset($parte->datos_laborales) && $parte->datos_laborales != null){
                 $datosLaborales = $parte->datos_laborales;
@@ -202,6 +206,7 @@ class RegistroSolicitudExterna
             $parte->tipo_parte_id = 2;
             
         }
+        $contacto = $this->validarContacto($parte->contacto);
         return $parte;
     }
     private function validarDomicilio($domicilios){
@@ -302,6 +307,24 @@ class RegistroSolicitudExterna
                 return null;
             }
             return $datos_laborales;
+        }
+    }
+    private function validarContacto($contacto){
+        if(!isset($contacto) || !count($contacto) ){
+            throw new ParametroNoValidoException("Todas las partes deben incluir domicilio.", 1020);
+            return null;
+        }else{
+            foreach($contacto as $cont){
+                if(!isset($cont->tipo_contacto_id) || !trim($cont->tipo_contacto_id) ){
+                    throw new ParametroNoValidoException("Indica el tipo de contacto.", 1020);
+                    return null;
+                }
+                if(!isset($cont->contacto) || !trim($cont->contacto) ){
+                    throw new ParametroNoValidoException("Los datos del contacto son obligatorios.", 1020);
+                    return null;
+                }
+            }
+            return $contacto;
         }
     }
 }

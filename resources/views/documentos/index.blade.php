@@ -22,7 +22,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de plantillas</h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('plantilla-documentos.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo</a>
+                <a class="btn btn-info" id="btnNuevo"><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
 
 
@@ -71,6 +71,41 @@
             }).then(function(isConfirm){
                 if(isConfirm){
                     $(that).closest('form').submit();
+                }
+            });
+            return false;
+        });
+
+        $('#btnNuevo').on('click', function (e) {
+            let that = this;
+            e.preventDefault();
+            swal({
+                title: '¿Desea cargar plantilla por default?',
+                text: 'Al oprimir el botón de aceptar se cargara la plantilla base',
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Cancelar',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-default',
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: 'Aceptar',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-warning',
+                        closeModal: true
+                    }
+                }
+            }).then(function(isConfirm){
+                if(isConfirm){
+                  window.location.href = "{{ url('plantilla-documento/cargarDefault') }}"
+                }else{
+
+                  // window.location.href = "{{URL::to('plantilla-documentos.create')}}"
+                  window.location.href = "{{ route('plantilla-documentos.create') }}"
                 }
             });
             return false;

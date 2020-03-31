@@ -103,6 +103,7 @@ class ConsultaConciliacionesPorExpediente
                     'curp' => $persona->curp,
                     'caracter_persona' => $persona->tipoPersona->nombre,
                     'domicilios' => $this->domiciliosTransformer($persona->domicilios),
+                    'contactos' => $this->contactoTransformer($persona->contactos),
                     'dato_laboral' => $persona->dato_laboral
                 ];
             }
@@ -112,6 +113,7 @@ class ConsultaConciliacionesPorExpediente
                     'rfc' => $persona->rfc,
                     'caracter_persona' => $persona->tipoPersona->nombre,
                     'domicilios' => $this->domiciliosTransformer($persona->domicilios),
+                    'contactos' => $this->contactoTransformer($persona->contactos),
                     'dato_laboral' => $persona->dato_laboral
                 ];
             }
@@ -143,6 +145,16 @@ class ConsultaConciliacionesPorExpediente
         }
         //TODO: Validar la estructura del expediente que sea conformante y emitir excepción de lo contrario
         return $paramsJSON;
+    }
+    public function contactoTransformer($datos){
+        $contacto = [];
+        foreach($datos as $contact){
+            $contacto[] = [
+                'tipo_contacto' => $contact->tipo_contacto->nombre,
+                'contacto' => $contact->contacto
+            ];
+        }
+        return $contacto;
     }
 
 }

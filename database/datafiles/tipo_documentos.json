@@ -1,0 +1,21 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "ACUERDO",
+            "objetos":"1"
+        },
+        {
+            "id": "2",
+            "nombre": "CONVENIO",
+            "objetos":"1,2,3"
+        },
+        {
+            "id": "3",
+            "nombre": "CITATORIO",
+            "objetos":"1"
+        }
+
+    ],
+    "numReg": 4
+}
