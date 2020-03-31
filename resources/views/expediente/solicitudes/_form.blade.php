@@ -161,6 +161,39 @@
                                 <p class="help-block needed">Lengua Indigena</p>
                             </div>
                         </div>
+                        {{-- Seccion de contactos solicitados --}}
+                        <div class="col-md-12 row">
+                            <div class="col-md-12" align="center">
+                                <h4>Contacto</h4>
+                            </div>
+                            <input type="hidden" id="contacto_id_solicitante">
+                            <div class="col-md-4">
+                                {!! Form::select('tipo_contacto_id_solicitante', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                {!! $errors->first('tipo_contacto_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Estado de nacimiento</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control" id="contacto_solicitante" placeholder="Contacto"  type="text" value="">
+                                <p class="help-block needed">Contacto</p>
+                            </div>
+                            <div class="col-md-4">
+                            <button class="btn btn-info" type="button" onclick="agregarContactoSolicitante();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                            </div>
+                            <div class="col-md-10 offset-md-1" >
+                                <table class="table table-bordered" >
+                                    <thead>
+                                        <tr>
+                                            <th style="width:80%;">Tipo</th>
+                                            <th style="width:80%;">Contacto</th>
+                                            <th style="width:20%; text-align: center;">Accion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyContactoSolicitante">
+                                    </tbody>
+                                </table>  
+                            </div>
+                        </div>
+                        {{-- end seccion de contactos solicitados --}}
                         <!-- seccion de domicilios solicitante -->
                         @include('includes.component.map',['identificador' => 'solicitante', 'instancia' => '1'])
 
@@ -176,8 +209,9 @@
                                 <p class="help-block needed">Nombre del Jefe directo</p>
                             </div>
                             <div class="col-md-12 row">
-                                <div class="col-md-4"   >    
-                                    {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                
+                                <div class="col-md-4">
+                                    {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Ocupaci&oacute;n</p>
                                 </div>
@@ -360,6 +394,39 @@
                                 <p class="help-block needed">Lengua Indigena</p>
                             </div>
                         </div>
+                        {{-- Seccion de contactos solicitados --}}
+                        <div class="col-md-12 row">
+                            <div class="col-md-12" align="center">
+                                <h4>Contacto</h4>
+                            </div>
+                            <input type="hidden" id="contacto_id_solicitado">
+                            <div class="col-md-4">
+                                {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Estado de nacimiento</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
+                                <p class="help-block needed">Contacto</p>
+                            </div>
+                            <div class="col-md-4">
+                            <button class="btn btn-info" type="button" onclick="agregarContactoSolicitado();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                            </div>
+                            <div class="col-md-10 offset-md-1" >
+                                <table class="table table-bordered" >
+                                    <thead>
+                                        <tr>
+                                            <th style="width:80%;">Tipo</th>
+                                            <th style="width:80%;">Contacto</th>
+                                            <th style="width:20%; text-align: center;">Accion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyContactoSolicitado">
+                                    </tbody>
+                                </table>  
+                            </div>
+                        </div>
+                        {{-- end seccion de contactos solicitados --}}
                         <!-- seccion de domicilios solicitado -->
                         <div class="col-md-12 row">
                             <div class="row">
@@ -495,6 +562,8 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
+                <input type="hidden" id="domicilio_edit">
+                
                 @include('includes.component.map',['identificador' => 'solicitado', 'instancia' => 2])
                 {{-- @push('scripts')
                 <script>
@@ -581,6 +650,8 @@
     var arrayDomiciliosSolicitante = new Array(); // Array de domicilios para el solicitante
     var arrayDomiciliosSolicitado = new Array(); // Array de domicilios para el solicitado
     var arrayObjetoSolicitudes = new Array(); // Array de objeto_solicitude para el solicitado
+    var arrayContactoSolicitantes = new Array(); // Array de objeto_solicitude para el solicitado
+    var arrayContactoSolicitados = new Array(); // Array de objeto_solicitude para el solicitado
 
     $(document).ready(function() {
         if(edit){
@@ -588,6 +659,7 @@
         }
         $('#wizard').smartWizard({
             selected: 0,
+            keyNavigation: false,
             theme: 'default',
             transitionEffect: 'fade',
             showStepURLhash: false,
@@ -659,7 +731,12 @@
                 
                 
                 solicitante.domicilios = [domicilio];
+                
                 //domicilio
+
+                //contactos del solicitante
+                    solicitante.contactos = arrayContactoSolicitantes;
+                //contactos
                 if(key == ""){
                     arraySolicitantes.push(solicitante);
                 }else{
@@ -702,7 +779,9 @@
                 solicitado.rfc = $("#idSolicitadoRfc").val();
                 solicitado.activo = 1;
                 solicitado.domicilios = arrayDomiciliosSolicitado;
-                
+                //contactos del solicitado
+                solicitado.contactos = arrayContactoSolicitados;
+                //contactos
                 if(key == ""){
                     arraySolicitados.push(solicitado);
                 }else{
@@ -840,7 +919,8 @@
             if($("#solicita_traductor_solicitante").is(":checked")){
                 $("#solicita_traductor_solicitante").trigger('click');
             }
-            
+            arrayContactoSolicitantes = new Array();
+            formarTablaContacto(true);
             $('#step-1').parsley().reset();
             $('.catSelect').trigger('change');
             domicilioObj.limpiarDomicilios();
@@ -871,9 +951,108 @@
             if($("#solicita_traductor_solicitado").is(":checked")){
                 $("#solicita_traductor_solicitado").trigger('click');
             }
+            arrayContactoSolicitados = new Array();;
+            formarTablaContacto();
             $('.catSelect').trigger('change');  
             domicilioObj2.limpiarDomicilios();
         }
+    
+    function agregarContactoSolicitante(){  
+        var contacto = {};
+        idContacto = $("#contacto_id_solicitante").val();
+        contacto.id = idContacto;
+        contacto.activo = 1;
+        contacto.contacto = $("#contacto_solicitante").val();
+        contacto.tipo_contacto_id = $("#tipo_contacto_id_solicitante").val();
+        if(idContacto == ""){
+            arrayContactoSolicitantes.push(contacto);
+        }else{
+            
+            arrayContactoSolicitantes[idContacto] = contacto;
+        }
+        
+        formarTablaContacto(true);
+        limpiarContactoSolicitante();
+    }
+    function limpiarContactoSolicitante(){
+        $("#tipo_contacto_id_solicitante").val("");
+        $("#tipo_contacto_id_solicitante").trigger('change');
+        $("#contacto_solicitante").val("");
+    }
+
+    function agregarContactoSolicitado(){
+        var contacto = {};
+        idContacto = $("#contacto_id_solicitado").val();
+        contacto.id = idContacto;
+        contacto.activo = 1;
+        contacto.contacto = $("#contacto_solicitado").val();
+        contacto.tipo_contacto_id = $("#tipo_contacto_id_solicitado").val();
+        if(idContacto == ""){
+            arrayContactoSolicitados.push(contacto);
+        }else{
+            
+            arrayContactoSolicitados[idContacto] = contacto;
+        }
+        
+        formarTablaContacto();
+    }
+
+    function limpiarContactoSolicitado(){
+        $("#tipo_contacto_id_solicitado").val("");
+        $("#tipo_contacto_id_solicitado").trigger('change');
+        $("#contacto_solicitado").val("");
+    }
+
+    /**
+    * Funcion para generar tabla a partir de array de solicitantes
+    */
+    function formarTablaContacto(solicitante=false){
+        var arrayS = [];
+        if(solicitante){
+            arrayS = arrayContactoSolicitantes;
+            $("#tbodyContactoSolicitante").html("");
+        }else{
+            arrayS = arrayContactoSolicitados;
+            $("#tbodyContactoSolicitado").html("");
+        }
+        var html = "";
+        
+        $.each(arrayS, function (key, value) {
+            console.log(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined"));
+            if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined")){
+                html += "<tr>";
+                $("#tipo_contacto_id_solicitante").val(value.tipo_contacto_id);
+                html += "<td> " + $("#tipo_contacto_id_solicitante :selected").text(); + " </td>";
+                html += "<td> " + value.contacto + " </td>";
+                html += "<td style='text-align: center;'><a class='btn btn-xs btn-warning' onclick='eliminarContactoSol("+key+","+solicitante+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
+                html += "</tr>";
+            }
+        });
+        $("#tipo_contacto_id_solicitante").val("");
+        if(solicitante){
+            $("#tbodyContactoSolicitante").html(html);
+        }else{
+            $("#tbodyContactoSolicitado").html(html);
+        }
+    }
+
+    function eliminarContactoSol(key, solicitante){
+        if(solicitante){
+            if(arrayContactoSolicitantes[key].id == ""){
+                arrayContactoSolicitantes = arrayContactoSolicitantes.splice(1,key);
+            }else{
+                arrayContactoSolicitantes[key].activo = 0;
+            }
+        }else{
+            if(arrayContactoSolicitados[key].id == ""){
+                arrayContactoSolicitados = arrayContactoSolicitados.splice(1,key);
+            }else{
+                arrayContactoSolicitados    [key].activo = 0;
+            }
+        }
+        
+        formarTablaContacto(solicitante);
+    }
     
     /**
     * Funcion para generar tabla a partir de array de solicitantes
@@ -885,7 +1064,7 @@
         $("#tbodyObjetoSol").html("");
         
         $.each(arrayObjetoSolicitudes, function (key, value) {
-            if(value.activo == "1" || value.id != ""){
+            if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined" )){
                 html += "<tr>";
                 $("#objeto_solicitud_id").val(value.objeto_solicitud_id);
                 html += "<td> " + $("#objeto_solicitud_id :selected").text(); + " </td>";
@@ -983,7 +1162,7 @@
         }else{
             arrayDomiciliosSolicitado[key].activo = 0;
         }
-        formarTablaSolicitante();
+        formarTablaDomiciliosSolicitado();
     }
 
     /**
@@ -1066,7 +1245,8 @@
         $("#fecha_salida").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_salida,0));
         $("#jornada_id").val(arraySolicitantes[key].dato_laboral.jornada_id);
         $("#horas_semanales").val(arraySolicitantes[key].dato_laboral.horas_semanales);
-
+        arrayContactoSolicitantes = arraySolicitantes[key].contactos ? arraySolicitantes[key].contactos : new Array();
+        formarTablaContacto(true);
         //domicilio del solicitante
         domicilioObj.cargarDomicilio(arraySolicitantes[key].domicilios[0]);
         $('.catSelect').trigger('change');
@@ -1111,6 +1291,9 @@
         }
         $("#giro_comercial_solicitado").val(arraySolicitados[key].giro_comercial_id);
         $("#idSolicitadoRfc").val(arraySolicitados[key].rfc);
+        arrayContactoSolicitados = arraySolicitados[key].contactos ? arraySolicitados[key].contactos : new Array();
+        formarTablaContacto();
+        // arrayContactoSolicitados = arraySolicitados[key].contactos;
         arrayDomiciliosSolicitado = arraySolicitados[key].domicilios;
         formarTablaDomiciliosSolicitado();
         $('.catSelect').trigger('change');
@@ -1121,7 +1304,7 @@
     *@argument key posicion de array a editar
     */
     function cargarEditarDomicilioSolicitado(key){
-        
+        $("#domicilio_edit").val(key)
         domicilioObj2.cargarDomicilio(arrayDomiciliosSolicitado[key]);
         $('#modal-domicilio').modal('show');
         $('.catSelect').trigger('change');
@@ -1135,10 +1318,13 @@
         var html = "";
         $("#tbodyDomicilioSolicitado").html("");
         $.each(arrayDomiciliosSolicitado, function (key, value) {
-            html += "<tr>";
-            html += "<td>" + value.asentamiento + " " + value.cp + "</td>";
-            html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarDomicilioSolicitado("+key+")' ><i class='fa fa-pencil-alt' style='color:white;'></i> </a> <a class='btn btn-xs btn-warning' onclick='eliminarDomicilio("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
-            html += "</tr>";
+            if(value.activo == "1" || value.id != "" && typeof value.activo == "undefined"){
+                html += "<tr>";
+                html += "<td>" + value.asentamiento + " " + value.cp + "</td>";
+                html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarDomicilioSolicitado("+key+")' ><i class='fa fa-pencil-alt' style='color:white;'></i> </a> <a class='btn btn-xs btn-warning' onclick='eliminarDomicilio("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
+                html += "</tr>";
+            }
+            
         });
         $("#tbodyDomicilioSolicitado").html(html);
     }
@@ -1147,28 +1333,13 @@
     * Funcion para agregar Domicilio de solicitante y solicitado 
     */
     function agregarDomicilio(){
-        var domicilio = {};
-        key = $("#domicilio_key").val();
-        domicilio.id = $("#domicilio_id_modal").val();
-        // tipoParteDomicilio 0 es solicitante 1 es solicitud 
-        domicilio.num_ext = $("#num_ext").val();
-        domicilio.num_int = $("#num_int").val();
-        domicilio.asentamiento = $("#asentamiento").val();
-        domicilio.municipio = $("#municipio").val();
-        domicilio.cp = $("#cp").val();
-        domicilio.entre_calle1 = $("#entre_calle1").val();
-        domicilio.entre_calle2 = $("#entre_calle2").val();
-        domicilio.referencias = $("#referencias").val();
-        domicilio.tipo_vialidad_id = $("#tipo_vialidad_id").val();
-        domicilio.tipo_asentamiento_id = $("#tipo_asentamiento_id").val();
-        domicilio.estado_id = $("#estado_id").val();
+        key = $("#domicilio_edit").val();
         if(key == ""){
-            arrayDomiciliosSolicitado.push(domicilio);
+            arrayDomiciliosSolicitado.push(domicilioObj2.getDomicilio());
         }else{
-            
-            arrayDomiciliosSolicitado[key] = domicilio;
+            arrayDomiciliosSolicitado[key] = domicilioObj2.getDomicilio();
         }
-        
+
         formarTablaDomiciliosSolicitado();
         $('#modal-domicilio').modal('hide');
         domicilioObj2.limpiarDomicilios();

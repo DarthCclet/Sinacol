@@ -8,6 +8,7 @@ use App\Domicilio;
 use App\Estado;
 use App\Expediente;
 use App\Audiencia;
+use App\Contacto;
 use App\EstatusSolicitud;
 use Illuminate\Http\Request;
 use \App\Solicitud;
@@ -24,6 +25,7 @@ use App\Ocupacion;
 use App\Parte;
 use App\Rules\Curp;
 use App\TipoAsentamiento;
+use App\TipoContacto;
 use App\TipoVialidad;
 use Illuminate\Support\Facades\Auth;
 
@@ -94,7 +96,8 @@ class SolicitudController extends Controller
         $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
         $grupo_prioritario = array_pluck(GrupoPrioritario::all(),'nombre','id');
         $lengua_indigena = array_pluck(LenguaIndigena::all(),'nombre','id');
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena'));
+        $tipo_contacto = array_pluck(TipoContacto::all(),'nombre','id');
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto'));
     }
 
     /**
@@ -175,6 +178,10 @@ class SolicitudController extends Controller
                 $domicilio = $value["domicilios"][0];
                 unset($value['domicilios']);
             }
+            if(isset($value["contactos"])){
+                $contactos = $value["contactos"][0];
+                unset($value['contactos']);
+            }
             
             // dd($value);
             $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
@@ -185,6 +192,12 @@ class SolicitudController extends Controller
                 $domicilio["estado"] = "as";
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
             // }
+            if(count($contactos) > 0){
+                foreach ($contactos as $key => $contacto) {
+                    $contactoSaved = $parteSaved->contactos()->create($contacto);
+                }
+            } 
+                
         }
         
         $solicitados = $request->input('solicitados');
@@ -196,6 +209,10 @@ class SolicitudController extends Controller
                 $domicilios = $value["domicilios"];
                 unset($value['domicilios']);
             }
+            if(isset($value["contactos"])){
+                $contactos = $value["contactos"][0];
+                unset($value['contactos']);
+            }
             
             $value['solicitud_id'] = $solicitudSaved['id'];
             $parteSaved = Parte::create($value);  
@@ -205,6 +222,11 @@ class SolicitudController extends Controller
                     $domicilio["vialidad"] = "as";
                     $domicilio["estado"] = "as";
                     $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                }
+            } 
+            if(count($contactos) > 0){
+                foreach ($contactos as $key => $contacto) {
+                    $contactoSaved = $parteSaved->contactos()->create($contacto);
                 }
             } 
         }
@@ -247,11 +269,13 @@ class SolicitudController extends Controller
         foreach ($solicitantes as $key => $value) {
             $value->dato_laboral;
             $value->domicilios;
+            $value->contactos;
             $solicitantes[$key]["activo"] = 1;
         }
         $solicitados = $partes->where('tipo_parte_id',2);
         foreach ($solicitados as $key => $value) {
             $value->domicilios;
+            $value->contactos;
             $solicitados[$key]["activo"] = 1;
         }
         $solicitud->objeto_solicitudes;
@@ -272,13 +296,13 @@ class SolicitudController extends Controller
         $parte = Parte::all()->where('solicitud_id',$solicitud->id);
 
         $partes = $solicitud->partes()->get();//->where('tipo_parte_id',3)->get()->first()
+
         $expediente = Expediente::where("solicitud_id" ,"=",$solicitud->id)->get();
         if(count($expediente) > 0){
             $audiencias = Audiencia::where("expediente_id" ,"=",$expediente[0]->id)->get();
         }else{
             $audiencias = array();
         }
-        
         
         $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
         $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
@@ -293,7 +317,8 @@ class SolicitudController extends Controller
         $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
         $grupo_prioritario = array_pluck(GrupoPrioritario::all(),'nombre','id');
         $lengua_indigena = array_pluck(LenguaIndigena::all(),'nombre','id');
-        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','expediente','audiencias','grupo_prioritario','lengua_indigena'));
+        $tipo_contacto = array_pluck(TipoContacto::all(),'nombre','id');
+        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','expediente','audiencias','grupo_prioritario','lengua_indigena','tipo_contacto'));
     }
 
     /**
@@ -372,6 +397,10 @@ class SolicitudController extends Controller
                 $domicilio = $value["domicilios"][0];
                 unset($value['domicilios']);
             }
+            if(isset($value["contactos"])){
+                $contactos = $value["contactos"];
+                unset($value['contactos']);
+            }
             
             // dd($value);
             if(!isset($value["id"]) || $value["id"] == ""){
@@ -381,16 +410,36 @@ class SolicitudController extends Controller
                 $domicilio["tipo_vialidad"] = "as";
                 $domicilio["estado"] = "as";
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                if(count($contactos) > 0){
+                    foreach ($contactos as $key => $contacto) {
+                        $contactoSaved = $parteSaved->contactos()->create($contacto);
+                    }
+                } 
             }else{
                 $parteSaved = Parte::find($value['id']);
-                $parteSaved = $parteSaved->update($value);
+                $parteUpdated = $parteSaved->update($value);
                 $dato_laboralUp =  DatoLaboral::find($dato_laboral["id"]);
                 $dato_laboralUp->update($dato_laboral);
                 $domicilioUp =  Domicilio::find($domicilio["id"]);
                 $domicilioUp->update($domicilio);
+                
+                foreach ($contactos as $key => $contacto) {
+                    if($contacto["id"] != ""){
+                        
+                        $contactoUp =  Contacto::find($contacto["id"]);
+                        
+                        if(isset($contacto["activo"]) && $contacto["activo"] == 0){
+                            $contactoUp->delete();
+                        }else{
+                            $contactoUp->update($contacto);
+                        }
+                    }else{
+                        unset($contacto['activo']);
+                        $contactoSaved = $parteSaved->contactos()->create($contacto);
+                    }
+                    
+                }
             }
-            
-            // }
         }
         
         $solicitados = $request->input('solicitados');
@@ -401,6 +450,11 @@ class SolicitudController extends Controller
             if(isset($value["domicilios"])){
                 $domicilios = $value["domicilios"];
                 unset($value['domicilios']);
+            }
+            $contactos = Array();
+            if(isset($value["contactos"])){
+                $contactos = $value["contactos"];
+                unset($value['contactos']);
             }
             
             $value['solicitud_id'] = $solicitudSaved['id'];
@@ -413,13 +467,35 @@ class SolicitudController extends Controller
                         $domicilio["estado"] = "as";
                         $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                     }
-                }     
+                }    
+                foreach ($contactos as $key => $contacto) {
+                    $contactoSaved = $parteSaved->contactos()->create($contacto);
+                } 
             }else{
                 $parteSaved = Parte::find($value['id']);
-                $parteSaved = $parteSaved->update($value);
+                $parteSaved->update($value);
                 foreach ($domicilios as $key => $domicilio) {
                     $domicilioUp =  Domicilio::find($domicilio["id"]);
-                    $domicilioUp->update($domicilio);
+                    if(isset($domicilioUp["activo"]) && $domicilioUp["activo"] == 0){
+                        $domicilioUp->delete();
+                    }else{
+                        $domicilioUp->update($domicilio);
+                    }
+                }
+                foreach ($contactos as $key => $contacto) {
+                    if($contacto["id"] != ""){
+                        $contactoUp =  Contacto::find($contacto["id"]);
+                        if(isset($contactoUp["activo"]) && $contactoUp["activo"] == 0){
+                            $contactoUp->delete();
+                        }else{
+                            $contactoUp->update($contacto);
+                        }
+                    }else{
+                        unset($contacto['activo']);
+                        $contactoSaved = $parteSaved->contactos()->create($contacto);
+                        
+                    }
+                    
                 }
             }
             
