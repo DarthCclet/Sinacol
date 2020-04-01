@@ -61,7 +61,7 @@ class SolicitudController extends Controller
         if ($this->request->get('all') ) {
             $solicitud = $solicitud->get();
         } else {
-            $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
+            $solicitud = $solicitud->paginate($this->request->get('per_page', 40));
         }
 
         // // Para cada objeto obtenido cargamos sus relaciones.
@@ -69,9 +69,13 @@ class SolicitudController extends Controller
             $solicitud->loadDataFromRequest();
         });
         // return $this->sendResponse($solicitud, 'SUCCESS');
-
+        
         if ($this->request->wantsJson()) {
-            return $this->sendResponse($solicitud, 'SUCCESS');
+            if ($this->request->get('all') ) {
+                return $this->sendResponse($solicitud, 'SUCCESS');
+            }else{
+                return response()->json($solicitud, 200);
+            }
         }
         return view('expediente.solicitudes.index', compact('solicitud'));
     }

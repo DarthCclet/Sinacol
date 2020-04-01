@@ -9,4 +9,5 @@
     <script src="/assets/plugins/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
     <script src="/assets/plugins/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
     <script src="/assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://cdn.datatables.net/scroller/2.0.1/js/dataTables.scroller.min.js"></script>
 @endpush

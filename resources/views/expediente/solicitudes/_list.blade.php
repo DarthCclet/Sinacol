@@ -1,4 +1,4 @@
-<table id="data-table-default" class="table table-striped table-bordered table-td-valign-middle">
+{{-- <table id="data-table-default" class="table table-striped table-bordered table-td-valign-middle">
     <thead>
     <tr>
         <th width="1%"></th>
@@ -34,4 +34,53 @@
     @endforeach
 
     </tbody>
-</table>
+</table> --}}
+<table id="tabla-detalle" class="table table-striped table-bordered table-td-valign-middle">
+    <thead>
+      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Anio</th><th>Centro</th><th>user</th><th>ratificada</th><th>excepcion</th><th>Fecha Ratificacion</th><th>Fecha Recepcion</th><th>Observaciones</th><th></th><th></th><th></th><th></th><th></th></tr>
+    </thead>
+  </table>
+  @push('scripts')
+  <script>
+       $(document).ready(function() {
+       var dt = $('#tabla-detalle').DataTable({
+            "deferRender": true,
+            "ajax": {
+              "type": "GET",
+              "async": true,
+              "url": '/api/solicitudes',
+              "data": function (d) {
+              }
+            },
+            "columnDefs": [
+              {"targets": [0], "visible": false},
+            {
+              "targets": -1,
+              "defaultContent": '<button class="btn-warning btn-editar"><i class="fa fa-pencil btn-editar"></i></button>&nbsp;&nbsp;<button class="btn-danger btn-helpkit"><i class="fa fa-medkit btn-helpkit"></i></button>',
+            }],
+            "aoColumns": [
+              null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null
+              ],
+            "processing": true,
+            select: true,
+            "ordering": false,
+            "searching": false,
+            "scrollX": true,
+            "scrollY": $(window).height() - $('#header').height()-200,
+            "scrollColapse": false,
+            "scroller": {
+              "serverWait": 200,
+              "loadingIndicator": true
+            },
+            "serverSide": true,
+            "pageLength": 20,
+            "responsive": true,
+            "stateSaveParams": function (settings, data) {
+              //data.search.search = "";
+              console.log(data);
+            }
+          });
+       });
+  </script>
+  @endpush
+  
