@@ -28,6 +28,11 @@ trait Transformer
                 'rfc' => $persona->rfc,
                 'curp' => $persona->curp,
                 'caracter_persona' => $persona->tipoPersona->nombre,
+                'solicita_traductor' => $persona->solicita_traductor,
+                'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                'padece_discapacidad' => $persona->padece_discapacidad,
+                'discapacidad' => $persona->tipoDiscapacidad->nombre,
+                'publicacion_datos' => $persona->publicacion_datos,
                 'domicilios' => $this->domiciliosTransformer($persona->domicilios),
                 'contactos' => $this->contactoTransformer($persona->contactos)
             ];
@@ -37,6 +42,11 @@ trait Transformer
                 'denominacion' => $persona->nombre_comercial,
                 'rfc' => $persona->rfc,
                 'caracter_persona' => $persona->tipoPersona->nombre,
+                'solicita_traductor' => $persona->solicita_traductor,
+                'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                'padece_discapacidad' => false,
+                'discapacidad' => "N/A",
+                'publicacion_datos' => $persona->publicacion_datos,
                 'domicilios' => $this->domiciliosTransformer($persona->domicilios),
                 'contactos' => $this->contactoTransformer($persona->contactos)
             ];
