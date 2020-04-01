@@ -30,4 +30,13 @@ class ParteFilter extends Filter
     {
         $this->query->where('tipo_parte_id',$tipo_parte_id);
     }
+
+     /**
+     * Se permite filtrar por el tipo_parte_id
+     * @param $tipo_parte_id
+     */
+    public function handleTipoPersonaIdFilter($tipo_persona_id)
+    {
+        $this->query->where('tipo_persona_id',$tipo_persona_id);
+    }
 }
