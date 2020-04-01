@@ -32,6 +32,8 @@ class ConsultaConciliacionesPorRangoFechas
             $res[] = [
                 'numero_expediente_oij' => $audiencia->expediente->folio,
                 'fecha_audiencia' => $audiencia->fecha_audiencia,
+                'fecha_conflicto' => $audiencia->expediente->solicitud->fecha_conflicto,
+                'fecha_ratificacion' => $audiencia->expediente->solicitud->fecha_ratificacion,
                 'organo_impartidor_de_justicia' => $audiencia->expediente->solicitud->centro->id,
                 'organo_impartidor_de_justicia_nombre' => $audiencia->expediente->solicitud->centro->nombre,
                 'parte_actora' => $parte_actora,

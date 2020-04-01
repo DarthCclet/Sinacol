@@ -43,6 +43,8 @@ class ConsultaConciliacionesPorRfc
                         $resultado[] = [
                             'numero_expediente_oij' => $exp->expediente->folio,
                             'fecha_audiencia' => $audiencia->fecha_audiencia,
+                            'fecha_conflicto' => $exp->fecha_conflicto,
+                            'fecha_ratificacion' => $exp->fecha_ratificacion,
                             'organo_impartidor_de_justicia' => $audiencia->expediente->solicitud->centro->id,
                             'organo_impartidor_de_justicia_nombre' => $audiencia->expediente->solicitud->centro->nombre,
                             'parte_actora' => $parte_actora,
@@ -119,6 +121,11 @@ class ConsultaConciliacionesPorRfc
                 'rfc' => $persona->rfc,
                 'curp' => $persona->curp,
                 'caracter_persona' => $persona->tipoPersona->nombre,
+                'solicita_traductor' => $persona->solicita_traductor,
+                'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                'padece_discapacidad' => $persona->padece_discapacidad,
+                'discapacidad' => $persona->tipoDiscapacidad->nombre,
+                'publicacion_datos' => $persona->publicacion_datos,
                 'domicilios' => $this->domiciliosTransformer($persona->domicilios),
                 'contactos' => $this->contactoTransformer($persona->contactos)
             ];
@@ -128,6 +135,11 @@ class ConsultaConciliacionesPorRfc
                 'denominacion' => $persona->nombre_comercial,
                 'rfc' => $persona->rfc,
                 'caracter_persona' => $persona->tipoPersona->nombre,
+                'solicita_traductor' => $persona->solicita_traductor,
+                'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                'padece_discapacidad' => false,
+                'discapacidad' => 'N/A',
+                'publicacion_datos' => $persona->publicacion_datos,
                 'domicilios' => $this->domiciliosTransformer($persona->domicilios),
                 'contactos' => $this->contactoTransformer($persona->contactos)
             ];
