@@ -15,10 +15,19 @@ class ParteFilter extends Filter
      * @var array
      */
     protected $valid_sort_by = [
+        'tipo_parte_id',
         'fecha_ratificacion',
         'centro_id',
         'created_at',
         'updated_at',
     ];
 
+    /**
+     * Se permite filtrar por el tipo_parte_id
+     * @param $tipo_parte_id
+     */
+    public function handleTipoParteIdFilter($tipo_parte_id)
+    {
+        $this->query->where('tipo_parte_id',$tipo_parte_id);
+    }
 }
