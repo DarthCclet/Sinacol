@@ -14,7 +14,7 @@ class OauthTokenClientsTest extends TestCase
             factory(Client::class)->create(),
             ['*']
         );
-        $response = $this->get('/api/audiencias/no-conciliacion');
+        $response = $this->get('api/parte');
         $response->assertStatus(200);
     }
 }

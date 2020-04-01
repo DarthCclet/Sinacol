@@ -128,6 +128,14 @@ class Parte extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function lenguaIndigena(){
-      return $this->belongsTo('App\LenguaIndigena');
+      return $this->belongsTo('App\LenguaIndigena')->withDefault();
+    }
+    /**
+     * Funcion para asociar con modelo tipoDiscapacidad
+     * Utilizando belongsTo para relaciones 1 a 1
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function tipoDiscapacidad(){
+      return $this->belongsTo(TipoDiscapacidad::class)->withDefault();
     }
 }

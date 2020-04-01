@@ -16,7 +16,7 @@ class ConciliadorAudiencia extends Model
      * una sala_audiencia puede tener muchas salas
      */
     public function conciliador(){
-        return $this->belongsTo(Sala::class);
+        return $this->belongsTo(Conciliador::class);
     }
     /*
      * Relacion con la tabla audiencias

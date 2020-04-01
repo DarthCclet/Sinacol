@@ -1,0 +1,33 @@
+{
+    "datos": [
+        {
+            "nombre": "Discapacidad para ver"
+        },
+        {
+            "nombre": "Discapacidad para oir"
+        },
+        {
+            "nombre": "Discapacidad para hablar (mudez)"
+        },
+        {
+            "nombre": "Discapacidad de la comunicación y comprensión del lenguaje"
+        },
+        {
+            "nombre": "Discapacidad de las extremidades inferirores"
+        },
+        {
+            "nombre": "Discapacidad de las extremidades superiores"
+        },
+        {
+            "nombre": "Discapacidades intelectuales"
+        },
+        {
+            "nombre": "Discapacidades conductuales y otras mentales"
+        },
+        {
+            "nombre": "Discapacidades múltiples"
+        }
+
+    ],
+    "numReg": 3
+}

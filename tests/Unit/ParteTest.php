@@ -20,7 +20,9 @@ class ParteTest extends TestCase
      */
     public function testVerifyRelationParte(){
         $parte = factory(\App\Parte::class)->create();
-        $this->assertInstanceOf('\App\Genero',$parte->genero);
+        if($parte->tipo_persona_id == 1){
+            $this->assertInstanceOf('\App\Genero',$parte->genero);
+        }
         $this->assertInstanceOf('\App\Solicitud',$parte->solicitud);
         $this->assertInstanceOf('\App\TipoParte',$parte->tipoParte);
         $this->assertInstanceOf('\App\TipoPersona',$parte->tipoPersona);

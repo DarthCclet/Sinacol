@@ -36,6 +36,10 @@ class CreatePartesTable extends Migration
             $table->string('edad')->nullable()->comment('Edad de la parte');
             $table->string('rfc')->comment('RFC de la parte')->index();
             $table->string('curp')->nullable()->comment('Curp de la parte')->index();
+            $table->boolean('padece_discapacidad')->nullable()->comment('Indicador de discapacidad');
+            $table->unsignedBigInteger('tipo_discapacidad_id')->nullable()->comment('FK de la tabla tipo_discapacidades');
+            $table->foreign('tipo_discapacidad_id')->references('id')->on('tipo_discapacidades');
+            $table->boolean('publicacion_datos')->nullable()->comment('Indicador donde se expresa si la parte desdea publicar sus datos')->index();
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
 

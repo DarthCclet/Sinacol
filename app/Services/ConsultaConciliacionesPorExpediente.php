@@ -44,6 +44,8 @@ class ConsultaConciliacionesPorExpediente
         $res[] = [
             'numero_expediente_oij' => $audiencia->expediente->folio,
             'fecha_audiencia' => $audiencia->fecha_audiencia,
+            'fecha_conflicto' => $audiencia->expediente->solicitud->fecha_conflicto,
+            'fecha_ratificacion' => $audiencia->expediente->solicitud->fecha_ratificacion,
             'organo_impartidor_de_justicia' => $audiencia->expediente->solicitud->centro->id,
             'organo_impartidor_de_justicia_nombre' => $audiencia->expediente->solicitud->centro->nombre,
             'actores' => [$parte_actora],
@@ -102,7 +104,13 @@ class ConsultaConciliacionesPorExpediente
                     'rfc' => $persona->rfc,
                     'curp' => $persona->curp,
                     'caracter_persona' => $persona->tipoPersona->nombre,
+                    'solicita_traductor' => $persona->solicita_traductor,
+                    'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                    'padece_discapacidad' => $persona->padece_discapacidad,
+                    'discapacidad' => $persona->tipoDiscapacidad->nombre,
+                    'publicacion_datos' => $persona->publicacion_datos,
                     'domicilios' => $this->domiciliosTransformer($persona->domicilios),
+                    'contactos' => $this->contactoTransformer($persona->contactos),
                     'dato_laboral' => $persona->dato_laboral
                 ];
             }
@@ -111,7 +119,13 @@ class ConsultaConciliacionesPorExpediente
                     'denominacion' => $persona->nombre_comercial,
                     'rfc' => $persona->rfc,
                     'caracter_persona' => $persona->tipoPersona->nombre,
+                    'solicita_traductor' => $persona->solicita_traductor,
+                    'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                    'padece_discapacidad' => false,
+                    'discapacidad' => 'N/A',
+                    'publicacion_datos' => $persona->publicacion_datos,
                     'domicilios' => $this->domiciliosTransformer($persona->domicilios),
+                    'contactos' => $this->contactoTransformer($persona->contactos),
                     'dato_laboral' => $persona->dato_laboral
                 ];
             }
@@ -143,6 +157,16 @@ class ConsultaConciliacionesPorExpediente
         }
         //TODO: Validar la estructura del expediente que sea conformante y emitir excepción de lo contrario
         return $paramsJSON;
+    }
+    public function contactoTransformer($datos){
+        $contacto = [];
+        foreach($datos as $contact){
+            $contacto[] = [
+                'tipo_contacto' => $contact->tipo_contacto->nombre,
+                'contacto' => $contact->contacto
+            ];
+        }
+        return $contacto;
     }
 
 }

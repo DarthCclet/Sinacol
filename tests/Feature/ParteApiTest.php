@@ -183,7 +183,7 @@ class ParteApiTest extends TestCase
         $jsonRelaciones = $this->jsonPaginado;
         $jsonRelaciones['data']['data'][0]['genero'] = $this->jsonRelaciones['genero'];
         factory(Parte::class,20)->create();
-        $response = $this->json('GET', '/api/parte?load=genero');
+        $response = $this->json('GET', '/api/parte?tipo_persona_id=1&load=genero');
         $response->assertStatus(200);
         $response->assertJsonStructure($jsonRelaciones);
     }
@@ -258,7 +258,7 @@ class ParteApiTest extends TestCase
         $jsonRelaciones = $this->jsonPaginado;
         $jsonRelaciones['data']['data'][0]['grupo_prioritario'] = $this->jsonRelaciones['grupo_prioritario'];
         factory(Parte::class,20)->create();
-        $response = $this->json('GET', '/api/parte?load=grupoPrioritario');
+        $response = $this->json('GET', '/api/parte?tipo_persona_id=1&load=grupoPrioritario');
         $response->assertStatus(200);
         $response->assertJsonStructure($jsonRelaciones);
     }

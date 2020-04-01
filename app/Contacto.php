@@ -16,4 +16,7 @@ class Contacto extends Model
     {
         return $this->morphTo();
     }
+    public function tipo_contacto(){
+        return $this->belongsTo(TipoContacto::class);
+    }
 }
