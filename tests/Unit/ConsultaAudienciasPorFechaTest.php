@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Services\ConsultaConciliacionesPorRangoFechas;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 use Faker\Generator as Faker;
 
 class ConsultaAudienciasPorFechaTest extends TestCase

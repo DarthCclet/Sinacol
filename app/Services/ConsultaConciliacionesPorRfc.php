@@ -119,7 +119,8 @@ class ConsultaConciliacionesPorRfc
                 'rfc' => $persona->rfc,
                 'curp' => $persona->curp,
                 'caracter_persona' => $persona->tipoPersona->nombre,
-                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
+                'domicilios' => $this->domiciliosTransformer($persona->domicilios),
+                'contactos' => $this->contactoTransformer($persona->contactos)
             ];
         }
         if($persona->tipoPersona->abreviatura == 'M'){
@@ -127,7 +128,8 @@ class ConsultaConciliacionesPorRfc
                 'denominacion' => $persona->nombre_comercial,
                 'rfc' => $persona->rfc,
                 'caracter_persona' => $persona->tipoPersona->nombre,
-                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
+                'domicilios' => $this->domiciliosTransformer($persona->domicilios),
+                'contactos' => $this->contactoTransformer($persona->contactos)
             ];
         }
         if(!$domicilio){
@@ -158,5 +160,15 @@ class ConsultaConciliacionesPorRfc
             ];
         }
         return $domicilios;
+    }
+    public function contactoTransformer($datos){
+        $contacto = [];
+        foreach($datos as $contact){
+            $contacto[] = [
+                'tipo_contacto' => $contact->tipo_contacto->nombre,
+                'contacto' => $contact->contacto
+            ];
+        }
+        return $contacto;
     }
 }
