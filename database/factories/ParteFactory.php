@@ -11,6 +11,7 @@ use App\Nacionalidad;
 use App\Parte;
 use App\TipoParte;
 use App\TipoPersona;
+use App\TipoDiscapacidad;
 use Faker\Generator as Faker;
 
 $factory->define(Parte::class, function (Faker $faker) {
@@ -29,8 +30,10 @@ $factory->define(Parte::class, function (Faker $faker) {
     $entidad_nacimiento = Estado::inRandomOrder()->first();
     $fecha_nacimiento = $faker->dateTimeBetween('-70 years', '-15 years');
     $edad = $fecha_nacimiento->diff(now(), true)->y;
+    $padece_discapacidad = $faker->boolean();
     $solicita_traductor = $faker->boolean();
     $lengua_indigena = LenguaIndigena::inRandomOrder()->first();
+    $tipo_discapacidad = TipoDiscapacidad::inRandomOrder()->first();
     // se crea el registro de parte usando los datos obtenidos anteriormente
     return [
         'solicitud_id' => $solicitud->id,
@@ -46,12 +49,14 @@ $factory->define(Parte::class, function (Faker $faker) {
         'fecha_nacimiento' => $fecha_nacimiento->format("Y-m-d"),
         'solicita_traductor' =>  $solicita_traductor,
         'lengua_indigena_id' =>  ($solicita_traductor) ? $lengua_indigena->id : null,
-//        'giro_comercial_id' => ($tipo_persona->abreviatura == 'M') ? $giro_comercia->id : null,
+        'padece_discapacidad' => $padece_discapacidad,
+        'tipo_discapacidad_id' => ($padece_discapacidad) ? $tipo_discapacidad->id : null,
         'giro_comercial_id' =>  $giro_comercia->id,
         'grupo_prioritario_id' => ($tipo_persona->abreviatura == 'F') ? $grupo_prioritario->id : null,
         'edad' => $edad,
         'rfc' => $faker->rfc,
         'curp' => ($tipo_persona->abreviatura == 'F') ? $faker->curp : null,
+        'publicacion_datos' => $faker->boolean()
     ];
 });
 
