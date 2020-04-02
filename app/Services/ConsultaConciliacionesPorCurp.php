@@ -43,8 +43,6 @@ class ConsultaConciliacionesPorCurp
                         $resultado[] = [
                             'numero_expediente_oij' => $exp->expediente->folio,
                             'fecha_audiencia' => $audiencia->fecha_audiencia,
-                            'fecha_conflicto' => $exp->fecha_conflicto,
-                            'fecha_ratificacion' => $exp->fecha_ratificacion,
                             'organo_impartidor_de_justicia' => $audiencia->expediente->solicitud->centro->id,
                             'organo_impartidor_de_justicia_nombre' => $audiencia->expediente->solicitud->centro->nombre,
                             'parte_actora' => $parte_actora,
@@ -121,13 +119,7 @@ class ConsultaConciliacionesPorCurp
                 'rfc' => $persona->rfc,
                 'curp' => $persona->curp,
                 'caracter_persona' => $persona->tipoPersona->nombre,
-                'solicita_traductor' => $persona->solicita_traductor,
-                'lenguaIndigena' => $persona->lenguaIndigena->nombre,
-                'padece_discapacidad' => $persona->padece_discapacidad,
-                'discapacidad' => $persona->tipoDiscapacidad->nombre,
-                'publicacion_datos' => $persona->publicacion_datos,
-                'domicilios' => $this->domiciliosTransformer($persona->domicilios),
-                'contactos' => $this->contactoTransformer($persona->contactos)
+                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
             ];
         }
         if($persona->tipoPersona->abreviatura == 'M'){
@@ -135,13 +127,7 @@ class ConsultaConciliacionesPorCurp
                 'denominacion' => $persona->nombre_comercial,
                 'rfc' => $persona->rfc,
                 'caracter_persona' => $persona->tipoPersona->nombre,
-                'solicita_traductor' => $persona->solicita_traductor,
-                'lenguaIndigena' => $persona->lenguaIndigena->nombre,
-                'padece_discapacidad' => false,
-                'discapacidad' => 'N/A',
-                'publicacion_datos' => $persona->publicacion_datos,
-                'domicilios' => $this->domiciliosTransformer($persona->domicilios),
-                'contactos' => $this->contactoTransformer($persona->contactos)
+                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
             ];
         }
         if(!$domicilio){
@@ -177,14 +163,4 @@ class ConsultaConciliacionesPorCurp
         }
         return $domicilios;
     }
-    public function contactoTransformer($datos){
-        $contacto = [];
-        foreach($datos as $contact){
-            $contacto[] = [
-                'tipo_contacto' => $contact->tipo_contacto->nombre,
-                'contacto' => $contact->contacto
-            ];
         }
-        return $contacto;
-    }
-}
