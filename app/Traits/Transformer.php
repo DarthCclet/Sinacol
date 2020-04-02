@@ -28,7 +28,13 @@ trait Transformer
                 'rfc' => $persona->rfc,
                 'curp' => $persona->curp,
                 'caracter_persona' => $persona->tipoPersona->nombre,
-                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
+                'solicita_traductor' => $persona->solicita_traductor,
+                'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                'padece_discapacidad' => $persona->padece_discapacidad,
+                'discapacidad' => $persona->tipoDiscapacidad->nombre,
+                'publicacion_datos' => $persona->publicacion_datos,
+                'domicilios' => $this->domiciliosTransformer($persona->domicilios),
+                'contactos' => $this->contactoTransformer($persona->contactos)
             ];
         }
         if($persona->tipoPersona->abreviatura == 'M'){
@@ -36,7 +42,13 @@ trait Transformer
                 'denominacion' => $persona->nombre_comercial,
                 'rfc' => $persona->rfc,
                 'caracter_persona' => $persona->tipoPersona->nombre,
-                'domicilios' => $this->domiciliosTransformer($persona->domicilios)
+                'solicita_traductor' => $persona->solicita_traductor,
+                'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                'padece_discapacidad' => false,
+                'discapacidad' => "N/A",
+                'publicacion_datos' => $persona->publicacion_datos,
+                'domicilios' => $this->domiciliosTransformer($persona->domicilios),
+                'contactos' => $this->contactoTransformer($persona->contactos)
             ];
         }
         if(!$domicilio){
@@ -72,6 +84,16 @@ trait Transformer
             ];
         }
         return $domicilios;
+    }
+    public function contactoTransformer($datos){
+        $contacto = [];
+        foreach($datos as $contact){
+            $contacto[] = [
+                'tipo_contacto' => $contact->tipo_contacto->nombre,
+                'contacto' => $contact->contacto
+            ];
+        }
+        return $contacto;
     }
 
 }
