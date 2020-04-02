@@ -57,16 +57,10 @@ class PlantillasDocumentosController extends Controller
      {
        $tipo_plantillaDoc = TipoDocumento::all();
        $tipo_plantilla = array_pluck($tipo_plantillaDoc,'nombre','id');
-       // $tipo_plantillaDoc = $tipo_plantillaDoc->where('id', $plantillaDocumento->tipo_documento_id)->first()->getAttributes();
-       // $objetos = explode (",", $tipo_plantillaDoc['objetos']);
-
        $objetoDocumento = [];
        $path = base_path('database/datafiles');
        $json = json_decode(file_get_contents($path . "/elemento_documentos.json"));
-       //Se llena el catalogo desde el arvhivo json elemento_documentos.json
-       // foreach ($objetos as $key => $obj){
          foreach ($json->datos as $key => $value){
-           // if($value->id == $obj){
              $columnNames = [];
              $columnNames [] = Schema::getColumnListing($value->tabla);
              $objetoDocumento [] =
@@ -76,10 +70,7 @@ class PlantillasDocumentosController extends Controller
                      'tabla' => $value->tabla,
                      'campos' => $columnNames[0]
                  ];
-            // }
           }
-        // }
-    // return DB::getSchemaBuilder()->getColumnListing($table);
         return view('documentos.create', compact('objetoDocumento','tipo_plantilla'));
      }
 
@@ -105,13 +96,6 @@ class PlantillasDocumentosController extends Controller
          }
        // $user = Auth::user();
         // $user_id = $user->id;
-
-        // $datos = $request->all();
-        // $datosP['nombre_plantilla'] = $datos["nombre-plantilla"];
-        // $datosP['tipo_documento_id'] = 1;
-        // $datosP['plantilla_header'] = $datos["plantilla-header"];
-        // $datosP['plantilla_body'] = $datos["plantilla-body"];
-        // $datosP['plantilla_footer'] = $datos["plantilla-footer"];
 
         $datos["nombre-plantilla"] = $datos["nombre-plantilla"] == "" ? "Plantilla default" : $datos["nombre-plantilla"];
         $datosP['nombre_plantilla'] = $datos["nombre-plantilla"];
@@ -165,9 +149,9 @@ class PlantillasDocumentosController extends Controller
        }
 
        $objetoDocumento = [];
+       //Se llena el catalogo desde el arvhivo json elemento_documentos.json
        $path = base_path('database/datafiles');
        $jsonElementos = json_decode(file_get_contents($path . "/elemento_documentos.json"));
-       //Se llena el catalogo desde el arvhivo json elemento_documentos.json
        foreach ($objetos as $key => $obj){
          foreach ($jsonElementos->datos as $key => $value){
            if($value->id == $obj){
@@ -233,6 +217,9 @@ class PlantillasDocumentosController extends Controller
        */
       public function cargarDefault()
       {
+        // $tipo_plantillaDoc = TipoDocumento::all();
+        $tipo_plantilla = array_pluck(TipoDocumento::all(),'nombre','id');
+
         $plantillaDocumento = new PlantillaDocumento();
         $plantillaDocumento->plantilla_header = view('documentos._header_documentos_default');
         $plantillaDocumento->plantilla_body = view('documentos._body_documentos_default');
@@ -253,7 +240,7 @@ class PlantillasDocumentosController extends Controller
                     'campos' => $columnNames[0]
                 ];
         }
-        return view('documentos.create', compact('plantillaDocumento','objetoDocumento'));
+        return view('documentos.create', compact('plantillaDocumento','objetoDocumento','tipo_plantilla'));
        }
 
        /**
@@ -275,52 +262,40 @@ class PlantillasDocumentosController extends Controller
         private function renderDocumento($id)
         {
          $vars = [];
-
          $plantilla = PlantillaDocumento::find($id);
          $tipo_plantilla = TipoDocumento::find($plantilla->tipo_documento_id);
-
          $objetos = explode (",", $tipo_plantilla->objetos);
          $path = base_path('database/datafiles');
          $jsonElementos = json_decode(file_get_contents($path . "/elemento_documentos.json"),true);
          foreach ($objetos as $objeto) {
            foreach ($jsonElementos['datos'] as $key=>$element) {
              if($element['id']==$objeto){
-               // dd($clave);
-               // dd($element);
-             //si encuentra id tipo Objeto en elemento_documentos
-             // if($clave != false){
-                // dd($element);
                 $model_name = 'App\\' . $element['objeto'];
-                  // dd($element['id_tipo']);
-                // dd($model_name);
+
                 if($element['id_tipo']!= ""){
-                  // dd('tipo_'.strtolower($element['objeto']).'_id');
-                  // dd(intval($element['id_tipo']));
                   $tipo = 'tipo_'.strtolower($element['objeto']).'_id';
-                  $Objeto = $model_name::all()->where($tipo,intval($element['id_tipo']) )->first();
+                  // $match[$tipo]= intval($element['id_tipo']);
+                  // $match['tipo_persona_id'] =1 ;
+                  $Objeto = $model_name::select('*')->where([ [$tipo, '=', $element['id_tipo']],['tipo_persona_id', '=', 1] ])->get()->first();
+                  // $Objeto = $model_name::all()->where($tipo,$element['id_tipo'])->first();
                   // $Objeto = $model_name::first()->where('tipo_parte_id',2);
-                  // dd($Objeto[1]);
-                  // dd($obj);
                 }else{
-                    // dd($element['id_tipo']);
                   //pimer objeto encontrado para ejemplo de pdf
                   $Objeto = $model_name::first();
                 }
-                $obj = ($Objeto->getAttributes());
-                // dd($obj);
-                $count =0;
-                foreach ($obj as $k => $val) {
-                  $count ++;
-                    // dd($k);
-                    // dd($element['nombre']);
-                  //   dd($val);
-                  $vars[strtolower($element['nombre'].'_'.$k)] = $val;
+                if($Objeto!=null){
+                  $obj = ($Objeto->getAttributes());
+                  // dd($obj);
+                  $count =0;
+                  foreach ($obj as $k => $val) {
+                      // dd($element['nombre']);
+                    //   dd($val);
+                      // $val = ($val != "")
+                    $vars[strtolower($element['nombre'].'_'.$k)] = $val;
+                  }
                 }
-                // dd($obj);
              }
            }
-           // dd($obj);
-           // dd($element['nombre']);
          }
          // dd($vars);
 
@@ -354,9 +329,48 @@ class PlantillasDocumentosController extends Controller
              $footer = '<div class="footer">' . $config->plantilla_footer . '</div>';
          }
          $blade = $style . $header . $footer . $body . $end;
- //echo $blade; exit;
+         // if(sizeof($vars) > 0){
          $html = StringTemplate::renderPlantillaPlaceholders($blade, $vars);
          return $html;
+       }
+
+       /**
+        * Show the form for editing the specified resource.
+        *
+        * @param  int  $id
+        * @return \Illuminate\Http\Response
+        */
+       public function cargarVariables(Request $request)
+       {
+         // dd();
+         $tipo_plantilla = TipoDocumento::find($request->id);
+         // $plantillaDocumento = PlantillaDocumento::find($id);
+         // $tipo_plantillaDoc = TipoDocumento::all();
+
+         // $tipo_plantillaDoc = $tipo_plantillaDoc->where('id', $plantillaDocumento->tipo_documento_id)->first()->getAttributes();
+         $objetos = explode (",", $tipo_plantilla['objetos']);
+
+         $objetoDocumento = [];
+         //Se llena el catalogo desde el arvhivo json elemento_documentos.json
+         $path = base_path('database/datafiles');
+         $jsonElementos = json_decode(file_get_contents($path . "/elemento_documentos.json"));
+         foreach ($objetos as $key => $obj){
+           foreach ($jsonElementos->datos as $key => $value){
+             if($value->id == $obj){
+               $columnNames = [];
+               $columnNames [] = Schema::getColumnListing($value->tabla);
+               $objetoDocumento [] =
+                   [
+                       'objeto' => $value->objeto,
+                       'nombre' => $value->nombre,
+                       'tabla' => $value->tabla,
+                       'campos' => $columnNames[0]
+                   ];
+             }
+           }
+         }
+         // dd($objetoDocumento);
+         return $objetoDocumento;
        }
 
 }

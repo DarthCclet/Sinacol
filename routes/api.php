@@ -52,6 +52,7 @@ Route::resource('objeto-solicitud','ObjetoSolicitudController');
 Route::resource('rol-atencion','RolAtencionController');
 Route::Post('ocupacion/multiples','OcupacionController@editMultiple');
 Route::resource('plantilla-documento','PlantillasDocumentosController');
+Route::Post('plantilla-documento/cargarVariables','PlantillasDocumentosController@cargarVariables');
 Route::resource('contadores','ContadorController');
 Route::resource('tipo_contadores','TipoContadorController');
 Route::resource('solicitudes','SolicitudController');
@@ -67,4 +68,4 @@ Route::post('audiencias/no-conciliacion/parte-demandada', 'ServiciosCJFControlle
 Route::get('audiencias/no-conciliacion/curp/{curp}', 'ServiciosCJFController@listadoPorCurp')->middleware('client');
 Route::get('audiencias/no-conciliacion/rfc/{rfc}', 'ServiciosCJFController@listadoPorRfc')->middleware('client');
 Route::post('audiencias/no-conciliacion/constancia', 'ServiciosCJFController@consultaExpediente')->middleware('client');
-Route::post('audiencias/solicitud/solicitud-externa', 'ServiciosCJFController@solicitudExterna')->middleware('client'); 
+Route::post('audiencias/solicitud/solicitud-externa', 'ServiciosCJFController@solicitudExterna')->middleware('client');

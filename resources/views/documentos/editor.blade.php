@@ -11,7 +11,7 @@
       {!! $errors->first('tipo-plantilla-id', '<span class=text-danger>:message</span>') !!}
   </div>
 
-    <br>
+    <br><br><br>
     <label for="nombre-plantilla" class="control-label offset-2">Contenido de plantilla </label>
     <div class="row">
         <div class="col-md-2"></div>
@@ -32,7 +32,7 @@
     <script src='/js/tinymce/tinymce.min.js'></script>
 
     <script>
-        var config_tmce = function(selector) {
+        var config_tmce = function(selector, objDoc = null) {
           let botonesHeader = ""
           let botonesBody = ""
           let botonesFooter = ""
@@ -93,37 +93,37 @@
                   if(selector == "#plantilla-body"){
                     arrayMenuBody =  [];
                     var arrSubmenuBodyCounter =  [];
-                    @foreach($objetoDocumento as $key=>$objeto)
-                        var menu = {};
-                        var arrSubmenuBody =  [];
-                        @foreach($objeto['campos'] as $column)
-                            submenu =
+                    if(objDoc == null){
+                      objDoc = {!! json_encode($objetoDocumento)!!};
+                    }
+                      $.each( objDoc, function( key, objeto ) {
+                            var menu = {};
+                            var arrSubmenuBody =  [];
+                            $.each( objeto['campos'], function( key, column ) {
+                                submenu =
+                                {
+                                  type: 'menuitem', //nestedmenuitem menuitem
+                                  text: column,
+                                  onAction: function (_) {
+                                    let dato = (objeto['nombre']+"_"+column).toUpperCase();
+                                    let datoId = (objeto['nombre']+"_"+column).toLowerCase();
+                                    editor.insertContent('<strong class="mceNonEditable" data-nombre="'+(datoId)+'">['+dato+']</strong>&nbsp;\n');
+                                    // editor.insertContent('<strong class="mceNonEditable" data-nombre="solicitud_fecha_ratificacion">[fecha R]</strong>&nbsp;\n');
+                                  }
+                                };
+                                arrSubmenuBody.push(submenu);
+                            });
+                            arrSubmenuBodyCounter[key] = arrSubmenuBody;
+                            menu =
                             {
-                              type: 'menuitem', //nestedmenuitem menuitem
-                              text: "{{ $column }}",
-                              onAction: function (_) {
-                                let dato = "{{ strtoupper( $objeto['nombre']."_".$column) }}";
-                                let datoId = "{{ strtolower( $objeto['nombre']."_".$column) }}";
-                                editor.insertContent('<strong class="mceNonEditable" data-nombre="'+(datoId)+'">['+dato+']</strong>&nbsp;\n');
-                                // editor.insertContent('<strong class="mceNonEditable" data-nombre="solicitud_fecha_ratificacion">[fecha R]</strong>&nbsp;\n');
+                              type: 'nestedmenuitem', //nestedmenuitem menuitem
+                              text: objeto['nombre'],
+                              getSubmenuItems: function () {
+                                  return arrSubmenuBodyCounter[key];
                               }
                             };
-                            arrSubmenuBody.push(submenu);
-                        @endforeach
-                        arrSubmenuBodyCounter[{{$key}}] = arrSubmenuBody;
-                        console.log(arrSubmenuBodyCounter);
-                        menu =
-                        {
-                          type: 'nestedmenuitem', //nestedmenuitem menuitem
-                          text: "{{ $objeto['nombre'] }}",
-                          getSubmenuItems: function () {
-                              return arrSubmenuBodyCounter[{{$key}}];
-                          }
-                        };
-                    // console.log(menu);
-                        arrayMenuBody.push(menu);
-                    @endforeach
-                    // console.log(arrayMenuBody);
+                            arrayMenuBody.push(menu);
+                      });
                   }
                     editor.on('init', function (ed) {
                         ed.target.editorCommands.execCommand("fontName", false, "Arial");
@@ -141,55 +141,7 @@
                         // icon: false,
                       fetch: function (callback) {
                         var items = //[
-                          arrayMenuBody
-                            // {
-                            //     type: 'menuitem',
-                            //     text: 'Empresa',
-                            //     onAction: function (_) {
-                            //       editor.insertContent(new Date());
-                            //     }
-                            // },
-                            // {
-                            //     type: 'menuitem',
-                            //     text: 'Vehículo',
-                            //     onAction: function (_) {
-                            //       editor.insertContent(new Date());
-                            //     }
-                            // },
-
-                            // {
-                            //     type: 'nestedmenuitem',
-                            //     text: 'Other formats',
-                            //     getSubmenuItems: function () {
-                            //       return [
-                            //         {
-                            //           type: 'menuitem',
-                            //           text: 'GMT',
-                            //           onAction: function (_) {
-                            //             editor.insertContent(new Date());
-                            //           }
-                            //         },
-                            //         {
-                            //           type: 'menuitem',
-                            //           text: 'ISO',
-                            //           onAction: function (_) {
-                            //             editor.insertContent("new ISO");
-                            //           }
-                            //         }
-                            //       ];
-                            //     }
-                            // },
-
-                            // {
-                            //     type: 'nestedmenuitem',
-                            //     text: 'OTRO',
-                            //     getSubmenuItems: function () {
-                            //       return arrayMenuBoby;
-                            //     }
-                            //
-                            // }
-
-                        //];
+                          arrayMenuBody;
                         callback(items);
                       }
                     });
@@ -225,6 +177,25 @@
                 }
             };
         };
+
+        $('#tipo-plantilla-id').change(function() {
+          $.ajax({
+              url:"/api/plantilla-documento/cargarVariables",
+              type:"POST",
+              data:{
+                  id:$('#tipo-plantilla-id').val()
+              },
+              dataType:"json",
+              success:function(data){
+                  if(data != null && data != ""){
+                    tinymce.execCommand('mceRemoveEditor', true, "plantilla-body");
+                    tinymce.init(config_tmce('#plantilla-body',data));
+                  }
+              }
+          });
+        });
+
+
 
         tinymce.init(config_tmce('#plantilla-header'));
         tinymce.init(config_tmce('#plantilla-body'));
