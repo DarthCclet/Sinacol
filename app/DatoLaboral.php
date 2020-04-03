@@ -34,6 +34,14 @@ public function parte(){
   return $this->belongsTo('App\Parte');
 
 }
+  /**
+ * asocia oficios con la tabla de parte
+ * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+ */
+public function ocupacion(){
+  return $this->belongsTo(Ocupacion::class);
+
+}
 
     //
 }

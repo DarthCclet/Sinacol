@@ -53,6 +53,8 @@ public function getVigenciaAAttribute($input)
   }
 }
 
-
+public function datosLaborales(){
+    return $this->hasMany(DatoLaboral::class)->withDefault();
+}
 
 }
