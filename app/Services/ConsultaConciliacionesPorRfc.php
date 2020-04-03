@@ -42,7 +42,7 @@ class ConsultaConciliacionesPorRfc
                         
                         $resultado[] = [
                             'numero_expediente_oij' => $exp->expediente->folio,
-                            'fecha_audiencia' => $audiencia->fecha_audiencia,
+                            'fecha_audiencia' => '/Date('.strtotime($audiencia->fecha_audiencia).')/',
                             'organo_impartidor_de_justicia' => $audiencia->expediente->solicitud->centro->id,
                             'organo_impartidor_de_justicia_nombre' => $audiencia->expediente->solicitud->centro->nombre,
                             'parte_actora' => $parte_actora,

@@ -43,9 +43,9 @@ class ConsultaConciliacionesPorExpediente
 
         $res[] = [
             'numero_expediente_oij' => $audiencia->expediente->folio,
-            'fecha_audiencia' => $audiencia->fecha_audiencia,
-            'fecha_conflicto' => $audiencia->expediente->solicitud->fecha_conflicto,
-            'fecha_ratificacion' => $audiencia->expediente->solicitud->fecha_ratificacion,
+            'fecha_audiencia' => '/Date('.strtotime($audiencia->fecha_audiencia).')/',
+            'fecha_conflicto' => '/Date('.strtotime($audiencia->expediente->solicitud->fecha_conflicto).')/',
+            'fecha_ratificacion' => '/Date('.strtotime($audiencia->expediente->solicitud->fecha_ratificacion).')/',
             'organo_impartidor_de_justicia' => $audiencia->expediente->solicitud->centro->id,
             'organo_impartidor_de_justicia_nombre' => $audiencia->expediente->solicitud->centro->nombre,
             'actores' => [$parte_actora],
@@ -111,7 +111,7 @@ class ConsultaConciliacionesPorExpediente
                     'publicacion_datos' => $persona->publicacion_datos,
                     'domicilios' => $this->domiciliosTransformer($persona->domicilios),
                     'contactos' => $this->contactoTransformer($persona->contactos),
-                    'dato_laboral' => $persona->dato_laboral
+                    'datos_laborales' => $this->laboralTransformer($persona->dato_laboral)
                 ];
             }
             if($persona->tipoPersona->abreviatura == 'M'){
@@ -126,7 +126,7 @@ class ConsultaConciliacionesPorExpediente
                     'publicacion_datos' => $persona->publicacion_datos,
                     'domicilios' => $this->domiciliosTransformer($persona->domicilios),
                     'contactos' => $this->contactoTransformer($persona->contactos),
-                    'dato_laboral' => $persona->dato_laboral
+                    'datos_laborales' => $this->laboralTransformer($persona->dato_laboral)
                 ];
             }
             if(!$domicilio){
@@ -167,6 +167,20 @@ class ConsultaConciliacionesPorExpediente
             ];
         }
         return $contacto;
+    }
+    public function laboralTransformer($datos){
+        if($datos != null){
+            $laboral = array(
+                'ocupacion_id' => $datos->ocupacion_id,
+                'ocupacion_nombre' => $datos->ocupacion->nombre,
+                'fecha_ingreso' => '/Date('.strtotime($datos->fecha_ingreso).')/',
+                'fecha_salida' => '/Date('.strtotime($datos->fecha_salida).')/',
+                'nss' => $datos->nss
+            );
+            return $laboral;
+        }else{
+            return array();
+        }
     }
 
 }
