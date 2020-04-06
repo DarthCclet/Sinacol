@@ -189,7 +189,7 @@
                 "dom": "frtiS",
                 "responsive": false,
                 "language": {
-                "url": "/assets/plugins/datatables.net-bs4/dataTable.es.json"
+                "url": "/assets/plugins/datatables.net/dataTable.es.json"
                 },
                 "stateSaveParams": function (settings, data) {
                 //data.search.search = "";
