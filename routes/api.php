@@ -43,6 +43,8 @@ Route::Post('audiencia/calendarizar','AudienciaController@calendarizar');
 Route::Post('audiencia/getCalendario','AudienciaController@getCalendario');
 Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
 Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
+Route::Get('audiencia/documentos/{audiencia_id}','AudienciaController@getDocumentosAudiencia');
+Route::Get('documentos/getFile/{id}','DocumentoController@getFile');
 Route::resource('compareciente','ComparecienteController');
 Route::resource('centro','CentroController');
 Route::post('centros/disponibilidad','CentroController@disponibilidad');
@@ -55,6 +57,7 @@ Route::resource('plantilla-documento','PlantillasDocumentosController');
 Route::Post('plantilla-documento/cargarVariables','PlantillasDocumentosController@cargarVariables');
 Route::resource('contadores','ContadorController');
 Route::resource('tipo_contadores','TipoContadorController');
+Route::resource('tipo_documentos','TipoDocumentosController');
 Route::resource('solicitudes','SolicitudController');
 
 //Route::resource('rol-conciliador','RolAtencionController');
@@ -69,3 +72,6 @@ Route::get('audiencias/no-conciliacion/curp/{curp}', 'ServiciosCJFController@lis
 Route::get('audiencias/no-conciliacion/rfc/{rfc}', 'ServiciosCJFController@listadoPorRfc')->middleware('client');
 Route::post('audiencias/no-conciliacion/constancia', 'ServiciosCJFController@consultaExpediente')->middleware('client');
 Route::post('audiencias/solicitud/solicitud-externa', 'ServiciosCJFController@solicitudExterna')->middleware('client');
+
+Route::post('upload', 'DocumentoController@uploadSubmit');
+Route::post('documentoAudiencia', 'DocumentoController@postAudiencia');

@@ -77,4 +77,7 @@ class Audiencia extends Model
     public function conciliadoresAudiencias(){
       return $this->hasMany('App\ConciliadorAudiencia');
     }
+    public function documentos(){
+        return $this->morphMany(Documento::class,'documentable');
+    }
 }

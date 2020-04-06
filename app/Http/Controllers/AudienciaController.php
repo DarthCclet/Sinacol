@@ -373,4 +373,13 @@ class AudienciaController extends Controller
         $audiencia->update(array("convenio" => $request->convenio,"desahogo" => $request->desahogo,"resolucion_id"=>$request->resolucion_id));
         return $audiencia;
     }
+    function getDocumentosAudiencia($audiencia_id){
+        $audiencia = Audiencia::find($audiencia_id);
+        $documentos = $audiencia->documentos;
+        foreach($documentos as $documento){
+            $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+            $documento->tipo = pathinfo($documento->ruta)['extension'];
+        }
+        return $documentos;
+    }
 }
