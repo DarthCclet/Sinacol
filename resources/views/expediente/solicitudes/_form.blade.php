@@ -7,6 +7,9 @@
       color:darkred;
       content: " (*)";
    }
+    .upper{
+        text-transform: uppercase;
+    }
 
 </style>
 
@@ -84,7 +87,7 @@
                             </div>
                         </div>
                         <div class="col-md-8 personaFisicaSolicitante">
-                            <input class="form-control" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" autofocus="" type="text" value="">
+                            <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" autofocus="" type="text" value="">
                             <p class="help-block">CURP del solicitante</p>
                         </div>
                         <div class="col-md-12 row">
@@ -118,7 +121,7 @@
                                 <p class="help-block needed">Edad del solicitante</p>
                             </div>
                             <div class="col-md-4">
-                                <input class="form-control" required id="idSolicitanteRfc" placeholder="Rfc del solicitante" type="text" value="">
+                                <input class="form-control upper" required id="idSolicitanteRfc" placeholder="Rfc del solicitante" type="text" value="">
                                 <p class="help-block needed">Rfc del solicitante</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitante">
@@ -126,7 +129,7 @@
                                 {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Genero</p>
                             </div>
-                            <div class="col-md-4 personaFisicaSolicitante">
+                            <div class="col-md-4 personaMoralSolicitado">
                                 {!! Form::select('giro_comercial_solicitante', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('giro_comercial_solicitante', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Giro Comercial</p>
@@ -320,7 +323,7 @@
                             </div>
                         </div>
                         <div class="col-md-8 personaFisicaSolicitado">
-                            <input class="form-control" required id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del solicitado" type="text" value="">
+                            <input class="form-control upper" required id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del solicitado" type="text" value="">
                             <p class="help-block">CURP del solicitado</p>
                         </div>
                         <div class="col-md-12 row">
@@ -354,7 +357,7 @@
                                 <p class="help-block needed">Edad del solicitado</p>
                             </div>
                             <div class="col-md-4">
-                                <input class="form-control" required id="idSolicitadoRfc" placeholder="Rfc del solicitado" type="text" value="">
+                                <input class="form-control upper" required id="idSolicitadoRfc" placeholder="Rfc del solicitado" type="text" value="">
                                 <p class="help-block needed">Rfc del solicitado</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
@@ -362,8 +365,8 @@
                                 {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Genero</p>
                             </div>
-                            <div class="col-md-4" personaFisicaSolicitado>
-                                {!! Form::select('giro_comercial_solicitado', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                            <div class="col-md-4 personaMoralSolicitado" >
+                                {!! Form::select('giro_comercial_solicitado', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('giro_comercial_solicitando', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Giro Comercial</p>
                             </div>
@@ -480,8 +483,8 @@
                 <div class="col-md-12 row">
                     <input type="hidden" id="solicitud_id">
                     <div class="col-md-4">
-                        <input class="form-control dateTime" required id="fechaRatificacion" placeholder="Fecha de ratificacion" type="text" value="">
-                        <p class="help-block needed">Fecha de Ratificación</p>
+                        <input class="form-control dateTime" required id="fechaRatificacion" disabled placeholder="Fecha de ratificacion" type="text" value="">
+                        <p class="help-block">Fecha de Ratificación</p>
                     </div>
                     <div class="col-md-4">
                         <input class="form-control dateTime" required id="fechaRecepcion" placeholder="Fecha de Recepcion" type="text" value="">                
@@ -490,6 +493,11 @@
                     <div class="col-md-4">
                         <input class="form-control date" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
                         <p class="help-block needed">Fecha de Conflicto</p>
+                    </div>
+                    <div class="col-md-4 estatusSolicitud">
+                        {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                        {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
+                        <p class="help-block needed">Estatus de la solicitud</p>
                     </div>
                     <div class="col-md-4">
                         {!! Form::select('objeto_solicitud_id', isset($objeto_solicitudes) ? $objeto_solicitudes : [] , null, ['id'=>'objeto_solicitud_id','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
@@ -510,12 +518,6 @@
                             <tbody id="tbodyObjetoSol">
                             </tbody>
                         </table>  
-                    </div>
-                    <div class="col-md-12 row">
-                        <div class="col-md-4">
-                            <span class="text-muted m-l-5 m-r-20" for='ratificada'>Ratificada</span>
-                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="ratificada" name='ratificada'/>
-                        </div>
                     </div>
                     <br>
                     <br>
@@ -657,7 +659,10 @@
 
     $(document).ready(function() {
         if(edit){
+            $(".estatusSolicitud").show();
             var solicitud='{{ $solicitud->id ?? ""}}';
+        }else{
+            $(".estatusSolicitud").hide();
         }
         $('#wizard').smartWizard({
             selected: 0,
@@ -875,6 +880,9 @@
                 }
                 if(data.solicita_excepcion){
                     $("#solicita_excepcion").prop("checked",true);
+                }
+                if(data.estatus_solicitud_id == 2){
+                    $("#btnRatificarSolicitud").hide();
                 }
                 $("#fechaRatificacion").val(dateFormat(data.fecha_ratificacion,2));
                 $("#fechaRecepcion").val(dateFormat(data.fecha_recepcion,2));
@@ -1177,7 +1185,7 @@
         }else{
             arrayObjetoSolicitudes[key].activo = 0;
         }
-        formarTablaSolicitante();
+        formarTablaObjetoSol();
     }
 
     /**
@@ -1559,6 +1567,10 @@
             
         }
     }
+    $('.upper').on('keyup', function () {
+        var valor = $(this).val();
+        $(this).val(valor.toUpperCase());
+    });
 
     //validacion curp
      
