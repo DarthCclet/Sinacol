@@ -43,6 +43,11 @@ class Filter
     {
         $model = new $scoutModelClass;
         if ($search = $this->request->input('search')) {
+            //TODO: Implementar cuando el parametro exista con un valor buscable
+            //para esto tendrá que implementarse Scout con postgres inicialmente y luego ver una buena máquina de indexado y fulltextsearch
+            if(is_array($search) && array_key_exists('value', $search)) {
+                return $this;
+            }
             $ids = $model::search($search)->get()->pluck('id');
             $table = $this->getTable();
             if ($ids->count()) {

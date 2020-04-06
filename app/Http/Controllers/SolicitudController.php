@@ -61,19 +61,52 @@ class SolicitudController extends Controller
         if ($this->request->get('all') ) {
             $solicitud = $solicitud->get();
         } else {
-            $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
+            $length = $this->request->get('length');
+            $start = $this->request->get('start');
+            $limSup = " 23:59:59";
+            $limInf = " 00:00:00";
+            if($this->request->get('fechaRatificacion')){
+                $solicitud->where('fecha_ratificacion',"<",$this->request->get('fechaRatificacion') . $limSup);
+                $solicitud->where('fecha_ratificacion',">",$this->request->get('fechaRatificacion') . $limInf);     
+            }
+            if($this->request->get('fechaRecepcion')){
+                $solicitud->where('fecha_recepcion',"<",$this->request->get('fechaRecepcion') . $limSup);
+                $solicitud->where('fecha_recepcion',">",$this->request->get('fechaRecepcion') . $limInf);     
+            }
+            if($this->request->get('fechaConflicto')){
+                $solicitud->where('fecha_conflicto',$this->request->get('fechaConflicto'));
+            }
+            if($this->request->get('folio')){
+                $solicitud->where('folio',$this->request->get('folio'));
+            }
+            if($this->request->get('anio')){
+                $solicitud->where('anio',$this->request->get('anio'));
+            }
+            if($this->request->get('estatus_solicitud_id')){
+                $solicitud->where('estatus_solicitud_id',$this->request->get('estatus_solicitud_id'));
+            }
+            // if($this->request->get('objeto_solicitud_id')){
+            //     $solicitud->wherePivot('objeto_solicitud_id',$this->request->get('objeto_solicitud_id'));
+            // }
+            $solicitud->offset($start)->limit($length)->orderBy('id','asc');
+            $solicitud = $solicitud->paginate($this->request->get('per_page', $length));
+            
         }
 
         // // Para cada objeto obtenido cargamos sus relaciones.
         $solicitud = tap($solicitud)->each(function ($solicitud) {
             $solicitud->loadDataFromRequest();
         });
-        // return $this->sendResponse($solicitud, 'SUCCESS');
-
+        $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
+        $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
         if ($this->request->wantsJson()) {
-            return $this->sendResponse($solicitud, 'SUCCESS');
+            if ($this->request->get('all') ) {
+                return $this->sendResponse($solicitud, 'SUCCESS');
+            }else{
+                return response()->json($solicitud, 200);
+            }
         }
-        return view('expediente.solicitudes.index', compact('solicitud'));
+        return view('expediente.solicitudes.index', compact('solicitud','objeto_solicitudes','estatus_solicitudes'));
     }
 
     /**
