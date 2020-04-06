@@ -223,10 +223,12 @@ class SolicitudController extends Controller
                 $domicilio["tipo_vialidad"] = "as";
                 $domicilio["vialidad"] = "as";
                 $domicilio["estado"] = "as";
+                unset($domicilio['activo']);
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
             // }
             if(count($contactos) > 0){
                 foreach ($contactos as $key => $contacto) {
+                    unset($contacto['activo']);
                     $contactoSaved = $parteSaved->contactos()->create($contacto);
                 }
             } 
@@ -254,11 +256,13 @@ class SolicitudController extends Controller
                     $domicilio["tipo_vialidad"] = "as";
                     $domicilio["vialidad"] = "as";
                     $domicilio["estado"] = "as";
+                    unset($domicilio['activo']);
                     $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                 }
             } 
             if(count($contactos) > 0){
                 foreach ($contactos as $key => $contacto) {
+                    unset($contacto['activo']);
                     $contactoSaved = $parteSaved->contactos()->create($contacto);
                 }
             } 
@@ -442,19 +446,30 @@ class SolicitudController extends Controller
             // foreach ($domicilios as $key => $domicilio) {
                 $domicilio["tipo_vialidad"] = "as";
                 $domicilio["estado"] = "as";
+                unset($domicilio['activo']);
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                 if(count($contactos) > 0){
                     foreach ($contactos as $key => $contacto) {
+                        unset($contacto['activo']);
                         $contactoSaved = $parteSaved->contactos()->create($contacto);
                     }
                 } 
             }else{
                 $parteSaved = Parte::find($value['id']);
                 $parteUpdated = $parteSaved->update($value);
-                $dato_laboralUp =  DatoLaboral::find($dato_laboral["id"]);
-                $dato_laboralUp->update($dato_laboral);
-                $domicilioUp =  Domicilio::find($domicilio["id"]);
-                $domicilioUp->update($domicilio);
+                if(isset($dato_laboral["id"]) && $dato_laboral["id"] != "" ){
+                    $dato_laboralUp =  DatoLaboral::find($dato_laboral["id"]);
+                    $dato_laboralUp->update($dato_laboral);
+                }else{
+                    $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+                }
+                if(isset($domicilio["id"]) && $domicilio["id"] != ""){
+                    $domicilioUp =  Domicilio::find($domicilio["id"]);
+                    unset($domicilio['activo']);
+                    $domicilioUp->update($domicilio);
+                }else{
+                    $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                }
                 
                 foreach ($contactos as $key => $contacto) {
                     if($contacto["id"] != ""){
@@ -464,6 +479,7 @@ class SolicitudController extends Controller
                         if(isset($contacto["activo"]) && $contacto["activo"] == 0){
                             $contactoUp->delete();
                         }else{
+                            unset($contacto['activo']);
                             $contactoUp->update($contacto);
                         }
                     }else{
@@ -495,6 +511,7 @@ class SolicitudController extends Controller
                 $parteSaved = Parte::create($value);  
                 if(count($domicilios) > 0){
                     foreach ($domicilios as $key => $domicilio) {
+                        unset($domicilio['activo']);
                         $domicilio["tipo_vialidad"] = "as";
                         $domicilio["vialidad"] = "as";
                         $domicilio["estado"] = "as";
@@ -502,6 +519,7 @@ class SolicitudController extends Controller
                     }
                 }    
                 foreach ($contactos as $key => $contacto) {
+                    unset($contacto['activo']);
                     $contactoSaved = $parteSaved->contactos()->create($contacto);
                 } 
             }else{
@@ -512,6 +530,7 @@ class SolicitudController extends Controller
                     if(isset($domicilioUp["activo"]) && $domicilioUp["activo"] == 0){
                         $domicilioUp->delete();
                     }else{
+                        unset($domicilio['activo']);
                         $domicilioUp->update($domicilio);
                     }
                 }
@@ -521,6 +540,7 @@ class SolicitudController extends Controller
                         if(isset($contactoUp["activo"]) && $contactoUp["activo"] == 0){
                             $contactoUp->delete();
                         }else{
+                            unset($contacto['activo']);
                             $contactoUp->update($contacto);
                         }
                     }else{

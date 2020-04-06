@@ -246,6 +246,7 @@
             domicilioLoc.estado = $("#estado"+identifier).val();
             domicilioLoc.latitud = $("#latitud"+identifier).val();
             domicilioLoc.longitud = $('#longitud'+identifier).val();
+            domicilioLoc.activo = "1";
             return domicilioLoc;
         }
         domicilio.cargarDomicilio = function(domicilios){

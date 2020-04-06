@@ -87,8 +87,6 @@
             var dt = $('#tabla-detalle').DataTable({
                 "deferRender": true,
                 "ajax": {
-                    "type": "GET",
-                    "async": true,
                     "url": '/api/solicitudes',
                     "dataSrc": function(json){
                         var array = new Array();
@@ -163,38 +161,39 @@
                     {"targets": [11], "visible": false},
                     {"targets": [12], "visible": false},
                     {"targets": [13], "visible": false},
-                {
-                    "targets": -1,
-                    "render": function (data, type, row) {
-                            // console.log(row[0]);
+                    {
+                        "targets": -1,
+                        "render": function (data, type, row) {
+                                // console.log(row[0]);
                             
-                            return '<div style="display: inline-block;"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'" class="btn btn-xs btn-info"><i class="fa fa-pencil-alt"></i></a><button class="btn btn-xs btn-warning btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>';          
-                        }
-                    // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-info"><i class="fa fa-pencil-alt"></i></a><button class="btn btn-xs btn-warning btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
-                }
+                                return '<div style="display: inline-block;"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'" class="btn btn-xs btn-info"><i class="fa fa-pencil-alt"></i></a><button class="btn btn-xs btn-warning btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>';      
+                            }
+                        // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-info"><i class="fa fa-pencil-alt"></i></a><button class="btn btn-xs btn-warning btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
+                    }
                 ],
                 "serverSide": true, 
+                "processing": true,
                 select: true,
                 "ordering": false,
                 "searching": false,
-                "pageLength": 20,   
+                "pageLength": 20,
                 "lengthChange": false,
                 "scrollX": true,
-                "scrollY": $(window).height() - $('#header').height()-400,
+                "scrollY": $(window).height() - $('#header').height()-200,
                 "scrollColapse": false,
                 "scroller": {
                     "serverWait": 200,
                     "loadingIndicator": true,   
                 },
-                "dom": "frtiS",
                 "responsive": false,
                 "language": {
-                "url": "/assets/plugins/datatables.net/dataTable.es.json"
+                    "url": "/assets/plugins/datatables.net/dataTable.es.json"
                 },
                 "stateSaveParams": function (settings, data) {
                 //data.search.search = "";
-                //   console.log(data);
-                }
+                  console.log(data);
+                },
+                "dom": "tiS", // UI layout
             });
             dt.on( 'draw', function () {
                 console.log('tratando de poner')
@@ -210,7 +209,7 @@
                 filtrado = true;
             });
             $(".catSelect").select2({width: '100%'});
-            $(".date").datetimepicker({useCurrent: false,format:'DD/MM/YYYY'});
+            $(".date").datetimepicker({useCurrent: false,language: "es",format:'DD/MM/YYYY'});
             $(".date").keypress(function(event){event.preventDefault();});
             function dateFormat(fecha,tipo){
                 if(fecha != ""){
@@ -237,7 +236,7 @@
             }
             $("#limpiarFiltros").click(function(){
                 $(".filtros").val("");
-                // $(".filtros").trigger('change');
+                $(".catSelect").trigger('change');
                 dt.clear();
                 dt.ajax.reload(function(){}, true);
                 filtrado = true;

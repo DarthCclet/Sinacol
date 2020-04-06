@@ -496,7 +496,9 @@
                         {!! $errors->first('objeto_solicitud_id', '<span class=text-danger>:message</span>') !!}
                         <p class="help-block needed">Objeto de la solicitud</p>
                     </div>
-                    <button class="btn btn-primary btn-sm m-l-5" onclick="agregarObjetoSol()"><i class="fa fa-save"></i> Agregar objeto</button>
+                    <div>
+                        <button class="btn btn-primary btn-sm m-l-5" onclick="agregarObjetoSol()"><i class="fa fa-save"></i> Agregar objeto</button>
+                    </div>
                     <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                         <table class="table table-bordered" >
                             <thead>
