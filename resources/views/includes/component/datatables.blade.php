@@ -1,6 +1,6 @@
 @push('css')
     <link href="/assets/plugins/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
-    <link href="/assets/plugins/datatables.net-bs4/css/scroller.dataTables.min.css" rel="stylesheet" />
+    <link href="/assets/plugins/datatables.net-scroller-bs4/css/scroller.bootstrap4.min.css" rel="stylesheet" />
     <link href="/assets/plugins/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" />
 @endpush
 
