@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Documento;
+use App\Audiencia;
+use App\ClasificacionArchivo;
 use Validator;
+use Illuminate\Support\Facades\Storage;
 class DocumentoController extends Controller
 {
     /**
@@ -102,4 +105,40 @@ class DocumentoController extends Controller
         $documento = Documento::findOrFail($id)->delete();
         return 204;
     }
+    
+    public function uploadSubmit(){
+        
+    }
+    public function postAudiencia(Request $request)
+    {
+        $audiencia = Audiencia::find($request->audiencia_id[0]);
+        if($audiencia != null){
+            $directorio = 'audiencias/'.$request->audiencia_id[0];
+            Storage::makeDirectory($directorio);
+            $archivos = $request->file('files');
+            $tipoArchivo = ClasificacionArchivo::find($request->tipo_documento_id[0]);
+            foreach($archivos as $archivo) {
+                $path = $archivo->store($directorio);
+                $audiencia->documentos()->create([
+                    "nombre" => str_replace($directorio."/", '',$path),
+                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                    "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
+                    "ruta" => $path,
+                    "tipo_almacen" => "local",
+                    "uri" => $path,
+                    "longitud" => round(Storage::size($path) / 1024, 2),
+                    "firmado" => "false",
+                    "clasificacion_archivo_id" => $tipoArchivo->id ,
+                ]);
+            }
+        }
+        return 'Product saved successfully';
+    }
+    public function getFile($id){
+        $documento = Documento::find($id);
+        $file = Storage::get($documento->ruta);
+        $fileMime = Storage::mimeType($documento->ruta);
+        return response($file, 200)->header('Content-Type', $fileMime);
+    }
+    
 }
