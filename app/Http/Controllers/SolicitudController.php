@@ -28,7 +28,7 @@ use App\TipoAsentamiento;
 use App\TipoContacto;
 use App\TipoVialidad;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+
 
 class SolicitudController extends Controller
 {
@@ -55,9 +55,9 @@ class SolicitudController extends Controller
         $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
             ->searchWith(Solicitud::class)
             ->filter();
+
          // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
-        DB::enableQueryLog();        
         if ($this->request->get('all') ) {
             $solicitud = $solicitud->get();
         } else {
@@ -103,7 +103,6 @@ class SolicitudController extends Controller
             if ($this->request->get('all') ) {
                 return $this->sendResponse($solicitud, 'SUCCESS');
             }else{
-                // dd(DB::getQueryLog());           
                 return response()->json($solicitud, 200);
             }
         }
