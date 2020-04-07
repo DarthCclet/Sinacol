@@ -30,22 +30,18 @@ class CentroController extends Controller
         $centros = (new CatalogoFilter(Centro::query(), $this->request))
             ->searchWith(Centro::class)
             ->filter();
-
         // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
         if ($this->request->get('all')) {
             $centros = $centros->get();
         } else {
+            $centros->select("id","nombre","duracionAudiencia","abreviatura");
             $centros = $centros->paginate($this->request->get('per_page', 10));
         }
 
-        // Para cada objeto obtenido cargamos sus relaciones.
-        // $salas = tap($salas)->each(function ($sala) {
-        //     $sala->loadDataFromRequest();
-        // });
-
         // Si el request solicita respuesta en JSON (es el caso de API y requests ajax)
         if ($this->request->wantsJson()) {
+            
             return $this->sendResponse($centros, 'SUCCESS');
         }
         return view('centros.centros.index', compact('centros'));

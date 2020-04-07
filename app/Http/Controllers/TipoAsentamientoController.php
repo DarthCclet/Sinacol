@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\TipoDiscapacidad;
 use Illuminate\Http\Request;
+use App\TipoAsentamiento;
 use App\Filters\CatalogoFilter;
 
-class TipoDiscapacidadController extends Controller
+class TipoAsentamientoController extends Controller
 {
     protected $request;
 
@@ -23,19 +23,19 @@ class TipoDiscapacidadController extends Controller
      */
     public function index()
     {
-        $tipoDiscapacidades = (new CatalogoFilter(TipoDiscapacidad::query(), $this->request))
-            ->searchWith(TipoDiscapacidad::class)
+        $TipoAsentamientos = (new CatalogoFilter(TipoAsentamiento::query(), $this->request))
+            ->searchWith(TipoAsentamiento::class)
             ->filter();
         // Si en el request viene el parametro all entonces regresamos todos los elementos de lo contrario paginamos
         if ($this->request->get('all')) {
-            $tipoDiscapacidades = $tipoDiscapacidades->get();
+            $TipoAsentamientos = $TipoAsentamientos->get();
         } else {
-            $tipoDiscapacidades->select("id","nombre");
-            $tipoDiscapacidades = $tipoDiscapacidades->paginate($this->request->get('per_page', 10));
+            $TipoAsentamientos->select("id","nombre");
+            $TipoAsentamientos = $TipoAsentamientos->paginate($this->request->get('per_page', 10));
         }
 
         if ($this->request->wantsJson()) {
-            return $this->sendResponse($tipoDiscapacidades, 'SUCCESS');
+            return $this->sendResponse($TipoAsentamientos, 'SUCCESS');
         }
         abort(404);
     }
@@ -64,10 +64,10 @@ class TipoDiscapacidadController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\TipoDiscapacidad  $tipoDiscapacidad
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(TipoDiscapacidad $tipoDiscapacidad)
+    public function show($id)
     {
         //
     }
@@ -75,10 +75,10 @@ class TipoDiscapacidadController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\TipoDiscapacidad  $tipoDiscapacidad
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(TipoDiscapacidad $tipoDiscapacidad)
+    public function edit($id)
     {
         //
     }
@@ -87,10 +87,10 @@ class TipoDiscapacidadController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\TipoDiscapacidad  $tipoDiscapacidad
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, TipoDiscapacidad $tipoDiscapacidad)
+    public function update(Request $request, $id)
     {
         //
     }
@@ -98,10 +98,10 @@ class TipoDiscapacidadController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\TipoDiscapacidad  $tipoDiscapacidad
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(TipoDiscapacidad $tipoDiscapacidad)
+    public function destroy($id)
     {
         //
     }
