@@ -46,32 +46,43 @@ Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
 Route::Get('audiencia/documentos/{audiencia_id}','AudienciaController@getDocumentosAudiencia');
 Route::Get('documentos/getFile/{id}','DocumentoController@getFile');
 Route::resource('compareciente','ComparecienteController');
-Route::resource('centro','CentroController');
+Route::resource('centro','CentroController')->middleware('client');
 Route::post('centros/disponibilidad','CentroController@disponibilidad');
 Route::Post('centros/disponibilidades','CentroController@getDisponibilidades');
 Route::Post('centros/incidencias','CentroController@incidencia');
-Route::resource('objeto-solicitud','ObjetoSolicitudController');
+Route::resource('objeto-solicitud','ObjetoSolicitudController')->middleware('client');
 Route::resource('rol-atencion','RolAtencionController');
 Route::Post('ocupacion/multiples','OcupacionController@editMultiple');
+Route::resource('ocupaciones','OcupacionController')->middleware('client');
 Route::resource('plantilla-documento','PlantillasDocumentosController');
 Route::Post('plantilla-documento/cargarVariables','PlantillasDocumentosController@cargarVariables');
 Route::resource('contadores','ContadorController');
 Route::resource('tipo_contadores','TipoContadorController');
 Route::resource('tipo_documentos','TipoDocumentosController');
+Route::resource('tipo_personas','TipoPersonaController')->middleware('client');
 Route::resource('solicitudes','SolicitudController');
+Route::resource('lenguas_indigenas','LenguaIndigenaController')->middleware('client');
+Route::resource('tipo_discapacidades','TipoDiscapacidadController')->middleware('client');
+Route::resource('tipo_vialidades','TipoVialidadController')->middleware('client');
+Route::resource('tipo_asentamientos','TipoAsentamientoController')->middleware('client');
+Route::resource('tipo_contactos','TipoContactoController')->middleware('client');
+Route::resource('tipo_partes','TipoParteController')->middleware('client');
+Route::resource('giros_comerciales','GiroComercialController')->middleware('client');
+Route::resource('estados','EstadoController')->middleware('client');
+Route::resource('nacionalidades','NacionalidadController')->middleware('client');
 
 //Route::resource('rol-conciliador','RolAtencionController');
 
 Route::post('login', 'ApiAuthController@login');
 
 // Rutas para trabajar web services con el CJF
-Route::post('audiencias/no-conciliacion/fechas', 'ServiciosCJFController@listadoPorFechas')->middleware('client');
-Route::post('audiencias/no-conciliacion/parte-actora', 'ServiciosCJFController@listadoPorNombreParteActora')->middleware('client');
-Route::post('audiencias/no-conciliacion/parte-demandada', 'ServiciosCJFController@listadoPorNombreParteDemandada')->middleware('client');
-Route::get('audiencias/no-conciliacion/curp/{curp}', 'ServiciosCJFController@listadoPorCurp')->middleware('client');
-Route::get('audiencias/no-conciliacion/rfc/{rfc}', 'ServiciosCJFController@listadoPorRfc')->middleware('client');
-Route::post('audiencias/no-conciliacion/constancia', 'ServiciosCJFController@consultaExpediente')->middleware('client');
-Route::post('audiencias/solicitud/solicitud-externa', 'ServiciosCJFController@solicitudExterna')->middleware('client');
+Route::post('audiencias/no-conciliacion/fechas', 'ServiciosCJFController@listadoPorFechas')->middleware('client');;
+Route::post('audiencias/no-conciliacion/parte-actora', 'ServiciosCJFController@listadoPorNombreParteActora')->middleware('client');;
+Route::post('audiencias/no-conciliacion/parte-demandada', 'ServiciosCJFController@listadoPorNombreParteDemandada')->middleware('client');;
+Route::get('audiencias/no-conciliacion/curp/{curp}', 'ServiciosCJFController@listadoPorCurp')->middleware('client');;
+Route::get('audiencias/no-conciliacion/rfc/{rfc}', 'ServiciosCJFController@listadoPorRfc')->middleware('client');;
+Route::post('audiencias/no-conciliacion/constancia', 'ServiciosCJFController@consultaExpediente')->middleware('client');;
+Route::post('audiencias/solicitud/solicitud-externa', 'ServiciosCJFController@solicitudExterna')->middleware('client');;
 
 Route::post('upload', 'DocumentoController@uploadSubmit');
 Route::post('documentoAudiencia', 'DocumentoController@postAudiencia');
