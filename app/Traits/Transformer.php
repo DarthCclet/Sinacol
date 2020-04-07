@@ -28,6 +28,7 @@ trait Transformer
                 'rfc' => $persona->rfc,
                 'curp' => $persona->curp,
                 'caracter_persona' => $persona->tipoPersona->nombre,
+                'tipo_persona_id' => $persona->tipo_persona_id,
                 'domicilios' => $this->domiciliosTransformer($persona->domicilios)
             ];
         }
@@ -36,6 +37,7 @@ trait Transformer
                 'denominacion' => $persona->nombre_comercial,
                 'rfc' => $persona->rfc,
                 'caracter_persona' => $persona->tipoPersona->nombre,
+                'tipo_persona_id' => $persona->tipo_persona_id,
                 'domicilios' => $this->domiciliosTransformer($persona->domicilios)
             ];
         }
@@ -56,13 +58,16 @@ trait Transformer
         foreach($datos as $domicilio){
             $domicilios[] = [
                 'tipo_vialidad' => $domicilio->tipo_vialidad,
+                'tipo_vialidad_id' => $domicilio->tipo_vialidad_id,
                 'vialidad' => $domicilio->vialidad,
                 'num_ext' => $domicilio->num_ext,
                 'num_int' => $domicilio->num_int,
                 'tipo_asentamiento' => $domicilio->tipo_asentamiento,
+                'tipo_asentamiento_id' => $domicilio->tipo_asentamiento_id,
                 'asentamiento' => $domicilio->asentamiento,
                 'municipio' => $domicilio->municipio,
                 'estado' => $domicilio->estado,
+                'estado_id' => $domicilio->estado_id,
                 'cp' => $domicilio->cp,
                 'latitud' => $domicilio->latitud,
                 'longitud' => $domicilio->longitud,
