@@ -104,10 +104,13 @@ class ConsultaConciliacionesPorExpediente
                     'rfc' => $persona->rfc,
                     'curp' => $persona->curp,
                     'caracter_persona' => $persona->tipoPersona->nombre,
+                    'tipo_persona_id' => $persona->tipo_persona_id,
                     'solicita_traductor' => $persona->solicita_traductor,
                     'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                    'lengua_indigena_id' => $persona->tipo_persona_id,
                     'padece_discapacidad' => $persona->padece_discapacidad,
                     'discapacidad' => $persona->tipoDiscapacidad->nombre,
+                    'discapacidad_id' => $persona->tipoDiscapacidad->nombre,
                     'publicacion_datos' => $persona->publicacion_datos,
                     'domicilios' => $this->domiciliosTransformer($persona->domicilios),
                     'contactos' => $this->contactoTransformer($persona->contactos),
@@ -119,10 +122,13 @@ class ConsultaConciliacionesPorExpediente
                     'denominacion' => $persona->nombre_comercial,
                     'rfc' => $persona->rfc,
                     'caracter_persona' => $persona->tipoPersona->nombre,
+                    'tipo_persona_id' => $persona->tipo_persona_id,
                     'solicita_traductor' => $persona->solicita_traductor,
                     'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                    'lengua_indigena_id' => $persona->tipo_persona_id,
                     'padece_discapacidad' => false,
                     'discapacidad' => 'N/A',
+                    'discapacidad_id' => null,
                     'publicacion_datos' => $persona->publicacion_datos,
                     'domicilios' => $this->domiciliosTransformer($persona->domicilios),
                     'contactos' => $this->contactoTransformer($persona->contactos),
@@ -163,6 +169,7 @@ class ConsultaConciliacionesPorExpediente
         foreach($datos as $contact){
             $contacto[] = [
                 'tipo_contacto' => $contact->tipo_contacto->nombre,
+                'tipo_contacto_id' => $contact->tipo_contacto_id,
                 'contacto' => $contact->contacto
             ];
         }
