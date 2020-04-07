@@ -147,7 +147,6 @@ class SolicitudController extends Controller
             'solicitud.fecha_conflicto' => 'required',
             'solicitud.fecha_ratificacion' => 'required',
             'solicitud.fecha_recepcion' => 'required',
-            'solicitud.ratificada' => 'required',
             'solicitud.solicita_excepcion' => 'required',
 
             'solicitantes.*.nombre' => 'required',
@@ -160,7 +159,6 @@ class SolicitudController extends Controller
             'solicitantes.*.entidad_nacimiento_id' => 'required',
             'solicitantes.*.fecha_nacimiento' => 'required',
             'solicitantes.*.genero_id' => 'required',
-            'solicitantes.*.giro_comercial_id' => 'required',
             'solicitantes.*.nacionalidad_id' => 'required',
 
             'solicitados.*.nombre' => 'required',
@@ -173,7 +171,6 @@ class SolicitudController extends Controller
             'solicitados.*.entidad_nacimiento_id' => 'required',
             'solicitados.*.fecha_nacimiento' => 'required',
             'solicitados.*.genero_id' => 'required',
-            'solicitados.*.giro_comercial_id' => 'required',
             'solicitados.*.nacionalidad_id' => 'required',
         ]);
         
@@ -212,7 +209,7 @@ class SolicitudController extends Controller
                 unset($value['domicilios']);
             }
             if(isset($value["contactos"])){
-                $contactos = $value["contactos"][0];
+                $contactos = $value["contactos"];
                 unset($value['contactos']);
             }
             
@@ -245,7 +242,7 @@ class SolicitudController extends Controller
                 unset($value['domicilios']);
             }
             if(isset($value["contactos"])){
-                $contactos = $value["contactos"][0];
+                $contactos = $value["contactos"];
                 unset($value['contactos']);
             }
             
@@ -372,7 +369,6 @@ class SolicitudController extends Controller
             'solicitud.fecha_conflicto' => 'required',
             'solicitud.fecha_ratificacion' => 'required',
             'solicitud.fecha_recepcion' => 'required',
-            'solicitud.ratificada' => 'required',
             'solicitud.solicita_excepcion' => 'required',
 
             'solicitantes.*.nombre' => 'required',
@@ -385,7 +381,6 @@ class SolicitudController extends Controller
             'solicitantes.*.entidad_nacimiento_id' => 'required',
             'solicitantes.*.fecha_nacimiento' => 'required',
             'solicitantes.*.genero_id' => 'required',
-            'solicitantes.*.giro_comercial_id' => 'required',
             'solicitantes.*.nacionalidad_id' => 'required',
             
             'solicitados.*.nombre' => 'required',
@@ -398,14 +393,12 @@ class SolicitudController extends Controller
             'solicitados.*.entidad_nacimiento_id' => 'required',
             'solicitados.*.fecha_nacimiento' => 'required',
             'solicitados.*.genero_id' => 'required',
-            'solicitados.*.giro_comercial_id' => 'required',
             'solicitados.*.nacionalidad_id' => 'required',
         ]);
         $solicitud = $request->input('solicitud');
         
         // // Solicitud
         $solicitud['user_id'] = 1;
-        $solicitud['estatus_solicitud_id'] = 1;
         // dd($solicitud);
         $solicitudUp = Solicitud::find($solicitud['id']);
         $exito = $solicitudUp->update($solicitud);
@@ -418,7 +411,9 @@ class SolicitudController extends Controller
         
         $arrObjetoSolicitudes = [];
         foreach ($objeto_solicitudes as $key => $value) {
-            array_push($arrObjetoSolicitudes,$value['objeto_solicitud_id']);
+            if($value["activo"] == 1){
+                array_push($arrObjetoSolicitudes,$value['objeto_solicitud_id']);
+            }
         }
         $solicitudSaved->objeto_solicitudes()->sync($arrObjetoSolicitudes);
         
@@ -444,8 +439,7 @@ class SolicitudController extends Controller
                 $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
             // dd($domicilio);
             // foreach ($domicilios as $key => $domicilio) {
-                $domicilio["tipo_vialidad"] = "as";
-                $domicilio["estado"] = "as";
+                
                 unset($domicilio['activo']);
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                 if(count($contactos) > 0){
@@ -463,9 +457,10 @@ class SolicitudController extends Controller
                 }else{
                     $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
                 }
+                unset($domicilio['activo']);
                 if(isset($domicilio["id"]) && $domicilio["id"] != ""){
                     $domicilioUp =  Domicilio::find($domicilio["id"]);
-                    unset($domicilio['activo']);
+
                     $domicilioUp->update($domicilio);
                 }else{
                     $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
@@ -512,9 +507,6 @@ class SolicitudController extends Controller
                 if(count($domicilios) > 0){
                     foreach ($domicilios as $key => $domicilio) {
                         unset($domicilio['activo']);
-                        $domicilio["tipo_vialidad"] = "as";
-                        $domicilio["vialidad"] = "as";
-                        $domicilio["estado"] = "as";
                         $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                     }
                 }    
@@ -526,18 +518,25 @@ class SolicitudController extends Controller
                 $parteSaved = Parte::find($value['id']);
                 $parteSaved->update($value);
                 foreach ($domicilios as $key => $domicilio) {
-                    $domicilioUp =  Domicilio::find($domicilio["id"]);
-                    if(isset($domicilioUp["activo"]) && $domicilioUp["activo"] == 0){
-                        $domicilioUp->delete();
+                    if($domicilio["id"] != ""){
+                        $domicilioUp =  Domicilio::find($domicilio["id"]);
+                        if(isset($domicilio["activo"]) && $domicilio["activo"] == 0){
+                            // dd($domicilios);
+                            $domicilioUp->delete();
+                        }else{
+                            unset($domicilio['activo']);
+                            $domicilioUp =  Domicilio::find($domicilio["id"]);
+                            $domicilioUp->update($domicilio);
+                            
+                        }
                     }else{
-                        unset($domicilio['activo']);
-                        $domicilioUp->update($domicilio);
+                        $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                     }
                 }
                 foreach ($contactos as $key => $contacto) {
                     if($contacto["id"] != ""){
                         $contactoUp =  Contacto::find($contacto["id"]);
-                        if(isset($contactoUp["activo"]) && $contactoUp["activo"] == 0){
+                        if(isset($contacto["activo"]) && $contacto["activo"] == 0){
                             $contactoUp->delete();
                         }else{
                             unset($contacto['activo']);

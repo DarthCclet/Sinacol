@@ -69,14 +69,19 @@
 		{!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect'.$identificador]);  !!}
 		{!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Tipo de asentamiento</p>
+    </div>
+    <div class="col-md-4">
+        {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[asentamiento]" id="asentamiento{{$identificador}}" placeholder="Asentamiento" required type="text" value=""> --}}
+        {!! Form::text('domicilio[asentamiento]', isset($domicilio->asentamiento) ? $domicilio->asentamiento : null, ['id'=>'asentamiento'.$identificador,'required', 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Asentamiento']) !!}
+        {!! $errors->first('domicilio[asentamiento]', '<span class=text-danger>:message</span>') !!}
+		<p class="help-block">Colonia (asentamiento)</p>
 	</div>
 	<div class="col-md-4"   >    
 		{!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , isset($domicilio->tipo_vialidad_id) ? $domicilio->tipo_vialidad_id : 0, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
 		{!! $errors->first('domicilio[tipo_vialidad_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Tipo de vialidad</p>
     </div>
-    
-	<div class="col-md-4">
+    <div class="col-md-4">
         {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[vialidad]" id="vialidad{{$identificador}}" placeholder="Vialidad" required type="text" value=""> --}}
         {!! Form::text('domicilio[vialidad]', isset($domicilio->vialidad) ? $domicilio->vialidad : null, ['id'=>'vialidad'.$identificador,'required', 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Calle']) !!}
         {!! $errors->first('domicilio[vialidad]', '<span class=text-danger>:message</span>') !!}
@@ -90,25 +95,19 @@
 	</div>
 	<div class="col-md-4">
 		{{-- <input class="form-control numero" id="num_int{{$identificador}}" name="domicilio[num_int]" placeholder="Num Interior" required type="text" value=""> --}}
-        {!! Form::text('domicilio[num_int]', isset($domicilio->num_int) ? $domicilio->num_int : null, ['id'=>'num_int'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Numero Interior']) !!}
+        {!! Form::text('domicilio[num_int]', isset($domicilio->num_int) ? $domicilio->num_int : null, ['id'=>'num_int'.$identificador, 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Numero Interior']) !!}
         {!! $errors->first('domicilio[num_int]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Numero interior</p>
 	</div>
 	<div class="col-md-4">
-        {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[asentamiento]" id="asentamiento{{$identificador}}" placeholder="Asentamiento" required type="text" value=""> --}}
-        {!! Form::text('domicilio[asentamiento]', isset($domicilio->asentamiento) ? $domicilio->asentamiento : null, ['id'=>'asentamiento'.$identificador,'required', 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Asentamiento']) !!}
-        {!! $errors->first('domicilio[asentamiento]', '<span class=text-danger>:message</span>') !!}
-		<p class="help-block">Colonia (asentamiento)</p>
-	</div>
-	<div class="col-md-4">
         {{-- <input class="form-control" id="referencias{{$identificador}}" name="domicilio[referencias]" placeholder="Referencias" required type="text" value=""> --}}
-        {!! Form::text('domicilio[referencias]', isset($domicilio->referencias) ? $domicilio->referencias : null, ['id'=>'referencias'.$identificador,'required', 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Referencias']) !!}
+        {!! Form::text('domicilio[referencias]', isset($domicilio->referencias) ? $domicilio->referencias : null, ['id'=>'referencias'.$identificador, 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Referencias']) !!}
         {!! $errors->first('domicilio[referencias]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Referencias</p>
 	</div>
 	<div class="col-md-4">
         {{-- <input class="form-control" id="entre_calle1{{$identificador}}" name="domicilio[entre_calle1]" placeholder="Entre calle" required type="text" value=""> --}}
-        {!! Form::text('domicilio[entre_calle1]', isset($domicilio->entre_calle1) ? $domicilio->entre_calle1 : null, ['id'=>'entre_calle1'.$identificador,'required', 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Entre Calle']) !!}
+        {!! Form::text('domicilio[entre_calle1]', isset($domicilio->entre_calle1) ? $domicilio->entre_calle1 : null, ['id'=>'entre_calle1'.$identificador, 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Entre Calle']) !!}
         {!! $errors->first('domicilio[entre_calle1]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Entre calle</p>
 	</div>
