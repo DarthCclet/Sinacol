@@ -110,7 +110,7 @@ class ConsultaConciliacionesPorExpediente
                     'lengua_indigena_id' => $persona->tipo_persona_id,
                     'padece_discapacidad' => $persona->padece_discapacidad,
                     'discapacidad' => $persona->tipoDiscapacidad->nombre,
-                    'discapacidad_id' => $persona->tipoDiscapacidad->nombre,
+                    'discapacidad_id' => $persona->tipo_discapacidad_id,
                     'publicacion_datos' => $persona->publicacion_datos,
                     'domicilios' => $this->domiciliosTransformer($persona->domicilios),
                     'contactos' => $this->contactoTransformer($persona->contactos),
