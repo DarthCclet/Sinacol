@@ -23,7 +23,7 @@ class Filter
         $this->request = $request;
     }
 
-    public function filter()
+    public function filter($ordered = true)
     {
         $params = collect($this->request->all());
         $params->each(function ($value, $key){
@@ -33,7 +33,7 @@ class Filter
             }
         });
 
-        if($this->query->getModel()->timestamps){
+        if($this->query->getModel()->timestamps && $ordered){
             return $this->query->latest($this->getTable() . '.created_at');
         }
         return $this->query;

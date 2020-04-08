@@ -96,24 +96,19 @@
                         });
                         return array;
                     },
-                    "dataFilter": function(data){
-                        var json = jQuery.parseJSON( data );
-                        json.recordsTotal = json.total;
-                        json.recordsFiltered = json.total;
-                        return JSON.stringify(json);
-                    },
                     "data": function (d) {
                         d.fechaRatificacion = dateFormat($("#fechaRatificacion").val(),1),
                         d.fechaRecepcion = dateFormat($("#fechaRecepcion").val(),1),
                         d.fechaConflicto = dateFormat($("#fechaConflicto").val(),1),
-                        d.folio = $("#folio").val()
-                        d.anio = $("#anio").val()
-                        d.estatus_solicitud_id = $("#estatus_solicitud_id").val()
+                        d.folio = $("#folio").val(),
+                        d.anio = $("#anio").val(),
+                        d.estatus_solicitud_id = $("#estatus_solicitud_id").val(),
+                        d.IsDatatableScroll = true
                         // d.objeto_solicitud_id = $("#objeto_solicitud_id").val()
                     }
                 },
                 "columnDefs": [
-                    {"targets": [0], "visible": false},
+                    // {"targets": [0], "visible": false},
                     {
                         "targets": [1], 
                         "render": function (data, type, row) {
