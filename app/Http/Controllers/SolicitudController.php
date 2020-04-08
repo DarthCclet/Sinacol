@@ -54,7 +54,7 @@ class SolicitudController extends Controller
         // Filtramos los usuarios con los parametros que vengan en el request
         $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
             ->searchWith(Solicitud::class)
-            ->filter();
+            ->filter(false);
 
          // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
@@ -85,11 +85,11 @@ class SolicitudController extends Controller
             if($this->request->get('estatus_solicitud_id')){
                 $solicitud->where('estatus_solicitud_id',$this->request->get('estatus_solicitud_id'));
             }
-            // if($this->request->get('objeto_solicitud_id')){
-            //     $solicitud->wherePivot('objeto_solicitud_id',$this->request->get('objeto_solicitud_id'));
-            // }
-            $solicitud->offset($start)->limit($length)->orderBy('id','asc');
-            $solicitud = $solicitud->paginate($this->request->get('per_page', $length));
+            if($this->request->get('IsDatatableScroll')){
+                $solicitud = $solicitud->take($length)->skip($start)->orderBy('id','asc')->get();
+            }else{
+                $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
+            }
             
         }
 
@@ -103,7 +103,9 @@ class SolicitudController extends Controller
             if ($this->request->get('all') ) {
                 return $this->sendResponse($solicitud, 'SUCCESS');
             }else{
-                return response()->json($solicitud, 200);
+                $total = Solicitud::count();
+                $draw = $this->request->get('draw');
+                return $this->sendResponseDatatable($total,$total,$draw,$solicitud, null);
             }
         }
         return view('expediente.solicitudes.index', compact('solicitud','objeto_solicitudes','estatus_solicitudes'));
