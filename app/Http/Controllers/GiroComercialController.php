@@ -38,7 +38,9 @@ class GiroComercialController extends Controller
         if ($this->request->wantsJson()) {
             return $this->sendResponse($giroComercial, 'SUCCESS');
         }
-        abort(404);
+
+        $giros = GiroComercial::defaultOrder()->withDepth()->get();
+        return view('admin.giros.index', compact('giros'));
     }
 
     /**
