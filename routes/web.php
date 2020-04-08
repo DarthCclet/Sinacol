@@ -40,6 +40,6 @@ Route::get('plantilla-documento/cargarDefault','PlantillasDocumentosController@c
 Route::get('plantilla-documento/{id}/imprimirPDF','PlantillasDocumentosController@imprimirPDF')->name('plantilla-documento/imprimirPDF');
 
 
-
+Route::resource('giros','GiroComercialController');
 
 Auth::routes(['register' => false]);

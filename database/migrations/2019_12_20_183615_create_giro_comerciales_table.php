@@ -1,8 +1,10 @@
 <?php
 
+use App\Parsers\GiroComercialParser;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Kalnoy\Nestedset\NestedSet;
 
 class CreateGiroComercialesTable extends Migration
 {
@@ -15,26 +17,20 @@ class CreateGiroComercialesTable extends Migration
     {
         Schema::create('giro_comerciales', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('PK del catálogo de giro comercial');
+            $table->string('codigo')->comment('Código del catálogo SCIAN del INEGI');
             $table->string('nombre')->comment('Nombre del giro comercial');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
+            NestedSet::columns($table);
             $table->timestamps();
         });
         $tabla_nombre = 'giro_comerciales';
         $comentario_tabla = 'Tabla donde se almacena el catálogo de giros comerciales para empresas.';
         DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
 
+        $pathArchivo = base_path('database/datafiles/GirosComercialesSIAN.xlsx');
+        $giroComercialParser = new GiroComercialParser();
+        $giroComercialParser->parse($pathArchivo);
 
-        $path = base_path('database/datafiles');
-        $json = json_decode(file_get_contents($path . "/giro_comerciales.json"));
-        //Se llena el catalogo desde el arvhivo json giro_comerciales.json
-        foreach ($json->datos as $giro_comerciales){
-            DB::table('giro_comerciales')->insert(
-                [
-                    'id' => $giro_comerciales->id,
-                    'nombre' => $giro_comerciales->nombre
-                ]
-            );
-        }
     }
 
     /**
