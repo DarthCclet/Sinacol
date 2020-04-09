@@ -29,18 +29,26 @@ class CreateOcupacionesTable extends Migration
         DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
 
         $path = base_path('database/datafiles');
-        $json = json_decode(file_get_contents($path . "/puestos.json"));
-        //Se llena el catalogo desde el arvhivo json giro_comerciales.json
-        foreach ($json->datos as $puestos){
-            DB::table('ocupaciones')->insert(
-                [
-                    'id' => $puestos->id,
-                    'nombre' => $puestos->nombre,
-                    'salario_zona_libre'=> $puestos->salario_zona_libre,
-                    'salario_resto_del_pais' => $puestos->salario_resto_del_pais,
-                    'vigencia_de' => $puestos->vigencia_de
-                ]
-            );
+
+        if (($h = fopen($path."/ocupaciones.csv", "r")) !== FALSE)
+        {
+            $c = 0;
+            while (($ocupacion = fgetcsv($h, 1000, "|")) !== FALSE)
+            {
+                $c++;
+                if ($c == 1) {
+                    continue;
+                }
+                DB::table('ocupaciones')->insert(
+                    [
+                        'nombre' => $ocupacion[0],
+                        'salario_zona_libre'=> $ocupacion[1],
+                        'salario_resto_del_pais' => $ocupacion[2],
+                        'vigencia_de' => '2020-01-01'
+                    ]
+                );
+            }
+            fclose($h);
         }
     }
 
