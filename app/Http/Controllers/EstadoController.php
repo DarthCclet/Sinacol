@@ -28,7 +28,7 @@ class EstadoController extends Controller
             ->filter();
         // Si en el request viene el parametro all entonces regresamos todos los elementos de lo contrario paginamos
         if ($this->request->get('all')) {
-            $estados = $lenguaIndigena->get();
+            $estados = $estados->get();
         } else {
             $estados->select("id","nombre","abreviatura");
             $estados = $estados->paginate($this->request->get('per_page', 10));
