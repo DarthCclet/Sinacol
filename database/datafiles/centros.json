@@ -2,21 +2,196 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "CENTRO 1"
+            "nombre": "AGUASCALIENTES",
+            "abreviatura": "AGU",
+            "duracionAudiencia": 45
         },
         {
             "id": "2",
-            "nombre": "CENTRO 2"
+            "nombre": "BAJA CALIFORNIA",
+            "abreviatura": "BCN",
+            "duracionAudiencia": 45
         },
         {
             "id": "3",
-            "nombre": "CENTRO 3"
+            "nombre": "BAJA CALIFORNIA SUR",
+            "abreviatura": "BCS",
+            "duracionAudiencia": 45
         },
         {
             "id": "4",
-            "nombre": "CENTRO 4"
+            "nombre": "CAMPECHE",
+            "abreviatura": "CAM",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "5",
+            "nombre": "COAHUILA DE ZARAGOZA",
+            "abreviatura": "COA",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "6",
+            "nombre": "COLIMA",
+            "abreviatura": "COL",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "7",
+            "nombre": "CHIAPAS",
+            "abreviatura": "CHP",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "8",
+            "nombre": "CHIHUAHUA",
+            "abreviatura": "CHH",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "9",
+            "nombre": "CIUDAD DE MÉXICO",
+            "abreviatura": "CDMX",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "10",
+            "nombre": "DURANGO",
+            "abreviatura": "DUR",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "11",
+            "nombre": "GUANAJUATO",
+            "abreviatura": "GUA",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "12",
+            "nombre": "GUERRERO",
+            "abreviatura": "GRO",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "13",
+            "nombre": "HIDALGO",
+            "abreviatura": "HID",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "14",
+            "nombre": "JALISCO",
+            "abreviatura": "JAL",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "15",
+            "nombre": "MÉXICO",
+            "abreviatura": "MEX",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "16",
+            "nombre": "MICHOACÁN DE OCAMPO",
+            "abreviatura": "MIC",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "17",
+            "nombre": "MORELOS",
+            "abreviatura": "MOR",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "18",
+            "nombre": "NAYARIT",
+            "abreviatura": "NAY",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "19",
+            "nombre": "NUEVO LEÓN",
+            "abreviatura": "NLE",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "20",
+            "nombre": "OAXACA",
+            "abreviatura": "OAX",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "21",
+            "nombre": "PUEBLA",
+            "abreviatura": "PUE",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "22",
+            "nombre": "QUERÉTARO",
+            "abreviatura": "QUE",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "23",
+            "nombre": "QUINTANA ROO",
+            "abreviatura": "ROO",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "24",
+            "nombre": "SAN LUIS POTOSÍ",
+            "abreviatura": "SLP",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "25",
+            "nombre": "SINALOA",
+            "abreviatura": "SIN",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "26",
+            "nombre": "SONORA",
+            "abreviatura": "SON",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "27",
+            "nombre": "TABASCO",
+            "abreviatura": "TAB",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "28",
+            "nombre": "TAMAULIPAS",
+            "abreviatura": "TAM",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "29",
+            "nombre": "TLAXCALA",
+            "abreviatura": "TLA",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "30",
+            "nombre": "VERACRUZ DE IGNACIO DE LA LLAVE",
+            "abreviatura": "VER",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "31",
+            "nombre": "YUCATAN",
+            "abreviatura": "YUC",
+            "duracionAudiencia": 45
+        },
+        {
+            "id": "32",
+            "nombre": "ZACATECAS",
+            "abreviatura": "ZAC",
+            "duracionAudiencia": 45
         }
-
     ],
-    "numReg": 2
+    "numReg": 32
 }

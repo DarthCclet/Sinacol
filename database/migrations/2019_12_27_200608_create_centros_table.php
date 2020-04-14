@@ -24,18 +24,20 @@ class CreateCentrosTable extends Migration
         $tabla_nombre = 'centros';
         $comentario_tabla = 'Tabla donde se almacenan los centros de conciliacion.';
         DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
-        // $path = base_path('database/datafiles');
-        // $json = json_decode(file_get_contents($path . "/centros.json"));
-        //
+        $path = base_path('database/datafiles');
+        $json = json_decode(file_get_contents($path . "/centros.json"));
+
         // //Se llena el catalogo desde el arvhivo json generos.json
-        // foreach ($json->datos as $centro){
-        //     DB::table('centros')->insert(
-        //         [
-        //             'id' => $centro->id,
-        //             'nombre' => $centro->nombre
-        //         ]
-        //     );
-        // }
+        foreach ($json->datos as $centro){
+             DB::table('centros')->insert(
+                 [
+                     'id' => $centro->id,
+                     'nombre' => $centro->nombre,
+                     'abreviatura' => $centro->abreviatura,
+                     'duracionAudiencia' => $centro->duracionAudiencia,
+                 ]
+             );
+         }
     }
 
     /**
