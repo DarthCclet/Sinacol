@@ -9,7 +9,7 @@ use Faker\Generator as Faker;
 
 $factory->define(Contador::class, function (Faker $faker) {
     $tipoContador = TipoPersona::inRandomOrder()->first();
-    $centro = factory(Centro::class)->create();
+    $centro = Centro::inRandomOrder()->first();
     return [
         'centro_id' => $centro->id,
         'tipo_contador_id' => $tipoContador->id,

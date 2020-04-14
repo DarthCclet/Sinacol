@@ -9,6 +9,7 @@ $factory->define(Expediente::class, function (Faker $faker) {
 
   // se llama el factory de solicitud para crear un registro y probar su relacion
   $solicitud = factory(\App\Solicitud::class)->create();
+
   $solicitud->objeto_solicitudes()->sync([1]);
 
   // se crea parte solicitado
@@ -21,8 +22,7 @@ $factory->define(Expediente::class, function (Faker $faker) {
   factory(\App\DatoLaboral::class)->create(['parte_id'=>$parteSolicitante->id]);
   factory(App\Contacto::class)->create(['contactable_id'=>$parteSolicitante->id, 'contactable_type'=>'App\Parte']);
   $year = date('Y');
-
-  $edo_folio = $faker->randomElement(['CDMX','NAY','MEX','PUE']);
+  $edo_folio = $solicitud->centro->abreviatura;
   $folio = $edo_folio. "/CJ/I/". $year."/".sprintf("%06d", $faker->randomNumber(6));
   return [
     'folio'=> $folio,

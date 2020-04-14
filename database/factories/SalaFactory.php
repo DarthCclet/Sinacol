@@ -7,7 +7,7 @@ use App\Centro;
 use Faker\Generator as Faker;
 
 $factory->define(Sala::class, function (Faker $faker) {
-	$centro = factory(App\Centro::class)->create();
+    $centro = Centro::inRandomOrder()->first();
     return [
         'sala' => $faker->sentence,
         'centro_id' => $centro->id

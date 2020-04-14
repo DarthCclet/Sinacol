@@ -58,7 +58,7 @@ Route::resource('plantilla-documento','PlantillasDocumentosController');
 Route::Post('plantilla-documento/cargarVariables','PlantillasDocumentosController@cargarVariables');
 Route::resource('contadores','ContadorController');
 Route::resource('tipo_contadores','TipoContadorController');
-Route::resource('tipo_documentos','TipoDocumentosController');
+Route::resource('tipo_documentos','TipoDocumentoController')->middleware('client');
 Route::resource('tipo_personas','TipoPersonaController')->middleware('client');
 Route::resource('solicitudes','SolicitudController');
 Route::resource('lenguas_indigenas','LenguaIndigenaController')->middleware('client');

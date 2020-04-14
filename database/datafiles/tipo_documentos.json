@@ -2,18 +2,55 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "ACUERDO",
-            "objetos":"1"
+            "nombre": "CONSTANCIA DE NO CONCILIACIÓN",
+            "objetos":"1,2,3"
         },
         {
             "id": "2",
-            "nombre": "CONVENIO",
+            "nombre": "CONSTANCIA DE NO CONCILIACIÓN POR EXCEPCIÓN",
             "objetos":"1,2,3"
         },
         {
             "id": "3",
-            "nombre": "CITATORIO",
-            "objetos":"1"
+            "nombre": "CONSTANCIA DE CONCILIACIÓN",
+            "objetos":"1,2,3"
+        },
+        {
+            "id": "4",
+            "nombre": "RAZÓN DE NOTIFICACIÓN",
+            "objetos":"1,2,3"
+        },
+        {
+            "id": "5",
+            "nombre": "ACTA DE RATIFICACIÓN DE CONVENIO",
+            "objetos":"1,2,3"
+        },
+        {
+            "id": "6",
+            "nombre": "CITATORIO DE CONCILIACIÓN",
+            "objetos":"1,2,3"
+        },
+        {
+            "id": "7",
+            "nombre": "CONVENIO",
+            "objetos":"1,2,3"
+        },
+        {
+            "id": "8",
+            "nombre": "CONSTANCIA DE REPRESENTANTE LEGAL DE PERSONA MORAL",
+            "objetos":"1,2,3"
+        }
+        ,
+        {
+            "id": "9",
+            "nombre": "IDENTIFICACIÓN DE PARTE",
+            "objetos":"1,2,3"
+        }
+        ,
+        {
+            "id": "10",
+            "nombre": "CONSTANCIA EMITIDA POR INSTITUCIÓN O AUTORIDAD",
+            "objetos":"1,2,3"
         }
 
     ],

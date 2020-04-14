@@ -30,6 +30,7 @@ class TipoDocumentoController extends Controller
       if ($this->request->get('all')) {
           $tipoDocumento = $tipoDocumento->get();
       } else {
+          $tipoDocumento->select('id','nombre');
           $tipoDocumento = $tipoDocumento->paginate($this->request->get('per_page', 10));
       }
 

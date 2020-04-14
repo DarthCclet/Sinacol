@@ -7,7 +7,7 @@ use Faker\Generator as Faker;
 
 $factory->define(Conciliador::class, function (Faker $faker) {
     $persona = factory(App\Persona::class)->create();
-    $centro = factory(App\Centro::class)->create();
+    $centro = Centro::inRandomOrder()->first();
     return [
         //
         'persona_id' => $persona->id,
