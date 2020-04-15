@@ -58,7 +58,7 @@ Route::resource('plantilla-documento','PlantillasDocumentosController');
 Route::Post('plantilla-documento/cargarVariables','PlantillasDocumentosController@cargarVariables');
 Route::resource('contadores','ContadorController');
 Route::resource('tipo_contadores','TipoContadorController');
-Route::resource('tipo_documentos','TipoDocumentoController')->middleware('client');
+Route::resource('tipo_documentos','TipoDocumentosController');
 Route::resource('tipo_personas','TipoPersonaController')->middleware('client');
 Route::resource('solicitudes','SolicitudController');
 Route::resource('lenguas_indigenas','LenguaIndigenaController')->middleware('client');
@@ -69,8 +69,11 @@ Route::resource('tipo_contactos','TipoContactoController')->middleware('client')
 Route::resource('tipo_partes','TipoParteController')->middleware('client');
 Route::resource('giros_comerciales','GiroComercialController')->middleware('client');
 Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
+Route::Post('giros_comerciales/cambiar_ambito','GiroComercialController@CambiarAmbito');
 Route::resource('estados','EstadoController')->middleware('client');
 Route::resource('nacionalidades','NacionalidadController')->middleware('client');
+Route::resource('clasificacion_archivos','ClasificacionArchivoController');
+//Route::resource('clasificacion_archivos','ClasificacionArchivoController')->middleware('client');
 
 //Route::resource('rol-conciliador','RolAtencionController');
 
