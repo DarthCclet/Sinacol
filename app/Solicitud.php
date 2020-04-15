@@ -75,4 +75,7 @@ class Solicitud extends Model
     {
         return $this->hasOne(Expediente::class);
     }
+    public function documentos(){
+        return $this->morphMany(Documento::class,'documentable');
+    }
 }
