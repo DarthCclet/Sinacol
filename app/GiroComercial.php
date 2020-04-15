@@ -195,5 +195,12 @@ class GiroComercial extends Model
         }
         if($dbg) echo "</table>";
     }
-
+    /**
+     * Funcion para asociar con modelo Ambitos con belongsTo
+     * * Utilizando belongsTo para relacion uno a muchos
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function ambito(){
+      return $this->belongsTo('App\Ambito');
+    }
 }
