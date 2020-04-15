@@ -2,11 +2,12 @@
 
 <select name="filterGiros" id="filterGiros" class="form-control">
 </select>   
-<table id="lista-ccostos" class="table table-hover">
+<table id="lista-ccostos" class="table table-hover table-bordered">
     <thead>
     <tr>
         <td>Código</td>
         <td>Nombre</td>
+        <td>Ambito</td>
         <td class="actions">Acción</td>
     </tr>
     </thead>
@@ -15,8 +16,11 @@
     @foreach($giros as $cc)
         <tr data-tt-id="{{$cc->id}}" @if($cc->parent_id) data-tt-parent-id="{{$cc->parent_id}}" @endif>
             <td class="folder" nowrap>{{$cc->codigo}}</td>
+            <td>{{$cc->nombre}}</td>
             <td>
-                {{$cc->nombre}}
+                <span class="editable-click spanAmbito" id="spanAmbito{{$cc->id}}" data-id="{{$cc->id}}" data-ambito_id="{{$cc->ambito_id}}">
+                    {{$cc->ambito->nombre}}
+                </span>
             </td>
             <td class="">
                 <a href="/{{$cc->id}}" class="btn btn-info btn-xs">
@@ -30,6 +34,9 @@
 </table>
 
 <style>
+    .spanAmbito{
+        cursor: pointer;
+    }
     #lista-ccostos tr {
         -moz-transition: all 0.5s;
         -o-transition: all 0.5s;

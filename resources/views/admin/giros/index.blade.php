@@ -4,7 +4,9 @@
 @include('includes.component.pickers')
 
 @section('content')
-
+@push('css')
+	<link href="/assets/plugins/x-editable-bs4/dist/bootstrap4-editable/css/bootstrap-editable.css" rel="stylesheet" />
+@endpush
 
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
@@ -93,6 +95,26 @@
                 });
 
         });
+        $(".spanAmbito").on("click",function(){
+            var id = $(this).data("id");
+            var ambito_id = $(this).data("ambito_id");
+            $.ajax({
+                url:"/api/giros_comerciales/cambiar_ambito",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    id:id,
+                    ambito_id:ambito_id
+                },
+                success:function(data){
+                    $.each(data, function(index,element){
+                        $("#spanAmbito"+element.id).text(element.nombre);
+                        $("#spanAmbito"+element.id).data("ambito_id",element.ambito_id);
+                    });
+                }
+            });
+        });
+        
     </script>
 @endpush
 
