@@ -11,8 +11,9 @@ use App\ObjetoSolicitud;
 use App\Parte;
 use App\Solicitud;
 use App\TipoParte;
+use App\ClasificacionArchivo;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\Storage;
 /**
  * Operaciones para el registro de solicitudes de conciliación
  * Class RegistroSolicitudExterna
@@ -82,6 +83,30 @@ class RegistroSolicitudExterna
                 DatoLaboral::create((array)$datosLaborales);
             }
         }
+        
+        # Sección para guardar documentos
+        foreach($datosSolicitud->documentos as $documento){
+            $directorio = 'solicitudes/'.$solicitudSaved->id;
+            Storage::makeDirectory($directorio);
+            $data = base64_decode($documento->archivo);
+            $filename = uniqid().".".$documento->extencion;
+            Storage::disk('local')->put($directorio. "/" . $filename, $data);
+            $path = $directorio."/".$filename;
+            $tipoArchivo = ClasificacionArchivo::find($documento->clasificacion_archivo_id);
+            $solicitudSaved->documentos()->create([
+                "nombre" => str_replace($directorio."/", '',$path),
+                "nombre_original" => $documento->nombre,
+                "descripcion" => $documento->descripcion,
+                "ruta" => $path,
+                "tipo_almacen" => "local",
+                "uri" => $path,
+                "longitud" => round(Storage::size($path) / 1024, 2),
+                "firmado" => "false",
+                "clasificacion_archivo_id" => $tipoArchivo->id ,
+            ]);
+        }
+        
+        
         $respuesta = array();
         $respuesta["folio_solicitud"] = $solicitudSaved->folio;
         $respuesta["anio"] = $solicitudSaved->anio;
@@ -99,6 +124,8 @@ class RegistroSolicitudExterna
         if(!isset($paramsJSON->fecha_conflicto) || !$paramsJSON->fecha_conflicto ){
             throw new ParametroNoValidoException("La fecha del conflicto es requerida.", 1020);
             return null;
+        }else{
+            $paramsJSON->fecha_conflicto = $this->validaFechas($paramsJSON->fecha_conflicto);
         }
         // validamos el centro
         if(!isset($paramsJSON->centro_id) || !$paramsJSON->centro_id ){
@@ -133,6 +160,13 @@ class RegistroSolicitudExterna
             }
             $paramsJSON->parte_demandada = $parteDemandada;
         }
+        // validamos si vienen documentos en la solicitud
+        if(!isset($paramsJSON->documentos) || !$paramsJSON->documentos || !count($paramsJSON->documentos) ){
+            throw new ParametroNoValidoException("Se debe agregar al menos un documento a la solicitud.", 1020);
+            return null;
+        }else{
+            $paramsJSON->documentos = $this->validarDocumentos($paramsJSON->documentos);
+        }
         return $paramsJSON;
     }
     private function validarParte($parte,$actor){
@@ -159,6 +193,8 @@ class RegistroSolicitudExterna
             if(!isset($parte->fecha_nacimiento) || !trim($parte->fecha_nacimiento)){
                 throw new ParametroNoValidoException("La fecha de nacimiento es requerida para personas físicas.", 1024);
                 return null;
+            }else{
+                $parte->fecha_nacimiento = $this->validaFechas($parte->fecha_nacimiento);
             }
             if(!isset($parte->edad) || !trim($parte->edad)){
                 throw new ParametroNoValidoException("La edad es requerida para personas físicas.", 1025);
@@ -293,10 +329,14 @@ class RegistroSolicitudExterna
             if(!isset($datos_laborales->fecha_ingreso) || !trim($datos_laborales->fecha_ingreso)){
                 throw new ParametroNoValidoException("La fecha de ingreso es obligatoria para los datos laborales.", 1021);
                 return null;
+            }else{
+                $datos_laborales->fecha_ingreso = $this->validaFechas($datos_laborales->fecha_ingreso);
             }
             if(!isset($datos_laborales->fecha_salida)){
                 throw new ParametroNoValidoException("La fecha de salida para los datos laborales es necesaria, aunque puede estar vacia.", 1021);
                 return null;
+            }else{
+                $datos_laborales->fecha_salida = $this->validaFechas($datos_laborales->fecha_salida);
             }
             if(!isset($datos_laborales->jornada_id) || !trim($datos_laborales->jornada_id)){
                 throw new ParametroNoValidoException("El turno(jornada) es obligatorio para los datos laborales.", 1021);
@@ -325,6 +365,61 @@ class RegistroSolicitudExterna
                 }
             }
             return $contacto;
+        }
+    }
+    private function validarDocumentos($documentos){
+        if(!isset($documentos) || !count($documentos) ){
+            throw new ParametroNoValidoException("La solicitud debe contener documentos.", 1020);
+            return null;
+        }else{
+            foreach($documentos as $documento){
+                if(!isset($documento->clasificacion_archivo_id) || !trim($documento->clasificacion_archivo_id) ){
+                    throw new ParametroNoValidoException("Indica el la clasificacion del archivo.", 1020);
+                    return null;
+                }
+                if(!isset($documento->archivo) || !trim($documento->archivo) ){
+                    throw new ParametroNoValidoException("No se puede obtener el archivo.", 1020);
+                    return null;
+                }
+                if(!isset($documento->nombre) || !trim($documento->nombre) ){
+                    throw new ParametroNoValidoException("Los documentos deben contener un nombre.", 1020);
+                    return null;
+                }
+                if(!isset($documento->extencion) || !trim($documento->extencion) ){
+                    throw new ParametroNoValidoException("Los documentos deben contener la extencion que les corresponde.", 1020);
+                    return null;
+                }
+                if(!isset($documento->longitud) || !trim($documento->longitud) ){
+                    throw new ParametroNoValidoException("Los documentos deben contener la longitud que tienen.", 1020);
+                    return null;
+                }
+                if(!isset($documento->descripcion) || !trim($documento->descripcion) ){
+                    throw new ParametroNoValidoException("Los documentos deben contener una descripcion.", 1020);
+                    return null;
+                }
+            }
+            return $documentos;
+        }
+    }
+    private function validaFechas($fecha)
+    {
+        //Se espera que la fecha venga en epoch milisegundos con timezone
+        $match = [];
+        if(preg_match("/(\d+)(\D{1})(\d+)/", $fecha, $match)){
+
+            try {
+                if(strlen($match[1]) == 13)
+                    return Carbon::createFromTimestampMs($match[1], $match[2].$match[3]);
+                elseif(strlen($match[1]) == 10)
+                    return Carbon::createFromTimestamp($match[1], $match[2].$match[3]);
+                else
+                    throw new FechaInvalidaException("La fecha $fecha no es válida");
+            }catch (\Exception $e){
+                throw new FechaInvalidaException("La fecha $fecha no es válida");
+            }
+
+        }else {
+            throw new FechaInvalidaException("La fecha $fecha no es válida");
         }
     }
 }
