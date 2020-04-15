@@ -136,4 +136,65 @@ class GiroComercialController extends Controller
         //     return view('expediente.solicitudes.index');
         // }
     }
+        public function CambiarAmbito(Request $request){
+        $giro = GiroComercial::find($request->id);
+        $ambitoActual = $request->ambito_id;
+        if($ambitoActual == 2 || $ambitoActual == 3){
+            $ambitoNuevo = 1;
+        }else{
+            $ambitoNuevo = 2;
+        }
+        $giro->update(["ambito_id" => $ambitoNuevo]);
+        $arreglo []= ["id" => $giro->id , "ambito_id" => $giro->ambito_id,"nombre" => $giro->ambito->nombre];
+        $arreglo = $this->CambiarAmbitoChildrens($giro,$arreglo);
+        $arreglo = $this->CambiarAmbitoParents($giro,$arreglo);
+        return $arreglo;
+    }
+    
+    private function CambiarAmbitoParents($giro,$arreglo){
+        #validamos si tiene padre
+        if($giro->parent_id != "" && $giro->parent_id != null){
+            # obtenemos el padre
+            $padre = GiroComercial::find($giro->parent_id);
+            #obtenemos a todos los hijos
+            $hijos = GiroComercial::where("parent_id",$padre->id)->get();
+            #declaramos bandera para validar a los hijos
+            #Si un hijo es diferente al nuevo ambito del giro, automaticamente cambia a mixto
+            #Si todas son iguales colocamos el nuevo ambito tambien al padre
+            $bandera = true;
+            
+            #Recorremos los hijos
+            foreach($hijos as $hijo){
+                if($hijo->ambito_id != $giro->ambito_id){
+                    $bandera=false;
+                }
+            }
+            if($bandera){
+                $padre->update(["ambito_id" => $giro->ambito_id]);
+            }else{
+                $padre->update(["ambito_id" => 3]);
+            }
+            #Agregamos el padre al arreglo de la respuesta
+            $arreglo []= ["id" => $padre->id , "ambito_id" => $padre->ambito_id,"nombre" => $padre->ambito->nombre];
+            #Llamamos a la misma función para verificar que no tenga padre el padre y si lo tiene modificarlo
+            $arreglo = $this->CambiarAmbitoParents($padre,$arreglo);
+            return $arreglo;
+        }else{
+            return $arreglo;
+        }
+    }
+    private function CambiarAmbitoChildrens($giro,$arreglo){
+        //buscamos los hijos
+        $hijos = GiroComercial::where("parent_id",$giro->id)->get();
+        // Recorremos los hijos
+        foreach($hijos as $hijo){
+            #Modificamos el ambito del hijo
+            $hijo->update(["ambito_id" => $giro->ambito_id]);
+            #Agregamos el hijo al arreglo de la respuesta
+            $arreglo []= ["id" => $hijo->id , "ambito_id" => $hijo->ambito_id,"nombre" => $hijo->ambito->nombre];
+            #Llamamos a la misma función para verificar que no tenga hijos el giro y si los tiene modificarlos
+            $arreglo = $this->CambiarAmbitoChildrens($hijo,$arreglo);
+        }
+        return $arreglo;
+    }
 }
