@@ -1,0 +1,18 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "FEDERAL"
+        },
+        {
+            "id": "2",
+            "nombre": "LOCAL"
+        },
+        {
+            "id": "3",
+            "nombre": "MIXTO"
+        }
+    ],
+
+    "numReg": 3
+}
