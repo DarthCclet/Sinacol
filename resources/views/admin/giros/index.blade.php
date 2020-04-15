@@ -1,6 +1,7 @@
 @extends('layouts.default')
 
 @include('includes.component.treetables')
+@include('includes.component.pickers')
 
 @section('content')
 

@@ -68,6 +68,7 @@ Route::resource('tipo_asentamientos','TipoAsentamientoController')->middleware('
 Route::resource('tipo_contactos','TipoContactoController')->middleware('client');
 Route::resource('tipo_partes','TipoParteController')->middleware('client');
 Route::resource('giros_comerciales','GiroComercialController')->middleware('client');
+Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 Route::resource('estados','EstadoController')->middleware('client');
 Route::resource('nacionalidades','NacionalidadController')->middleware('client');
 

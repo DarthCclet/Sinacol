@@ -1,4 +1,7 @@
 
+
+<select name="filterGiros" id="filterGiros" class="form-control">
+</select>   
 <table id="lista-ccostos" class="table table-hover">
     <thead>
     <tr>
@@ -52,3 +55,71 @@
     }
 
 </style>
+@push('scripts')
+
+<script>
+    $("#filterGiros").select2({
+        ajax: {
+            url: '/api/giros_comerciales/filtrarGirosComerciales',
+            type:"POST",
+            dataType:"json",
+            async:false,
+            data:function (params) {
+                var data = {
+                    nombre: params.term
+                }
+                return data;
+            },
+            processResults:function(json){
+                $.each(json.data, function (key, node) {
+                    var html = '';
+                    html += '<div>';
+                    var ancestors = node.ancestors.reverse();
+                    html += '<h5>* '+node.nombre+'</h5><br>';
+                    $.each(ancestors, function (index, ancestor) {
+                        if(ancestor.id != 1){
+                            var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(index);
+                            html += '<p><b>'+ancestor.codigo+'</b>'+' |'+tab+ancestor.nombre+'</p>';
+                        }
+                    });
+                    var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(node.ancestors.length);
+                    html += '<p><b>'+node.codigo+'</b>'+' | '+tab+node.nombre+'</p>';
+                    html += '<div>';
+                    json.data[key].html = html;
+                });
+                return {
+                    results: json.data
+                };
+            }
+            // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+        },
+        escapeMarkup: function(markup) {
+            return markup;
+        },
+        templateResult: function(data) {
+            return data.html;
+        },templateSelection: function(data) {
+            console.log(data);
+            if(data.id != ""){
+                return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
+            }
+            return data.text;
+        },
+        placeholder:'Seleccione una opcion',
+        minimumInputLength:4
+    })
+    $("#filterGiros").on("change",function(){
+        $("#lista-ccostos").treetable("reveal",$("#filterGiros").val());
+        $("#lista-ccostos").treetable("node",$("#filterGiros").val());
+        var droppedEl = $("tr[data-tt-id="+$("#filterGiros").val()+"]");
+        $('html,body').animate({
+            scrollTop: droppedEl.offset().top - 200
+        }, 'slow');
+        droppedEl.addClass('droppedEl');
+        // setTimeout(function() {
+        //     droppedEl.removeClass('droppedEl');
+        // }, 3000)
+    });
+    
+</script>
+@endpush

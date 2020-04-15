@@ -108,4 +108,32 @@ class GiroComercialController extends Controller
     {
         //
     }
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function filtrarGirosComerciales()
+    {
+        $giroComercial = (new CatalogoFilter(GiroComercial::query(), $this->request))
+            ->searchWith(GiroComercial::class)
+            ->filter();
+        $nombre = $this->request->get('nombre');
+        
+        // $giros_comerciales = GiroComercial::find(1)->descendants;
+        if($nombre != ""){
+            $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->where('nombre','like',"%".$nombre."%")->with('ancestors')->withDepth()->get();
+        }else{
+            $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->withDepth()->get();
+        }
+        
+        
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($giroComercial, 'SUCCESS');
+        }
+        // else{
+        //     return view('expediente.solicitudes.index');
+        // }
+    }
 }
