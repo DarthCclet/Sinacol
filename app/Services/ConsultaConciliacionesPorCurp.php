@@ -39,7 +39,7 @@ class ConsultaConciliacionesPorCurp
                             $parte_actora = $this->partesTransformer($exp->partes, 'solicitante',true);
                             $parte_demandada = $this->partesTransformer($parte, 'solicitado',false);
                         }
-                        
+
                         $resultado[] = [
                             'numero_expediente_oij' => $exp->expediente->folio,
                             'fecha_audiencia' => '/Date('.strtotime($audiencia->fecha_audiencia).')/',
@@ -119,7 +119,7 @@ class ConsultaConciliacionesPorCurp
                 'rfc' => $persona->rfc,
                 'curp' => $persona->curp,
                 'caracter_persona' => $persona->tipoPersona->nombre,
-                'tipo_persona_id' => $persona->tipo_persona_id,
+                'caracter_persona_id' => $persona->tipo_persona_id,
                 'domicilios' => $this->domiciliosTransformer($persona->domicilios)
             ];
         }
@@ -128,7 +128,7 @@ class ConsultaConciliacionesPorCurp
                 'denominacion' => $persona->nombre_comercial,
                 'rfc' => $persona->rfc,
                 'caracter_persona' => $persona->tipoPersona->nombre,
-                'tipo_persona_id' => $persona->tipo_persona_id,
+                'caracter_persona_id' => $persona->tipo_persona_id,
                 'domicilios' => $this->domiciliosTransformer($persona->domicilios)
             ];
         }
@@ -137,9 +137,9 @@ class ConsultaConciliacionesPorCurp
         }
         return $resultado;
     }
-    
+
     public function parteBuscadaTransformer(){
-        
+
     }
 
     public function domiciliosTransformer($datos)

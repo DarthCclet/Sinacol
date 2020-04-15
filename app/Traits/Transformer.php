@@ -28,7 +28,7 @@ trait Transformer
                 'rfc' => $persona->rfc,
                 'curp' => $persona->curp,
                 'caracter_persona' => $persona->tipoPersona->nombre,
-                'tipo_persona_id' => $persona->tipo_persona_id,
+                'caracter_persona_id' => $persona->tipo_persona_id,
                 'domicilios' => $this->domiciliosTransformer($persona->domicilios)
             ];
         }
@@ -37,7 +37,7 @@ trait Transformer
                 'denominacion' => $persona->nombre_comercial,
                 'rfc' => $persona->rfc,
                 'caracter_persona' => $persona->tipoPersona->nombre,
-                'tipo_persona_id' => $persona->tipo_persona_id,
+                'caracter_persona_id' => $persona->tipo_persona_id,
                 'domicilios' => $this->domiciliosTransformer($persona->domicilios)
             ];
         }

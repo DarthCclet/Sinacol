@@ -34,9 +34,6 @@ class ConsultaConciliacionesPorExpediente
             return ['data'=>[]];
         }
 
-        //TODO: Extraer todos los involucrados, si hay mas solicitados o solicitantes hay que ponerlos todos aqui: (Atendido)
-        //TODO: Integrar en la estructura los datos laborales de cada demandante o solicitante (Atendido)
-        //TODO: Integrar los datos telefónicos y de contacto de las personas en la estructura que se responde (Revizar)
         $partes = $expediente->solicitud->partes;
         $parte_demandada = $this->partesTransformer($partes, 'solicitado', true);
         $parte_actora= $this->partesTransformer($partes, 'solicitante', true);
@@ -52,7 +49,6 @@ class ConsultaConciliacionesPorExpediente
             'demandados' => [$parte_demandada],
         ];
 
-        //TODO: Mandar llamar el documento real relacionado con el registro (Atendido).
         //TODO: Firma de documentos (PEndiente)
         //TODO: Implementar el catálogo de clasificación de archivo (Pendiente).
         if(Storage::disk('local')->exists('Prueba.pdf')){
@@ -79,9 +75,9 @@ class ConsultaConciliacionesPorExpediente
                 'documento' => []
             ];
         }
-        
+
     }
-    
+
     /**
      * Transforma los datos de las partes
      * @param $datos
@@ -104,9 +100,9 @@ class ConsultaConciliacionesPorExpediente
                     'rfc' => $persona->rfc,
                     'curp' => $persona->curp,
                     'caracter_persona' => $persona->tipoPersona->nombre,
-                    'tipo_persona_id' => $persona->tipo_persona_id,
+                    'caracter_persona_id' => $persona->tipo_persona_id,
                     'solicita_traductor' => $persona->solicita_traductor,
-                    'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                    'lengua_indigena' => $persona->lenguaIndigena->nombre,
                     'lengua_indigena_id' => $persona->tipo_persona_id,
                     'padece_discapacidad' => $persona->padece_discapacidad,
                     'discapacidad' => $persona->tipoDiscapacidad->nombre,
@@ -122,9 +118,9 @@ class ConsultaConciliacionesPorExpediente
                     'denominacion' => $persona->nombre_comercial,
                     'rfc' => $persona->rfc,
                     'caracter_persona' => $persona->tipoPersona->nombre,
-                    'tipo_persona_id' => $persona->tipo_persona_id,
+                    'caracter_persona_id' => $persona->tipo_persona_id,
                     'solicita_traductor' => $persona->solicita_traductor,
-                    'lenguaIndigena' => $persona->lenguaIndigena->nombre,
+                    'lengua_indigena' => $persona->lenguaIndigena->nombre,
                     'lengua_indigena_id' => $persona->tipo_persona_id,
                     'padece_discapacidad' => false,
                     'discapacidad' => 'N/A',
@@ -138,7 +134,7 @@ class ConsultaConciliacionesPorExpediente
             if(!$domicilio){
                 unset($resultado['domicilios']);
             }
-            
+
         }
 
         return $resultado;
