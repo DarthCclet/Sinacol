@@ -123,7 +123,8 @@ class GiroComercialController extends Controller
         
         // $giros_comerciales = GiroComercial::find(1)->descendants;
         if($nombre != ""){
-            $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->where('nombre','like',"%".$nombre."%")->with('ancestors')->withDepth()->get();
+            $nombre = strtr($nombre,array('a'=> '(a|á)','e'=> '(e|é)','i'=>'(i|í)','o'=> '(o|ó)','u'=> '(u|ú)'));
+            $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->where('nombre','similar to',"%".$nombre."%")->with('ancestors')->withDepth()->get();
         }else{
             $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->withDepth()->get();
         }

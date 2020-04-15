@@ -2,6 +2,7 @@
 
 <select name="filterGiros" id="filterGiros" class="form-control">
 </select>   
+<input type="hidden" id="term">
 <table id="lista-ccostos" class="table table-hover table-bordered">
     <thead>
     <tr>
@@ -60,6 +61,9 @@
     #lista-ccostos .droppedEl {
         background-color: #d5fed1;
     }
+    .highlighted{
+        background-color: #FFFF00;
+    }
 
 </style>
 @push('scripts')
@@ -72,6 +76,7 @@
             dataType:"json",
             async:false,
             data:function (params) {
+                $("#term").val(params.term);
                 var data = {
                     nombre: params.term
                 }
@@ -80,18 +85,18 @@
             processResults:function(json){
                 $.each(json.data, function (key, node) {
                     var html = '';
-                    html += '<div>';
+                    html += '<table>';
                     var ancestors = node.ancestors.reverse();
-                    html += '<h5>* '+node.nombre+'</h5><br>';
+                    html += '<tr><th colspan="2"><h5>* '+highlightText(node.nombre)+'</h5><th></tr>';
                     $.each(ancestors, function (index, ancestor) {
                         if(ancestor.id != 1){
                             var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(index);
-                            html += '<p><b>'+ancestor.codigo+'</b>'+' |'+tab+ancestor.nombre+'</p>';
+                            html += '<tr><td ><b>'+ancestor.codigo+'</b></td>'+' <td style="border-left:1px solid;">'+tab+highlightText(ancestor.nombre)+'</td></tr>';
                         }
                     });
                     var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(node.ancestors.length);
-                    html += '<p><b>'+node.codigo+'</b>'+' | '+tab+node.nombre+'</p>';
-                    html += '<div>';
+                    html += '<tr><td><b>'+node.codigo+'</b></td>'+'<td style="border-left:1px solid;"> '+ tab+highlightText(node.nombre)+'</td></tr>';
+                    html += '</table>';
                     json.data[key].html = html;
                 });
                 return {
@@ -113,19 +118,26 @@
             return data.text;
         },
         placeholder:'Seleccione una opcion',
-        minimumInputLength:4
-    })
+        minimumInputLength:4,
+        allowClear: true,
+        language: "es"
+    });
+    function highlightText(string){
+        return string.replace($("#term").val().trim(),'<span class="highlighted">'+$("#term").val().trim()+"</span>");
+    }
     $("#filterGiros").on("change",function(){
-        $("#lista-ccostos").treetable("reveal",$("#filterGiros").val());
-        $("#lista-ccostos").treetable("node",$("#filterGiros").val());
-        var droppedEl = $("tr[data-tt-id="+$("#filterGiros").val()+"]");
-        $('html,body').animate({
-            scrollTop: droppedEl.offset().top - 200
-        }, 'slow');
-        droppedEl.addClass('droppedEl');
-        // setTimeout(function() {
-        //     droppedEl.removeClass('droppedEl');
-        // }, 3000)
+        if($("#filterGiros").val() != null){
+            $("#lista-ccostos").treetable("reveal",$("#filterGiros").val());
+            $("#lista-ccostos").treetable("node",$("#filterGiros").val());
+            $("tr").removeClass('droppedEl');
+            var droppedEl = $("tr[data-tt-id="+$("#filterGiros").val()+"]");
+            $('html,body').animate({
+                scrollTop: droppedEl.offset().top - 200
+            }, 'slow');
+            droppedEl.addClass('droppedEl');
+        }else{
+            $("tr").removeClass('droppedEl');
+        }
     });
     
 </script>
