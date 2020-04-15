@@ -113,7 +113,7 @@ class DocumentoController extends Controller
     {
         $audiencia = Audiencia::find($request->audiencia_id[0]);
         if($audiencia != null){
-            $directorio = 'audiencias/'.$request->audiencia_id[0];
+            $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$request->audiencia_id[0];
             Storage::makeDirectory($directorio);
             $archivos = $request->file('files');
             $tipoArchivo = ClasificacionArchivo::find($request->tipo_documento_id[0]);
