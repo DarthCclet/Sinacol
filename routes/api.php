@@ -69,6 +69,7 @@ Route::resource('tipo_contactos','TipoContactoController')->middleware('client')
 Route::resource('tipo_partes','TipoParteController')->middleware('client');
 Route::resource('giros_comerciales','GiroComercialController');
 Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
+Route::post('giros_comerciales/getGirosComercialesByNivelId','GiroComercialController@getGirosComercialesByNivelId');
 Route::Post('giros_comerciales/cambiar_ambito','GiroComercialController@CambiarAmbito');
 Route::Post('giros_comerciales/cambiar_padre','GiroComercialController@CambiarPadre');
 Route::resource('estados','EstadoController')->middleware('client');

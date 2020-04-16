@@ -1,7 +1,38 @@
 
 
-<select name="filterGiros" id="filterGiros" class="form-control">
-</select>   
+<div class="col-md-12 ">
+    <label> Filtro de giros por texto</label>
+    <select name="filterGiros" placeholder="Seleccione" id="filterGiros" class="form-control"></select>
+</div>
+<div class="col-md-12" style="margin-top:1%">
+    <label > Fitro de giros por nivel</label>
+    <div class="col-md-12 row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="persona_id" class="col-sm-6 control-label">Giro nivel 1</label>
+                    <select id="girosNivel1" nextLevel="2" class="form-control giroNivel">
+                    </select>
+                </label>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="persona_id" class="col-sm-6 control-label">Giro nivel 2</label>
+                    <select id="girosNivel2" nextLevel="3" class="form-control giroNivel">
+                    </select>
+                </label>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="persona_id" class="col-sm-6 control-label">Giro nivel 3</label>
+                    <select id="girosNivel3" nextLevel="" class="form-control giroNivel">
+                    </select>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
 <input type="hidden" id="term">
 <table id="lista-ccostos" class="table table-hover table-bordered">
     <thead>
@@ -142,6 +173,61 @@
         }else{
             $("tr").removeClass('droppedEl');
         }
+    });
+
+    function getGironivel(id,nivel,select){
+        var tieneHijos = false;
+        $.ajax({
+            url:"/api/giros_comerciales/getGirosComercialesByNivelId",
+            type:"POST",
+            dataType:"json",
+            async:false,
+            data:{
+                id:id,
+                nivel:nivel
+            },
+            success:function(json){
+                console.log(json.data != "");
+                if(json != null && json.data != ""){
+                    $("#"+select).html("<option value=''>Selecciona una opcion</option>");
+                    $.each(json.data,function(index,element){
+                        $("#"+select).append("<option value='"+element.id+"'>"+element.codigo+"|&nbsp;&nbsp;"+element.nombre+"</option>");
+                    });
+                    tieneHijos = true;
+                }else{
+                    $("#"+select).html("<option value=''>No hay opciones a mostrar</option>");
+                }
+                
+            }
+        });
+        return tieneHijos;
+    }
+    $(".giroNivel").select2({
+        placeholder:"Seleccione una opcion",
+        language: "es"
+    });
+    $(".giroNivel").on("change",function(){
+        var tieneHijos = false;
+        if($(this).attr("nextLevel") != ""){
+            tieneHijos = getGironivel($(this).val(),$(this).attr("nextLevel"),"girosNivel"+$(this).attr("nextLevel"));
+        }
+        if(!tieneHijos){
+            if($(this).val() != null){
+                $("#lista-ccostos").treetable("reveal",$(this).val());
+                $("#lista-ccostos").treetable("node",$(this).val());
+                $("tr").removeClass('droppedEl');
+                var droppedEl = $("tr[data-tt-id="+$(this).val()+"]");
+                $('html,body').animate({
+                    scrollTop: droppedEl.offset().top - 200
+                }, 'slow');
+                droppedEl.addClass('droppedEl');
+            }else{
+                $("tr").removeClass('droppedEl');
+            }
+        }
+    });
+    $(document).ready(function() {
+        getGironivel("",1,"girosNivel1");
     });
     
 </script>

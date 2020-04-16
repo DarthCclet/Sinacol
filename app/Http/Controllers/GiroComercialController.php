@@ -114,7 +114,6 @@ class GiroComercialController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function filtrarGirosComerciales()
@@ -213,5 +212,37 @@ class GiroComercialController extends Controller
         $giro->status = "success";
         ##regresamos el nuevo giro
         return $giro;
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getGirosComercialesByNivelId(Request $request)
+    {
+        $giroComercial = (new CatalogoFilter(GiroComercial::query(), $this->request))
+            ->searchWith(GiroComercial::class)
+            ->filter();
+        $nivel = $this->request->get('nivel');
+        $id = $this->request->get('id');
+        
+        // $giros_comerciales = GiroComercial::find(1)->descendants;
+        if($nivel != ""){
+            if($id != ""){
+                $giroComercial->whereDescendantOf($id);    
+            }
+            $giroComercial = $giroComercial->withDepth()->get();
+            // dd(DB::getQueryLog());
+            $giroComercial = $giroComercial->where("depth",$nivel);
+        }else{
+            $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->withDepth()->get();
+        }
+        
+        
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($giroComercial, 'SUCCESS');
+        }
+        
     }
 }
