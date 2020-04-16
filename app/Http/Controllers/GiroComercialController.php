@@ -72,7 +72,8 @@ class GiroComercialController extends Controller
      */
     public function show($id)
     {
-        //
+        $giro = GiroComercial::find($id);
+        return $giro;
     }
 
     /**
@@ -95,7 +96,9 @@ class GiroComercialController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $giro = GiroComercial::find($id);
+        $giro->update(["nombre" => $request->nombre]);
+        return $giro;
     }
 
     /**
@@ -197,5 +200,18 @@ class GiroComercialController extends Controller
             $arreglo = $this->CambiarAmbitoChildrens($hijo,$arreglo);
         }
         return $arreglo;
+    }
+    public function CambiarPadre(Request $request){
+        ##Buscamos el giro
+        $giro = GiroComercial::find($request->mover_id);
+        $giroNuevoPadre = GiroComercial::find($request->a_id);
+        if($giroNuevoPadre->parent_id == $request->mover_id){
+            return array("status" => "error","mensaje" => "No puedes asignar al giro padre como hijo de uno de sus hijos");
+        }
+        ##modificamos el padre
+        $giro->update(["parent_id" => $request->a_id]);
+        $giro->status = "success";
+        ##regresamos el nuevo giro
+        return $giro;
     }
 }
