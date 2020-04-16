@@ -19,7 +19,7 @@ class CreateGiroComercialesTable extends Migration
             $table->bigIncrements('id')->comment('PK del catálogo de giro comercial');
             $table->string('codigo')->comment('Código del catálogo SCIAN del INEGI');
             $table->string('nombre')->comment('Nombre del giro comercial');
-            $table->integer('ambito_id')->default('3')->nullable()->comment('Fk de la tabla ambitos');
+            $table->integer('ambito_id')->default('1')->nullable()->comment('Fk de la tabla ambitos');
             $table->foreign('ambito_id')->references('id')->on('ambitos');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             NestedSet::columns($table);
