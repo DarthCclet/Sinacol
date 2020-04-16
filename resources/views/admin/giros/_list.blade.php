@@ -17,14 +17,18 @@
     @foreach($giros as $cc)
         <tr data-tt-id="{{$cc->id}}" @if($cc->parent_id) data-tt-parent-id="{{$cc->parent_id}}" @endif>
             <td class="folder" nowrap>{{$cc->codigo}}</td>
-            <td>{{$cc->nombre}}</td>
+            <td>
+                <span class="spanNombre" id="spanNombre{{$cc->id}}">
+                    {{$cc->nombre}}
+                </span>
+            </td>
             <td>
                 <span class="editable-click spanAmbito" id="spanAmbito{{$cc->id}}" data-id="{{$cc->id}}" data-ambito_id="{{$cc->ambito_id}}">
                     {{$cc->ambito->nombre}}
                 </span>
             </td>
             <td class="">
-                <a href="/{{$cc->id}}" class="btn btn-info btn-xs">
+                <a style="color:white;" onclick="CargarGiro({{$cc->id}})" class="btn btn-info btn-xs">
                     <i class="fa fa-edit"></i>
                 </a>
             </td>
