@@ -48,7 +48,7 @@ Route::Get('audiencia/documentos/{audiencia_id}','AudienciaController@getDocumen
 Route::Get('documentos/getFile/{id}','DocumentoController@getFile');
 Route::Post('documentos/solicitud','DocumentoController@solicitud');
 Route::resource('compareciente','ComparecienteController');
-Route::resource('centro','CentroController')->middleware('client');
+Route::resource('centro','CentroController');
 Route::post('centros/disponibilidad','CentroController@disponibilidad');
 Route::Post('centros/disponibilidades','CentroController@getDisponibilidades');
 Route::Post('centros/incidencias','CentroController@incidencia');
@@ -90,7 +90,7 @@ Route::post('audiencias/no-conciliacion/parte-demandada', 'ServiciosCJFControlle
 Route::get('audiencias/no-conciliacion/curp/{curp}', 'ServiciosCJFController@listadoPorCurp')->middleware('client');;
 Route::get('audiencias/no-conciliacion/rfc/{rfc}', 'ServiciosCJFController@listadoPorRfc')->middleware('client');;
 Route::post('audiencias/no-conciliacion/constancia', 'ServiciosCJFController@consultaExpediente')->middleware('client');;
-Route::post('audiencias/solicitud/solicitud-externa', 'ServiciosCJFController@solicitudExterna')->middleware('client');;
+Route::post('audiencias/solicitud/solicitud-externa', 'ServiciosCJFController@solicitudExterna');
 
 Route::post('upload', 'DocumentoController@uploadSubmit');
 Route::post('documentoAudiencia', 'DocumentoController@postAudiencia');
