@@ -95,6 +95,7 @@
     }
     .highlighted{
         background-color: #FFFF00;
+        color: #000 !important;
     }
     .select2-results__option--highlighted{
         background: #348fe2 !important;
