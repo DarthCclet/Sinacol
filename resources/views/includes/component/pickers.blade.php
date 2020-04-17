@@ -34,7 +34,7 @@
     <script src="/assets/plugins/select2/dist/js/i18n/es.js"></script>
     <!-- Libreria Wizard -->
     <script src="/assets/plugins/smartwizard/dist/js/jquery.smartWizard.js"></script>
-    <script src="/assets/js/demo/form-wizards.demo.js"></script>
+    <!--<script src="/assets/js/demo/form-wizards.demo.js"></script>-->
     
     <!--Librerias wysihtml5-->
     <script src="/assets/plugins/ckeditor/ckeditor.js"></script>
