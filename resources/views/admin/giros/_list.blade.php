@@ -7,21 +7,21 @@
 <div class="col-md-12" style="margin-top:1%">
     <label > Fitro de giros por nivel</label>
     <div class="col-md-12 ">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div class="form-group">
                     <select id="girosNivel1" nextLevel="2" class="form-control giroNivel">
                     </select>
                 </label>
             </div>
         </div>
-        <div class="col-md-8" id="divNivel2" style="display:none">
+        <div class="col-md-12" id="divNivel2" style="display:none">
             <div class="form-group">
                     <select id="girosNivel2" nextLevel="3" class="form-control giroNivel">
                     </select>
                 </label>
             </div>
         </div>
-        <div class="col-md-8" id="divNivel3" style="display:none">
+        <div class="col-md-12" id="divNivel3" style="display:none">
             <div class="form-group">
                     <select id="girosNivel3" nextLevel="" class="form-control giroNivel">
                     </select>
@@ -204,6 +204,12 @@
         language: "es"
     });
     $(".giroNivel").on("change",function(){
+        if($(this).attr("id") == "girosNivel1"){
+            $("#divNivel2").hide();
+            $("#divNivel3").hide();
+            $('#divNivel2 option').remove();
+            $('#divNivel3 option').remove();
+        }
         var tieneHijos = false;
         if($(this).attr("nextLevel") != ""){
             tieneHijos = getGironivel($(this).val(),$(this).attr("nextLevel"),"girosNivel"+$(this).attr("nextLevel"));

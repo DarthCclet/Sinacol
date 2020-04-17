@@ -525,6 +525,7 @@ class SolicitudController extends Controller
                             
                         }
                     }else{
+                        unset($domicilio['activo']);
                         $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                     }
                 }
