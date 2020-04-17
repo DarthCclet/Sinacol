@@ -48,7 +48,7 @@ Route::Get('audiencia/documentos/{audiencia_id}','AudienciaController@getDocumen
 Route::Get('documentos/getFile/{id}','DocumentoController@getFile');
 Route::Post('documentos/solicitud','DocumentoController@solicitud');
 Route::resource('compareciente','ComparecienteController');
-Route::resource('centro','CentroController');
+Route::resource('centro','CentroController')->middleware('client');
 Route::post('centros/disponibilidad','CentroController@disponibilidad');
 Route::Post('centros/disponibilidades','CentroController@getDisponibilidades');
 Route::Post('centros/incidencias','CentroController@incidencia');
