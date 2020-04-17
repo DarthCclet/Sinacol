@@ -587,4 +587,13 @@ class SolicitudController extends Controller
         $expediente = Expediente::create(["solicitud_id" => $request->id,"folio" => "2","anio" => $folio->anio,"consecutivo" => $folio->contador]);
         return $solicitud;
     }
+    function getDocumentosSolicitud($solicitud_id){
+        $solicitud = Solicitud::find($solicitud_id);
+        $documentos = $solicitud->documentos;
+        foreach($documentos as $documento){
+            $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+            $documento->tipo = pathinfo($documento->ruta)['extension'];
+        }
+        return $documentos;
+    }
 }
