@@ -1,4 +1,3 @@
-
 <h4 class="offset-2"><i class="fa fa-cog"></i>  Configuración de plantillas</h4><br>
 
     <label for="nombre-plantilla" class="control-label offset-2">Nombre de plantilla </label>
@@ -48,27 +47,39 @@
           }
 
           return {
-                auto_focus: 'plantilla-body',
+                auto_focus: 'plantilla-header',
                 selector: selector,
-                // language: 'es_MX',
+                document_base_url: '/public',
+                relative_urls: false,
+                language: 'es_MX',
                 width: "622",//"670"
-                // language_url: '/js/tinymce/languages/es_MX.js',
+                language_url: '/js/tinymce/langs/es_MX.js',
                 inline: true,
                 menubar: false,
                 toolbar_items_size: 'small',
                 plugins: [
                     'noneditable advlist autolink lists link image imagetools preview',
-                    ' media table paste pagebreak'
+                    ' media table paste pagebreak uploadimage lineheight'
                 ],
-                toolbar1: botonesHeader + botonesBody + 'basicDateButton | mybutton | fontselect fontsizeselect | undo redo ' +
+                toolbar1: botonesHeader + botonesBody + 'basicDateButton | mybutton | fontselect fontsizeselect textcolor| undo redo ' +
                 '| bold italic underline| alignleft aligncenter alignright alignjustify | bullist numlist ' +
-                '| outdent indent | table pagebreak',
+                '| outdent indent lineheightselect | table pagebreak | uploadimage image  ',
                 toolbar2: "",
+                // paste_data_images: true,
+              	images_upload_handler: function (blobInfo, success, failure) {
+              		success("data:" + blobInfo.blob().type + ";base64," + blobInfo.base64());
+              	},
+              	url:'img/logo/logo-stps-786x196.png',
                 image_title: true,
                 automatic_uploads: true,
                 file_picker_types: 'image',
                 font_formats: 'Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva',
                 paste_as_text: true,
+                lineheight_formats: "6pt 8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 22pt 24pt 26pt 36pt",
+                // image_list: [
+                //   {title: 'LogoSTPS', value: 'https://192.168.10.10/assets/img/logo/logo-stps-786x196.png'},
+                //   {title: 'Logo', value: 'https://192.168.10.10/assets/img/logo/logo-stps-786x196.png'}
+                // ],
                 file_picker_callback: function (cb, value, meta) {
                     var input = document.createElement('input');
                     input.setAttribute('type', 'file');
@@ -127,7 +138,9 @@
                   }
                     editor.on('init', function (ed) {
                         ed.target.editorCommands.execCommand("fontName", false, "Arial");
+                        // ed.editorCommands.execCommand(ed,'img/logo/logo-stps-786x196.png')
                     });
+
                     editor.ui.registry.addButton('btnHeader', {
                       text: 'Logo',
                       onAction: function (_) {
@@ -194,8 +207,6 @@
               }
           });
         });
-
-
 
         tinymce.init(config_tmce('#plantilla-header'));
         tinymce.init(config_tmce('#plantilla-body'));
