@@ -113,7 +113,7 @@
 	</div>
 	<div class="col-md-4">
         {{-- <input class="form-control" id="entre_calle2{{$identificador}}" name="domicilio[entre_calle2]" placeholder="Entre calle 2" required type="text" value=""> --}}
-        {!! Form::text('domicilio[entre_calle2]', isset($domicilio->entre_calle2) ? $domicilio->entre_calle2 : null, ['id'=>'entre_calle2'.$identificador,'required', 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Y calle']) !!}
+        {!! Form::text('domicilio[entre_calle2]', isset($domicilio->entre_calle2) ? $domicilio->entre_calle2 : null, ['id'=>'entre_calle2'.$identificador, 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Y calle']) !!}
         {!! $errors->first('domicilio[entre_calle2]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">y calle</p>
 	</div>
@@ -324,6 +324,7 @@
         $("#tipo_vialidad_id"+identifier).change(function(){
             $("#tipo_vialidad"+identifier).val($("#tipo_vialidad_id"+identifier+" :selected").text());
         });
+        $(".catSelect"+identifier).select2({width: '100%'});
         $("#estado_id"+identifier).change(function(){
             $("#estado"+identifier).val($("#estado_id"+identifier+" :selected").text());
         });

@@ -24,7 +24,7 @@ class Solicitud extends Model
      *
      * @var array
      */
-    protected $loadable = [ 'estatusSolicitud','objetoSolicitud','centro','user'];
+    protected $loadable = [ 'estatusSolicitud','objetoSolicitud','centro','user','partes','solicitados','solicitantes'];
 
     /**
      * Funcion para asociar con modelo EstatusSolicitud
@@ -64,6 +64,16 @@ class Solicitud extends Model
     public function partes()
     {
         return $this->hasMany('App\Parte', 'solicitud_id', 'id');
+    }
+
+    public function solicitantes()
+    {
+        return $this->hasMany('App\Parte', 'solicitud_id', 'id')->where("tipo_parte_id",1);
+    }
+
+    public function solicitados()
+    {
+        return $this->hasMany('App\Parte', 'solicitud_id', 'id')->where("tipo_parte_id",2);
     }
 
     public function objeto_solicitudes()

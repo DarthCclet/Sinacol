@@ -483,7 +483,7 @@
                 <div class="col-md-12 row">
                     <input type="hidden" id="solicitud_id">
                     <div class="col-md-4">
-                        <input class="form-control dateTime" required id="fechaRatificacion" disabled placeholder="Fecha de ratificacion" type="text" value="">
+                        <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de ratificacion" type="text" value="">
                         <p class="help-block">Fecha de Ratificación</p>
                     </div>
                     <div class="col-md-4">
@@ -527,9 +527,12 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <button class="btn btn-info btn-sm m-l-5" id="btnRatificarSolicitud"><i class="fa fa-check"></i> Ratificar Solicitud</button>
-            </div>
+            
+            @if(isset($solicitud->estatus_solicitud_id) && $solicitud->estatus_solicitud_id == 1)
+                <div class="form-group">
+                    <button class="btn btn-info btn-sm m-l-5" id="btnRatificarSolicitud"><i class="fa fa-check"></i> Ratificar Solicitud</button>
+                </div>
+            @endif
         </div>
         </div>
         <!-- end step-3 -->
@@ -569,71 +572,7 @@
                 <input type="hidden" id="domicilio_edit">
                 
                 @include('includes.component.map',['identificador' => 'solicitado', 'instancia' => 2])
-                {{-- @push('scripts')
-                <script>
-                    alert();    
-                    console.log(DomicilioObject);
-                    var solicitado = DomicilioObject;
-                </script>
-                @endpush --}}
-                {{-- @include('includes.component.map') --}}
-               {{-- <div class="col-md-12 row">
-                    <input type="hidden" id="domicilio_id_modal">
-                    <input type="hidden" id="domicilio_key">
-                    <div>    
-                        {!! Form::select('tipo_vialidad_id', isset($tipos_vialidades) ? $tipos_vialidades : [] , null, ['id'=>'tipo_vialidad_id','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                        {!! $errors->first('tipo_vialidad_id', '<span class=text-danger>:message</span>') !!}
-                        <p class="help-block">Tipo de vialidad</p>
-                    </div>
-                    <div class="col-md-4">
-                        <input class="form-control numero" id="num_ext" placeholder="Num Exterior" type="text" value="">
-                        
-                        <p class="help-block">Numero exterior</p>
-                    </div>
-                    <div class="col-md-4">
-                        <input class="form-control numero" id="num_int" placeholder="Num Interior" type="text" value="">
-                        
-                        <p class="help-block">Numero interior</p>
-                    </div>
-                    <div>    
-                        {!! Form::select('tipo_asentamiento_id', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , null, ['id'=>'tipo_asentamiento_id','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                        {!! $errors->first('tipo_asentamiento_id', '<span class=text-danger>:message</span>') !!}
-                        <p class="help-block">Tipo de asentamiento</p>
-                    </div>
-                    <div class="col-md-4">
-                        <input class="form-control" id="asentamiento" placeholder="Asentamiento" type="text" value="">
-                        
-                        <p class="help-block">Nombre asentamiento</p>
-                    </div>
-                    <div class="col-md-4">
-                        <input class="form-control" id="municipio" placeholder="Municipio" type="text" value="">
-                        <p class="help-block">Nombre del municipio</p>
-                    </div>
-                    <div>    
-                        {!! Form::select('estado_id', isset($estados) ? $estados : [] , null, ['id'=>'estado_id','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                        {!! $errors->first('estado_id', '<span class=text-danger>:message</span>') !!}
-                        <p class="help-block">Estado</p>
-                    </div>
-                    <div class="col-md-4">
-                        <input class="form-control numero" id="cp" placeholder="Codigo Postal" maxlength="5" type="text" value="">
-                        <p class="help-block">Codigo postal</p>
-                    </div>
-                    <div class="col-md-4">
-                        <input class="form-control" id="referencias" placeholder="Referencias" type="text" value="">
-                        <p class="help-block">Referencias</p>
-                    </div>
-                    <div class="col-md-4">
-                        <input class="form-control" id="entre_calle1" placeholder="Entre calle" type="text" value="">
-                        
-                        <p class="help-block">Entre calle 1</p>
-                    </div>
-                    y
-                    <div class="col-md-4">
-                        <input class="form-control" id="entre_calle2" placeholder="Entre calle 2" type="text" value="">
-                        <p class="help-block">Entre calle 2</p>
-                    </div>
-                    <div class="widget-maps" id="widget-maps2"></div>
-                </div>--}}
+                
             </div>
             <div class="modal-footer">
                 <div class="text-right">
@@ -884,6 +823,7 @@
                 if(data.estatus_solicitud_id == 2){
                     $("#btnRatificarSolicitud").hide();
                 }
+
                 $("#fechaRatificacion").val(dateFormat(data.fecha_ratificacion,2));
                 $("#fechaRecepcion").val(dateFormat(data.fecha_recepcion,2));
                 $("#fechaConflicto").val(dateFormat(data.fecha_conflicto,0));
@@ -1028,7 +968,6 @@
         var html = "";
         
         $.each(arrayS, function (key, value) {
-            console.log(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined"));
             if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined")){
                 html += "<tr>";
                 $("#tipo_contacto_id_solicitante").val(value.tipo_contacto_id);
@@ -1544,7 +1483,7 @@
     })(jQuery);
     $(".numero").limitKeyPress('1234567890.');
     function dateFormat(fecha,tipo = 1){
-        if(fecha != ""){
+        if(fecha != "" && fecha != null){
             if(tipo == 1){
                 var vecFecha = fecha.split("/");
                 var formatedDate = vecFecha[2] + "-" + vecFecha[1] + "-" + vecFecha[0];

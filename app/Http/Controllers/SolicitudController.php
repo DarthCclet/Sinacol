@@ -54,7 +54,7 @@ class SolicitudController extends Controller
         // Filtramos los usuarios con los parametros que vengan en el request
         $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
             ->searchWith(Solicitud::class)
-            ->filter(false);
+            ->filter();
 
          // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
@@ -85,8 +85,11 @@ class SolicitudController extends Controller
             if($this->request->get('estatus_solicitud_id')){
                 $solicitud->where('estatus_solicitud_id',$this->request->get('estatus_solicitud_id'));
             }
+            if($this->request->get('loadPartes')){
+                $solicitud = $solicitud->with("partes");
+            }
             if($this->request->get('IsDatatableScroll')){
-                $solicitud = $solicitud->take($length)->skip($start)->orderBy('id','asc')->get();
+                $solicitud = $solicitud->take($length)->skip($start)->get();
             }else{
                 $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
             }
@@ -145,9 +148,7 @@ class SolicitudController extends Controller
     {
 
         $request->validate([
-            'solicitud.observaciones' => 'required|max:500',
             'solicitud.fecha_conflicto' => 'required',
-            'solicitud.fecha_ratificacion' => 'required',
             'solicitud.fecha_recepcion' => 'required',
             'solicitud.solicita_excepcion' => 'required',
 
@@ -367,9 +368,7 @@ class SolicitudController extends Controller
     public function update(Request $request, Solicitud $solicitud)
     {
         $request->validate([
-            'solicitud.observaciones' => 'required|max:500',
             'solicitud.fecha_conflicto' => 'required',
-            'solicitud.fecha_ratificacion' => 'required',
             'solicitud.fecha_recepcion' => 'required',
             'solicitud.solicita_excepcion' => 'required',
 
@@ -580,7 +579,7 @@ class SolicitudController extends Controller
     public function Ratificar(Request $request){
         $solicitud= Solicitud::find($request->id);
         //Indicamos que la solicitud ha sido ratificada
-        $solicitud->update(["estatus_solicitud_id" => 2,"ratificada" => true]);
+        $solicitud->update(["estatus_solicitud_id" => 2,"ratificada" => true,"fecha_ratificacion" => now()]);
         //Obtenemos el contador
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(1,1);

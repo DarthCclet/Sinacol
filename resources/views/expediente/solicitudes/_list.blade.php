@@ -1,45 +1,8 @@
 
-{{-- <table id="data-table-default" class="table table-striped table-bordered table-td-valign-middle">
-    <thead>
-    <tr>
-        <th width="1%"></th>
-        <th class="text-nowrap">Fecha Recepcion</th>
-        <!--<th class="text-nowrap">Objeto</th>-->
-        <th class="text-nowrap">Estatus</th>
-        <th class="text-nowrap">Fecha Ratificacion</th>
-        <th class="text-nowrap">Acciones</th>
-        <!-- <th >Editar</th> -->
-    </tr>
-    </thead>
-    <tbody>
-    @foreach($solicitud as $solicitud)
-        <tr class="odd gradeX">
-            <td width="1%" class="f-s-600 text-inverse">{{$solicitud->id}}</td>
-            <td>{{$solicitud->fecha_recepcion}}</td>
-            <td>{{$solicitud->estatusSolicitud->nombre}}</td>
-            <td>{{$solicitud->fecha_ratificacion}}</td>
-            <td class="all">
-                {!! Form::open(['action' => ['SolicitudController@destroy', $solicitud->id], 'method'=>'DELETE']) !!}
-                <div style="display: inline-block;">
-                    <a href="{{route('solicitudes.edit',[$solicitud])}}" class="btn btn-xs btn-info">
-                        <i class="fa fa-pencil-alt"></i>
-                    </a>
-                    <button class="btn btn-xs btn-warning btn-borrar">
-                        <i class="fa fa-trash btn-borrar"></i>
-                    </button>
-                </div>
-                {!! Form::close() !!}
-            </td>
-
-        </tr>
-    @endforeach
-
-    </tbody>
-</table> --}}
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
-      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Anio</th><th>Centro</th><th>user</th><th>ratificada</th><th>excepcion</th><th>Fecha Ratificacion</th><th>Fecha Recepcion</th><th>Observaciones</th><th>deleted_at</th><th>created_at</th><th>updated_at</th><th>Fecha Conflicto</th><th>Accion</th></tr>
+      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Anio</th><th>Centro</th><th>user</th><th>ratificada</th><th>excepcion</th><th>Fecha Ratificacion</th><th>Fecha Recepcion</th><th>Observaciones</th><th>deleted_at</th><th>created_at</th><th>updated_at</th><th>Fecha Conflicto</th><th>Partes</th><th>Accion</th></tr>
     </thead>
 
 </table>
@@ -103,12 +66,13 @@
                         d.folio = $("#folio").val(),
                         d.anio = $("#anio").val(),
                         d.estatus_solicitud_id = $("#estatus_solicitud_id").val(),
-                        d.IsDatatableScroll = true
+                        d.IsDatatableScroll = true,
+                        d.loadPartes = true
                         // d.objeto_solicitud_id = $("#objeto_solicitud_id").val()
                     }
                 },
                 "columnDefs": [
-                    // {"targets": [0], "visible": false},
+                    {"targets": [0], "visible": false},
                     {
                         "targets": [1], 
                         "render": function (data, type, row) {
@@ -143,6 +107,11 @@
                             }
                         }
                     },
+                    {"targets": [10], "visible": false},
+                    
+                    {"targets": [11], "visible": false},
+                    {"targets": [12], "visible": false},
+                    {"targets": [13], "visible": false},
                     {
                         "targets": [14],
                         "render": function (data, type, row) {
@@ -153,9 +122,34 @@
                             }
                         }
                     },
-                    {"targets": [11], "visible": false},
-                    {"targets": [12], "visible": false},
-                    {"targets": [13], "visible": false},
+                    {
+                        "targets": [15], 
+                        "render": function (data, type, row) {
+                            var html = "";
+                            var solicitantes = "";
+                            var solicitados = "";
+                            $.each(data,function(key, value){
+                                var nombre = "";
+                                if(value.tipo_persona_id == 1){
+                                        nombre = value.nombre + " " + value.primer_apellido + " " + value.segundo_apellido
+                                }else{
+                                    nombre = value.nombre_comercial;
+                                }
+                                if(value.tipo_parte_id == 1){
+                                    solicitantes += "<p> -"+nombre+"</p>";
+                                }else{
+                                    solicitados += "<p> - "+nombre+"</p>";
+                                }
+                            });
+                            html += "<div>";
+                            html += "<h5>Solicitantes</h5>";
+                            html += solicitados;
+                            html += "<h5>Solicitados</h5>";
+                            html += solicitantes;
+                            html += "</div>";
+                            return  html;
+                        }
+                    },
                     {
                         "targets": -1,
                         "render": function (data, type, row) {
