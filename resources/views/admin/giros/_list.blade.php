@@ -6,26 +6,23 @@
 </div>
 <div class="col-md-12" style="margin-top:1%">
     <label > Fitro de giros por nivel</label>
-    <div class="col-md-12 row">
-        <div class="col-md-6">
+    <div class="col-md-12 ">
+        <div class="col-md-8">
             <div class="form-group">
-                <label for="persona_id" class="col-sm-6 control-label">Giro nivel 1</label>
                     <select id="girosNivel1" nextLevel="2" class="form-control giroNivel">
                     </select>
                 </label>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-8" id="divNivel2" style="display:none">
             <div class="form-group">
-                <label for="persona_id" class="col-sm-6 control-label">Giro nivel 2</label>
                     <select id="girosNivel2" nextLevel="3" class="form-control giroNivel">
                     </select>
                 </label>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-8" id="divNivel3" style="display:none">
             <div class="form-group">
-                <label for="persona_id" class="col-sm-6 control-label">Giro nivel 3</label>
                     <select id="girosNivel3" nextLevel="" class="form-control giroNivel">
                     </select>
                 </label>
@@ -212,6 +209,7 @@
             tieneHijos = getGironivel($(this).val(),$(this).attr("nextLevel"),"girosNivel"+$(this).attr("nextLevel"));
         }
         if(!tieneHijos){
+            $("#divNivel"+$(this).attr("nextLevel")).hide();
             if($(this).val() != null){
                 $("#lista-ccostos").treetable("reveal",$(this).val());
                 $("#lista-ccostos").treetable("node",$(this).val());
@@ -224,6 +222,8 @@
             }else{
                 $("tr").removeClass('droppedEl');
             }
+        }else{
+            $("#divNivel"+$(this).attr("nextLevel")).show();
         }
     });
     $(document).ready(function() {

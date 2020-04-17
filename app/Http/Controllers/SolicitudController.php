@@ -220,9 +220,6 @@ class SolicitudController extends Controller
             $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
             // dd($domicilio);
             // foreach ($domicilios as $key => $domicilio) {
-                $domicilio["tipo_vialidad"] = "as";
-                $domicilio["vialidad"] = "as";
-                $domicilio["estado"] = "as";
                 unset($domicilio['activo']);
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
             // }
@@ -253,9 +250,6 @@ class SolicitudController extends Controller
             $parteSaved = Parte::create($value);  
             if(count($domicilios) > 0){
                 foreach ($domicilios as $key => $domicilio) {
-                    $domicilio["tipo_vialidad"] = "as";
-                    $domicilio["vialidad"] = "as";
-                    $domicilio["estado"] = "as";
                     unset($domicilio['activo']);
                     $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                 }
