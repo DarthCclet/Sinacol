@@ -2,10 +2,10 @@
     "datos": [
         {
             "id": "1",
-            "objeto": "Parte",
-            "tabla": "partes",
-            "nombre": "Solicitante",
-            "id_tipo": "1"
+            "objeto": "Solicitud",
+            "tabla": "solicitudes",
+            "nombre": "Solicitud",
+            "id_tipo": ""
         },
         {
             "id": "2",
@@ -16,16 +16,23 @@
         },
         {
             "id": "3",
-            "objeto": "Solicitud",
-            "tabla": "solicitudes",
-            "nombre": "Solicitud",
-            "id_tipo": ""
+            "objeto": "Parte",
+            "tabla": "partes",
+            "nombre": "Solicitante",
+            "id_tipo": "1"
         },
         {
             "id": "4",
             "objeto": "Centro",
             "tabla": "centros",
             "nombre": "Centro",
+            "id_tipo": ""
+        },
+        {
+            "id": "5",
+            "objeto": "Audiencia",
+            "tabla": "audiencias",
+            "nombre": "Audiencia",
             "id_tipo": ""
         }
 
