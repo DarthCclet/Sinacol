@@ -96,6 +96,10 @@
     .highlighted{
         background-color: #FFFF00;
     }
+    .select2-results__option--highlighted{
+        background: #348fe2 !important;
+        color: #fff !important;
+    }
 
 </style>
 @push('scripts')
