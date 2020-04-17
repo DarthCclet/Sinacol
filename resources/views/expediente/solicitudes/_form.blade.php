@@ -183,7 +183,7 @@
                             <div class="col-md-4">
                                 {!! Form::select('tipo_contacto_id_solicitante', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('tipo_contacto_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Estado de nacimiento</p>
+                                <p class="help-block needed">Tipo de contacto</p>
                             </div>
                             <div class="col-md-4">
                                 <input class="form-control" id="contacto_solicitante" placeholder="Contacto"  type="text" value="">
@@ -416,7 +416,7 @@
                             <div class="col-md-4">
                                 {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Estado de nacimiento</p>
+                                <p class="help-block needed">Tipo de contacto</p>
                             </div>
                             <div class="col-md-4">
                                 <input class="form-control" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
@@ -1635,7 +1635,8 @@
                                     text: 'Solicitud ratificada correctamente',
                                     icon: 'success'
                                 });
-                                getSolicitudFromBD($("#solicitud_id").val());
+                                location.reload(); 
+                                //getSolicitudFromBD($("#solicitud_id").val());
                             }else{
                                 swal({
                                     title: 'Error',

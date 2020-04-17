@@ -267,6 +267,7 @@
             var lat = $('#latitud'+identifier).val() ? $('#latitud'+identifier).val() : "19.398606";
             var lon = $('#longitud'+identifier).val() ? $('#longitud'+identifier).val() : "-99.158581";
             $(".direccionUpd"+identifier).trigger('blur')
+            $('.catSelect'+identifier).trigger('change');
             // this.seteaMarker(this.map, {lat: parseFloat(lat), lng: parseFloat(lon)});
         }
         domicilio.limpiarDomicilios = function(){
