@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Documento;
 use App\Audiencia;
+use App\Solicitud;
 use App\ClasificacionArchivo;
 use Validator;
 use Illuminate\Support\Facades\Storage;
@@ -123,6 +124,31 @@ class DocumentoController extends Controller
                     "nombre" => str_replace($directorio."/", '',$path),
                     "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                     "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
+                    "ruta" => $path,
+                    "tipo_almacen" => "local",
+                    "uri" => $path,
+                    "longitud" => round(Storage::size($path) / 1024, 2),
+                    "firmado" => "false",
+                    "clasificacion_archivo_id" => $tipoArchivo->id ,
+                ]);
+            }
+        }
+        return 'Product saved successfully';
+    }
+    public function solicitud(Request $request)
+    {
+        $solicitud = Solicitud::find($request->solicitud_id[0]);
+        if($solicitud != null){
+            $directorio = 'solicitud/'.$solicitud->id;
+            Storage::makeDirectory($directorio);
+            $archivos = $request->file('files');
+            $tipoArchivo = ClasificacionArchivo::find($request->tipo_documento_id[0]);
+            foreach($archivos as $archivo) {
+                $path = $archivo->store($directorio);
+                $solicitud->documentos()->create([
+                    "nombre" => str_replace($directorio."/", '',$path),
+                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                    "descripcion" => "Documento de solicitud ".$tipoArchivo->nombre,
                     "ruta" => $path,
                     "tipo_almacen" => "local",
                     "uri" => $path,

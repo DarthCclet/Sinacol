@@ -5,6 +5,7 @@
 @include('includes.component.datatables')
 @include('includes.component.pickers')
 @include('includes.component.calendar')
+@include('includes.component.dropzone')
 
 @section('content')
 <button class="btn btn-info" onclick="location.href='{{ route('solicitudes.index')  }}'" ><i class="fa fa-arrow-alt-circle-left"></i> Regresar</button>
