@@ -189,7 +189,7 @@
             }
             function SolicitarAudiencia(inicio,fin){
                 swal({
-                    title: '¿Concilian juntos?',
+                    title: '¿Las partes concilian en la misma sala?',
                     text: 'Al oprimir aceptar se asignará solo un consiliador y una sola sala para solicitante y solicitado',
                     icon: 'warning',
                     buttons: {
