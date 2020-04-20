@@ -139,17 +139,17 @@
                                 {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Genero</p>
                             </div>
-                            <div class="col-md-4 personaMoralSolicitado">
+                            <div class="col-md-4 personaMoralSolicitante">
                                 {!! Form::select('giro_comercial_solicitante', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('giro_comercial_solicitante', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Giro Comercial</p>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4 personaFisicaSolicitante">
                                 {!! Form::select('nacionalidad_id_solicitante', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('nacionalidad_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Nacionalidad</p>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4 personaFisicaSolicitante">
                                 {!! Form::select('entidad_nacimiento_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('entidad_nacimiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Estado de nacimiento</p>
@@ -239,8 +239,8 @@
                             </div>
                             <div class="col-md-12 row">
                                 <div class="col-md-4">
-                                    <input class="form-control numero" data-parsley-type='integer' id="no_afore" placeholder="No afore" type="text" value="">
-                                    <p class="help-block">No. afore</p>
+                                    <input class="form-control numero" data-parsley-type='integer' required id="no_afore" placeholder="No afore" type="text" value="">
+                                    <p class="help-block needed">No. afore</p>
                                 </div>
                                 <div class="col-md-4">
                                     <input class="form-control numero " required data-parsley-type='number' id="percepcion_mensual_neta" placeholder="Percepcion neta mensual" type="text" value="">
@@ -263,7 +263,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <input class="form-control numero" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
-                                    <p class="help-block">Horas semanales</p>
+                                    <p class="help-block needed">Horas semanales</p>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -380,12 +380,12 @@
                                 {!! $errors->first('giro_comercial_solicitando', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Giro Comercial</p>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4 personaFisicaSolicitado">
                                 {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('nacionalidad_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Nacionalidad</p>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4 personaFisicaSolicitado">
                                 {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Estado de nacimiento</p>
@@ -863,10 +863,10 @@
                     solicitante.lengua_indigena_id = $("#lengua_indigena_id_solicitante").val();    
                 }else{
                     solicitante.nombre_comercial = $("#idNombreCSolicitante").val();
+                    solicitante.giro_comercial_id = $("#giro_comercial_solicitante").val()
                 }
                 solicitante.solicita_traductor = $("input[name='solicita_traductor_solicitante']:checked").val()
                 solicitante.tipo_persona_id = $("input[name='tipo_persona_solicitante']:checked").val()
-                solicitante.giro_comercial_id = $("#giro_comercial_solicitante").val()
                 solicitante.tipo_parte_id = 1;
                 solicitante.activo = 1;
                 solicitante.rfc = $("#idSolicitanteRfc").val();
@@ -934,10 +934,10 @@
                     solicitado.lengua_indigena_id = $("#lengua_indigena_id_solicitado").val();    
                 }else{
                     solicitado.nombre_comercial = $("#idNombreCSolicitado").val();
+                    solicitado.giro_comercial_id = $("#giro_comercial_solicitado").val()
                 }
                 solicitado.solicita_traductor = $("input[name='solicita_traductor_solicitado']:checked").val();
                 solicitado.tipo_persona_id = $("input[name='tipo_persona_solicitado']:checked").val();
-                solicitado.giro_comercial_id = $("#giro_comercial_solicitado").val()
                 solicitado.tipo_parte_id = 2;
                 solicitado.rfc = $("#idSolicitadoRfc").val();
                 solicitado.activo = 1;
@@ -967,11 +967,14 @@
             if($("input[name='tipo_persona_solicitante']:checked").val() == 1){
                 $(".personaFisicaSolicitante input").attr("required","");
                 $(".personaMoralSolicitante input").removeAttr("required");
+                $(".personaMoralSolicitante select").removeAttr("required");
                 $(".personaMoralSolicitante").hide();
                 $(".personaFisicaSolicitante").show();
             }else{
-                $(".personaFisicaSolicitante input").removeAttr("required");
                 $(".personaMoralSolicitante input").attr("required","");
+                $(".personaMoralSolicitante select").attr("required","");
+                $(".personaFisicaSolicitante input").removeAttr("required");
+                $(".personaFisicaSolicitante select").removeAttr("required");
                 $(".personaMoralSolicitante").show();
                 $(".personaFisicaSolicitante").hide();
             }
@@ -984,11 +987,15 @@
             if($("input[name='tipo_persona_solicitado']:checked").val() == 1){
                 $(".personaFisicaSolicitado input").attr("required","");
                 $(".personaMoralSolicitado input").removeAttr("required");
+                $(".personaFisicaSolicitado select").attr("required","");
+                $(".personaMoralSolicitado select").removeAttr("required");
                 $(".personaMoralSolicitado").hide();
                 $(".personaFisicaSolicitado").show();
             }else{
                 $(".personaFisicaSolicitado input").removeAttr("required");
                 $(".personaMoralSolicitado input").attr("required","");
+                $(".personaFisicaSolicitado select").removeAttr("required");
+                $(".personaMoralSolicitado select").attr("required","");
                 $(".personaMoralSolicitado").show();
                 $(".personaFisicaSolicitado").hide();
             }
@@ -1088,11 +1095,13 @@
             if($("#solicita_traductor_solicitante").is(":checked")){
                 $("#solicita_traductor_solicitante").trigger('click');
             }
+            $("#agregarSolicitante").html('<i class="fa fa-plus-circle"></i> Agregar solicitante');
+            $("input[name='tipo_persona_solicitante']").trigger("change")
             arrayContactoSolicitantes = new Array();
             formarTablaContacto(true);
-            $('#step-1').parsley().reset();
             $('.catSelect').trigger('change');
             domicilioObj.limpiarDomicilios();
+            $('#step-1').parsley().reset();
         }
 
 
@@ -1120,10 +1129,12 @@
             if($("#solicita_traductor_solicitado").is(":checked")){
                 $("#solicita_traductor_solicitado").trigger('click');
             }
+            $("#agregarSolicitado").html('<i class="fa fa-plus-circle"></i> Agregar solicitado');
             arrayContactoSolicitados = new Array();;
             formarTablaContacto();
             $('.catSelect').trigger('change');  
             domicilioObj2.limpiarDomicilios();
+            $('#step-2').parsley().reset();
         }
     
     function agregarContactoSolicitante(){  
@@ -1261,12 +1272,12 @@
                     html += "<td> " + value.nombre_comercial + " </td>";    
                 }
                 
-                html += "<td> " + value.rfc + " </td>";
                 if(value.tipo_persona_id == 1){
                     html += "<td> " + value.curp + " </td>";
                 }else{
                     html += "<td></td>";    
                 }
+                html += "<td> " + value.rfc + " </td>";
                 
                 html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt' style='color:white;'></i></a> ";
                 html += "<a class='btn btn-xs btn-warning' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
@@ -1293,12 +1304,12 @@
                     html += "<td> " + value.nombre_comercial + " </td>";    
                 }
                 
-                html += "<td> " + value.rfc + " </td>";
                 if(value.tipo_persona_id == 1){
                     html += "<td> " + value.curp + " </td>";
                 }else{
                     html += "<td></td>";    
                 }
+                html += "<td> " + value.rfc + " </td>";
                 
                 html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt' style='color:white;'></i></a> ";
                 html += "<a class='btn btn-xs btn-warning' onclick='eliminarSolicitado("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
@@ -1364,6 +1375,7 @@
     *@argument key posicion de array a editar
     */
     function cargarEditarSolicitante(key){
+        $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Editar solicitante');
         $("#edit_key").val(key);
         $("#solicitante_id").val(arraySolicitantes[key].id);
         if(arraySolicitantes[key].tipo_persona_id == 1){
@@ -1394,8 +1406,8 @@
             $(".personaFisicaSolicitante").hide();
             $("#tipo_persona_moral_solicitante").prop("checked", true);
             $("#idNombreCSolicitante").val(arraySolicitantes[key].nombre_comercial);
+            $("#giro_comercial_solicitante").val(arraySolicitantes[key].giro_comercial_id);
         }
-        $("#giro_comercial_solicitante").val(arraySolicitantes[key].giro_comercial_id);
         $("#idSolicitanteRfc").val(arraySolicitantes[key].rfc);
         // datos laborales en la solicitante
         $("#dato_laboral_id").val(arraySolicitantes[key].dato_laboral.id);
@@ -1409,6 +1421,7 @@
         if(arraySolicitantes[key].dato_laboral.labora_actualmente != $("#labora_actualmente").is(":checked")){
             $("#labora_actualmente").prop("checked", true);;
         }
+        $("input[name='tipo_persona_solicitante']").trigger("change");
         $("#fecha_ingreso").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_ingreso,0));
         $("#fecha_salida").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_salida,0));
         $("#jornada_id").val(arraySolicitantes[key].dato_laboral.jornada_id);
@@ -1425,6 +1438,7 @@
     *@argument key posicion de array a editar
     */
     function cargarEditarSolicitado(key){
+        $("#agregarSolicitado").html('<i class="fa fa-edit"></i> Editar solicitado');
         $("#solicitado_key").val(key);
         $("#solicitado_id").val(arraySolicitados[key].id);
         // Si tipo persona es fisica o moral llena diferentes campos
@@ -1459,6 +1473,7 @@
         }
         $("#giro_comercial_solicitado").val(arraySolicitados[key].giro_comercial_id);
         $("#idSolicitadoRfc").val(arraySolicitados[key].rfc);
+        $("input[name='tipo_persona_solicitado']").trigger("change");
         arrayContactoSolicitados = arraySolicitados[key].contactos ? arraySolicitados[key].contactos : new Array();
         formarTablaContacto();
         // arrayContactoSolicitados = arraySolicitados[key].contactos;

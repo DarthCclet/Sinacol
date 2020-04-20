@@ -317,7 +317,7 @@
             }
             $("#tipo_asentamiento_id"+identifier).val(7);
             $("#tipo_vialidad_id"+identifier).val(5);
-            $(".direccionUpd"+identifier).trigger('blur')
+            $(".direccionUpd"+identifier).trigger('change')
         }
 		$("#validaDir"+identifier).click(function(){
 			domicilio.tomarGeoreferencia();
