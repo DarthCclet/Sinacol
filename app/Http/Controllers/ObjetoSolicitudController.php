@@ -30,7 +30,7 @@ class ObjetoSolicitudController extends Controller
       if ($this->request->get('all')) {
           $objetoSolicitud = $objetoSolicitud->get();
       } else {
-          $objetoSolicitud->select("id","nombre");
+          $objetoSolicitud->select("id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado");
           $objetoSolicitud = $objetoSolicitud->paginate($this->request->get('per_page', 10));
       }
 

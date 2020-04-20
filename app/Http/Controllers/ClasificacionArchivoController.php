@@ -31,7 +31,7 @@ class ClasificacionArchivoController extends Controller
         if ($this->request->get('all')) {
             $clasificacion = $clasificacion->get();
         } else {
-            $clasificacion->select("id","nombre");
+            $clasificacion->select("id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $clasificacion = $clasificacion->paginate($this->request->get('per_page', 10));
         }
 

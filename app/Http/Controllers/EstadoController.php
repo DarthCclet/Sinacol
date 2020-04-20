@@ -30,7 +30,7 @@ class EstadoController extends Controller
         if ($this->request->get('all')) {
             $estados = $estados->get();
         } else {
-            $estados->select("id","nombre","abreviatura");
+            $estados->select("id","nombre","abreviatura","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $estados = $estados->paginate($this->request->get('per_page', 10));
         }
 

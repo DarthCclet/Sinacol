@@ -30,7 +30,7 @@ class TipoVialidadController extends Controller
         if ($this->request->get('all')) {
             $tipoVialidad = $tipoVialidad->get();
         } else {
-            $tipoVialidad->select("id","nombre");
+            $tipoVialidad->select("id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $tipoVialidad = $tipoVialidad->paginate($this->request->get('per_page', 10));
         }
 

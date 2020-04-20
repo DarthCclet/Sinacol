@@ -31,7 +31,7 @@ class TipoParteController extends Controller
         if ($this->request->get('all')) {
             $tipoPartes = $tipoPartes->get();
         } else {
-            $tipoPartes->select("id","nombre");
+            $tipoPartes->select("id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $tipoPartes = $tipoPartes->paginate($this->request->get('per_page', 10));
         }
 

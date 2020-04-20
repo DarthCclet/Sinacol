@@ -31,7 +31,7 @@ class NacionalidadController extends Controller
         if ($this->request->get('all')) {
             $nacionalidades = $nacionalidades->get();
         } else {
-            $nacionalidades->select("id","nombre");
+            $nacionalidades->select("id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $nacionalidades = $nacionalidades->paginate($this->request->get('per_page', 10));
         }
 

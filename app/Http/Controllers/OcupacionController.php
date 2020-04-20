@@ -35,6 +35,7 @@ class OcupacionController extends Controller
         if ($this->request->get('all')) {
             $ocupacion = $ocupacion->get();
         } else {
+            $ocupacion->select("id","nombre","salario_zona_libre","salario_resto_del_pais","vigencia_de","vigencia_a","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $ocupacion = $ocupacion->paginate($this->request->get('per_page', 10));
         }
 

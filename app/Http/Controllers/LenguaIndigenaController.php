@@ -30,7 +30,7 @@ class LenguaIndigenaController extends Controller
         if ($this->request->get('all')) {
             $lenguaIndigena = $lenguaIndigena->get();
         } else {
-            $lenguaIndigena->select("id","nombre");
+            $lenguaIndigena->select("id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $lenguaIndigena = $lenguaIndigena->paginate($this->request->get('per_page', 10));
         }
 

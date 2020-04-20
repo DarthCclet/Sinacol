@@ -30,7 +30,7 @@ class TipoContactoController extends Controller
         if ($this->request->get('all')) {
             $tipoContacto = $tipoContacto->get();
         } else {
-            $tipoContacto->select("id","nombre");
+            $tipoContacto->select("id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $tipoContacto = $tipoContacto->paginate($this->request->get('per_page', 10));
         }
 

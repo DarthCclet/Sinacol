@@ -30,7 +30,7 @@ class TipoPersonaController extends Controller
         if ($this->request->get('all')) {
             $tiposPersona = $tiposPersona->get();
         } else {
-            $tiposPersona->select("id","nombre");
+            $tiposPersona->select("id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $tiposPersona = $tiposPersona->paginate($this->request->get('per_page', 10));
         }
 

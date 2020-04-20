@@ -31,7 +31,7 @@ class GiroComercialController extends Controller
         if ($this->request->get('all')) {
             $giroComercial = $giroComercial->get();
         } else {
-            $giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id");
+            $giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $giroComercial = $giroComercial->paginate($this->request->get('per_page', 10));
         }
 

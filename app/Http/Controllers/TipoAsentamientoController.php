@@ -30,7 +30,7 @@ class TipoAsentamientoController extends Controller
         if ($this->request->get('all')) {
             $TipoAsentamientos = $TipoAsentamientos->get();
         } else {
-            $TipoAsentamientos->select("id","nombre");
+            $TipoAsentamientos->select("id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $TipoAsentamientos = $TipoAsentamientos->paginate($this->request->get('per_page', 10));
         }
 

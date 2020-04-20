@@ -35,7 +35,7 @@ class CentroController extends Controller
         if ($this->request->get('all')) {
             $centros = $centros->get();
         } else {
-            $centros->select("id","nombre","duracionAudiencia","abreviatura");
+            $centros->select("id","nombre","duracionAudiencia","abreviatura","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $centros = $centros->paginate($this->request->get('per_page', 10));
         }
 
