@@ -18,6 +18,7 @@ class CreateEstadosTable extends Migration
             $table->char('id',2)->primary();
             $table->string('nombre')->comment('NOMBRE DEL ESTADO');
             $table->string('abreviatura')->comment('ABREVIATURA DEL ESTADO ISO-3166-2');
+            $table->softDeletes()->comment('Indica la fecha y hora en que fue borrado lóigcamente un registro');
             $table->timestamps();
         });
 

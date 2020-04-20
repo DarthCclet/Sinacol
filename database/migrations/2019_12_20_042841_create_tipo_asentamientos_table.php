@@ -20,6 +20,7 @@ class CreateTipoAsentamientosTable extends Migration
         Schema::create('tipo_asentamientos', function (Blueprint $table) {
             $table->integer('id')->primary();
             $table->string('nombre');
+            $table->softDeletes()->comment('Indica la fecha y hora en que fue borrado lóigcamente un registro');
             $table->timestamps();
         });
 

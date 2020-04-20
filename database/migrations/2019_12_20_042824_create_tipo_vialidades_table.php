@@ -20,6 +20,7 @@ class CreateTipoVialidadesTable extends Migration
         Schema::create('tipo_vialidades', function (Blueprint $table) {
             $table->integer('id')->primary()->comment('Llave primaria del registro');
             $table->string('nombre')->comment('Nombre del tipo de vialidad');
+            $table->softDeletes()->comment('Indica la fecha y hora en que fue borrado lóigcamente un registro');
             $table->timestamps();
         });
 

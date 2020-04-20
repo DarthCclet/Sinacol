@@ -15,6 +15,7 @@ class CreateClasificacionArchivosTable extends Migration
         Schema::create('clasificacion_archivos', function (Blueprint $table) {
             $table->increments('id')->comment('PK: Llave primaria');
             $table->string('nombre')->comment('Nombre de la clasifiación');
+            $table->softDeletes()->comment('Indica la fecha y hora en que fue borrado lóigcamente un registro');
             $table->timestamps();
         });
 
