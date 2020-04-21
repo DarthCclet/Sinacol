@@ -27,6 +27,12 @@
         display: none;
         margin-left: 50%;
     }
+    .pac-container {
+        z-index: 9999 !important;
+    }
+    .pac-logo{
+        z-index: 9999 !important;
+    }
 </style>
 <div class="col-md-12 row">
 	<div class="col-md-12" align="center">
@@ -66,7 +72,7 @@
 		<p class="help-block needed">Codigo postal</p>
 	</div>
 	<div class="col-md-4">    
-		{!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect'.$identificador]);  !!}
+		{!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
 		{!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Tipo de asentamiento</p>
     </div>

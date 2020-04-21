@@ -120,15 +120,15 @@ class GiroComercialController extends Controller
     {
         $giroComercial = (new CatalogoFilter(GiroComercial::query(), $this->request))
             ->searchWith(GiroComercial::class)
-            ->filter();
+            ->filter(false);
         $nombre = $this->request->get('nombre');
         
         // $giros_comerciales = GiroComercial::find(1)->descendants;
         if($nombre != ""){
             $nombre = strtr($nombre,array('a'=> '(a|á)','e'=> '(e|é)','i'=>'(i|í)','o'=> '(o|ó)','u'=> '(u|ú)'));
-            $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->where('nombre','~*',$nombre)->with('ancestors')->withDepth()->get();
+            $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->where('nombre','~*',$nombre)->with('ancestors')->withDepth()->orderBy('codigo','asc')->get();
         }else{
-            $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->withDepth()->get();
+            $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->withDepth()->orderBy('codigo','asc')->get();
         }
         
         
@@ -223,18 +223,49 @@ class GiroComercialController extends Controller
     {
         $giroComercial = (new CatalogoFilter(GiroComercial::query(), $this->request))
             ->searchWith(GiroComercial::class)
-            ->filter();
+            ->filter(false);
         $nivel = $this->request->get('nivel');
         $id = $this->request->get('id');
+        $muestraCodigo = $this->request->get('muestraCodigo');
         
         // $giros_comerciales = GiroComercial::find(1)->descendants;
         if($nivel != ""){
+            $orden = "nombre";
             if($id != ""){
                 $giroComercial->whereDescendantOf($id);    
             }
-            $giroComercial = $giroComercial->withDepth()->get();
+            if($muestraCodigo){
+                $orden = "codigo";
+            }
             // dd(DB::getQueryLog());
+            $giroComercial = $giroComercial->withDepth()->orderBy($orden,"asc")->get();
             $giroComercial = $giroComercial->where("depth",$nivel);
+        }else{
+            $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->withDepth()->get();
+        }
+        
+        
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($giroComercial, 'SUCCESS');
+        }
+        
+    }
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getAncestors(Request $request)
+    {
+        $giroComercial = (new CatalogoFilter(GiroComercial::query(), $this->request))
+            ->searchWith(GiroComercial::class)
+            ->filter();
+            $request->validate([
+                'id' => 'required',
+            ]);
+        $id = $this->request->get('id');
+        if($id != ""){
+            $giroComercial = $giroComercial->find($id)->ancestors()->withDepth()->orderBy('depth','asc')->get();
         }else{
             $giroComercial=$giroComercial->select("id","nombre","codigo","_lft","_rgt","parent_id")->withDepth()->get();
         }
