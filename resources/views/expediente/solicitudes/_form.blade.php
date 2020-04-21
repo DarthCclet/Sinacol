@@ -139,10 +139,35 @@
                                 {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Genero</p>
                             </div>
-                            <div class="col-md-4 personaMoralSolicitante">
-                                {!! Form::select('giro_comercial_solicitante', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('giro_comercial_solicitante', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Giro Comercial</p>
+                            <div class="col-md-12 personaMoralSolicitante">
+                                <div class="col-md-12" style="margin-top:1%">
+                                    <label class="help-block needed" > Giro comercial</label>
+                                    <div class="col-md-12 ">
+                                        <input type="hidden" id="giro_comercial_solicitante">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                    <select id="girosNivel1solicitante" nextLevel="2" tipo="solicitante" class="form-control giroNivel">
+                                                    </select>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12" id="divNivel2solicitante" style="display:none">
+                                            <div class="form-group">
+                                                    <select id="girosNivel2solicitante" nextLevel="3" tipo="solicitante" class="form-control giroNivel">
+                                                    </select>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12" id="divNivel3solicitante" style="display:none">
+                                            <div class="form-group">
+                                                    <select id="girosNivel3solicitante" nextLevel="" tipo="solicitante"  class="form-control giroNivel">
+                                                    </select>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <label id="giro_solicitante"></label>
+                                </div>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitante">
                                 {!! Form::select('nacionalidad_id_solicitante', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
@@ -375,10 +400,35 @@
                                 {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Genero</p>
                             </div>
-                            <div class="col-md-4 personaMoralSolicitado" >
-                                {!! Form::select('giro_comercial_solicitado', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('giro_comercial_solicitando', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block">Giro Comercial</p>
+                            <div class="col-md-12 " >
+                                <div class="col-md-12" style="margin-top:1%">
+                                    <label class="help-block needed" > Giro comercial</label>
+                                    <div class="col-md-12 ">
+                                        <input type="hidden" id="giro_comercial_solicitado">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                    <select id="girosNivel1solicitado" nextLevel="2" tipo="solicitado" class="form-control giroNivel">
+                                                    </select>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12" id="divNivel2solicitado" style="display:none">
+                                            <div class="form-group">
+                                                    <select id="girosNivel2solicitado" nextLevel="3" tipo="solicitado" class="form-control giroNivel">
+                                                    </select>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12" id="divNivel3solicitado" style="display:none">
+                                            <div class="form-group">
+                                                    <select id="girosNivel3solicitado" nextLevel="" tipo="solicitado" class="form-control giroNivel">
+                                                    </select>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h5 id="giro_solicitado"></h5>
+                                </div>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
                                 {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
@@ -1007,6 +1057,8 @@
             $("#solicitud_id_modal").val(solicitud);
             cargarDocumentos();
             getSolicitudFromBD(solicitud);
+            getGironivel("",1,"girosNivel1solicitado");
+            getGironivel("",1,"girosNivel1solicitante");
         }
         
     });
@@ -1077,7 +1129,6 @@
             $("#idSolicitanteRfc").val("");
             $("#nombre_jefe_directo").val("");
             $("#ocupacion_id").val("");
-            $("#giro_comercial_solicitante").val("");
             $("#nss").val("");
             $("#no_issste").val("");
             $("#no_afore").val("");
@@ -1096,6 +1147,10 @@
                 $("#solicita_traductor_solicitante").trigger('click');
             }
             $("#agregarSolicitante").html('<i class="fa fa-plus-circle"></i> Agregar solicitante');
+            $("#giro_comercial_solicitante").val("");
+            getGironivel("",1,"girosNivel1solicitante");
+            $("#girosNivel1solicitante").trigger("change");
+            $("#giro_solicitante").html("");
             $("input[name='tipo_persona_solicitante']").trigger("change")
             arrayContactoSolicitantes = new Array();
             formarTablaContacto(true);
@@ -1129,6 +1184,10 @@
             if($("#solicita_traductor_solicitado").is(":checked")){
                 $("#solicita_traductor_solicitado").trigger('click');
             }
+            $("#giro_comercial_solicitado").val("");
+            getGironivel("",1,"girosNivel1solicitado");
+            $("#girosNivel1solicitado").trigger("change");
+            $("#giro_solicitado").html("");
             $("#agregarSolicitado").html('<i class="fa fa-plus-circle"></i> Agregar solicitado');
             arrayContactoSolicitados = new Array();;
             formarTablaContacto();
@@ -1150,7 +1209,7 @@
             
             arrayContactoSolicitantes[idContacto] = contacto;
         }
-        
+
         formarTablaContacto(true);
         limpiarContactoSolicitante();
     }
@@ -1407,6 +1466,7 @@
             $("#tipo_persona_moral_solicitante").prop("checked", true);
             $("#idNombreCSolicitante").val(arraySolicitantes[key].nombre_comercial);
             $("#giro_comercial_solicitante").val(arraySolicitantes[key].giro_comercial_id);
+            getGiroEditar("solicitante");
         }
         $("#idSolicitanteRfc").val(arraySolicitantes[key].rfc);
         // datos laborales en la solicitante
@@ -1470,8 +1530,9 @@
             $(".personaFisicaSolicitado").hide();
             $("#idNombreCSolicitado").val(arraySolicitados[key].nombre_comercial);
             $("#tipo_persona_moral_solicitado").prop("checked", true);
+            $("#giro_comercial_solicitado").val(arraySolicitados[key].giro_comercial_id);
+            getGiroEditar("solicitado");
         }
-        $("#giro_comercial_solicitado").val(arraySolicitados[key].giro_comercial_id);
         $("#idSolicitadoRfc").val(arraySolicitados[key].rfc);
         $("input[name='tipo_persona_solicitado']").trigger("change");
         arrayContactoSolicitados = arraySolicitados[key].contactos ? arraySolicitados[key].contactos : new Array();
@@ -1678,6 +1739,92 @@
         return excepcion;
     }
 
+    function getGironivel(id,nivel,select){
+        var tieneHijos = false;
+        $.ajax({
+            url:"/api/giros_comerciales/getGirosComercialesByNivelId",
+            type:"POST",
+            dataType:"json",
+            async:false,
+            data:{
+                id:id,
+                nivel:nivel
+            },
+            success:function(json){
+                if(json != null && json.data != ""){
+                    $("#"+select).html("<option value=''>Selecciona una opcion</option>");
+                    $.each(json.data,function(index,element){
+                        $("#"+select).append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                    });
+                    tieneHijos = true;
+                }else{
+                    $("#"+select).html("<option value=''>No hay opciones a mostrar</option>");
+                }
+                
+            }
+        });
+        return tieneHijos;
+    }
+
+    function getGiroEditar(tipoParte){
+        var idGiro = $("#giro_comercial_"+tipoParte).val();
+        var ultimoNivel = "";
+        $.ajax({
+            url:'/api/giros_comerciales/getAncestors',
+            type:"POST",
+            dataType:"json",
+            async:false,
+            data:{
+                id: idGiro
+            },
+            success:function(json){
+                $.each(json.data, function(index,element){
+                    if(element.depth == 0){
+                        var nivelSiguente = element.depth;
+                        getGironivel("",1,"girosNivel1"+tipoParte);
+                    }else{
+                        // getGironivel(elemnt.id,1,"girosNivel1solicitado");
+                        var nivelSiguente = element.depth;
+                        $("#girosNivel"+nivelSiguente+tipoParte).val(element.id);
+                        $("#girosNivel"+nivelSiguente+tipoParte).trigger("change");
+                        
+                    }
+                    ultimoNivel = element.depth+1;
+                    
+                });
+            }
+        });
+        $("#girosNivel"+ultimoNivel+tipoParte).val(idGiro);
+        $("#girosNivel"+ultimoNivel+tipoParte).trigger("change");
+    }
+
+    $(".giroNivel").select2({
+        placeholder:"Seleccione una opcion",
+        language: "es"
+    });
+    $(".giroNivel").on("change",function(){
+        var tipoParte = $(this).attr("tipo");
+        
+        $("#giro_comercial_"+tipoParte).val($(this).val());
+        $("#giro_"+tipoParte).html("* Giro comercial seleccionado: <b>"+$(this)[0].selectedOptions[0].text+"</b>");
+        if($(this).attr("id") == "girosNivel1"+tipoParte){
+            $("#divNivel2"+tipoParte).hide();
+            $("#divNivel3"+tipoParte).hide();
+            $('#divNivel2'+tipoParte+' option').remove();
+            $('#divNivel3'+tipoParte+' option').remove();
+        }
+        var tieneHijos = false;
+        if($(this).attr("nextLevel") != ""){
+            tieneHijos = getGironivel($(this).val(),$(this).attr("nextLevel"),"girosNivel"+$(this).attr("nextLevel")+tipoParte);
+        }
+        
+        if(!tieneHijos){
+            $("#divNivel"+$(this).attr("nextLevel")+tipoParte).hide();
+        }else{
+            $("#divNivel"+$(this).attr("nextLevel")+tipoParte).show();
+        }
+    });
+
     
 
     $("#solicita_traductor_solicitado").change(function(){
@@ -1867,7 +2014,6 @@ function Edad(FechaNacimiento) {
                     var table = "";
                     var div = "";
                     $.each(data, function(index,element){
-                        console.log(element);
                         div += '<div class="image gallery-group-1">';
                         div += '    <div class="image-inner" style="position: relative;">';
                         if(element.tipo == 'pdf' || element.tipo == 'PDF'){
@@ -1969,7 +2115,6 @@ function Edad(FechaNacimiento) {
         }).always(function () {
                 $(this).removeClass('fileupload-processing');
         }).done(function (result) {
-            console.log(result);
                 $(this).fileupload('option', 'done')
                 .call(this, $.Event('done'), {result: result});
         });

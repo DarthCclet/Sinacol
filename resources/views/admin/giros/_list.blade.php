@@ -186,7 +186,8 @@
             async:false,
             data:{
                 id:id,
-                nivel:nivel
+                nivel:nivel,
+                muestraCodigo: true
             },
             success:function(json){
                 console.log(json.data != "");

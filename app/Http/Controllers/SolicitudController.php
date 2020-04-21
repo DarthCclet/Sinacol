@@ -159,10 +159,10 @@ class SolicitudController extends Controller
             'solicitantes.*.tipo_persona_id' => 'required',
             'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required',new Curp],
             'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+            'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
             'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
             'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+            'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
 
             'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
@@ -373,10 +373,10 @@ class SolicitudController extends Controller
             'solicitantes.*.tipo_persona_id' => 'required',
             'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required',new Curp],
             'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+            'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
             'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
             'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+            'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
 
             'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
@@ -416,137 +416,148 @@ class SolicitudController extends Controller
         
         foreach ($solicitantes as $key => $value) {
             $value['solicitud_id'] = $solicitudSaved['id'];
-            unset($value['activo']);
-            $dato_laboral = $value['dato_laboral'];
-            
-            unset($value['dato_laboral']);
-            if(isset($value["domicilios"])){
-                $domicilio = $value["domicilios"][0];
-                unset($value['domicilios']);
-            }
-            if(isset($value["contactos"])){
-                $contactos = $value["contactos"];
-                unset($value['contactos']);
-            }
-            
-            // dd($value);
-            if(!isset($value["id"]) || $value["id"] == ""){
-                $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
-            // dd($domicilio);
-            // foreach ($domicilios as $key => $domicilio) {
+            if($value['activo'] == "1"){
+                unset($value['activo']);
+                $dato_laboral = $value['dato_laboral'];
                 
-                unset($domicilio['activo']);
-                $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
-                if(count($contactos) > 0){
-                    foreach ($contactos as $key => $contacto) {
-                        unset($contacto['activo']);
-                        $contactoSaved = $parteSaved->contactos()->create($contacto);
-                    }
-                } 
-            }else{
-                $parteSaved = Parte::find($value['id']);
-                $parteUpdated = $parteSaved->update($value);
-                if(isset($dato_laboral["id"]) && $dato_laboral["id"] != "" ){
-                    $dato_laboralUp =  DatoLaboral::find($dato_laboral["id"]);
-                    $dato_laboralUp->update($dato_laboral);
-                }else{
+                unset($value['dato_laboral']);
+                if(isset($value["domicilios"])){
+                    $domicilio = $value["domicilios"][0];
+                    unset($value['domicilios']);
+                }
+                if(isset($value["contactos"])){
+                    $contactos = $value["contactos"];
+                    unset($value['contactos']);
+                }
+            
+                // dd($value);
+                if(!isset($value["id"]) || $value["id"] == ""){
                     $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
-                }
-                unset($domicilio['activo']);
-                if(isset($domicilio["id"]) && $domicilio["id"] != ""){
-                    $domicilioUp =  Domicilio::find($domicilio["id"]);
-
-                    $domicilioUp->update($domicilio);
-                }else{
-                    $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
-                }
+                // dd($domicilio);
+                // foreach ($domicilios as $key => $domicilio) {
                 
-                foreach ($contactos as $key => $contacto) {
-                    if($contacto["id"] != ""){
-                        
-                        $contactoUp =  Contacto::find($contacto["id"]);
-                        
-                        if(isset($contacto["activo"]) && $contacto["activo"] == 0){
-                            $contactoUp->delete();
-                        }else{
+                    unset($domicilio['activo']);
+                    $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                    if(count($contactos) > 0){
+                        foreach ($contactos as $key => $contacto) {
                             unset($contacto['activo']);
-                            $contactoUp->update($contacto);
+                            $contactoSaved = $parteSaved->contactos()->create($contacto);
                         }
+                    }
+                }else{
+                    $parteSaved = Parte::find($value['id']);
+                    $parteUpdated = $parteSaved->update($value);
+                    if(isset($dato_laboral["id"]) && $dato_laboral["id"] != "" ){
+                        $dato_laboralUp =  DatoLaboral::find($dato_laboral["id"]);
+                        $dato_laboralUp->update($dato_laboral);
                     }else{
-                        unset($contacto['activo']);
-                        $contactoSaved = $parteSaved->contactos()->create($contacto);
+                        $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+                    }
+                    unset($domicilio['activo']);
+                    if(isset($domicilio["id"]) && $domicilio["id"] != ""){
+                        $domicilioUp =  Domicilio::find($domicilio["id"]);
+
+                        $domicilioUp->update($domicilio);
+                    }else{
+                        $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                     }
                     
+                    foreach ($contactos as $key => $contacto) {
+                        if($contacto["id"] != ""){
+                            
+                            $contactoUp =  Contacto::find($contacto["id"]);
+                            
+                            if(isset($contacto["activo"]) && $contacto["activo"] == 0){
+                                $contactoUp->delete();
+                            }else{
+                                unset($contacto['activo']);
+                                $contactoUp->update($contacto);
+                            }
+                        }else{
+                            unset($contacto['activo']);
+                            $contactoSaved = $parteSaved->contactos()->create($contacto);
+                        }
+                        
+                    }
                 }
+            }else{
+                // dd($value['id']);
+                $parteSaved = Parte::find($value['id']);
+                $parteSaved =   $parteSaved->delete();
+                // dd($parteSaved);
             }
         }
         
         $solicitados = $request->input('solicitados');
         
         foreach ($solicitados as $key => $value) {
-            unset($value['activo']);
-            $domicilios = Array();
-            if(isset($value["domicilios"])){
-                $domicilios = $value["domicilios"];
-                unset($value['domicilios']);
-            }
-            $contactos = Array();
-            if(isset($value["contactos"])){
-                $contactos = $value["contactos"];
-                unset($value['contactos']);
-            }
-            
-            $value['solicitud_id'] = $solicitudSaved['id'];
-            if(!isset($value["id"]) || $value["id"] == ""){
-                $parteSaved = Parte::create($value);  
-                if(count($domicilios) > 0){
-                    foreach ($domicilios as $key => $domicilio) {
-                        unset($domicilio['activo']);
-                        $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
-                    }
-                }    
-                foreach ($contactos as $key => $contacto) {
-                    unset($contacto['activo']);
-                    $contactoSaved = $parteSaved->contactos()->create($contacto);
-                } 
-            }else{
-                $parteSaved = Parte::find($value['id']);
-                $parteSaved->update($value);
-                foreach ($domicilios as $key => $domicilio) {
-                    if($domicilio["id"] != ""){
-                        $domicilioUp =  Domicilio::find($domicilio["id"]);
-                        if(isset($domicilio["activo"]) && $domicilio["activo"] == 0){
-                            // dd($domicilios);
-                            $domicilioUp->delete();
-                        }else{
-                            unset($domicilio['activo']);
-                            $domicilioUp =  Domicilio::find($domicilio["id"]);
-                            $domicilioUp->update($domicilio);
-                            
-                        }
-                    }else{
-                        unset($domicilio['activo']);
-                        $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
-                    }
+            if($value['activo'] == "1"){
+                unset($value['activo']);
+                $domicilios = Array();
+                if(isset($value["domicilios"])){
+                    $domicilios = $value["domicilios"];
+                    unset($value['domicilios']);
                 }
-                foreach ($contactos as $key => $contacto) {
-                    if($contacto["id"] != ""){
-                        $contactoUp =  Contacto::find($contacto["id"]);
-                        if(isset($contacto["activo"]) && $contacto["activo"] == 0){
-                            $contactoUp->delete();
-                        }else{
-                            unset($contacto['activo']);
-                            $contactoUp->update($contacto);
+                $contactos = Array();
+                if(isset($value["contactos"])){
+                    $contactos = $value["contactos"];
+                    unset($value['contactos']);
+                }
+                
+                $value['solicitud_id'] = $solicitudSaved['id'];
+                if(!isset($value["id"]) || $value["id"] == ""){
+                    $parteSaved = Parte::create($value);  
+                    if(count($domicilios) > 0){
+                        foreach ($domicilios as $key => $domicilio) {
+                            unset($domicilio['activo']);
+                            $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                         }
-                    }else{
+                    }    
+                    foreach ($contactos as $key => $contacto) {
                         unset($contacto['activo']);
                         $contactoSaved = $parteSaved->contactos()->create($contacto);
+                    } 
+                }else{
+                    $parteSaved = Parte::find($value['id']);
+                    $parteSaved->update($value);
+                    foreach ($domicilios as $key => $domicilio) {
+                        if($domicilio["id"] != ""){
+                            $domicilioUp =  Domicilio::find($domicilio["id"]);
+                            if(isset($domicilio["activo"]) && $domicilio["activo"] == 0){
+                                // dd($domicilios);
+                                $domicilioUp->delete();
+                            }else{
+                                unset($domicilio['activo']);
+                                $domicilioUp =  Domicilio::find($domicilio["id"]);
+                                $domicilioUp->update($domicilio);
+                                
+                            }
+                        }else{
+                            unset($domicilio['activo']);
+                            $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                        }
+                    }
+                    foreach ($contactos as $key => $contacto) {
+                        if($contacto["id"] != ""){
+                            $contactoUp =  Contacto::find($contacto["id"]);
+                            if(isset($contacto["activo"]) && $contacto["activo"] == 0){
+                                $contactoUp->delete();
+                            }else{
+                                unset($contacto['activo']);
+                                $contactoUp->update($contacto);
+                            }
+                        }else{
+                            unset($contacto['activo']);
+                            $contactoSaved = $parteSaved->contactos()->create($contacto);
+                            
+                        }
                         
                     }
-                    
                 }
+            }else{
+                $parteSaved = Parte::find($value['id']);
+                $parteSaved->delete();
             }
-            
         }
 
         // // Para cada objeto obtenido cargamos sus relaciones.
