@@ -28,6 +28,8 @@ class CreateTipoContadorsTable extends Migration
                 [
                     'id' => $tipo_contador->id,
                     'nombre' => $tipo_contador->nombre,
+                    'created_at' => date("Y-m-d H:d:s"),
+                    'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }

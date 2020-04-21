@@ -44,7 +44,9 @@ class CreateOcupacionesTable extends Migration
                         'nombre' => $ocupacion[0],
                         'salario_zona_libre'=> $ocupacion[1],
                         'salario_resto_del_pais' => $ocupacion[2],
-                        'vigencia_de' => '2020-01-01'
+                        'vigencia_de' => '2020-01-01',
+                        'created_at' => date("Y-m-d H:d:s"),
+                        'updated_at' => date("Y-m-d H:d:s")
                     ]
                 );
             }

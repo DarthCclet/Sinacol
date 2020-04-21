@@ -29,7 +29,9 @@ class CreateTipoPersonasTable extends Migration
                 [
                     'id' => $tipo_personas->id,
                     'nombre' => $tipo_personas->nombre,
-                    'abreviatura' => $tipo_personas->abreviatura
+                    'abreviatura' => $tipo_personas->abreviatura,
+                    'created_at' => date("Y-m-d H:d:s"),
+                    'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }

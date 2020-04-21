@@ -25,6 +25,8 @@ class CreateTipoDiscapacidadsTable extends Migration
             DB::table('tipo_discapacidades')->insert(
                 [
                     'nombre' => $tipo_discapacidad->nombre,
+                    'created_at' => date("Y-m-d H:d:s"),
+                    'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }

@@ -35,6 +35,9 @@ class CreateCentrosTable extends Migration
                      'nombre' => $centro->nombre,
                      'abreviatura' => $centro->abreviatura,
                      'duracionAudiencia' => $centro->duracionAudiencia,
+                     'created_at' => date("Y-m-d H:d:s"),
+                     'updated_at' => date("Y-m-d H:d:s")
+                     
                  ]
              );
          }

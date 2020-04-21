@@ -30,7 +30,9 @@ class CreateEstadosTable extends Migration
                 [
                     'id' => $estado->cve_agee,
                     'nombre' => $estado->nom_agee,
-                    'abreviatura' => $estado->nom_abrev
+                    'abreviatura' => $estado->nom_abrev,
+                    'created_at' => date("Y-m-d H:d:s"),
+                    'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }

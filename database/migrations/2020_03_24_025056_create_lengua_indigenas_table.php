@@ -26,7 +26,9 @@ class CreateLenguaIndigenasTable extends Migration
             DB::table('lengua_indigenas')->insert(
                 [
                     'id' => $vialidad->id,
-                    'nombre' => $vialidad->nombre
+                    'nombre' => $vialidad->nombre,
+                    'created_at' => date("Y-m-d H:d:s"),
+                    'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }

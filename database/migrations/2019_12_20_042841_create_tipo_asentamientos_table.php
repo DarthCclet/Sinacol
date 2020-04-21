@@ -32,7 +32,9 @@ class CreateTipoAsentamientosTable extends Migration
             DB::table('tipo_asentamientos')->insert(
                 [
                     'id' => $asentamiento->cve_tipo_asen,
-                    'nombre' => $asentamiento->descripcion
+                    'nombre' => $asentamiento->descripcion,
+                    'created_at' => date("Y-m-d H:d:s"),
+                    'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }

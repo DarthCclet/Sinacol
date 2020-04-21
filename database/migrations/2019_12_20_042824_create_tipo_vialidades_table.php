@@ -32,7 +32,9 @@ class CreateTipoVialidadesTable extends Migration
             DB::table('tipo_vialidades')->insert(
                 [
                     'id' => $vialidad->cve_tipo_vial,
-                    'nombre' => $vialidad->descripcion
+                    'nombre' => $vialidad->descripcion,
+                    'created_at' => date("Y-m-d H:d:s"),
+                    'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }

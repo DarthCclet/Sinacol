@@ -27,7 +27,9 @@ class CreateNacionalidadesTable extends Migration
             DB::table('nacionalidades')->insert(
                 [
                     'id' => $nacionalidad->id,
-                    'nombre' => $nacionalidad->nombre
+                    'nombre' => $nacionalidad->nombre,
+                    'created_at' => date("Y-m-d H:d:s"),
+                    'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }

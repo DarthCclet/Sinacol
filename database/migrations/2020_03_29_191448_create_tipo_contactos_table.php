@@ -25,6 +25,8 @@ class CreateTipoContactosTable extends Migration
             DB::table('tipo_contactos')->insert(
                 [
                     'nombre' => $tipo_contacto->nombre,
+                    'created_at' => date("Y-m-d H:d:s"),
+                    'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }

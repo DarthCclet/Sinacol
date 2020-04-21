@@ -27,7 +27,9 @@ class CreateObjetoSolicitudesTable extends Migration
             DB::table('objeto_solicitudes')->insert(
                 [
                     'id' => $objeto_solicitud->id,
-                    'nombre' => $objeto_solicitud->nombre
+                    'nombre' => $objeto_solicitud->nombre,
+                    'created_at' => date("Y-m-d H:d:s"),
+                    'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }

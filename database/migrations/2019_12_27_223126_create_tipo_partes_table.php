@@ -27,7 +27,9 @@ class CreateTipoPartesTable extends Migration
             DB::table('tipo_partes')->insert(
                 [
                     'id' => $tipo_parte->id,
-                    'nombre' => $tipo_parte->nombre
+                    'nombre' => $tipo_parte->nombre,
+                    'created_at' => date("Y-m-d H:d:s"),
+                    'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }
