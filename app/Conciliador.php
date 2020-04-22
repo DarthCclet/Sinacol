@@ -60,4 +60,11 @@ class Conciliador extends Model
     public function incidencias(){
         return $this->morphMany(Incidencia::class,'incidenciable');
     }
+    /**
+     * Relacion con la tabla conciliadoresAudiencia
+     * @return type
+     */
+    public function conciliadorAudiencia(){
+        return $this->hasMany(ConciliadorAudiencia::class,'incidenciable');
+    }
 }

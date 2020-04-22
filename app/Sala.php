@@ -47,4 +47,11 @@ class Sala extends Model
     public function incidencias(){
         return $this->morphMany(Incidencia::class,'incidenciable');
     }
+    /**
+     * Relacion con la tabla Sala_audiencia
+     * @return type
+     */
+    public function salaAudiencia(){
+        return $this->morphMany(SalaAudiencia::class,'incidenciable');
+    }
 }
