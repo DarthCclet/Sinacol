@@ -20,14 +20,14 @@ $factory->define(Solicitud::class, function (Faker $faker) {
 
   // se crea el registro de Solicitud usando los datos obtenidos anteriormente
     return [
+        'ratificada' => ($estatus_solicitud->id != 1) ? true : false,
         'estatus_solicitud_id' => $estatus_solicitud->id,
         'centro_id' => $centro->id,
         'user_id' => $usuario->id,
         'folio' => $faker->randomNumber(3),
         'anio' => $faker->year(),
-        'ratificada' => $faker->boolean(),
         'solicita_excepcion' => $faker->boolean(),
-        'fecha_ratificacion' => $faker->dateTime,
+        'fecha_ratificacion' => ($estatus_solicitud->id != 1) ? $faker->dateTime : null,
         'fecha_recepcion' => $faker->dateTime,
         'fecha_conflicto' => $faker->dateTime,
         'observaciones' => $faker->text(100),

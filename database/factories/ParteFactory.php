@@ -9,6 +9,7 @@ use App\GrupoPrioritario;
 use App\LenguaIndigena;
 use App\Nacionalidad;
 use App\Parte;
+use App\Solicitud;
 use App\TipoParte;
 use App\TipoPersona;
 use App\TipoDiscapacidad;
@@ -17,7 +18,7 @@ use Faker\Generator as Faker;
 $factory->define(Parte::class, function (Faker $faker) {
     $faker = app('FakerCurp');
     // se llama el factory de solicitud para crear un registro y probar su relacion
-    $solicitud = factory(\App\Solicitud::class)->create();
+    $solicitud = Solicitud::inRandomOrder()->first();
     // al ser catalogos se mada a llamar de forma aleatoria
     //  tipoParte, genero, tipo persona, nacionalidad y estado
     //  ya que se segura que existen registros al generar la migracion
@@ -68,4 +69,9 @@ $factory->state(Parte::class, 'solicitante', function (Faker $faker) {
 $factory->state(Parte::class, 'solicitado', function (Faker $faker) {
 	$tipo_parte = TipoParte::where('id', '2')->first();
     return ['tipo_parte_id' => $tipo_parte->id];
+});
+
+$factory->state(Parte::class, 'solicitud', function (Faker $faker) {
+	$solicitud = factory(\App\Solicitud::class)->create();
+    return ['solicitud_id' => $solicitud->id];
 });

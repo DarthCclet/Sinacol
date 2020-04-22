@@ -400,7 +400,7 @@
                                 {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Genero</p>
                             </div>
-                            <div class="col-md-12 " >
+                            <div class="col-md-12 personaMoralSolicitado" >
                                 <div class="col-md-12" style="margin-top:1%">
                                     <label class="help-block needed" > Giro comercial</label>
                                     <div class="col-md-12 ">
