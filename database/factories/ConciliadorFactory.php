@@ -2,6 +2,7 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
+use App\Centro;
 use App\Conciliador;
 use Faker\Generator as Faker;
 

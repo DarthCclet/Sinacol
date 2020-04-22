@@ -31,7 +31,6 @@ class ParteApiTest extends TestCase
                         'segundo_apellido',
                         'nombre_comercial',
                         'fecha_nacimiento',
-                        'giro_comercial_id',
                         'grupo_prioritario_id',
                         'edad',
                         'rfc',
@@ -79,9 +78,6 @@ class ParteApiTest extends TestCase
         ],
         'entidad_nacimiento' => [
             'id', 'nombre', 'updated_at', 'created_at'
-        ],
-        'giro_comercial' => [
-            'id', 'nombre','deleted_at', 'updated_at', 'created_at'
         ],
         'grupo_prioritario' => [
             'id', 'nombre','deleted_at', 'updated_at', 'created_at'
@@ -229,21 +225,6 @@ class ParteApiTest extends TestCase
         $jsonRelaciones['data']['data'][0]['entidad_nacimiento'] = $this->jsonRelaciones['entidad_nacimiento'];
         factory(Parte::class,20)->create();
         $response = $this->json('GET', '/api/parte?load=entidadNacimiento');
-        $response->assertStatus(200);
-        $response->assertJsonStructure($jsonRelaciones);
-    }
-    /**
-     * Al solicitar la relación persona debe regresar la estructura con giro comercial
-     *
-     * @test
-     * @return void
-     */
-    public function testParteConGiroComercial(): void
-    {
-        $jsonRelaciones = $this->jsonPaginado;
-        $jsonRelaciones['data']['data'][0]['giro_comercial'] = $this->jsonRelaciones['giro_comercial'];
-        factory(Parte::class,20)->create();
-        $response = $this->json('GET', '/api/parte?load=giroComercial');
         $response->assertStatus(200);
         $response->assertJsonStructure($jsonRelaciones);
     }

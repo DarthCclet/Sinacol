@@ -84,7 +84,7 @@ class SolicitudApiTest extends TestCase
     public function testRegistrosPaginadosTest(): void
     {
         factory(Solicitud::class,1)->create();
-        $response = $this->json('GET', '/api/solicitud');
+        $response = $this->json('GET', '/api/solicitud?paginate=true');
         $response->assertStatus(200);
 
         //La estructura debe corresponder a lo esperado
@@ -122,7 +122,7 @@ class SolicitudApiTest extends TestCase
         $jsonConUser = $this->jsonPaginado;
         $jsonConUser['data']['data'][0]['user'] = $this->jsonRelaciones['user'];
         factory(Solicitud::class,20)->create();
-        $response = $this->json('GET', '/api/solicitud?load=user');
+        $response = $this->json('GET', '/api/solicitud?load=user&paginate=true');
         $response->assertStatus(200);
         $response->assertJsonStructure($jsonConUser);
     }
@@ -170,7 +170,7 @@ class SolicitudApiTest extends TestCase
         $jsonCompuesto = $this->jsonPaginado;
         $jsonCompuesto['data']['data'][0]['centro'] = $this->jsonRelaciones['centro'];
         factory(Solicitud::class,20)->create();
-        $response = $this->json('GET', '/api/solicitud?load=centro');
+        $response = $this->json('GET', '/api/solicitud?load=centro&paginate=true');
         $response->assertStatus(200);
         $response->assertJsonStructure($jsonCompuesto);
     }
