@@ -22,7 +22,7 @@ class Parte extends Model
      *
      * @var array
      */
-    protected $loadable = ['solicitud', 'tipoParte','genero','tipoPersona','nacionalidad','entidadNacimiento','giroComercial','grupoPrioritario','lenguaIndigena'];
+    protected $loadable = ['solicitud', 'tipoParte','genero','tipoPersona','nacionalidad','entidadNacimiento','grupoPrioritario','lenguaIndigena'];
     
     protected $guarded = ['id','updated_at','created_at']; 
     /**
@@ -74,16 +74,6 @@ class Parte extends Model
     public function entidadNacimiento(){
       return $this->belongsTo('App\Estado');
     }
-
-    /**
-     * Funcion para asociar con modelo Estado
-     * Utilizando belongsTo para relaciones 1 a 1
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function giroComercial(){
-      return $this->belongsTo('App\GiroComercial');
-    }
-
     /**
      * Funcion para asociar con modelo Estado
      * Utilizando belongsTo para relaciones 1 a 1

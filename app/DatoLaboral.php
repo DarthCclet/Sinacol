@@ -26,6 +26,15 @@ class DatoLaboral extends Model
 
   }
 
+/**
+ * Funcion para asociar con modelo Estado
+ * Utilizando belongsTo para relaciones 1 a 1
+ * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+ */
+public function giroComercial(){
+  return $this->belongsTo('App\GiroComercial');
+}
+
   /**
  * asocia datos_laborales con la tabla de parte
  * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
