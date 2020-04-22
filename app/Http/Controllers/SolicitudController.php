@@ -312,6 +312,7 @@ class SolicitudController extends Controller
         $solicitud->objeto_solicitudes;
         $solicitud["solicitados"] = $solicitados;
         $solicitud["solicitantes"] = $solicitantes;
+        $solicitud->expediente = $solicitud->expediente;
         return $solicitud;
     }
 

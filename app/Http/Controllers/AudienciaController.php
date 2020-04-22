@@ -117,31 +117,24 @@ class AudienciaController extends Controller
     public function edit(Audiencia $audiencia)
     {
         // obtenemos los conciliadores
-        $partes = DB::table('audiencias')
-                ->join('expedientes', 'audiencias.expediente_id', '=', 'expedientes.id')
-                ->join('solicitudes', 'expedientes.solicitud_id', '=', 'solicitudes.id')
-                ->join('partes', 'solicitudes.id', '=', 'partes.solicitud_id')
-                ->join('tipo_partes', 'partes.tipo_parte_id', '=', 'tipo_partes.id')
-                ->where("partes.solicitud_id","=",$audiencia->expediente_id)
-                ->select("partes.*","tipo_partes.*","tipo_partes.nombre as nombreParte","partes.nombre as nombrePersona")
-                ->get();
-        $conciliadores = DB::table('conciliadores_audiencias')
-                ->join('conciliadores', 'conciliadores_audiencias.conciliador_id', '=', 'conciliadores.id')
-                ->join('personas', 'conciliadores.persona_id', '=', 'personas.id')
-                ->where("conciliadores_audiencias.audiencia_id","=",$audiencia->id)
-                ->where("conciliadores_audiencias.deleted_at","=",null)
-                ->select("personas.*","conciliadores.*","conciliadores_audiencias.solicitante")
-                ->get();
-        $salas = DB::table('salas_audiencias')
-                ->join('salas', 'salas_audiencias.sala_id', '=', 'salas.id')
-                ->where("salas_audiencias.audiencia_id","=",$audiencia->id)
-                ->where("salas_audiencias.deleted_at","=",null)
-                ->select("salas.*","salas_audiencias.solicitante")
-                ->get();
+        $partes = array();
+        $conciliadores = array();
+        $salas = array();
+        foreach($audiencia->expediente->solicitud->partes as $key => $parte){
+            $parte->tipoParte = $parte->tipoParte;
+            $partes[$key] = $parte;
+        }
+        foreach($audiencia->conciliadoresAudiencias as $key => $conciliador){
+            $conciliador->conciliador->persona = $conciliador->conciliador->persona;
+            $conciliadores[$key] = $conciliador;
+        }
+        foreach($audiencia->salasAudiencias as $key => $sala){
+            $sala->sala = $sala->sala;
+            $salas[$key] = $sala;
+        }
         $audiencia->partes = $partes;
         $audiencia->conciliadores = $conciliadores;
         $audiencia->salas = $salas;
-//        dd($audiencia);
         return view('expediente.audiencias.edit', compact('audiencia'));
     }
 
@@ -272,24 +265,33 @@ class AudienciaController extends Controller
      */
     public function calendarizar(Request $request)
     {
-            $audiencia = Audiencia::find($request->audiencia_id);
-            $id_conciliador = null;
-            
-            foreach ($request->asignacion as $value) {
-                if($value["resolucion"]){
-                    $id_conciliador = $value["conciliador"];
-                }
-                ConciliadorAudiencia::create(["audiencia_id" => $request->audiencia_id, "conciliador_id" => $value["conciliador"],"solicitante" => $value["resolucion"]]);
-                SalaAudiencia::create(["audiencia_id" => $request->audiencia_id, "sala_id" => $value["sala"],"solicitante" => $value["resolucion"]]);
+        if($request->tipoAsignacion == 1){
+            $multiple = false;
+        }else{
+            $multiple = true;
+
+        }
+        //Se crea el registro de la audiencia
+        $audiencia = Audiencia::create([
+            "expediente_id" => $request->expediente_id,
+            "multiple" => $multiple,
+            "fecha_audiencia" => $request->fecha_audiencia,
+            "hora_inicio" => $request->hora_inicio, 
+            "hora_fin" => $request->hora_fin,
+            "conciliador_id" =>  1,
+            "numero_audiencia" => 1,
+            "reprogramada" => false
+        ]);
+        $id_conciliador = null;
+        foreach ($request->asignacion as $value) {
+            if($value["resolucion"]){
+                $id_conciliador = $value["conciliador"];
             }
-            if($request->tipoAsignacion == 1){
-                $multiple = false;
-            }else{
-                $multiple = true;
-                
-            }
-            $audiencia->update(["fecha_audiencia" => $request->fecha_audiencia,"hora_inicio" => $request->hora_inicio, "hora_fin" => $request->hora_fin,"conciliador_id" => $id_conciliador,"multiple"=>$multiple]);
-            return $audiencia;
+            ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $value["conciliador"],"solicitante" => $value["resolucion"]]);
+            SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $value["sala"],"solicitante" => $value["resolucion"]]);
+        }
+        $audiencia->update(["conciliador_id" => $id_conciliador]);
+        return $audiencia;
     }
     /**
      * Funcion para obtener los momentos ocupados
