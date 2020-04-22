@@ -465,11 +465,7 @@
                         });
                         $("#gallery").html(div);
                     }else{
-                        swal({
-                            title: 'Algo salio mal',
-                            text: 'No se guardo el registro',
-                            icon: 'warning'
-                        });
+                       
                     }
                 }
             });       

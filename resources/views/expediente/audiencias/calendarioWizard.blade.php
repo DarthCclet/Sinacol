@@ -289,7 +289,7 @@
                             hora_inicio:$("#hora_inicio").val(),
                             hora_fin:$("#hora_fin").val(),
                             tipoAsignacion:$("#tipoAsignacion").val(),
-                            audiencia_id:1,
+                            expediente_id:$("#expediente_id").val(),
                             asignacion:validacion.arrayEnvio
                         },
                         dataType:"json",

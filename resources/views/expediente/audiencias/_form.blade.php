@@ -42,24 +42,24 @@
             <tbody>
             @foreach($audiencia->partes as $parte)
             <tr>
-                <td class="text-nowrap">{{ $parte->nombreParte }}</td>
-                <td class="text-nowrap">{{ $parte->nombrePersona }} {{ $parte->primer_apellido }} {{ $parte->segundo_apellido }}</td>
-                @if(!$audiencia->multiple && $audiencia->multiple != null)
-                    <td class="text-nowrap">{{ $audiencia->conciliadores[0]->nombre }} {{ $audiencia->conciliadores[0]->primer_apellido }} {{ $audiencia->conciliadores[0]->segundo_apellido }}</td>
-                    <td class="text-nowrap">{{ $audiencia->salas[0]->sala }}</td>
+                <td class="text-nowrap">{{ $parte->tipoParte->nombre }}</td>
+                <td class="text-nowrap">{{ $parte->nombre }} {{ $parte->primer_apellido }} {{ $parte->segundo_apellido }}</td>
+                @if(!$audiencia->multiple)
+                    <td class="text-nowrap">{{ $audiencia->conciliadores[0]->conciliador->persona->nombre }} {{ $audiencia->conciliadores[0]->conciliador->persona->primer_apellido }} {{ $audiencia->conciliadores[0]->conciliador->persona->segundo_apellido }}</td>
+                    <td class="text-nowrap">{{ $audiencia->salas[0]->sala->sala }}</td>
                 @elseif($audiencia->multiple && $audiencia->multiple != null)
                     @foreach($audiencia->conciliadores as $conciliador)
-                        @if($conciliador->solicitante and $parte->tipo_parte_id == 1)
-                            <td class="text-nowrap">{{ $conciliador->nombre }} {{ $conciliador->primer_apellido }} {{ $conciliador->segundo_apellido }}</td>
+                        @if($conciliador->solicitante && $parte->tipoParte->id == 1)
+                            <td class="text-nowrap">{{ $conciliador->conciliador->persona->nombre }} {{ $conciliador->conciliador->persona->primer_apellido }} {{ $conciliador->conciliador->persona->segundo_apellido }}</td>
                         @elseif(!$conciliador->solicitante and $parte->tipo_parte_id != 1)
-                            <td class="text-nowrap">{{ $conciliador->nombre }} {{ $conciliador->primer_apellido }} {{ $conciliador->segundo_apellido }}</td>
+                            <td class="text-nowrap">{{ $conciliador->conciliador->persona->nombre }} {{ $conciliador->conciliador->persona->primer_apellido }} {{ $conciliador->conciliador->persona->segundo_apellido }}</td>
                         @endif
                     @endforeach
                     @foreach($audiencia->salas as $sala)
                         @if($sala->solicitante and $parte->tipo_parte_id == 1)
-                            <td class="text-nowrap">{{ $sala->sala }}</td>
+                            <td class="text-nowrap">{{ $sala->sala->sala }}</td>
                         @elseif(!$sala->solicitante and $parte->tipo_parte_id != 1)
-                            <td class="text-nowrap">{{ $sala->sala }}</td>
+                            <td class="text-nowrap">{{ $sala->sala->sala }}</td>
                         @endif
                     @endforeach
                 @else

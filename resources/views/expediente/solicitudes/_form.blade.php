@@ -843,6 +843,7 @@
         </div>
     </div>
 </div>
+<input type="hidden" id="expediente_id">
 @push('scripts')
 
 <script>
@@ -877,7 +878,6 @@
             Gallery.init();
             $('#wizard').smartWizard("stepState", [3], "show");
             $(".step-4").show();
-            
         }else{
             $(".step-4").hide();
             $(".step-5").hide();
@@ -1085,15 +1085,18 @@
                 // arrayObjetoSolicitudes = data.objeto_solicitudes;
                 formarTablaObjetoSol();
                 $("#observaciones").val(data.observaciones);
+                console.log(data.ratificada);
                 if(data.ratificada){
                     $("#ratificada").prop("checked",true);
                     $('#wizard').smartWizard("stepState", [4], "show");
                     $(".step-5").show();
                     $("#btnRatificarSolicitud").hide();
+                    $("#expediente_id").val(data.expediente.id);
                 }else{
                     $('#wizard').smartWizard("stepState", [4], "hide");
                     $(".step-5").hide();
                     $("#btnRatificarSolicitud").show();
+                    $("#expediente_id").val("");
                 }
                 if(data.solicita_excepcion){
                     $("#solicita_excepcion").prop("checked",true);
