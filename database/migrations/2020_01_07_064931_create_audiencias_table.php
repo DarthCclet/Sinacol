@@ -20,7 +20,7 @@ class CreateAudienciasTable extends Migration
             $table->integer('expediente_id')->comment('FK de la tabla expedientes');
             $table->foreign('expediente_id')->references('id')->on('expedientes');
             // id del conciliador que da la resolución
-            $table->integer('conciliador_id')->comment('FK de la tabla conciliadores');
+            $table->integer('conciliador_id')->nullable()->comment('FK de la tabla conciliadores');
             $table->foreign('conciliador_id')->references('id')->on('conciliadores');
             // id de la resolución de la audiencia
             $table->integer('resolucion_id')->nullable()->comment('FK de la tabla resoluciones');
