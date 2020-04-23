@@ -200,8 +200,13 @@ class AudienciaController extends Controller
     public function ConciliadoresDisponibles(Request $request)
     {
         $fechaInicio = $request->fechaInicio;
+        $fechaInicioSola = date('Y-m-d',strtotime($request->fechaInicio));
+        $horaInicio = date('H:i:s',strtotime($request->fechaInicio));
         $diaSemana = date('N',strtotime($request->fechaInicio));
-        $fechaFin = $request->hora_fin;
+        $fechaFin = $request->fechaFin;
+        $fechaFinSola = date('Y-m-d',strtotime($request->fechaFin));
+        $horaFin = date('H:i:s',strtotime($request->fechaFin));
+//        dd($horaInicio);
         $conciliadores = Conciliador::all();
         $conciliadoresResponse=[];
         foreach($conciliadores as $conciliador){
@@ -219,6 +224,25 @@ class AudienciaController extends Controller
                         $pasa=false;
                     }
                 }
+                if($pasa){
+                    $conciliadoresAudiencia = array();
+                    foreach($conciliador->conciliadorAudiencia as $conciliadorAudiencia){
+                        $audiencias = $conciliadorAudiencia->audiencia->where("fecha_audiencia",$fechaInicioSola)->get();
+                        if(count($audiencias) > 0){
+                            foreach($audiencias as $audiencia){
+//                                dd($audiencia);
+                                //Buscamos que la hora inicio no este entre una audiencia
+                                if($audiencia::where("hora_inicio",">",$horaInicio)->where("hora_fin","<",$horaInicio)){
+                                    $pasa = false;
+                                }
+                                //Buscamos que la hora fin no este entre una audiencia
+                                if($audiencia::where("hora_inicio","<",$horaFin)->where("hora_fin",">",$horaFin)){
+                                    $pasa = false;
+                                }
+                            }
+                        }
+                    }
+                }
             }
             if($pasa){
                 $conciliador->persona = $conciliador->persona;
@@ -229,13 +253,21 @@ class AudienciaController extends Controller
     }
     public function SalasDisponibles(Request $request)
     {
+        ## Agregamos las variables con lo que recibimos
         $fechaInicio = $request->fechaInicio;
+        $fechaInicioSola = date('Y-m-d',strtotime($request->fechaInicio));
+        $horaInicio = date('H:i:s',strtotime($request->fechaInicio));
         $diaSemana = date('N',strtotime($request->fechaInicio));
-        $fechaFin = $request->hora_fin;
+        $fechaFin = $request->fechaFin;
+        $fechaFinSola = date('Y-m-d',strtotime($request->fechaFin));
+        $horaFin = date('H:i:s',strtotime($request->fechaFin));
+        ## Obtenemos las salas -> en el futuro seran filtradas por el centro de la sesión
         $salas = Sala::all();
         $salasResponse=[];
+        ## Recorremos las salas para la audiencia
         foreach($salas as $sala){
             $pasa=false;
+            ## buscamos si tiene disponibilidad y si esta en el día que se solicita
             if(count($sala->disponibilidades) > 0){
                 foreach($sala->disponibilidades as $disp){
                     if($disp["dia"] == $diaSemana){
@@ -244,13 +276,29 @@ class AudienciaController extends Controller
                 }
             }else{$pasa=false;}
             if($pasa){
+                ## Validamos que no haya incidencias
                 foreach($sala->incidencias as $inci){
                     if($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]){
                         $pasa=false;
                     }
                 }
+                if($pasa){
+                    foreach($sala->salaAudiencia as $salaAudiencia){
+                        $audiencias = $salaAudiencia->audiencia->where("fecha_audiencia",$fechaInicioSola)->get();
+                        if(count($audiencias) > 0){
+                            foreach($audiencias as $audiencia){
+                                //Buscamos que la hora inicio no este entre una audiencia
+                                $horaInicioAudiencia= $audiencia->hora_inicio;
+                                $horaFinAudiencia= $audiencia->hora_fin;
+                                if($horaInicio >= $horaInicioAudiencia && $horaInicio < $horaFinAudiencia){
+                                    $pasa = true;
+                                }
+                            }
+                        }
+                    }
+                }
             }
-//            dd($pasa);
+            
             if($pasa){
                 $salasResponse[]=$sala;
             }
@@ -350,13 +398,11 @@ class AudienciaController extends Controller
      * @return array
      */
     public function getTodasAudiencias($centro_id){
-        $Audiencias = DB::table('audiencias')
-                ->join('expedientes', 'audiencias.expediente_id', '=', 'expedientes.id')
-                ->join('solicitudes', 'expedientes.solicitud_id', '=', 'solicitudes.id')
-                ->where("solicitudes.centro_id","=",$centro_id)
-                ->where("audiencias.fecha_audiencia",">",date("Y-m-d"))
-                ->select("audiencias.*","expedientes.folio","expedientes.anio")
-                ->get();
+        $Audiencias = Audiencia::where("fecha_audiencia",">=",date("Y-m-d"))->get();
+        foreach($Audiencias as $Audiencia){
+            $Audiencia->folio = $Audiencia->expediente->folio;
+            $Audiencia->anio = $Audiencia->expediente->anio;
+        }
         $arrayEventos=[];
         foreach($Audiencias as $audiencia){
             $start = $audiencia->fecha_audiencia ." ". $audiencia->hora_inicio;
