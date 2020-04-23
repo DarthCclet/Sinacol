@@ -20,7 +20,7 @@ class CreateDatosLaboralesTable extends Migration
             // $table->unsignedBigInteger('puesto_id')->comment('FK del puesto ocupado');
             $table->string('puesto')->comment('Nombre del puesto laboral');
             $table->string('nss')->comment('Número de seguro social');
-            $table->string('no_issste')->comment('Número de issste');
+            $table->string('no_issste')->nullable()->comment('Número de issste');
             $table->string('no_afore')->comment('Número de afore');
             $table->decimal('percepcion_mensual_neta', 10, 2)->comment('Monto de percepción mensual neta');
             $table->decimal('percepcion_mensual_bruta', 10, 2)->comment('Monto de percepción mensual bruta');
@@ -29,6 +29,8 @@ class CreateDatosLaboralesTable extends Migration
             $table->date('fecha_salida', 0)->comment('Fecha de salida del trabajador');
             $table->unsignedBigInteger('jornada_id')->comment('FK de tipo de jornada laboral de la parte');
             $table->integer('horas_semanales')->comment('Número de horas laboradas semanalmente');
+            $table->unsignedBigInteger('giro_comercial_id')->nullable()->comment('FK a catálogo de giros comerciales');
+            $table->foreign('giro_comercial_id')->references('id')->on('giro_comerciales');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
 

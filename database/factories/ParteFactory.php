@@ -4,7 +4,6 @@
 
 use App\Estado;
 use App\Genero;
-use App\GiroComercial;
 use App\GrupoPrioritario;
 use App\LenguaIndigena;
 use App\Nacionalidad;
@@ -24,7 +23,6 @@ $factory->define(Parte::class, function (Faker $faker) {
     //  ya que se segura que existen registros al generar la migracion
     $tipo_parte = TipoParte::whereIn('id',[1,2])->inRandomOrder()->first();
     $grupo_prioritario = GrupoPrioritario::inRandomOrder()->first();
-    $giro_comercia = GiroComercial::inRandomOrder()->first();
     $genero = Genero::inRandomOrder()->first();
     $tipo_persona = TipoPersona::inRandomOrder()->first();
     $nacionalidad = Nacionalidad::inRandomOrder()->first();
@@ -52,7 +50,6 @@ $factory->define(Parte::class, function (Faker $faker) {
         'lengua_indigena_id' =>  ($solicita_traductor) ? $lengua_indigena->id : null,
         'padece_discapacidad' => $padece_discapacidad,
         'tipo_discapacidad_id' => ($padece_discapacidad) ? $tipo_discapacidad->id : null,
-        'giro_comercial_id' =>  $giro_comercia->id,
         'grupo_prioritario_id' => ($tipo_persona->abreviatura == 'F') ? $grupo_prioritario->id : null,
         'edad' => $edad,
         'rfc' => $faker->rfc,

@@ -61,7 +61,7 @@ class RegistroSolicitudExterna
             $parteArray["curp"] = $parte->curp;
             $parteArray["rfc"] = $parte->rfc;
             $parteArray["fecha_nacimiento"] = $parte->fecha_nacimiento;
-            $parteArray["giro_comercial_id"] = $parte->giro_comercial_id;
+            
             $parteArray["nacionalidad_id"] = $parte->nacionalidad_id;
             $parteArray["entidad_nacimiento_id"] = $parte->entidad_nacimiento_id;
             $parteArray["solicitud_id"] = $solicitudSaved->id;
@@ -222,10 +222,7 @@ class RegistroSolicitudExterna
                 throw new ParametroNoValidoException("El rfc de la persona moral es requerido.", 1021);
                 return null;
             }
-            if(!isset($parte->giro_comercial_id) || !trim($parte->giro_comercial_id)){
-                throw new ParametroNoValidoException("El giro es requerido para personas morales.", 1027);
-                return null;
-            }
+            
             $parte->domicilios = $this->validarDomicilio($parte->domicilios);
         }else{
             throw new ParametroNoValidoException("Agrega un tipo de persona valido.", 1020);
@@ -316,6 +313,10 @@ class RegistroSolicitudExterna
             }
             if(!isset($datos_laborales->percepcion_mensual_neta) || !trim($datos_laborales->percepcion_mensual_neta)){
                 throw new ParametroNoValidoException("La percepción mensual neta es obligatoria para los datos laborales.", 1021);
+                return null;
+            }
+            if(!isset($datos_laborales->giro_comercial_id) || !trim($datos_laborales->giro_comercial_id)){
+                throw new ParametroNoValidoException("El giro comercia es obligatoria para los datos laborales.", 1021);
                 return null;
             }
             if(!isset($datos_laborales->percepcion_mensual_bruta) || !trim($datos_laborales->percepcion_mensual_bruta)){
