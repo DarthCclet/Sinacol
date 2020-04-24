@@ -1,7 +1,4 @@
 <style>
-    .inputError {
-        border: 1px red solid;
-    }
     .needed:after {
       color:darkred;
       content: " (*)";
@@ -290,6 +287,8 @@
             $("#estado_id"+identifier).val("");
             $("#domicilio_id_modal"+identifier).val("");
             $("#domicilio_key"+identifier).val("");
+            $("#vialidad"+identifier).val("");
+            $("#autocomplete"+identifier).val("");
             $('.catSelect'+identifier).trigger('change');
             $("#latitud"+identifier).val("");
             $("#longitud"+identifier).val("");
@@ -315,15 +314,15 @@
                         if(val == 'Estado de México'){
                             val = 'México';
                         }
-                        $("#"+domicilio.campos[addressType]+" option:contains("+ val +")").prop("selected",true);
-                        
+                        $("#"+domicilio.campos[addressType]+" option:contains("+ val +")").prop("selected",true);   
                     }
-                    
                 }
             }
             $("#tipo_asentamiento_id"+identifier).val(7);
             $("#tipo_vialidad_id"+identifier).val(5);
-            $(".direccionUpd"+identifier).trigger('blur')
+            $(".direccionUpd"+identifier).trigger('blur');
+            $(".direccionUpd"+identifier).trigger('change');
+            
         }
 		$("#validaDir"+identifier).click(function(){
 			domicilio.tomarGeoreferencia();
