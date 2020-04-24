@@ -12,6 +12,8 @@ use App\Centro;
 use Validator;
 use App\Filters\CatalogoFilter;
 use Illuminate\Support\Facades\DB;
+use DateTime;
+use DateTimeZone;
 
 class AudienciaController extends Controller
 {
@@ -230,15 +232,10 @@ class AudienciaController extends Controller
                         $audiencias = $conciliadorAudiencia->audiencia->where("fecha_audiencia",$fechaInicioSola)->get();
                         if(count($audiencias) > 0){
                             foreach($audiencias as $audiencia){
-//                                dd($audiencia);
                                 //Buscamos que la hora inicio no este entre una audiencia
-                                if($audiencia::where("hora_inicio",">",$horaInicio)->where("hora_fin","<",$horaInicio)){
-                                    $pasa = false;
-                                }
-                                //Buscamos que la hora fin no este entre una audiencia
-                                if($audiencia::where("hora_inicio","<",$horaFin)->where("hora_fin",">",$horaFin)){
-                                    $pasa = false;
-                                }
+                                $horaInicioAudiencia= $audiencia->hora_inicio;
+                                $horaFinAudiencia= $audiencia->hora_fin;
+                                $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
                             }
                         }
                     }
@@ -251,6 +248,11 @@ class AudienciaController extends Controller
         }
         return $conciliadoresResponse;
     }
+    /**
+     * Funcion para obtener las Salas disponibles
+     * @param Request $request
+     * @return type
+     */
     public function SalasDisponibles(Request $request)
     {
         ## Agregamos las variables con lo que recibimos
@@ -283,6 +285,7 @@ class AudienciaController extends Controller
                     }
                 }
                 if($pasa){
+                    ## validamos que no haya audiencias en el horario solicitado
                     foreach($sala->salaAudiencia as $salaAudiencia){
                         $audiencias = $salaAudiencia->audiencia->where("fecha_audiencia",$fechaInicioSola)->get();
                         if(count($audiencias) > 0){
@@ -290,9 +293,7 @@ class AudienciaController extends Controller
                                 //Buscamos que la hora inicio no este entre una audiencia
                                 $horaInicioAudiencia= $audiencia->hora_inicio;
                                 $horaFinAudiencia= $audiencia->hora_fin;
-                                if($horaInicio >= $horaInicioAudiencia && $horaInicio < $horaFinAudiencia){
-                                    $pasa = true;
-                                }
+                                $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
                             }
                         }
                     }
@@ -421,6 +422,11 @@ class AudienciaController extends Controller
         $audiencia->update(array("convenio" => $request->convenio,"desahogo" => $request->desahogo,"resolucion_id"=>$request->resolucion_id));
         return $audiencia;
     }
+    /**
+     * Funcion para obtener los documentos de la audiencia
+     * @param type $audiencia_id
+     * @return type
+     */
     function getDocumentosAudiencia($audiencia_id){
         $audiencia = Audiencia::find($audiencia_id);
         $documentos = $audiencia->documentos;
@@ -429,5 +435,31 @@ class AudienciaController extends Controller
             $documento->tipo = pathinfo($documento->ruta)['extension'];
         }
         return $documentos;
+    }
+    /**
+     * Funcion para validar los rangos de tiempo
+     * @param time $start_time1
+     * @param time $end_time1
+     * @param time $start_time2
+     * @param time $end_time2
+     * @return bool
+     * @throws Exception
+     */
+    function rangesNotOverlapOpen($start_time1,$end_time1,$start_time2,$end_time2)
+    {
+      $utc = new DateTimeZone('UTC');
+
+      $start1 = new DateTime($start_time1,$utc);
+      $end1 = new DateTime($end_time1,$utc);
+      if($end1 < $start1)
+        throw new Exception('Range is negative.');
+
+      $start2 = new DateTime($start_time2,$utc);
+      $end2 = new DateTime($end_time2,$utc);
+      if($end2 < $start2)
+        throw new Exception('Range is negative.');
+
+//      return (($start2 >= $end1) || ($end2 <= $start1)) ;
+      return ($end1 <= $start2) || ($end2 <= $start1);
     }
 }

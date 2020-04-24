@@ -65,6 +65,6 @@ class Conciliador extends Model
      * @return type
      */
     public function conciliadorAudiencia(){
-        return $this->hasMany(ConciliadorAudiencia::class,'incidenciable');
+        return $this->hasMany(ConciliadorAudiencia::class);
     }
 }

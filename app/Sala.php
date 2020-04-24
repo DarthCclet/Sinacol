@@ -52,6 +52,6 @@ class Sala extends Model
      * @return type
      */
     public function salaAudiencia(){
-        return $this->morphMany(SalaAudiencia::class,'incidenciable');
+        return $this->hasMany(SalaAudiencia::class);
     }
 }
