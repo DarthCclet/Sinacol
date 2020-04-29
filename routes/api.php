@@ -34,6 +34,10 @@ Route::Post('conciliador/roles','ConciliadorController@roles');
 Route::Post('conciliador/ConciliadoresDisponibles','ConciliadorController@conciliadoresDisponibles');
 Route::Get('conciliador/ConciliadorAudiencias','ConciliadorController@conciliadorAudiencias');
 Route::resource('parte','ParteController');
+Route::Get('partes/representante/{id}','ParteController@GetRepresentanteLegal');
+Route::Post('partes/representante','ParteController@GuardarRepresentanteLegal');
+Route::Post('partes/representante/contacto','ParteController@AgregarContactoRepresentante');
+Route::Post('partes/representante/contacto/eliminar','ParteController@EliminarContactoRepresentante');
 Route::resource('documento','DocumentoController');
 Route::resource('disponibilidad','DisponibilidadController');
 Route::resource('incidencia','IncidenciaController');
@@ -45,6 +49,8 @@ Route::Post('audiencia/getCalendario','AudienciaController@getCalendario');
 Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
 Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
 Route::Get('audiencia/documentos/{audiencia_id}','AudienciaController@getDocumentosAudiencia');
+Route::Get('audiencia/fisicas/{id}','AudienciaController@GetPartesFisicas');
+Route::Get('audiencia/validar_partes/{id}','AudienciaController@validarPartes');
 Route::Get('documentos/getFile/{id}','DocumentoController@getFile');
 Route::Post('documentos/solicitud','DocumentoController@solicitud');
 Route::resource('compareciente','ComparecienteController');
@@ -67,7 +73,7 @@ Route::resource('lenguas_indigenas','LenguaIndigenaController')->middleware('cli
 Route::resource('tipo_discapacidades','TipoDiscapacidadController')->middleware('client');
 Route::resource('tipo_vialidades','TipoVialidadController')->middleware('client');
 Route::resource('tipo_asentamientos','TipoAsentamientoController')->middleware('client');
-Route::resource('tipo_contactos','TipoContactoController')->middleware('client');
+Route::resource('tipo_contactos','TipoContactoController');
 Route::resource('tipo_partes','TipoParteController')->middleware('client');
 Route::resource('giros_comerciales','GiroComercialController');
 Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
@@ -78,6 +84,7 @@ Route::Post('giros_comerciales/cambiar_padre','GiroComercialController@CambiarPa
 Route::resource('estados','EstadoController')->middleware('client');
 Route::resource('nacionalidades','NacionalidadController')->middleware('client');
 Route::resource('clasificacion_archivos','ClasificacionArchivoController');
+Route::resource('generos','GeneroController');
 //Route::resource('clasificacion_archivos','ClasificacionArchivoController')->middleware('client');
 
 //Route::resource('rol-conciliador','RolAtencionController');
