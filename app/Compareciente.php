@@ -17,4 +17,7 @@ class Compareciente extends Model
     public function audiencia(){
         return $this->belongsTo('App\Audiencia');
     }
+    public function parte(){
+        return $this->belongsTo('App\Parte');
+    }
 }

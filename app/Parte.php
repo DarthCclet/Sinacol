@@ -128,4 +128,13 @@ class Parte extends Model
     public function tipoDiscapacidad(){
       return $this->belongsTo(TipoDiscapacidad::class)->withDefault();
     }
+    /**
+     * Funcion para asociar con modelo tipoDiscapacidad
+     * Utilizando belongsTo para relaciones 1 a 1
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function compareciente(){
+      return $this->hasMany(Compareciente::class)->withDefault();
+    }
+    
 }
