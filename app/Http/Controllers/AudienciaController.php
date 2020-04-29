@@ -9,6 +9,9 @@ use App\Sala;
 use App\ConciliadorAudiencia;
 use App\SalaAudiencia;
 use App\Centro;
+use App\Parte;
+use App\Compareciente;
+use App\TipoParte;
 use Validator;
 use App\Filters\CatalogoFilter;
 use Illuminate\Support\Facades\DB;
@@ -122,6 +125,7 @@ class AudienciaController extends Controller
         $partes = array();
         $conciliadores = array();
         $salas = array();
+        $comparecientes = array();
         foreach($audiencia->expediente->solicitud->partes as $key => $parte){
             $parte->tipoParte = $parte->tipoParte;
             $partes[$key] = $parte;
@@ -134,9 +138,21 @@ class AudienciaController extends Controller
             $sala->sala = $sala->sala;
             $salas[$key] = $sala;
         }
+        foreach($audiencia->comparecientes as $key=>$compareciente){
+            $compareciente->parte = $compareciente->parte;
+            $parteRep=[];
+            if($compareciente->parte->tipo_parte_id == 3 && $compareciente->parte->parte_representada_id != null){
+                $parteRep = Parte::find($compareciente->parte->parte_representada_id);
+            }
+            $compareciente->parte->parteRepresentada = $parteRep;
+            $comparecientes[$key] = $compareciente;
+//            $comparecientes[$key]->parteRepresentada = $parteRep;
+        }
+        $audiencia->comparecientes = $comparecientes;
         $audiencia->partes = $partes;
         $audiencia->conciliadores = $conciliadores;
         $audiencia->salas = $salas;
+//        return $audiencia;
         return view('expediente.audiencias.edit', compact('audiencia'));
     }
 
@@ -419,7 +435,10 @@ class AudienciaController extends Controller
      */
     function Resolucion(Request $request){
         $audiencia = Audiencia::find($request->audiencia_id);
-        $audiencia->update(array("convenio" => $request->convenio,"desahogo" => $request->desahogo,"resolucion_id"=>$request->resolucion_id));
+        $audiencia->update(array("convenio" => $request->convenio,"desahogo" => $request->desahogo,"resolucion_id"=>$request->resolucion_id,"finalizada"=>true));
+        foreach($request->comparecientes as $compareciente){
+            Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $audiencia->id,"presentado" => true]);
+        }
         return $audiencia;
     }
     /**
@@ -435,5 +454,46 @@ class AudienciaController extends Controller
             $documento->tipo = pathinfo($documento->ruta)['extension'];
         }
         return $documentos;
+    }
+    
+    /**
+     * Funcion para obtener todas las personas fisicas
+     * @param int $audiencia_id
+     * @return array Partes $partes
+     */
+    public function GetPartesFisicas($audiencia_id){
+        $audiencia = Audiencia::find($audiencia_id);
+//        dd($audiencia->expediente->solicitud->partes);
+        $partes = $audiencia->expediente->solicitud->partes->where("tipo_persona_id","1");
+        foreach($partes as $key => $parte){
+            $partes[$key]->tipoParte = $parte->tipoParte;
+        }
+        return $partes;
+    }
+    
+    /**
+     * Función para validar si se puede dar resolución a una audiencia
+     * @param int $audiencia_id
+     * @return boolean
+     */
+    public function validarPartes($audiencia_id){
+        // Obtenemos las partes de la audiencia que sean de tipo persona moral;
+        $audiencia = Audiencia::find($audiencia_id);
+        $partes = $audiencia->expediente->solicitud->partes->where("tipo_persona_id","2");
+        // Validamos si hay personas morales
+        if(count($partes)){
+            foreach($partes as $parte){
+                $representante = Parte::where("parte_representada_id",$parte->id)->get();
+                if(!count($representante)){
+                    // Si la persona moral no tiene representante no se puede guardar
+                    return ["pasa" => false];
+                }
+            }
+            // Si siempre tiene representante 
+            return ["pasa" => true];
+        }else{
+            // Si no hay personas Morales se puede guardar la resolución
+            return ["pasa" => true];
+        }
     }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Parte;
+use App\Contacto;
+use App\TipoContacto;
 use App\Filters\ParteFilter;
 
 class ParteController extends Controller
@@ -160,5 +162,90 @@ class ParteController extends Controller
     {
         $parte->delete();
       return response()->json(null,204);
+    }
+    
+    /**
+     * Funcion para obtener el representante legal de una parte
+     * @param id $id
+     * @return parte
+     */
+    public function GetRepresentanteLegal($id){
+        $representantes = Parte::where("parte_representada_id",$id)->where("representante",true)->get();
+        if($representantes != null && $representantes != ""){
+            foreach($representantes as $key => $representante){
+                foreach($representante->contactos as $key2 => $contactos){
+                    $representantes[$key]->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
+                    
+                }
+            }
+        }
+        return $representantes;
+    }
+    
+    
+    function GuardarRepresentanteLegal(Request $request){
+        if($request->parte_id != "" && $request->parte_id != null){
+            $parte = Parte::find($request->parte_id);
+            $parte->update([
+                "curp" => $request->curp,
+                "nombre" => $request->nombre,
+                "primer_apellido" => $request->primer_apellido,
+                "segundo_apellido" => $request->segundo_apellido,
+                "fecha_nacimiento" => $request->fecha_nacimiento,
+                "genero_id" => $request->genero_id,
+                "instrumento" => $request->instrumento,
+                "genero_id" => $request->genero_id,
+                "feha_instrumento" => $request->feha_instrumento,
+                "numero_notaria" => $request->numero_notaria,
+                "nombre_notario" => $request->nombre_notario,
+                "localidad_notaria" => $request->localidad_notaria
+            ]);
+        }else{
+            $parte_representada = Parte::find($request->parte_representada_id);
+            $parte = Parte::create([
+                "solicitud_id" => $parte_representada->solicitud->id,
+                "tipo_parte_id" => 3,
+                "tipo_persona_id" => 1,
+                "rfc" => "NOAPLICA",
+                "curp" => $request->curp,
+                "nombre" => $request->nombre,
+                "primer_apellido" => $request->primer_apellido,
+                "segundo_apellido" => $request->segundo_apellido,
+                "fecha_nacimiento" => $request->fecha_nacimiento,
+                "genero_id" => $request->genero_id,
+                "instrumento" => $request->instrumento,
+                "genero_id" => $request->genero_id,
+                "feha_instrumento" => $request->feha_instrumento,
+                "numero_notaria" => $request->numero_notaria,
+                "nombre_notario" => $request->nombre_notario,
+                "localidad_notaria" => $request->localidad_notaria,
+                "parte_representada_id" => $request->parte_representada_id,
+                "representante" => true
+            ]);
+            foreach($request->listaContactos as $contacto){
+                $parte->contactos()->create([
+                    "contacto" => $contacto["contacto"],
+                    "tipo_contacto_id" => $contacto["tipo_contacto_id"],
+                ]);
+            }
+        }
+        return $parte;
+    }
+    
+    public function AgregarContactoRepresentante(Request $request){
+        $representante = Parte::find($request->parte_id);
+        $representante->contactos()->create(["tipo_contacto_id" => $request->tipo_contacto_id,"contacto" => $request->contacto]);
+        foreach($representante->contactos as $key2 => $contactos){
+            $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
+        }
+        return $representante->contactos;
+    }
+    public function EliminarContactoRepresentante(Request $request){
+        $contacto = Contacto::find($request->contacto_id)->delete();
+        $representante = Parte::find($request->parte_id);
+        foreach($representante->contactos as $key2 => $contactos){
+            $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
+        }
+        return $representante->contactos;
     }
 }
