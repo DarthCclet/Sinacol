@@ -44,6 +44,7 @@ class CreateAudienciasTable extends Migration
             $table->mediumText('desahogo')->nullable()->comment('Desahogo de la audiencia');
             // convenio de la resolucion
             $table->mediumText('convenio')->nullable()->comment('Convenio de la audiencia');
+            $table->boolean('finalizada')->default(false)->comment('indicador de finalizacion de audiencia');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');
             $table->timestamps();
         });

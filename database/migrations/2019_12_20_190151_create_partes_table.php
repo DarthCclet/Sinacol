@@ -34,12 +34,20 @@ class CreatePartesTable extends Migration
             $table->string('nombre_comercial')->nullable()->comment('Nombre de persona moral')->index();
             $table->date('fecha_nacimiento')->nullable()->comment('Fecha de nacimiento de la parte');
             $table->string('edad')->nullable()->comment('Edad de la parte');
-            $table->string('rfc')->comment('RFC de la parte')->index();
+            $table->string('rfc')->nullable()->comment('RFC de la parte')->index();
             $table->string('curp')->nullable()->comment('Curp de la parte')->index();
             $table->boolean('padece_discapacidad')->nullable()->comment('Indicador de discapacidad');
             $table->unsignedBigInteger('tipo_discapacidad_id')->nullable()->comment('FK de la tabla tipo_discapacidades');
             $table->foreign('tipo_discapacidad_id')->references('id')->on('tipo_discapacidades');
             $table->boolean('publicacion_datos')->nullable()->comment('Indicador donde se expresa si la parte desdea publicar sus datos')->index();
+            // Datos Para representantes legales
+            $table->string('instrumento')->nullable()->comment('Instrumento con que acredita ser representante legal');
+            $table->date('feha_instrumento')->nullable()->comment('Fecha del instrumento');
+            $table->string('numero_notaria')->nullable()->comment('Número de notaría que acredita la representatividad');
+            $table->string('localidad_notaria')->nullable()->comment('Localidad de la notaría que acredita la representatividad');
+            $table->string('nombre_notario')->nullable()->comment('Nombre completo del notario encargado de la notaría que acredita la representatividad');
+            $table->boolean('representante')->nullable()->comment('Indicador de representatividad');
+            $table->integer('parte_representada_id')->nullable()->comment('id de ka paere representada');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
 
