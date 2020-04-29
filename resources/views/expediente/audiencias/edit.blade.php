@@ -31,6 +31,12 @@
                 <span class="d-sm-block d-none">Documentos</span>
             </a>
         </li>
+        <li class="nav-item tab-Comparecientes">
+            <a href="#default-tab-3" data-toggle="tab" class="nav-link">
+                <span class="d-sm-none">Comp</span>
+                <span class="d-sm-block d-none">Comparecientes</span>
+            </a>
+        </li>
     </ul>
     <div class="tab-content" style="background: #f2f3f4 !important;">
         <!-- begin tab-pane -->
@@ -155,6 +161,40 @@
                 {% } %}
             </script>
         </div>
+        <div class="tab-pane fade show" id="default-tab-3">
+            <div class="col-md-12" id="divTableComparecientes">
+            <table class="table table-striped table-bordered table-td-valign-middle" id="table">
+                <thead>
+                    <tr>
+                        <th class="text-nowrap">Tipo Parte</th>
+                        <th class="text-nowrap">Nombre</th>
+                        <th class="text-nowrap">Primer apellido</th>
+                        <th class="text-nowrap">Segundo apellido</th>
+                        <th class="text-nowrap">Representante Legal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($audiencia->comparecientes as $compareciente)
+                    <tr>
+                        <td>{{$compareciente->parte->tipoParte->nombre}}</td>
+                        <td>{{$compareciente->parte->nombre}}</td>
+                        <td>{{$compareciente->parte->primer_apellido}}</td>
+                        <td>{{$compareciente->parte->segundo_apellido}}</td>
+                        @if($compareciente->parte->tipo_parte_id == 3 && $compareciente->parte->parte_representada_id != null)
+                            @if($compareciente->parte->parteRepresentada->tipo_persona_id == 1)
+                                <td>Si ({{$compareciente->parte->parteRepresentada->nombre}} {{$compareciente->parte->parteRepresentada->primer_apellido}} {{$compareciente->parte->parteRepresentada->segundo_apellido}})</td>
+                            @else
+                                <td>Si ({{$compareciente->parte->parteRepresentada->nombre_comercial}})</td>
+                            @endif
+                        @else
+                        <td>No</td>
+                        @endif
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
     </div>
     <!-- inicio Modal cargar archivos-->
     <div class="modal" id="modal-archivos" aria-hidden="true" style="display:none;">
@@ -227,6 +267,7 @@
         </div>
     </div>
     <!-- Fin Modal de cargar archivos-->
+    <!-- Inicio Modal de ver archivos PDF-->
     <div class="modal" id="modal-visor" aria-hidden="true" style="display:none;">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -237,16 +278,185 @@
             </div>
         </div>
     </div>
+    <!-- Fin Modal de ver archivos PDF-->
+    <!-- Inicio Modal de representante legal-->
+    <div class="modal" id="modal-representante" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Representante legal</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <h5>Datos del Representante legal</h5>
+                    <div class="col-md-12 row">
+                        <div class="col-md-6 ">
+                            <div class="form-group">
+                                <label for="curp" class="control-label">CURP</label>
+                                <input type="text" id="curp" class="form-control" placeholder="CURP del representante legal">
+                            </div>
+                        </div>
+                        <div class="col-md-6 ">
+                            <div class="form-group">
+                                <label for="nombre" class="control-label">Nombre</label>
+                                <input type="text" id="nombre" class="form-control" placeholder="Nombre del representante legal">
+                            </div>
+                        </div>
+                        <div class="col-md-6 ">
+                            <div class="form-group">
+                                <label for="primer_apellido" class="control-label">Primer apellido</label>
+                                <input type="text" id="primer_apellido" class="form-control" placeholder="Primer apellido del representante">
+                            </div>
+                        </div>
+                        <div class="col-md-6 ">
+                            <div class="form-group">
+                                <label for="segundo_apellido" class="control-label">Segundo apellido</label>
+                                <input type="text" id="segundo_apellido" class="form-control" placeholder="Segundo apellido representante">
+                            </div>
+                        </div>
+                        <div class="col-md-6 ">
+                            <div class="form-group">
+                                <label for="fecha_nacimiento" class="control-label">Fecha de nacimiento</label>
+                                <input type="text" id="fecha_nacimiento" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="genero_id" class="col-sm-6 control-label">Genero</label>
+                            <select id="genero_id" class="form-control select-element">
+                                <option value="">-- Selecciona un genero</option>
+                            </select>
+                        </div>
+                    </div>
+                    <hr>
+                    <h5>Datos de comprobante como representante legal</h5>
+                    <div class="col-md-12 row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="instrumento" class="control-label">Instrumento</label>
+                                <input type="text" id="instrumento" class="form-control" placeholder="Instrumento que acredita la representatividad">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
+                                <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="numero_notaria" class="control-label">Número</label>
+                                <input type="text" id="numero_notaria" class="form-control" placeholder="Número de la notaría">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nombre_notario" class="control-label">Nombre del Notario</label>
+                                <input type="text" id="nombre_notario" class="form-control" placeholder="Nombre del notario que acredita">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="localidad_notaria" class="control-label">Localidad</label>
+                                <input type="text" id="localidad_notaria" class="form-control" placeholder="Localidad de la notaría">
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <h5>Datos de contacto</h5>
+                    <div class="col-md-12 row">
+                        <div class="col-md-5">
+                            <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
+                            <select id="tipo_contacto_id" class="form-control select-element">
+                                <option value="">-- Selecciona un genero</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label for="contacto" class="control-label">Contacto</label>
+                                <input type="text" id="contacto" class="form-control" placeholder="Información de contacto">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-info" type="button" id="btnAgregarContacto"> 
+                                <i class="fa fa-plus-circle"></i> Agregar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <table class="table table-bordered" >
+                            <thead>
+                                <tr>
+                                    <th style="width:80%;">Tipo</th>
+                                    <th style="width:80%;">Contacto</th>
+                                    <th style="width:20%; text-align: center;">Accion</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyContacto">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarRepresentante"><i class="fa fa-save"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Inicio Modal de representante legal-->
+    <div class="modal" id="modal-comparecientes" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Comparecientes</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered" >
+                            <thead>
+                                <tr>
+                                    <th>Tipo Parte</th>
+                                    <th>Nombre</th>
+                                    <th>Primer Apellido</th>
+                                    <th>Segundo Apellido</th>
+                                    <th>Comparecio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyPartesFisicas">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarResolucion"><i class="fa fa-save"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="parte_id">
+    <input type="hidden" id="parte_representada_id">
 @endsection
 @push('scripts')
     <script>
+        var listaContactos=[];
+        var finalizada=false;
         $(document).ready(function() {
             $("#audiencia_id").val('{{ $audiencia->id }}');
+            finalizada = '{{ $audiencia->finalizada }}';
             $("#duracionAudiencia").datetimepicker({format:"HH:mm"});
+            $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
             $('#convenio').wysihtml5(); 
             $('#desahogo').wysihtml5(); 
-            $(".tipo_documento").select2();
+            $(".tipo_documento,.select-element").select2();
             cargarDocumentos();
+            cargarGeneros();
+            cargarTipoContactos();
             $.ajax({
                 url:"/api/resoluciones",
                 type:"GET",
@@ -263,37 +473,42 @@
                     $("#resolucion_id").val('{{ $audiencia->resolucion_id }}').select2();
                 }
             });
+            CargarFinalizacion();
             
             FormMultipleUpload.init();
             Gallery.init();
         });
         $("#btnGuardar").on("click",function(){
-            var validar = validarResolucion();
-            if(!validar){
+            if(!validarResolucion()){
                 $.ajax({
-                    url:"/api/audiencia/resolucion",
-                    type:"POST",
+                    url:"/api/audiencia/validar_partes/{{ $audiencia->id }}",
+                    type:"GET",
                     dataType:"json",
-                    data:{
-                        audiencia_id:'{{ $audiencia->id }}',
-                        convenio:$("#convenio").val(),
-                        desahogo:$("#desahogo").val(),
-                        resolucion_id:$("#resolucion_id").val()
-                    },
                     success:function(data){
-                        if(data != null && data != ""){
-                            window.location.href = "{{ route('audiencias.index')}}";
+                        console.log(data.pasa);
+                        if(data.pasa){
+                            getPersonasComparecer();
                         }else{
-                            swal({
-                                title: 'Algo salio mal',
-                                text: 'No se guardo el registro',
-                                icon: 'warning'
-                            });
+                            swal({title: 'Error',text: 'Debes agregar el representante legal de todas las personas Morales',icon: 'error'});
                         }
                     }
                 });
             }
         });
+        function validarResolucionComparecientes(){
+            var listaComparecientes = [];
+            $(".checkCompareciente").each(function(index){
+                if($(this).is(":checked")){
+                    listaComparecientes.push($(this).data("parte_id"));
+                }
+            });
+            if(listaComparecientes.length > 0){
+                return {error:false,comparecientes:listaComparecientes};
+            }else{
+                swal({title: 'Error',text: 'No has agregado comparecientes',icon: 'warning'});
+                return {error:true,comparecientes:[]};
+            }
+        }
         function validarResolucion(){
             if($("#convenio").val() == ""){
                 swal({title: 'Error',text: 'Describe el convenio',icon: 'warning'});
@@ -307,7 +522,7 @@
                 swal({title: 'Error',text: 'Selecciona una resolucion',icon: 'warning'});
                 return true;
             }
-            return false;
+            return false;            
         }
         $("#btnAgregarArchivo").on("click",function(){
             $("#btnCancelFiles").click();
@@ -470,7 +685,6 @@
                 }
             });       
         }
-        
         $(document).on('click', '[data-toggle="lightbox"]', function(event) {
             event.preventDefault();
             $(this).ekkoLightbox({
@@ -483,7 +697,6 @@
                 }
             }); 
         });
-
         $(document).on('click', '[data-toggle="iframe"]',function(event){
             event.preventDefault();
             var pdf_link = $(this).attr('href');
@@ -499,6 +712,314 @@
 
             return false;
         });
+        
+        // Funciones de Representantes legales
+        function cargarGeneros(){
+            $.ajax({
+                url:"/api/generos",
+                type:"GET",
+                dataType:"json",
+                success:function(data){
+                    if(data != null && data != ""){
+                        $("#genero_id").html("<option value=''>-- Selecciona un genero</option>");
+                        $.each(data,function(index,element){
+                            $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                        });
+                    }else{
+                        $("#genero_id").html("<option value=''>-- Selecciona un centro</option>");
+                    }
+                    $("#genero_id").trigger("change");
+                }
+            });
+        }
+        function cargarTipoContactos(){
+            $.ajax({
+                url:"/api/tipo_contactos",
+                type:"GET",
+                dataType:"json",
+                success:function(data){
+                    if(data.data.total > 0){
+                        $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                        $.each(data.data.data,function(index,element){
+                            $("#tipo_contacto_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                        });
+                    }else{
+                        $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                    }
+                    $("#tipo_contacto_id").trigger("change");
+                }
+            });
+            
+        }
+        function AgregarRepresentante(parte_id){
+            $.ajax({
+                url:"/api/partes/representante/"+parte_id,
+                type:"GET",
+                dataType:"json",
+                success:function(data){
+                    if(data != null && data != ""){
+                        data = data[0];
+                        $("#curp").val(data.curp);
+                        $("#nombre").val(data.nombre);
+                        $("#primer_apellido").val(data.primer_apellido);
+                        $("#segundo_apellido").val(data.segundo_apellido);
+                        $("#fecha_nacimiento").val(data.fecha_nacimiento);
+                        $("#genero_id").val(data.genero_id).trigger("change");
+                        $("#instrumento").val(data.instrumento);
+                        $("#feha_instrumento").val(data.feha_instrumento);
+                        $("#numero_notaria").val(data.numero_notaria);
+                        $("#nombre_notario").val(data.nombre_notario);
+                        $("#localidad_notaria").val(data.localidad_notaria);
+                        $("#parte_id").val(data.id);
+                        listaContactos = data.contactos;
+                    }else{
+                        $("#curp").val("");
+                        $("#nombre").val("");
+                        $("#primer_apellido").val("");
+                        $("#segundo_apellido").val("");
+                        $("#fecha_nacimiento").val("");
+                        $("#genero_id").val("").trigger("change");
+                        $("#instrumento").val("");
+                        $("#feha_instrumento").val("");
+                        $("#numero_notaria").val("");
+                        $("#nombre_notario").val("");
+                        $("#localidad_notaria").val("");
+                        $("#parte_id").val("");
+                        listaContactos = [];
+                    }
+                    $("#parte_representada_id").val(parte_id);
+                    cargarContactos();
+                    $("#modal-representante").modal("show");
+                }
+            });
+        }
+        function cargarContactos(){
+            var table = "";
+            $.each(listaContactos, function(index,element){
+                table +='<tr>';
+                table +='   <td>'+element.tipo_contacto.nombre+'</td>';
+                table +='   <td>'+element.contacto+'</td>';
+                table +='   <td style="text-align: center;">';
+                table +='       <a class="btn btn-xs btn-warning" onclick="eliminarContacto('+index+')">'
+                table +='           <i class="fa fa-trash" style="color:white;"></i>';
+                table +='       </a>';
+                table +='   </td>';
+                table +='<tr>';
+            });
+            $("#tbodyContacto").html(table);
+        }
+        $("#btnAgregarContacto").on("click",function(){
+            if($("#parte_id").val() != ""){
+                $.ajax({
+                    url:"/api/partes/representante/contacto",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        tipo_contacto_id:$("#tipo_contacto_id").val(),
+                        contacto:$("#contacto").val(),
+                        parte_id:$("#parte_id").val()
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            listaContactos = data;
+                            cargarContactos();
+                        }else{
+                            swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                        }
+                    }
+                });
+            }else{
+                listaContactos.push({
+                    tipo_contacto_id:$("#tipo_contacto_id").val(),
+                    contacto:$("#contacto").val(),
+                    id:null,
+                    tipo_contacto:{
+                        nombre:$("#tipo_contacto_id option:selected").text()
+                    }
+                });
+            }
+            cargarContactos();
+        });
+        function eliminarContacto(indice){
+            if(listaContactos[indice].id != null){
+                $.ajax({
+                    url:"/api/partes/representante/contacto/eliminar",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        contacto_id:listaContactos[indice].id,
+                        parte_id:$("#parte_id").val()
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            listaContactos = data;
+                            cargarContactos();
+                        }else{
+                            swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                        }
+                    }
+                });
+            }else{
+                listaContactos.splice(indice,1);
+                cargarContactos();
+            }
+        }
+        $("#btnGuardarRepresentante").on("click",function(){
+            if(!validarRepresentante()){
+                $.ajax({
+                    url:"/api/partes/representante",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        curp:$("#curp").val(),
+                        nombre:$("#nombre").val(),
+                        primer_apellido:$("#primer_apellido").val(),
+                        segundo_apellido:$("#segundo_apellido").val(),
+                        fecha_nacimiento:$("#fecha_nacimiento").val(),
+                        genero_id:$("#genero_id").val(),
+                        instrumento:$("#instrumento").val(),
+                        feha_instrumento:$("#feha_instrumento").val(),
+                        numero_notaria:$("#numero_notaria").val(),
+                        nombre_notario:$("#nombre_notario").val(),
+                        localidad_notaria:$("#localidad_notaria").val(),
+                        parte_id:$("#parte_id").val(),
+                        parte_representada_id:$("#parte_representada_id").val(),
+                        listaContactos:listaContactos
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            swal({title: 'Exito',text: 'Se agrego el representante',icon: 'success'});
+                            $("#modal-representante").modal("hide");
+                        }else{
+                            swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                        }
+                    }
+                });
+            }else{
+                swal({title: 'Error',text: 'Llena todos los campos',icon: 'warning'});
+            }
+        });
+        function validarRepresentante(){
+            var error=false;
+            $(".control-label").css("color","");
+            if($("#curp").val() == ""){
+                $("#curp").prev().css("color","red");
+                error = true;
+            }
+            if($("#nombre").val() == ""){
+                $("#nombre").prev().css("color","red");
+                error = true;
+            }
+            if($("#primer_apellido").val() == ""){
+                $("#primer_apellido").prev().css("color","red");
+                error = true;
+            }
+            if($("#segundo_apellido").val() == ""){
+                $("#segundo_apellido").prev().css("color","red");
+                error = true;
+            }
+            if($("#fecha_nacimiento").val() == ""){
+                $("#fecha_nacimiento").prev().css("color","red");
+                error = true;
+            }
+            if($("#genero_id").val() == ""){
+                $("#genero_id").prev().css("color","red");
+                error = true;
+            }
+            if($("#instrumento").val() == ""){
+                $("#instrumento").prev().css("color","red");
+                error = true;
+            }
+            if($("#feha_instrumento").val() == ""){
+                $("#feha_instrumento").prev().css("color","red");
+                error = true;
+            }
+            if($("#numero_notaria").val() == ""){
+                $("#numero_notaria").prev().css("color","red");
+                error = true;
+            }
+            if($("#nombre_notario").val() == ""){
+                $("#nombre_notario").prev().css("color","red");
+                error = true;
+            }
+            if($("#localidad_notaria").val() == ""){
+                $("#localidad_notaria").prev().css("color","red");
+                error = true;
+            }
+            console.log(listaContactos.length);
+            if(listaContactos.length == 0){
+                $("#contacto").prev().css("color","red");
+                $("#tipo_contacto_id").prev().css("color","red");
+                error = true;
+                error = true;
+            }
+            return error;
+        }
+        function getPersonasComparecer(){
+            $.ajax({
+                url:"/api/audiencia/fisicas/{{ $audiencia->id }}",
+                type:"GET",
+                dataType:"json",
+                success:function(data){
+                    var table = "";
+                    $.each(data, function(index,element){
+                        table +='<tr>';
+                        table +='   <td>'+element.tipo_parte.nombre+'</td>';
+                        table +='   <td>'+element.nombre+'</td>';
+                        table +='   <td>'+element.primer_apellido+'</td>';
+                        table +='   <td>'+element.segundo_apellido+'</td>';
+                        table +='   <td>';
+                        table +='       <div class="col-md-2">';
+                        table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
+                        table +='       </div>';
+                        table +='   </td>';
+                        table +='</tr>';
+                    });
+                    $("#tbodyPartesFisicas").html(table);
+                    $("#modal-comparecientes").modal("show");
+                }
+            });
+        }
+        $("#btnGuardarResolucion").on("click",function(){
+            var validar = validarResolucionComparecientes();
+            if(!validar.error){
+                $.ajax({
+                    url:"/api/audiencia/resolucion",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        audiencia_id:'{{ $audiencia->id }}',
+                        convenio:$("#convenio").val(),
+                        desahogo:$("#desahogo").val(),
+                        resolucion_id:$("#resolucion_id").val(),
+                        comparecientes:validar.comparecientes
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            window.location.href = "{{ route('audiencias.index')}}";
+                        }else{
+                            swal({
+                                title: 'Algo salio mal',
+                                text: 'No se guardo el registro',
+                                icon: 'warning'
+                            });
+                        }
+                    }
+                });
+            }
+        });
+        function CargarFinalizacion(){
+            if(finalizada){
+                $("#btnGuardar").hide();
+                $("#btnGuardarRepresentante").hide();
+                $("#btnAgregarContacto").hide();
+                $(".tab-Comparecientes").show();
+            }else{
+                $("#btnGuardar").show();
+                $("#btnGuardarRepresentante").show();
+                $("#btnAgregarContacto").show();
+                $(".tab-Comparecientes").hide();
+            }
+        }
     </script>
-
 @endpush
