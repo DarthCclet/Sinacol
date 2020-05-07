@@ -12,6 +12,10 @@ use App\Centro;
 use App\Parte;
 use App\Compareciente;
 use App\TipoParte;
+use App\AudienciaParte;
+use App\ResolucionPartes;
+use App\Resolucion;
+use App\MotivoArchivado;
 use Validator;
 use App\Filters\CatalogoFilter;
 use Illuminate\Support\Facades\DB;
@@ -126,9 +130,9 @@ class AudienciaController extends Controller
         $conciliadores = array();
         $salas = array();
         $comparecientes = array();
-        foreach($audiencia->expediente->solicitud->partes as $key => $parte){
-            $parte->tipoParte = $parte->tipoParte;
-            $partes[$key] = $parte;
+        foreach($audiencia->audienciaParte as $key => $parte){
+            $parte->parte->tipoParte = $parte->parte->tipoParte;
+            $partes[$key] = $parte->parte;
         }
         foreach($audiencia->conciliadoresAudiencias as $key => $conciliador){
             $conciliador->conciliador->persona = $conciliador->conciliador->persona;
@@ -146,14 +150,16 @@ class AudienciaController extends Controller
             }
             $compareciente->parte->parteRepresentada = $parteRep;
             $comparecientes[$key] = $compareciente;
-//            $comparecientes[$key]->parteRepresentada = $parteRep;
         }
+        $audiencia->resolucionPartes = $audiencia->resolucionPartes;
         $audiencia->comparecientes = $comparecientes;
         $audiencia->partes = $partes;
         $audiencia->conciliadores = $conciliadores;
         $audiencia->salas = $salas;
-//        return $audiencia;
-        return view('expediente.audiencias.edit', compact('audiencia'));
+        $audiencia->solicitantes = $this->getSolicitantes($audiencia);
+        $audiencia->solicitados = $this->getSolicitados($audiencia);
+        $motivos_archivo = MotivoArchivado::all();
+        return view('expediente.audiencias.edit', compact('audiencia',"motivos_archivo"));
     }
 
     /**
@@ -356,6 +362,13 @@ class AudienciaController extends Controller
             SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $value["sala"],"solicitante" => $value["resolucion"]]);
         }
         $audiencia->update(["conciliador_id" => $id_conciliador]);
+        
+        // Guardamos todas las Partes en la audiencia
+        $partes = $audiencia->expediente->solicitud->partes;
+        foreach($partes as $parte){
+            AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id]);
+        }
+        
         return $audiencia;
     }
     /**
@@ -439,7 +452,44 @@ class AudienciaController extends Controller
         foreach($request->comparecientes as $compareciente){
             Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $audiencia->id,"presentado" => true]);
         }
+        $this->guardarRelaciones($audiencia,$request->listaRelacion);
         return $audiencia;
+    }
+    
+    /**
+     * Funcion para guardar las resoluciones individuales de las audiencias
+     * @param Audiencia $audiencia
+     * @param type $arrayRelaciones
+     */
+    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array()){
+//        dd($arrayRelaciones);
+        $partes = $audiencia->audienciaParte;
+        $solicitantes = $this->getSolicitantes($audiencia);
+        $solicitados = $this->getSolicitados($audiencia);
+        foreach($solicitantes as $solicitante){
+            foreach($solicitados as $solicitado){
+                $bandera = true;
+                foreach($arrayRelaciones as $relacion){
+                    if($solicitante->parte_id == $relacion["parte_solicitante_id"] && $solicitado->parte_id == $relacion["parte_solicitado_id"]){
+                        ResolucionPartes::create([
+                            "audiencia_id" => $audiencia->id,
+                            "parte_solicitante_id" => $solicitante->parte_id,
+                            "parte_solicitada_id" => $solicitado->parte_id,
+                            "resolucion_id" => $relacion["resolucion_individual_id"]
+                        ]);
+                        $bandera = false;
+                    }
+                }
+                if($bandera){
+                    ResolucionPartes::create([
+                        "audiencia_id" => $audiencia->id,
+                        "parte_solicitante_id" => $solicitante->parte_id,
+                        "parte_solicitada_id" => $solicitado->parte_id,
+                        "resolucion_id" => $audiencia->resolucion_id
+                    ]);
+                }
+            }
+        }
     }
     /**
      * Funcion para obtener los documentos de la audiencia
@@ -464,9 +514,12 @@ class AudienciaController extends Controller
     public function GetPartesFisicas($audiencia_id){
         $audiencia = Audiencia::find($audiencia_id);
 //        dd($audiencia->expediente->solicitud->partes);
-        $partes = $audiencia->expediente->solicitud->partes->where("tipo_persona_id","1");
-        foreach($partes as $key => $parte){
-            $partes[$key]->tipoParte = $parte->tipoParte;
+        $partes=[];
+        foreach($audiencia->audienciaParte as $audienciaParte){
+            if($audienciaParte->parte->tipo_persona_id == 1){
+                $audienciaParte->parte->tipoParte = $audienciaParte->parte->tipoParte;
+                $partes[] = $audienciaParte->parte;
+            }
         }
         return $partes;
     }
@@ -495,5 +548,35 @@ class AudienciaController extends Controller
             // Si no hay personas Morales se puede guardar la resolución
             return ["pasa" => true];
         }
+    }
+    
+    /**
+     * Funcion para obtener las partes involucradas en una audiencia de tipo solicitante
+     * @param Audiencia $audiencia
+     * @return AudienciaParte $solicitante
+     */
+    public function getSolicitantes(Audiencia $audiencia){
+        $solicitantes = [];
+        foreach($audiencia->audienciaParte as $parte){
+            if($parte->parte->tipo_parte_id == 1){
+                $solicitantes[]=$parte;
+            }
+        }
+        return $solicitantes;
+    }
+    
+    /**
+     * Funcion para obtener las partes involucradas en una audiencia de tipo solicitado
+     * @param Audiencia $audiencia
+     * @return AudienciaParte $solicitado
+     */
+    public function getSolicitados(Audiencia $audiencia){
+        $solicitados = [];
+        foreach($audiencia->audienciaParte as $parte){
+            if($parte->parte->tipo_parte_id == 2){
+                $solicitados[]=$parte;
+            }
+        }
+        return $solicitados;
     }
 }

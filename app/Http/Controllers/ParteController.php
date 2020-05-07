@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Parte;
 use App\Contacto;
 use App\TipoContacto;
+use App\AudienciaParte;
 use App\Filters\ParteFilter;
 
 class ParteController extends Controller
@@ -228,6 +229,8 @@ class ParteController extends Controller
                     "tipo_contacto_id" => $contacto["tipo_contacto_id"],
                 ]);
             }
+            // Creamos la relacion en audiencias_partes
+            AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
         }
         return $parte;
     }
