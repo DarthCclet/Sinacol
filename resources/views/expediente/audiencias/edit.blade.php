@@ -37,6 +37,12 @@
                 <span class="d-sm-block d-none">Comparecientes</span>
             </a>
         </li>
+        <li class="nav-item tab-Resoluciones">
+            <a href="#default-tab-4" data-toggle="tab" class="nav-link">
+                <span class="d-sm-none">Res</span>
+                <span class="d-sm-block d-none">Resoluciones</span>
+            </a>
+        </li>
     </ul>
     <div class="tab-content" style="background: #f2f3f4 !important;">
         <!-- begin tab-pane -->
@@ -163,38 +169,74 @@
         </div>
         <div class="tab-pane fade show" id="default-tab-3">
             <div class="col-md-12" id="divTableComparecientes">
-            <table class="table table-striped table-bordered table-td-valign-middle" id="table">
-                <thead>
-                    <tr>
-                        <th class="text-nowrap">Tipo Parte</th>
-                        <th class="text-nowrap">Nombre</th>
-                        <th class="text-nowrap">Primer apellido</th>
-                        <th class="text-nowrap">Segundo apellido</th>
-                        <th class="text-nowrap">Representante Legal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($audiencia->comparecientes as $compareciente)
-                    <tr>
-                        <td>{{$compareciente->parte->tipoParte->nombre}}</td>
-                        <td>{{$compareciente->parte->nombre}}</td>
-                        <td>{{$compareciente->parte->primer_apellido}}</td>
-                        <td>{{$compareciente->parte->segundo_apellido}}</td>
-                        @if($compareciente->parte->tipo_parte_id == 3 && $compareciente->parte->parte_representada_id != null)
-                            @if($compareciente->parte->parteRepresentada->tipo_persona_id == 1)
-                                <td>Si ({{$compareciente->parte->parteRepresentada->nombre}} {{$compareciente->parte->parteRepresentada->primer_apellido}} {{$compareciente->parte->parteRepresentada->segundo_apellido}})</td>
+                <table class="table table-striped table-bordered table-td-valign-middle" id="table">
+                    <thead>
+                        <tr>
+                            <th class="text-nowrap">Tipo Parte</th>
+                            <th class="text-nowrap">Nombre</th>
+                            <th class="text-nowrap">Primer apellido</th>
+                            <th class="text-nowrap">Segundo apellido</th>
+                            <th class="text-nowrap">Representante Legal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($audiencia->comparecientes as $compareciente)
+                        <tr>
+                            <td>{{$compareciente->parte->tipoParte->nombre}}</td>
+                            <td>{{$compareciente->parte->nombre}}</td>
+                            <td>{{$compareciente->parte->primer_apellido}}</td>
+                            <td>{{$compareciente->parte->segundo_apellido}}</td>
+                            @if($compareciente->parte->tipo_parte_id == 3 && $compareciente->parte->parte_representada_id != null)
+                                @if($compareciente->parte->parteRepresentada->tipo_persona_id == 1)
+                                    <td>Si ({{$compareciente->parte->parteRepresentada->nombre}} {{$compareciente->parte->parteRepresentada->primer_apellido}} {{$compareciente->parte->parteRepresentada->segundo_apellido}})</td>
+                                @else
+                                    <td>Si ({{$compareciente->parte->parteRepresentada->nombre_comercial}})</td>
+                                @endif
                             @else
-                                <td>Si ({{$compareciente->parte->parteRepresentada->nombre_comercial}})</td>
+                            <td>No</td>
                             @endif
-                        @else
-                        <td>No</td>
-                        @endif
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+        <div class="tab-pane fade show" id="default-tab-4">
+            <div class="col-md-12" id="divTableComparecientes">
+                <table class="table table-striped table-bordered table-td-valign-middle" id="table">
+                    <thead>
+                        <tr>
+                            <th class="text-nowrap">Solicitante</th>
+                            <th class="text-nowrap">Solicitado</th>
+                            <th class="text-nowrap">Resolucion</th>
+                            <th class="text-nowrap">Motivo de archivado</th>
+                            <th class="text-nowrap">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($audiencia->resolucionPartes as $resolucion)
+                        <tr>
+                            @if($resolucion->parteSolicitante->tipo_persona_id == 1)
+                                <td>{{$resolucion->parteSolicitante->nombre}} {{$resolucion->parteSolicitante->primer_apellido}} {{$resolucion->parteSolicitante->segundo_apellido}}</td>
+                            @else
+                                <td>{{$resolucion->parteSolicitante->nombre_comercial}}</td>
+                            
+                            @endif
+                            @if($resolucion->parteSolicitada->tipo_persona_id == 1)
+                                <td>{{$resolucion->parteSolicitada->nombre}} {{$resolucion->parteSolicitada->primer_apellido}} {{$resolucion->parteSolicitada->segundo_apellido}}</td>
+                            @else
+                                <td>{{$resolucion->parteSolicitada->nombre_comercial}}</td>
+                            
+                            @endif
+                            <td>{{$resolucion->resolucion->nombre}}</td>
+                            <td>{{$resolucion->motivoArchivado->descripcion}}</td>
+                            <td></td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
     <!-- inicio Modal cargar archivos-->
     <div class="modal" id="modal-archivos" aria-hidden="true" style="display:none;">
@@ -406,7 +448,7 @@
         </div>
     </div>
     <!-- Inicio Modal de representante legal-->
-    <div class="modal" id="modal-comparecientes" aria-hidden="true" style="display:none;">
+    <div class="modal" id="modal-comparecientes" style="display:none;">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -414,6 +456,15 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
                 <div class="modal-body">
+                    <div class="alert alert-warning col-md-12">
+                        <h5><i class="fa fa-warning"></i> Atención</h5>
+                        <p>
+                            Esta a punto de dar resolucion a una audiencia, indique la forma de proceder<br>
+                            - Marque en la tabla las personas que se presentaron a la audiencia<br>
+                            - Una resolución: La resolución aplica para todas las relaciones solicitante-solicitado<br>
+                            - Configurar: Podrá agregar las excepciones a la resolución
+                        </p>
+                    </div>
                     <div class="col-md-12">
                         <table class="table table-bordered" >
                             <thead>
@@ -429,11 +480,97 @@
                             </tbody>
                         </table>
                     </div>
+                    <div id="resolucionVarias">
+                        <hr>
+                        <h5>Registro de resoluciones extraordinarias</h5>
+                        <div class="col-md-12 row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="parte_solicitante_id" class="col-sm-6 control-label labelResolucion">Solicitante</label>
+                                    <div class="col-sm-10">
+                                        <select id="parte_solicitante_id" class="form-control select-element">
+                                            <option value="">-- Selecciona un solicitante</option>
+                                            @foreach($audiencia->solicitantes as $parte)
+                                                @if($parte->parte->tipo_persona_id == 1)
+                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
+                                                @else
+                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="parte_solicitado_id" class="col-sm-6 control-label labelResolucion">Solicitado</label>
+                                    <div class="col-sm-10">
+                                        <select id="parte_solicitado_id" class="form-control select-element">
+                                            <option value="">-- Selecciona un solicitado</option>
+                                            @foreach($audiencia->solicitados as $parte)
+                                                @if($parte->parte->tipo_persona_id == 1)
+                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
+                                                @else
+                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="resolucion_individual_id" class="col-sm-6 control-label labelResolucion">Resolución</label>
+                                    <div class="col-sm-10">
+                                        <select id="resolucion_individual_id" class="form-control select-element">
+                                            <option value="">-- Selecciona una resolución</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="motivo_archivado_id" class="col-sm-6 control-label labelResolucion">Motivo de archivo</label>
+                                    <div class="col-sm-10">
+                                        <select id="motivo_archivado_id" class="form-control select-element">
+                                            <option value="">-- Selecciona un motivo de archivado</option>
+                                            @foreach($motivos_archivo as $motivo)
+                                                <option value="{{ $motivo->id }}">{{ $motivo->descripcion }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="text-center">
+                                <button class="btn btn-warning text-white btn-sm" id='btnAgregarResolucion'><i class="fa fa-plus"></i> Agregar</button>                                
+                            </div>
+                        </div>
+                        <div class="col-md-12 row" style="padding-top: 1em">
+                            <table class="table table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th>Solicitante</th>
+                                        <th>Solicitado</th>
+                                        <th>Resolución</th>
+                                        <th>Motivo de archivo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyResolucionesIndividuales">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <div class="text-right">
-                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarResolucion"><i class="fa fa-save"></i> Guardar</button>
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
+                        <button class="btn btn-white btn-sm" id="btnCancelarVarias"><i class="fa fa-times"></i> Cancelar</button>
+                        <button class="btn btn-warning btn-sm m-l-5" id="btnGuardarResolucionMuchas"><i class="fa fa-save"></i> Guardar</button>
+                        <button class="btn btn-warning btn-sm m-l-5" id="btnConfigurarResoluciones"><i class="fa fa-cog"></i> Configurar</button>
+                        <button class="btn btn-warning btn-sm m-l-5" id="btnGuardarResolucionUna"><i class="fa fa-save"></i> Guardar para todos</button>
                     </div>
                 </div>
             </div>
@@ -446,6 +583,7 @@
     <script>
         var listaContactos=[];
         var finalizada=false;
+        var listaResolucionesIndividuales=[];
         $(document).ready(function() {
             $("#audiencia_id").val('{{ $audiencia->id }}');
             finalizada = '{{ $audiencia->finalizada }}';
@@ -463,14 +601,16 @@
                 dataType:"json",
                 success:function(data){
                     if(data.data.data != null && data.data.data != ""){
-                        $("#resolucion_id").html("<option value=''>-- Selecciona un centro</option>");
+                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona un centro</option>");
+                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona un centro</option>");
                         $.each(data.data.data,function(index,element){
-                            $("#resolucion_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                            $("#resolucion_id,#resolucion_individual_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
                         });
                     }else{
-                        $("#resolucion_id").html("<option value=''>-- Selecciona un centro</option>");
+                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona un centro</option>");
                     }
-                    $("#resolucion_id").val('{{ $audiencia->resolucion_id }}').select2();
+                    $("#resolucion_id").val('{{ $audiencia->resolucion_id }}');
+                    $("#resolucion_id,#resolucion_individual_id").trigger("change");
                 }
             });
             CargarFinalizacion();
@@ -884,6 +1024,7 @@
                         localidad_notaria:$("#localidad_notaria").val(),
                         parte_id:$("#parte_id").val(),
                         parte_representada_id:$("#parte_representada_id").val(),
+                        audiencia_id:$("#audiencia_id").val(),
                         listaContactos:listaContactos
                     },
                     success:function(data){
@@ -976,11 +1117,30 @@
                         table +='</tr>';
                     });
                     $("#tbodyPartesFisicas").html(table);
+                    $("#resolucionVarias").hide();
+                    $("#btnCancelarVarias").hide();
+                    $("#btnGuardarResolucionMuchas").hide();
+                    $("#btnConfigurarResoluciones").show();
+                    $("#btnGuardarResolucionUna").show();
                     $("#modal-comparecientes").modal("show");
                 }
             });
         }
-        $("#btnGuardarResolucion").on("click",function(){
+        $("#btnCancelarVarias").on("click",function(){
+            $("#resolucionVarias").hide();
+            $("#btnCancelarVarias").hide();
+            $("#btnGuardarResolucionMuchas").hide();
+            $("#btnConfigurarResoluciones").show();
+            $("#btnGuardarResolucionUna").show();
+        });
+        $("#btnConfigurarResoluciones").on("click",function(){
+            $("#resolucionVarias").show();
+            $("#btnCancelarVarias").show();
+            $("#btnGuardarResolucionMuchas").show();
+            $("#btnConfigurarResoluciones").hide();
+            $("#btnGuardarResolucionUna").hide();
+        });
+        $("#btnGuardarResolucionMuchas").on("click",function(){
             var validar = validarResolucionComparecientes();
             if(!validar.error){
                 $.ajax({
@@ -992,7 +1152,62 @@
                         convenio:$("#convenio").val(),
                         desahogo:$("#desahogo").val(),
                         resolucion_id:$("#resolucion_id").val(),
-                        comparecientes:validar.comparecientes
+                        comparecientes:validar.comparecientes,
+                        listaRelacion:listaResolucionesIndividuales
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            window.location.href = "{{ route('audiencias.index')}}";
+                        }else{
+                            swal({
+                                title: 'Algo salio mal',
+                                text: 'No se guardo el registro',
+                                icon: 'warning'
+                            });
+                        }
+                    }
+                });
+            }
+        });
+        $("#btnAgregarResolucion").on("click",function(){
+            if(validarResolucionIndividual()){
+                var motivo_id = "";
+                var motivo_nombre = "";
+                if($("#resolucion_individual_id").val() == 4){
+                    motivo_id = $("#motivo_archivado_id").val();
+                    motivo_nombre = $("#motivo_archivado_id option:selected").text();
+                }
+                listaResolucionesIndividuales.push({
+                    parte_solicitante_id:$("#parte_solicitante_id").val(),
+                    parte_solicitante_nombre:$("#parte_solicitante_id option:selected").text(),
+                    parte_solicitado_id:$("#parte_solicitado_id").val(),
+                    parte_solicitado_nombre:$("#parte_solicitado_id option:selected").text(),
+                    resolucion_individual_id:$("#resolucion_individual_id").val(),
+                    resolucion_individual_nombre:$("#resolucion_individual_id option:selected").text(),
+                    motivo_archivado_id:motivo_id,
+                    motivo_archivado_nombre:motivo_nombre
+                });
+                $("#parte_solicitante_id").val("").trigger("change");
+                $("#parte_solicitado_id").val("").trigger("change");
+                $("#resolucion_individual_id").val("").trigger("change");
+                $("#motivo_archivado_id").val("").trigger("change");
+                cargarTablaResolucionesIndividuales();
+            }
+        });
+        $("#btnGuardarResolucionUna").on("click",function(){
+            var validar = validarResolucionComparecientes();
+            if(!validar.error){
+                $.ajax({
+                    url:"/api/audiencia/resolucion",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        audiencia_id:'{{ $audiencia->id }}',
+                        convenio:$("#convenio").val(),
+                        desahogo:$("#desahogo").val(),
+                        resolucion_id:$("#resolucion_id").val(),
+                        comparecientes:validar.comparecientes,
+                        listaRelacion:[]
                     },
                     success:function(data){
                         if(data != null && data != ""){
@@ -1014,12 +1229,60 @@
                 $("#btnGuardarRepresentante").hide();
                 $("#btnAgregarContacto").hide();
                 $(".tab-Comparecientes").show();
+                $(".tab-Resoluciones").show();
             }else{
                 $("#btnGuardar").show();
                 $("#btnGuardarRepresentante").show();
                 $("#btnAgregarContacto").show();
                 $(".tab-Comparecientes").hide();
+                $(".tab-Resoluciones").hide();
             }
+        }
+        function validarResolucionIndividual(){
+            var error = true;
+            $(".labelResolucion").css("color","");
+            if($("#parte_solicitante_id").val() == ""){
+                error = false;
+                $("#parte_solicitante_id").parent().prev().css("color","red");
+            }
+            if($("#parte_solicitado_id").val() == ""){
+                error = false;
+                $("#parte_solicitado_id").parent().prev().css("color","red");
+            }
+            if($("#resolucion_individual_id").val() == ""){
+                error = false;
+                $("#resolucion_individual_id").parent().prev().css("color","red");
+            }
+            $.each(listaResolucionesIndividuales,function(i,e){
+                if(e.parte_solicitante_id == $("#parte_solicitante_id").val() && e.parte_solicitado_id == $("#parte_solicitado_id").val()){
+                    error = false;
+                    swal({title: 'Error',text: 'Ya has agregado esta relacion',icon: 'error'});
+                    return false;
+                }
+            });
+            return error;
+        }
+        function cargarTablaResolucionesIndividuales(){
+            var table = '';
+            $.each(listaResolucionesIndividuales,function(i,e){
+                table +='<tr>';
+                    table +='<td>'+e.parte_solicitante_nombre+'</td>';
+                    table +='<td>'+e.parte_solicitado_nombre+'</td>';
+                    table +='<td>'+e.resolucion_individual_nombre+'</td>';
+                    table +='<td>'+e.motivo_archivado_nombre+'</td>';
+                    table +='<td>';
+                        table +='<button onclick="eliminarRelacion('+i+')" class="btn btn-xs btn-warning" title="Eliminar">';
+                            table +='<i class="fa fa-trash"></i>';
+                        table +='</button>';
+                    table +='</td>';
+                table +='</tr>';
+            });
+            $("#tbodyResolucionesIndividuales").html(table);
+        }
+        function eliminarRelacion(indice){
+            console.log(indice);
+            listaResolucionesIndividuales.splice(indice,1);
+            cargarTablaResolucionesIndividuales();
         }
     </script>
 @endpush

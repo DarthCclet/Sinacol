@@ -38,6 +38,7 @@
                     <th class="text-nowrap">Conciliador</th>
                     <th class="text-nowrap">Sala</th>
                     <th class="text-nowrap" style="width: 10%;">Representante Legal</th>
+                    <th class="text-nowrap" style="width: 10%;">Datos Laborales</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,6 +82,15 @@
                             </div>
                             @endif
                         </td>
+                        <td>
+                            @if($parte->tipo_parte_id == 1)
+                            <div style="display: inline-block;">
+                                <button onclick="DatosLaborales({{$parte->id}})" class="btn btn-xs btn-info btnAgregarRepresentante" title="Datos Laborales">
+                                    <i class="fa fa-briefcase"></i>
+                                </button>
+                            </div>
+                            @endif
+                        </td>
                     </tr>
                 @endif
             @endforeach
@@ -118,7 +128,7 @@
         <div class="form-group">
             <label for="resolucion_id" class="col-sm-6 control-label">Resolución</label>
             <div class="col-sm-10">
-                <select id="resolucion_id" class="form-control">
+                <select id="resolucion_id" class="form-control select-element">
                     <option value="">-- Selecciona una resolución</option>
                 </select>
             </div>
