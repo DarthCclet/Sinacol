@@ -11,8 +11,11 @@
         {
             "id": "3",
             "nombre": "No hubo conciliación"
+        },
+        {
+            "id": "4",
+            "nombre": "Archivado"
         }
-
     ],
     "numReg": 2
 }

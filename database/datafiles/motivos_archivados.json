@@ -1,0 +1,16 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "descripcion": "El solicitante no se presento a la audiencia"
+        },
+        {
+            "id": "2",
+            "descripcion": "El solicitante no se presento a la cita de asociación para notificación del citado"
+        },
+        {
+            "id": "3",
+            "descripcion": "No hubo convenio, pero el solicitante desistio"
+        }
+    ]
+}
