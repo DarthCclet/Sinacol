@@ -136,5 +136,12 @@ class Parte extends Model
     public function compareciente(){
       return $this->hasMany(Compareciente::class)->withDefault();
     }
+    /**
+     * Relación con audienciaParte
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function audienciaParte(){
+        return $this->hasMany(AudienciaParte::class);
+    }
     
 }

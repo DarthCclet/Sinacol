@@ -59,6 +59,7 @@ class Audiencia extends Model
     }
 
     /**
+     * Relación con comparecientes
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function comparecientes(){
@@ -66,18 +67,38 @@ class Audiencia extends Model
     }
     
     /**
+     * Relación con salasAudiencias
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function salasAudiencias(){
       return $this->hasMany('App\SalaAudiencia');
     }
     /**
+     * Relación con conciliadoresAudiencias
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function conciliadoresAudiencias(){
       return $this->hasMany('App\ConciliadorAudiencia');
     }
+    /**
+     * Relación con documentos
+     * @return \Illuminate\Database\Eloquent\Relations\morphMany
+     */
     public function documentos(){
         return $this->morphMany(Documento::class,'documentable');
+    }
+    /**
+     * Relación con audienciaParte
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function audienciaParte(){
+        return $this->hasMany(AudienciaParte::class);
+    }
+    /**
+     * Relacion con resolucionParte
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function resolucionPartes(){
+        return $this->hasMany(ResolucionPartes::class);
     }
 }
