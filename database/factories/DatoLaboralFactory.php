@@ -8,12 +8,13 @@ use App\DatoLaboral;
 use App\GiroComercial;
 use App\Jornada;
 use App\Ocupacion;
+use App\Parte;
 
 $factory->define(DatoLaboral::class, function (Faker $faker) {
   //$jornada = factory(\App\Jornada::class)->create();
   $jornada = Jornada::inRandomOrder()->first();
   $ocupacion = Ocupacion::inRandomOrder()->first();
-  $parte =  factory(\App\Parte::class)->create();
+  $parte = Parte::inRandomOrder()->first();
   $giro_comercia = GiroComercial::inRandomOrder()->first();
     return [
       'jornada_id' => $jornada->id,
@@ -33,4 +34,8 @@ $factory->define(DatoLaboral::class, function (Faker $faker) {
         //
     ];
 
+});
+$factory->state(DatoLaboral::class, 'parte', function (Faker $faker) {
+	$parte =  factory(\App\Parte::class)->create();
+    return ['parte_id' => $parte->id];
 });

@@ -10,11 +10,12 @@ use App\Parte;
 use Faker\Generator as Faker;
 
 $factory->define(Audiencia::class, function (Faker $faker) {
-	$expediente = factory(App\Expediente::class)->create();
-        $conciliador = factory(App\Conciliador::class)->create();
+	$expediente = Expediente::inRandomOrder()->first();
+	$conciliador = factory(App\Conciliador::class)->create();
+	
 //	$resolucion = Resolucion::inRandomOrder()->first();
 	$resolucion = 3;
-	$parteR = factory(App\Parte::class)->create();
+	$parteR = Parte::inRandomOrder()->first();
     return [
         //
 	'expediente_id' => $expediente->id,
@@ -30,5 +31,26 @@ $factory->define(Audiencia::class, function (Faker $faker) {
 	'reprogramada' => $faker->boolean,
 	'desahogo' => $faker->sentence,
 	'convenio' => $faker->sentence
+    ];
+});
+$factory->state(Audiencia::class, 'audienciaMultiple', function (Faker $faker) {
+	return [    
+	'multiple' => true,
+    ];
+});
+
+$factory->state(Audiencia::class, 'audienciaSimple', function (Faker $faker) {
+	return [    
+	'multiple' => false,
+    ];
+});
+$factory->state(Audiencia::class, 'completa', function (Faker $faker) {
+	$expediente = factory(App\Expediente::class)->create();
+	$conciliador = factory(App\Conciliador::class)->create();
+	$parteR = factory(App\Parte::class)->create();
+	return [    
+	'expediente_id' => $expediente->id,
+	'conciliador_id' => $conciliador->id,
+	'parte_responsable_id' => $parteR->id,
     ];
 });

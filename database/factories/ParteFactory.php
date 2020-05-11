@@ -67,6 +67,87 @@ $factory->state(Parte::class, 'solicitado', function (Faker $faker) {
 	$tipo_parte = TipoParte::where('id', '2')->first();
     return ['tipo_parte_id' => $tipo_parte->id];
 });
+$factory->state(Parte::class, 'solicitadoMoral', function (Faker $faker) {
+    $faker = app('FakerCurp');
+    $tipo_persona = TipoPersona::where('abreviatura',"M")->get();
+    $tipo_persona = $tipo_persona[0];
+    $tipo_parte = TipoParte::find(2);
+    $grupo_prioritario = GrupoPrioritario::inRandomOrder()->first();
+    return ['tipo_parte_id' => $tipo_parte->id,
+        'tipo_persona_id'=>$tipo_persona->id,
+        'nombre' => ($tipo_persona->abreviatura == 'F') ? $faker->firstName : null,
+        'primer_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
+        'segundo_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
+        'nombre_comercial' => ($tipo_persona->abreviatura == 'M') ? $faker->company : null,
+        'grupo_prioritario_id' => ($tipo_persona->abreviatura == 'F') ? $grupo_prioritario->id : null,
+        'curp' => ($tipo_persona->abreviatura == 'F') ? $faker->curp : null,
+    ];
+});
+$factory->state(Parte::class, 'solicitadoFisico', function (Faker $faker) {
+    $faker = app('FakerCurp');
+    $tipo_persona = TipoPersona::where('abreviatura',"F")->get();
+    $tipo_persona = $tipo_persona[0];
+    $tipo_parte = TipoParte::find(2);
+    $grupo_prioritario = GrupoPrioritario::inRandomOrder()->first();
+    return ['tipo_parte_id' => $tipo_parte->id,'tipo_persona_id'=>$tipo_persona->id,
+    'tipo_persona_id'=>$tipo_persona->id,
+    'nombre' => ($tipo_persona->abreviatura == 'F') ? $faker->firstName : null,
+    'primer_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
+    'segundo_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
+    'nombre_comercial' => ($tipo_persona->abreviatura == 'M') ? $faker->company : null,
+    'grupo_prioritario_id' => ($tipo_persona->abreviatura == 'F') ? $grupo_prioritario->id : null,
+    'curp' => ($tipo_persona->abreviatura == 'F') ? $faker->curp : null];
+});
+$factory->state(Parte::class, 'solicitanteMoral', function (Faker $faker) {
+    $faker = app('FakerCurp');
+    $tipo_persona = TipoPersona::where('abreviatura',"M")->get();
+    $tipo_persona = $tipo_persona[0];
+    $tipo_parte = TipoParte::find(1);
+    $grupo_prioritario = GrupoPrioritario::inRandomOrder()->first();
+    return ['tipo_parte_id' => $tipo_parte->id,'tipo_persona_id'=>$tipo_persona->id,
+    'tipo_persona_id'=>$tipo_persona->id,
+    'nombre' => ($tipo_persona->abreviatura == 'F') ? $faker->firstName : null,
+    'primer_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
+    'segundo_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
+    'nombre_comercial' => ($tipo_persona->abreviatura == 'M') ? $faker->company : null,
+    'grupo_prioritario_id' => ($tipo_persona->abreviatura == 'F') ? $grupo_prioritario->id : null,
+    'curp' => ($tipo_persona->abreviatura == 'F') ? $faker->curp : null,];
+});
+$factory->state(Parte::class, 'solicitanteFisico', function (Faker $faker) {
+    $faker = app('FakerCurp');
+    $tipo_persona = TipoPersona::where('abreviatura',"F")->get();
+    $tipo_persona = $tipo_persona[0];
+    $tipo_parte = TipoParte::find(1);
+    $grupo_prioritario = GrupoPrioritario::inRandomOrder()->first();
+    return ['tipo_parte_id' => $tipo_parte->id,'tipo_persona_id'=>$tipo_persona->id,
+    'tipo_persona_id'=>$tipo_persona->id,
+    'nombre' => ($tipo_persona->abreviatura == 'F') ? $faker->firstName : null,
+    'primer_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
+    'segundo_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
+    'nombre_comercial' => ($tipo_persona->abreviatura == 'M') ? $faker->company : null,
+    'grupo_prioritario_id' => ($tipo_persona->abreviatura == 'F') ? $grupo_prioritario->id : null,
+    'curp' => ($tipo_persona->abreviatura == 'F') ? $faker->curp : null,];
+});
+$factory->state(Parte::class, 'representanteLegal', function (Faker $faker) {
+    $faker = app('FakerCurp');
+    $tipo_persona = TipoPersona::where('abreviatura',"F")->get();
+    $tipo_persona = $tipo_persona[0];
+    $parteRepresentada = Parte::inRandomOrder()->first();
+    $tipo_parte = TipoParte::find(3);
+    return [
+        'nombre' => ($tipo_persona->abreviatura == 'F') ? $faker->firstName : null,
+        'primer_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
+        'segundo_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
+        'nombre_comercial' => ($tipo_persona->abreviatura == 'M') ? $faker->company : null,
+        'curp' => ($tipo_persona->abreviatura == 'F') ? $faker->curp : null,
+        'tipo_parte_id' => $tipo_parte->id,
+        'instrumento' => $faker->firstName,
+        'feha_instrumento'=>$faker->dateTime,
+        'numero_notaria'=>$faker->randomNumber(3),
+        'representante' => true,
+        'parte_representada_id' => $parteRepresentada,
+    ];
+});
 
 $factory->state(Parte::class, 'solicitud', function (Faker $faker) {
 	$solicitud = factory(\App\Solicitud::class)->create();
