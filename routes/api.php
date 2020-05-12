@@ -48,6 +48,7 @@ Route::Post('audiencia/calendarizar','AudienciaController@calendarizar');
 Route::Post('audiencia/getCalendario','AudienciaController@getCalendario');
 Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
 Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
+Route::Post('audiencia/nuevaAudiencia','AudienciaController@NuevaAudiencia');
 Route::Get('audiencia/documentos/{audiencia_id}','AudienciaController@getDocumentosAudiencia');
 Route::Get('audiencia/fisicas/{id}','AudienciaController@GetPartesFisicas');
 Route::Get('audiencia/validar_partes/{id}','AudienciaController@validarPartes');
