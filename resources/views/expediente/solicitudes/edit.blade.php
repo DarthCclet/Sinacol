@@ -23,10 +23,13 @@
         {{-- {{ Form::close() }} --}}
     </div>
 </div>
+<input type="hidden" id="audiencia_id">
 
 @endsection
 @push('scripts')
 <script>
   var edit = true;
+  var origen = 'solicitudes';
+  var listaResolucionesIndividuales = [];
 </script>
 @endpush

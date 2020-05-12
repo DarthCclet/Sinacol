@@ -5,6 +5,7 @@
 @include('includes.component.datatables')
 @include('includes.component.pickers')
 @include('includes.component.dropzone')
+@include('includes.component.calendar')
 
 @section('content')
     <!-- begin breadcrumb -->
@@ -50,7 +51,7 @@
             @include('expediente.audiencias._form')
             <div class="text-right">
                 <a href="{!! route('audiencias.index') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
-                <button class="btn btn-primary btn-sm m-l-5" id='btnGuardar'><i class="fa fa-save"></i> Guardar resolución</button>
+                <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarResolucion'><i class="fa fa-save"></i> Guardar resolución</button>
             </div>
         </div>
         <div class="tab-pane fade show row" id="default-tab-2">
@@ -202,7 +203,7 @@
             </div>
         </div>
         <div class="tab-pane fade show" id="default-tab-4">
-            <div class="col-md-12" id="divTableComparecientes">
+            <div class="col-md-12">
                 <table class="table table-striped table-bordered table-td-valign-middle" id="table">
                     <thead>
                         <tr>
@@ -220,13 +221,11 @@
                                 <td>{{$resolucion->parteSolicitante->nombre}} {{$resolucion->parteSolicitante->primer_apellido}} {{$resolucion->parteSolicitante->segundo_apellido}}</td>
                             @else
                                 <td>{{$resolucion->parteSolicitante->nombre_comercial}}</td>
-                            
                             @endif
                             @if($resolucion->parteSolicitada->tipo_persona_id == 1)
                                 <td>{{$resolucion->parteSolicitada->nombre}} {{$resolucion->parteSolicitada->primer_apellido}} {{$resolucion->parteSolicitada->segundo_apellido}}</td>
                             @else
                                 <td>{{$resolucion->parteSolicitada->nombre_comercial}}</td>
-                            
                             @endif
                             <td>{{$resolucion->resolucion->nombre}}</td>
                             <td>{{$resolucion->motivoArchivado->descripcion}}</td>
@@ -235,6 +234,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                <div class="text-right">
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnNuevaAudiencia'><i class="fa fa-plus"></i> Nueva Audiencia</button>
+                </div>
             </div>
         </div>
     </div>
@@ -447,7 +449,7 @@
             </div>
         </div>
     </div>
-    <!-- Inicio Modal de representante legal-->
+    <!-- Inicio Modal de comparecientes y resolución individual-->
     <div class="modal" id="modal-comparecientes" style="display:none;">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -576,6 +578,97 @@
             </div>
         </div>
     </div>
+    <!-- Fin Modal de comparecientes y resolución individual-->
+    <!-- Inicio Modal de ver archivos PDF-->
+    <div class="modal fade bd-example-modal-xl" tabindex="-1" id="modalNuevaAudiencia" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Creacion de nuevas audiencias</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning col-md-12">
+                        <h5><i class="fa fa-warning"></i> Atención</h5>
+                        <p>
+                            Esta opción permite crear audiencias a partir de otra audiencia derivado de una resolición que así lo requiera<br>
+                            - Seleccione las partes que deberán ser programadas para la nueva audiencia<br>
+                            - Al desactivar el campo calendarizar se generará la audiencia con la calendarizacion actual dado que ya no se requiere agendar una nueva<br>
+                            - En caso de requerir una nueva audiencia seleccione en el calendario las nuevas fechas y la forma en la que se llevará a cabo la audiencia<br>
+                        </p>
+                    </div>
+                    <div class="col-md-12">
+                        <h5>Relaciones con conflicto</h5>
+                        <hr>
+                        <div class="col-md-12">
+                            <table class="table table-striped table-bordered table-td-valign-middle" id="table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-nowrap" style="width: 10%;"></th>
+                                        <th class="text-nowrap">Solicitante</th>
+                                        <th class="text-nowrap">Solicitado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($audiencia->resolucionPartes as $resolucion)
+                                        @if($resolucion->resolucion_id == 2)
+                                        <tr>
+                                            <td>
+                                            @if(!$resolucion->nuevaAudiencia)
+                                                <div class="col-md-2">
+                                                    <input type="checkbox" data-render="switchery" data-theme="warning" class="switchPartes" 
+                                                    data-parte_solicitante_id="{{$resolucion->parteSolicitante->id}}"
+                                                    data-parte_solicitada_id="{{$resolucion->parteSolicitada->id}}"
+                                                    data-id="{{$resolucion->id}}"/>
+                                                </div>
+                                            @else
+                                                Ya asignado a otra audiencia
+                                            @endif
+                                            </td>
+                                            @if($resolucion->parteSolicitante->tipo_persona_id == 1)
+                                                <td>{{$resolucion->parteSolicitante->nombre}} {{$resolucion->parteSolicitante->primer_apellido}} {{$resolucion->parteSolicitante->segundo_apellido}}</td>
+                                            @else
+                                                <td>{{$resolucion->parteSolicitante->nombre_comercial}}</td>
+                                            @endif
+                                            @if($resolucion->parteSolicitada->tipo_persona_id == 1)
+                                                <td>{{$resolucion->parteSolicitada->nombre}} {{$resolucion->parteSolicitada->primer_apellido}} {{$resolucion->parteSolicitada->segundo_apellido}}</td>
+                                            @else
+                                                <td>{{$resolucion->parteSolicitada->nombre_comercial}}</td>
+                                            @endif
+                                        </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <h5>Agenda</h5>
+                        <hr>
+                        <div class="col-md-12 row">
+                            <div class="col-md-1">
+                                <h6>Calendarizar</h6>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="checkbox" value="1" data-id="" data-render="switchery" data-theme="default" id="calendarizar" name="calendarizar"/>
+                            </div>
+                        </div>
+                        <div class="col-md-12 row">
+                            <div id="divResolucionInmediata"></div>
+                            <div id="divAgendarNuevaAudiencia" style="display: none;">
+                                @include('expediente.audiencias.calendarioWizard')
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-ban"></i> Cancelar</a>
+                        <button class="btn btn-warning btn-sm" id="btnCrearNuevaAudiencia"><i class="fa fa-save"></i> Crear nueva Audiencia</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin Modal de ver archivos PDF-->
     <input type="hidden" id="parte_id">
     <input type="hidden" id="parte_representada_id">
 @endsection
@@ -584,6 +677,7 @@
         var listaContactos=[];
         var finalizada=false;
         var listaResolucionesIndividuales=[];
+        var origen = 'audiencias';
         $(document).ready(function() {
             $("#audiencia_id").val('{{ $audiencia->id }}');
             finalizada = '{{ $audiencia->finalizada }}';
@@ -618,7 +712,7 @@
             FormMultipleUpload.init();
             Gallery.init();
         });
-        $("#btnGuardar").on("click",function(){
+        $("#btnGuardarResolucion").on("click",function(){
             if(!validarResolucion()){
                 $.ajax({
                     url:"/api/audiencia/validar_partes/{{ $audiencia->id }}",
@@ -1157,7 +1251,7 @@
                     },
                     success:function(data){
                         if(data != null && data != ""){
-                            window.location.href = "{{ route('audiencias.index')}}";
+                            location.reload();
                         }else{
                             swal({
                                 title: 'Algo salio mal',
@@ -1211,7 +1305,7 @@
                     },
                     success:function(data){
                         if(data != null && data != ""){
-                            window.location.href = "{{ route('audiencias.index')}}";
+                            location.reload();
                         }else{
                             swal({
                                 title: 'Algo salio mal',
@@ -1225,13 +1319,13 @@
         });
         function CargarFinalizacion(){
             if(finalizada){
-                $("#btnGuardar").hide();
+                $("#btnGuardarResolucion").hide();
                 $("#btnGuardarRepresentante").hide();
                 $("#btnAgregarContacto").hide();
                 $(".tab-Comparecientes").show();
                 $(".tab-Resoluciones").show();
             }else{
-                $("#btnGuardar").show();
+                $("#btnGuardarResolucion").show();
                 $("#btnGuardarRepresentante").show();
                 $("#btnAgregarContacto").show();
                 $(".tab-Comparecientes").hide();
@@ -1283,6 +1377,121 @@
             console.log(indice);
             listaResolucionesIndividuales.splice(indice,1);
             cargarTablaResolucionesIndividuales();
+        }
+        
+        $("#btnNuevaAudiencia").on("click",function(){
+            $("#modalNuevaAudiencia").modal("show");
+        });
+        $("#calendarizar").on("change",function(){
+            if(!$(this).is(":checked")){
+                $("#divResolucionInmediata").show();
+                $("#divAgendarNuevaAudiencia").hide();
+            }else{
+                $("#divResolucionInmediata").hide();
+                $("#divAgendarNuevaAudiencia").show();
+            }
+        });
+        $("#btnCrearNuevaAudiencia").on("click",function(){
+            var validacion = validarCrearNuevaAudiencia();
+            if(validacion.pasa){
+                swal({
+                    title: 'Advertencia',
+                    text: 'Al oprimir aceptar se creara una nueva audiencia por celebrar, ¿Esta seguro de continuar?',
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'Cancelar',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true
+                        },
+                        confirm: {
+                            text: 'Aceptar',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-warning',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(isConfirm){
+                    if(isConfirm){
+                        $.ajax({
+                            url:"/api/audiencia/nuevaAudiencia",
+                            type:"POST",
+                            dataType:"json",
+                            data:{
+                                audiencia_id:'{{ $audiencia->id }}',
+                                nuevaCalendarizacion:'N',
+                                listaRelaciones:validacion.listaRelaciones
+                            },
+                            success:function(data){
+                                if(data != null && data != ""){
+                                    confirmVista(data.id);
+                                }else{
+                                    swal({
+                                        title: 'Algo salio mal',
+                                        text: 'No se guardo el registro',
+                                        icon: 'warning'
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            }else{
+                
+            }
+        });
+        function validarCrearNuevaAudiencia(){
+            var pasa =true;
+            var listaRelaciones = [];
+            $(".switchPartes").each(function(index){
+                if($(this).is(":checked")){
+                    listaRelaciones.push({
+                        parte_solicitante_id:$(this).data("parte_solicitante_id"),
+                        parte_solicitada_id:$(this).data("parte_solicitada_id"),
+                        id:$(this).data("id")
+                    });
+                }
+            });
+            if(listaRelaciones.length == 0){
+                pasa = false;
+                swal({title: 'Error',text: 'Selecciona una relación al menos',icon: 'warning'});
+            }
+            return {
+                pasa:pasa,
+                listaRelaciones:listaRelaciones
+            };
+        }
+        function confirmVista(idAudiencia){
+            swal({
+                title: 'Exito',
+                text: 'Se ha creado la nueva audiencia, ¿Qué deseas hacer?',
+                icon: 'success',
+                buttons: {
+                    cancel: {
+                        text: 'Quedarme aquí',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-default',
+                        closeModal: true
+                    },
+                    confirm: {
+                        text: 'Ir a la audiencia creada',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-success',
+                        closeModal: true
+                    }
+                }
+            }).then(function(isConfirm){
+                if(isConfirm){
+                    window.location.href = "../../audiencias/"+idAudiencia+"/edit";
+                }else{
+                    location.reload();
+                }
+            });
         }
     </script>
 @endpush

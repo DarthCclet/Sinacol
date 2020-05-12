@@ -281,8 +281,27 @@
             $("#btnGuardar").on("click",function(){
                 var validacion = validarAsignacion();
                 if(!validacion.error){
+                    var listaRelaciones = [];
+                    if(origen == 'audiencias'){
+                        var pasa =true;
+                        $(".switchPartes").each(function(index){
+                            if($(this).is(":checked")){
+                                listaRelaciones.push({
+                                    parte_solicitante_id:$(this).data("parte_solicitante_id"),
+                                    parte_solicitada_id:$(this).data("parte_solicitada_id")
+                                });
+                            }
+                        });
+                        if(listaRelaciones.length == 0){
+                            swal({title: 'Error',text: 'Selecciona una relación al menos',icon: 'warning'});
+                            return false;
+                        }
+                        var url = '/api/audiencia/nuevaAudiencia';
+                    }else{
+                        var url = '/api/audiencia/calendarizar';
+                    }
                     $.ajax({
-                        url:"/api/audiencia/calendarizar",
+                        url:url,
                         type:"POST",
                         data:{
                             fecha_audiencia:new Date($("#fecha_audiencia").val()).toISOString(),
@@ -290,13 +309,20 @@
                             hora_fin:$("#hora_fin").val(),
                             tipoAsignacion:$("#tipoAsignacion").val(),
                             expediente_id:$("#expediente_id").val(),
-                            asignacion:validacion.arrayEnvio
+                            asignacion:validacion.arrayEnvio,
+                            nuevaCalendarizacion:'S',
+                            listaRelaciones:listaRelaciones,
+                            audiencia_id:$("#audiencia_id").val()
                         },
                         dataType:"json",
                         success:function(data){
                             console.log(data);
                             if(data != null && data != ""){
-                                window.location.href = "{{ route('audiencias.index')}}";
+                                if(origen == 'audiencias'){
+                                    window.location.href = "audiencias/"+data.id+"/edit";
+                                }else{
+                                    window.location.href = "{{ route('audiencias.index')}}";
+                                }
                             }else{
                                 swal({
                                     title: 'Algo salio mal',
