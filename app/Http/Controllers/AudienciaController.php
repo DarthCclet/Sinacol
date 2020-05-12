@@ -579,4 +579,86 @@ class AudienciaController extends Controller
         }
         return $solicitados;
     }
+    
+    public function NuevaAudiencia(Request $request){
+        ##Obtenemos la audiencia origen
+        $audiencia = Audiencia::find($request->audiencia_id);
+        
+        ## Validamos si la audiencia se calendariza o solo es para guardar una resolución distinta
+        if($request->nuevaCalendarizacion == "S"){
+            $fecha_audiencia = $request->fecha_audiencia;
+            $hora_inicio = $request->hora_inicio;
+            $hora_fin = $request->hora_fin;
+            if($request->tipoAsignacion == 1){
+                $multiple = false;
+            }else{
+                $multiple = true;
+            }
+        }else{
+            $fecha_audiencia = $audiencia->fecha_audiencia;
+            $hora_inicio = $audiencia->hora_inicio;
+            $hora_fin = $audiencia->hora_fin;
+            $multiple = $audiencia->multiple;
+        }
+        ##creamos la resolución a partir de los datos ya existentes y los nuevos
+        $audienciaN = Audiencia::create([
+            "expediente_id" => $audiencia->expediente_id,
+            "multiple" => $multiple,
+            "fecha_audiencia" => $fecha_audiencia,
+            "hora_inicio" => $hora_inicio, 
+            "hora_fin" => $hora_fin,
+            "conciliador_id" =>  $audiencia->conciliador_id,
+            "numero_audiencia" => 1,
+            "reprogramada" => true
+        ]);
+        ## si la audiencia se calendariza se deben guardar los datos recibidos en el arreglo, si no se copian los de la audiencia origen
+        if($request->nuevaCalendarizacion == "S"){
+            $id_conciliador = null;
+            foreach ($request->asignacion as $value) {
+                if($value["resolucion"]){
+                    $id_conciliador = $value["conciliador"];
+                }
+                ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $value["conciliador"],"solicitante" => $value["resolucion"]]);
+                SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $value["sala"],"solicitante" => $value["resolucion"]]);
+            }
+            $audienciaN->update(["conciliador_id" => $id_conciliador]);
+        }else{
+            foreach($audiencia->conciliadoresAudiencias as $conciliador){
+                ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $conciliador->conciliador_id,"solicitante" => $conciliador->solicitante]);
+            }
+            foreach ($audiencia->salasAudiencias as $sala){
+                SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $sala->sala_id,"solicitante" => $sala->solicitante]);
+            }
+        }
+        
+        ##Finalmente guardamos los datos de las partes recibidas
+        $arregloPartesAgregadas = array();
+        foreach($request->listaRelaciones as $relacion){
+            ##Validamos que el solicitante no exista
+            $pasaSolicitante = true;
+            foreach($arregloPartesAgregadas as $arreglo){
+                if($relacion["parte_solicitante_id"] == $arreglo){
+                    $pasaSolicitante = false;
+                }
+            }
+            if($pasaSolicitante){
+                $arregloPartesAgregadas[]=$relacion["parte_solicitante_id"];
+                AudienciaParte::create(["audiencia_id" => $audienciaN->id,"parte_id" => $relacion["parte_solicitante_id"]]);
+            }
+            ##Validamos que el solicitado no exista 
+            $pasaSolicitado = true;
+            foreach($arregloPartesAgregadas as $arreglo){
+                if($relacion["parte_solicitada_id"] == $arreglo){
+                    $pasaSolicitado = false;
+                }
+            }
+            if($pasaSolicitado){
+                $arregloPartesAgregadas[]=$relacion["parte_solicitada_id"];
+                AudienciaParte::create(["audiencia_id" => $audienciaN->id,"parte_id" => $relacion["parte_solicitada_id"]]);
+            }
+            $resolucion = ResolucionPartes::find($relacion["id"]);
+            $resolucion->update(["nuevaAudiencia" => true]);
+        }
+        return $audienciaN;
+    }
 }
