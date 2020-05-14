@@ -134,16 +134,21 @@ $factory->state(Parte::class, 'representanteLegal', function (Faker $faker) {
     $tipo_persona = $tipo_persona[0];
     $parteRepresentada = Parte::inRandomOrder()->first();
     $tipo_parte = TipoParte::find(3);
+    $genero = Genero::inRandomOrder()->first();
     return [
+        'tipo_persona_id'=>$tipo_persona->id,
         'nombre' => ($tipo_persona->abreviatura == 'F') ? $faker->firstName : null,
         'primer_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
         'segundo_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
         'nombre_comercial' => ($tipo_persona->abreviatura == 'M') ? $faker->company : null,
         'curp' => ($tipo_persona->abreviatura == 'F') ? $faker->curp : null,
+        'genero_id' => ($tipo_persona->abreviatura == 'F') ? $genero->id : null,
         'tipo_parte_id' => $tipo_parte->id,
         'instrumento' => $faker->firstName,
         'feha_instrumento'=>$faker->dateTime,
         'numero_notaria'=>$faker->randomNumber(3),
+        'nombre_notario' => $faker->firstName . " " . $faker->lastName,
+        'localidad_notaria' => $faker->address,
         'representante' => true,
         'parte_representada_id' => $parteRepresentada,
     ];

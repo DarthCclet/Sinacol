@@ -30,7 +30,8 @@ $factory->define(Audiencia::class, function (Faker $faker) {
 	'numero_audiencia' => $faker->randomDigit,
 	'reprogramada' => $faker->boolean,
 	'desahogo' => $faker->sentence,
-	'convenio' => $faker->sentence
+	'convenio' => $faker->sentence,
+	'finalizada' => $faker->boolean
     ];
 });
 $factory->state(Audiencia::class, 'audienciaMultiple', function (Faker $faker) {
