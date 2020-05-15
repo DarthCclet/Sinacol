@@ -26,6 +26,16 @@ class GiroComercialController extends Controller
         $giroComercial = (new CatalogoFilter(GiroComercial::query(), $this->request))
             ->searchWith(GiroComercial::class)
             ->filter();
+        
+        //Evaluamos si es una consulta de la ruta de catálogos entonces regresamos CSV
+        if ($this->request->is('catalogos/*')){
+            $archivo_csv = 'CatalogoGirosComerciales.csv';
+            $query = $giroComercial;
+            $query->select(["id","nombre","codigo","_lft","_rgt","parent_id","created_at as creado","updated_at as modificado","deleted_at as eliminado"]);
+            $query = $query->withTrashed()->get();
+            return $this->sendCSVResponse($query->toArray(),['id','nombre',"codigo","_lft","_rgt","parent_id",'creado','modificado','eliminado'], $archivo_csv);
+        }
+        
         // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
         if ($this->request->get('all')) {

@@ -36,9 +36,9 @@ class OcupacionController extends Controller
         if ($this->request->is('catalogos/*')){
             $archivo_csv = 'CatalogoOcupacion.csv';
             $query = $ocupacion;
-            $query->select(["id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado"]);
+            $query->select(["id","nombre","salario_zona_libre","salario_resto_del_pais","vigencia_de","vigencia_a","created_at as creado","updated_at as modificado","deleted_at as eliminado"]);
             $query = $query->withTrashed()->get();
-            return $this->sendCSVResponse($query->toArray(),['id','nombre','creado','modificado','eliminado'], $archivo_csv);
+            return $this->sendCSVResponse($query->toArray(),['id','nombre',"salario_zona_libre","salario_resto_del_pais","vigencia_de","vigencia_a",'creado','modificado','eliminado'], $archivo_csv);
         }
 
         // Si en el request viene el parametro all entonces regresamos todos los elementos de lo contrario paginamos

@@ -26,6 +26,16 @@ class EstadoController extends Controller
         $estados = (new CatalogoFilter(Estado::query(), $this->request))
             ->searchWith(Estado::class)
             ->filter();
+        
+        //Evaluamos si es una consulta de la ruta de catálogos entonces regresamos CSV
+        if ($this->request->is('catalogos/*')){
+            $archivo_csv = 'CatalogoEstados.csv';
+            $query = $estados;
+            $query->select(["id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado"]);
+            $query = $query->withTrashed()->get();
+            return $this->sendCSVResponse($query->toArray(),['id','nombre','creado','modificado','eliminado'], $archivo_csv);
+        }
+        
         // Si en el request viene el parametro all entonces regresamos todos los elementos de lo contrario paginamos
         if ($this->request->get('all')) {
             $estados = $estados->get();

@@ -26,6 +26,16 @@ class TipoAsentamientoController extends Controller
         $TipoAsentamientos = (new CatalogoFilter(TipoAsentamiento::query(), $this->request))
             ->searchWith(TipoAsentamiento::class)
             ->filter();
+        
+        //Evaluamos si es una consulta de la ruta de catálogos entonces regresamos CSV
+        if ($this->request->is('catalogos/*')){
+            $archivo_csv = 'CatalogoTipoAsentamientos.csv';
+            $query = $TipoAsentamientos;
+            $query->select(["id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado"]);
+            $query = $query->withTrashed()->get();
+            return $this->sendCSVResponse($query->toArray(),['id','nombre','creado','modificado','eliminado'], $archivo_csv);
+        }
+        
         // Si en el request viene el parametro all entonces regresamos todos los elementos de lo contrario paginamos
         if ($this->request->get('all')) {
             $TipoAsentamientos = $TipoAsentamientos->get();

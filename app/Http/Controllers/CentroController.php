@@ -37,7 +37,7 @@ class CentroController extends Controller
             $query = $centros;
             $query->select(["id","nombre","duracionAudiencia","abreviatura","created_at as creado","updated_at as modificado","deleted_at as eliminado"]);
             $query = $query->withTrashed()->get();
-            return $this->sendCSVResponse($query->toArray(),['id','nombre','creado','modificado','eliminado'], $archivo_csv);
+            return $this->sendCSVResponse($query->toArray(),['id','nombre',"duracionAudiencia","abreviatura",'creado','modificado','eliminado'], $archivo_csv);
         }
 
         // Si en el request viene el parametro all entonces regresamos todos los elementos
