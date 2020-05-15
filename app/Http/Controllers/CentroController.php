@@ -30,6 +30,16 @@ class CentroController extends Controller
         $centros = (new CatalogoFilter(Centro::query(), $this->request))
             ->searchWith(Centro::class)
             ->filter();
+
+        //Evaluamos si es una consulta de la ruta de catálogos entonces regresamos CSV
+        if ($this->request->is('catalogos/*')){
+            $archivo_csv = 'CatalogoCentros.csv';
+            $query = $centros;
+            $query->select(["id","nombre","duracionAudiencia","abreviatura","created_at as creado","updated_at as modificado","deleted_at as eliminado"]);
+            $query = $query->withTrashed()->get();
+            return $this->sendCSVResponse($query->toArray(),['id','nombre','creado','modificado','eliminado'], $archivo_csv);
+        }
+
         // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
         if ($this->request->get('all')) {
@@ -41,7 +51,7 @@ class CentroController extends Controller
 
         // Si el request solicita respuesta en JSON (es el caso de API y requests ajax)
         if ($this->request->wantsJson()) {
-            
+
             return $this->sendResponse($centros, 'SUCCESS');
         }
         return view('centros.centros.index', compact('centros'));
@@ -127,7 +137,7 @@ class CentroController extends Controller
         $centro->delete();
         return redirect('centros');
     }
-    
+
     /**
      * Función para guardar modificar y eliminar disponibilidades
      * @param Request $request
@@ -149,7 +159,7 @@ class CentroController extends Controller
         }
         return $centro;
     }
-    
+
     /**
      * Funcion para guardar y modificar incidencias
      * @param Request $request
@@ -165,7 +175,7 @@ class CentroController extends Controller
         }
         return $centro;
     }
-    
+
     /**
      * Funcion para obtener el objeto centro con sus disponibilidades e incidencias
      * @param Request $request

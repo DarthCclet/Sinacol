@@ -26,10 +26,19 @@ class TipoPersonaController extends Controller
         $tiposPersona = (new CatalogoFilter(TipoPersona::query(), $this->request))
             ->searchWith(TipoPersona::class)
             ->filter();
+
+        //Evaluamos si es una consulta de la ruta de catálogos entonces regresamos CSV
+        if ($this->request->is('catalogos/*')){
+            $tiposPersona->select(["id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado"]);
+            $tiposPersona = $tiposPersona->withTrashed()->get();
+            return $this->sendCSVResponse($tiposPersona->toArray(),['id','nombre','creado','modificado','eliminado'], 'CatalogoTipoPersona.csv');
+        }
+
         // Si en el request viene el parametro all entonces regresamos todos los elementos de lo contrario paginamos
         if ($this->request->get('all')) {
             $tiposPersona = $tiposPersona->get();
-        } else {
+        }
+        else {
             $tiposPersona->select("id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $tiposPersona = $tiposPersona->paginate($this->request->get('per_page', 10));
         }

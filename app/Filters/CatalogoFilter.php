@@ -20,4 +20,22 @@ class CatalogoFilter extends Filter
         'updated_at',
     ];
 
+    /**
+     * Se permite filtrar por updated_at >=
+     * @param $fecha_de
+     */
+    public function handleFechaDeFilter($fecha_de)
+    {
+        $this->query->where('updated_at', '>=', $fecha_de);
+    }
+
+    /**
+     * Se permite filtrar por updated_at <=
+     * @param $fecha_a
+     */
+    public function handleFechaAFilter($fecha_a)
+    {
+        $this->query->where('updated_at', '<=',  $fecha_a);
+    }
+
 }
