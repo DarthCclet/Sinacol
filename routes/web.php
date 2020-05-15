@@ -47,8 +47,11 @@ Route::get('catalogos/lengua-indigena','LenguaIndigenaController@index')->name('
 Route::get('catalogos/tipo-discapacidad','TipoDiscapacidadController@index')->name('catalogos.tipo_discapacidad');
 Route::get('catalogos/tipo-vialidad','TipoVialidadController@index')->name('catalogos.tipo_vialidad');
 Route::get('catalogos/tipo-asentamiento','TipoAsentamientoController@index')->name('catalogos.tipo_asentamiento');
-Route::get('catalogos/tipo-partes','TipoParteController@index')->name('catalogos.tipo_controller');
-Route::get('catalogos/tipo-partes','TipoParteController@index')->name('catalogos.tipo_controller');
+Route::get('catalogos/tipo-partes','TipoParteController@index')->name('catalogos.tipo_partes');
+Route::get('catalogos/estados','EstadoController@index')->name('catalogos.estado');
+Route::get('catalogos/nacionalidades','NacionalidadController@index')->name('catalogos.nacionalidad');
+Route::get('catalogos/centros','CentroController@index')->name('catalogos.centro');
+Route::get('catalogos/giro-comercial','GiroComercialController@index')->name('catalogos.giro_comercial');
 
 
 
