@@ -7,10 +7,12 @@ use Faker\Generator as Faker;
 use App\RolConciliador;
 
 $factory->define(RolConciliador::class, function (Faker $faker) {
-    $rol_atencion = factory(\App\RolAtencion::class)->create();
-    $conciliador = factory(\App\Conciliador::class)->create();
     return [
-      'rol_atencion_id'=> $rol_atencion->id,
-      'conciliador_id'=> $conciliador->id
+      'rol_atencion_id'=> function(){
+        return factory(\App\RolAtencion::class)->create()->id;
+      },
+      'conciliador_id'=> function(){
+        return factory(\App\Conciliador::class)->create()->id;
+      }
     ];
 });

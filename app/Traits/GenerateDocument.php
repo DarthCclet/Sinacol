@@ -15,15 +15,15 @@ trait GenerateDocument
     public function generarConstancia($idReferencia,$type,$tipo_documento_id)
     {
         if($type == "audiencia"){
-            $audiencia = Audiencia::find($idReferencia);
-            $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$idReferencia;
+            $padre = Audiencia::find($idReferencia);
+            $directorio = 'expedientes/'.$padre->expediente_id.'/audiencias/'.$idReferencia;
             $algo = Storage::makeDirectory($directorio, 0775, true);
             
         }
         $tipoArchivo = ClasificacionArchivo::find($tipo_documento_id);
         
         // $path = $this->generarDocumento($idReferencia,$type,$tipo_documento_id,$directorio);
-        $html = "hola";//$this->renderDocumento($idReferencia,$type,$tipo_documento_id);
+        $html = "".$type.$padre->id;//$this->renderDocumento($idReferencia,$type,$tipo_documento_id);
         $pdf = App::make('dompdf.wrapper');
         $pdf->getDomPDF();
         // dd($html);
@@ -32,7 +32,7 @@ trait GenerateDocument
         $fullPath = storage_path('app/'.$directorio)."/".$type.$idReferencia.'.pdf';
         $store = $pdf->save($fullPath);
         if($type == "audiencia"){
-            $audiencia->documentos()->create([
+            $padre->documentos()->create([
                 "nombre" => str_replace($directorio."/", '',$path),
                 "nombre_original" => str_replace($directorio."/", '',$path),//str_replace($directorio, '',$path->getClientOriginalName()),
                 "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
