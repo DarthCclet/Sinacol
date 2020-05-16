@@ -24,6 +24,7 @@ use App\ObjetoSolicitud;
 use App\Ocupacion;
 use App\Parte;
 use App\Rules\Curp;
+use App\Rules\RFC;
 use App\TipoAsentamiento;
 use App\TipoContacto;
 use App\TipoVialidad;
@@ -154,7 +155,7 @@ class SolicitudController extends Controller
 
             'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
             'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.rfc' => 'required',
+            'solicitantes.*.rfc' => ['required',new RFC],
             'solicitantes.*.tipo_parte_id' => 'required',
             'solicitantes.*.tipo_persona_id' => 'required',
             'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required',new Curp],
@@ -169,7 +170,7 @@ class SolicitudController extends Controller
 
             'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-            'solicitados.*.rfc' => 'required',
+            'solicitados.*.rfc' => ['required',new RFC],
             'solicitados.*.tipo_parte_id' => 'required',
             'solicitados.*.tipo_persona_id' => 'required',
             'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|required',new Curp],
@@ -374,7 +375,7 @@ class SolicitudController extends Controller
 
             'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
             'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.rfc' => 'required',
+            'solicitantes.*.rfc' => ['required',new RFC],
             'solicitantes.*.tipo_parte_id' => 'required',
             'solicitantes.*.tipo_persona_id' => 'required',
             'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required',new Curp],
@@ -386,7 +387,7 @@ class SolicitudController extends Controller
 
             'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-            'solicitados.*.rfc' => 'required',
+            'solicitados.*.rfc' => ['required',new RFC],
             'solicitados.*.tipo_parte_id' => 'required',
             'solicitados.*.tipo_persona_id' => 'required',
             'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|required',new Curp],
