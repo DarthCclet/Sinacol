@@ -10,7 +10,7 @@ use App\User;
 use Faker\Generator as Faker;
 
 $factory->define(Solicitud::class, function (Faker $faker) {
-  $usuario = factory(\App\User::class)->create();
+  
   // al ser catalogos se mada a llamar de forma aleatoria
   // estatus solicitud, objeto solicitud, centro,
   //  ya que se segura que existen registros al generar la migracion
@@ -23,7 +23,9 @@ $factory->define(Solicitud::class, function (Faker $faker) {
         'ratificada' => ($estatus_solicitud->id != 1) ? true : false,
         'estatus_solicitud_id' => $estatus_solicitud->id,
         'centro_id' => $centro->id,
-        'user_id' => $usuario->id,
+        'user_id' => function(){ 
+          return factory(\App\User::class)->create()->id;
+        },
         'folio' => $faker->randomNumber(3),
         'anio' => $faker->year(),
         'solicita_excepcion' => $faker->boolean(),

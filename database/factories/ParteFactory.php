@@ -17,7 +17,7 @@ use Faker\Generator as Faker;
 $factory->define(Parte::class, function (Faker $faker) {
     $faker = app('FakerCurp');
     // se llama el factory de solicitud para crear un registro y probar su relacion
-    $solicitud = Solicitud::inRandomOrder()->first();
+    
     // al ser catalogos se mada a llamar de forma aleatoria
     //  tipoParte, genero, tipo persona, nacionalidad y estado
     //  ya que se segura que existen registros al generar la migracion
@@ -35,7 +35,9 @@ $factory->define(Parte::class, function (Faker $faker) {
     $tipo_discapacidad = TipoDiscapacidad::inRandomOrder()->first();
     // se crea el registro de parte usando los datos obtenidos anteriormente
     return [
-        'solicitud_id' => $solicitud->id,
+        'solicitud_id' => function(){
+            return factory(\App\Solicitud::class)->create()->id;
+        },
         'tipo_parte_id' => $tipo_parte->id,
         'genero_id' => ($tipo_persona->abreviatura == 'F') ? $genero->id : null,
         'tipo_persona_id' => $tipo_persona->id,
@@ -152,9 +154,4 @@ $factory->state(Parte::class, 'representanteLegal', function (Faker $faker) {
         'representante' => true,
         'parte_representada_id' => $parteRepresentada,
     ];
-});
-
-$factory->state(Parte::class, 'solicitud', function (Faker $faker) {
-	$solicitud = factory(\App\Solicitud::class)->create();
-    return ['solicitud_id' => $solicitud->id];
 });

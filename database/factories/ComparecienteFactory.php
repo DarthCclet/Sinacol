@@ -8,20 +8,13 @@ use App\Parte;
 use Faker\Generator as Faker;
 
 $factory->define(Compareciente::class, function (Faker $faker) {
-    $audiencia = Audiencia::inRandomOrder()->first();
-    $parte = Parte::inRandomOrder()->first();
     return [
-        'audiencia_id' => $audiencia->id,
-        'parte_id' => $parte->id,
+        'audiencia_id' => function () {
+            return factory(App\Audiencia::class)->create()->id;
+        },
+        'parte_id' => function () {
+            return factory(App\Parte::class)->create()->id;
+        },
         'presentado' => $faker->boolean,
-    ];
-});
-
-$factory->state(Compareciente::class, 'completo', function (Faker $faker) {
-    $audiencia = factory(App\Audiencia::class)->create();
-    $parte = factory(App\Parte::class)->create();
-	return [
-        'audiencia_id' => $audiencia->id,
-        'parte_id' => $parte->id,
     ];
 });
