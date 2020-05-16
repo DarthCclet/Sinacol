@@ -40,18 +40,18 @@ Route::get('plantilla-documento/cargarDefault','PlantillasDocumentosController@c
 Route::get('plantilla-documento/{id}/imprimirPDF','PlantillasDocumentosController@imprimirPDF')->name('plantilla-documento/imprimirPDF');
 
 // Catalogos csv para el CJF
-Route::get('catalogos/tipo-personas','TipoPersonaController@index')->name('catalogos.tipo_persona');
+Route::get('catalogos/tipo-persona','TipoPersonaController@index')->name('catalogos.tipo_persona');
 Route::get('catalogos/objeto-solicitud','ObjetoSolicitudController@index')->name('catalogos.objeto_solicitud');
 Route::get('catalogos/ocupacion','OcupacionController@index')->name('catalogos.ocupacion');
+Route::get('catalogos/giro-comercial','GiroComercialController@index')->name('catalogos.giro_comercial');
 Route::get('catalogos/lengua-indigena','LenguaIndigenaController@index')->name('catalogos.lengua_indigena');
 Route::get('catalogos/tipo-discapacidad','TipoDiscapacidadController@index')->name('catalogos.tipo_discapacidad');
 Route::get('catalogos/tipo-vialidad','TipoVialidadController@index')->name('catalogos.tipo_vialidad');
 Route::get('catalogos/tipo-asentamiento','TipoAsentamientoController@index')->name('catalogos.tipo_asentamiento');
-Route::get('catalogos/tipo-partes','TipoParteController@index')->name('catalogos.tipo_partes');
+Route::get('catalogos/tipo-parte','TipoParteController@index')->name('catalogos.tipo_partes');
 Route::get('catalogos/estados','EstadoController@index')->name('catalogos.estado');
 Route::get('catalogos/nacionalidades','NacionalidadController@index')->name('catalogos.nacionalidad');
 Route::get('catalogos/centros','CentroController@index')->name('catalogos.centro');
-Route::get('catalogos/giro-comercial','GiroComercialController@index')->name('catalogos.giro_comercial');
 
 
 
