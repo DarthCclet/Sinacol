@@ -111,6 +111,7 @@
             url: '/api/giros_comerciales/filtrarGirosComerciales',
             type:"POST",
             dataType:"json",
+            delay: 400,
             async:false,
             data:function (params) {
                 $("#term").val(params.term);
@@ -200,7 +201,7 @@
                 }else{
                     $("#"+select).html("<option value=''>No hay opciones a mostrar</option>");
                 }
-                
+
             }
         });
         return tieneHijos;
@@ -241,6 +242,6 @@
     $(document).ready(function() {
         getGironivel("",1,"girosNivel1");
     });
-    
+
 </script>
 @endpush
