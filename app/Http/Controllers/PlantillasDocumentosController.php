@@ -82,7 +82,8 @@ class PlantillasDocumentosController extends Controller
                      'campos' => $columnNames
                  ];
           }
-        return view('documentos.create', compact('objetoDocumento','tipo_plantilla'));
+        $condicionales = $this->getCondicionales();
+        return view('documentos.create', compact('objetoDocumento','tipo_plantilla','condicionales'));
      }
 
      /**
@@ -282,7 +283,8 @@ class PlantillasDocumentosController extends Controller
                     'campos' => $columnNames
                 ];
         }
-        return view('documentos.create', compact('plantillaDocumento','objetoDocumento','tipo_plantilla'));
+        $condicionales = $this->getCondicionales();
+        return view('documentos.create', compact('plantillaDocumento','objetoDocumento','tipo_plantilla','condicionales'));
        }
        private function getObjetoDocumento($value){
           $objetoDocumento = [];
