@@ -34,6 +34,13 @@
             "tabla": "audiencias",
             "nombre": "Audiencia",
             "id_tipo": ""
+        },
+        {
+            "id": "6",
+            "objeto": "Conciliador",
+            "tabla": "conciliadores",
+            "nombre": "Conciliador",
+            "id_tipo": ""
         }
 
     ],

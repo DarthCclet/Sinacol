@@ -40,7 +40,7 @@
             botonesHeader = "btnHeader | ";
           }
           if(selector == "#plantilla-body"){
-            botonesBody = "btnBody | ";
+            botonesBody = "btnBody | btnBodyConditions | ";
           }
           if(selector == "#plantilla-footer"){
             botonesBody = "btnFooter | ";
@@ -59,11 +59,11 @@
                 toolbar_items_size: 'small',
                 plugins: [
                     'noneditable advlist autolink lists link image imagetools preview',
-                    ' media table paste pagebreak uploadimage lineheight'
+                    ' media table paste uploadimage lineheight'
                 ],
                 toolbar1: botonesHeader + botonesBody + 'basicDateButton | mybutton | fontselect fontsizeselect textcolor| undo redo ' +
                 '| bold italic underline| alignleft aligncenter alignright alignjustify | bullist numlist ' +
-                '| outdent indent lineheightselect | table pagebreak | uploadimage image  ',
+                '| outdent indent lineheightselect | table | uploadimage image  ',
                 toolbar2: "",
                 // paste_data_images: true,
               	images_upload_handler: function (blobInfo, success, failure) {
@@ -102,10 +102,11 @@
                 setup: function (editor) {
                   //Editor Body
                   if(selector == "#plantilla-body"){
+                    //Menu para variables
                     arrayMenuBody =  [];
                     var arrSubmenuBodyCounter =  [];
                     if(objDoc == null){
-                      objDoc = {!! json_encode($objetoDocumento)!!};
+                      objDoc = {!! json_encode($objetoDocumento)  !!};
                     }
                       $.each( objDoc, function( key, objeto ) {
                             var menu = {};
@@ -135,6 +136,68 @@
                             };
                             arrayMenuBody.push(menu);
                       });
+                      // Menu para condiciones
+                      arrayMenuCond =  [];
+                      var arrSubmenuCondCount =  [];
+                      var arrSubmenuObjCondCount =  [];
+                      let condiciones = {!! json_encode($condicionales)  !!};
+                      // let condiciones = [{'tipoCondicion':'Si', 'datos':[{'nombre':'Genero', 'valores':['Masculino','Femenino'] },{'nombre':'Tipo Persona','valores':['Moral','Fisica']}] }, { 'tipoCondicion':'Repetir', 'datos':['Tipo Persona']}];
+                        $.each( condiciones, function( key, condicion ) {
+                              var menu = {};
+                              var arrSubmenuCond =  [];
+                              $.each( condicion['values'], function( k, column ) {
+                                var arrSubmenuObjCond =  [];
+                                $.each( column['valores'], function(i,cat) {
+                                  submenuObj = {
+                                    type: 'menuitem', //nestedmenuitem
+                                    text: cat['catalogo'],
+                                    onAction: function (_) {
+                                      let condString = "";
+                                      $.each(cat['val'], function( j,val){
+                                        condString = condicion['tipoCondicion']+'_'+column['nombre']+'_'+cat['catalogo'];
+                                        editor.insertContent('<strong class="mceNonEditable" data-nombre="">['+(condString+'_'+val).toUpperCase()+']</strong><br>&nbsp;');
+                                      });
+                                      editor.insertContent('<strong class="mceNonEditable" data-nombre="">[FIN_'+(condString).toUpperCase()+']</strong>&nbsp;\n');
+                                    }
+                                  }
+                                  arrSubmenuObjCond.push(submenuObj);
+                                });
+                                arrSubmenuObjCondCount[k] = arrSubmenuObjCond;
+
+                                  submenu =
+                                  {
+                                    type: 'nestedmenuitem', //nestedmenuitem
+                                    text: column['nombre'],
+                                    getSubmenuItems: function(){
+                                      return arrSubmenuObjCondCount[k];
+                                    }
+                                  };
+                                  arrSubmenuCond.push(submenu);
+                              });
+                              arrSubmenuCondCount[key] = arrSubmenuCond;
+
+                              if(condicion['tipoCondicion']== 'Si'){
+                              menu =
+                              {
+                                type: 'nestedmenuitem', // menuitem
+                                text: condicion['tipoCondicion'],
+                                getSubmenuItems: function () {
+                                    return arrSubmenuCondCount[key];
+                                }
+                              };
+                            }else {
+                              menu =
+                              {
+                                type: 'menuitem', //
+                                text: condicion['tipoCondicion'],
+                                onAction: function (_) {
+                                  editor.insertContent('<strong class="mceNonEditable" data-nombre="">['+(condicion['tipoCondicion']).toUpperCase()+']</strong><br>&nbsp;');
+                                  editor.insertContent('<strong class="mceNonEditable" data-nombre="">[FIN_'+(condicion['tipoCondicion']).toUpperCase()+']</strong>&nbsp;\n');
+                                }
+                              };
+                            }
+                            arrayMenuCond.push(menu);
+                        });
                   }
                     editor.on('init', function (ed) {
                         ed.target.editorCommands.execCommand("fontName", false, "Arial");
@@ -157,6 +220,26 @@
                           arrayMenuBody;
                         callback(items);
                       }
+                    });
+                    editor.ui.registry.addMenuButton('btnBodyConditions', {
+                    //     type: 'menubutton',
+                        text: 'Condiciones',
+                        fetch: function (callback) {
+                          var items = //[
+                            arrayMenuCond;
+                          callback(items);
+                        }
+                        // type: 'menuitem', //nestedmenuitem menuitem
+                        // onAction: function (_) {
+                        //   editor.insertContent('<strong class="mceNonEditable" data-nombre="'+(datoId)+'">['+dato+']</strong>&nbsp;\n');
+                        //   // editor.insertContent('<strong class="mceNonEditable" data-nombre="solicitud_fecha_ratificacion">[fecha R]</strong>&nbsp;\n');
+                        // }
+                        // icon: false,
+                      // fetch: function (callback) {
+                      //   var items = //[
+                      //     arrayMenuBody;
+                      //   callback(items);
+                      // }
                     });
                     editor.ui.registry.addMenuButton('btnFooter', {
                       text: 'Pie de Pagina',
