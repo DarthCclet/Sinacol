@@ -22,7 +22,7 @@ class ConsultaConciliacionesPorRangoFechas
     public function consulta($fecha_inicio, $fecha_fin, $limit=15, $page=1)
     {
 
-        $audiencias = Audiencia::whereBetween('fecha_audiencia',[$fecha_inicio, $fecha_fin])->paginate();
+        $audiencias = Audiencia::whereBetween('fecha_audiencia',[$fecha_inicio, $fecha_fin])->where("resolucion_id",3)->paginate();
 
         $res = [];
         foreach ($audiencias as $audiencia){
@@ -31,6 +31,7 @@ class ConsultaConciliacionesPorRangoFechas
 
             $res[] = [
                 'numero_expediente_oij' => $audiencia->expediente->folio,
+                'resolucion_id' => $audiencia->resolucion_id,
                 'fecha_audiencia' => '/Date('.strtotime($audiencia->fecha_audiencia).')/',
                 'organo_impartidor_de_justicia' => $audiencia->expediente->solicitud->centro->id,
                 'organo_impartidor_de_justicia_nombre' => $audiencia->expediente->solicitud->centro->nombre,
