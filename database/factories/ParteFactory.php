@@ -91,8 +91,10 @@ $factory->state(Parte::class, 'solicitadoFisico', function (Faker $faker) {
     $tipo_persona = $tipo_persona[0];
     $tipo_parte = TipoParte::find(2);
     $grupo_prioritario = GrupoPrioritario::inRandomOrder()->first();
+    $genero = Genero::inRandomOrder()->first();
     return ['tipo_parte_id' => $tipo_parte->id,'tipo_persona_id'=>$tipo_persona->id,
     'tipo_persona_id'=>$tipo_persona->id,
+    'genero_id' => ($tipo_persona->abreviatura == 'F') ? $genero->id : null,
     'nombre' => ($tipo_persona->abreviatura == 'F') ? $faker->firstName : null,
     'primer_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
     'segundo_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
@@ -121,8 +123,10 @@ $factory->state(Parte::class, 'solicitanteFisico', function (Faker $faker) {
     $tipo_persona = $tipo_persona[0];
     $tipo_parte = TipoParte::find(1);
     $grupo_prioritario = GrupoPrioritario::inRandomOrder()->first();
+    $genero = Genero::inRandomOrder()->first();
     return ['tipo_parte_id' => $tipo_parte->id,'tipo_persona_id'=>$tipo_persona->id,
     'tipo_persona_id'=>$tipo_persona->id,
+    'genero_id' => ($tipo_persona->abreviatura == 'F') ? $genero->id : null,
     'nombre' => ($tipo_persona->abreviatura == 'F') ? $faker->firstName : null,
     'primer_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
     'segundo_apellido' => ($tipo_persona->abreviatura == 'F') ? $faker->lastName : null,
