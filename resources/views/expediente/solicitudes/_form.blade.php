@@ -1605,10 +1605,26 @@
                     }
                     
                 },error:function(data){
+                    var mensajes = "";
                     $.each(data.responseJSON.errors, function (key, value) {
+                        console.log(key.split("."));
                         console.log(value);
+                        var origen = key.split(".");
+                        
+                        mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
+                    });
+                    swal({
+                        title: 'Error',
+                        text: 'Es necesario validar los siguientes campos \n'+mensajes,
+                        icon: 'error'
                     });
                 }
+            });
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Es necesario capturar al menos un solicitante, un solicitado y datos de la solicitud',
+                icon: 'error'
             });
         }
     }

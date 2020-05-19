@@ -384,6 +384,9 @@ class SolicitudController extends Controller
             'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
             'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
             'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+            'solicitantes.*.dato_laboral' => 'required',
+            'solicitantes.*.domicilios' => 'required',
+            'solicitantes.*.contactos' => 'required',
 
             'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
@@ -396,6 +399,8 @@ class SolicitudController extends Controller
             'solicitados.*.fecha_nacimiento' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.genero_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.nacionalidad_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+            'solicitados.*.domicilios' => 'required',
+            'solicitados.*.contactos' => 'required',
         ]);
         $solicitud = $request->input('solicitud');
         
