@@ -28,6 +28,7 @@
         "symfony/translation": "4.3.8"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.3",
         "filp/whoops": "^2.0",
         "fzaninotto/faker": "^1.4",
         "laracasts/generators": "^1.1",
