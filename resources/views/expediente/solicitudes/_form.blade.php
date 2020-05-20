@@ -256,11 +256,11 @@
                                     <p class="help-block needed">No. afore</p>
                                 </div>
                                 <div class="col-md-4">
-                                    <input class="form-control numero " required data-parsley-type='number' id="percepcion_mensual_neta" placeholder="Percepcion neta mensual" type="text" value="">
+                                    <input class="form-control numero " required data-parsley-type='number' id="percepcion_mensual_neta" max="99999999" placeholder="Percepcion neta mensual" type="text" value="">
                                     <p class="help-block needed">Percepcion neta mensual</p>
                                 </div>
                                 <div class="col-md-4">
-                                    <input class="form-control numero" required data-parsley-type='number' id="percepcion_mensual_bruta" placeholder="Percepci&oacute;n mensual bruta" type="text" value="">
+                                    <input class="form-control numero" required data-parsley-type='number' id="percepcion_mensual_bruta" max="99999999" placeholder="Percepci&oacute;n mensual bruta" type="text" value="">
                                     <p class="help-block needed">Percepci&oacute;n mensual bruta</p>
                                 </div>
                             </div>
@@ -1896,7 +1896,6 @@
             else suma = 481; //Ajuste para persona moral
 
             for(var i=0; i<len; i++){
-                alert(diccionario.indexOf(rfcSinDigito.charAt(i)));
                 suma += diccionario.indexOf(rfcSinDigito.charAt(i)) * (indice - i);
             }
             digitoEsperado = 11 - suma % 11;
