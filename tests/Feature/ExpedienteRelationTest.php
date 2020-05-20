@@ -56,7 +56,7 @@ class ExpedienteRelationTest extends TestCase
         $expediente->save();
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
-        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>true]);
+        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>true,'resolucion_id'=>3]);
         $compareciente_audiencia = factory(Compareciente::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $compareciente_audiencia1 = factory(Compareciente::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
         $audiencia_parte_solicitante = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
@@ -71,7 +71,7 @@ class ExpedienteRelationTest extends TestCase
         ]);
         // termina audiencia 
         // se genera documento
-        $this->generarConstancia($audiencia->id,"audiencia",1);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1);
         // termina documento
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   
     }
@@ -130,7 +130,7 @@ class ExpedienteRelationTest extends TestCase
         ]);
         // termina audiencia 
         // se genera documento
-        $this->generarConstancia($audiencia->id,"audiencia",1);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1);
         // termina documento
 
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   
@@ -193,7 +193,7 @@ class ExpedienteRelationTest extends TestCase
         ]);
         // termina audiencia 
         // se genera documento
-        $this->generarConstancia($audiencia->id,"audiencia",1);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1);
         // termina documento
 
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   
@@ -282,10 +282,10 @@ class ExpedienteRelationTest extends TestCase
         ]);
         // termina audiencia 
         // se genera documento por cada resolucion parte
-        $this->generarConstancia($audiencia->id,"audiencia",1);
-        $this->generarConstancia($audiencia->id,"audiencia",1);
-        $this->generarConstancia($audiencia->id,"audiencia",1);
-        $this->generarConstancia($audiencia->id,"audiencia",1);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado->id);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado2->id);
         // termina documento
         // se asigna resolucion a cada parte
         // dd($resolucion_partes1);
@@ -380,10 +380,10 @@ class ExpedienteRelationTest extends TestCase
             "parte_solicitada_id" => $parteSolicitado2->id
         ]);
         // se genera documento
-        $this->generarConstancia($audiencia->id,"audiencia",1);
-        $this->generarConstancia($audiencia->id,"audiencia",1);
-        $this->generarConstancia($audiencia->id,"audiencia",1);
-        $this->generarConstancia($audiencia->id,"audiencia",1);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado->id);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado2->id);
         // termina documento
                         
         
@@ -458,10 +458,8 @@ class ExpedienteRelationTest extends TestCase
             "parte_solicitada_id" => $parteSolicitado2->id
         ]);
         // se genera documento
-        $this->generarConstancia($audiencia->id,"audiencia",1);
-        $this->generarConstancia($audiencia->id,"audiencia",1);
-        $this->generarConstancia($audiencia->id,"audiencia",1);
-        $this->generarConstancia($audiencia->id,"audiencia",1);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
         // termina documento
 
         
@@ -519,7 +517,7 @@ class ExpedienteRelationTest extends TestCase
         ]);
         // termina audiencia 
         // se genera documento
-        $this->generarConstancia($audiencia->id,"audiencia",1);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1);
         // termina documento
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   
     }
@@ -596,8 +594,8 @@ class ExpedienteRelationTest extends TestCase
         ]);
         // termina audiencia 
         // se genera documento para cada resolucion
-        $this->generarConstancia($audiencia->id,"audiencia",1);
-        $this->generarConstancia($audiencia->id,"audiencia",1);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
+        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
         // termina documento
 
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   

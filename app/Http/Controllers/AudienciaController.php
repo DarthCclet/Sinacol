@@ -20,9 +20,11 @@ use Validator;
 use App\Filters\CatalogoFilter;
 use Illuminate\Support\Facades\DB;
 use App\Traits\ValidateRange;
+use App\Traits\GenerateDocument;
 
 class AudienciaController extends Controller
 {
+    use GenerateDocument;
     use ValidateRange;
     protected $request;
 
@@ -480,6 +482,7 @@ class AudienciaController extends Controller
                         $bandera = false;
                     }
                 }
+                $this->generarConstancia($audiencia->id,$audiencia->expediente->solicitud->id,1,$solicitante->parte_id,$solicitado->parte_id);
                 if($bandera){
                     ResolucionPartes::create([
                         "audiencia_id" => $audiencia->id,
