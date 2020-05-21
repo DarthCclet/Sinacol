@@ -11,21 +11,18 @@
             <div class="form-group">
                     <select id="girosNivel1" nextLevel="2" class="form-control giroNivel">
                     </select>
-                </label>
             </div>
         </div>
         <div class="col-md-12" id="divNivel2" style="display:none">
             <div class="form-group">
                     <select id="girosNivel2" nextLevel="3" class="form-control giroNivel">
                     </select>
-                </label>
             </div>
         </div>
         <div class="col-md-12" id="divNivel3" style="display:none">
             <div class="form-group">
                     <select id="girosNivel3" nextLevel="" class="form-control giroNivel">
                     </select>
-                </label>
             </div>
         </div>
     </div>
@@ -101,7 +98,16 @@
         background: #348fe2 !important;
         color: #fff !important;
     }
+    .select2-results__options {
+        max-height: 400px;
+    }
+    .select2-results__option {
+        border-bottom: thin dashed silver;
+    }
 
+    .select2-container--default .select2-results>.select2-results__options {
+        max-height: 600px;
+    }
 </style>
 @push('scripts')
 
