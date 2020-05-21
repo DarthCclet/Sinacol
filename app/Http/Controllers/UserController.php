@@ -6,6 +6,7 @@ use App\Filters\UserFilter;
 use App\Persona;
 use App\TipoPersona;
 use App\User;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -67,7 +68,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        $roles = Role::all();
+        return view('admin.users.create', compact('roles'));
     }
 
     /**
@@ -87,6 +89,7 @@ class UserController extends Controller
                 'personas.primer_apellido' => 'required|alpha|max:60',
                 'personas.segundo_apellido' => 'alpha|nullable|max:60',
                 'personas.rfc' => 'alphanum|required|max:12',
+                'rol' => 'required',
             ]
         );
 
@@ -95,7 +98,10 @@ class UserController extends Controller
         //Los usuarios web sólo pueden estar asociados a personas físicas
         $persona['tipo_persona_id'] = TipoPersona::where('abreviatura', 'F')->first()->id;
 
-        $user = (Persona::create($persona))->user()->create($request->input('users'))->load('persona');
+        $user = Persona::create($persona)->user()->create($request->input('users'))->load('persona');
+        
+        //Asignamos el rol
+        $user->hasRole($request->rol);
 
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
@@ -144,6 +150,7 @@ class UserController extends Controller
                 'personas.primer_apellido' => 'required|alpha|max:60',
                 'personas.segundo_apellido' => 'alpha|nullable|max:60',
                 'personas.rfc' => 'alphanum|required|size:12',
+                'rol' => 'required',
             ]
         );
 
@@ -156,7 +163,9 @@ class UserController extends Controller
 
         $user->fill($data)->save();
         $user->persona->fill($request->input('personas'))->save();
-
+        if(!$user->hasRole($request->rol)){
+            $user->syncRoles($request->rol);
+        }
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
         }
