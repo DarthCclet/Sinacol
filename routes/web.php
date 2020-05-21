@@ -57,5 +57,9 @@ Route::get('catalogos/centros','CentroController@index')->name('catalogos.centro
 
 Route::resource('giros','GiroComercialController');
 
+Route::resource('permisos','PermissionController');
+Route::resource('roles','RoleController');
+Route::get('roles/permisos/{id}','RoleController@GetPermisosRol');
+Route::put('roles/permisos/{id}','RoleController@DeletePermisosRol');
 Auth::routes(['register' => false]);
 
