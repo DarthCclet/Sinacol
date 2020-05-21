@@ -19,10 +19,21 @@ class ConsultaConciliacionesPorRangoFechas
 {
     use Transformer;
 
-    public function consulta($fecha_inicio, $fecha_fin, $limit=15, $page=1)
+    public function consulta($fecha_inicio, $fecha_fin, $tipo_resolucion, $limit=15, $page=1)
     {
 
-        $audiencias = Audiencia::whereBetween('fecha_audiencia',[$fecha_inicio, $fecha_fin])->where("resolucion_id",3)->paginate();
+        $query = Audiencia::whereBetween('fecha_audiencia',[$fecha_inicio, $fecha_fin]);
+        //ToDo: Sacar los id del catalogo de resoluciones dado el nombre y no un "número mágico".
+        switch ($tipo_resolucion) {
+            case 'conciliacion':
+                $query->where("resolucion_id", 1);
+                break;
+            case 'no-conciliacion':
+                $query->where("resolucion_id", 2);
+                break;
+        }
+
+        $audiencias = $query->paginate();
 
         $res = [];
         foreach ($audiencias as $audiencia){

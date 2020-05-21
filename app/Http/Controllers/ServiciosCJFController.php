@@ -31,11 +31,13 @@ class ServiciosCJFController extends Controller
 
     /**
      * Devuelve estructura JSON del listado de conciliaciones no exitosas filtrados por fecha inicial y final
+     * @param string $tipo_resolucion
      * @param ConsultaConciliacionesPorRangoFechas $consulta
      * @return \Illuminate\Http\Response
      */
-    public function listadoPorFechas(ConsultaConciliacionesPorRangoFechas $consulta)
+    public function listadoPorFechas(String $tipo_resolucion, ConsultaConciliacionesPorRangoFechas $consulta)
     {
+
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(4,null);
         $parametros = $this->request->getContent();
@@ -43,7 +45,7 @@ class ServiciosCJFController extends Controller
             $fechas = $consulta->validaEstructuraParametros($parametros);
             $fecha_inicial = $consulta->validaFechas($fechas->fechaInicio);
             $fecha_final = $consulta->validaFechas($fechas->fechaFin);
-            $fechas = $consulta->consulta($fecha_inicial, $fecha_final);
+            $fechas = $consulta->consulta($fecha_inicial, $fecha_final, $tipo_resolucion);
             $acuse = [
                 'codigo_retorno' => 1,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
@@ -255,7 +257,7 @@ class ServiciosCJFController extends Controller
         }
 
     }
-    
+
     public function solicitudExterna(RegistroSolicitudExterna $solicitud){
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(4,null);
