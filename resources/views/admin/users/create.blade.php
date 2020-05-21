@@ -3,6 +3,7 @@
 @section('title', 'Usuarios')
 
 @include('includes.component.datatables')
+@include('includes.component.pickers')
 
 @section('content')
 
@@ -46,3 +47,10 @@
     {!! Form::close() !!}
 
 @endsection
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            $(".selectRol").select2({ placeholder: "Selecciona un rol" });
+        });
+</script>
+@endpush
