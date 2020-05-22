@@ -71,7 +71,7 @@ class ServiciosCJFController extends Controller
      * @param ConsultaConciliacionesPorNombre $consulta
      * @return \Illuminate\Http\Response
      */
-    public function listadoPorNombreParteActora(ConsultaConciliacionesPorNombre $consulta)
+    public function listadoPorNombreParteActora(String $tipo_resolucion,ConsultaConciliacionesPorNombre $consulta)
     {
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(4,null);
@@ -86,7 +86,8 @@ class ServiciosCJFController extends Controller
                 $estructuraNombre->primer_apellido,
                 $estructuraNombre->segundo_apellido,
                 $tipoPersona->id,
-                $tipoSolicitante->id
+                $tipoSolicitante->id,
+                $tipo_resolucion
                 );
             $acuse = [
                 'codigo_retorno' => 1,
@@ -114,7 +115,7 @@ class ServiciosCJFController extends Controller
      * @param ConsultaConciliacionesPorNombre $consulta
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function listadoPorNombreParteDemandada(ConsultaConciliacionesPorNombre $consulta)
+    public function listadoPorNombreParteDemandada(String $tipo_resolucion,ConsultaConciliacionesPorNombre $consulta)
     {
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(4,null);
@@ -129,7 +130,8 @@ class ServiciosCJFController extends Controller
                 $estructuraNombre->primer_apellido,
                 $estructuraNombre->segundo_apellido,
                 $tipoPersona->id,
-                $tipoSolicitado->id
+                $tipoSolicitado->id,
+                $tipo_resolucion
             );
             $acuse = [
                 'codigo_retorno' => 1,
@@ -156,7 +158,7 @@ class ServiciosCJFController extends Controller
      * @param $rfc
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function listadoPorRFC($rfc)
+    public function listadoPorRFC(String $tipo_resolucion,String $rfc)
     {
         //Obtenemos el contador
         $ContadorController = new ContadorController();
@@ -164,7 +166,7 @@ class ServiciosCJFController extends Controller
         try {
 
             $ConsultaConciliacionesPorRFC = new ConsultaConciliacionesPorRfc();
-            $solicitudes = $ConsultaConciliacionesPorRFC->consulta($rfc);
+            $solicitudes = $ConsultaConciliacionesPorRFC->consulta($rfc,$tipo_resolucion);
 
             //TODO: implementar la consulta y devolución de datos mediante el service
             $acuse = [
@@ -192,14 +194,14 @@ class ServiciosCJFController extends Controller
      * @param $curp
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function listadoPorCURP($curp)
+    public function listadoPorCURP(String $tipo_resolucion,String $curp)
     {
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(4,null);
         try {
 
             $ConsultaConciliacionesPorCURP = new ConsultaConciliacionesPorCurp();
-            $solicitudes = $ConsultaConciliacionesPorCURP->consulta($curp);
+            $solicitudes = $ConsultaConciliacionesPorCURP->consulta($curp,$tipo_resolucion);
 
             //TODO: implementar la consulta y devolución de datos mediante el service
             $acuse = [
@@ -227,14 +229,14 @@ class ServiciosCJFController extends Controller
      * @param ConsultaConciliacionesPorExpediente $consulta
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function consultaExpediente(ConsultaConciliacionesPorExpediente $consulta)
+    public function consultaExpediente(String $tipo_resolucion,ConsultaConciliacionesPorExpediente $consulta)
     {
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(4,null);
         try {
             $parametros = $this->request->getContent();
             $expediente = $consulta->validaEstructuraParametros($parametros);
-            $solicitudes = $consulta->consulta($expediente->expediente, 3);
+            $solicitudes = $consulta->consulta($expediente->expediente, $tipo_resolucion);
 
             $acuse = [
                 'codigo_retorno' => 1,
