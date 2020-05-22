@@ -23,8 +23,17 @@ class ConsultaConciliacionesPorExpediente
 {
     use Transformer;
 
-    public function consulta($parametro, $resolucion_id, $limit=15, $page=1)
+    public function consulta($parametro, $tipo_resolucion, $limit=15, $page=1)
     {
+        $resolucion_id = 3;
+        switch ($tipo_resolucion) {
+            case 'conciliacion':
+                $resolucion_id = 1;
+                break;
+            case 'no-conciliacion':
+                $resolucion_id = 3;
+                break;
+        }
         $expediente = Expediente::where('folio','ilike', $parametro)->first();
         if(!$expediente) {
             return ['data'=>[]];

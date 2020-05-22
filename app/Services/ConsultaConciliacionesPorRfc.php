@@ -18,8 +18,17 @@ use Carbon\Carbon;
 class ConsultaConciliacionesPorRfc
 {
     //TODO: Regresar los datos como en la consulta por rango de fechas, sólo resumen.
-    public function consulta($rfc, $limit=15, $page=1)
+    public function consulta($rfc,$tipo_resolucion, $limit=15, $page=1)
     {
+        $tipo_resolucion_id = 3;
+        switch ($tipo_resolucion) {
+            case 'conciliacion':
+                $tipo_resolucion_id = 1;
+                break;
+            case 'no-conciliacion':
+                $tipo_resolucion_id = 3;
+                break;
+        }
         $partes = Parte::where('rfc','ilike',$rfc)->get();
         // obtenemos la solicitud y el expediente
         $resultado = [];
@@ -30,7 +39,7 @@ class ConsultaConciliacionesPorRfc
             $exp=Solicitud::find($parte->solicitud_id);
             if($exp->expediente != null){
                 foreach($exp->expediente->audiencia as $audiencia){
-                    if($audiencia->resolucion_id == 3){
+                    if($audiencia->resolucion_id == $tipo_resolucion_id){
                         $audiencias = $exp->expediente->audiencia()->paginate();
                         if(strtoupper($parteCat->nombre) == 'SOLICITANTE'){
                             $parte_actora = $this->partesTransformer($parte, 'solicitante',false);

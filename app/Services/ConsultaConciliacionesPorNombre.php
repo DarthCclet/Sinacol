@@ -19,17 +19,27 @@ use Carbon\Carbon;
 class ConsultaConciliacionesPorNombre
 {
     //TODO: Regresar los datos como en la consulta por rango de fechas, sólo resumen.
-    public function consulta($nombre_denominacion, $primer_apellido, $segundo_apellido, $tipo_persona, $tipo_parte, $limit=15, $page=1)
+    public function consulta($nombre_denominacion, $primer_apellido, $segundo_apellido, $tipo_persona, $tipo_parte,$tipo_resolucion, $limit=15, $page=1)
     {
         $partes = [];
+        $tipo_resolucion_id = 3;
+        switch ($tipo_resolucion) {
+            case 'conciliacion':
+                $tipo_resolucion_id = 1;
+                break;
+            case 'no-conciliacion':
+                $tipo_resolucion_id = 3;
+                break;
+        }
         if($tipo_persona == 1) {
             $partes = Parte::where('nombre', 'ilike', $nombre_denominacion)
                 ->where('primer_apellido', 'ilike', $primer_apellido)
-                ->where('tipo_parte_id', $tipo_parte)
-                ->where('segundo_apellido', 'ilike', $segundo_apellido)->get();
+                ->where('segundo_apellido', 'ilike', $segundo_apellido)
+                ->where('tipo_parte_id', $tipo_parte)->get();
         }
         if($tipo_persona == 2){
-            $partes = Parte::where('nombre_comercial', 'ilike', mb_strtoupper($nombre_denominacion))->where('tipo_parte_id', $tipo_parte)->get();
+            $partes = Parte::where('nombre_comercial', 'ilike', mb_strtoupper($nombre_denominacion))
+                ->where('tipo_parte_id', $tipo_parte)->get();
         }
         $resultado = [];
         foreach($partes as $parte){
@@ -39,8 +49,7 @@ class ConsultaConciliacionesPorNombre
             $exp=Solicitud::find($parte->solicitud_id);
             if($exp->expediente != null){
                 foreach($exp->expediente->audiencia as $audiencia){
-                    if($audiencia->resolucion_id == 3){
-
+                    if($audiencia->resolucion_id ==  $tipo_resolucion_id){
                         $audiencias = $exp->expediente->audiencia()->paginate();
                         if(strtoupper($parteCat->nombre) == 'SOLICITANTE'){
                             $parte_actora = $this->partesTransformer($parte, 'solicitante',false);

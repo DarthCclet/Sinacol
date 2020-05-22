@@ -29,7 +29,7 @@ class ConsultaConciliacionesPorRangoFechas
                 $query->where("resolucion_id", 1);
                 break;
             case 'no-conciliacion':
-                $query->where("resolucion_id", 2);
+                $query->where("resolucion_id", 3);
                 break;
         }
 
