@@ -86,18 +86,43 @@ class ConsultaConciliacionesPorExpediente
                     ]
                 ];
             }else{
+                $contents = base64_encode(Storage::get('Prueba.pdf'));
+                $info = pathinfo('Prueba.pdf');
+                $size = Storage::size('Prueba.pdf');
                 return [
                     'data' => $res,
-                    'documento' => []
+                    'documento' => [
+                        'documento_id' => 1553,
+                        'nombre' => $info["basename"],
+                        'extension' => $info["extension"],
+                        'filebase64'=> $contents,
+                        'longitud' => $size,
+                        'firmado' => 0,
+                        'pkcs7base64' => "",
+                        'fecha_firmado' => '',
+                        'clasificacion_archivo' => 1
+                    ]
                 ];
             }
         }else{
+            $contents = base64_encode(Storage::get('Prueba.pdf'));
+            $info = pathinfo('Prueba.pdf');
+            $size = Storage::size('Prueba.pdf');
             return [
                 'data' => $res,
-                'documento' => []
+                'documento' => [
+                    'documento_id' => 1553,
+                    'nombre' => $info["basename"],
+                    'extension' => $info["extension"],
+                    'filebase64'=> $contents,
+                    'longitud' => $size,
+                    'firmado' => 0,
+                    'pkcs7base64' => "",
+                    'fecha_firmado' => '',
+                    'clasificacion_archivo' => 1
+                ]
             ];
         }
-
     }
 
     /**
