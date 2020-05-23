@@ -60,24 +60,37 @@ class ConsultaConciliacionesPorExpediente
 
         //TODO: Firma de documentos (PEndiente)
         //TODO: Implementar el catálogo de clasificación de archivo (Pendiente).
-        if(Storage::disk('local')->exists('Prueba.pdf')){
-            $contents = base64_encode(Storage::get('Prueba.pdf'));
-            $info = pathinfo('Prueba.pdf');
-            $size = Storage::size('Prueba.pdf');
-            return [
-                'data' => $res,
-                'documento' => [
-                    'documento_id' => 1553,
-                    'nombre' => $info["basename"],
-                    'extension' => $info["extension"],
-                    'filebase64'=> $contents,
-                    'longitud' => $size,
-                    'firmado' => 0,
-                    'pkcs7base64' => "",
-                    'fecha_firmado' => '',
-                    'clasificacion_archivo' => 1
-                ]
-            ];
+        if($resolucion_id == 3){
+            $clasificacion_archivo_id = 1;
+        }else{
+            $clasificacion_archivo_id = 2;
+        }
+        $documento=$audiencia->documentos()->where('clasificacion_archivo_id',$clasificacion_archivo_id)->first();
+        if($documento != null){
+            if(Storage::disk('local')->exists($documento->ruta)){
+                $contents = base64_encode(Storage::get($documento->ruta));
+                $info = pathinfo($documento->ruta);
+                $size = Storage::size($documento->ruta);
+                return [
+                    'data' => $res,
+                    'documento' => [
+                        'documento_id' => 1553,
+                        'nombre' => $info["basename"],
+                        'extension' => $info["extension"],
+                        'filebase64'=> $contents,
+                        'longitud' => $size,
+                        'firmado' => 0,
+                        'pkcs7base64' => "",
+                        'fecha_firmado' => '',
+                        'clasificacion_archivo' => 1
+                    ]
+                ];
+            }else{
+                return [
+                    'data' => $res,
+                    'documento' => []
+                ];
+            }
         }else{
             return [
                 'data' => $res,
