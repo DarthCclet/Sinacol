@@ -15,6 +15,7 @@ use App\Parte;
 use App\ResolucionPartes;
 use App\Sala;
 use App\SalaAudiencia;
+use App\Http\Controllers\ContadorController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -45,13 +46,14 @@ class ExpedienteRelationTest extends TestCase
         factory(DatoLaboral::class)->create(['parte_id'=>$parteSolicitante->id]);
         factory(Contacto::class)->create(['contactable_id'=>$parteSolicitante->id, 'contactable_type'=>'App\Parte']);
         
-        $year = date('Y');
+        $ContadorController = new ContadorController();
+        $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
         $edo_folio = $solicitud->centro->abreviatura;
-        $folio = $edo_folio. "/CJ/I/". $year."/".sprintf("%06d", "123456");
+        $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
         $expediente = new Expediente();
         $expediente->folio = $folio;
-        $expediente->anio = $year;
-        $expediente->consecutivo = 1;
+        $expediente->anio = $folioC->anio;
+        $expediente->consecutivo = $folioC->contador;
         $expediente->solicitud_id = $solicitud->id;
         $expediente->save();
         //Se captura Audiencia
@@ -99,13 +101,14 @@ class ExpedienteRelationTest extends TestCase
         $domicilioSolicitado = factory(Domicilio::class)->create(['domiciliable_id'=>$parteSolicitado->id, 'domiciliable_type'=>'App\Parte']);
         $contactoSolicitado = factory(Contacto::class)->create(['contactable_id'=>$parteSolicitado->id, 'contactable_type'=>'App\Parte']);
         
-        $year = date('Y');
+        $ContadorController = new ContadorController();
+        $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
         $edo_folio = $solicitud->centro->abreviatura;
-        $folio = $edo_folio. "/CJ/I/". $year."/".sprintf("%06d", "123456");
+        $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
         $expediente = new Expediente();
         $expediente->folio = $folio;
-        $expediente->anio = $year;
-        $expediente->consecutivo = 1;
+        $expediente->anio = $folioC->anio;
+        $expediente->consecutivo = $folioC->contador;
         $expediente->solicitud_id = $solicitud->id;
         $expediente->save();
 
@@ -160,13 +163,14 @@ class ExpedienteRelationTest extends TestCase
         $domicilioSolicitado = factory(Domicilio::class)->create(['domiciliable_id'=>$parteSolicitado->id, 'domiciliable_type'=>'App\Parte']);
         $contactoSolicitado = factory(Contacto::class)->create(['contactable_id'=>$parteSolicitado->id, 'contactable_type'=>'App\Parte']);
         
-        $year = date('Y');
+        $ContadorController = new ContadorController();
+        $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
         $edo_folio = $solicitud->centro->abreviatura;
-        $folio = $edo_folio. "/CJ/I/". $year."/".sprintf("%06d", "123456");
+        $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
         $expediente = new Expediente();
         $expediente->folio = $folio;
-        $expediente->anio = $year;
-        $expediente->consecutivo = 1;
+        $expediente->anio = $folioC->anio;
+        $expediente->consecutivo = $folioC->contador;
         $expediente->solicitud_id = $solicitud->id;
         $expediente->save();
 
@@ -230,13 +234,14 @@ class ExpedienteRelationTest extends TestCase
         $domicilioSolicitado = factory(Domicilio::class)->create(['domiciliable_id'=>$parteSolicitado2->id, 'domiciliable_type'=>'App\Parte']);
         $contactoSolicitado = factory(Contacto::class)->create(['contactable_id'=>$parteSolicitado2->id, 'contactable_type'=>'App\Parte']);
         
-        $year = date('Y');
+        $ContadorController = new ContadorController();
+        $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
         $edo_folio = $solicitud->centro->abreviatura;
-        $folio = $edo_folio. "/CJ/I/". $year."/".sprintf("%06d", "123456");
+        $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
         $expediente = new Expediente();
         $expediente->folio = $folio;
-        $expediente->anio = $year;
-        $expediente->consecutivo = 1;
+        $expediente->anio = $folioC->anio;
+        $expediente->consecutivo = $folioC->contador;
         $expediente->solicitud_id = $solicitud->id;
         $expediente->save();
 
@@ -323,13 +328,14 @@ class ExpedienteRelationTest extends TestCase
         $domicilioSolicitado = factory(Domicilio::class)->create(['domiciliable_id'=>$parteSolicitado2->id, 'domiciliable_type'=>'App\Parte']);
         $contactoSolicitado = factory(Contacto::class)->create(['contactable_id'=>$parteSolicitado2->id, 'contactable_type'=>'App\Parte']);
         
-        $year = date('Y');
+        $ContadorController = new ContadorController();
+        $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
         $edo_folio = $solicitud->centro->abreviatura;
-        $folio = $edo_folio. "/CJ/I/". $year."/".sprintf("%06d", "123456");
+        $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
         $expediente = new Expediente();
         $expediente->folio = $folio;
-        $expediente->anio = $year;
-        $expediente->consecutivo = 1;
+        $expediente->anio = $folioC->anio;
+        $expediente->consecutivo = $folioC->contador;
         $expediente->solicitud_id = $solicitud->id;
         $expediente->save();
 
@@ -416,13 +422,14 @@ class ExpedienteRelationTest extends TestCase
         $domicilioSolicitado = factory(Domicilio::class)->create(['domiciliable_id'=>$parteSolicitado2->id, 'domiciliable_type'=>'App\Parte']);
         $contactoSolicitado = factory(Contacto::class)->create(['contactable_id'=>$parteSolicitado2->id, 'contactable_type'=>'App\Parte']);
         
-        $year = date('Y');
+        $ContadorController = new ContadorController();
+        $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
         $edo_folio = $solicitud->centro->abreviatura;
-        $folio = $edo_folio. "/CJ/I/". $year."/".sprintf("%06d", "123456");
+        $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
         $expediente = new Expediente();
         $expediente->folio = $folio;
-        $expediente->anio = $year;
-        $expediente->consecutivo = 1;
+        $expediente->anio = $folioC->anio;
+        $expediente->consecutivo = $folioC->contador;
         $expediente->solicitud_id = $solicitud->id;
         $expediente->save();
 
@@ -486,13 +493,14 @@ class ExpedienteRelationTest extends TestCase
         factory(DatoLaboral::class)->create(['parte_id'=>$parteSolicitante->id]);
         factory(Contacto::class)->create(['contactable_id'=>$parteSolicitante->id, 'contactable_type'=>'App\Parte']);
         
-        $year = date('Y');
+        $ContadorController = new ContadorController();
+        $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
         $edo_folio = $solicitud->centro->abreviatura;
-        $folio = $edo_folio. "/CJ/I/". $year."/".sprintf("%06d", "123456");
+        $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
         $expediente = new Expediente();
         $expediente->folio = $folio;
-        $expediente->anio = $year;
-        $expediente->consecutivo = 1;
+        $expediente->anio = $folioC->anio;
+        $expediente->consecutivo = $folioC->contador;
         $expediente->solicitud_id = $solicitud->id;
         $expediente->save();
         //Se captura Audiencia
@@ -548,13 +556,14 @@ class ExpedienteRelationTest extends TestCase
         $domicilioSolicitado = factory(Domicilio::class)->create(['domiciliable_id'=>$parteSolicitado2->id, 'domiciliable_type'=>'App\Parte']);
         $contactoSolicitado = factory(Contacto::class)->create(['contactable_id'=>$parteSolicitado2->id, 'contactable_type'=>'App\Parte']);
         
-        $year = date('Y');
+        $ContadorController = new ContadorController();
+        $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
         $edo_folio = $solicitud->centro->abreviatura;
-        $folio = $edo_folio. "/CJ/I/". $year."/".sprintf("%06d", "123456");
+        $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
         $expediente = new Expediente();
         $expediente->folio = $folio;
-        $expediente->anio = $year;
-        $expediente->consecutivo = 1;
+        $expediente->anio = $folioC->anio;
+        $expediente->consecutivo = $folioC->contador;
         $expediente->solicitud_id = $solicitud->id;
         $expediente->save();
 
