@@ -32,10 +32,10 @@ class CreateDocumentosTable extends Migration
             $table->text('descripcion')->comment('descripción u observaciones del documento');
 
             // ruta de almacenamiento del archivo
-            $table->string('ruta')->comment('ruta donde se almacena el documento en storage interno');
-            $table->string('tipo_almacen')->comment('Tipo de almacén: S3, Azure, etc.');
-            $table->string('uri')->comment('URI del documento');
-            $table->double('longitud')->comment('Tamaño en bytes del archivo');
+            $table->string('ruta')->nullable()->comment('ruta donde se almacena el documento en storage interno');
+            $table->string('tipo_almacen')->nullable()->comment('Tipo de almacén: S3, Azure, etc.');
+            $table->string('uri')->nullable()->comment('URI del documento');
+            $table->double('longitud')->nullable()->comment('Tamaño en bytes del archivo');
             $table->boolean('firmado')->nullable()->comment('Indica si el documento está firmado');
             $table->string('pkcs7base64')->nullable()->comment('Empaquetado de la firma');
             $table->integer('clasificacion_archivo_id')->nullable()->comment('FK que apunta al catálogo de clasificaciones de archivos');
