@@ -32,13 +32,16 @@ trait GenerateDocument
         $html = $this->renderDocumento($idSolicitud, 1, $idSolicitante, $idSolicitado);
         $pdf = App::make('dompdf.wrapper');
         $pdf->getDomPDF();
-        // dd($html);
         $pdf->loadHTML($html)->setPaper('letter');
-        $path = $directorio . "/ConstanciaNoConciliacion" . $idAudiencia.$idSolicitante.$idSolicitado . '.pdf';
-        $fullPath = storage_path('app/' . $directorio) . "/ConstanciaNoConciliacion" . $idAudiencia.$idSolicitante.$idSolicitado . '.pdf';
+        
+        //Creamos el registro
+        $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre]);
+        
+        $path = $directorio . "/ConstanciaNoConciliacion" . $archivo->id . '.pdf';
+        $fullPath = storage_path('app/' . $directorio) . "/ConstanciaNoConciliacion" . $archivo->id . '.pdf';
 
         $store = $pdf->save($fullPath);
-        $padre->documentos()->create([
+        $archivo->update([
             "nombre" => str_replace($directorio . "/", '', $path),
             "nombre_original" => str_replace($directorio . "/", '', $path), //str_replace($directorio, '',$path->getClientOriginalName()),
             "descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,
