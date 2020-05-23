@@ -74,7 +74,7 @@ class ConsultaConciliacionesPorExpediente
                 return [
                     'data' => $res,
                     'documento' => [
-                        'documento_id' => 1553,
+                        'documento_id' => $documento->id,
                         'nombre' => $info["basename"],
                         'extension' => $info["extension"],
                         'filebase64'=> $contents,
