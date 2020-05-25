@@ -73,7 +73,9 @@ class ExpedienteRelationTest extends TestCase
         ]);
         // termina audiencia 
         // se genera documento
-        $this->generarConstancia($audiencia->id,$solicitud->id,1);
+        if($resolucion_partes->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1);
+        }
         // termina documento
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   
     }
@@ -132,9 +134,11 @@ class ExpedienteRelationTest extends TestCase
             "parte_solicitada_id" => $parteSolicitado->id
         ]);
         // termina audiencia 
-        // se genera documento
-        $this->generarConstancia($audiencia->id,$solicitud->id,1);
-        // termina documento
+        if($resolucion_partes->resolucion_id == 3){
+            // se genera documento
+            $this->generarConstancia($audiencia->id,$solicitud->id,1);
+            // termina documento
+        }
 
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   
     }
@@ -196,9 +200,11 @@ class ExpedienteRelationTest extends TestCase
             "parte_solicitada_id" => $parteSolicitado->id
         ]);
         // termina audiencia 
-        // se genera documento
-        $this->generarConstancia($audiencia->id,$solicitud->id,1);
-        // termina documento
+        if($resolucion_partes->resolucion_id == 3){
+            // se genera documento
+            $this->generarConstancia($audiencia->id,$solicitud->id,1);
+            // termina documento
+        }
 
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   
     }
@@ -265,32 +271,40 @@ class ExpedienteRelationTest extends TestCase
         $compareciente_audiencia_rep = factory(Compareciente::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $representante_legal_solicitado2->id,]);
         $audiencia_parte_solicitante_rep = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $representante_legal_solicitado2->id,]);
         // representante legal
-        $resolucion_partes=factory(ResolucionPartes::class)->create([
+        $resolucion_partes1=factory(ResolucionPartes::class)->create([
             "audiencia_id" => $audiencia->id,
             "parte_solicitante_id" => $parteSolicitante->id,
             "parte_solicitada_id" => $parteSolicitado->id
         ]);
-        $resolucion_partes=factory(ResolucionPartes::class)->create([
+        $resolucion_partes2=factory(ResolucionPartes::class)->create([
             "audiencia_id" => $audiencia->id,
             "parte_solicitante_id" => $parteSolicitante->id,
             "parte_solicitada_id" => $parteSolicitado2->id
         ]);
-        $resolucion_partes=factory(ResolucionPartes::class)->create([
+        $resolucion_partes3=factory(ResolucionPartes::class)->create([
             "audiencia_id" => $audiencia->id,
             "parte_solicitante_id" => $parteSolicitante2->id,
             "parte_solicitada_id" => $parteSolicitado->id
         ]);
-        $resolucion_partes=factory(ResolucionPartes::class)->create([
+        $resolucion_partes4=factory(ResolucionPartes::class)->create([
             "audiencia_id" => $audiencia->id,
             "parte_solicitante_id" => $parteSolicitante2->id,
             "parte_solicitada_id" => $parteSolicitado2->id
         ]);
         // termina audiencia 
         // se genera documento por cada resolucion parte
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado->id);
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado2->id);
+        if($resolucion_partes1->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
+        }
+        if($resolucion_partes2->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
+        }
+        if($resolucion_partes3->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado->id);
+        }
+        if($resolucion_partes4->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado2->id);
+        }
         // termina documento
         // se asigna resolucion a cada parte
         // dd($resolucion_partes1);
@@ -365,31 +379,39 @@ class ExpedienteRelationTest extends TestCase
         $conciliador_audiencia = factory(ConciliadorAudiencia::class)->create(['audiencia_id'=>$audiencia->id,'conciliador_id' => $conciliador->id,]);
         
         // termina audiencia 
-        $resolucion_partes=factory(ResolucionPartes::class)->create([
+        $resolucion_partes1=factory(ResolucionPartes::class)->create([
             "audiencia_id" => $audiencia->id,
             "parte_solicitante_id" => $parteSolicitante->id,
             "parte_solicitada_id" => $parteSolicitado->id
         ]);
-        $resolucion_partes=factory(ResolucionPartes::class)->create([
+        $resolucion_partes2=factory(ResolucionPartes::class)->create([
             "audiencia_id" => $audiencia->id,
             "parte_solicitante_id" => $parteSolicitante->id,
             "parte_solicitada_id" => $parteSolicitado2->id
         ]);
-        $resolucion_partes=factory(ResolucionPartes::class)->create([
+        $resolucion_partes3=factory(ResolucionPartes::class)->create([
             "audiencia_id" => $audiencia->id,
             "parte_solicitante_id" => $parteSolicitante2->id,
             "parte_solicitada_id" => $parteSolicitado->id
         ]);
-        $resolucion_partes=factory(ResolucionPartes::class)->create([
+        $resolucion_partes4=factory(ResolucionPartes::class)->create([
             "audiencia_id" => $audiencia->id,
             "parte_solicitante_id" => $parteSolicitante2->id,
             "parte_solicitada_id" => $parteSolicitado2->id
         ]);
         // se genera documento
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado->id);
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado2->id);
+        if($resolucion_partes1->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
+        }
+        if($resolucion_partes2->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
+        }
+        if($resolucion_partes3->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado->id);
+        }
+        if($resolucion_partes4->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante2->id,$parteSolicitado2->id);
+        }
         // termina documento
                         
         
@@ -459,14 +481,18 @@ class ExpedienteRelationTest extends TestCase
             "parte_solicitante_id" => $parteSolicitante->id,
             "parte_solicitada_id" => $parteSolicitado->id
         ]);
-        $resolucion_partes=factory(ResolucionPartes::class)->create([
+        $resolucion_partes1=factory(ResolucionPartes::class)->create([
             "audiencia_id" => $audiencia->id,
             "parte_solicitante_id" => $parteSolicitante->id,
             "parte_solicitada_id" => $parteSolicitado2->id
         ]);
         // se genera documento
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
+        if($resolucion_partes->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
+        }
+        if($resolucion_partes1->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
+        }
         // termina documento
 
         
@@ -525,7 +551,9 @@ class ExpedienteRelationTest extends TestCase
         ]);
         // termina audiencia 
         // se genera documento
-        $this->generarConstancia($audiencia->id,$solicitud->id,1);
+        if($resolucion_partes->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1);
+        }
         // termina documento
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   
     }
@@ -596,15 +624,19 @@ class ExpedienteRelationTest extends TestCase
             "parte_solicitante_id" => $parteSolicitante->id,
             "parte_solicitada_id" => $parteSolicitado->id
         ]);
-        $resolucion_partes=factory(ResolucionPartes::class)->create([
+        $resolucion_partes1=factory(ResolucionPartes::class)->create([
             "audiencia_id" => $audiencia->id,
             "parte_solicitante_id" => $parteSolicitante->id,
             "parte_solicitada_id" => $parteSolicitado2->id
         ]);
         // termina audiencia 
         // se genera documento para cada resolucion
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
-        $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
+        if($resolucion_partes->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado->id);
+        }
+        if($resolucion_partes1->resolucion_id == 3){
+            $this->generarConstancia($audiencia->id,$solicitud->id,1,$parteSolicitante->id,$parteSolicitado2->id);
+        }
         // termina documento
 
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   
