@@ -337,7 +337,7 @@
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="curp" class="control-label">CURP</label>
-                                <input type="text" id="curp" class="form-control" placeholder="CURP del representante legal">
+                                <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control" placeholder="CURP del representante legal">
                             </div>
                         </div>
                         <div class="col-md-6 ">
