@@ -29,6 +29,7 @@ use App\TipoAsentamiento;
 use App\TipoContacto;
 use App\TipoVialidad;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 
 class SolicitudController extends Controller
@@ -78,7 +79,12 @@ class SolicitudController extends Controller
                 $solicitud->where('fecha_conflicto',$this->request->get('fechaConflicto'));
             }
             if($this->request->get('folio')){
-                $solicitud->where('folio',$this->request->get('folio'));
+                $expediente = Expediente::where('folio',$this->request->get('folio'))->first();
+                if(count($expediente) > 0){
+                    $solicitud->where('id',$expediente->solicitud->id);
+                }else{
+                    $solicitud->where('id','<','1');
+                }
             }
             if($this->request->get('anio')){
                 $solicitud->where('anio',$this->request->get('anio'));
@@ -101,8 +107,8 @@ class SolicitudController extends Controller
         $solicitud = tap($solicitud)->each(function ($solicitud) {
             $solicitud->loadDataFromRequest();
         });
-        $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
-        $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
+        $objeto_solicitudes = $this->cacheModel('objeto_solicitudes',ObjetoSolicitud::class);
+        $estatus_solicitudes = $this->cacheModel('estatus_solicitudes',EstatusSolicitud::class);
         if ($this->request->wantsJson()) {
             if ($this->request->get('all') || $this->request->get('paginate') ) {
                 return $this->sendResponse($solicitud, 'SUCCESS');
@@ -122,21 +128,38 @@ class SolicitudController extends Controller
      */
     public function create()
     {
-        $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
-        $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
-        $centros = array_pluck(Centro::all(),'nombre','id');
-        $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
-        $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
-        $estados = array_pluck(Estado::all(),'nombre','id');
-        $jornadas = array_pluck(Jornada::all(),'nombre','id');
-        $generos = array_pluck(Genero::all(),'nombre','id');
-        $nacionalidades = array_pluck(Nacionalidad::all(),'nombre','id');
-        $giros_comerciales = array_pluck(GiroComercial::all(),'nombre','id');
-        $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
-        $grupo_prioritario = array_pluck(GrupoPrioritario::all(),'nombre','id');
-        $lengua_indigena = array_pluck(LenguaIndigena::all(),'nombre','id');
-        $tipo_contacto = array_pluck(TipoContacto::all(),'nombre','id');
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto'));
+        
+       
+        $objeto_solicitudes = $this->cacheModel('objeto_solicitudes',ObjetoSolicitud::class);
+        $estatus_solicitudes = $this->cacheModel('estatus_solicitudes',EstatusSolicitud::class);
+        $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
+        $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
+        $estados = $this->cacheModel('estados',Estado::class);
+        $jornadas = $this->cacheModel('jornadas',Jornada::class);
+        $nacionalidades = $this->cacheModel('nacionalidades',Nacionalidad::class);
+        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
+        $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
+        $grupo_prioritario = $this->cacheModel('grupo_prioritario',GrupoPrioritario::class);
+        $lengua_indigena = $this->cacheModel('lengua_indigena',LenguaIndigena::class);
+        $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto'));
+    }
+
+    /**
+     * Función para almacenar catalogos (nombre,id) en cache
+     *
+     * @param [string] $nombre
+     * @param [Model] $modelo
+     * @return void
+     */
+    private function cacheModel($nombre,$modelo){
+        if (!Cache::has($nombre)) {
+            $respuesta = array_pluck($modelo::all(),'nombre','id');
+            Cache::forever($nombre, $respuesta);
+        }else{
+            $respuesta = Cache::get($nombre);
+        }
+        return $respuesta;
     }
 
     /**
@@ -331,9 +354,9 @@ class SolicitudController extends Controller
     public function edit($id)
     {
         $solicitud = Solicitud::find($id);
-        $parte = Parte::all()->where('solicitud_id',$solicitud->id);
+        $parte = Parte::where('solicitud_id',$solicitud->id);
 
-        $partes = $solicitud->partes()->get();//->where('tipo_parte_id',3)->get()->first()
+        $partes = $solicitud->with('partes')->get();//->where('tipo_parte_id',3)->get()->first()
 
         $expediente = Expediente::where("solicitud_id" ,"=",$solicitud->id)->get();
         if(count($expediente) > 0){
@@ -341,22 +364,20 @@ class SolicitudController extends Controller
         }else{
             $audiencias = array();
         }
-        
-        $objeto_solicitudes = array_pluck(ObjetoSolicitud::all(),'nombre','id');
-        $estatus_solicitudes = array_pluck(EstatusSolicitud::all(),'nombre','id');
-        $centros = array_pluck(Centro::all(),'nombre','id');
-        $giros_comerciales = array_pluck(GiroComercial::all(),'nombre','id');
-        $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
-        $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
-        $estados = array_pluck(Estado::all(),'nombre','id');
-        $jornadas = array_pluck(Jornada::all(),'nombre','id');
-        $generos = array_pluck(Genero::all(),'nombre','id');
-        $nacionalidades = array_pluck(Nacionalidad::all(),'nombre','id');
-        $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
-        $grupo_prioritario = array_pluck(GrupoPrioritario::all(),'nombre','id');
-        $lengua_indigena = array_pluck(LenguaIndigena::all(),'nombre','id');
-        $tipo_contacto = array_pluck(TipoContacto::all(),'nombre','id');
-        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','centros','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','expediente','audiencias','grupo_prioritario','lengua_indigena','tipo_contacto'));
+        $objeto_solicitudes = $this->cacheModel('objeto_solicitudes',ObjetoSolicitud::class);
+        $estatus_solicitudes = $this->cacheModel('estatus_solicitudes',EstatusSolicitud::class);
+        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
+        $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
+        $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
+        $estados = $this->cacheModel('estados',Estado::class);
+        $jornadas = $this->cacheModel('jornadas',Jornada::class);
+        $generos = $this->cacheModel('generos',Genero::class);
+        $nacionalidades = $this->cacheModel('nacionalidades',Nacionalidad::class);
+        $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
+        $grupo_prioritario = $this->cacheModel('grupo_prioritario',GrupoPrioritario::class);
+        $lengua_indigena = $this->cacheModel('lengua_indigena',LenguaIndigena::class);
+        $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
+        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','expediente','audiencias','grupo_prioritario','lengua_indigena','tipo_contacto'));
     }
 
     /**
