@@ -141,6 +141,7 @@ class SolicitudController extends Controller
         $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
         $grupo_prioritario = $this->cacheModel('grupo_prioritario',GrupoPrioritario::class);
         $lengua_indigena = $this->cacheModel('lengua_indigena',LenguaIndigena::class);
+        $generos = $this->cacheModel('generos',Genero::class);
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto'));
     }
