@@ -4,7 +4,7 @@
             <label for="persona_id" class="col-sm-6 control-label">Persona</label>
             <div class="col-sm-10">
                 <select id="persona_id" class="form-control">
-                    <option value="">-- Selecciona un centro</option>
+                    <option value="">-- Selecciona una persona</option>
                 </select>
             </div>
         </div>

@@ -70,7 +70,7 @@
                             $("#persona_id").append("<option value='"+element.id+"'>"+element.nombre+" "+element.primer_apellido+" "+element.segundo_apellido+"</option>");
                         });
                     }else{
-                        $("#persona_id").html("<option value=''>-- Selecciona un centro</option>");
+                        $("#persona_id").html("<option value=''>-- Selecciona una persona</option>");
                     }
                     $("#persona_id").select2();
                 }

@@ -50,7 +50,7 @@
                                 <label for="conciliador_id" class="col-sm-6 control-label">Conciliador</label>
                                 <div class="col-sm-10">
                                     <select id="conciliador_id" class="form-control">
-                                        <option value="">-- Selecciona un centro</option>
+                                        <option value="">-- Selecciona un conciliador</option>
                                     </select>
                                 </div>
                             </div>
@@ -60,7 +60,7 @@
                                 <label for="sala_id" class="col-sm-6 control-label">Sala</label>
                                 <div class="col-sm-10">
                                     <select id="sala_id" class="form-control">
-                                        <option value="">-- Selecciona un centro</option>
+                                        <option value="">-- Selecciona una sala</option>
                                     </select>
                                 </div>
                             </div>
@@ -80,7 +80,7 @@
                                             <label for="conciliador_solicitante_id" class="col-sm-6 control-label">Conciliador</label>
                                             <div class="col-sm-10">
                                                 <select id="conciliador_solicitante_id" class="form-control">
-                                                    <option value="">-- Selecciona un centro</option>
+                                                    <option value="">-- Selecciona un solicitante</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -90,7 +90,7 @@
                                             <label for="sala_solicitante_id" class="col-sm-6 control-label">Sala</label>
                                             <div class="col-sm-10">
                                                 <select id="sala_solicitante_id" class="form-control">
-                                                    <option value="">-- Selecciona un centro</option>
+                                                    <option value="">-- Selecciona una sala</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -109,7 +109,7 @@
                                             <label for="conciliador_solicitado_id" class="col-sm-6 control-label">Conciliador</label>
                                             <div class="col-sm-10">
                                                 <select id="conciliador_solicitado_id" class="form-control">
-                                                    <option value="">-- Selecciona un centro</option>
+                                                    <option value="">-- Selecciona un conciliador</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -119,7 +119,7 @@
                                             <label for="sala_solicitado_id" class="col-sm-6 control-label">Sala</label>
                                             <div class="col-sm-10">
                                                 <select id="sala_solicitado_id" class="form-control">
-                                                    <option value="">-- Selecciona un centro</option>
+                                                    <option value="">-- Selecciona una sala</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -272,12 +272,12 @@
                     dataType:"json",
                     success:function(data){
                         if(data != null && data != ""){
-                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un centro</option>");
+                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un conciliador</option>");
                             $.each(data,function(index,element){
                                 $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").append("<option value='"+element.id+"'>"+element.persona.nombre+" "+element.persona.primer_apellido+" "+element.persona.segundo_apellido+"</option>");
                             });
                         }else{
-                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un centro</option>");
+                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un conciliador</option>");
                         }
                         $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").select2();
                     }

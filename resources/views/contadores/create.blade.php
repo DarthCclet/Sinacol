@@ -67,12 +67,12 @@
                 dataType:"json",
                 success:function(data){
                     if(data != null && data != ""){
-                        $("#tipo_contador_id").html("<option value=''>-- Selecciona un centro</option>");
+                        $("#tipo_contador_id").html("<option value=''>-- Selecciona un tipo de contador</option>");
                         $.each(data,function(index,element){
                             $("#tipo_contador_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
                         });
                     }else{
-                        $("#tipo_contador_id").html("<option value=''>-- Selecciona un centro</option>");
+                        $("#tipo_contador_id").html("<option value=''>-- Selecciona un tipo de contador</option>");
                     }
                     $("#tipo_contador_id").trigger('change');
                 }

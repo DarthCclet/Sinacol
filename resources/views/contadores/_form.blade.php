@@ -11,7 +11,7 @@
         <div class="form-group">
             <label for="tipo_contador_id" class="control-label">Tipo de contador</label>
             <select id="tipo_contador_id" class="form-control">
-                <option value="">-- Selecciona un centro</option>
+                <option value="">-- Selecciona un tipo de contador</option>
             </select>
         </div>
     </div>
