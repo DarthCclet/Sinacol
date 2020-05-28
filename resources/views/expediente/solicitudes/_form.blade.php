@@ -119,11 +119,11 @@
                                 <p class="help-block">Segundo apellido</p>
                             </div>
                             <div class="col-md-12 personaMoralSolicitante">
-                                <input class="form-control" id="idNombreCSolicitante" placeholder="Nombre comercial" type="text" value="">
-                                <p class="help-block">Nombre comercial</p>
+                                <input class="form-control" id="idNombreCSolicitante" placeholder="Raz&oacute;n social" type="text" value="">
+                                <p class="help-block">Raz&oacute;n Social</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitante">
-                                <input class="form-control date" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimeinto del solicitante" type="text" value="">
+                                <input class="form-control dateBirth" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimeinto del solicitante" type="text" value="">
                                 <p class="help-block needed">Fecha de nacimiento</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitante">
@@ -368,11 +368,11 @@
                                 <p class="help-block">Segundo apellido</p>
                             </div>
                             <div class="col-md-8 personaMoralSolicitado">
-                                <input class="form-control" id="idNombreCSolicitado" required placeholder="Nombre comercial del solicitado" type="text" value="">
-                                <p class="help-block needed">Nombre comercia</p>
+                                <input class="form-control" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del solicitado" type="text" value="">
+                                <p class="help-block needed">Raz&oacute;n Social</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
-                                <input class="form-control date" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimeinto del solicitado" type="text" value="">
+                                <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimeinto del solicitado" type="text" value="">
                                 <p class="help-block needed">Fecha de nacimiento</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
@@ -1821,44 +1821,14 @@
         }
     });
     $(".catSelect").select2({width: '100%'});
-    $(".date").datetimepicker({useCurrent: false,format:'DD/MM/YYYY'});
+    $(".dateBirth").datepicker({useCurrent: false,format:'dd/mm/yyyy', startView:2});
+    $(".date").datepicker({useCurrent: false,format:'dd/mm/yyyy'});
     $(".dateTime").datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm:ss'});
     $(".date").keypress(function(event){
         event.preventDefault();
     });
-    (function (a) {
-        a.fn.limitKeyPress = function (b) {
-            a(this).on({keypress: function (a) {
-                    var c = a.which, d = a.keyCode, e = String.fromCharCode(c).toLowerCase(), f = b;
-                    (-1 != f.indexOf(e) || 9 == d || 37 != c && 37 == d || 39 == d && 39 != c || 8 == d || 46 == d && 46 != c) && 161 != c || a.preventDefault()
-                }})
-        }
-    })(jQuery);
-    $(".numero").limitKeyPress('1234567890.');
-    function dateFormat(fecha,tipo = 1){
-        if(fecha != "" && fecha != null){
-            if(tipo == 1){
-                var vecFecha = fecha.split("/");
-                var formatedDate = vecFecha[2] + "-" + vecFecha[1] + "-" + vecFecha[0];
-                return formatedDate;
-            }else if(tipo == 2){
-                var vecFechaHora = fecha.split(" ");
-                var vecFecha = vecFechaHora[0].split("-");
-                var formatedDate = vecFecha[2] + "/" + vecFecha[1] + "/" + vecFecha[0] + " " + vecFechaHora[1];
-                return formatedDate;
-            }else if(tipo == 3){
-                var vecFechaHora = fecha.split(" ");
-                var vecFecha = vecFechaHora[0].split("/");
-                var formatedDate = vecFecha[2] + "-" + vecFecha[1] + "-" + vecFecha[0] + " " + vecFechaHora[1];
-                return formatedDate;
-            }else{
-                var vecFecha = fecha.split("-");
-                var formatedDate = vecFecha[2] + "/" + vecFecha[1] + "/" + vecFecha[0];
-                return formatedDate;
-            }
-            
-        }
-    }
+    
+    
     $('.upper').on('keyup', function () {
         var valor = $(this).val();
         $(this).val(valor.toUpperCase());
