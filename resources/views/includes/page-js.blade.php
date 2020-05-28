@@ -167,6 +167,39 @@ function Edad(FechaNacimiento) {
 
     return edad;
 }
+(function (a) {
+        a.fn.limitKeyPress = function (b) {
+            a(this).on({keypress: function (a) {
+                    var c = a.which, d = a.keyCode, e = String.fromCharCode(c).toLowerCase(), f = b;
+                    (-1 != f.indexOf(e) || 9 == d || 37 != c && 37 == d || 39 == d && 39 != c || 8 == d || 46 == d && 46 != c) && 161 != c || a.preventDefault()
+                }})
+        }
+    })(jQuery);
+$(".numero").limitKeyPress('1234567890.');
+    function dateFormat(fecha,tipo = 1){
+        if(fecha != "" && fecha != null){
+            if(tipo == 1){
+                var vecFecha = fecha.split("/");
+                var formatedDate = vecFecha[2] + "-" + vecFecha[1] + "-" + vecFecha[0];
+                return formatedDate;
+            }else if(tipo == 2){
+                var vecFechaHora = fecha.split(" ");
+                var vecFecha = vecFechaHora[0].split("-");
+                var formatedDate = vecFecha[2] + "/" + vecFecha[1] + "/" + vecFecha[0] + " " + vecFechaHora[1];
+                return formatedDate;
+            }else if(tipo == 3){
+                var vecFechaHora = fecha.split(" ");
+                var vecFecha = vecFechaHora[0].split("/");
+                var formatedDate = vecFecha[2] + "-" + vecFecha[1] + "-" + vecFecha[0] + " " + vecFechaHora[1];
+                return formatedDate;
+            }else{
+                var vecFecha = fecha.split("-");
+                var formatedDate = vecFecha[2] + "/" + vecFecha[1] + "/" + vecFecha[0];
+                return formatedDate;
+            }
+            
+        }
+    }
 
 </script>
 <!-- ================== END BASE JS ================== -->
