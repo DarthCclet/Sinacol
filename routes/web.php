@@ -61,5 +61,27 @@ Route::resource('permisos','PermissionController');
 Route::resource('roles','RoleController');
 Route::get('roles/permisos/{id}','RoleController@GetPermisosRol');
 Route::put('roles/permisos/{id}','RoleController@DeletePermisosRol');
+Route::post('usuario/roles/','UserController@AddRol');
+Route::get('usuario/roles/{id}','UserController@GetRoles');
+Route::post('usuario/roles/delete','UserController@EliminarRol');
 Auth::routes(['register' => false]);
+
+Route::group(['middleware' => ['role:Super Usuario']], function () {
+    //
+});
+Route::group(['middleware' => ['role:Supervisor regional']], function () {
+    //
+});
+Route::group(['middleware' => ['role:Conciliador']], function () {
+    //
+});
+Route::group(['middleware' => ['role:Secretario']], function () {
+    //
+});
+Route::group(['middleware' => ['role:Parte']], function () {
+    //
+});
+Route::group(['middleware' => ['role:público en general']], function () {
+    //
+});
 
