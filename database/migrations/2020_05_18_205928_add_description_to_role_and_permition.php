@@ -19,6 +19,20 @@ class AddDescriptionToRoleAndPermition extends Migration
         Schema::table('roles', function (Blueprint $table) {
             $table->string('description')->nullable();
         });
+        
+        $path = base_path('database/datafiles');
+        $json = json_decode(file_get_contents($path . "/roles.json"));
+
+        //Se llena el catalogo desde el arvhivo json generos.json
+        foreach ($json->datos as $rol){
+            DB::table('roles')->insert(
+                [
+                    'name' => $rol->name,
+                    'description' => $rol->description,
+                    'guard_name' => 'web'
+                ]
+            );
+        }
     }
 
     /**

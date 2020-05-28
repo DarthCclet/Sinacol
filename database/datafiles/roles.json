@@ -1,0 +1,35 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "name": "Super Usuario",
+            "description": "Tiene control de todo el sistema"
+        },
+        {
+            "id": "2",
+            "name": "Supervisor regional",
+            "description": "Se encarga de administrar las configuraciones de los centros"
+        },
+        {
+            "id": "3",
+            "name": "Conciliador",
+            "description": "Se encarga de atender audiencias y consultar los expedientes"
+        },
+        {
+            "id": "4",
+            "name": "Secretario",
+            "description": "Se encarga de atender audiencias y consultar los expedientes"
+        },
+        {
+            "id": "5",
+            "name": "Parte",
+            "description": "Puede realizar solicitudes, consultar sus expedientes y su buzón electrónico"
+        },
+        {
+            "id": "6",
+            "name": "público en general",
+            "description": "Realiza solicitudes"
+        }
+    ],
+    "numReg": 6
+}
