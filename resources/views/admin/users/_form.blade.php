@@ -37,18 +37,6 @@
                 <p class="help-block">Confirme la contraseña</p>
             </div>
         </div>
-        <div class="form-group">
-            <label for="apepat" class="control-label">Rol</label>
-            <div class="col-sm-10">
-                <select class="selectRol form-control" name="rol" id="rol">
-                    @foreach($roles as $rol)
-                    <option value="{{$rol->name}}">{{$rol->name}}</option>
-                    @endforeach
-                </select>
-                {!! $errors->first('rol', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block">Rol que tendrá el usuario en el sistema</p>
-            </div>
-        </div>
     </div>
 
     <div class="col-md-6">

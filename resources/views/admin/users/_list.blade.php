@@ -22,12 +22,16 @@
             <td class="all">
                 {!! Form::open(['action' => ['UserController@destroy', $user->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
+                    @can('Editar usuario')
                     <a href="{{route('users.edit',[$user])}}" class="btn btn-xs btn-info">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
+                    @endcan
+                    @can('Eliminar usuarios')
                     <button class="btn btn-xs btn-warning btn-borrar">
                         <i class="fa fa-trash btn-borrar"></i>
                     </button>
+                    @endcan
                 </div>
                 {!! Form::close() !!}
             </td>
