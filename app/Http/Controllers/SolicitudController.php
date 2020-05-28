@@ -56,7 +56,7 @@ class SolicitudController extends Controller
         // Filtramos los usuarios con los parametros que vengan en el request
         $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
             ->searchWith(Solicitud::class)
-            ->filter();
+            ->filter(false);
 
          // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
@@ -79,7 +79,10 @@ class SolicitudController extends Controller
                 $solicitud->where('fecha_conflicto',$this->request->get('fechaConflicto'));
             }
             if($this->request->get('folio')){
-                $expediente = Expediente::where('folio',$this->request->get('folio'))->first();
+                $solicitud->where('folio',$this->request->get('folio'));
+            }
+            if($this->request->get('Expediente')){
+                $expediente = Expediente::where('folio',$this->request->get('Expediente'))->first();
                 if(count($expediente) > 0){
                     $solicitud->where('id',$expediente->solicitud->id);
                 }else{
@@ -95,8 +98,11 @@ class SolicitudController extends Controller
             if($this->request->get('loadPartes')){
                 $solicitud = $solicitud->with("partes");
             }
+            if($this->request->get('loadPartes')){
+                $solicitud = $solicitud->with("expediente");
+            }
             if($this->request->get('IsDatatableScroll')){
-                $solicitud = $solicitud->take($length)->skip($start)->get();
+                $solicitud = $solicitud->orderBy("fecha_recepcion",'desc')->take($length)->skip($start)->get();
             }else{
                 $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
             }
