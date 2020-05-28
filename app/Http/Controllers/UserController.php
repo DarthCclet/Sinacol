@@ -32,6 +32,7 @@ class UserController extends Controller
     public function index()
     {
 
+//        dd("holi");
         User::with('persona')->get();
 
         // Filtramos los usuarios con los parametros que vengan en el request
@@ -56,7 +57,6 @@ class UserController extends Controller
         if ($this->request->wantsJson()) {
             return $this->sendResponse($users, 'SUCCESS');
         }
-
         // Si no se requiere respuesta JSON entonces regresamos la vista del admin de usuarios
         return view('admin.users.index', compact('users'));
     }
@@ -100,9 +100,6 @@ class UserController extends Controller
 
         $user = Persona::create($persona)->user()->create($request->input('users'))->load('persona');
         
-        //Asignamos el rol
-        $user->hasRole($request->rol);
-
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
         }
@@ -129,7 +126,8 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        return view('admin.users.edit', compact('user'));
+        $roles = Role::all();
+        return view('admin.users.edit', compact('user','roles'));
     }
 
     /**
@@ -188,6 +186,20 @@ class UserController extends Controller
         }
 
         return redirect()->route('users.index')->with('success', 'Se ha eliminado el usuario exitosamente');
-
+    }
+    
+    public function AddRol(Request $request){
+        $user = User::find($request->user_id);
+        $user->assignRole($request->rol);
+        return $user->roles;
+    }
+    public function GetRoles($id){
+        $user = User::find($id);
+        return $user->roles;
+    }
+    public function EliminarRol(Request $request){
+        $user = User::find($request->user_id);
+        $user->removeRole($request->rol);
+        return $user->roles;
     }
 }
