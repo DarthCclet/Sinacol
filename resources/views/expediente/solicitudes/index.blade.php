@@ -9,9 +9,8 @@
     
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
-        <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
-        <li class="breadcrumb-item"><a href="javascript:;">Tables</a></li>
-        <li class="breadcrumb-item active">Managed Tables</li>
+        <li class="breadcrumb-item"><a href="">Home</a></li>
+        <li class="breadcrumb-item"><a href="{!! route("solicitudes.index") !!}">Solicitudes</a></li>
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->

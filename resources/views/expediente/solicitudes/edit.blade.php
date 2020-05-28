@@ -8,6 +8,13 @@
 @include('includes.component.dropzone')
 
 @section('content')
+<!-- begin breadcrumb -->
+<ol class="breadcrumb float-xl-right">
+  <li class="breadcrumb-item"><a href="">Home</a></li>
+  <li class="breadcrumb-item"><a href="{!! route("solicitudes.index") !!}">Solicitudes</a></li>
+  <li class="breadcrumb-item"><a href="javascript:;">Editar Solicitud</a></li>
+</ol>
+<!-- end breadcrumb -->
 <button class="btn btn-info" onclick="location.href='{{ route('solicitudes.index')  }}'" ><i class="fa fa-arrow-alt-circle-left"></i> Regresar</button>
 <div class="panel panel-inverse">
     <div class="panel panel-heading ui-sortable-handle">

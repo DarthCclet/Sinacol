@@ -9,8 +9,7 @@
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
         <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
-        <li class="breadcrumb-item"><a href="javascript:;">Expedientes</a></li>
-        <li class="breadcrumb-item active">Audiencias</li>
+        <li class="breadcrumb-item"><a href="javascript:;">Audiencias</a></li>
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->

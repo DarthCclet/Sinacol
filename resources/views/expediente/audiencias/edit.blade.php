@@ -11,7 +11,9 @@
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
         <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
-        <li class="breadcrumb-item active"><a href="javascript:;">Centros</a></li>
+        <li class="breadcrumb-item active"><a href="{!! route("audiencias.index") !!}">Audiencia</a></li>
+        <li class="breadcrumb-item active"><a href="javascript:;">Editar Audiencia</a></li>
+        
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->
@@ -695,13 +697,13 @@
                 dataType:"json",
                 success:function(data){
                     if(data.data.data != null && data.data.data != ""){
-                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona un centro</option>");
-                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona un centro</option>");
+                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
+                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
                         $.each(data.data.data,function(index,element){
                             $("#resolucion_id,#resolucion_individual_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
                         });
                     }else{
-                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona un centro</option>");
+                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
                     }
                     $("#resolucion_id").val('{{ $audiencia->resolucion_id }}');
                     $("#resolucion_id,#resolucion_individual_id").trigger("change");
@@ -960,7 +962,7 @@
                             $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
                         });
                     }else{
-                        $("#genero_id").html("<option value=''>-- Selecciona un centro</option>");
+                        $("#genero_id").html("<option value=''>-- Selecciona una opcion</option>");
                     }
                     $("#genero_id").trigger("change");
                 }
