@@ -2,7 +2,7 @@
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
-      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Anio</th><th>Centro</th><th>user</th><th>ratificada</th><th>excepcion</th><th>Fecha Ratificacion</th><th>Fecha Recepcion</th><th>Observaciones</th><th>deleted_at</th><th>created_at</th><th>updated_at</th><th>Fecha Conflicto</th><th>Partes</th><th>Accion</th></tr>
+      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Anio</th><th>Centro</th><th>user</th><th>ratificada</th><th>excepcion</th><th>Fecha Ratificacion</th><th>Fecha Recepcion</th><th>Observaciones</th><th>deleted_at</th><th>created_at</th><th>updated_at</th><th>Fecha Conflicto</th><th>Partes</th><th>Expediente</th><th>Accion</th></tr>
     </thead>
 
 </table>
@@ -10,6 +10,10 @@
     <div class="col-md-4">
         <input class="form-control filtros" id="folio" placeholder="Folio" type="text" value="">
         <p class="help-block needed">Folio</p>
+    </div>
+    <div class="col-md-4">
+        <input class="form-control filtros" id="Expediente" placeholder="Folio del Expediente" type="text" value="">
+        <p class="help-block needed">Expediente</p>
     </div>
     <div class="col-md-4">
         <input class="form-control filtros" id="anio" placeholder="A&ntilde;o" type="text" value="">
@@ -64,6 +68,7 @@
                         d.fechaRecepcion = dateFormat($("#fechaRecepcion").val(),1),
                         d.fechaConflicto = dateFormat($("#fechaConflicto").val(),1),
                         d.folio = $("#folio").val(),
+                        d.Expediente = $("#Expediente").val(),
                         d.anio = $("#anio").val(),
                         d.estatus_solicitud_id = $("#estatus_solicitud_id").val(),
                         d.IsDatatableScroll = true,
@@ -135,9 +140,9 @@
                                 }else{
                                     nombre = value.nombre_comercial;
                                 }
-                                if(value.tipo_parte_id == 1){
+                                if(value.tipo_parte_id == 2){
                                     solicitantes += "<p> -"+nombre+"</p>";
-                                }else{
+                                }else if(value.tipo_parte_id == 1){
                                     solicitados += "<p> - "+nombre+"</p>";
                                 }
                             });
@@ -147,6 +152,18 @@
                             html += "<h5>Solicitados</h5>";
                             html += solicitantes;
                             html += "</div>";
+                            return  html;
+                        }
+                    },
+                    {
+                        "targets": [16], 
+                        "render": function (data, type, row) {
+                            console.log(data);
+                            html = "N/A";
+                            if(data != null){
+                            html = ""+data.folio;
+
+                            }
                             return  html;
                         }
                     },
@@ -166,6 +183,8 @@
                 "ordering": false,
                 "searching": false,
                 "pageLength": 20,
+                "recordsTotal":20,
+                "recordsFiltered":20,
                 "lengthChange": false,
                 "scrollX": true,
                 "scrollY": $(window).height() - $('#header').height()-200,
@@ -192,7 +211,7 @@
                 }
             });
         
-            $('.filtros').on( 'blur change clear', function () {
+            $('.filtros').on( 'dp.change change clear', function () {
                 dt.clear();
                 dt.ajax.reload(function(){}, true);
                 filtrado = true;
