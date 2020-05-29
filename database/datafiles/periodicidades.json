@@ -1,0 +1,22 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Semanal"
+        },
+        {
+            "id": "2",
+            "nombre": "Mensual"
+        },
+        {
+            "id": "3",
+            "nombre": "Quincenal"
+        },
+        {
+            "id": "34",
+            "nombre": "Diario"
+        }
+    ],
+
+    "numReg": 4
+}

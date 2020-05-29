@@ -28,7 +28,9 @@ class RFC implements Rule
         $aceptarGenerico = true;
         $reg = "/[A-Z]{4}\d{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9][0-9]/";
         $re = "/^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/";
-            
+        if($value == ""){
+            return true;
+        }
         if(!preg_match($re,$value))
         {
             return false;
