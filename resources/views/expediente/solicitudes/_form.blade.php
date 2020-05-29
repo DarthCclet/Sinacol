@@ -98,7 +98,7 @@
                         </div>
                         <div class="col-md-8 personaFisicaSolicitante">
                             <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" autofocus="" type="text" value="">
-                            <p class="help-block">CURP del solicitante</p>
+                            <p class="help-block needed">CURP del solicitante</p>
                         </div>
                         <div class="col-md-12 row">
                             <div class="col-md-4" style="display:none;">
@@ -120,10 +120,10 @@
                             </div>
                             <div class="col-md-12 personaMoralSolicitante">
                                 <input class="form-control" id="idNombreCSolicitante" placeholder="Raz&oacute;n social" type="text" value="">
-                                <p class="help-block">Raz&oacute;n Social</p>
+                                <p class="help-block needed">Raz&oacute;n Social</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitante">
-                                <input class="form-control dateBirth" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimeinto del solicitante" type="text" value="">
+                                <input class="form-control dateBirth" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimiento del solicitante" type="text" value="">
                                 <p class="help-block needed">Fecha de nacimiento</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitante">
@@ -131,8 +131,8 @@
                                 <p class="help-block needed">Edad del solicitante</p>
                             </div>
                             <div class="col-md-4">
-                                <input class="form-control upper" required id="idSolicitanteRfc" onblur="validaRFC(this.value);" placeholder="Rfc del solicitante" type="text" value="">
-                                <p class="help-block needed">Rfc del solicitante</p>
+                                <input class="form-control upper" id="idSolicitanteRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitante" type="text" value="">
+                                <p class="help-block">RFC del solicitante</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitante">
                                 {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
@@ -152,7 +152,7 @@
                             
                             
                         </div>
-                        <div class="col-md-12 row">
+                        <div class="col-md-12 row personaFisicaSolicitanteNO">
                             <div class="col-md-4">
                                 <div >
                                     <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
@@ -172,7 +172,7 @@
                         {{-- Seccion de contactos solicitados --}}
                         <div class="col-md-12 row">
                             <div class="col-md-12" align="center">
-                                <h4>Contacto</h4>
+                                <h4>Contacto de buz&oacute;n electr&oacute;nico</h4>
                             </div>
                             <input type="hidden" id="contacto_id_solicitante">
                             <div class="col-md-4">
@@ -209,12 +209,12 @@
                         <!-- Seccion de Datos laborales -->
                         <div class="col-md-12 row">
                             <div class="col-md-12" align="center">
-                                <h4>Datos Laborales</h4>
+                                <h4>Datos Laborales del trabajador</h4>
                             </div>
                             <input type="hidden" id="dato_laboral_id">
                             <div class="col-md-12">
-                                <input class="form-control" required id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
-                                <p class="help-block needed">Nombre del Jefe directo</p>
+                                <input class="form-control" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
+                                <p class="help-block">Nombre del Jefe directo</p>
                             </div>
                             <div class="col-md-12 row">
                                 <input type="hidden" id="giro_comercial_solicitante">      
@@ -237,59 +237,56 @@
                             </div>
                             <div class="col-md-12 row">
                                 <div class="col-md-4">
-                                    {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Ocupaci&oacute;n</p>
+                                    <p class="help-block ">Categoria/Puesto</p>
                                 </div>
                                 <div class="col-md-4">
-                                    <input class="form-control numero" data-parsley-type='integer' required id="nss" placeholder="No. servicio social"  type="text" value="">
-                                    <p class="help-block needed">Numero de seguro social</p>
+                                    <input class="form-control numero" data-parsley-type='integer' id="nss" placeholder="No. IMSS"  type="text" value="">
+                                    <p class="help-block ">No. IMSS</p>
                                 </div>
                                 <div class="col-md-4">
-                                    <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No del ISSSTE"  type="text" value="">
+                                    <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
                                     <p class="help-block">No. ISSSTE</p>
                                 </div>
                             </div>
                             <div class="col-md-12 row">
                                 <div class="col-md-4">
-                                    <input class="form-control numero" data-parsley-type='integer' required id="no_afore" placeholder="No afore" type="text" value="">
-                                    <p class="help-block needed">No. afore</p>
+                                    <input class="form-control numero " required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="Remuneraci&oacute;n (pago)" type="text" value="">
+                                    <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
                                 </div>
                                 <div class="col-md-4">
-                                    <input class="form-control numero " required data-parsley-type='number' id="percepcion_mensual_neta" max="99999999" placeholder="Percepcion neta mensual" type="text" value="">
-                                    <p class="help-block needed">Percepcion neta mensual</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control numero" required data-parsley-type='number' id="percepcion_mensual_bruta" max="99999999" placeholder="Percepci&oacute;n mensual bruta" type="text" value="">
-                                    <p class="help-block needed">Percepci&oacute;n mensual bruta</p>
-                                </div>
-                            </div>
-                            <div class="col-md-12 row">
-                                
-                                <div class="col-md-4">
-                                    <input class="form-control date" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
-                                    <p class="help-block needed">Fecha de ingreso</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control date" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
-                                    <p class="help-block needed">Fecha salida</p>
+                                    {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Periodicidad</p>
                                 </div>
                                 <div class="col-md-4">
                                     <input class="form-control numero" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
                                     <p class="help-block needed">Horas semanales</p>
                                 </div>
                             </div>
+                            <div class="col-md-12 row">
+                                
+                                <div class="col-md-2">
+                                    <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="hidden" />
+                                    <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
+                                </div>
+                                <div class="col-md-4">
+                                    <input class="form-control date" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
+                                    <p class="help-block needed">Fecha de ingreso</p>
+                                </div>
+                                <div class="col-md-4" id="divFechaSalida">
+                                    <input class="form-control date" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
+                                    <p class="help-block needed">Fecha salida</p>
+                                </div>
+                            </div>
                             <div class="col-md-4">
                                 {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Jornada</p>
-                            </div>
-                            <div class="col-md-2">
-                                <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
-                            </div>
-                            <div class="col-md-2">
-                                <input type="hidden" />
-                                <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
                             </div>
                         </div>
                         <!-- end Seccion de Datos laborales -->
@@ -347,7 +344,7 @@
                         </div>
                         <div class="col-md-8 personaFisicaSolicitado">
                             <input class="form-control upper" required id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del solicitado" type="text" value="">
-                            <p class="help-block">CURP del solicitado</p>
+                            <p class="help-block needed">CURP del solicitado</p>
                         </div>
                         <div class="col-md-12 row">
                             <div class="col-md-4" style="display:none;">
@@ -372,7 +369,7 @@
                                 <p class="help-block needed">Raz&oacute;n Social</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
-                                <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimeinto del solicitado" type="text" value="">
+                                <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del solicitado" type="text" value="">
                                 <p class="help-block needed">Fecha de nacimiento</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
@@ -380,8 +377,8 @@
                                 <p class="help-block needed">Edad del solicitado</p>
                             </div>
                             <div class="col-md-4">
-                                <input class="form-control upper" required id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="Rfc del solicitado" type="text" value="">
-                                <p class="help-block needed">Rfc del solicitado</p>
+                                <input class="form-control upper" id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitado" type="text" value="">
+                                <p class="help-block">RFC del solicitado</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
                                 {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
@@ -399,7 +396,7 @@
                                 <p class="help-block">Estado de nacimiento</p>
                             </div>
                         </div>
-                        <div class="col-md-12 row">
+                        <div class="col-md-12 row personaFisicaSolicitado">
                             <div class="col-md-4">
                                 <div  >
                                     <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
@@ -421,6 +418,7 @@
                                 <h4>Contacto</h4>
                             </div>
                             <input type="hidden" id="contacto_id_solicitado">
+                            <p>En caso de contar con datos de contacto de la persona solicitada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</p>
                             <div class="col-md-4">
                                 {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
@@ -500,12 +498,12 @@
                     <center>  <h1>Solicitud</h1></center>
                 <div class="col-md-12 row">
                     <input type="hidden" id="solicitud_id">
-                    <div class="col-md-4">
+                    <div class="col-md-4 showEdit" >
                         <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de ratificacion" type="text" value="">
                         <p class="help-block">Fecha de Ratificación</p>
                     </div>
-                    <div class="col-md-4">
-                        <input class="form-control dateTime" required id="fechaRecepcion" placeholder="Fecha de Recepcion" type="text" value="">                
+                    <div class="col-md-4 showEdit">
+                        <input class="form-control dateTime" required id="fechaRecepcion" disabled placeholder="Fecha de Recepcion" type="text" value="">                
                         <p class="help-block needed">Fecha de Recepción</p>    
                     </div>
                     <div class="col-md-4">
@@ -831,12 +829,14 @@
         });
         if(edit){
             $(".estatusSolicitud").show();
+            $(".showEdit").show();
             var solicitud='{{ $solicitud->id ?? ""}}';
             FormMultipleUpload.init();
             Gallery.init();
             $('#wizard').smartWizard("stepState", [3], "show");
             $(".step-4").show();
         }else{
+            $(".showEdit").hide();
             $(".step-4").hide();
             $(".step-5").hide();
             $('#wizard').smartWizard("stepState", [3], "hide");
@@ -885,9 +885,8 @@
                 dato_laboral.ocupacion_id = $("#ocupacion_id").val();
                 dato_laboral.nss = $("#nss").val();
                 dato_laboral.no_issste = $("#no_issste").val();
-                dato_laboral.no_afore = $("#no_afore").val();
-                dato_laboral.percepcion_mensual_neta = $("#percepcion_mensual_neta").val();
-                dato_laboral.percepcion_mensual_bruta = $("#percepcion_mensual_bruta").val();
+                dato_laboral.remuneracion = $("#remuneracion").val();
+                dato_laboral.periodicidad_id = $("#periodicidad_id").val();
                 dato_laboral.labora_actualmente = $("#labora_actualmente").is(":checked");
                 dato_laboral.fecha_ingreso = dateFormat($("#fecha_ingreso").val());
                 dato_laboral.fecha_salida = dateFormat($("#fecha_salida").val());
@@ -978,6 +977,7 @@
                 $(".personaMoralSolicitante select").removeAttr("required");
                 $(".personaMoralSolicitante").hide();
                 $(".personaFisicaSolicitante").show();
+                $(".personaFisicaSolicitanteNO").show();
             }else{
                 $(".personaMoralSolicitante input").attr("required","");
                 $(".personaMoralSolicitante select").attr("required","");
@@ -985,6 +985,16 @@
                 $(".personaFisicaSolicitante select").removeAttr("required");
                 $(".personaMoralSolicitante").show();
                 $(".personaFisicaSolicitante").hide();
+                $(".personaFisicaSolicitanteNO").hide();
+            }
+        });
+        $("#labora_actualmente").change(function(){
+            if($("#labora_actualmente").is(":checked")){
+                $("#divFechaSalida").hide();
+                $("#fecha_salida").removeAttr("required");
+            }else{
+                $("#fecha_salida").attr("required","");
+                $("#divFechaSalida").show();
             }
         });
 
@@ -1091,9 +1101,8 @@
             $("#ocupacion_id").val("");
             $("#nss").val("");
             $("#no_issste").val("");
-            $("#no_afore").val("");
-            $("#percepcion_mensual_neta").val("");
-            $("#percepcion_mensual_bruta").val("");
+            $("#remuneracion").val("");
+            $("#periodicidad_id").val("");
             $("#labora_actualmente").prop("checked", false);
             $("#fecha_ingreso").val("");
             $("#fecha_salida").val("");
@@ -1175,6 +1184,7 @@
         $("#tipo_contacto_id_solicitante").trigger('change');
         $("#contacto_solicitante").val("");
     }
+    $()
 
     function agregarContactoSolicitado(){
         var contacto = {};
@@ -1293,7 +1303,11 @@
                 }else{
                     html += "<td></td>";    
                 }
-                html += "<td> " + value.rfc + " </td>";
+                if(value.rfc){
+                    html += "<td> " + value.rfc + " </td>";
+                }else{
+                    html += "<td></td>";    
+                }
                 
                 html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt' style='color:white;'></i></a> ";
                 html += "<a class='btn btn-xs btn-warning' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
@@ -1325,7 +1339,11 @@
                 }else{
                     html += "<td></td>";    
                 }
-                html += "<td> " + value.rfc + " </td>";
+                if(value.rfc){
+                    html += "<td> " + value.rfc + " </td>";
+                }else{
+                    html += "<td></td>";    
+                }
                 
                 html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt' style='color:white;'></i></a> ";
                 html += "<a class='btn btn-xs btn-warning' onclick='eliminarSolicitado("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
@@ -1432,11 +1450,10 @@
         $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
         $("#nss").val(arraySolicitantes[key].dato_laboral.nss);
         $("#no_issste").val(arraySolicitantes[key].dato_laboral.no_issste);
-        $("#no_afore").val(arraySolicitantes[key].dato_laboral.no_afore);
-        $("#percepcion_mensual_neta").val(arraySolicitantes[key].dato_laboral.percepcion_mensual_neta);
-        $("#percepcion_mensual_bruta").val(arraySolicitantes[key].dato_laboral.percepcion_mensual_bruta);
+        $("#remuneracion").val(arraySolicitantes[key].dato_laboral.remuneracion);
+        $("#periodicidad_id").val(arraySolicitantes[key].dato_laboral.periodicidad_id);
         if(arraySolicitantes[key].dato_laboral.labora_actualmente != $("#labora_actualmente").is(":checked")){
-            $("#labora_actualmente").prop("checked", true);;
+            $("#labora_actualmente").click();
         }
         $("input[name='tipo_persona_solicitante']").trigger("change");
         $("#fecha_ingreso").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_ingreso,0));

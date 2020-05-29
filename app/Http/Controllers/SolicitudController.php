@@ -23,6 +23,7 @@ use App\Nacionalidad;
 use App\ObjetoSolicitud;
 use App\Ocupacion;
 use App\Parte;
+use App\Periodicidad;
 use App\Rules\Curp;
 use App\Rules\RFC;
 use App\TipoAsentamiento;
@@ -149,7 +150,8 @@ class SolicitudController extends Controller
         $lengua_indigena = $this->cacheModel('lengua_indigena',LenguaIndigena::class);
         $generos = $this->cacheModel('generos',Genero::class);
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto'));
+        $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades'));
     }
 
     /**
@@ -180,12 +182,11 @@ class SolicitudController extends Controller
 
         $request->validate([
             'solicitud.fecha_conflicto' => 'required',
-            'solicitud.fecha_recepcion' => 'required',
             'solicitud.solicita_excepcion' => 'required',
 
             'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
             'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.rfc' => ['required',new RFC],
+            'solicitantes.*.rfc' => [new RFC],
             'solicitantes.*.tipo_parte_id' => 'required',
             'solicitantes.*.tipo_persona_id' => 'required',
             'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required',new Curp],
@@ -200,7 +201,7 @@ class SolicitudController extends Controller
 
             'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-            'solicitados.*.rfc' => ['required',new RFC],
+            'solicitados.*.rfc' => [new RFC],
             'solicitados.*.tipo_parte_id' => 'required',
             'solicitados.*.tipo_persona_id' => 'required',
             'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|required',new Curp],
@@ -218,6 +219,8 @@ class SolicitudController extends Controller
         // // Solicitud
         $solicitud['user_id'] = 1;
         $solicitud['estatus_solicitud_id'] = 1;
+        $date = new \DateTime();
+        $solicitud['fecha_recepcion'] = $date->format('d-m-Y H:i:s');
         $solicitud['centro_id'] = $this->getCentroId();
         // dd($solicitud);
         
@@ -384,7 +387,8 @@ class SolicitudController extends Controller
         $grupo_prioritario = $this->cacheModel('grupo_prioritario',GrupoPrioritario::class);
         $lengua_indigena = $this->cacheModel('lengua_indigena',LenguaIndigena::class);
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
-        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','expediente','audiencias','grupo_prioritario','lengua_indigena','tipo_contacto'));
+        $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
+        return view('expediente.solicitudes.edit', compact('solicitud','objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','expediente','audiencias','grupo_prioritario','lengua_indigena','tipo_contacto','periodicidades'));
     }
 
     /**
@@ -398,12 +402,11 @@ class SolicitudController extends Controller
     {
         $request->validate([
             'solicitud.fecha_conflicto' => 'required',
-            'solicitud.fecha_recepcion' => 'required',
             'solicitud.solicita_excepcion' => 'required',
 
             'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
             'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.rfc' => ['required',new RFC],
+            'solicitantes.*.rfc' => [new RFC],
             'solicitantes.*.tipo_parte_id' => 'required',
             'solicitantes.*.tipo_persona_id' => 'required',
             'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required',new Curp],
@@ -418,7 +421,7 @@ class SolicitudController extends Controller
 
             'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-            'solicitados.*.rfc' => ['required',new RFC],
+            'solicitados.*.rfc' => [new RFC],
             'solicitados.*.tipo_parte_id' => 'required',
             'solicitados.*.tipo_persona_id' => 'required',
             'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|required',new Curp],
