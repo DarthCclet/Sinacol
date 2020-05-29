@@ -3,7 +3,7 @@
     <tr>
         <th width="1%"></th>
         <th class="text-nowrap">jornada de Conciliacion</th>
-        <th width="10%">Acciones</th> 
+        <th width="10%">Acciones</th>
     </tr>
     </thead>
     <tbody>
@@ -14,7 +14,7 @@
             <td class="all">
                 {!! Form::open(['action' => ['JornadaController@destroy', $jornada->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
-                    <a href="{{route('jornadas.edit',[$jornada])}}" class="btn btn-xs btn-info">
+                    <a href="{{route('jornadas.edit',[$jornada])}}" class="btn btn-xs btn-primary">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar">
@@ -34,8 +34,8 @@
     //     if(confirm("as")){
     //         location.href='{{ route('jornadas.destroy', $jornada->id)  }}'
     //     }
-        
-        
+
+
     // }
 
     $("formDelete").submit(function(e){

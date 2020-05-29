@@ -23,7 +23,7 @@
       <div class="panel-heading">
           <h4 class="panel-title">Nuevo permiso</h4>
           <div class="panel-heading-btn">
-              <a href="{!! route('permisos.index') !!}" class="btn btn-info btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
+              <a href="{!! route('permisos.index') !!}" class="btn btn-primary btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
           </div>
       </div>
       <div class="panel-body">

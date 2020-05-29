@@ -23,7 +23,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de salas</h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('conciliadores.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo</a>
+                <a href="{!! route('conciliadores.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
         </div>
         <!-- end panel-heading -->
@@ -237,7 +237,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        
+
                     </tbody>
                 </table>
             </div>
@@ -260,9 +260,7 @@
             $("#fecha_fin").on("dp.change", function (e) {
                 $('#fecha_inicio').data("DateTimePicker").maxDate(e.date);
             });
-            $('#data-table-default').DataTable({
-                responsive: true
-            });
+            $('#data-table-default').DataTable({responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
             $('.btn-borrar').on('click', function (e) {
                 let that = this;
                 console.log('boton clic');
@@ -430,7 +428,7 @@
             arreglo.errorMsg=errorMsg;
             return arreglo;
         }
-       
+
         function limpiarModalIncidencia(){
             $("#incidencia_id").val("");
             $("#justificacion").val("").css("border-color","");
@@ -459,7 +457,7 @@
                                     <th class="text-nowrap">Justificación</th>
                                     <th class="text-nowrap">Fecha y hora de inicio</th>
                                     <th class="text-nowrap">Fecha y hora fin</th>
-                                    <th class="text-nowrap all">Acciones</th> 
+                                    <th class="text-nowrap all">Acciones</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -470,7 +468,7 @@
                             table +='   <td>'+data.fecha_inicio+'</td>';
                             table +='   <td>'+data.fecha_fin+'</td>';
                             table +='   <td>';
-                            table +='       <a class="btn btn-xs btn-info incidencia" onclick="cargarIncidencia('+data.id+')">';
+                            table +='       <a class="btn btn-xs btn-primary incidencia" onclick="cargarIncidencia('+data.id+')">';
                             table +='           <i class="fa fa-edit"></i>';
                             table +='       </a>';
                             table +='       <a class="btn btn-xs btn-warning incidencia" onclick="eliminarIncidencia('+data.id+')">';
@@ -502,7 +500,7 @@
                 $("#divRegistroIncidencias").show();
                 $("#btnNuevaIncidencia").hide();
                 $("#divConsultaIncidencias").hide();
-                
+
             }
         }
         $("#btnNuevaIncidencia").on("click",function(){
@@ -632,7 +630,7 @@
                 }
             });
         }
-        
+
         //funciones para roles
         function getRolesConciliador(id){
             $.ajax({
@@ -711,8 +709,8 @@
             });
         }
         function limpiarRoles(){
-            $(".checkRol").prop("checked",false);   
-            $(".hddRoles").val("");   
+            $(".checkRol").prop("checked",false);
+            $(".hddRoles").val("");
         }
     </script>
 @endpush

@@ -21,7 +21,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de roles</h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('roles-atencion.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo rol</a>
+                <a href="{!! route('roles-atencion.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo rol</a>
             </div>
         </div>
 
@@ -37,9 +37,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            $('#data-table-default').DataTable({
-                responsive: true
-            });
+            $('#data-table-default').DataTable({responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
             $('.btn-borrar').on('click', function (e) {
                 let that = this;
                 console.log('boton clic');

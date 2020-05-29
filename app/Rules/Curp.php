@@ -26,17 +26,17 @@ class Curp implements Rule
     public function passes($attribute, $value)
     {
         $reg = "";
-        
+
       if(strlen($value) == 18)
       {
         $digito = $this->verifica($value);
-        
+
         $reg = "/[A-Z]{4}\d{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9][0-9]/";
         if(!preg_match($reg,$value))
         {
           return false;
         }
-        
+
         if(!($digito == substr($value,17,1)))
         {
           return false;
@@ -52,10 +52,9 @@ class Curp implements Rule
     private function verifica($curp){
         $segRaiz      = substr($curp,0,17); //.substring(0,17);
         $chrCaracter  = utf8_decode("0123456789ABCDEFGHIJKLMNÑOPQRSTUVWXYZ");
-        // $intFactor    = new Array(17);
         $lngSuma = 0.0;
         $lngDigito = 0.0;
-  
+
         for($i=0; $i<17; $i++)
         {
           for($j=0;$j<37; $j++)
@@ -66,19 +65,19 @@ class Curp implements Rule
             }
           }
         }
-        
+
         for($k = 0; $k < 17; $k++)
         {
           $lngSuma= $lngSuma + ((int)($intFactor[$k]) * (18 - $k));
         }
-        
+
         $lngDigito= (10 - ($lngSuma % 10));
-  
+
         if($lngDigito==10)
         {
           $lngDigito=0;
         }
-  
+
         return $lngDigito;
       }
 
@@ -89,6 +88,6 @@ class Curp implements Rule
      */
     public function message()
     {
-        return 'Curp invalida.';
+        return 'CURP no válida.';
     }
 }

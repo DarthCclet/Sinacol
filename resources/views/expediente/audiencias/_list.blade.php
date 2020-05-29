@@ -22,7 +22,7 @@
             <td>{{$audiencia->hora_fin}}</td>
             <td>
                 <div style="display: inline-block;">
-                    <a href="{{route('audiencias.edit',[$audiencia])}}" class="btn btn-xs btn-info" title="Editar">
+                    <a href="{{route('audiencias.edit',[$audiencia])}}" class="btn btn-xs btn-primary" title="Editar">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                 </div>

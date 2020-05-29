@@ -18,7 +18,7 @@
     <h1 class="page-header">Administrar usuarios <small>Editar usuario</small></h1>
     <!-- end page-header -->
     <!-- begin panel -->
-    <a href="{!! route('users.index') !!}" class="btn btn-info btn-sm pull-right"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
+    <a href="{!! route('users.index') !!}" class="btn btn-primary btn-sm pull-right"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a href="#default-tab-1" data-toggle="tab" class="nav-link active">
@@ -60,7 +60,7 @@
                                 <p class="help-block">Rol que tendrá el usuario en el sistema</p>
                             </div>
                             <div class="col-md-2 d-flex align-items-center" >
-                                <button class="btn btn-info btn-sm pull-left" id="btnAgregarRol"><i class="fa fa-plus"></i> Agregar</button>
+                                <button class="btn btn-primary btn-sm pull-left" id="btnAgregarRol"><i class="fa fa-plus"></i> Agregar</button>
                             </div>
                             <div class="col-md-12">
                                 <table class="table table-border table-striped">
@@ -131,7 +131,7 @@
                 table +='   <td>'+element.name+'</td>';
                 table +='   <td>'+element.description+'</td>';
                 table +='   <td>';
-                table +='       <a class="btn btn-xs btn-info" onclick="EliminarRol(\''+element.name+'\')">';
+                table +='       <a class="btn btn-xs btn-primary" onclick="EliminarRol(\''+element.name+'\')">';
                 table +='           <i class="fa fa-edit text-light"></i>';
                 table +='       </a>';
                 table +='   </td>';

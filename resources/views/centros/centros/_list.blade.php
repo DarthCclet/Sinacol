@@ -16,13 +16,13 @@
             <td>
                 {!! Form::open(['action' => ['CentroController@destroy', $centro->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
-                    <a href="{{route('centros.edit',[$centro])}}" class="btn btn-xs btn-info" title="Editar">
+                    <a href="{{route('centros.edit',[$centro])}}" class="btn btn-xs btn-primary" title="Editar">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
-                    <a class="btn btn-xs btn-info disponibilidad" onclick="getCentroDisponibilidad({{$centro->id}})" title="Días disponibles">
+                    <a class="btn btn-xs btn-primary disponibilidad" onclick="getCentroDisponibilidad({{$centro->id}})" title="Días disponibles">
                         <i class="fa fa-calendar text-light"></i>
                     </a>
-                    <a class="btn btn-xs btn-info incidencia" onclick="getCentroIncidencias({{$centro->id}})" title="Fechas no disponibles">
+                    <a class="btn btn-xs btn-primary incidencia" onclick="getCentroIncidencias({{$centro->id}})" title="Fechas no disponibles">
                         <i class="fa fa-calendar-times text-light"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar" title="Eliminar centro">

@@ -17,7 +17,7 @@
             <td>{{$contador->contador}}</td>
             <td class="all">
                 <div style="display: inline-block;">
-                    <a href="{{route('contadores.edit',[$contador])}}" class="btn btn-xs btn-info">
+                    <a href="{{route('contadores.edit',[$contador])}}" class="btn btn-xs btn-primary">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                 </div>

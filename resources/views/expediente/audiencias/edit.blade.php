@@ -13,14 +13,14 @@
         <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
         <li class="breadcrumb-item active"><a href="{!! route("audiencias.index") !!}">Audiencia</a></li>
         <li class="breadcrumb-item active"><a href="javascript:;">Editar Audiencia</a></li>
-        
+
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->
     <h1 class="page-header">Administrar Audiencias <small>Resolución de Audiencias</small></h1>
     <!-- end page-header -->
     <!-- begin panel -->
-    <a href="{!! route('audiencias.index') !!}" class="btn btn-info btn-sm pull-right"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
+    <a href="{!! route('audiencias.index') !!}" class="btn btn-primary btn-sm pull-right"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a href="#default-tab-1" data-toggle="tab" class="nav-link active">
@@ -66,7 +66,7 @@
                 <div id="gallery" class="gallery row"></div>
                 <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
             </div>
-            
+
             <!-- The template to display files available for upload -->
             <script id="template-upload" type="text/x-tmpl">
                 {% for (var i=0, file; file=o.files[i]; i++) { %}
@@ -423,7 +423,7 @@
                             </div>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-info" type="button" id="btnAgregarContacto"> 
+                            <button class="btn btn-primary" type="button" id="btnAgregarContacto">
                                 <i class="fa fa-plus-circle"></i> Agregar
                             </button>
                         </div>
@@ -548,7 +548,7 @@
                         </div>
                         <div class="col-md-12">
                             <div class="text-center">
-                                <button class="btn btn-warning text-white btn-sm" id='btnAgregarResolucion'><i class="fa fa-plus"></i> Agregar</button>                                
+                                <button class="btn btn-warning text-white btn-sm" id='btnAgregarResolucion'><i class="fa fa-plus"></i> Agregar</button>
                             </div>
                         </div>
                         <div class="col-md-12 row" style="padding-top: 1em">
@@ -618,7 +618,7 @@
                                             <td>
                                             @if(!$resolucion->nuevaAudiencia)
                                                 <div class="col-md-2">
-                                                    <input type="checkbox" data-render="switchery" data-theme="warning" class="switchPartes" 
+                                                    <input type="checkbox" data-render="switchery" data-theme="warning" class="switchPartes"
                                                     data-parte_solicitante_id="{{$resolucion->parteSolicitante->id}}"
                                                     data-parte_solicitada_id="{{$resolucion->parteSolicitada->id}}"
                                                     data-id="{{$resolucion->id}}"/>
@@ -685,8 +685,8 @@
             finalizada = '{{ $audiencia->finalizada }}';
             $("#duracionAudiencia").datetimepicker({format:"HH:mm"});
             $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
-            $('#convenio').wysihtml5(); 
-            $('#desahogo').wysihtml5(); 
+            $('#convenio').wysihtml5();
+            $('#desahogo').wysihtml5();
             $(".tipo_documento,.select-element").select2();
             cargarDocumentos();
             cargarGeneros();
@@ -710,7 +710,7 @@
                 }
             });
             CargarFinalizacion();
-            
+
             FormMultipleUpload.init();
             Gallery.init();
         });
@@ -758,7 +758,7 @@
                 swal({title: 'Error',text: 'Selecciona una resolucion',icon: 'warning'});
                 return true;
             }
-            return false;            
+            return false;
         }
         $("#btnAgregarArchivo").on("click",function(){
             $("#btnCancelFiles").click();
@@ -776,7 +776,7 @@
                   $("#modal-archivos").modal("hide");
                 }
                 // Uncomment the following to send cross-domain cookies:
-                //xhrFields: {withCCOLOR_REDentials: true},                
+                //xhrFields: {withCCOLOR_REDentials: true},
             });
 
             // Enable iframe cross-domain access via COLOR_REDirect option:
@@ -864,14 +864,14 @@
         }
         var handleIsotopesGallery = function() {
             var container = $('#gallery');
-	
+
             $(window).on('resize', function() {
                     var dividerValue = calculateDivider();
                     var containerWidth = $(container).width();
                     var columnWidth = containerWidth / dividerValue;
                     $(container).isotope({
-                            masonry: { 
-                                    columnWidth: columnWidth 
+                            masonry: {
+                                    columnWidth: columnWidth
                             }
                     });
             });
@@ -916,10 +916,10 @@
                         });
                         $("#gallery").html(div);
                     }else{
-                       
+
                     }
                 }
-            });       
+            });
         }
         $(document).on('click', '[data-toggle="lightbox"]', function(event) {
             event.preventDefault();
@@ -931,7 +931,7 @@
                 onNavigate: function(direction, itemIndex){
                     console.log('Navigating '+direction+'. Current item: '+itemIndex);
                 }
-            }); 
+            });
         });
         $(document).on('click', '[data-toggle="iframe"]',function(event){
             event.preventDefault();
@@ -948,7 +948,7 @@
 
             return false;
         });
-        
+
         // Funciones de Representantes legales
         function cargarGeneros(){
             $.ajax({
@@ -985,7 +985,7 @@
                     $("#tipo_contacto_id").trigger("change");
                 }
             });
-            
+
         }
         function AgregarRepresentante(parte_id){
             $.ajax({
@@ -1380,7 +1380,7 @@
             listaResolucionesIndividuales.splice(indice,1);
             cargarTablaResolucionesIndividuales();
         }
-        
+
         $("#btnNuevaAudiencia").on("click",function(){
             $("#modalNuevaAudiencia").modal("show");
         });
@@ -1442,7 +1442,7 @@
                     }
                 });
             }else{
-                
+
             }
         });
         function validarCrearNuevaAudiencia(){

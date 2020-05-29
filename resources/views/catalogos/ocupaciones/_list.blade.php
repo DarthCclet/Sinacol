@@ -17,7 +17,7 @@
             <td class="all">
                 {!! Form::open(['action' => ['OcupacionController@destroy', $puesto->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
-                    <a href="{{route('ocupaciones.edit',[$puesto])}}" class="btn btn-xs btn-info">
+                    <a href="{{route('ocupaciones.edit',[$puesto])}}" class="btn btn-xs btn-primary">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar">
@@ -34,7 +34,7 @@
 
 <!-- <div> -->
 <div id="btnsMultiple" style="display:none;">
-    <a id="btmMultiple" class="btn btn-info" style="color:white">
+    <a id="btmMultiple" class="btn btn-primary" style="color:white">
         <i class="fa fa-pencil-alt"></i> Editar seleccionados
     </a>
     <!-- <button class="btn btn-xs btn-warning btn-borrar">

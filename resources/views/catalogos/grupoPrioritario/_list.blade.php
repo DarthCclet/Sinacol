@@ -15,7 +15,7 @@
             <td class="all">
                 {!! Form::open(['action' => ['GrupoPrioritarioController@destroy', $grupo->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
-                    <a href="{{route('grupo-prioritario.edit',[$grupo])}}" class="btn btn-xs btn-info">
+                    <a href="{{route('grupo-prioritario.edit',[$grupo])}}" class="btn btn-xs btn-primary">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar">

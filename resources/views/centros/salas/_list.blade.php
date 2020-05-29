@@ -16,13 +16,13 @@
             <td class="all">
                 {!! Form::open(['action' => ['SalaController@destroy', $sala->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
-                    <a href="{{route('salas.edit',[$sala])}}" class="btn btn-xs btn-info">
+                    <a href="{{route('salas.edit',[$sala])}}" class="btn btn-xs btn-primary">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
-                    <a class="btn btn-xs btn-info disponibilidad" onclick="getSalaDisponibilidad({{$sala->id}})">
+                    <a class="btn btn-xs btn-primary disponibilidad" onclick="getSalaDisponibilidad({{$sala->id}})">
                         <i style="color:white;" class="fa fa-calendar"></i>
                     </a>
-                    <a class="btn btn-xs btn-info incidencia" onclick="getSalaIncidencias({{$sala->id}})">
+                    <a class="btn btn-xs btn-primary incidencia" onclick="getSalaIncidencias({{$sala->id}})">
                         <i style="color:white;" class="fa fa-calendar-times"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar">

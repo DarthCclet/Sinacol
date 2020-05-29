@@ -14,7 +14,7 @@
             <td class="all">
                 {!! Form::open(['action' => ['ObjetoSolicitudController@destroy', $objeto->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
-                    <a href="{{route('objeto-solicitud.edit',[$objeto])}}" class="btn btn-xs btn-info">
+                    <a href="{{route('objeto-solicitud.edit',[$objeto])}}" class="btn btn-xs btn-primary">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar">

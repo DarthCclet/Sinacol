@@ -51,7 +51,7 @@
 		type="text"/>
 		<p class="help-block needed">Escriba la dirección y seleccione la opción correcta o más cercana.</p>
 	</div>
-	<div class="col-md-4">    
+	<div class="col-md-4">
 		{!! Form::select('domicilio[estado_id]', isset($estados) ? $estados : [] , isset($domicilio->estado_id) ? $domicilio->estado_id : 0, ['id'=>'estado_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
 		{!! $errors->first('domicilio[estado_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block needed">Estado </p>
@@ -68,7 +68,7 @@
         {!! $errors->first('domicilio[cp]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block needed">Codigo postal</p>
 	</div>
-	<div class="col-md-4">    
+	<div class="col-md-4">
 		{!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
 		{!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Tipo de asentamiento</p>
@@ -79,7 +79,7 @@
         {!! $errors->first('domicilio[asentamiento]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Colonia (asentamiento)</p>
 	</div>
-	<div class="col-md-4"   >    
+	<div class="col-md-4"   >
 		{!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , isset($domicilio->tipo_vialidad_id) ? $domicilio->tipo_vialidad_id : 0, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
 		{!! $errors->first('domicilio[tipo_vialidad_id]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Tipo de vialidad</p>
@@ -122,7 +122,7 @@
 	</div>
 	<div style="width:100%">
 		<div class="panel-botones">
-		<button class="btn btn-info" type="button" id="validaDir{{$identificador}}"  > <i class="fa fa-map-marker"></i> Validar direcci&oacute;n</button>
+		<button class="btn btn-primary" type="button" id="validaDir{{$identificador}}"  > <i class="fa fa-map-marker"></i> Validar direcci&oacute;n</button>
 		</div>
 		<div class="widget-maps" id="widget-maps{{$identificador}}"></div>
 	</div>
@@ -131,7 +131,7 @@
 @push('scripts')
 <script>
 	var identificador = '{{$identificador}}';
-	var DomicilioObject = {}; 
+	var DomicilioObject = {};
 	DomicilioObject = (function(identifier){
         var domicilio = {};
         domicilio.componentForm = {
@@ -160,7 +160,7 @@
         domicilio.initMap = function() {
             var lat = $('#latitud'+identifier).val() ? $('#latitud'+identifier).val() : "19.398606";
             var lon = $('#longitud'+identifier).val() ? $('#longitud'+identifier).val() : "-99.158581";
-        
+
             this.map = new google.maps.Map(document.getElementById('widget-maps'+identifier), {
                 zoom: 15,
                 center: {lat: parseFloat(lat), lng: parseFloat(lon)},
@@ -177,7 +177,7 @@
                     // document.getElementById('panel-botones'+identifier).style.display = "block";
                 }
             });
-      
+
             if($("#direccion_marker"+identifier).val() == ""){
                 this.seteaMarker(this.map, {lat: parseFloat(lat), lng: parseFloat(lon)});
             }
@@ -314,7 +314,7 @@
                         if(val == 'Estado de México'){
                             val = 'México';
                         }
-                        $("#"+domicilio.campos[addressType]+" option:contains("+ val +")").prop("selected",true);   
+                        $("#"+domicilio.campos[addressType]+" option:contains("+ val +")").prop("selected",true);
                     }
                 }
             }
@@ -322,7 +322,7 @@
             $("#tipo_vialidad_id"+identifier).val(5);
             $(".direccionUpd"+identifier).trigger('blur');
             $(".direccionUpd"+identifier).trigger('change');
-            
+
         }
 		$("#validaDir"+identifier).click(function(){
 			domicilio.tomarGeoreferencia();
@@ -361,7 +361,7 @@
 @if($instancia <= 1)
 	<script src="https://maps.googleapis.com/maps/api/js?callback=DomicilioObject.initMap&libraries=places&key=AIzaSyBx0RdMGMOYgE_eLXfCblBP9RhYDQXjrqY"></script>
 	<script>
-		var domicilioObj =  DomicilioObject;	
+		var domicilioObj =  DomicilioObject;
 	</script>
 @else
 <script>
@@ -369,4 +369,4 @@
 	domicilioObj2.initMap();
 </script>
 @endif
-@endpush 
+@endpush

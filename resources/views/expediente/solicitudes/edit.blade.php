@@ -15,17 +15,15 @@
   <li class="breadcrumb-item"><a href="javascript:;">Editar Solicitud</a></li>
 </ol>
 <!-- end breadcrumb -->
-<button class="btn btn-info" onclick="location.href='{{ route('solicitudes.index')  }}'" ><i class="fa fa-arrow-alt-circle-left"></i> Regresar</button>
+
 <div class="panel panel-inverse">
-    <div class="panel panel-heading ui-sortable-handle">
-        <h4 class="panel-title">Editar</h4>
-    </div>
     <div class="panel-body">
         {{-- {{ Form::model($solicitud, array('route' => array('solicitudes.update', $solicitud->id), 'method' => 'PUT')) }} --}}
-        
+
           @include('expediente.solicitudes._form')
+        <br>
           <div class="form-group">
-            <button class="btn btn-info btn-sm m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save"></i> Modificar</button>
+            <button class="btn btn-primary pull-right btn-sm m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save"></i> Modificar</button>
           </div>
         {{-- {{ Form::close() }} --}}
     </div>

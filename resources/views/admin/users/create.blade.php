@@ -25,7 +25,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Nuevo usuario</h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('users.index') !!}" class="btn btn-info btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
+                <a href="{!! route('users.index') !!}" class="btn btn-primary btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
             </div>
         </div>
         <!-- end panel-heading -->
