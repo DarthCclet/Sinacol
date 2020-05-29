@@ -100,10 +100,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-
-                $('#data-table-default').DataTable({
-                    responsive: true
-                });
+            $('#data-table-default').DataTable({responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
                 //Confirm para eliminar
                 $('.btn-borrar').on('click', function (e) {
                     let that = this;

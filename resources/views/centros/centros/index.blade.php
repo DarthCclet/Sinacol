@@ -222,9 +222,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            $('#data-table-default').DataTable({
-//                responsive: true
-            });
+            $('#data-table-default').DataTable({language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
             /**
              * Funcion para permitir llenado de los dias disponibles
              */

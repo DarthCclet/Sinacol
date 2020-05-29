@@ -85,9 +85,7 @@
 @push('scripts')
     <script type="text/javascript">
         $(document).ready(function() {
-            $('#data-table-default').DataTable({
-                responsive: true
-            });
+            $('#data-table-default').DataTable({responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
             limpiarModal();
         });
         function limpiarModal(){

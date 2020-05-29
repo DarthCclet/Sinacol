@@ -36,7 +36,8 @@
 
 @push('scripts')
     <script>
-        $(".date").datetimepicker({format:"DD/MM/YYYY"});
+        $(".date").datetimepicker({format:"DD/MM/YYYY",locale:'es'});
+//        $.datetimepicker.setLocale('es');
         $('#solicitantefechaNacimiento').datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm'});
         $(document).ready(function() {
 
