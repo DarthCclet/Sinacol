@@ -6,8 +6,16 @@
         },
         {
             "id": "2",
+            "nombre": "Vespertino"
+        },
+        {
+            "id": "3",
+            "nombre": "Nocturno"
+        },
+        {
+            "id": "4",
             "nombre": "Mixto"
         }
     ],
-    "numReg": 2
+    "numReg": 4
 }

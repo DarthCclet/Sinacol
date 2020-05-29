@@ -2,13 +2,37 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "DESPIDO"
+            "nombre": "Despido"
         },
         {
             "id": "2",
-            "nombre": "CONCILIACION PREVIA"
+            "nombre": "Pago de prestaciones"
+        },
+        {
+            "id": "3",
+            "nombre": "Rescisión de parte del trabajador"
+        },
+        {
+            "id": "4",
+            "nombre": "Rescisión de parte del patrón"
+        },
+        {
+            "id": "5",
+            "nombre": "Descuento de salario"
+        },
+        {
+            "id": "6",
+            "nombre": "Disciplina"
+        },
+        {
+            "id": "7",
+            "nombre": "Reconocimiento de Antiguedad"
+        },
+        {
+            "id": "8",
+            "nombre": "Derecho de preferencia"
         }
 
     ],
-    "numReg": 2
+    "numReg": 8
 }
