@@ -22,7 +22,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de contadores</h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('contadores.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo</a>
+                <a href="{!! route('contadores.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
         </div>
         <!-- end panel-heading -->

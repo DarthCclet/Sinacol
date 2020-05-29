@@ -23,7 +23,8 @@
                 {!! Form::open(['action' => ['UserController@destroy', $user->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
                     @can('Editar usuario')
-                    <a href="{{route('users.edit',[$user])}}" class="btn btn-xs btn-info">
+                    <a href="{{route('users.edit',[$user])}}" class="btn btn-xs btn-primary">
+                    <a href="{{route('users.edit',[$user])}}" class="btn btn-xs btn-primary">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                     @endcan

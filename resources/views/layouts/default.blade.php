@@ -27,15 +27,12 @@
 <body class="{{ $bodyClass }}">
 	@include('includes.component.page-loader')
 
-	<div id="page-container" class="page-container fade page-sidebar-fixed page-header-fixed {{ $pageContainerClass }}">
+	<div id="page-container" class="page-container page-without-sidebar fade page-sidebar-fixed page-header-fixed {{ $pageContainerClass }}">
 
 		@include('includes.header')
 
 		@includeWhen($topMenu, 'includes.top-menu')
 
-		@includeWhen(!$sidebarHide, 'includes.sidebar')
-
-		@includeWhen($sidebarTwo, 'includes.sidebar-right')
 
 
 		<div id="content" class="content {{ $contentClass }}">
@@ -45,7 +42,7 @@
 
 		@includeWhen($footer, 'includes.footer')
 
-		@include('includes.component.theme-panel')
+
 
 		@include('includes.component.scroll-top-btn')
 

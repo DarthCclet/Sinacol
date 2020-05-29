@@ -21,7 +21,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de roles</h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('roles.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo rol</a>
+                <a href="{!! route('roles.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo rol</a>
             </div>
         </div>
 
@@ -48,7 +48,7 @@
                         </tr>
                     </thead>
                     <tbody id='tbodyPermisos'>
-                        
+
                     </tbody>
                 </table>
             </div>
@@ -108,7 +108,7 @@
                             table +='   <td>'+element.name+'</td>';
                             table +='   <td>'+element.description+'</td>';
                             table +='   <td>';
-                            table +='       <a class="btn btn-xs btn-info" onclick="eliminarPermiso(\''+element.name+'\')">';
+                            table +='       <a class="btn btn-xs btn-primary" onclick="eliminarPermiso(\''+element.name+'\')">';
                             table +='           <i class="fa fa-edit text-light"></i>';
                             table +='       </a>';
                             table +='   </td>';
@@ -161,7 +161,7 @@
                                     table +='   <td>'+element.name+'</td>';
                                     table +='   <td>'+element.description+'</td>';
                                     table +='   <td>';
-                                    table +='       <a class="btn btn-xs btn-info" onclick="eliminarPermiso('+element.name+')">';
+                                    table +='       <a class="btn btn-xs btn-primary" onclick="eliminarPermiso('+element.name+')">';
                                     table +='           <i class="fa fa-edit text-light"></i>';
                                     table +='       </a>';
                                     table +='   </td>';

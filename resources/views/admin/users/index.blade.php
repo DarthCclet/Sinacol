@@ -23,7 +23,7 @@
             <h4 class="panel-title">Listado de usuarios</h4>
             <div class="panel-heading-btn">
                 @can('Crear usuarios')
-                <a href="{!! route('users.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo usuario</a>
+                <a href="{!! route('users.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo usuario</a>
                 @endcan
             </div>
         </div>

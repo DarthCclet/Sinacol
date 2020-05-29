@@ -15,7 +15,7 @@
             <td class="all">
                 {!! Form::open(['action' => ['ResolucionController@destroy', $resolucion->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
-                    <a href="{{route('resolucion-audiencia.edit',[$resolucion])}}" class="btn btn-xs btn-info">
+                    <a href="{{route('resolucion-audiencia.edit',[$resolucion])}}" class="btn btn-xs btn-primary">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar">

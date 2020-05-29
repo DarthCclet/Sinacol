@@ -16,10 +16,10 @@
             <td class="all">
                 {!! Form::open(['action' => ['RoleController@destroy', $role->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
-                    <a href="{{route('roles.edit',[$role])}}" class="btn btn-xs btn-info">
+                    <a href="{{route('roles.edit',[$role])}}" class="btn btn-xs btn-primary">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
-                    <a class="btn btn-xs btn-info" onclick="getPermisos({{$role->id}},'{{$role->name}}')" title="Permisos">
+                    <a class="btn btn-xs btn-primary" onclick="getPermisos({{$role->id}},'{{$role->name}}')" title="Permisos">
                         <i class="fa fa-key text-light"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar">

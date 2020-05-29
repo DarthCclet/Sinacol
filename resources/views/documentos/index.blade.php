@@ -22,7 +22,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de plantillas</h4>
             <div class="panel-heading-btn">
-                <a class="btn btn-info" id="btnNuevo"><i class="fa fa-plus-circle"></i> Nuevo</a>
+                <a class="btn btn-primary" id="btnNuevo"><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
 
 

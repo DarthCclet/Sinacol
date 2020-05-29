@@ -22,7 +22,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de jornadas</h4>
             <div class="panel-heading-btn">
-                <button class="btn btn-info" onclick="location.href='{{ route('jornadas.create')  }}'" > <i class="fa fa-plus-circle"></i> Nuevo</button>
+                <button class="btn btn-primary" onclick="location.href='{{ route('jornadas.create')  }}'" > <i class="fa fa-plus-circle"></i> Nuevo</button>
             </div>
         </div>
         <!-- end panel-heading -->

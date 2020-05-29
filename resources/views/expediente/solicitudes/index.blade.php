@@ -6,7 +6,7 @@
 @include('includes.component.pickers')
 
 @section('content')
-    
+
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
         <li class="breadcrumb-item"><a href="">Home</a></li>
@@ -14,17 +14,19 @@
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->
-    <h1 class="page-header">Administrar solicitudes <small>Listado de solicitudes</small></h1>
+    <h1 class="h2">Administrar solicitudes <small>Listado de solicitudes</small></h1>
+    <hr class="red">
     <!-- end page-header -->
     <!-- begin panel -->
     <div class="panel panel-default">
         <!-- begin panel-heading -->
-        <div class="panel-heading">
-            <h4 class="panel-title">Listado de solicitudes</h4>
+        <div class="">
             <div class="panel-heading-btn">
-                <button class="btn btn-info" onclick="location.href='{{ route('solicitudes.create')  }}'" > <i class="fa fa-plus-circle"></i> Nuevo</button>
+                <button class="btn btn-primary pull-right" onclick="location.href='{{ route('solicitudes.create')  }}'" > <i class="fa fa-plus-circle"></i> Nueva solicitud</button>
             </div>
         </div>
+        <br>
+        <br>
         <!-- end panel-heading -->
         <!-- begin panel-body -->
         <div class="panel-body">
@@ -76,8 +78,8 @@
                 });
                 return false;
             });
-          
-            
+
+
         });
     </script>
 @endpush

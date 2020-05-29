@@ -53,7 +53,7 @@
                 </span>
             </td>
             <td class="">
-                <a style="color:white;" onclick="CargarGiro({{$cc->id}})" class="btn btn-info btn-xs">
+                <a style="color:white;" onclick="CargarGiro({{$cc->id}})" class="btn btn-primary btn-xs">
                     <i class="fa fa-edit"></i>
                 </a>
             </td>

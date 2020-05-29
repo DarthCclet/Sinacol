@@ -17,13 +17,13 @@
 
 </div>
 <div id="wizard" >
-    
+
     <!-- begin wizard-step -->
-    <ul>
+    <ul class="wizard-steps">
         <li>
             <a href="#step-1">
-                <span class="number">1</span> 
-                <span class="info">
+
+                <span class="">
                     Solicitante
                     <small>Información del solicitante</small>
                 </span>
@@ -31,8 +31,8 @@
         </li>
         <li>
             <a href="#step-2">
-                <span class="number">2</span> 
-                <span class="info">
+
+                <span class="">
                     Solicitado
                     <small>Información del solicitado</small>
                 </span>
@@ -40,8 +40,8 @@
         </li>
         <li >
             <a href="#step-3">
-                <span class="number">3</span>
-                <span class="info">
+
+                <span class="">
                     Solicitud
                     <small>Información general de la solicitud</small>
                 </span>
@@ -49,19 +49,19 @@
         </li>
         <li class="step-4">
             <a href="#step-4">
-                <span class="number">4</span>
-                <span class="info">
+
+                <span class="">
                     Documentos
                     <small>Documentos del expediente solicitud</small>
                 </span>
             </a>
         </li>
-        
+
         <!-- El paso 5 Es para asignar Audiencias -->
         <li class="step-5">
             <a href="#step-5">
-                <span class="number">5</span>
-                <span class="info">
+
+                <span class="">
                     Audiencias
                     <small>Audiencias de conciliación</small>
                 </span>
@@ -149,8 +149,8 @@
                                 {!! $errors->first('entidad_nacimiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Estado de nacimiento</p>
                             </div>
-                            
-                            
+
+
                         </div>
                         <div class="col-md-12 row personaFisicaSolicitanteNO">
                             <div class="col-md-4">
@@ -162,7 +162,7 @@
                                     <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitante" name='solicita_traductor_solicitante'/>
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
                                 {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
@@ -185,7 +185,7 @@
                                 <p class="help-block needed">Contacto</p>
                             </div>
                             <div class="col-md-4">
-                            <button class="btn btn-info" type="button" onclick="agregarContactoSolicitante();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                            <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitante();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
                             </div>
                             <div class="col-md-10 offset-md-1" >
                                 <table class="table table-bordered" >
@@ -198,7 +198,7 @@
                                     </thead>
                                     <tbody id="tbodyContactoSolicitante">
                                     </tbody>
-                                </table>  
+                                </table>
                             </div>
                         </div>
                         {{-- end seccion de contactos solicitados --}}
@@ -217,7 +217,7 @@
                                 <p class="help-block">Nombre del Jefe directo</p>
                             </div>
                             <div class="col-md-12 row">
-                                <input type="hidden" id="giro_comercial_solicitante">      
+                                <input type="hidden" id="giro_comercial_solicitante">
                                 <div class="col-md-8" id="divNivel1solicitante" >
                                     <select id="girosNivel1solicitante" nextLevel="2" tipo="solicitante" class="form-control giroNivel">
                                     </select>
@@ -266,7 +266,7 @@
                                 </div>
                             </div>
                             <div class="col-md-12 row">
-                                
+
                                 <div class="col-md-2">
                                     <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
                                 </div>
@@ -293,8 +293,8 @@
 
                         <hr style="margin-top:5%;">
                         <div>
-                            <button class="btn btn-info" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Agregar solicitante</button>
-                            <button class="btn btn-warning" type="button" onclick="limpiarSolicitante()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
+                            <button class="btn btn-primary" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Agregar solicitante</button>
+                            <button class="btn btn-danger" type="button" onclick="limpiarSolicitante()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
                         </div>
                         <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                             <table class="table table-bordered" >
@@ -308,7 +308,7 @@
                                 </thead>
                                 <tbody id="tbodySolicitante">
                                 </tbody>
-                            </table>  
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -356,12 +356,12 @@
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
                                 <input class="form-control" required id="idPrimerASolicitado" placeholder="Primer apellido del solicitado" type="text" value="">
-                                
+
                                 <p class="help-block needed">Primer apellido</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
                                 <input class="form-control" id="idSegundoASolicitado" placeholder="Segundo apellido del solicitado" type="text" value="">
-                                
+
                                 <p class="help-block">Segundo apellido</p>
                             </div>
                             <div class="col-md-8 personaMoralSolicitado">
@@ -429,7 +429,7 @@
                                 <p class="help-block needed">Contacto</p>
                             </div>
                             <div class="col-md-4">
-                            <button class="btn btn-info" type="button" onclick="agregarContactoSolicitado();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                            <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitado();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
                             </div>
                             <div class="col-md-10 offset-md-1" >
                                 <table class="table table-bordered" >
@@ -442,7 +442,7 @@
                                     </thead>
                                     <tbody id="tbodyContactoSolicitado">
                                     </tbody>
-                                </table>  
+                                </table>
                             </div>
                         </div>
                         {{-- end seccion de contactos solicitados --}}
@@ -462,13 +462,13 @@
                                     </thead>
                                     <tbody id="tbodyDomicilioSolicitado">
                                     </tbody>
-                                </table>  
+                                </table>
                             </div>
                         </div>
                         <!-- end seccion de domicilios solicitado -->
                         <hr style="margin-top:5%;">
                         <div>
-                            <button class="btn btn-info" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Agregar solicitado</button>
+                            <button class="btn btn-primary" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Agregar solicitado</button>
                         </div>
 
                         <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
@@ -483,7 +483,7 @@
                                 </thead>
                                 <tbody id="tbodySolicitado">
                                 </tbody>
-                            </table>  
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -503,8 +503,8 @@
                         <p class="help-block">Fecha de Ratificación</p>
                     </div>
                     <div class="col-md-4 showEdit">
-                        <input class="form-control dateTime" required id="fechaRecepcion" disabled placeholder="Fecha de Recepcion" type="text" value="">                
-                        <p class="help-block needed">Fecha de Recepción</p>    
+                        <input class="form-control dateTime" required id="fechaRecepcion" disabled placeholder="Fecha de Recepcion" type="text" value="">
+                        <p class="help-block needed">Fecha de Recepción</p>
                     </div>
                     <div class="col-md-4">
                         <input class="form-control date" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
@@ -533,7 +533,7 @@
                             </thead>
                             <tbody id="tbodyObjetoSol">
                             </tbody>
-                        </table>  
+                        </table>
                     </div>
                     <br>
                     <br>
@@ -543,10 +543,10 @@
                     </div>
                 </div>
             </div>
-            
+
             @if(isset($solicitud->estatus_solicitud_id) && $solicitud->estatus_solicitud_id == 1)
                 <div class="form-group">
-                    <button class="btn btn-info btn-sm m-l-5" id="btnRatificarSolicitud"><i class="fa fa-check"></i> Ratificar Solicitud</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnRatificarSolicitud"><i class="fa fa-check"></i> Ratificar Solicitud</button>
                 </div>
             @endif
         </div>
@@ -704,9 +704,9 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="domicilio_edit">
-                
+
                 @include('includes.component.map',['identificador' => 'solicitado', 'instancia' => 2])
-                
+
             </div>
             <div class="modal-footer">
                 <div class="text-right">
@@ -716,7 +716,7 @@
             </div>
         </div>
     </div>
-</div> 
+</div>
 <!-- Fin Modal de Domicilio-->
 <!-- inicio Modal cargar archivos-->
 <div class="modal" id="modal-archivos" aria-hidden="true" style="display:none;">
@@ -855,7 +855,7 @@
             //Informacion de solicitante
             var key = $("#edit_key").val();
             if($('#step-1').parsley().validate()){
-                
+
                 var solicitante = {};
                 solicitante.id = $("#solicitante_id").val();
                 if($("input[name='tipo_persona_solicitante']:checked").val() == 1){
@@ -863,15 +863,15 @@
                     solicitante.primer_apellido = $("#idPrimerASolicitante").val();
                     solicitante.segundo_apellido = $("#idSegundoASolicitante").val();
                     solicitante.fecha_nacimiento = dateFormat($("#idFechaNacimientoSolicitante").val());
-                    solicitante.curp = $("#idSolicitanteCURP").val();    
+                    solicitante.curp = $("#idSolicitanteCURP").val();
                     solicitante.edad = $("#idEdadSolicitante").val();
-                    solicitante.genero_id = $("#genero_id_solicitante").val();    
-                    solicitante.nacionalidad_id = $("#nacionalidad_id_solicitante").val();    
-                    solicitante.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitante").val();    
-                    solicitante.lengua_indigena_id = $("#lengua_indigena_id_solicitante").val();    
+                    solicitante.genero_id = $("#genero_id_solicitante").val();
+                    solicitante.nacionalidad_id = $("#nacionalidad_id_solicitante").val();
+                    solicitante.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitante").val();
+                    solicitante.lengua_indigena_id = $("#lengua_indigena_id_solicitante").val();
                 }else{
                     solicitante.nombre_comercial = $("#idNombreCSolicitante").val();
-                    
+
                 }
                 solicitante.solicita_traductor = $("input[name='solicita_traductor_solicitante']:checked").val()
                 solicitante.tipo_persona_id = $("input[name='tipo_persona_solicitante']:checked").val()
@@ -896,13 +896,13 @@
                 solicitante.dato_laboral = dato_laboral;
 
                 //domicilio del solicitante
-                
+
                 var domicilio = {};
                 domicilio = domicilioObj.getDomicilio();
-                
-                
+
+
                 solicitante.domicilios = [domicilio];
-                
+
                 //domicilio
 
                 //contactos del solicitante
@@ -911,10 +911,10 @@
                 if(key == ""){
                     arraySolicitantes.push(solicitante);
                 }else{
-                    
+
                     arraySolicitantes[key] = solicitante;
                 }
-                
+
                 limpiarSolicitante();
                 formarTablaSolicitante();
             }
@@ -934,12 +934,12 @@
                     solicitado.primer_apellido = $("#idPrimerASolicitado").val();
                     solicitado.segundo_apellido = $("#idSegundoASolicitado").val();
                     solicitado.fecha_nacimiento = dateFormat($("#idFechaNacimientoSolicitado").val());
-                    solicitado.curp = $("#idSolicitadoCURP").val();    
-                    solicitado.edad = $("#idEdadSolicitado").val();    
-                    solicitado.genero_id = $("#genero_id_solicitado").val();    
-                    solicitado.nacionalidad_id = $("#nacionalidad_id_solicitado").val();    
-                    solicitado.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitado").val();    
-                    solicitado.lengua_indigena_id = $("#lengua_indigena_id_solicitado").val();    
+                    solicitado.curp = $("#idSolicitadoCURP").val();
+                    solicitado.edad = $("#idEdadSolicitado").val();
+                    solicitado.genero_id = $("#genero_id_solicitado").val();
+                    solicitado.nacionalidad_id = $("#nacionalidad_id_solicitado").val();
+                    solicitado.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitado").val();
+                    solicitado.lengua_indigena_id = $("#lengua_indigena_id_solicitado").val();
                 }else{
                     solicitado.nombre_comercial = $("#idNombreCSolicitado").val();
                 }
@@ -955,17 +955,17 @@
                 if(key == ""){
                     arraySolicitados.push(solicitado);
                 }else{
-                    
+
                     arraySolicitados[key] = solicitado;
                 }
                 formarTablaSolicitado();
                 limpiarSolicitado();
                 arrayDomiciliosSolicitado = new Array();
-                formarTablaDomiciliosSolicitado();  
+                formarTablaDomiciliosSolicitado();
             }
         });
 
-        
+
 
         /**
         * Funcion para conocer si el tipo persona del solicitante es moral o fisica
@@ -1019,7 +1019,7 @@
             }
         });
 
-        
+
         if(edit){
             $("#solicitud_id").val(solicitud);
             $("#solicitud_id_modal").val(solicitud);
@@ -1027,7 +1027,7 @@
             getSolicitudFromBD(solicitud);
         }
         getGironivel("",1,"girosNivel1solicitante");
-        
+
     });
     function getSolicitudFromBD(solicitud){
         $.ajax({
@@ -1083,7 +1083,7 @@
         */
         function limpiarSolicitante(){
             $("#edit_key").val("");
-            
+
             $("#dato_laboral_id").val("");
             $("#solicitante_id").val("");
             $("#idNombreSolicitante").val("");
@@ -1091,7 +1091,7 @@
             $("#idSegundoASolicitante").val("");
             $("#idFechaNacimientoSolicitante").val("");
             $("#idEdadSolicitante").val("");
-            $("#idSolicitanteCURP").val("");    
+            $("#idSolicitanteCURP").val("");
             $("#idNombreCSolicitante").val("");
             $("#tipo_persona_fisica_solicitante").prop("checked", true);
             $(".personaMoralSolicitante").hide();
@@ -1108,8 +1108,8 @@
             $("#fecha_salida").val("");
             $("#jornada_id").val("");
             $("#horas_semanales").val("");
-            $("#genero_id_solicitante").val("");    
-            $("#nacionalidad_id_solicitante").val("");    
+            $("#genero_id_solicitante").val("");
+            $("#nacionalidad_id_solicitante").val("");
             $("#entidad_nacimiento_id_solicitante").val("");
             $("#lengua_indigena_id_solicitante").val("");
             if($("#solicita_traductor_solicitante").is(":checked")){
@@ -1140,14 +1140,14 @@
             $("#idSegundoASolicitado").val("");
             $("#idFechaNacimientoSolicitado").val("");
             $("#idEdadSolicitado").val("");
-            $("#idSolicitadoCURP").val("");    
+            $("#idSolicitadoCURP").val("");
             $("#idNombreCSolicitado").val("");
             $("#tipo_persona_fisica_solicitado").prop("checked", true);
             $(".personaMoralSolicitado").hide();
             $(".personaFisicaSolicitado").show();
             $("#idSolicitadoRfc").val("");
-            $("#genero_id_solicitado").val("");    
-            $("#nacionalidad_id_solicitado").val("");    
+            $("#genero_id_solicitado").val("");
+            $("#nacionalidad_id_solicitado").val("");
             $("#entidad_nacimiento_id_solicitado").val("");
             $("#lengua_indigena_id_solicitado").val("");
             if($("#solicita_traductor_solicitado").is(":checked")){
@@ -1157,12 +1157,12 @@
             $("#agregarSolicitado").html('<i class="fa fa-plus-circle"></i> Agregar solicitado');
             arrayContactoSolicitados = new Array();;
             formarTablaContacto();
-            $('.catSelect').trigger('change');  
+            $('.catSelect').trigger('change');
             domicilioObj2.limpiarDomicilios();
             $('#step-2').parsley().reset();
         }
-    
-    function agregarContactoSolicitante(){  
+
+    function agregarContactoSolicitante(){
         var contacto = {};
         idContacto = $("#contacto_id_solicitante").val();
         contacto.id = idContacto;
@@ -1172,7 +1172,7 @@
         if(idContacto == ""){
             arrayContactoSolicitantes.push(contacto);
         }else{
-            
+
             arrayContactoSolicitantes[idContacto] = contacto;
         }
 
@@ -1184,7 +1184,6 @@
         $("#tipo_contacto_id_solicitante").trigger('change');
         $("#contacto_solicitante").val("");
     }
-    $()
 
     function agregarContactoSolicitado(){
         var contacto = {};
@@ -1196,10 +1195,10 @@
         if(idContacto == ""){
             arrayContactoSolicitados.push(contacto);
         }else{
-            
+
             arrayContactoSolicitados[idContacto] = contacto;
         }
-        
+
         formarTablaContacto();
     }
 
@@ -1222,14 +1221,14 @@
             $("#tbodyContactoSolicitado").html("");
         }
         var html = "";
-        
+
         $.each(arrayS, function (key, value) {
             if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined")){
                 html += "<tr>";
                 $("#tipo_contacto_id_solicitante").val(value.tipo_contacto_id);
                 html += "<td> " + $("#tipo_contacto_id_solicitante :selected").text(); + " </td>";
                 html += "<td> " + value.contacto + " </td>";
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-warning' onclick='eliminarContactoSol("+key+","+solicitante+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
+                html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarContactoSol("+key+","+solicitante+")' ><i class='fa fa-trash'></i></a></td>";
                 html += "</tr>";
             }
         });
@@ -1255,25 +1254,25 @@
                 arrayContactoSolicitados    [key].activo = 0;
             }
         }
-        
+
         formarTablaContacto(solicitante);
     }
-    
+
     /**
     * Funcion para generar tabla a partir de array de solicitantes
     */
     function formarTablaObjetoSol(){
-        
+
         var html = "";
-        
+
         $("#tbodyObjetoSol").html("");
-        
+
         $.each(arrayObjetoSolicitudes, function (key, value) {
             if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined" )){
                 html += "<tr>";
                 $("#objeto_solicitud_id").val(value.objeto_solicitud_id);
                 html += "<td> " + $("#objeto_solicitud_id :selected").text(); + " </td>";
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-warning' onclick='eliminarObjetoSol("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
+                html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarObjetoSol("+key+")' ><i class='fa fa-trash'></i></a></td>";
                 html += "</tr>";
             }
         });
@@ -1284,33 +1283,33 @@
     * Funcion para generar tabla a partir de array de solicitantes
     */
     function formarTablaSolicitante(){
-        
+
         var html = "";
-        
+
         $("#tbodySolicitante").html("");
-        
+
         $.each(arraySolicitantes, function (key, value) {
             if(value.activo == "1"){
                 html += "<tr>";
                 if(value.tipo_persona_id == 1){
                     html += "<td>" + value.nombre + " " + value.primer_apellido + " " + value.segundo_apellido + "</td>";
                 }else{
-                    html += "<td> " + value.nombre_comercial + " </td>";    
+                    html += "<td> " + value.nombre_comercial + " </td>";
                 }
-                
+
                 if(value.tipo_persona_id == 1){
                     html += "<td> " + value.curp + " </td>";
                 }else{
-                    html += "<td></td>";    
+                    html += "<td></td>";
                 }
                 if(value.rfc){
                     html += "<td> " + value.rfc + " </td>";
                 }else{
-                    html += "<td></td>";    
+                    html += "<td></td>";
                 }
-                
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt' style='color:white;'></i></a> ";
-                html += "<a class='btn btn-xs btn-warning' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
+
+                html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
+                html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a></td>";
                 html += "</tr>";
             }
         });
@@ -1322,31 +1321,31 @@
     */
     function formarTablaSolicitado(){
         var html = "";
-        
+
         $("#tbodySolicitado").html("");
-        
+
         $.each(arraySolicitados, function (key, value) {
             if(value.activo == "1"){
                 html += "<tr>";
                 if(value.tipo_persona_id == 1){
                     html += "<td>" + value.nombre + " " + value.primer_apellido + " " + value.segundo_apellido + "</td>";
                 }else{
-                    html += "<td> " + value.nombre_comercial + " </td>";    
+                    html += "<td> " + value.nombre_comercial + " </td>";
                 }
-                
+
                 if(value.tipo_persona_id == 1){
                     html += "<td> " + value.curp + " </td>";
                 }else{
-                    html += "<td></td>";    
+                    html += "<td></td>";
                 }
                 if(value.rfc){
                     html += "<td> " + value.rfc + " </td>";
                 }else{
-                    html += "<td></td>";    
+                    html += "<td></td>";
                 }
-                
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt' style='color:white;'></i></a> ";
-                html += "<a class='btn btn-xs btn-warning' onclick='eliminarSolicitado("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
+
+                html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
+                html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitado("+key+")' ><i class='fa fa-trash'></i></a></td>";
                 html += "</tr>";
             }
         });
@@ -1417,10 +1416,10 @@
             $("#idPrimerASolicitante").val(arraySolicitantes[key].primer_apellido);
             $("#idSegundoASolicitante").val(arraySolicitantes[key].segundo_apellido);
             $("#idFechaNacimientoSolicitante").val(dateFormat(arraySolicitantes[key].fecha_nacimiento,0));
-            $("#idSolicitanteCURP").val(arraySolicitantes[key].curp);    
-            $("#genero_id_solicitante").val(arraySolicitantes[key].genero_id);    
-            $("#idEdadSolicitante").val(arraySolicitantes[key].edad);    
-            $("#nacionalidad_id_solicitante").val(arraySolicitantes[key].nacionalidad_id);    
+            $("#idSolicitanteCURP").val(arraySolicitantes[key].curp);
+            $("#genero_id_solicitante").val(arraySolicitantes[key].genero_id);
+            $("#idEdadSolicitante").val(arraySolicitantes[key].edad);
+            $("#nacionalidad_id_solicitante").val(arraySolicitantes[key].nacionalidad_id);
             $("#entidad_nacimiento_id_solicitante").val(arraySolicitantes[key].entidad_nacimiento_id);
             $("#lengua_indigena_id_solicitante").val(arraySolicitantes[key].lengua_indigena_id);
             if(arraySolicitantes[key].solicita_traductor == 1){
@@ -1514,7 +1513,7 @@
         formarTablaDomiciliosSolicitado();
         $('.catSelect').trigger('change');
     }
-    
+
     /**
     * Funcion para editar el domicilio del solicitante
     *@argument key posicion de array a editar
@@ -1526,7 +1525,7 @@
         $('.catSelect').trigger('change');
     }
 
-    
+
     /**
     * Funcion para generar tabla a partir de array domicilios solicitados
     */
@@ -1537,16 +1536,16 @@
             if(value.activo == "1" || value.id != "" && typeof value.activo == "undefined"){
                 html += "<tr>";
                 html += "<td>" + value.asentamiento + " " + value.cp + "</td>";
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-info' onclick='cargarEditarDomicilioSolicitado("+key+")' ><i class='fa fa-pencil-alt' style='color:white;'></i> </a> <a class='btn btn-xs btn-warning' onclick='eliminarDomicilio("+key+")' ><i class='fa fa-trash' style='color:white;'></i></a></td>";
+                html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarDomicilioSolicitado("+key+")' ><i class='fa fa-pencil-alt'></i> </a> <a class='btn btn-xs btn-danger' onclick='eliminarDomicilio("+key+")' ><i class='fa fa-trash btn-danger'></i></a></td>";
                 html += "</tr>";
             }
-            
+
         });
         $("#tbodyDomicilioSolicitado").html(html);
     }
 
     /**
-    * Funcion para agregar Domicilio de solicitante y solicitado 
+    * Funcion para agregar Domicilio de solicitante y solicitado
     */
     function agregarDomicilio(){
         key = $("#domicilio_edit").val();
@@ -1561,7 +1560,7 @@
         domicilioObj2.limpiarDomicilios();
     }
     /**
-    * Funcion para agregar Domicilio de solicitante y solicitado 
+    * Funcion para agregar Domicilio de solicitante y solicitado
     */
     function agregarObjetoSol(){
         if($("#objeto_solicitud_id").val() != ""){
@@ -1613,21 +1612,21 @@
                             title: 'Correcto',
                             text: 'Solicitud guardada correctamente',
                             icon: 'success',
-                            
+
                         });
                         setTimeout('', 5000);
                         location.href='{{ route('solicitudes.index')  }}'
                     }else{
-                        
+
                     }
-                    
+
                 },error:function(data){
                     var mensajes = "";
                     $.each(data.responseJSON.errors, function (key, value) {
                         console.log(key.split("."));
                         console.log(value);
                         var origen = key.split(".");
-                        
+
                         mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
                     });
                     swal({
@@ -1658,7 +1657,7 @@
         solicitud.fecha_conflicto = dateFormat($("#fechaConflicto").val());
         return solicitud;
     }
-    
+
     // Funcion para ratificar solicitudes
     $("#btnRatificarSolicitud").on("click",function(){
         if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
@@ -1678,7 +1677,7 @@
                         text: 'Aceptar',
                         value: true,
                         visible: true,
-                        className: 'btn btn-warning',
+                        className: 'btn btn-danger',
                         closeModal: true
                     }
                 }
@@ -1699,7 +1698,7 @@
                                     text: 'Solicitud ratificada correctamente',
                                     icon: 'success'
                                 });
-                                location.reload(); 
+                                location.reload();
                                 //getSolicitudFromBD($("#solicitud_id").val());
                             }else{
                                 swal({
@@ -1748,7 +1747,7 @@
                 }else{
                     $("#"+select).html("<option value=''>No hay opciones a mostrar</option>");
                 }
-                
+
             }
         });
         return tieneHijos;
@@ -1775,10 +1774,10 @@
                         var nivelSiguente = element.depth;
                         $("#girosNivel"+nivelSiguente+tipoParte).val(element.id);
                         $("#girosNivel"+nivelSiguente+tipoParte).trigger("change");
-                        
+
                     }
                     ultimoNivel = element.depth+1;
-                    
+
                 });
             }
         });
@@ -1792,7 +1791,7 @@
     });
     $(".giroNivel").on("change",function(){
         var tipoParte = $(this).attr("tipo");
-        
+
         $("#giro_comercial_"+tipoParte).val($(this).val());
         $("#giro_"+tipoParte).html("* Giro comercial seleccionado: <b>"+$(this)[0].selectedOptions[0].text+"</b>");
         if($(this).attr("id") == "girosNivel1"+tipoParte){
@@ -1805,7 +1804,7 @@
         if($(this).attr("nextLevel") != ""){
             tieneHijos = getGironivel($(this).val(),$(this).attr("nextLevel"),"girosNivel"+$(this).attr("nextLevel")+tipoParte);
         }
-        
+
         if(!tieneHijos){
             $("#divNivel"+$(this).attr("nextLevel")+tipoParte).hide();
         }else{
@@ -1813,14 +1812,14 @@
         }
     });
 
-    
+
 
     $("#solicita_traductor_solicitado").change(function(){
         if($("#solicita_traductor_solicitado").is(":checked")){
             $("#selectIndigenaSolicitado").show();
         }else{
             $("#selectIndigenaSolicitado").hide();
-            
+
         }
     });
 
@@ -1844,8 +1843,8 @@
     $(".date").keypress(function(event){
         event.preventDefault();
     });
-    
-    
+
+
     $('.upper').on('keyup', function () {
         var valor = $(this).val();
         $(this).val(valor.toUpperCase());
@@ -1853,7 +1852,7 @@
 
 
 //validacion rfc
-     
+
 //     var RFC =  (function () {
 
 //         var modulo = {};
@@ -1903,21 +1902,21 @@
 
 // function validaRFC(rfc){
 //     var rfc = rfc.trim().toUpperCase();
-        
-  
+
+
 //     if(rfc.length == 0){
 //         return;
 //     }
 //     if (RFC.valida(rfc)) {
 //     	return true;
 //     }
-    
-//     swal({title: 'Error',text: 'El RFC no es valido',icon: 'warning',});   
+
+//     swal({title: 'Error',text: 'El RFC no es valido',icon: 'warning',});
 // }
 
 
 //    //validacion curp
-     
+
 //    var CURP = (function () {
 
 // var modulo = {};
@@ -1964,7 +1963,7 @@
 // {
 //     for(var j=0;j<37; j++)
 //     {
-        
+
 //     if(segRaiz.substring(i,i+1)==chrCaracter.substring(j,j+1))
 //     {
 //         intFactor[i]=j;
@@ -1997,7 +1996,7 @@
 // return true;
 // }
 
-// swal({title: 'Error',text: 'La curp no es valida',icon: 'warning',});   
+// swal({title: 'Error',text: 'La curp no es valida',icon: 'warning',});
 // }
 
 // /**
@@ -2072,7 +2071,7 @@
 //                    });
                 }
             }
-        });       
+        });
     }
     var handleJqueryFileUpload = function() {
         // Initialize the jQuery File Upload widget:
@@ -2086,7 +2085,7 @@
               $("#modal-archivos").modal("hide");
             }
             // Uncomment the following to send cross-domain cookies:
-            //xhrFields: {withCCOLOR_REDentials: true},                
+            //xhrFields: {withCCOLOR_REDentials: true},
         });
 
         // Enable iframe cross-domain access via COLOR_REDirect option:
@@ -2149,8 +2148,8 @@
             var containerWidth = $(container).width();
             var columnWidth = containerWidth / dividerValue;
             $(container).isotope({
-                masonry: { 
-                    columnWidth: columnWidth 
+                masonry: {
+                    columnWidth: columnWidth
                 }
             });
         });
@@ -2194,7 +2193,7 @@
             onNavigate: function(direction, itemIndex){
                 console.log('Navigating '+direction+'. Current item: '+itemIndex);
             }
-        }); 
+        });
     });
 
     $(document).on('click', '[data-toggle="iframe"]',function(event){

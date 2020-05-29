@@ -23,7 +23,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de salas</h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('salas.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo</a>
+                <a href="{!! route('salas.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
         </div>
         <!-- end panel-heading -->
@@ -396,7 +396,7 @@
             arreglo.errorMsg=errorMsg;
             return arreglo;
         }
-       
+
         function limpiarModalIncidencia(){
             $("#incidencia_id").val("");
             $("#justificacion").val("").css("border-color","");
@@ -425,7 +425,7 @@
                                     <th class="text-nowrap">Justificación</th>
                                     <th class="text-nowrap">Fecha y hora de inicio</th>
                                     <th class="text-nowrap">Fecha y hora fin</th>
-                                    <th class="text-nowrap all">Acciones</th> 
+                                    <th class="text-nowrap all">Acciones</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -436,7 +436,7 @@
                             table +='   <td>'+data.fecha_inicio+'</td>';
                             table +='   <td>'+data.fecha_fin+'</td>';
                             table +='   <td>';
-                            table +='       <a class="btn btn-xs btn-info incidencia" onclick="cargarIncidencia('+data.id+')">';
+                            table +='       <a class="btn btn-xs btn-primary incidencia" onclick="cargarIncidencia('+data.id+')">';
                             table +='           <i class="fa fa-edit"></i>';
                             table +='       </a>';
                             table +='       <a class="btn btn-xs btn-warning incidencia" onclick="eliminarIncidencia('+data.id+')">';
@@ -468,7 +468,7 @@
                 $("#divRegistroIncidencias").show();
                 $("#btnNuevaIncidencia").hide();
                 $("#divConsultaIncidencias").hide();
-                
+
             }
         }
         $("#btnNuevaIncidencia").on("click",function(){

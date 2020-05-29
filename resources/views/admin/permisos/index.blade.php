@@ -21,7 +21,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de permisos</h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('permisos.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo permiso</a>
+                <a href="{!! route('permisos.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo permiso</a>
             </div>
         </div>
 

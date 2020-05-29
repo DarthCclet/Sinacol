@@ -15,7 +15,7 @@
             <td class="all">
                 {!! Form::open(['action' => ['EstatusSolicitudController@destroy', $estatus->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
-                    <a href="{{route('estatus-solicitud.edit',[$estatus])}}" class="btn btn-xs btn-info">
+                    <a href="{{route('estatus-solicitud.edit',[$estatus])}}" class="btn btn-xs btn-primary">
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar">

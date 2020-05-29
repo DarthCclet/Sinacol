@@ -22,7 +22,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de centros</h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('centros.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo centro</a>
+                <a href="{!! route('centros.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo centro</a>
             </div>
         </div>
         <!-- end panel-heading -->
@@ -355,7 +355,7 @@
                             table +='   <td>'+data.fecha_inicio+'</td>';
                             table +='   <td>'+data.fecha_fin+'</td>';
                             table +='   <td>';
-                            table +='       <a class="btn btn-xs btn-info incidencia" onclick="cargarIncidencia('+data.id+')">';
+                            table +='       <a class="btn btn-xs btn-primary incidencia" onclick="cargarIncidencia('+data.id+')">';
                             table +='           <i class="fa fa-edit"></i>';
                             table +='       </a>';
                             table +='       <a class="btn btn-xs btn-warning incidencia" onclick="eliminarIncidencia('+data.id+')">';

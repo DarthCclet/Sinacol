@@ -2,7 +2,7 @@
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
-      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Anio</th><th>Centro</th><th>user</th><th>ratificada</th><th>excepcion</th><th>Fecha Ratificacion</th><th>Fecha Recepcion</th><th>Observaciones</th><th>deleted_at</th><th>created_at</th><th>updated_at</th><th>Fecha Conflicto</th><th>Partes</th><th>Expediente</th><th>Accion</th></tr>
+      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Año</th><th>Centro</th><th>user</th><th>ratificada</th><th>excepcion</th><th>Fecha Ratificación</th><th>Fecha Recepción</th><th>Observaciones</th><th>deleted_at</th><th>created_at</th><th>updated_at</th><th>Fecha Conflicto</th><th>Partes</th><th>Expediente</th><th>Acción</th></tr>
     </thead>
 
 </table>
@@ -37,9 +37,9 @@
         <p class="help-block needed">Estatus de la solicitud</p>
     </div>
     <div class="col-md-4">
-        <button class="btn btn-info" type="button" id="limpiarFiltros" > <i class="fa fa-eraser"></i> Limpiar filtros</button>
+        <button class="btn btn-danger" type="button" id="limpiarFiltros" > <i class="fa fa-eraser"></i> Limpiar filtros</button>
     </div>
-    
+
 </div>
   @push('scripts')
   <script>
@@ -47,7 +47,7 @@
       @foreach($estatus_solicitudes as $key => $node)
         estatus_solicitudes['{{$key}}'] = '{{$node}}';
       @endforeach
-      
+
         var filtrado=false;
         $(document).ready(function() {
             var ruta = $("#ruta").val();
@@ -59,7 +59,7 @@
                         var array = new Array();
                         this.recordsTotal = json.total;
                         $.each(json.data,function(key, value){
-                            array.push(Object.values(value)); 
+                            array.push(Object.values(value));
                         });
                         return array;
                     },
@@ -79,7 +79,7 @@
                 "columnDefs": [
                     {"targets": [0], "visible": false},
                     {
-                        "targets": [1], 
+                        "targets": [1],
                         "render": function (data, type, row) {
                             if (data != null) {
                                 return  estatus_solicitudes[data];
@@ -113,7 +113,7 @@
                         }
                     },
                     {"targets": [10], "visible": false},
-                    
+
                     {"targets": [11], "visible": false},
                     {"targets": [12], "visible": false},
                     {"targets": [13], "visible": false},
@@ -128,7 +128,7 @@
                         }
                     },
                     {
-                        "targets": [15], 
+                        "targets": [15],
                         "render": function (data, type, row) {
                             var html = "";
                             var solicitantes = "";
@@ -156,7 +156,7 @@
                         }
                     },
                     {
-                        "targets": [16], 
+                        "targets": [16],
                         "render": function (data, type, row) {
                             console.log(data);
                             html = "N/A";
@@ -171,13 +171,13 @@
                         "targets": -1,
                         "render": function (data, type, row) {
                                 // console.log(row[0]);
-                            
-                                return '<div style="display: inline-block;"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'" class="btn btn-xs btn-info"><i class="fa fa-pencil-alt"></i></a><button class="btn btn-xs btn-warning btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>';      
+
+                                return '<div style="display: inline-block;"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a>&nbsp;<button class="btn btn-xs btn-danger btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>';
                             }
-                        // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-info"><i class="fa fa-pencil-alt"></i></a><button class="btn btn-xs btn-warning btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
+                        // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a>&nbsp;<button class="btn btn-xs btn-danger btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
                     }
                 ],
-                "serverSide": true, 
+                "serverSide": true,
                 "processing": true,
                 select: true,
                 "ordering": false,
@@ -191,7 +191,7 @@
                 "scrollColapse": false,
                 "scroller": {
                     "serverWait": 200,
-                    "loadingIndicator": true,   
+                    "loadingIndicator": true,
                 },
                 "responsive": false,
                 "language": {
@@ -210,7 +210,7 @@
                 filtrado = false;
                 }
             });
-        
+
             $('.filtros').on( 'dp.change change clear', function () {
                 dt.clear();
                 dt.ajax.reload(function(){}, true);
@@ -252,4 +252,3 @@
        });
   </script>
   @endpush
-  

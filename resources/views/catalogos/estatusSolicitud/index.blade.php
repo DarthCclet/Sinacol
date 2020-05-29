@@ -22,7 +22,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado </h4>
             <div class="panel-heading-btn">
-                <a href="{!! route('estatus-solicitud.create') !!}" class="btn btn-info"><i class="fa fa-plus-circle"></i> Nuevo</a>
+                <a href="{!! route('estatus-solicitud.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo</a>
             </div>
         </div>
 
