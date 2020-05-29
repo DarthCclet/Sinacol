@@ -1075,6 +1075,13 @@
                 $("#fechaRatificacion").val(dateFormat(data.fecha_ratificacion,2));
                 $("#fechaRecepcion").val(dateFormat(data.fecha_recepcion,2));
                 $("#fechaConflicto").val(dateFormat(data.fecha_conflicto,0));
+                if(arraySolicitados.length > 0){
+                    cargarEditarSolicitado(0)
+                }
+                if(arraySolicitantes.length > 0){
+                    cargarEditarSolicitante(0)
+                }
+
             }
         });
     }
