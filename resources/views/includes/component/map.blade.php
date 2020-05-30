@@ -31,9 +31,10 @@
         z-index: 9999 !important;
     }
 </style>
-<div class="col-md-12 row">
-	<div class="col-md-12" align="center">
+<div class="col-md-12 mt-4 row">
+	<div class="col-md-12">
 		<h4>Domicilios</h4>
+        <hr class="red">
 	</div>
 	<input type="hidden" id="domicilio_id{{$identificador}}">
 	<input type="hidden" id="direccion_marker{{$identificador}}">

@@ -181,8 +181,9 @@
                         </div>
                         {{-- Seccion de contactos solicitantes --}}
                         <div class="col-md-12 row">
-                            <div class="col-md-12" align="center">
+                            <div class="col-md-12 mt-4">
                                 <h4>Contacto de buz&oacute;n electr&oacute;nico</h4>
+                                <hr class="red">
                             </div>
                             <input type="hidden" id="contacto_id_solicitante">
                             <div class="col-md-4">
@@ -218,8 +219,9 @@
                         <!-- end seccion de domicilios solicitante -->
                         <!-- Seccion de Datos laborales -->
                         <div class="col-md-12 row">
-                            <div class="col-md-12" align="center">
+                            <div class="col-md-12 mt-4">
                                 <h4>Datos Laborales del trabajador</h4>
+                                <hr class="red">
                             </div>
                             <input type="hidden" id="dato_laboral_id">
                             <div class="col-md-12">
@@ -346,7 +348,7 @@
                         </div>
                         <div class="col-md-8 personaFisicaSolicitado">
                             <input class="form-control upper" required id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del solicitado" type="text" value="">
-                            <p class="help-block needed">CURP del solicitado</p>
+                            <p class="help-block">CURP del solicitado</p>
                         </div>
                         <div class="col-md-12 row">
                             <div class="col-md-4" style="display:none;">
@@ -416,11 +418,12 @@
                         </div>
                         {{-- Seccion de contactos solicitados --}}
                         <div class="col-md-12 row">
-                            <div class="col-md-12" align="center">
+                            <div class="col-md-12 mt-4">
                                 <h4>Contacto</h4>
+                                <hr class="red">
                             </div>
                             <input type="hidden" id="contacto_id_solicitado">
-                            <p>En caso de contar con datos de contacto de la persona solicitada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</p>
+                            <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona solicitada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
                             <div class="col-md-4">
                                 {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
@@ -452,6 +455,7 @@
                         <div class="col-md-12 row">
                             <div class="row">
                                 <h4>Domicilio(s)</h4>
+                                <hr class="red">
                                 <a style="font-size:large; margin-left:1%; color:#49b6d6;" onclick="$('#modal-domicilio').modal('show');"> <i class="fa fa-plus-circle"></i></a>
                             </div>
                             <div class="col-md-10 offset-md-1" >
@@ -501,11 +505,11 @@
                 <div class="col-md-12 row">
                     <input type="hidden" id="solicitud_id">
                     <div class="col-md-4 showEdit" >
-                        <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de ratificacion" type="text" value="">
+                        <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de ratificación" type="text" value="">
                         <p class="help-block">Fecha de Ratificación</p>
                     </div>
                     <div class="col-md-4 showEdit">
-                        <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepcion" type="text" value="">
+                        <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
                         <p class="help-block needed">Fecha de Recepción</p>
                     </div>
                     <div class="col-md-4">
@@ -1228,7 +1232,7 @@
 
             });
         }
-        
+
     }
 
     function limpiarContactoSolicitado(){
@@ -1819,7 +1823,7 @@
         $("#giro_comercial_hidden").val($(this).val());
     });
 
-    
+
     $("#solicita_traductor_solicitado").change(function(){
         if($("#solicita_traductor_solicitado").is(":checked")){
             $("#selectIndigenaSolicitado").show();
@@ -1843,7 +1847,12 @@
         }
     });
     $(".catSelect").select2({width: '100%'});
-    $(".dateBirth").datepicker({useCurrent: false,format:'dd/mm/yyyy', startView:2});
+    $(".dateBirth").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        yearRange: "c-80:",
+        format:'dd/mm/yyyy',
+    });
     $(".date").datepicker({useCurrent: false,format:'dd/mm/yyyy'});
     $(".dateTime").datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm:ss'});
     $(".date").keypress(function(event){

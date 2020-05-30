@@ -15,12 +15,17 @@
 
     <!--Librerias wysihtml5-->
     <link href="/assets/plugins/bootstrap3-wysihtml5-bower/dist/bootstrap3-wysihtml5.min.css" rel="stylesheet" />
+
+    <link href="/assets/css/default/ui-datepicker.css" rel="stylesheet" />
 @endpush
 
 @push('scripts')
     <!--Librerias de date pickers-->
     <script src="/assets/plugins/moment/moment.js"></script>
-    <script src="/assets/plugins/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+
+    <script src="/assets/plugins/jquery-ui/core.min.js"></script>
+
+
     <script src="/assets/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
     <script src="/assets/plugins/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 
@@ -40,4 +45,27 @@
     <script src="/assets/plugins/ckeditor/ckeditor.js"></script>
     <script src="/assets/plugins/bootstrap3-wysihtml5-bower/dist/bootstrap3-wysihtml5.all.min.js"></script>
     <script src="/assets/js/demo/form-wysiwyg.demo.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $.datepicker.regional.es = {
+                closeText: 'Cerrar',
+                prevText: 'Ant',
+                nextText: 'Sig',
+                currentText: 'Hoy',
+                monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+                monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                dayNames: ['Domingo', 'Lunes', 'Martes', 'Mi&eacute;rcoles', 'Jueves', 'Viernes', 'S&aacute;bado'],
+                dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mi&eacute;', 'Juv', 'Vie', 'S&aacute;b'],
+                dayNamesMin: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'S&aacute;b'],
+                weekHeader: 'Sm',
+                dateFormat: 'dd/mm/yy',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: ''
+            };
+            $.datepicker.setDefaults($.datepicker.regional.es);
+        });
+    </script>
 @endpush
