@@ -374,11 +374,11 @@
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
                                 <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del solicitado" type="text" value="">
-                                <p class="help-block needed">Fecha de nacimiento</p>
+                                <p class="help-block">Fecha de nacimiento</p>
                             </div>
                             <div class="col-md-4 personaFisicaSolicitado">
-                                <input class="form-control numero" required disabled id="idEdadSolicitado" placeholder="Edad del solicitado" type="text" value="">
-                                <p class="help-block needed">Edad del solicitado</p>
+                                <input class="form-control numero" disabled id="idEdadSolicitado" placeholder="Edad del solicitado" type="text" value="">
+                                <p class="help-block">Edad del solicitado</p>
                             </div>
                             <div class="col-md-4">
                                 <input class="form-control upper" id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitado" type="text" value="">
@@ -1833,11 +1833,39 @@
         }
     });
 
-    $("#idFechaNacimientoSolicitante").blur(function(){
-        $("#idEdadSolicitante").val(Edad($("#idFechaNacimientoSolicitante").val()))
+    $("#idFechaNacimientoSolicitante").change(function(){
+        if($("#idFechaNacimientoSolicitante").val() != ""){
+            var edad = Edad($("#idFechaNacimientoSolicitante").val());
+            if(edad > 5){
+                $("#idEdadSolicitante").val(edad);
+            }else{
+                $("#idFechaNacimientoSolicitante").val("")
+                swal({
+                    title: 'Error',
+                    text: 'La edad debe ser mayor de 5 años',
+                    icon: 'warning'
+                });
+            }
+        }else{
+            $("#idEdadSolicitante").val("");
+        }
     });
-    $("#idFechaNacimientoSolicitado").blur(function(){
-        $("#idEdadSolicitado").val(Edad($("#idFechaNacimientoSolicitado").val()))
+    $("#idFechaNacimientoSolicitado").change(function(){
+        if($("#idFechaNacimientoSolicitado").val() != ""){
+            var edad = Edad($("#idFechaNacimientoSolicitado").val())
+            if(edad > 5){
+                $("#idEdadSolicitado").val()
+            }else{
+                $("#idFechaNacimientoSolicitado").val("");
+                swal({
+                    title: 'Error',
+                    text: 'La edad debe ser mayor de 5 años',
+                    icon: 'warning'
+                });
+            }
+        }else{
+            $("#idEdadSolicitado").val("");
+        }
     });
     $("#solicita_traductor_solicitante").change(function(){
         if($("#solicita_traductor_solicitante").is(":checked")){
