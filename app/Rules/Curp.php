@@ -27,6 +27,9 @@ class Curp implements Rule
     {
         $reg = "";
 
+      if(strlen($value) == ""){
+        return true;
+      }
       if(strlen($value) == 18)
       {
         $digito = $this->verifica($value);

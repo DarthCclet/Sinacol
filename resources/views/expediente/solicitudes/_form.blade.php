@@ -10,6 +10,17 @@
     .upper{
         text-transform: uppercase;
     }
+    .highlighted{
+        background-color: #FFFF00;
+        color: #000 !important;
+    }
+    .select2-results__option--highlighted{
+        background: #348fe2 !important;
+        color: #fff !important;
+    }
+    .select2-results__options {
+        max-height: 400px;
+    }
 
 </style>
 
@@ -17,7 +28,6 @@
 
 </div>
 <div id="wizard" >
-
     <!-- begin wizard-step -->
     <ul class="wizard-steps">
         <li>
@@ -169,7 +179,7 @@
                                 <p class="help-block needed">Lengua Indigena</p>
                             </div>
                         </div>
-                        {{-- Seccion de contactos solicitados --}}
+                        {{-- Seccion de contactos solicitantes --}}
                         <div class="col-md-12 row">
                             <div class="col-md-12" align="center">
                                 <h4>Contacto de buz&oacute;n electr&oacute;nico</h4>
@@ -216,30 +226,22 @@
                                 <input class="form-control" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
                                 <p class="help-block">Nombre del Jefe directo</p>
                             </div>
-                            <div class="col-md-12 row">
-                                <input type="hidden" id="giro_comercial_solicitante">
-                                <div class="col-md-8" id="divNivel1solicitante" >
-                                    <select id="girosNivel1solicitante" nextLevel="2" tipo="solicitante" class="form-control giroNivel">
-                                    </select>
-                                </div>
-                                <div class="col-md-8" id="divNivel2solicitante" style="display:none">
-                                    <select id="girosNivel2solicitante" nextLevel="3" tipo="solicitante" class="form-control giroNivel">
-                                    </select>
-                                </div>
-                                <div class="col-md-8" id="divNivel3solicitante" style="display:none">
-                                    <select id="girosNivel3solicitante" nextLevel="" tipo="solicitante"  class="form-control giroNivel">
-                                    </select>
+                            <div class="col-md-12 form-group row">
+                                <input type="hidden" id="term">
+                                <div class="col-md-12 ">
+                                    <select name="giro_comercial_solicitante" placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control"></select>
                                 </div>
                                 <div class="col-md-12">
                                     <p class="help-block needed">Giro comercial</p>
-                                    <label id="giro_solicitante"></label>
+                                <label id="giro_solicitante"></label>
                                 </div>
                             </div>
+                            {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opcion','style'=>'display:none;']);  !!}
                             <div class="col-md-12 row">
                                 <div class="col-md-4">
-                                    {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block ">Categoria/Puesto</p>
+                                    <p class="help-block needed">Categoria/Puesto</p>
                                 </div>
                                 <div class="col-md-4">
                                     <input class="form-control numero" data-parsley-type='integer' id="nss" placeholder="No. IMSS"  type="text" value="">
@@ -503,7 +505,7 @@
                         <p class="help-block">Fecha de Ratificación</p>
                     </div>
                     <div class="col-md-4 showEdit">
-                        <input class="form-control dateTime" required id="fechaRecepcion" disabled placeholder="Fecha de Recepcion" type="text" value="">
+                        <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepcion" type="text" value="">
                         <p class="help-block needed">Fecha de Recepción</p>
                     </div>
                     <div class="col-md-4">
@@ -892,7 +894,7 @@
                 dato_laboral.fecha_salida = dateFormat($("#fecha_salida").val());
                 dato_laboral.jornada_id = $("#jornada_id").val();
                 dato_laboral.horas_semanales = $("#horas_semanales").val();
-                dato_laboral.giro_comercial_id = $("#giro_comercial_solicitante").val()
+                dato_laboral.giro_comercial_id = $("#giro_comercial_hidden").val();
                 solicitante.dato_laboral = dato_laboral;
 
                 //domicilio del solicitante
@@ -919,6 +921,7 @@
                 formarTablaSolicitante();
             }
         });
+
 
         /**
         * Funcion para agregar solicitado a lista de solicitados
@@ -1026,7 +1029,7 @@
             cargarDocumentos();
             getSolicitudFromBD(solicitud);
         }
-        getGironivel("",1,"girosNivel1solicitante");
+        // getGironivel("",1,"girosNivel1solicitante");
 
     });
     function getSolicitudFromBD(solicitud){
@@ -1123,9 +1126,9 @@
                 $("#solicita_traductor_solicitante").trigger('click');
             }
             $("#agregarSolicitante").html('<i class="fa fa-plus-circle"></i> Agregar solicitante');
-            $("#giro_comercial_solicitante").val("");
-            getGironivel("",1,"girosNivel1solicitante");
-            $("#girosNivel1solicitante").trigger("change");
+            // getGironivel("",1,"girosNivel1solicitante");
+            $("#giro_comercial_solicitante").val("").trigger("change");
+            // $("#girosNivel1solicitante").trigger("change");
             $("#giro_solicitante").html("");
             $("input[name='tipo_persona_solicitante']").trigger("change")
             arrayContactoSolicitantes = new Array();
@@ -1170,21 +1173,30 @@
         }
 
     function agregarContactoSolicitante(){
-        var contacto = {};
-        idContacto = $("#contacto_id_solicitante").val();
-        contacto.id = idContacto;
-        contacto.activo = 1;
-        contacto.contacto = $("#contacto_solicitante").val();
-        contacto.tipo_contacto_id = $("#tipo_contacto_id_solicitante").val();
-        if(idContacto == ""){
-            arrayContactoSolicitantes.push(contacto);
+        if($("#contacto_solicitante").val() != "" && $("#tipo_contacto_id_solicitante").val() != ""){
+            var contacto = {};
+            idContacto = $("#contacto_id_solicitante").val();
+            contacto.id = idContacto;
+            contacto.activo = 1;
+            contacto.contacto = $("#contacto_solicitante").val();
+            contacto.tipo_contacto_id = $("#tipo_contacto_id_solicitante").val();
+            if(idContacto == ""){
+                arrayContactoSolicitantes.push(contacto);
+            }else{
+
+                arrayContactoSolicitantes[idContacto] = contacto;
+            }
+
+            formarTablaContacto(true);
+            limpiarContactoSolicitante();
         }else{
+            swal({
+                title: 'Error',
+                text: 'Los campos Tipo de contact y Contacto son obligatorios',
+                icon: 'error',
 
-            arrayContactoSolicitantes[idContacto] = contacto;
+            });
         }
-
-        formarTablaContacto(true);
-        limpiarContactoSolicitante();
     }
     function limpiarContactoSolicitante(){
         $("#tipo_contacto_id_solicitante").val("");
@@ -1193,20 +1205,30 @@
     }
 
     function agregarContactoSolicitado(){
-        var contacto = {};
-        idContacto = $("#contacto_id_solicitado").val();
-        contacto.id = idContacto;
-        contacto.activo = 1;
-        contacto.contacto = $("#contacto_solicitado").val();
-        contacto.tipo_contacto_id = $("#tipo_contacto_id_solicitado").val();
-        if(idContacto == ""){
-            arrayContactoSolicitados.push(contacto);
+        if($("#contacto_solicitado").val() != "" && $("#tipo_contacto_id_solicitado").val() != ""){
+            var contacto = {};
+            idContacto = $("#contacto_id_solicitado").val();
+            contacto.id = idContacto;
+            contacto.activo = 1;
+            contacto.contacto = $("#contacto_solicitado").val();
+            contacto.tipo_contacto_id = $("#tipo_contacto_id_solicitado").val();
+            if(idContacto == ""){
+                arrayContactoSolicitados.push(contacto);
+            }else{
+
+                arrayContactoSolicitados[idContacto] = contacto;
+            }
+
+            formarTablaContacto();
         }else{
+            swal({
+                title: 'Error',
+                text: 'Los campos Tipo de contact y Contacto son obligatorios',
+                icon: 'error',
 
-            arrayContactoSolicitados[idContacto] = contacto;
+            });
         }
-
-        formarTablaContacto();
+        
     }
 
     function limpiarContactoSolicitado(){
@@ -1450,8 +1472,10 @@
         $("#idSolicitanteRfc").val(arraySolicitantes[key].rfc);
         // datos laborales en la solicitante
         $("#dato_laboral_id").val(arraySolicitantes[key].dato_laboral.id);
-        $("#giro_comercial_solicitante").val(arraySolicitantes[key].dato_laboral.giro_comercial_id);
-        getGiroEditar("solicitante");
+        // $("#giro_comercial_solicitante").val(arraySolicitantes[key].dato_laboral.giro_comercial_id).trigger("change");
+        $("#giro_comercial_hidden").val(arraySolicitantes[key].dato_laboral.giro_comercial_id)
+        $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
+        // getGiroEditar("solicitante");
         $("#nombre_jefe_directo").val(arraySolicitantes[key].dato_laboral.nombre_jefe_directo);
         $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
         $("#nss").val(arraySolicitantes[key].dato_laboral.nss);
@@ -1733,94 +1757,69 @@
         return excepcion;
     }
 
-    function getGironivel(id,nivel,select){
-        var tieneHijos = false;
-        $.ajax({
-            url:"/api/giros_comerciales/getGirosComercialesByNivelId",
+    function highlightText(string){
+        return string.replace($("#term").val().trim(),'<span class="highlighted">'+$("#term").val().trim()+"</span>");
+    }
+
+    $("#giro_comercial_solicitante").select2({
+        ajax: {
+            url: '/api/giros_comerciales/filtrarGirosComerciales',
             type:"POST",
             dataType:"json",
+            delay: 400,
             async:false,
-            data:{
-                id:id,
-                nivel:nivel
-            },
-            success:function(json){
-                if(json != null && json.data != ""){
-                    $("#"+select).html("<option value=''>Selecciona una opcion</option>");
-                    $.each(json.data,function(index,element){
-                        $("#"+select).append("<option value='"+element.id+"'>"+element.nombre+"</option>");
-                    });
-                    tieneHijos = true;
-                }else{
-                    $("#"+select).html("<option value=''>No hay opciones a mostrar</option>");
+            data:function (params) {
+                $("#term").val(params.term);
+                var data = {
+                    nombre: params.term
                 }
-
-            }
-        });
-        return tieneHijos;
-    }
-
-    function getGiroEditar(tipoParte){
-        var idGiro = $("#giro_comercial_"+tipoParte).val();
-        var ultimoNivel = "";
-        $.ajax({
-            url:'/api/giros_comerciales/getAncestors',
-            type:"POST",
-            dataType:"json",
-            async:false,
-            data:{
-                id: idGiro
+                return data;
             },
-            success:function(json){
-                $.each(json.data, function(index,element){
-                    if(element.depth == 0){
-                        var nivelSiguente = element.depth;
-                        getGironivel("",1,"girosNivel1"+tipoParte);
-                    }else{
-                        // getGironivel(elemnt.id,1,"girosNivel1solicitado");
-                        var nivelSiguente = element.depth;
-                        $("#girosNivel"+nivelSiguente+tipoParte).val(element.id);
-                        $("#girosNivel"+nivelSiguente+tipoParte).trigger("change");
-
-                    }
-                    ultimoNivel = element.depth+1;
-
+            processResults:function(json){
+                $.each(json.data, function (key, node) {
+                    var html = '';
+                    html += '<table>';
+                    var ancestors = node.ancestors.reverse();
+                    html += '<tr><th colspan="2"><h5>* '+highlightText(node.nombre)+'</h5><th></tr>';
+                    $.each(ancestors, function (index, ancestor) {
+                        if(ancestor.id != 1){
+                            var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(index);
+                            html += '<tr><td ><b>'+ancestor.codigo+'</b></td>'+' <td style="border-left:1px solid;">'+tab+highlightText(ancestor.nombre)+'</td></tr>';
+                        }
+                    });
+                    var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(node.ancestors.length);
+                    html += '<tr><td><b>'+node.codigo+'</b></td>'+'<td style="border-left:1px solid;"> '+ tab+highlightText(node.nombre)+'</td></tr>';
+                    html += '</table>';
+                    json.data[key].html = html;
                 });
+                return {
+                    results: json.data
+                };
             }
-        });
-        $("#girosNivel"+ultimoNivel+tipoParte).val(idGiro);
-        $("#girosNivel"+ultimoNivel+tipoParte).trigger("change");
-    }
-
-    $(".giroNivel").select2({
-        placeholder:"Seleccione una opcion",
+            // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+        },
+        escapeMarkup: function(markup) {
+            return markup;
+        },
+        templateResult: function(data) {
+            return data.html;
+        },templateSelection: function(data) {
+            console.log(data);
+            if(data.id != ""){
+                return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
+            }
+            return data.text;
+        },
+        placeholder:'Seleccione una opcion',
+        minimumInputLength:4,
+        allowClear: true,
         language: "es"
     });
-    $(".giroNivel").on("change",function(){
-        var tipoParte = $(this).attr("tipo");
-
-        $("#giro_comercial_"+tipoParte).val($(this).val());
-        $("#giro_"+tipoParte).html("* Giro comercial seleccionado: <b>"+$(this)[0].selectedOptions[0].text+"</b>");
-        if($(this).attr("id") == "girosNivel1"+tipoParte){
-            $("#divNivel2"+tipoParte).hide();
-            $("#divNivel3"+tipoParte).hide();
-            $('#divNivel2'+tipoParte+' option').remove();
-            $('#divNivel3'+tipoParte+' option').remove();
-        }
-        var tieneHijos = false;
-        if($(this).attr("nextLevel") != ""){
-            tieneHijos = getGironivel($(this).val(),$(this).attr("nextLevel"),"girosNivel"+$(this).attr("nextLevel")+tipoParte);
-        }
-
-        if(!tieneHijos){
-            $("#divNivel"+$(this).attr("nextLevel")+tipoParte).hide();
-        }else{
-            $("#divNivel"+$(this).attr("nextLevel")+tipoParte).show();
-        }
+    $("#giro_comercial_solicitante").change(function(){
+        $("#giro_comercial_hidden").val($(this).val());
     });
 
-
-
+    
     $("#solicita_traductor_solicitado").change(function(){
         if($("#solicita_traductor_solicitado").is(":checked")){
             $("#selectIndigenaSolicitado").show();
@@ -1857,173 +1856,6 @@
         $(this).val(valor.toUpperCase());
     });
 
-
-//validacion rfc
-
-//     var RFC =  (function () {
-
-//         var modulo = {};
-
-//         /**
-//         * Valida que la cadena proporcionada se apegue a la definición de la CURP
-//         */
-//         modulo.valida = function (rfc,aceptarGenerico = true) {
-//             const re = /^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/;
-//             var   validado = rfc.match(re);
-
-//             if (!validado)  //Coincide con el formato general del regex?
-//                 return false;
-
-//             //Separar el dígito verificador del resto del RFC
-//             const digitoVerificador = validado.pop(),
-//                 rfcSinDigito      = validado.slice(1).join(''),
-//                 len               = rfcSinDigito.length,
-
-//             //Obtener el digito esperado
-//                 diccionario       = "0123456789ABCDEFGHIJKLMN&OPQRSTUVWXYZ Ñ",
-//                 indice            = len + 1;
-//             var   suma,
-//                 digitoEsperado;
-
-//             if (len == 12) suma = 0
-//             else suma = 481; //Ajuste para persona moral
-
-//             for(var i=0; i<len; i++){
-//                 suma += diccionario.indexOf(rfcSinDigito.charAt(i)) * (indice - i);
-//             }
-//             digitoEsperado = 11 - suma % 11;
-//             if (digitoEsperado == 11) digitoEsperado = 0;
-//             else if (digitoEsperado == 10) digitoEsperado = "A";
-
-//             //El dígito verificador coincide con el esperado?
-//             // o es un RFC Genérico (ventas a público general)?
-//             if ((digitoVerificador != digitoEsperado)
-//             && (!aceptarGenerico || rfcSinDigito + digitoVerificador != "XAXX010101000"))
-//                 return false;
-//             else if (!aceptarGenerico && rfcSinDigito + digitoVerificador == "XEXX010101000")
-//                 return false;
-//             return rfcSinDigito + digitoVerificador;
-//         }
-//         return modulo;
-//     }());
-
-// function validaRFC(rfc){
-//     var rfc = rfc.trim().toUpperCase();
-
-
-//     if(rfc.length == 0){
-//         return;
-//     }
-//     if (RFC.valida(rfc)) {
-//     	return true;
-//     }
-
-//     swal({title: 'Error',text: 'El RFC no es valido',icon: 'warning',});
-// }
-
-
-//    //validacion curp
-
-//    var CURP = (function () {
-
-// var modulo = {};
-
-// /**
-//  * Valida que la cadena proporcionada se apegue a la definición de la CURP
-//  */
-// modulo.valida = function (curp) {
-// var reg = "";
-// if(curp.length == 18)
-// {
-//     var digito = this.verifica(curp);
-
-//     reg = /[A-Z]{4}\d{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9][0-9]/;
-
-//     if(curp.search(reg))
-//     {
-//     return false;
-//     }
-
-//     if(!(parseInt(digito) == parseInt(curp.substring(17,18))))
-//     {
-//     return false;
-//     }
-//     return true;
-// }
-// else
-// {
-//     return false;
-// }
-// };
-
-// /**
-//  * Comprueba el dígito verificador mediante el algoritmo de LUHN "tropicalizado"
-//  */
-// modulo.verifica = function(curp){
-// var segRaiz      = curp.substring(0,17);
-// var chrCaracter  = "0123456789ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
-// var intFactor    = new Array(17);
-// var lngSuma      = 0.0;
-// var lngDigito    = 0.0;
-
-// for(var i=0; i<17; i++)
-// {
-//     for(var j=0;j<37; j++)
-//     {
-
-//     if(segRaiz.substring(i,i+1)==chrCaracter.substring(j,j+1))
-//     {
-//         intFactor[i]=j;
-//     }
-//     }
-// }
-// for(var k = 0; k < 17; k++)
-// {
-//     lngSuma= lngSuma + ((intFactor[k]) * (18 - k));
-// }
-// lngDigito= (10 - (lngSuma % 10));
-
-// if(lngDigito==10)
-// {
-//     lngDigito=0;
-// }
-
-// return lngDigito;
-// };
-
-// return modulo;
-// }());
-
-// function validaCURP(curp){
-// if(curp.length == 0){
-//     return false;
-// }
-// if(CURP.valida(curp)){
-// //   document.getElementById('msg').innerText = 'CURP Válida';
-// return true;
-// }
-
-// swal({title: 'Error',text: 'La curp no es valida',icon: 'warning',});
-// }
-
-// /**
-//   *  Funcion para calcular edad
-// **/
-// function Edad(FechaNacimiento) {
-//     var fechaNace = new Date(dateFormat(FechaNacimiento));
-//     var fechaActual = new Date()
-
-//     var mes = fechaActual.getMonth();
-//     var dia = fechaActual.getDate();
-//     var año = fechaActual.getFullYear();
-
-//     fechaActual.setDate(dia);
-//     fechaActual.setMonth(mes);
-//     fechaActual.setFullYear(año);
-//     edad = Math.floor(((fechaActual - fechaNace) / (1000 * 60 * 60 * 24) / 365));
-
-//     return edad;
-// }
 
 /**
 *  Aqui comienzan las funciones para carga de documentos de la solicitud
