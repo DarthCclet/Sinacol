@@ -999,10 +999,10 @@
                         $("#nombre").val(data.nombre);
                         $("#primer_apellido").val(data.primer_apellido);
                         $("#segundo_apellido").val(data.segundo_apellido);
-                        $("#fecha_nacimiento").val(data.fecha_nacimiento);
+                        $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,0));
                         $("#genero_id").val(data.genero_id).trigger("change");
                         $("#instrumento").val(data.instrumento);
-                        $("#feha_instrumento").val(data.feha_instrumento);
+                        $("#feha_instrumento").val(dateFormat(data.feha_instrumento,0));
                         $("#numero_notaria").val(data.numero_notaria);
                         $("#nombre_notario").val(data.nombre_notario);
                         $("#localidad_notaria").val(data.localidad_notaria);
@@ -1111,10 +1111,10 @@
                         nombre:$("#nombre").val(),
                         primer_apellido:$("#primer_apellido").val(),
                         segundo_apellido:$("#segundo_apellido").val(),
-                        fecha_nacimiento:$("#fecha_nacimiento").val(),
+                        fecha_nacimiento:dateFormat($("#fecha_nacimiento").val()),
                         genero_id:$("#genero_id").val(),
                         instrumento:$("#instrumento").val(),
-                        feha_instrumento:$("#feha_instrumento").val(),
+                        feha_instrumento:dateFormat($("#feha_instrumento").val()),
                         numero_notaria:$("#numero_notaria").val(),
                         nombre_notario:$("#nombre_notario").val(),
                         localidad_notaria:$("#localidad_notaria").val(),
