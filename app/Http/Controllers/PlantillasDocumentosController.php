@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 
 use App\Filters\CatalogoFilter;
 use Barryvdh\DomPDF\PDF;
+use Dompdf\Dompdf;
 use App\PlantillaDocumento;
 use App\TipoDocumento;
 use App\Parte;
@@ -178,6 +179,7 @@ class PlantillasDocumentosController extends Controller
              if($value->nombre =='Solicitud'){
                array_push($columnNames,'total_solicitados');
                array_push($columnNames,'total_solicitantes');
+               array_push($columnNames,'objeto_solicitudes');
              }
              if($value->nombre =='Conciliador'){
                $columnPersona = Schema::getColumnListing('personas');
@@ -305,11 +307,22 @@ class PlantillasDocumentosController extends Controller
         */
        public function imprimirPDF($id)
        {
-          $html = $this->renderDocumento($id);
-          $pdf = App::make('dompdf.wrapper');
-          $pdf->getDomPDF();//->setBasePath('/Users/yadira/Projects/STPS/public/assets/img/logo/');
-          $pdf->loadHTML($html)->setPaper('letter');
-          return $pdf->stream('carta.pdf');
+       $html = $this->renderDocumento($id);
+       $pdf = new Dompdf();
+       $pdf->set_option('defaultFont', 'Montserrat');
+       $pdf->loadHtml($html);
+       $pdf->setPaper('A4');
+       $pdf->render();
+       // return $pdf->stream('carta.pdf');
+       $pdf->stream("carta.pdf", array("Attachment" => false));
+       exit(0);
+       return $pdf->download('constancia.pdf');
+
+          // $html = $this->renderDocumento($id);
+          // $pdf = App::make('dompdf.wrapper');
+          // $pdf->getDomPDF();//->setBasePath('/Users/yadira/Projects/STPS/public/assets/img/logo/');
+          // $pdf->loadHTML($html)->setPaper('letter');
+          // return $pdf->stream('carta.pdf');
           // return $pdf->download('carta.pdf');
           // dd($pdf->save(storage_path('app/public/') . 'archivo.pdf') );
         }
@@ -376,6 +389,7 @@ class PlantillasDocumentosController extends Controller
                      $expediente = json_decode($objeto->content(),true);
                      $expediente = Arr::except($expediente[0], ['id','updated_at','created_at','deleted_at']);
                      $data = Arr::add( $data, 'expediente', $expediente );
+
                      // $objeto = $model_name::with('conciliador')->findOrFail(1);
                      $audiencias = $model_name::where('expediente_id',$expedienteId)->get();
                      $conciliadorId = $audiencias[0]->conciliador_id;
@@ -524,11 +538,15 @@ class PlantillasDocumentosController extends Controller
                           border-color: #e61f0b;
                           border-style: solid;
                           float: right; }
-                          tr:nth-child(even) {background-color: #f2f2f2;}
+                          tr:nth-child(even) {background-color: #f2f2f2;
+                          }
+                          p{
+                            font-family: Montserrat, sans-serif; font-size: 10pt;
+                          }
                    }
                  .header { position: fixed; top: -150px;}
                  .footer { position: fixed; bottom: 20px;}
-                 #contenedor-firma {height: 80px;}
+                 #contenedor-firma {height: 60px;}
                  </style>
                  </head>
                  <body>
