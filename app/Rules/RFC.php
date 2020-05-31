@@ -37,8 +37,8 @@ class RFC implements Rule
         }
 
         //Separar el dígito verificador del resto del RFC
-        $digitoVerificador = substr($value,12,1);
-        $rfcSinDigito = substr($value,0,12);
+        $digitoVerificador = substr($value,-1);
+        $rfcSinDigito = substr($value,0,-1);
         $len = strlen($rfcSinDigito);
 
             //Obtener el digito esperado
@@ -49,14 +49,11 @@ class RFC implements Rule
                 $suma = 0;
             }
             else {
-                $suma = 481;
-            } //Ajuste para persona moral
+                $suma = 481; //Ajuste para persona moral
+            } 
             
             for($i=0; $i<$len; $i++){
                 
-                // if($i == 1){
-                //     dd(strpos($diccionario,substr($rfcSinDigito,$i,1)));
-                // }
                 $suma += strpos($diccionario,substr($rfcSinDigito,$i,1)) * ($indice - $i);
             }
             $digitoEsperado = 11 - $suma % 11;
