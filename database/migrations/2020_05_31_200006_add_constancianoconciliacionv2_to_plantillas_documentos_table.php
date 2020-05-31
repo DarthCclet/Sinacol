@@ -13,7 +13,7 @@ class AddConstancianoconciliacionv2ToPlantillasDocumentosTable extends Migration
      */
     public function up()
     {
-      DB::table('tipo-documento')->update(
+      DB::table('tipo_documentos')->update(
           [
             'objetos'=>'1,2,3,4,5,6'
           ]
