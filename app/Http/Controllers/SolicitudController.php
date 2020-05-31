@@ -204,11 +204,7 @@ class SolicitudController extends Controller
             'solicitados.*.rfc' => [new RFC],
             'solicitados.*.tipo_parte_id' => 'required',
             'solicitados.*.tipo_persona_id' => 'required',
-            'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|required',new Curp],
-            'solicitados.*.entidad_nacimiento_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-            'solicitados.*.fecha_nacimiento' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-            'solicitados.*.genero_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-            'solicitados.*.nacionalidad_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+            'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2',new Curp],
             'solicitados.*.domicilios' => 'required',
             'solicitados.*.contactos' => 'required',
         ]);
@@ -219,7 +215,7 @@ class SolicitudController extends Controller
         $solicitud['user_id'] = 1;
         $solicitud['estatus_solicitud_id'] = 1;
         $date = new \DateTime();
-        $solicitud['fecha_recepcion'] = $date->format('d-m-Y H:i:s');
+        $solicitud['fecha_recepcion'] = $date->format('Y-m-d H:i:s');
         $solicitud['centro_id'] = $this->getCentroId();
         // dd($solicitud);
         

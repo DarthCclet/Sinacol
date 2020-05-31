@@ -106,7 +106,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-8 personaFisicaSolicitante">
+                        <div class="col-md-8 personaFisicaSolicitanteNO">
                             <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" autofocus="" type="text" value="">
                             <p class="help-block needed">CURP del solicitante</p>
                         </div>
@@ -124,7 +124,7 @@
                                 <input class="form-control" id="idPrimerASolicitante" required placeholder="Primer apellido del solicitante" type="text" value="">
                                 <p class="help-block needed">Primer apellido</p>
                             </div>
-                            <div class="col-md-4 personaFisicaSolicitante">
+                            <div class="col-md-4 personaFisicaSolicitanteNO">
                                 <input class="form-control" id="idSegundoASolicitante" placeholder="Segundo apellido del solicitante" type="text" value="">
                                 <p class="help-block">Segundo apellido</p>
                             </div>
@@ -346,8 +346,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-8 personaFisicaSolicitado">
-                            <input class="form-control upper" required id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del solicitado" type="text" value="">
+                        <div class="col-md-8 personaFisicaSolicitadoNO">
+                            <input class="form-control upper" id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del solicitado" type="text" value="">
                             <p class="help-block">CURP del solicitado</p>
                         </div>
                         <div class="col-md-12 row">
@@ -363,7 +363,7 @@
 
                                 <p class="help-block needed">Primer apellido</p>
                             </div>
-                            <div class="col-md-4 personaFisicaSolicitado">
+                            <div class="col-md-4 personaFisicaSolicitadoNO">
                                 <input class="form-control" id="idSegundoASolicitado" placeholder="Segundo apellido del solicitado" type="text" value="">
 
                                 <p class="help-block">Segundo apellido</p>
@@ -372,11 +372,11 @@
                                 <input class="form-control" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del solicitado" type="text" value="">
                                 <p class="help-block needed">Raz&oacute;n Social</p>
                             </div>
-                            <div class="col-md-4 personaFisicaSolicitado">
+                            <div class="col-md-4 personaFisicaSolicitadoNO">
                                 <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del solicitado" type="text" value="">
                                 <p class="help-block">Fecha de nacimiento</p>
                             </div>
-                            <div class="col-md-4 personaFisicaSolicitado">
+                            <div class="col-md-4 personaFisicaSolicitadoNO">
                                 <input class="form-control numero" disabled id="idEdadSolicitado" placeholder="Edad del solicitado" type="text" value="">
                                 <p class="help-block">Edad del solicitado</p>
                             </div>
@@ -384,23 +384,23 @@
                                 <input class="form-control upper" id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitado" type="text" value="">
                                 <p class="help-block">RFC del solicitado</p>
                             </div>
-                            <div class="col-md-4 personaFisicaSolicitado">
-                                {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                            <div class="col-md-4 personaFisicaSolicitadoNO">
+                                {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Genero</p>
                             </div>
-                            <div class="col-md-4 personaFisicaSolicitado">
-                                {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                            <div class="col-md-4 personaFisicaSolicitadoNO">
+                                {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('nacionalidad_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Nacionalidad</p>
                             </div>
-                            <div class="col-md-4 personaFisicaSolicitado">
-                                {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                            <div class="col-md-4 personaFisicaSolicitadoNO">
+                                {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block">Estado de nacimiento</p>
                             </div>
                         </div>
-                        <div class="col-md-12 row personaFisicaSolicitado">
+                        <div class="col-md-12 row personaFisicaSolicitadoNO">
                             <div class="col-md-4">
                                 <div  >
                                     <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
@@ -708,7 +708,7 @@
                 <h2 class="modal-title">Domicilio</h2>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="domicilio-form">
                 <input type="hidden" id="domicilio_edit">
 
                 @include('includes.component.map',['identificador' => 'solicitado', 'instancia' => 2])
@@ -931,7 +931,7 @@
         * Funcion para agregar solicitado a lista de solicitados
         */
         $("#agregarSolicitado").click(function(){
-            if($('#step-2').parsley().validate()){
+            if($('#step-2').parsley().validate() && arrayDomiciliosSolicitado.length > 0 ){
                 var solicitado = {};
                 key = $("#solicitado_key").val();
                 solicitado.id = $("#solicitado_id").val();
@@ -969,6 +969,13 @@
                 limpiarSolicitado();
                 arrayDomiciliosSolicitado = new Array();
                 formarTablaDomiciliosSolicitado();
+            }else{
+                swal({
+                title: 'Error',
+                text: 'Es necesario llenar todos los campos obligatorios y al menos una dirección del solicitado',
+                icon: 'error',
+
+            });
             }
         });
 
@@ -1016,6 +1023,7 @@
                 $(".personaMoralSolicitado select").removeAttr("required");
                 $(".personaMoralSolicitado").hide();
                 $(".personaFisicaSolicitado").show();
+                $(".personaFisicaSolicitadoNO").show();
             }else{
                 $(".personaFisicaSolicitado input").removeAttr("required");
                 $(".personaMoralSolicitado input").attr("required","");
@@ -1023,6 +1031,7 @@
                 $(".personaMoralSolicitado select").attr("required","");
                 $(".personaMoralSolicitado").show();
                 $(".personaFisicaSolicitado").hide();
+                $(".personaFisicaSolicitadoNO").hide();
             }
         });
 
@@ -1583,16 +1592,25 @@
     * Funcion para agregar Domicilio de solicitante y solicitado
     */
     function agregarDomicilio(){
-        key = $("#domicilio_edit").val();
-        if(key == ""){
-            arrayDomiciliosSolicitado.push(domicilioObj2.getDomicilio());
-        }else{
-            arrayDomiciliosSolicitado[key] = domicilioObj2.getDomicilio();
-        }
+        if($("#estado_idsolicitado").val() != "" && $("#municipiosolicitado").val() != "" && $("#cpsolicitado").val() != "" && $("#tipo_asentamiento_idsolicitado").val() != "" && $("#asentamientosolicitado").val() != "" && $("#tipo_vialidad_idsolicitado").val() != "" && $("#vialidadsolicitado").val() != "" && $("#num_extsolicitado").val() != ""){
+            key = $("#domicilio_edit").val();
 
-        formarTablaDomiciliosSolicitado();
-        $('#modal-domicilio').modal('hide');
-        domicilioObj2.limpiarDomicilios();
+            if(key == ""){
+                arrayDomiciliosSolicitado.push(domicilioObj2.getDomicilio());
+            }else{
+                arrayDomiciliosSolicitado[key] = domicilioObj2.getDomicilio();
+            }
+
+            formarTablaDomiciliosSolicitado();
+            $('#modal-domicilio').modal('hide');
+            domicilioObj2.limpiarDomicilios();
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Es necesario llenar los campos obligatorios',
+                icon: 'error'
+            });
+        }
     }
     /**
     * Funcion para agregar Domicilio de solicitante y solicitado
