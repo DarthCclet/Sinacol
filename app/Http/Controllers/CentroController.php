@@ -9,7 +9,7 @@ use App\Estado;
 use App\Incidencia;
 use App\Filters\CatalogoFilter;
 use App\TipoAsentamiento;
-use App\TipoVialidad;
+use App\TipoVialidad; 
 
 class CentroController extends Controller
 {
