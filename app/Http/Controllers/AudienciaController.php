@@ -483,7 +483,7 @@ class AudienciaController extends Controller
                     }
                 }
                 if($relacion["resolucion_individual_id"] == 3){
-                    $this->generarConstancia($audiencia->id,$audiencia->expediente->solicitud->id,1,$solicitante->parte_id,$solicitado->parte_id);
+                    $this->generarConstancia($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id);
                 }
                 if($bandera){
                     ResolucionPartes::create([

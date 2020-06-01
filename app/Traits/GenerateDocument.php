@@ -20,39 +20,49 @@ trait GenerateDocument
      * Generar documento a partir de un modelo y de una plantilla
      * @return mixed
      */
-    public function generarConstancia($idAudiencia, $idSolicitud, $tipo_documento_id, $idSolicitante = null, $idSolicitado = null)
+    public function generarConstancia($idAudiencia, $idSolicitud, $tipo_documento_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null)
     {
-        $padre = Audiencia::find($idAudiencia);
-        $directorio = 'expedientes/' . $padre->expediente_id . '/audiencias/' . $idAudiencia;
-        $algo = Storage::makeDirectory($directorio, 0775, true);
+        $plantilla = PlantillaDocumento::find($plantilla_id);
+        if($plantilla != null){
 
-        $tipoArchivo = ClasificacionArchivo::find($tipo_documento_id);
-
-        // $path = $this->generarDocumento($idReferencia,$type,$tipo_documento_id,$directorio);
-        $html = $this->renderDocumento($idSolicitud, 1, $idSolicitante, $idSolicitado);
-        $pdf = App::make('dompdf.wrapper');
-        $pdf->getDomPDF();
-        $pdf->loadHTML($html)->setPaper('letter');
-        
-        //Creamos el registro
-        $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre]);
-        
-        $path = $directorio . "/ConstanciaNoConciliacion" . $archivo->id . '.pdf';
-        $fullPath = storage_path('app/' . $directorio) . "/ConstanciaNoConciliacion" . $archivo->id . '.pdf';
-
-        $store = $pdf->save($fullPath);
-        $archivo->update([
-            "nombre" => str_replace($directorio . "/", '', $path),
-            "nombre_original" => str_replace($directorio . "/", '', $path), //str_replace($directorio, '',$path->getClientOriginalName()),
-            "descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,
-            "ruta" => $path,
+            $padre = Audiencia::find($idAudiencia);
+            $directorio = 'expedientes/' . $padre->expediente_id . '/audiencias/' . $idAudiencia;
+            $algo = Storage::makeDirectory($directorio, 0775, true);
+            
+            $tipoArchivo = ClasificacionArchivo::find($tipo_documento_id);
+            
+            $html = $this->renderDocumento($idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado);
+            $pdf = App::make('dompdf.wrapper');
+            $pdf->getDomPDF();
+            $pdf->loadHTML($html)->setPaper('A4');
+            
+            //al
+            
+            //al
+            //Creamos el registro
+            $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre]);
+            $plantilla = PlantillaDocumento::find($plantilla->id);
+            $nombreArchivo = $plantilla->nombre_plantilla;
+            $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
+            $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
+            $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
+            
+            $store = $pdf->save($fullPath);
+            $archivo->update([
+                "nombre" => str_replace($directorio . "/", '', $path),
+                "nombre_original" => str_replace($directorio . "/", '', $path), //str_replace($directorio, '',$path->getClientOriginalName()),
+                "descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,
+                "ruta" => $path,
             "tipo_almacen" => "local",
             "uri" => $path,
             "longitud" => round(Storage::size($path) / 1024, 2),
             "firmado" => "false",
             "clasificacion_archivo_id" => $tipoArchivo->id,
-        ]);
-        return 'Product saved successfully';
+            ]);
+            return 'Product saved successfully';
+        }else{
+            return 'No existe plantilla';
+        }
     }
 
     public function renderDocumento($idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado)
@@ -291,6 +301,49 @@ trait GenerateDocument
         }
         return $data;
     }
+
+    function eliminar_acentos($cadena){
+		
+		//Reemplazamos la A y a
+		$cadena = str_replace(
+		array('Á', 'À', 'Â', 'Ä', 'á', 'à', 'ä', 'â', 'ª'),
+		array('A', 'A', 'A', 'A', 'a', 'a', 'a', 'a', 'a'),
+		$cadena
+		);
+ 
+		//Reemplazamos la E y e
+		$cadena = str_replace(
+		array('É', 'È', 'Ê', 'Ë', 'é', 'è', 'ë', 'ê'),
+		array('E', 'E', 'E', 'E', 'e', 'e', 'e', 'e'),
+		$cadena );
+ 
+		//Reemplazamos la I y i
+		$cadena = str_replace(
+		array('Í', 'Ì', 'Ï', 'Î', 'í', 'ì', 'ï', 'î'),
+		array('I', 'I', 'I', 'I', 'i', 'i', 'i', 'i'),
+		$cadena );
+ 
+		//Reemplazamos la O y o
+		$cadena = str_replace(
+		array('Ó', 'Ò', 'Ö', 'Ô', 'ó', 'ò', 'ö', 'ô'),
+		array('O', 'O', 'O', 'O', 'o', 'o', 'o', 'o'),
+		$cadena );
+ 
+		//Reemplazamos la U y u
+		$cadena = str_replace(
+		array('Ú', 'Ù', 'Û', 'Ü', 'ú', 'ù', 'ü', 'û'),
+		array('U', 'U', 'U', 'U', 'u', 'u', 'u', 'u'),
+		$cadena );
+ 
+		//Reemplazamos la N, n, C y c
+		$cadena = str_replace(
+		array('Ñ', 'ñ', 'Ç', 'ç'),
+		array('N', 'n', 'C', 'c'),
+		$cadena
+		);
+		
+		return $cadena;
+	}
     /*
         Convertir fechas yyyy-mm-dd hh to dd de Monthname de yyyy
          */
