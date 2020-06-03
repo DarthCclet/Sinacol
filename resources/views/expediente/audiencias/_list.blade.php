@@ -1,34 +1,142 @@
-<table id="data-table-default" class="table table-striped table-bordered table-td-valign-middle">
+<input type="hidden" id="ruta" value="{!! route("audiencias.edit",1) !!}">
+<table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
-    <tr>
-        <th width="1%"></th>
-        <th class="text-nowrap">Numero de audiencia</th>
-        <th class="text-nowrap">Conciliador</th>
-        <th class="text-nowrap">Fecha de audiencia</th>
-        <th class="text-nowrap">Hora inicio</th>
-        <th class="text-nowrap">Hora fin</th>
-        <th class="text-nowrap">Acciones</th>
-        <!-- <th >Editar</th> -->
-    </tr>
+      <tr><th></th><th></th><th></th><th></th><th></th><th></th><th>Fecha de audiencia</th><th>Hora inicio</th><th>Hora fin</th><th>Numero de audiencia</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th>Conciliador</th><th>Acciones</th></tr>
     </thead>
-    <tbody>
-    @foreach($audiencias as $audiencia)
-        <tr class="odd gradeX">
-            <td width="1%" class="f-s-600 text-inverse">{{$audiencia->id}}</td>
-            <td>{{$audiencia->numero_audiencia}}</td>
-            <td>{{$audiencia->conciliador->persona->nombre}} {{$audiencia->conciliador->persona->primer_apellido}} {{$audiencia->conciliador->persona->segundo_apellido}}</td>
-            <td>{{$audiencia->fecha_audiencia}}</td>
-            <td>{{$audiencia->hora_inicio}}</td>
-            <td>{{$audiencia->hora_fin}}</td>
-            <td>
-                <div style="display: inline-block;">
-                    <a href="{{route('audiencias.edit',[$audiencia])}}" class="btn btn-xs btn-primary" title="Editar">
-                        <i class="fa fa-pencil-alt"></i>
-                    </a>
-                </div>
-            </td>
-        </tr>
-    @endforeach
 
-    </tbody>
 </table>
+
+<div id="divFilters" class="col-md-12 row" >
+    <div class="col-md-4">
+        <input class="form-control filtros" id="NoAudiencia" placeholder=" No. Audiencia" type="text" value="">
+        <p class="help-block needed">No. Audiencia</p>
+    </div>
+    <div class="col-md-4">
+        <input class="form-control date filtros" id="fechaAudiencia" placeholder="Fecha de audiencia" type="text" value="">
+        <p class="help-block needed">Fecha de Audiencia</p>
+    </div>
+    <div class="col-md-4">
+        <button class="btn btn-danger" type="button" id="limpiarFiltros" > <i class="fa fa-eraser"></i> Limpiar filtros</button>
+    </div>
+
+</div>
+
+@push('scripts')
+  <script>
+        var filtrado=false;
+        $(document).ready(function() {
+            var ruta = $("#ruta").val();
+            var dt = $('#tabla-detalle').DataTable({
+                "deferRender": true,
+                "ajax": {
+                    "url": '/audiencias',
+                    "dataSrc": function(json){
+                        var array = new Array();
+                        this.recordsTotal = json.total;
+                        $.each(json.data,function(key, value){
+                            array.push(Object.values(value));
+                        });
+                        return array;
+                    },
+                    "data": function (d) {
+                        d.fechaAudiencia = dateFormat($("#fechaAudiencia").val(),1),
+                        d.NoAudiencia = $("#NoAudiencia").val(),
+                        d.IsDatatableScroll = true,
+                        d.loadPartes = true
+                        // d.objeto_solicitud_id = $("#objeto_solicitud_id").val()
+                    }
+                },
+                "columnDefs": [
+                    {"targets": [0],visible:false},
+                    {"targets": [1],visible:false},
+                    {"targets": [2],visible:false},
+                    {"targets": [3],visible:false},
+                    {"targets": [4],visible:false},
+                    {"targets": [5],visible:false},
+                    {
+                        "targets": [6],
+                        "render": function (data, type, row) {
+                            if (data != null) {
+                                return  dateFormat(data,4);
+                            } else {
+                                return "";
+                            }
+                        }
+                    },
+                    {"targets": [10],visible:false},
+                    {"targets": [11],visible:false},
+                    {"targets": [12],visible:false},
+                    {"targets": [13],visible:false},
+                    {"targets": [14],visible:false},
+                    {"targets": [15],visible:false},
+                    {"targets": [16],visible:false},
+                    {
+                        "targets": [17],
+                        "render": function (data, type, row) {
+                            
+                            if(data != null){
+                            html = ""+data.persona.nombre + " "+ data.persona.primer_apellido + " " + data.persona.segundo_apellido;
+
+                            }
+                            return  html;
+                        }
+                    },
+                    {
+                        "targets": -1,
+                        "render": function (data, type, row) {
+                                // console.log(row[0]);
+
+                                return '<div style="display: inline-block;"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
+                            }
+                        // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a>&nbsp;<button class="btn btn-xs btn-danger btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
+                    }
+                ],
+                "serverSide": true,
+                "processing": true,
+                select: true,
+                "ordering": false,
+                "searching": false,
+                "pageLength": 20,
+                "recordsTotal":20,
+                "recordsFiltered":20,
+                "lengthChange": false,
+                "scrollX": true,
+                "scrollY": $(window).height() - $('#header').height()-200,
+                "scrollColapse": false,
+                "scroller": {
+                    "serverWait": 200,
+                    "loadingIndicator": true,
+                },
+                "responsive": false,
+                "language": {
+                    "url": "/assets/plugins/datatables.net/dataTable.es.json"
+                },
+                "stateSaveParams": function (settings, data) {
+                //data.search.search = "";
+                  console.log(data);
+                },
+                "dom": "tiS", // UI layout
+            });
+            dt.on( 'draw', function () {
+                console.log('tratando de poner')
+                if(filtrado){
+                //dt.scroller().scrollToRow(0);
+                filtrado = false;
+                }
+            });
+            $('.filtros').on( 'dp.change change clear', function () {
+                dt.clear();
+                dt.ajax.reload(function(){}, true);
+                filtrado = true;
+            });
+            $(".date").datetimepicker({useCurrent: false,format:'DD/MM/YYYY'});
+            $("#limpiarFiltros").click(function(){
+                $(".filtros").val("");
+                dt.clear();
+                dt.ajax.reload(function(){}, true);
+                filtrado = true;
+            });
+
+       });
+  </script>
+  @endpush
