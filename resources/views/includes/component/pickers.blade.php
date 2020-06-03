@@ -44,6 +44,7 @@
     <!--Librerias wysihtml5-->
     <script src="/assets/plugins/ckeditor/ckeditor.js"></script>
     <script src="/assets/plugins/bootstrap3-wysihtml5-bower/dist/bootstrap3-wysihtml5.all.min.js"></script>
+    <script src="/assets/plugins/bootstrap3-wysihtml5-bower/dist/locales\bootstrap-wysihtml5.es-ES.js"></script>
     <script src="/assets/js/demo/form-wysiwyg.demo.js"></script>
 
     <script>

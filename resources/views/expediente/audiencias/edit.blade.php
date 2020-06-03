@@ -685,8 +685,8 @@
             finalizada = '{{ $audiencia->finalizada }}';
             $("#duracionAudiencia").datetimepicker({format:"HH:mm"});
             $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
-            $('#convenio').wysihtml5();
-            $('#desahogo').wysihtml5();
+            $('#convenio').wysihtml5({locale: 'es-ES'});
+            $('#desahogo').wysihtml5({locale: 'es-ES'});
             $(".tipo_documento,.select-element").select2();
             cargarDocumentos();
             cargarGeneros();

@@ -492,19 +492,21 @@ class AudienciaController extends Controller
         foreach($solicitantes as $solicitante){
             foreach($solicitados as $solicitado){
                 $bandera = true;
-                foreach($arrayRelaciones as $relacion){
-                    if($solicitante->parte_id == $relacion["parte_solicitante_id"] && $solicitado->parte_id == $relacion["parte_solicitado_id"]){
-                        ResolucionPartes::create([
-                            "audiencia_id" => $audiencia->id,
-                            "parte_solicitante_id" => $solicitante->parte_id,
-                            "parte_solicitada_id" => $solicitado->parte_id,
-                            "resolucion_id" => $relacion["resolucion_individual_id"]
-                        ]);
-                        $bandera = false;
+                if($arrayRelaciones != null){
+                    foreach($arrayRelaciones as $relacion){
+                        if($solicitante->parte_id == $relacion["parte_solicitante_id"] && $solicitado->parte_id == $relacion["parte_solicitado_id"]){
+                            ResolucionPartes::create([
+                                "audiencia_id" => $audiencia->id,
+                                "parte_solicitante_id" => $solicitante->parte_id,
+                                "parte_solicitada_id" => $solicitado->parte_id,
+                                "resolucion_id" => $relacion["resolucion_individual_id"]
+                            ]);
+                            if($relacion["resolucion_individual_id"] == 3){
+                                $this->generarConstancia($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id);
+                            }
+                            $bandera = false;
+                        }
                     }
-                }
-                if($relacion["resolucion_individual_id"] == 3){
-                    $this->generarConstancia($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id);
                 }
                 if($bandera){
                     ResolucionPartes::create([
@@ -513,6 +515,9 @@ class AudienciaController extends Controller
                         "parte_solicitada_id" => $solicitado->parte_id,
                         "resolucion_id" => $audiencia->resolucion_id
                     ]);
+                    if($audiencia->resolucion_id == 3){
+                        $this->generarConstancia($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id);
+                    }
                 }
             }
         }
