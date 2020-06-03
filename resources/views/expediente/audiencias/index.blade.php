@@ -3,6 +3,7 @@
 @section('title', 'expedientes')
 
 @include('includes.component.datatables')
+@include('includes.component.pickers')
 
 @section('content')
 
@@ -34,8 +35,6 @@
 
 @push('scripts')
     <script>
-        $(document).ready(function() {
-            $('#data-table-default').DataTable({responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
-        });
+        
     </script>
 @endpush

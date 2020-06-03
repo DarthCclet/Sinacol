@@ -192,7 +192,7 @@ $(".numero").limitKeyPress('1234567890.');
                 var vecFecha = vecFechaHora[0].split("/");
                 var formatedDate = vecFecha[2] + "-" + vecFecha[1] + "-" + vecFecha[0] + " " + vecFechaHora[1];
                 return formatedDate;
-            }else{
+            }else if(tipo == 4){
                 var vecFecha = fecha.split("-");
                 var formatedDate = vecFecha[2] + "/" + vecFecha[1] + "/" + vecFecha[0];
                 return formatedDate;
