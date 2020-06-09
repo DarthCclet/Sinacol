@@ -23,11 +23,7 @@
     }
 
 </style>
-
-<div>
-
-</div>
-<div id="wizard" >
+<div id="wizard" class="col-md-12" >
     <!-- begin wizard-step -->
     <ul class="wizard-steps">
         <li>
@@ -90,217 +86,223 @@
                     <div class="col-xl-10 offset-xl-1">
                         <div>
                             <center>  <h1>Solicitante</h1></center>
+                            <div id="editandoSolicitante"></div>
                         </div>
-                        <div style="margin-left:5%; margin-bottom:3%; ">
-                            <input type="hidden" id="solicitante_id">
-                            <input type="hidden" id="edit_key">
-                            <label>Tipo Persona</label>
-                            <div class="row">
-                                <div class="radio radio-css radio-inline">
-                                    <input checked="checked" name="tipo_persona_solicitante" type="radio" id="tipo_persona_fisica_solicitante" value="1"/>
-                                    <label for="tipo_persona_fisica_solicitante">Fisica</label>
-                                </div>
-                                <div class="radio radio-css radio-inline">
-                                    <input name="tipo_persona_solicitante" type="radio" id="tipo_persona_moral_solicitante" value="2"/>
-                                    <label for="tipo_persona_moral_solicitante">Moral</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-8 personaFisicaSolicitanteNO">
-                            <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" autofocus="" type="text" value="">
-                            <p class="help-block needed">CURP del solicitante</p>
-                        </div>
-                        <div class="col-md-12 row">
-                            <div class="col-md-4" style="display:none;">
-                                <input class="form-control" id="idsolicitante" type="text" value="253">
-                            </div>
-                        <div class="col-md-12 row">
-                            <input class="form-control" id="idsolicitante" type="hidden" value="253">
-                            <div class="col-md-4 personaFisicaSolicitante">
-                                <input class="form-control" id="idNombreSolicitante" required placeholder="Nombre del solicitante" type="text" value="">
-                                <p class="help-block needed">Nombre del solicitante</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitante">
-                                <input class="form-control" id="idPrimerASolicitante" required placeholder="Primer apellido del solicitante" type="text" value="">
-                                <p class="help-block needed">Primer apellido</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitanteNO">
-                                <input class="form-control" id="idSegundoASolicitante" placeholder="Segundo apellido del solicitante" type="text" value="">
-                                <p class="help-block">Segundo apellido</p>
-                            </div>
-                            <div class="col-md-12 personaMoralSolicitante">
-                                <input class="form-control" id="idNombreCSolicitante" placeholder="Raz&oacute;n social" type="text" value="">
-                                <p class="help-block needed">Raz&oacute;n Social</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitante">
-                                <input class="form-control dateBirth" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimiento del solicitante" type="text" value="">
-                                <p class="help-block needed">Fecha de nacimiento</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitante">
-                                <input class="form-control numero" disabled required data-parsley-type='integer' id="idEdadSolicitante" placeholder="Edad del solicitante" type="text" value="">
-                                <p class="help-block needed">Edad del solicitante</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control upper" id="idSolicitanteRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitante" type="text" value="">
-                                <p class="help-block">RFC del solicitante</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitante">
-                                {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Genero</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitante">
-                                {!! Form::select('nacionalidad_id_solicitante', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('nacionalidad_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Nacionalidad</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitante">
-                                {!! Form::select('entidad_nacimiento_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('entidad_nacimiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Estado de nacimiento</p>
-                            </div>
-
-
-                        </div>
-                        <div class="col-md-12 row personaFisicaSolicitanteNO">
-                            <div class="col-md-4">
-                                <div >
-                                    <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
-                                </div>
-                                <div >
-                                    <input type="hidden" />
-                                    <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitante" name='solicita_traductor_solicitante'/>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
-                                {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Lengua Indigena</p>
-                            </div>
-                        </div>
-                        {{-- Seccion de contactos solicitantes --}}
-                        <div class="col-md-12 row">
-                            <div class="col-md-12 mt-4">
-                                <h4>Contacto de buz&oacute;n electr&oacute;nico</h4>
-                                <hr class="red">
-                            </div>
-                            <input type="hidden" id="contacto_id_solicitante">
-                            <div class="col-md-4">
-                                {!! Form::select('tipo_contacto_id_solicitante', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('tipo_contacto_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Tipo de contacto</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control" id="contacto_solicitante" placeholder="Contacto"  type="text" value="">
-                                <p class="help-block needed">Contacto</p>
-                            </div>
-                            <div class="col-md-4">
-                            <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitante();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
-                            </div>
-                            <div class="col-md-10 offset-md-1" >
-                                <table class="table table-bordered" >
-                                    <thead>
-                                        <tr>
-                                            <th style="width:80%;">Tipo</th>
-                                            <th style="width:80%;">Contacto</th>
-                                            <th style="width:20%; text-align: center;">Accion</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbodyContactoSolicitante">
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        {{-- end seccion de contactos solicitados --}}
-                        <!-- seccion de domicilios solicitante -->
-                        @include('includes.component.map',['identificador' => 'solicitante', 'instancia' => '1'])
-
-                        <!-- end seccion de domicilios solicitante -->
-                        <!-- Seccion de Datos laborales -->
-                        <div class="col-md-12 row">
-                            <div class="col-md-12 mt-4">
-                                <h4>Datos Laborales del trabajador</h4>
-                                <hr class="red">
-                            </div>
-                            <input type="hidden" id="dato_laboral_id">
-                            <div class="col-md-12">
-                                <input class="form-control" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
-                                <p class="help-block">Nombre del Jefe directo</p>
-                            </div>
-                            <div class="col-md-12 form-group row">
-                                <input type="hidden" id="term">
-                                <div class="col-md-12 ">
-                                    <select name="giro_comercial_solicitante" placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control"></select>
-                                </div>
-                                <div class="col-md-12">
-                                    <p class="help-block needed">Giro comercial</p>
-                                <label id="giro_solicitante"></label>
-                                </div>
-                            </div>
-                            {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opcion','style'=>'display:none;']);  !!}
-                            <div class="col-md-12 row">
-                                <div class="col-md-4">
-                                    {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Categoria/Puesto</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control numero" data-parsley-type='integer' id="nss" placeholder="No. IMSS"  type="text" value="">
-                                    <p class="help-block ">No. IMSS</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
-                                    <p class="help-block">No. ISSSTE</p>
-                                </div>
-                            </div>
-                            <div class="col-md-12 row">
-                                <div class="col-md-4">
-                                    <input class="form-control numero " required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="Remuneraci&oacute;n (pago)" type="text" value="">
-                                    <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
-                                </div>
-                                <div class="col-md-4">
-                                    {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Periodicidad</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control numero" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
-                                    <p class="help-block needed">Horas semanales</p>
-                                </div>
-                            </div>
-                            <div class="col-md-12 row">
-
-                                <div class="col-md-2">
-                                    <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
-                                </div>
-                                <div class="col-md-2">
-                                    <input type="hidden" />
-                                    <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control date" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
-                                    <p class="help-block needed">Fecha de ingreso</p>
-                                </div>
-                                <div class="col-md-4" id="divFechaSalida">
-                                    <input class="form-control date" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
-                                    <p class="help-block needed">Fecha salida</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Jornada</p>
-                            </div>
-                        </div>
-                        <!-- end Seccion de Datos laborales -->
-
-                        <hr style="margin-top:5%;">
                         <div>
-                            <button class="btn btn-primary" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Agregar solicitante</button>
-                            <button class="btn btn-danger" type="button" onclick="limpiarSolicitante()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
+                            <button class="btn btn-danger" type="button" id="botonAgregarSolicitante" onclick="$('#divSolicitante').show()"> <i class="fa fa-plus"></i> Agregar solicitante</button>
                         </div>
-                        <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                        <div style="display: none;" id="divSolicitante">
+                            <div style="margin-left:5%; margin-bottom:3%; ">
+                                <input type="hidden" id="solicitante_id">
+                                <input type="hidden" id="edit_key">
+                                <label>Tipo Persona</label>
+                                <div class="row">
+                                    <div class="radio radio-css radio-inline">
+                                        <input checked="checked" name="tipo_persona_solicitante" type="radio" id="tipo_persona_fisica_solicitante" value="1"/>
+                                        <label for="tipo_persona_fisica_solicitante">Fisica</label>
+                                    </div>
+                                    <div class="radio radio-css radio-inline">
+                                        <input name="tipo_persona_solicitante" type="radio" id="tipo_persona_moral_solicitante" value="2"/>
+                                        <label for="tipo_persona_moral_solicitante">Moral</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8 personaFisicaSolicitanteNO">
+                                <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" autofocus="" type="text" value="">
+                                <p class="help-block needed">CURP del solicitante</p>
+                            </div>
+                            <div class="col-md-12 row">
+                                <div class="col-md-4" style="display:none;">
+                                    <input class="form-control" id="idsolicitante" type="text" value="253">
+                                </div>
+                            </div>
+                            <div class="col-md-12 row">
+                                <input class="form-control" id="idsolicitante" type="hidden" value="253">
+                                <div class="col-md-4 personaFisicaSolicitante">
+                                    <input class="form-control" id="idNombreSolicitante" required placeholder="Nombre del solicitante" type="text" value="">
+                                    <p class="help-block needed">Nombre del solicitante</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitante">
+                                    <input class="form-control" id="idPrimerASolicitante" required placeholder="Primer apellido del solicitante" type="text" value="">
+                                    <p class="help-block needed">Primer apellido</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitanteNO">
+                                    <input class="form-control" id="idSegundoASolicitante" placeholder="Segundo apellido del solicitante" type="text" value="">
+                                    <p class="help-block">Segundo apellido</p>
+                                </div>
+                                <div class="col-md-12 personaMoralSolicitante">
+                                    <input class="form-control" id="idNombreCSolicitante" placeholder="Raz&oacute;n social" type="text" value="">
+                                    <p class="help-block needed">Raz&oacute;n Social</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitante">
+                                    <input class="form-control dateBirth" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimiento del solicitante" type="text" value="">
+                                    <p class="help-block needed">Fecha de nacimiento</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitante">
+                                    <input class="form-control numero" disabled required data-parsley-type='integer' id="idEdadSolicitante" placeholder="Edad del solicitante" type="text" value="">
+                                    <p class="help-block needed">Edad del solicitante</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <input class="form-control upper" id="idSolicitanteRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitante" type="text" value="">
+                                    <p class="help-block">RFC del solicitante</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitante">
+                                    {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Genero</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitante">
+                                    {!! Form::select('nacionalidad_id_solicitante', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('nacionalidad_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Nacionalidad</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitante">
+                                    {!! Form::select('entidad_nacimiento_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('entidad_nacimiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Estado de nacimiento</p>
+                                </div>
+
+
+                            </div>
+                            <div class="col-md-12 row personaFisicaSolicitanteNO">
+                                <div class="col-md-4">
+                                    <div >
+                                        <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
+                                    </div>
+                                    <div >
+                                        <input type="hidden" />
+                                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitante" name='solicita_traductor_solicitante'/>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
+                                    {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Lengua Indigena</p>
+                                </div>
+                            </div>
+                            {{-- Seccion de contactos solicitantes --}}
+                            <div class="col-md-12 row">
+                                <div class="col-md-12 mt-4">
+                                    <h4>Contacto de buz&oacute;n electr&oacute;nico</h4>
+                                    <hr class="red">
+                                </div>
+                                <input type="hidden" id="contacto_id_solicitante">
+                                <div class="col-md-4">
+                                    {!! Form::select('tipo_contacto_id_solicitante', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('tipo_contacto_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Tipo de contacto</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <input class="form-control" id="contacto_solicitante" placeholder="Contacto"  type="text" value="">
+                                    <p class="help-block needed">Contacto</p>
+                                </div>
+                                <div class="col-md-4">
+                                <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitante();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                                </div>
+                                <div class="col-md-10 offset-md-1" >
+                                    <table class="table table-bordered" >
+                                        <thead>
+                                            <tr>
+                                                <th style="width:80%;">Tipo</th>
+                                                <th style="width:80%;">Contacto</th>
+                                                <th style="width:20%; text-align: center;">Accion</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyContactoSolicitante">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {{-- end seccion de contactos solicitados --}}
+                            <!-- seccion de domicilios solicitante -->
+                            @include('includes.component.map',['identificador' => 'solicitante', 'instancia' => '1'])
+
+                            <!-- end seccion de domicilios solicitante -->
+                            <!-- Seccion de Datos laborales -->
+                            <div class="col-md-12 row">
+                                <div class="col-md-12 mt-4">
+                                    <h4>Datos Laborales del trabajador</h4>
+                                    <hr class="red">
+                                </div>
+                                <input type="hidden" id="dato_laboral_id">
+                                <div class="col-md-12">
+                                    <input class="form-control" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
+                                    <p class="help-block">Nombre del Jefe directo</p>
+                                </div>
+                                <div class="col-md-12 form-group row">
+                                    <input type="hidden" id="term">
+                                    <div class="col-md-12 ">
+                                        <select name="giro_comercial_solicitante" placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control"></select>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <p class="help-block needed">Giro comercial</p>
+                                    <label id="giro_solicitante"></label>
+                                    </div>
+                                </div>
+                                {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opcion','style'=>'display:none;']);  !!}
+                                <div class="col-md-12 row">
+                                    <div class="col-md-4">
+                                        {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block needed">Categoria/Puesto</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input class="form-control numero" data-parsley-type='integer' id="nss" placeholder="No. IMSS"  type="text" value="">
+                                        <p class="help-block ">No. IMSS</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
+                                        <p class="help-block">No. ISSSTE</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 row">
+                                    <div class="col-md-4">
+                                        <input class="form-control numero " required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="Remuneraci&oacute;n (pago)" type="text" value="">
+                                        <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block needed">Periodicidad</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input class="form-control numero" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
+                                        <p class="help-block needed">Horas semanales</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 row">
+
+                                    <div class="col-md-2">
+                                        <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="hidden" />
+                                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input class="form-control date" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
+                                        <p class="help-block needed">Fecha de ingreso</p>
+                                    </div>
+                                    <div class="col-md-4" id="divFechaSalida">
+                                        <input class="form-control date" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
+                                        <p class="help-block needed">Fecha salida</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Jornada</p>
+                                </div>
+                            </div>
+                            <!-- end Seccion de Datos laborales -->
+                            <hr style="margin-top:5%;">
+                            <div>
+                                <button class="btn btn-primary" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Agregar solicitante</button>
+                                <button class="btn btn-danger" type="button" onclick="limpiarSolicitante()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
+                            </div>
+                        </div>
+                         <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                             <table class="table table-bordered" >
                                 <thead>
                                     <tr>
@@ -313,7 +315,7 @@
                                 <tbody id="tbodySolicitante">
                                 </tbody>
                             </table>
-                        </div>
+                        </div> 
                     </div>
                 </div>
                 <!-- end row -->
@@ -330,111 +332,117 @@
                     <div class="col-xl-10 offset-xl-1">
                         <div>
                             <center><h1>Solicitado</h1></center>
+                            <div id="editandoSolicitado"></div>
                         </div>
-                        <div style="margin-left:5%; margin-bottom:3%; ">
-                            <label>Tipo Persona</label>
-                            <input type="hidden" id="solicitado_id">
-                            <input type="hidden" id="solicitado_key">
-                            <div class="row">
-                                <div class="radio radio-css radio-inline">
-                                    <input checked="checked" name="tipo_persona_solicitado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
-                                    <label for="tipo_persona_fisica_solicitado">Fisica</label>
+                        <div>
+                            <button class="btn btn-danger" type="button" id="botonAgregarSolicitado" onclick="$('#divSolicitado').show()"> <i class="fa fa-plus"></i> Agregar solicitado</button>
+                        </div>
+                        <div style="display: none;" id="divSolicitado">
+                            <div style="margin-left:5%; margin-bottom:3%; ">
+                                <label>Tipo Persona</label>
+                                <input type="hidden" id="solicitado_id">
+                                <input type="hidden" id="solicitado_key">
+                                <div class="row">
+                                    <div class="radio radio-css radio-inline">
+                                        <input checked="checked" name="tipo_persona_solicitado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
+                                        <label for="tipo_persona_fisica_solicitado">Fisica</label>
+                                    </div>
+                                    <div class="radio radio-css radio-inline">
+                                        <input name="tipo_persona_solicitado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
+                                        <label for="tipo_persona_moral_solicitado">Moral</label>
+                                    </div>
                                 </div>
-                                <div class="radio radio-css radio-inline">
-                                    <input name="tipo_persona_solicitado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
-                                    <label for="tipo_persona_moral_solicitado">Moral</label>
+                            </div>
+                            <div class="col-md-8 personaFisicaSolicitadoNO">
+                                <input class="form-control upper" id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del solicitado" type="text" value="">
+                                <p class="help-block">CURP del solicitado</p>
+                            </div>
+                            <div class="col-md-12 row">
+                                <div class="col-md-4" style="display:none;">
+                                    <input class="form-control" id="idsolicitado" type="text" value="253">
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-md-8 personaFisicaSolicitadoNO">
-                            <input class="form-control upper" id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del solicitado" type="text" value="">
-                            <p class="help-block">CURP del solicitado</p>
-                        </div>
-                        <div class="col-md-12 row">
-                            <div class="col-md-4" style="display:none;">
-                                <input class="form-control" id="idsolicitado" type="text" value="253">
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitado">
-                                <input class="form-control" required id="idNombreSolicitado" placeholder="Nombre del solicitado" type="text" value="">
-                                <p class="help-block needed">Nombre del solicitado</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitado">
-                                <input class="form-control" required id="idPrimerASolicitado" placeholder="Primer apellido del solicitado" type="text" value="">
+                                <div class="col-md-4 personaFisicaSolicitado">
+                                    <input class="form-control" required id="idNombreSolicitado" placeholder="Nombre del solicitado" type="text" value="">
+                                    <p class="help-block needed">Nombre del solicitado</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitado">
+                                    <input class="form-control" required id="idPrimerASolicitado" placeholder="Primer apellido del solicitado" type="text" value="">
 
-                                <p class="help-block needed">Primer apellido</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitadoNO">
-                                <input class="form-control" id="idSegundoASolicitado" placeholder="Segundo apellido del solicitado" type="text" value="">
+                                    <p class="help-block needed">Primer apellido</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitadoNO">
+                                    <input class="form-control" id="idSegundoASolicitado" placeholder="Segundo apellido del solicitado" type="text" value="">
 
-                                <p class="help-block">Segundo apellido</p>
-                            </div>
-                            <div class="col-md-8 personaMoralSolicitado">
-                                <input class="form-control" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del solicitado" type="text" value="">
-                                <p class="help-block needed">Raz&oacute;n Social</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitadoNO">
-                                <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del solicitado" type="text" value="">
-                                <p class="help-block">Fecha de nacimiento</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitadoNO">
-                                <input class="form-control numero" disabled id="idEdadSolicitado" placeholder="Edad del solicitado" type="text" value="">
-                                <p class="help-block">Edad del solicitado</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control upper" id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitado" type="text" value="">
-                                <p class="help-block">RFC del solicitado</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitadoNO">
-                                {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block">Genero</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitadoNO">
-                                {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('nacionalidad_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block">Nacionalidad</p>
-                            </div>
-                            <div class="col-md-4 personaFisicaSolicitadoNO">
-                                {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block">Estado de nacimiento</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12 row personaFisicaSolicitadoNO">
-                            <div class="col-md-4">
-                                <div  >
-                                    <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
+                                    <p class="help-block">Segundo apellido</p>
                                 </div>
-                                <div >
-                                    <input type="hidden" />
-                                    <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitado" name='solicita_traductor_solicitado'/>
+                                <div class="col-md-8 personaMoralSolicitado">
+                                    <input class="form-control" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del solicitado" type="text" value="">
+                                    <p class="help-block needed">Raz&oacute;n Social</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitadoNO">
+                                    <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del solicitado" type="text" value="">
+                                    <p class="help-block">Fecha de nacimiento</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitadoNO">
+                                    <input class="form-control numero" disabled id="idEdadSolicitado" placeholder="Edad del solicitado" type="text" value="">
+                                    <p class="help-block">Edad del solicitado</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <input class="form-control upper" id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitado" type="text" value="">
+                                    <p class="help-block">RFC del solicitado</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitadoNO">
+                                    {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block">Genero</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitadoNO">
+                                    {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('nacionalidad_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block">Nacionalidad</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitadoNO">
+                                    {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block">Estado de nacimiento</p>
                                 </div>
                             </div>
-                            <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
-                                {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Lengua Indigena</p>
+                            <div class="col-md-12 row personaFisicaSolicitadoNO">
+                                <div class="col-md-4">
+                                    <div  >
+                                        <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
+                                    </div>
+                                    <div >
+                                        <input type="hidden" />
+                                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitado" name='solicita_traductor_solicitado'/>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
+                                    {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Lengua Indigena</p>
+                                </div>
                             </div>
-                        </div>
-                        {{-- Seccion de contactos solicitados --}}
-                        <div class="col-md-12 row">
-                            <div class="col-md-12 mt-4">
-                                <h4>Contacto</h4>
-                                <hr class="red">
-                            </div>
-                            <input type="hidden" id="contacto_id_solicitado">
-                            <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona solicitada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
-                            <div class="col-md-4">
-                                {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Tipo de contacto</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
-                                <p class="help-block needed">Contacto</p>
-                            </div>
-                            <div class="col-md-4">
-                            <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitado();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                            {{-- Seccion de contactos solicitados --}}
+                            <div class="col-md-12 row">
+                                <div class="col-md-12 mt-4">
+                                    <h4>Contacto</h4>
+                                    <hr class="red">
+                                </div>
+                                <input type="hidden" id="contacto_id_solicitado">
+                                <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona solicitada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
+                                <div class="col-md-4">
+                                    {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Tipo de contacto</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <input class="form-control" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
+                                    <p class="help-block needed">Contacto</p>
+                                </div>
+                                <div class="col-md-4">
+                                <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitado();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                                </div>
                             </div>
                             <div class="col-md-10 offset-md-1" >
                                 <table class="table table-bordered" >
@@ -449,34 +457,35 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-                        {{-- end seccion de contactos solicitados --}}
-                        <!-- seccion de domicilios solicitado -->
-                        <div class="col-md-12 row">
-                            <div class="row">
-                                <h4>Domicilio(s)</h4>
-                                <hr class="red">
-                                <a style="font-size:large; margin-left:1%; color:#49b6d6;" onclick="$('#modal-domicilio').modal('show');"> <i class="fa fa-plus-circle"></i></a>
+                            {{-- end seccion de contactos solicitados --}}
+                            <!-- seccion de domicilios solicitado -->
+                            <div class="col-md-12 row">
+                                <div class="row">
+                                    <h4>Domicilio(s)</h4>
+                                    <hr class="red">
+                                    <a style="font-size:large; margin-left:1%; color:#49b6d6;" onclick="$('#modal-domicilio').modal('show');"> <i class="fa fa-plus-circle"></i></a>
+                                </div>
+                                <div class="col-md-10 offset-md-1" >
+                                    <table class="table table-bordered" >
+                                        <thead>
+                                            <tr>
+                                                <th style="width:80%;">Domicilio</th>
+                                                <th style="width:20%; text-align: center;">Accion</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyDomicilioSolicitado">
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                            <div class="col-md-10 offset-md-1" >
-                                <table class="table table-bordered" >
-                                    <thead>
-                                        <tr>
-                                            <th style="width:80%;">Domicilio</th>
-                                            <th style="width:20%; text-align: center;">Accion</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbodyDomicilioSolicitado">
-                                    </tbody>
-                                </table>
+                            <!-- end seccion de domicilios solicitado -->
+                            <hr style="margin-top:5%;">
+                            <div>
+                                <button class="btn btn-primary" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Agregar solicitado</button>
+                                <button class="btn btn-danger" type="button" onclick="limpiarSolicitado()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
                             </div>
+                            
                         </div>
-                        <!-- end seccion de domicilios solicitado -->
-                        <hr style="margin-top:5%;">
-                        <div>
-                            <button class="btn btn-primary" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Agregar solicitado</button>
-                        </div>
-
                         <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                             <table class="table table-bordered" >
                                 <thead>
@@ -806,6 +815,7 @@
     </div>
 </div>
 <input type="hidden" id="expediente_id">
+</div>
 @push('scripts')
 
 <script>
@@ -1091,12 +1101,7 @@
                 $("#fechaRatificacion").val(dateFormat(data.fecha_ratificacion,2));
                 $("#fechaRecepcion").val(dateFormat(data.fecha_recepcion,2));
                 $("#fechaConflicto").val(dateFormat(data.fecha_conflicto,0));
-                if(arraySolicitados.length > 0){
-                    cargarEditarSolicitado(0)
-                }
-                if(arraySolicitantes.length > 0){
-                    cargarEditarSolicitante(0)
-                }
+                
 
             }
         });
@@ -1149,6 +1154,9 @@
             $('.catSelect').trigger('change');
             domicilioObj.limpiarDomicilios();
             $('#step-1').parsley().reset();
+            $("#editandoSolicitante").html("");
+            $("#divSolicitante").hide();
+            $("#botonAgregarSolicitante").show();
         }
 
 
@@ -1156,6 +1164,7 @@
         *Funcion para limpiar campos de solicitante
         */
         function limpiarSolicitado(){
+            
             $("#solicitado_id").val("");
             $("#solicitado_key").val("");
             $("#idNombreSolicitado").val("");
@@ -1179,10 +1188,15 @@
 
             $("#agregarSolicitado").html('<i class="fa fa-plus-circle"></i> Agregar solicitado');
             arrayContactoSolicitados = new Array();;
+            arrayDomiciliosSolicitado = new Array();
+            formarTablaDomiciliosSolicitado();
             formarTablaContacto();
             $('.catSelect').trigger('change');
             domicilioObj2.limpiarDomicilios();
             $('#step-2').parsley().reset();
+            $("#editandoSolicitado").html("");
+            $("#divSolicitado").hide();
+            $("#botonAgregarSolicitado").show();
         }
 
     function agregarContactoSolicitante(){
@@ -1450,10 +1464,12 @@
     *@argument key posicion de array a editar
     */
     function cargarEditarSolicitante(key){
+        
         $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Editar solicitante');
         $("#edit_key").val(key);
         $("#solicitante_id").val(arraySolicitantes[key].id);
         if(arraySolicitantes[key].tipo_persona_id == 1){
+            $("#editandoSolicitante").html("<center><h3>Editando a "+ arraySolicitantes[key].nombre+" "+arraySolicitantes[key].primer_apellido+" "+arraySolicitantes[key].segundo_apellido+ "</h3></center>");
             $("#idNombreSolicitante").val(arraySolicitantes[key].nombre);
             $("#idPrimerASolicitante").val(arraySolicitantes[key].primer_apellido);
             $("#idSegundoASolicitante").val(arraySolicitantes[key].segundo_apellido);
@@ -1477,6 +1493,7 @@
             $(".personaMoralSolicitante").hide();
             $(".personaFisicaSolicitante").show();
         }else{
+            $("#editandoSolicitante").html("<center><h3>Editando a "+ arraySolicitantes[key].nombre_comercial+ "</h3></center>");
             $(".personaMoralSolicitante").show();
             $(".personaFisicaSolicitante").hide();
             $("#tipo_persona_moral_solicitante").prop("checked", true);
@@ -1508,6 +1525,8 @@
         //domicilio del solicitante
         domicilioObj.cargarDomicilio(arraySolicitantes[key].domicilios[0]);
         $('.catSelect').trigger('change');
+        $("#divSolicitante").show();
+        $("#botonAgregarSolicitante").hide();
     }
 
     /**
@@ -1520,6 +1539,7 @@
         $("#solicitado_id").val(arraySolicitados[key].id);
         // Si tipo persona es fisica o moral llena diferentes campos
         if(arraySolicitados[key].tipo_persona_id == 1){
+            $("#editandoSolicitado").html("<center><h3>Editando a "+ arraySolicitados[key].nombre+" "+arraySolicitados[key].primer_apellido+" "+arraySolicitados[key].segundo_apellido+ "</h3></center>");
             $("#idNombreSolicitado").val(arraySolicitados[key].nombre);
             $("#idPrimerASolicitado").val(arraySolicitados[key].primer_apellido);
             $("#idSegundoASolicitado").val(arraySolicitados[key].segundo_apellido);
@@ -1543,6 +1563,7 @@
             $(".personaMoralSolicitado").hide();
             $(".personaFisicaSolicitado").show();
         }else{
+            $("#editandoSolicitado").html("<center><h3>Editando a "+ arraySolicitados[key].nombre_comercial+ "</h3></center>");
             $(".personaMoralSolicitado").show();
             $(".personaFisicaSolicitado").hide();
             $("#idNombreCSolicitado").val(arraySolicitados[key].nombre_comercial);
@@ -1556,6 +1577,8 @@
         arrayDomiciliosSolicitado = arraySolicitados[key].domicilios;
         formarTablaDomiciliosSolicitado();
         $('.catSelect').trigger('change');
+        $("#divSolicitado").show();
+        $("#botonAgregarSolicitado").hide();
     }
 
     /**
