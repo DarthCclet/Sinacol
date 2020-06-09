@@ -18,9 +18,9 @@ use App\Resolucion;
 use App\MotivoArchivado;
 use Validator;
 use App\Filters\CatalogoFilter;
-use Illuminate\Support\Facades\DB;
 use App\Traits\ValidateRange;
 use App\Traits\GenerateDocument;
+use Carbon\Carbon;
 
 class AudienciaController extends Controller
 {
@@ -46,7 +46,6 @@ class AudienciaController extends Controller
         $audiencias = (new CatalogoFilter(Audiencia::query(), $this->request))
             ->searchWith(Audiencia::class)
             ->filter(false);
-
          // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
         if ($this->request->get('all') ) {
@@ -57,15 +56,26 @@ class AudienciaController extends Controller
             $limSup = " 23:59:59";
             $limInf = " 00:00:00";
             if($this->request->get('fechaAudiencia')){
-                $audiencias->where('fecha_audiencia',"=",$this->request->get('fechaAudiencia') );
+                $audiencias->where('fecha_audiencia',"=",$this->request->get('fechaAudiencia') )->orderBy("fecha_audiencia",'desc');
                 // $audiencias->where('fecha_audiencia',">",$this->request->get('fechaAudiencia') . $limInf);     
             }
             if($this->request->get('NoAudiencia')){
-                $audiencias->where('numero_audiencia',$this->request->get('NoAudiencia'));
+                $audiencias->where('numero_audiencia',$this->request->get('NoAudiencia'))->orderBy("fecha_audiencia",'desc');
+            }
+            if($this->request->get('estatus_audiencia')){
+                if($this->request->get('estatus_audiencia') == 2){
+                    $audiencias->where('finalizada',true);
+                    $date = Carbon::now();
+                    $audiencias->where('fecha_audiencia',"<=",$date)->orderBy('fecha_audiencia','desc');
+                }else if($this->request->get('estatus_audiencia') == 1){
+                    $audiencias->where('finalizada',false);
+                    $date = Carbon::now();
+                    $audiencias->where('fecha_audiencia',">=",$date)->orderBy('fecha_audiencia','asc');
+                }
             }
             if($this->request->get('IsDatatableScroll')){
                 $audiencias = $audiencias->with('conciliador.persona');
-                $audiencias = $audiencias->orderBy("fecha_audiencia",'desc')->take($length)->skip($start)->get();
+                $audiencias = $audiencias->take($length)->skip($start)->get();
                 // $audiencias = $audiencias->select(['id','conciliador','numero_audiencia','fecha_audiencia','hora_inicio','hora_fin'])->orderBy("fecha_audiencia",'desc')->take($length)->skip($start)->get();
             }else{
                 $audiencias = $audiencias->paginate($this->request->get('per_page', 10));

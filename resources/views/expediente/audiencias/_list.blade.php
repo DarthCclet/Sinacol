@@ -15,6 +15,9 @@
         <input class="form-control date filtros" id="fechaAudiencia" placeholder="Fecha de audiencia" type="text" value="">
         <p class="help-block needed">Fecha de Audiencia</p>
     </div>
+    <div>
+        <input type="hidden" class="filtros"  id="estatus_audiencia" value=""  />
+    </div>
     <div class="col-md-4">
         <button class="btn btn-danger" type="button" id="limpiarFiltros" > <i class="fa fa-eraser"></i> Limpiar filtros</button>
     </div>
@@ -41,6 +44,7 @@
                     "data": function (d) {
                         d.fechaAudiencia = dateFormat($("#fechaAudiencia").val(),1),
                         d.NoAudiencia = $("#NoAudiencia").val(),
+                        d.estatus_audiencia = $("#estatus_audiencia").val(),
                         d.IsDatatableScroll = true,
                         d.loadPartes = true
                         // d.objeto_solicitud_id = $("#objeto_solicitud_id").val()
