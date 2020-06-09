@@ -25,6 +25,13 @@
                 <button class="btn btn-primary pull-right" onclick="location.href='{{ route('solicitudes.create')  }}'" > <i class="fa fa-plus-circle"></i> Nueva solicitud</button>
             </div>
         </div>
+        <div style="float: left;">
+            <label class="col-md-12"> Filtros</label>
+            <button class="btn btn-primary pull-right" onclick="$('#estatus_solicitud_id').val(3).trigger('change');" >Terminada</button>
+            <button class="btn btn-primary pull-right" onclick="$('#estatus_solicitud_id').val(2).trigger('change');">Ratificados</button>
+            <button class="btn btn-primary pull-right" onclick="$('#estatus_solicitud_id').val(1).trigger('change');">Sin Ratificar</button>
+            <button class="btn btn-primary pull-right" onclick="$('#estatus_solicitud_id').val('').trigger('change');">Todas</button>
+        </div>
         <br>
         <br>
         <!-- end panel-heading -->
