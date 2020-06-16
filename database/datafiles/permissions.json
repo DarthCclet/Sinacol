@@ -1,0 +1,135 @@
+[
+    {
+        "id": 1,
+        "name": "Administración",
+        "description": "Acceso a los formularios de administración",
+        "ruta":"#",
+        "padre_id":null
+    }, {
+        "id": 2,
+        "name": "Solicitudes",
+        "description": "Acceso a las solicitudes",
+        "ruta":"/solicitudes",
+        "padre_id":null
+    }, {
+        "id": 3,
+        "name": "Audiencias",
+        "description": "Acceso a las audiencias",
+        "ruta":"/audiencias",
+        "padre_id":null
+    }, {
+        "id": 4,
+        "name": "Centros",
+        "description": "Acceso a los centros",
+        "ruta":"#",
+        "padre_id":null
+    }, {
+        "id": 5,
+        "name": "Usuarios",
+        "description": "Acceso a los usuarios",
+        "ruta":"/users",
+        "padre_id":1
+    }, {
+        "id": 6,
+        "name": "Roles",
+        "description": "Acceso a los roles",
+        "ruta":"/roles",
+        "padre_id":1
+    }, {
+        "id": 7,
+        "name": "Permisos",
+        "description": "Acceso a los permisos",
+        "ruta":"/permisos",
+        "padre_id":1
+    }, {
+        "id": 8,
+        "name": "Catalogos",
+        "description": "Acceso a la creación de usuarios nuevos",
+        "ruta":"#",
+        "padre_id":1
+    }, {
+        "id": 9,
+        "name": "Centros",
+        "description": "Acceso a los centros",
+        "ruta":"/centros",
+        "padre_id":4
+    }, {
+        "id": 10,
+        "name": "Salas",
+        "description": "Acceso a las salas",
+        "ruta":"/salas",
+        "padre_id":4
+    }, {
+        "id": 11,
+        "name": "Conciliadores",
+        "description": "Acceso a los conciliadores",
+        "ruta":"/conciliadores",
+        "padre_id":4
+    }, {
+        "id": 12,
+        "name": "Estatus de solicitudes",
+        "description": "Acceso al catalogo de estatus de solicitud",
+        "ruta":"/estatus-solicitud",
+        "padre_id":8
+    }, {
+        "id": 13,
+        "name": "Resoluciones",
+        "description": "Acceso al catalogo de resoluciones",
+        "ruta":"/resolucion-audiencia",
+        "padre_id":8
+    }, {
+        "id": 14,
+        "name": "Giros comerciales",
+        "description": "Acceso al catalogo de giros comerciales",
+        "ruta":"/giros",
+        "padre_id":8
+    }, {
+        "id": 15,
+        "name": "Roles de atención",
+        "description": "Acceso al catalogo de roles de atención",
+        "ruta":"/roles-atencion",
+        "padre_id":8
+    }, {
+        "id": 16,
+        "name": "Grupos prioritarios",
+        "description": "Acceso al catalogo de grupos prioritarios",
+        "ruta":"/grupo-prioritario",
+        "padre_id":8
+    }, {
+        "id": 17,
+        "name": "Jornadas",
+        "description": "Acceso al catalogo de jornadas laborales",
+        "ruta":"/jornadas",
+        "padre_id":8
+    }, {
+        "id": 18,
+        "name": "Objetos de solicitud",
+        "description": "Acceso al catalogo de objetos de solicitud",
+        "ruta":"/objeto-solicitud",
+        "padre_id":8
+    }, {
+        "id": 19,
+        "name": "Ocupaciones",
+        "description": "Acceso al catalogo de ocupaciones",
+        "ruta":"/ocupaciones",
+        "padre_id":8
+    }, {
+        "id": 20,
+        "name": "Documentos",
+        "description": "Acceso a los formularios de documentos",
+        "ruta":"#",
+        "padre_id":1
+    }, {
+        "id": 21,
+        "name": "Plantillas",
+        "description": "Acceso a las plantillas",
+        "ruta":"/plantilla-documentos",
+        "padre_id":21
+    }, {
+        "id": 22,
+        "name": "Tipos de documentos",
+        "description": "Acceso a los tipos de documentos",
+        "ruta":"/tipo-documento",
+        "padre_id":21
+    }
+]
