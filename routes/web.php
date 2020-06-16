@@ -64,6 +64,10 @@ Route::put('roles/permisos/{id}','RoleController@DeletePermisosRol');
 Route::post('usuario/roles/','UserController@AddRol');
 Route::get('usuario/roles/{id}','UserController@GetRoles');
 Route::post('usuario/roles/delete','UserController@EliminarRol');
+
+Route::get('getMenu/{rol_id}','PermissionController@getMenu');
+Route::get('cambiarRol/{rol_id}','PermissionController@cambiarRol');
+
 Auth::routes(['register' => false]);
 
 Route::group(['middleware' => ['role:Super Usuario']], function () {
