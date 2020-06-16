@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use App\Traits\Menu;
 
 class PermissionController extends Controller
 {
+    use Menu;
     /**
      * Display a listing of the resource.
      *
@@ -25,7 +28,8 @@ class PermissionController extends Controller
      */
     public function create()
     {
-        return view("admin.permisos.create");
+        $permisos = Permission::all();
+        return view("admin.permisos.create",compact('permisos'));
     }
 
     /**
@@ -36,7 +40,7 @@ class PermissionController extends Controller
      */
     public function store(Request $request)
     {
-        $permission = Permission::create(["name" => $request->name,"description" => $request->description]);
+        $permission = Permission::create(["name" => $request->name,"description" => $request->description,"ruta" => $request->ruta,"padre_id" => $request->padre_id]);
 
         if ($request->wantsJson()) {
             return $this->sendResponse($permission, 'SUCCESS');
@@ -65,7 +69,8 @@ class PermissionController extends Controller
     public function edit($id)
     {
         $permission = Permission::find($id);
-        return view('admin.permisos.edit', compact('permission'));
+        $permisos = Permission::all();
+        return view('admin.permisos.edit', compact('permission','permisos'));
     }
 
     /**
@@ -98,5 +103,18 @@ class PermissionController extends Controller
         Permission::destroy($id);
 
         return redirect()->route('permisos.index')->with('success', 'Se ha eliminado el permiso exitosamente');
+    }
+    
+    public function getMenu(Request $request){
+        $nombre = auth()->user()->persona->nombre;
+        $arreglo = array("menu" => $request->session()->get('menu'), "roles" => $request->session()->get('roles'),"rolActual" => $request->session()->get('rolActual'),"nombre" => $nombre);
+        return $arreglo;
+    }
+    
+    public function cambiarRol(Request $request,$id){
+        $menu = $this->construirMenu($id);
+        $request->session()->put('menu', $menu);
+        $request->session()->put('rolActual', Role::find($id));
+        return $menu;
     }
 }
