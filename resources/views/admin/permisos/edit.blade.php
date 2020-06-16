@@ -3,14 +3,16 @@
 @section('title', 'Roles Conciliadores')
 
 @include('includes.component.datatables')
+@include('includes.component.pickers')
 
 @section('content')
 
 <!-- begin breadcrumb -->
 <ol class="breadcrumb float-xl-right">
-    <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
-    <li class="breadcrumb-item active"><a href="javascript:;">Permisos</a></li>
-</ol>
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="{!! route('permisos.index') !!}">Permisos</a></li>
+      <li class="breadcrumb-item active">Crear permiso</li>
+  </ol>
 <!-- end breadcrumb -->
 <!-- begin page-header -->
 <h1 class="page-header">Administrar permisos <small>Editar permiso</small></h1>

@@ -151,6 +151,7 @@
                         dataType:"json",
                         async:true,
                         data:{
+                            _token: "{{ csrf_token() }}",
                             permiso:name
                         },
                         success:function(data){
