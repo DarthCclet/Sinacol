@@ -909,6 +909,7 @@
                 dato_laboral.jornada_id = $("#jornada_id").val();
                 dato_laboral.horas_semanales = $("#horas_semanales").val();
                 dato_laboral.giro_comercial_id = $("#giro_comercial_hidden").val();
+                dato_laboral.resolucion = false;
                 solicitante.dato_laboral = dato_laboral;
 
                 //domicilio del solicitante

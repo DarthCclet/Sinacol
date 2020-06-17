@@ -8,6 +8,19 @@
 @include('includes.component.calendar')
 
 @section('content')
+<style>
+    .highlighted{
+        background-color: #FFFF00;
+        color: #000 !important;
+    }
+    .select2-results__option--highlighted{
+        background: #348fe2 !important;
+        color: #fff !important;
+    }
+    .select2-results__options {
+        max-height: 400px;
+    }
+</style>
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
         <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
@@ -451,6 +464,97 @@
             </div>
         </div>
     </div>
+    <!-- Inicio Modal de datos laborales-->
+    <div class="modal" id="modal-dato-laboral" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Datos Laborales</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12 row">
+                        <input type="hidden" id="dato_laboral_id">
+                        <input type="hidden" id="resolucion_dato_laboral">
+                        <div class="col-md-12">
+                            <input class="form-control datoLaboral" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
+                            <p class="help-block">Nombre del Jefe directo</p>
+                        </div>
+                        <div class="col-md-12 form-group row">
+                            <input type="hidden" id="term">
+                            <div class="col-md-12 ">
+                                <select name="giro_comercial_solicitante " placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control datoLaboral"></select>
+                            </div>
+                            <div class="col-md-12">
+                                <p class="help-block needed">Giro comercial</p>
+                            <label id="giro_solicitante"></label>
+                            </div>
+                        </div>
+                        {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opcion','style'=>'display:none;']);  !!}
+                        <div class="col-md-12 row">
+                            <div class="col-md-4">
+                                {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                                {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Categoria/Puesto</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control numero datoLaboral" data-parsley-type='integer' id="nss" placeholder="No. IMSS"  type="text" value="">
+                                <p class="help-block ">No. IMSS</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control numero datoLaboral" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
+                                <p class="help-block">No. ISSSTE</p>
+                            </div>
+                        </div>
+                        <div class="col-md-12 row">
+                            <div class="col-md-4">
+                                <input class="form-control numero "datoLaboral required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="Remuneraci&oacute;n (pago)" type="text" value="">
+                                <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
+                            </div>
+                            <div class="col-md-4">
+                                {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                                {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Periodicidad</p>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control numero datoLaboral" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
+                                <p class="help-block needed">Horas semanales</p>
+                            </div>
+                        </div>
+                        <div class="col-md-12 row">
+
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" />
+                                <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
+                            </div>
+                            <div class="col-md-4">
+                                <input class="form-control date datoLaboral" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
+                                <p class="help-block needed">Fecha de ingreso</p>
+                            </div>
+                            <div class="col-md-4" id="divFechaSalida">
+                                <input class="form-control date datoLaboral" id="fecha_salida" placeholder="Fecha salida" type="text" value="">
+                                <p class="help-block needed">Fecha salida</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                            {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
+                            <p class="help-block needed">Jornada</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarDatoLaboral"><i class="fa fa-save"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Inicio Modal de comparecientes y resolución individual-->
     <div class="modal" id="modal-comparecientes" style="display:none;">
         <div class="modal-dialog modal-lg">
@@ -532,7 +636,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6" id="divMotivoArchivo" style="display: none;">
                                 <div class="form-group">
                                     <label for="motivo_archivado_id" class="col-sm-6 control-label labelResolucion">Motivo de archivo</label>
                                     <div class="col-sm-10">
@@ -544,6 +648,62 @@
                                         </select>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-md-12" id="divConceptosAcordados" style="display: none;">
+                                <label>Conceptos de pago para resolucion</label>
+                                <div class="form-group">
+                                    <label for="concepto_pago_resoluciones_id" class="col-sm-6 control-label labelResolucion">Concepto de pago</label>
+                                    <div class="col-sm-10">
+                                        
+                                        <select id="concepto_pago_resoluciones_id" class="form-control select-element">
+                                            <option value="">-- Selecciona un concepto de pago</option>
+                                            @foreach($concepto_pago_resoluciones as $concepto)
+                                                <option value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label for="dias" class="col-sm-6 control-label labelResolucion">D&iacute;as a pagar</label>
+                                        <div class="col-sm-12">
+                                            <input type="text" id="dias" placeholder="D&iacute;as a pagar" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="monto" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
+                                        <div class="col-sm-12">
+                                            <input type="text" id="monto" placeholder="Monto a pagar" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label for="otro" class="col-sm-6 control-label labelResolucion">Descripci&oacute;n Concepto</label>
+                                        <div class="col-sm-12">
+                                            <input type="text" id="otro" placeholder="Descripci&oacute;n Concepto" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div> 
+                                    <div class="text-center">
+                                        <button class="btn btn-warning text-white btn-sm" id='btnAgregarConcepto'><i class="fa fa-plus"></i> Agregar Concepto</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 offset-md-2">
+                                    <table class="table table-bordered" >
+                                        <thead>
+                                            <tr>
+                                                <th>Concepto</th>
+                                                <th>Dias</th>
+                                                <th>Monto</th> 
+                                                <th>Otro</th> 
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyConcepto">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <hr>
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -677,6 +837,7 @@
 @push('scripts')
     <script>
         var listaContactos=[];
+        var listaConcepto=[];
         var finalizada=false;
         var listaResolucionesIndividuales=[];
         var origen = 'audiencias';
@@ -1076,6 +1237,58 @@
             }
             cargarContactos();
         });
+        $("#btnAgregarConcepto").on("click",function(){
+            if(($("#otro").val() != "" || ($("#dias").val() != "" && $("#monto").val() != "")) && $("#concepto_pago_resoluciones_id").val() != "" ){
+
+                listaConcepto.push({
+                    concepto_pago_resoluciones_id:$("#concepto_pago_resoluciones_id").val(),
+                    dias:$("#dias").val(),
+                    monto:$("#monto").val(),
+                    otro:$("#otro").val(),
+                });
+                limpiarConcepto();
+                cargarTablaConcepto();
+            }else{
+                if($("#concepto_pago_resoluciones_id").val() == ""){
+                    swal({title: 'Error',text: 'Debe seleccionar el concepto de pago',icon: 'warning'});
+                }else{
+                    swal({title: 'Error',text: 'Debe ingresar dias y monto ó descripción del concepto',icon: 'warning'});
+
+                }
+            }
+                
+        });
+        function cargarTablaConcepto(){
+            var table = '';
+            $.each(listaConcepto,function(index,concepto){
+                table +='<tr>';
+                    $("#concepto_pago_resoluciones_id").val(concepto.concepto_pago_resoluciones_id);
+                    table +='<td>'+$("#concepto_pago_resoluciones_id option:selected").text()+'</td>';
+                    $("#concepto_pago_resoluciones_id").val("");
+                    table +='<td>'+concepto.dias+'</td>';
+                    table +='<td>'+concepto.monto+'</td>';
+                    table +='<td>'+concepto.otro+'</td>';
+                    table +='<td>';
+                        table +='<button onclick="eliminarConcepto('+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
+                            table +='<i class="fa fa-trash"></i>';
+                        table +='</button>';
+                    table +='</td>';
+                table +='</tr>';
+            });
+            $("#tbodyConcepto").html(table);
+        }
+
+        function eliminarConcepto(indice){
+            listaConcepto.splice(indice,1);
+            cargarTablaConcepto();
+        }
+        function limpiarConcepto(){
+            $("#concepto_pago_resoluciones_id").val("");
+            $("#concepto_pago_resoluciones_id").trigger("change");
+            $("#dias").val("");
+            $("#monto").val("");
+        }
+
         function eliminarContacto(indice){
             if(listaContactos[indice].id != null){
                 $.ajax({
@@ -1265,6 +1478,18 @@
                 });
             }
         });
+        $("#resolucion_individual_id").change(function(){
+            $("#divConceptosAcordados").hide();
+            $("#divMotivoArchivo").hide();
+            if($("#resolucion_individual_id").val() == 4){
+                $("#divMotivoArchivo").show();
+            }else if($("#resolucion_individual_id").val() == 1){
+                $("#divConceptosAcordados").show();
+            }
+            else{
+                $("#divMotivoArchivo").hide();
+            }
+        });
         $("#btnAgregarResolucion").on("click",function(){
             if(validarResolucionIndividual()){
                 var motivo_id = "";
@@ -1280,6 +1505,7 @@
                     parte_solicitado_nombre:$("#parte_solicitado_id option:selected").text(),
                     resolucion_individual_id:$("#resolucion_individual_id").val(),
                     resolucion_individual_nombre:$("#resolucion_individual_id option:selected").text(),
+                    listaConceptosResolucion:listaConcepto,
                     motivo_archivado_id:motivo_id,
                     motivo_archivado_nombre:motivo_nombre
                 });
@@ -1287,6 +1513,9 @@
                 $("#parte_solicitado_id").val("").trigger("change");
                 $("#resolucion_individual_id").val("").trigger("change");
                 $("#motivo_archivado_id").val("").trigger("change");
+                limpiarConcepto();
+                listaConcepto = []; 
+                cargarTablaConcepto();
                 cargarTablaResolucionesIndividuales();
             }
         });
@@ -1323,12 +1552,14 @@
             if(finalizada){
                 $("#btnGuardarResolucion").hide();
                 $("#btnGuardarRepresentante").hide();
+                $("#btnGuardarDatoLaboral").hide();
                 $("#btnAgregarContacto").hide();
                 $(".tab-Comparecientes").show();
                 $(".tab-Resoluciones").show();
             }else{
                 $("#btnGuardarResolucion").show();
                 $("#btnGuardarRepresentante").show();
+                $("#btnGuardarDatoLaboral").show();
                 $("#btnAgregarContacto").show();
                 $(".tab-Comparecientes").hide();
                 $(".tab-Resoluciones").hide();
@@ -1492,6 +1723,184 @@
                     window.location.href = "../../audiencias/"+idAudiencia+"/edit";
                 }else{
                     location.reload();
+                }
+            });
+        }
+
+        //cargar giros comerciales
+        function highlightText(string){
+            return string.replace($("#term").val().trim(),'<span class="highlighted">'+$("#term").val().trim()+"</span>");
+        }
+
+        $("#giro_comercial_solicitante").select2({
+            ajax: {
+                url: '/api/giros_comerciales/filtrarGirosComerciales',
+                type:"POST",
+                dataType:"json",
+                delay: 400,
+                async:false,
+                data:function (params) {
+                    $("#term").val(params.term);
+                    var data = {
+                        nombre: params.term
+                    }
+                    return data;
+                },
+                processResults:function(json){
+                    $.each(json.data, function (key, node) {
+                        var html = '';
+                        html += '<table>';
+                        var ancestors = node.ancestors.reverse();
+                        html += '<tr><th colspan="2"><h5>* '+highlightText(node.nombre)+'</h5><th></tr>';
+                        $.each(ancestors, function (index, ancestor) {
+                            if(ancestor.id != 1){
+                                var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(index);
+                                html += '<tr><td ><b>'+ancestor.codigo+'</b></td>'+' <td style="border-left:1px solid;">'+tab+highlightText(ancestor.nombre)+'</td></tr>';
+                            }
+                        });
+                        var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(node.ancestors.length);
+                        html += '<tr><td><b>'+node.codigo+'</b></td>'+'<td style="border-left:1px solid;"> '+ tab+highlightText(node.nombre)+'</td></tr>';
+                        html += '</table>';
+                        json.data[key].html = html;
+                    });
+                    return {
+                        results: json.data
+                    };
+                }
+                // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+            },
+            escapeMarkup: function(markup) {
+                return markup;
+            },
+            templateResult: function(data) {
+                return data.html;
+            },templateSelection: function(data) {
+                console.log(data);
+                if(data.id != ""){
+                    return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
+                }
+                return data.text;
+            },
+            placeholder:'Seleccione una opcion',
+            minimumInputLength:4,
+            allowClear: true,
+            language: "es"
+        });
+        $("#giro_comercial_solicitante").change(function(){
+            $("#giro_comercial_hidden").val($(this).val());
+        });
+        //
+        // Funciones de datos laborales
+        
+        function validarDatosLaborales(){
+            var error=false;
+            $(".datoLaboral").each(function(){
+                if($(this).val() == ""){
+                    $(this).prev().css("color","red");
+                    error = true;
+                }
+            });
+            
+            return error;
+        }
+
+        $("#btnGuardarDatoLaboral").on("click",function(){
+            if(!validarDatosLaborales()){
+                $.ajax({
+                    url:"/api/partes/datoLaboral",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        id : $("#dato_laboral_id").val(),
+                        nombre_jefe_directo : $("#nombre_jefe_directo").val(),
+                        ocupacion_id : $("#ocupacion_id").val(),
+                        nss : $("#nss").val(),
+                        no_issste : $("#no_issste").val(),
+                        remuneracion : $("#remuneracion").val(),
+                        periodicidad_id : $("#periodicidad_id").val(),
+                        labora_actualmente : $("#labora_actualmente").is(":checked"),
+                        fecha_ingreso : dateFormat($("#fecha_ingreso").val()),
+                        fecha_salida : dateFormat($("#fecha_salida").val()),
+                        jornada_id : $("#jornada_id").val(),
+                        horas_semanales : $("#horas_semanales").val(),
+                        giro_comercial_id : $("#giro_comercial_hidden").val(),
+                        parte_id:$("#parte_id").val(),
+                        resolucion:$("#resolucion_dato_laboral").val(),
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            swal({title: 'Exito',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
+                            $("#modal-dato-laboral").modal("hide");
+                        }else{
+                            swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                        }
+                    },error:function(data){
+                        console.log(data);
+                        var mensajes = "";
+                        $.each(data.responseJSON.errors, function (key, value) {
+                            console.log(key.split("."));
+                            console.log(value);
+                            var origen = key.split(".");
+
+                            mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
+                        });
+                        swal({
+                            title: 'Error',
+                            text: 'Es necesario validar los siguientes campos \n'+mensajes,
+                            icon: 'error'
+                        });
+                    }
+                });
+            }else{
+                swal({title: 'Error',text: 'Llena todos los campos',icon: 'warning'});
+            }
+        });
+        
+        /*
+        Funcion para esconder o mostrar fecha de salida en funsion a campo labora actualmente
+        */
+        $("#labora_actualmente").change(function(){
+            if($("#labora_actualmente").is(":checked")){
+                $("#divFechaSalida").hide();
+                $("#fecha_salida").removeAttr("required");
+            }else{
+                $("#fecha_salida").attr("required","");
+                $("#divFechaSalida").show();
+            }
+        });
+
+        function DatosLaborales(parte_id){
+            $("#parte_id").val(parte_id);
+            $.ajax({
+                url:"/api/partes/datoLaboral/"+parte_id,
+                type:"GET",
+                dataType:"json",
+                success:function(data){
+                    if(data != null && data != ""){
+                        $("#dato_laboral_id").val(data.id);
+                        // $("#giro_comercial_solicitante").val(data.giro_comercial_id).trigger("change");
+                        $("#giro_comercial_hidden").val(data.giro_comercial_id)
+                        $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
+                        // getGiroEditar("solicitante");
+                        $("#nombre_jefe_directo").val(data.nombre_jefe_directo);
+                        $("#ocupacion_id").val(data.ocupacion_id);
+                        $("#nss").val(data.nss);
+                        $("#no_issste").val(data.no_issste);
+                        $("#remuneracion").val(data.remuneracion);
+                        $("#periodicidad_id").val(data.periodicidad_id);
+                        if(data.labora_actualmente != $("#labora_actualmente").is(":checked")){
+                            $("#labora_actualmente").click();
+                            $("#labora_actualmente").trigger("change");
+                        }
+                        $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
+                        $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
+                        console.log(data.jornada_id);
+                        $("#jornada_id").val(data.jornada_id);
+                        $("#horas_semanales").val(data.horas_semanales);                            
+                        $("#resolucion_dato_laboral").val(data.resolucion);   
+                        $(".catSelect").trigger('change')
+                    }
+                    $("#modal-dato-laboral").modal("show");
                 }
             });
         }
