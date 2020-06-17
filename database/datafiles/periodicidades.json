@@ -2,19 +2,23 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "Semanal"
+            "nombre": "Semanal",
+            "dias":7
         },
         {
             "id": "2",
-            "nombre": "Mensual"
+            "nombre": "Mensual",
+            "dias":30
         },
         {
             "id": "3",
-            "nombre": "Quincenal"
+            "nombre": "Quincenal",
+            "dias":15
         },
         {
             "id": "34",
-            "nombre": "Diario"
+            "nombre": "Diario",
+            "dias":1
         }
     ],
 

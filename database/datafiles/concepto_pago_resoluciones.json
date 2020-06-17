@@ -1,0 +1,18 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Dias de sueldo"
+        },
+        {
+            "id": "2",
+            "nombre": "Dias de vacaciones"
+        },
+        {
+            "id": "3",
+            "nombre": "Prima vacacional"
+        }
+    ],
+
+    "numReg": 3
+}
