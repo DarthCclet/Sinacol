@@ -19,8 +19,9 @@ $factory->define(DatoLaboral::class, function (Faker $faker) {
   $periodicidad = Periodicidad::inRandomOrder()->first();
   $giro_comercia = GiroComercial::inRandomOrder()->first();
     return [
-      'jornada_id' => $jornada->id,
-      'parte_id' => $parte->id,
+      'parte_id' => function(){
+        return factory(\App\Parte::class)->create()->id;
+      },
       'nombre_jefe_directo' => $faker->randomElement(['Luis Lopez','Juana Martinez','Eduardo Sanchez','Ana Juarez']),
       'ocupacion_id' =>$ocupacion->id,
       'nss'=> $faker->randomElement(['123412341234','9987987987987','8347348374','3478347']),
@@ -31,6 +32,7 @@ $factory->define(DatoLaboral::class, function (Faker $faker) {
       'remuneracion' => $faker->randomFloat(2,1,1000),
       'periodicidad_id' => $periodicidad->id,
       'labora_actualmente' => $faker->boolean,
+      'jornada_id' => $jornada->id,
       'horas_semanales' => $faker->randomNumber(2)
         //
     ];
