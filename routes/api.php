@@ -35,6 +35,8 @@ Route::Post('conciliador/ConciliadoresDisponibles','ConciliadorController@concil
 Route::Get('conciliador/ConciliadorAudiencias','ConciliadorController@conciliadorAudiencias');
 Route::resource('parte','ParteController');
 Route::Get('partes/representante/{id}','ParteController@GetRepresentanteLegal');
+Route::Get('partes/datoLaboral/{id}','ParteController@GetDatoLaboral');
+Route::Post('partes/datoLaboral','ParteController@GuardarDatoLaboral');
 Route::Post('partes/representante','ParteController@GuardarRepresentanteLegal');
 Route::Post('partes/representante/contacto','ParteController@AgregarContactoRepresentante');
 Route::Post('partes/representante/contacto/eliminar','ParteController@EliminarContactoRepresentante');

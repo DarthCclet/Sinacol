@@ -7,7 +7,9 @@ use App\Parte;
 use App\Contacto;
 use App\TipoContacto;
 use App\AudienciaParte;
+use App\DatoLaboral;
 use App\Filters\ParteFilter;
+use Validator;
 
 class ParteController extends Controller
 {
@@ -181,6 +183,82 @@ class ParteController extends Controller
             }
         }
         return $representantes;
+    }
+    
+    /**
+     * Funcion para obtener el representante legal de una parte
+     * @param id $id
+     * @return parte
+     */
+    public function GetDatoLaboral($parte_id){
+        $datos_laborales = DatoLaboral::where('parte_id',$parte_id)->get();
+        if(count($datos_laborales) > 1){
+            $datos_laborales = $datos_laborales->where("resolucion",true)->first();
+        }else{
+            $datos_laborales = $datos_laborales->first();
+        }
+        return $datos_laborales;
+    }
+    /**
+     * Funcion para obtener el representante legal de una parte
+     * @param id $id
+     * @return parte
+     */
+    public function GuardarDatoLaboral(Request $request){
+        $request->validate([
+            'nombre_jefe_directo' => 'required|String',
+            'ocupacion_id' => 'required|Integer',
+            'nss' => 'required|String',
+            'no_issste' => 'required|String',
+            'remuneracion' => 'required',
+            'periodicidad_id' => 'required|Integer',
+            'labora_actualmente' => 'required',
+            'fecha_ingreso' => 'required|Date',
+            'fecha_salida' => 'required|Date',
+            'jornada_id' => 'required|Integer',
+            'horas_semanales' => 'required',
+            'parte_id' => 'required|Integer',
+            'giro_comercial_id' => 'required|Integer',
+        ]);
+        if($request->resolucion == "true"){
+            $datos_laborales = DatoLaboral::find($request->id);
+            
+            $datos_laborales->update([
+                'nombre_jefe_directo' => $request->nombre_jefe_directo,
+                'ocupacion_id' => $request->ocupacion_id,
+                'nss' => $request->nss,
+                'no_issste' => $request->no_issste,
+                'remuneracion' => $request->remuneracion,
+                'periodicidad_id' => $request->periodicidad_id,
+                'labora_actualmente' => $request->labora_actualmente,
+                'fecha_ingreso' => $request->fecha_ingreso,
+                'fecha_salida' => $request->fecha_salida,
+                'jornada_id' => $request->jornada_id,
+                'horas_semanales' => $request->horas_semanales,
+                'parte_id' => $request->parte_id,
+                'giro_comercial_id' => $request->giro_comercial_id,
+                'resolucion' => true,
+            ]);
+        }else{
+            $datos_laborales = DatoLaboral::create([
+                'nombre_jefe_directo' => $request->nombre_jefe_directo,
+                'ocupacion_id' => $request->ocupacion_id,
+                'nss' => $request->nss,
+                'no_issste' => $request->no_issste,
+                'remuneracion' => $request->remuneracion,
+                'periodicidad_id' => $request->periodicidad_id,
+                'labora_actualmente' => $request->labora_actualmente,
+                'fecha_ingreso' => $request->fecha_ingreso,
+                'fecha_salida' => $request->fecha_salida,
+                'jornada_id' => $request->jornada_id,
+                'horas_semanales' => $request->horas_semanales,
+                'parte_id' => $request->parte_id,
+                'giro_comercial_id' => $request->giro_comercial_id,
+                'resolucion' => true,
+            ]);
+        }
+        
+        return $datos_laborales;
     }
     
     

@@ -96,7 +96,7 @@ class Parte extends Model
      */
     public function dato_laboral()
     {
-        return $this->hasOne(DatoLaboral::class);
+        return $this->hasMany(DatoLaboral::class);
     }
     /**
      * Relacion con la tabla domicilio

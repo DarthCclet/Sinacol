@@ -13,14 +13,21 @@ use App\Parte;
 use App\Compareciente;
 use App\TipoParte;
 use App\AudienciaParte;
+use App\ConceptoPagoResolucion;
 use App\ResolucionPartes;
 use App\Resolucion;
 use App\MotivoArchivado;
 use Validator;
 use App\Filters\CatalogoFilter;
+use App\GiroComercial;
+use App\Jornada;
+use App\Ocupacion;
+use App\Periodicidad;
+use App\ResolucionParteConcepto;
 use App\Traits\ValidateRange;
 use App\Traits\GenerateDocument;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class AudienciaController extends Controller
 {
@@ -192,7 +199,12 @@ class AudienciaController extends Controller
         $audiencia->solicitantes = $this->getSolicitantes($audiencia);
         $audiencia->solicitados = $this->getSolicitados($audiencia);
         $motivos_archivo = MotivoArchivado::all();
-        return view('expediente.audiencias.edit', compact('audiencia',"motivos_archivo"));
+        $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
+        $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
+        $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
+        $jornadas = $this->cacheModel('jornadas',Jornada::class);
+        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
+        return view('expediente.audiencias.edit', compact('audiencia',"motivos_archivo","concepto_pago_resoluciones","periodicidades","ocupaciones","jornadas","giros_comerciales"));
     }
 
     /**
@@ -505,7 +517,7 @@ class AudienciaController extends Controller
                 if($arrayRelaciones != null){
                     foreach($arrayRelaciones as $relacion){
                         if($solicitante->parte_id == $relacion["parte_solicitante_id"] && $solicitado->parte_id == $relacion["parte_solicitado_id"]){
-                            ResolucionPartes::create([
+                            $resolucionParte = ResolucionPartes::create([
                                 "audiencia_id" => $audiencia->id,
                                 "parte_solicitante_id" => $solicitante->parte_id,
                                 "parte_solicitada_id" => $solicitado->parte_id,
@@ -513,6 +525,19 @@ class AudienciaController extends Controller
                             ]);
                             if($relacion["resolucion_individual_id"] == 3){
                                 $this->generarConstancia($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id);
+                            }
+                            if($relacion["resolucion_individual_id"] == 1){
+                                if(count($relacion["listaConceptosResolucion"]) > 0){
+                                    foreach($relacion["listaConceptosResolucion"] as $concepto){
+                                        ResolucionParteConcepto::create([
+                                            "resolucion_partes_id" => $resolucionParte->id,
+                                            "concepto_pago_resoluciones_id"=> $concepto["concepto_pago_resoluciones_id"],
+                                            "dias"=>$concepto["dias"],
+                                            "monto"=>$concepto["monto"],
+                                            "otro"=>$concepto["otro"]
+                                        ]);
+                                    }
+                                }
                             }
                             $bandera = false;
                         }
@@ -701,5 +726,22 @@ class AudienciaController extends Controller
             $resolucion->update(["nuevaAudiencia" => true]);
         }
         return $audienciaN;
+    }
+
+     /**
+     * Función para almacenar catalogos (nombre,id) en cache
+     *
+     * @param [string] $nombre
+     * @param [Model] $modelo
+     * @return void
+     */
+    public function cacheModel($nombre,$modelo){
+        if (!Cache::has($nombre)) {
+            $respuesta = array_pluck($modelo::all(),'nombre','id');
+            Cache::forever($nombre, $respuesta);
+        }else{
+            $respuesta = Cache::get($nombre);
+        }
+        return $respuesta;
     }
 }
