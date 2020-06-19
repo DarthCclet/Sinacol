@@ -22,9 +22,7 @@
         <div class="panel-heading">
             <h4 class="panel-title">Listado de usuarios</h4>
             <div class="panel-heading-btn">
-                @can('Crear usuarios')
                 <a href="{!! route('users.create') !!}" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nuevo usuario</a>
-                @endcan
             </div>
         </div>
         <!-- end panel-heading -->
@@ -75,5 +73,16 @@
                 return false;
             });
         });
+        function suplantar(id){
+            $.ajax({
+                url:"/impersonate/"+id,
+                type:"GET",
+                dataType:"json",
+                async:false,
+                success:function(data){
+                    //
+                }
+            });
+        }
     </script>
 @endpush
