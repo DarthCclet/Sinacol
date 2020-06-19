@@ -94,6 +94,11 @@
                 });
                 div +='             </ul>';
                 div +='         </li>';
+                var ruta_impersonate = "impersonate_leave";
+                @if(SESSION('impersonated_by'))
+                div +='         <li><a class="dropdown-item" href="{{route('impersonate_leave')}}">Regresar al perfil</a> </li>';
+                @endif
+                div +='         <li>';
                 var form =  'logout-formm';
                 div +='         <li>';
                 div +='             <a class="dropdown-item" href="#" onclick="cerrarSesion(event)">';
