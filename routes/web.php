@@ -15,7 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/home','HomeController@index');
+Route::get('/home','HomeController@index')->name('home');
 
 Route::resource('users','UserController');
 Route::resource('salas','SalaController');
@@ -67,6 +67,8 @@ Route::post('usuario/roles/delete','UserController@EliminarRol');
 
 Route::get('getMenu/{rol_id}','PermissionController@getMenu');
 Route::get('cambiarRol/{rol_id}','PermissionController@cambiarRol');
+Route::get('impersonate/{user_id}','UserController@impersonate')->name('impersonate');
+Route::get('impersonate_leave','UserController@impersonate_leave')->name('impersonate_leave');
 
 Auth::routes(['register' => false]);
 
