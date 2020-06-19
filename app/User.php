@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Lab404\Impersonate\Models\Impersonate;
 
 class User extends Authenticatable
 {
@@ -21,7 +22,8 @@ class User extends Authenticatable
         LazyAppends,
         RequestsAppends,
         AppendPolicies,
-        HasRoles;
+        HasRoles,
+        Impersonate;
 
     /**
      * Las relaciones que son cargables.

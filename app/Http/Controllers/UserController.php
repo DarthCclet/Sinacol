@@ -9,10 +9,11 @@ use App\User;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Traits\Menu;
 
 class UserController extends Controller
 {
-
+    use Menu;
     /**
      * Instancia del request
      * @var Request
@@ -88,8 +89,7 @@ class UserController extends Controller
                 'personas.nombre' => 'required|alpha|max:60',
                 'personas.primer_apellido' => 'required|alpha|max:60',
                 'personas.segundo_apellido' => 'alpha|nullable|max:60',
-                'personas.rfc' => 'alphanum|required|max:12',
-                'rol' => 'required',
+                'personas.rfc' => 'alphanum|required|max:13',
             ]
         );
 
@@ -147,8 +147,7 @@ class UserController extends Controller
                 'personas.nombre' => 'required|alpha|max:60',
                 'personas.primer_apellido' => 'required|alpha|max:60',
                 'personas.segundo_apellido' => 'alpha|nullable|max:60',
-                'personas.rfc' => 'alphanum|required|size:12',
-                'rol' => 'required',
+                'personas.rfc' => 'alphanum|required|size:13',
             ]
         );
 
@@ -161,9 +160,7 @@ class UserController extends Controller
 
         $user->fill($data)->save();
         $user->persona->fill($request->input('personas'))->save();
-        if(!$user->hasRole($request->rol)){
-            $user->syncRoles($request->rol);
-        }
+        
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
         }
@@ -201,5 +198,26 @@ class UserController extends Controller
         $user = User::find($request->user_id);
         $user->removeRole($request->rol);
         return $user->roles;
+    }
+    public function impersonate($id){
+        $user = User::find($id);
+        auth()->user()->impersonate($user);
+        //Creamos las sessiones que se usaran para el impersonate
+        $rol = $user->roles->first->get();
+        $menu = $this->construirMenu($rol->id);
+        session(['menu' => $menu]);
+        session(['roles' => $user->roles]);
+        session(['rolActual' => $rol]);
+        return redirect()->route('home');
+    }
+    public function impersonate_leave(){
+        auth()->user()->leaveImpersonation();
+        //regresamos la sessiones al usuario principal
+        $rol = auth()->user()->roles->first->get();
+        $menu = $this->construirMenu($rol->id);
+        session(['menu' => $menu]);
+        session(['roles' => auth()->user()->roles]);
+        session(['rolActual' => $rol]);
+        return redirect()->route('home');
     }
 }
