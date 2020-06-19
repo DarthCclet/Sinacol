@@ -53,3 +53,17 @@ $factory->state(Persona::class, 'moral', function (Faker $faker) {
     ];
 });
 
+/**
+ * Factory para agregar Admin
+ */
+$factory->state(Persona::class, 'admin', function (Faker $faker) {
+	$tipoPersona = TipoPersona::where('abreviatura', 'F')->first();
+    return [
+        'nombre' => 'STPS',
+        'primer_apellido' => null,
+        'segundo_apellido' => null,
+        'razon_social' => null,
+        'fecha_nacimiento' => null,
+        'tipo_persona_id' => $tipoPersona->id
+    ];
+});
