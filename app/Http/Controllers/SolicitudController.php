@@ -31,7 +31,7 @@ use App\TipoContacto;
 use App\TipoVialidad;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-
+use Illuminate\Support\Facades\DB;
 
 class SolicitudController extends Controller
 {
@@ -211,95 +211,104 @@ class SolicitudController extends Controller
         
         $solicitud = $request->input('solicitud');
         
-        // // Solicitud
-        $solicitud['user_id'] = 1;
-        $solicitud['estatus_solicitud_id'] = 1;
-        $date = new \DateTime();
-        $solicitud['fecha_recepcion'] = $date->format('Y-m-d H:i:s');
-        $solicitud['centro_id'] = $this->getCentroId();
-        // dd($solicitud);
-        
-        //Obtenemos el contador
-        $ContadorController = new ContadorController();
-        $folio = $ContadorController->getContador(1,1);
-        $solicitud['folio'] = $folio->contador;
-        $solicitud['anio'] = $folio->anio;
-//        dd($solicitud);
-        $solicitudSaved = Solicitud::create($solicitud);
+        DB::beginTransaction();
+        try{
+            // Solicitud
+            $solicitud['user_id'] = 1;
+            $solicitud['estatus_solicitud_id'] = 1;
+            $date = new \DateTime();
+            $solicitud['fecha_recepcion'] = $date->format('Y-m-d H:i:s');
+            $solicitud['centro_id'] = $this->getCentroId();
+            // dd($solicitud);
+            //Obtenemos el contador
+            $ContadorController = new ContadorController();
+            $folio = $ContadorController->getContador(1,1);
+            $solicitud['folio'] = $folio->contador;
+            $solicitud['anio'] = $folio->anio;
+            $solicitudSaved = Solicitud::create($solicitud);
 
-        $objeto_solicitudes = $request->input('objeto_solicitudes');
-        
-        foreach ($objeto_solicitudes as $key => $value) {
-            $solicitudSaved->objeto_solicitudes()->attach($value['objeto_solicitud_id']);   
-        }
-        
-        $solicitantes = $request->input('solicitantes');
-        
-        foreach ($solicitantes as $key => $value) {
-            $value['solicitud_id'] = $solicitudSaved['id'];
-            unset($value['activo']);
-            $dato_laboral = $value['dato_laboral'];
+            $objeto_solicitudes = $request->input('objeto_solicitudes');
             
-            unset($value['dato_laboral']);
-            if(isset($value["domicilios"])){
-                $domicilio = $value["domicilios"][0];
-                unset($value['domicilios']);
-            }
-            if(isset($value["contactos"])){
-                $contactos = $value["contactos"];
-                unset($value['contactos']);
+            foreach ($objeto_solicitudes as $key => $value) {
+                $solicitudSaved->objeto_solicitudes()->attach($value['objeto_solicitud_id']);   
             }
             
-            // dd($value);
-            $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
-            // dd($domicilio);
-            // foreach ($domicilios as $key => $domicilio) {
-                unset($domicilio['activo']);
-                $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
-            // }
-            if(count($contactos) > 0){
-                foreach ($contactos as $key => $contacto) {
-                    unset($contacto['activo']);
-                    $contactoSaved = $parteSaved->contactos()->create($contacto);
-                }
-            } 
+            $solicitantes = $request->input('solicitantes');
+            
+            foreach ($solicitantes as $key => $value) {
+                $value['solicitud_id'] = $solicitudSaved['id'];
+                unset($value['activo']);
+                $dato_laboral = $value['dato_laboral'];
                 
-        }
-        
-        $solicitados = $request->input('solicitados');
-        
-        foreach ($solicitados as $key => $value) {
-            unset($value['activo']);
-            $domicilios = Array();
-            if(isset($value["domicilios"])){
-                $domicilios = $value["domicilios"];
-                unset($value['domicilios']);
-            }
-            if(isset($value["contactos"])){
-                $contactos = $value["contactos"];
-                unset($value['contactos']);
-            }
-            
-            $value['solicitud_id'] = $solicitudSaved['id'];
-            $parteSaved = Parte::create($value);  
-            if(count($domicilios) > 0){
-                foreach ($domicilios as $key => $domicilio) {
+                unset($value['dato_laboral']);
+                if(isset($value["domicilios"])){
+                    $domicilio = $value["domicilios"][0];
+                    unset($value['domicilios']);
+                }
+                if(isset($value["contactos"])){
+                    $contactos = $value["contactos"];
+                    unset($value['contactos']);
+                }
+                
+                // dd($value);
+                $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+                // dd($domicilio);
+                // foreach ($domicilios as $key => $domicilio) {
                     unset($domicilio['activo']);
                     $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                // }
+                if(count($contactos) > 0){
+                    foreach ($contactos as $key => $contacto) {
+                        unset($contacto['activo']);
+                        $contactoSaved = $parteSaved->contactos()->create($contacto);
+                    }
+                } 
+                    
+            }
+            
+            $solicitados = $request->input('solicitados');
+            
+            foreach ($solicitados as $key => $value) {
+                unset($value['activo']);
+                $domicilios = Array();
+                if(isset($value["domicilios"])){
+                    $domicilios = $value["domicilios"];
+                    unset($value['domicilios']);
                 }
-            } 
-            if(count($contactos) > 0){
-                foreach ($contactos as $key => $contacto) {
-                    unset($contacto['activo']);
-                    $contactoSaved = $parteSaved->contactos()->create($contacto);
+                if(isset($value["contactos"])){
+                    $contactos = $value["contactos"];
+                    unset($value['contactos']);
                 }
-            } 
+                
+                $value['solicitud_id'] = $solicitudSaved['id'];
+                $parteSaved = Parte::create($value);  
+                if(count($domicilios) > 0){
+                    foreach ($domicilios as $key => $domicilio) {
+                        unset($domicilio['activo']);
+                        $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                    }
+                } 
+                if(count($contactos) > 0){
+                    foreach ($contactos as $key => $contacto) {
+                        unset($contacto['activo']);
+                        $contactoSaved = $parteSaved->contactos()->create($contacto);
+                    }
+                } 
+            }
+
+            // // Para cada objeto obtenido cargamos sus relaciones.
+            $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
+                $solicitudSaved->loadDataFromRequest();
+            });
+            DB::commit();
+        }catch(\Throwable $e){
+            DB::rollback();
+            if ($this->request->wantsJson()) {
+                return $this->sendResponse(null, 'Error');
+            }
+            return redirect('solicitudes')->with('error', 'Error al crear la solicitud');
         }
 
-        // // Para cada objeto obtenido cargamos sus relaciones.
-        $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
-            $solicitudSaved->loadDataFromRequest();
-        });
         if ($this->request->wantsJson()) {
             return $this->sendResponse($solicitudSaved, 'SUCCESS');
         }
@@ -425,179 +434,192 @@ class SolicitudController extends Controller
             'solicitados.*.contactos' => 'required',
         ]);
         $solicitud = $request->input('solicitud');
-        
-        // // Solicitud
-        $solicitud['user_id'] = 1;
-        // dd($solicitud);
-        $solicitudUp = Solicitud::find($solicitud['id']);
-        $exito = $solicitudUp->update($solicitud);
-        if($exito){
-            $solicitudSaved = Solicitud::find($solicitud['id']);
-        }
-        
-
-        $objeto_solicitudes = $request->input('objeto_solicitudes');
-        
-        $arrObjetoSolicitudes = [];
-        foreach ($objeto_solicitudes as $key => $value) {
-            if($value["activo"] == 1){
-                array_push($arrObjetoSolicitudes,$value['objeto_solicitud_id']);
+        DB::beginTransaction();
+        try{
+            // Solicitud
+            $solicitud['user_id'] = 1;
+            // dd($solicitud);
+            $solicitudUp = Solicitud::find($solicitud['id']);
+            $exito = $solicitudUp->update($solicitud);
+            if($exito){
+                $solicitudSaved = Solicitud::find($solicitud['id']);
             }
-        }
-        $solicitudSaved->objeto_solicitudes()->sync($arrObjetoSolicitudes);
-        
-        $solicitantes = $request->input('solicitantes');
-        
-        foreach ($solicitantes as $key => $value) {
-            $value['solicitud_id'] = $solicitudSaved['id'];
-            if($value['activo'] == "1"){
-                unset($value['activo']);
-                $dato_laboral = $value['dato_laboral'];
-                
-                unset($value['dato_laboral']);
-                if(isset($value["domicilios"])){
-                    $domicilio = $value["domicilios"][0];
-                    unset($value['domicilios']);
-                }
-                if(isset($value["contactos"])){
-                    $contactos = $value["contactos"];
-                    unset($value['contactos']);
-                }
             
-                // dd($value);
-                if(!isset($value["id"]) || $value["id"] == ""){
-                    $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
-                // dd($domicilio);
-                // foreach ($domicilios as $key => $domicilio) {
+
+            $objeto_solicitudes = $request->input('objeto_solicitudes');
+            
+            $arrObjetoSolicitudes = [];
+            foreach ($objeto_solicitudes as $key => $value) {
+                if($value["activo"] == 1){
+                    array_push($arrObjetoSolicitudes,$value['objeto_solicitud_id']);
+                }
+            }
+            $solicitudSaved->objeto_solicitudes()->sync($arrObjetoSolicitudes);
+            
+            $solicitantes = $request->input('solicitantes');
+            
+            foreach ($solicitantes as $key => $value) {
+                $value['solicitud_id'] = $solicitudSaved['id'];
+                if($value['activo'] == "1"){
+                    unset($value['activo']);
+                    $dato_laboral = $value['dato_laboral'];
+                    
+                    unset($value['dato_laboral']);
+                    if(isset($value["domicilios"])){
+                        $domicilio = $value["domicilios"][0];
+                        unset($value['domicilios']);
+                    }
+                    if(isset($value["contactos"])){
+                        $contactos = $value["contactos"];
+                        unset($value['contactos']);
+                    }
                 
-                    unset($domicilio['activo']);
-                    $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
-                    if(count($contactos) > 0){
+                    // dd($value);
+                    
+                    if(!isset($value["id"]) || $value["id"] == ""){
+                        $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+                    // dd($domicilio);
+                    // foreach ($domicilios as $key => $domicilio) {
+                    
+                        unset($domicilio['activo']);
+                        $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                        if(count($contactos) > 0){
+                            foreach ($contactos as $key => $contacto) {
+                                unset($contacto['activo']);
+                                $contactoSaved = $parteSaved->contactos()->create($contacto);
+                            }
+                        }
+                    }else{
+                        $parteSaved = Parte::find($value['id']);
+                        $parteUpdated = $parteSaved->update($value);
+                        $parteSaved = Parte::find($value['id']);
+                        if(isset($dato_laboral["id"]) && $dato_laboral["id"] != "" ){
+                            $dato_laboralUp =  DatoLaboral::find($dato_laboral["id"]);
+                            $dato_laboralUp->update($dato_laboral);
+                        }else{
+                            $dato_laboral = ($parteSaved->dato_laboral()->create($dato_laboral));
+                            dd($dato_laboral);
+                        }
+                        unset($domicilio['activo']);
+                        if(isset($domicilio["id"]) && $domicilio["id"] != ""){
+                            $domicilioUp =  Domicilio::find($domicilio["id"]);
+
+                            $domicilioUp->update($domicilio);
+                        }else{
+                            $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                        }
+                        
+                        foreach ($contactos as $key => $contacto) {
+                            if($contacto["id"] != ""){
+                                
+                                $contactoUp =  Contacto::find($contacto["id"]);
+                                
+                                if(isset($contacto["activo"]) && $contacto["activo"] == 0){
+                                    $contactoUp->delete();
+                                }else{
+                                    unset($contacto['activo']);
+                                    $contactoUp->update($contacto);
+                                }
+                            }else{
+                                unset($contacto['activo']);
+                                $contactoSaved = $parteSaved->contactos()->create($contacto);
+                            }
+                            
+                        }
+                    }
+                }else{
+                    // dd($value['id']);
+                    $parteSaved = Parte::find($value['id']);
+                    $parteSaved =   $parteSaved->delete();
+                    // dd($parteSaved);
+                }
+            }
+            
+            $solicitados = $request->input('solicitados');
+            
+            foreach ($solicitados as $key => $value) {
+                if($value['activo'] == "1"){
+                    unset($value['activo']);
+                    $domicilios = Array();
+                    if(isset($value["domicilios"])){
+                        $domicilios = $value["domicilios"];
+                        unset($value['domicilios']);
+                    }
+                    $contactos = Array();
+                    if(isset($value["contactos"])){
+                        $contactos = $value["contactos"];
+                        unset($value['contactos']);
+                    }
+                    
+                    $value['solicitud_id'] = $solicitudSaved['id'];
+                    if(!isset($value["id"]) || $value["id"] == ""){
+                        $parteSaved = Parte::create($value);  
+                        if(count($domicilios) > 0){
+                            foreach ($domicilios as $key => $domicilio) {
+                                unset($domicilio['activo']);
+                                $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                            }
+                        }    
                         foreach ($contactos as $key => $contacto) {
                             unset($contacto['activo']);
                             $contactoSaved = $parteSaved->contactos()->create($contacto);
-                        }
-                    }
-                }else{
-                    $parteSaved = Parte::find($value['id']);
-                    $parteUpdated = $parteSaved->update($value);
-                    if(isset($dato_laboral["id"]) && $dato_laboral["id"] != "" ){
-                        $dato_laboralUp =  DatoLaboral::find($dato_laboral["id"]);
-                        $dato_laboralUp->update($dato_laboral);
+                        } 
                     }else{
-                        $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
-                    }
-                    unset($domicilio['activo']);
-                    if(isset($domicilio["id"]) && $domicilio["id"] != ""){
-                        $domicilioUp =  Domicilio::find($domicilio["id"]);
-
-                        $domicilioUp->update($domicilio);
-                    }else{
-                        $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
-                    }
-                    
-                    foreach ($contactos as $key => $contacto) {
-                        if($contacto["id"] != ""){
-                            
-                            $contactoUp =  Contacto::find($contacto["id"]);
-                            
-                            if(isset($contacto["activo"]) && $contacto["activo"] == 0){
-                                $contactoUp->delete();
-                            }else{
-                                unset($contacto['activo']);
-                                $contactoUp->update($contacto);
-                            }
-                        }else{
-                            unset($contacto['activo']);
-                            $contactoSaved = $parteSaved->contactos()->create($contacto);
-                        }
-                        
-                    }
-                }
-            }else{
-                // dd($value['id']);
-                $parteSaved = Parte::find($value['id']);
-                $parteSaved =   $parteSaved->delete();
-                // dd($parteSaved);
-            }
-        }
-        
-        $solicitados = $request->input('solicitados');
-        
-        foreach ($solicitados as $key => $value) {
-            if($value['activo'] == "1"){
-                unset($value['activo']);
-                $domicilios = Array();
-                if(isset($value["domicilios"])){
-                    $domicilios = $value["domicilios"];
-                    unset($value['domicilios']);
-                }
-                $contactos = Array();
-                if(isset($value["contactos"])){
-                    $contactos = $value["contactos"];
-                    unset($value['contactos']);
-                }
-                
-                $value['solicitud_id'] = $solicitudSaved['id'];
-                if(!isset($value["id"]) || $value["id"] == ""){
-                    $parteSaved = Parte::create($value);  
-                    if(count($domicilios) > 0){
+                        $parteSaved = Parte::find($value['id']);
+                        $parteSaved->update($value);
                         foreach ($domicilios as $key => $domicilio) {
-                            unset($domicilio['activo']);
-                            $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
-                        }
-                    }    
-                    foreach ($contactos as $key => $contacto) {
-                        unset($contacto['activo']);
-                        $contactoSaved = $parteSaved->contactos()->create($contacto);
-                    } 
-                }else{
-                    $parteSaved = Parte::find($value['id']);
-                    $parteSaved->update($value);
-                    foreach ($domicilios as $key => $domicilio) {
-                        if($domicilio["id"] != ""){
-                            $domicilioUp =  Domicilio::find($domicilio["id"]);
-                            if(isset($domicilio["activo"]) && $domicilio["activo"] == 0){
-                                // dd($domicilios);
-                                $domicilioUp->delete();
+                            if($domicilio["id"] != ""){
+                                $domicilioUp =  Domicilio::find($domicilio["id"]);
+                                if(isset($domicilio["activo"]) && $domicilio["activo"] == 0){
+                                    // dd($domicilios);
+                                    $domicilioUp->delete();
+                                }else{
+                                    unset($domicilio['activo']);
+                                    $domicilioUp =  Domicilio::find($domicilio["id"]);
+                                    $domicilioUp->update($domicilio);
+                                    
+                                }
                             }else{
                                 unset($domicilio['activo']);
-                                $domicilioUp =  Domicilio::find($domicilio["id"]);
-                                $domicilioUp->update($domicilio);
-                                
+                                $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                             }
-                        }else{
-                            unset($domicilio['activo']);
-                            $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                         }
-                    }
-                    foreach ($contactos as $key => $contacto) {
-                        if($contacto["id"] != ""){
-                            $contactoUp =  Contacto::find($contacto["id"]);
-                            if(isset($contacto["activo"]) && $contacto["activo"] == 0){
-                                $contactoUp->delete();
+                        foreach ($contactos as $key => $contacto) {
+                            if($contacto["id"] != ""){
+                                $contactoUp =  Contacto::find($contacto["id"]);
+                                if(isset($contacto["activo"]) && $contacto["activo"] == 0){
+                                    $contactoUp->delete();
+                                }else{
+                                    unset($contacto['activo']);
+                                    $contactoUp->update($contacto);
+                                }
                             }else{
                                 unset($contacto['activo']);
-                                $contactoUp->update($contacto);
+                                $contactoSaved = $parteSaved->contactos()->create($contacto);
+                                
                             }
-                        }else{
-                            unset($contacto['activo']);
-                            $contactoSaved = $parteSaved->contactos()->create($contacto);
                             
                         }
-                        
                     }
+                }else{
+                    $parteSaved = Parte::find($value['id']);
+                    $parteSaved->delete();
                 }
-            }else{
-                $parteSaved = Parte::find($value['id']);
-                $parteSaved->delete();
             }
-        }
 
-        // // Para cada objeto obtenido cargamos sus relaciones.
-        $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
-            $solicitudSaved->loadDataFromRequest();
-        });
+            // // Para cada objeto obtenido cargamos sus relaciones.
+            $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
+                $solicitudSaved->loadDataFromRequest();
+            });
+            DB::commit();
+        }catch(\Throwable $e){
+            DB::rollback();
+            if ($this->request->wantsJson()) {
+                    
+                return $this->sendError('Error');
+            }
+            return redirect('solicitudes')->with('error', 'Error al crear la solicitud');
+        }
         if ($this->request->wantsJson()) {
             return $this->sendResponse($solicitudSaved, 'SUCCESS');
         }
