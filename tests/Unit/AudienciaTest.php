@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 
-class AudineciaTest extends TestCase
+class AudienciaTest extends TestCase
 {
     /**
      * test para provar las relaciones de la tabla audiencias

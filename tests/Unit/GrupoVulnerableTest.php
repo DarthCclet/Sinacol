@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\GrupoPrioritario;
 use Tests\TestCase;
 
-class GrupoPrioritarioTest extends TestCase
+class GrupoVulnerableTest extends TestCase
 {
     /**
      * A basic unit test example.
