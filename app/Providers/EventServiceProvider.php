@@ -20,7 +20,10 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        Login::class => [LogSuccessfulLogin::class]
+        Login::class => [LogSuccessfulLogin::class],
+        'App\Events\GenerateDocumentResolution' => [
+            'App\Listeners\SaveResolution',
+        ],
     ];
 
     /**
