@@ -868,72 +868,76 @@
         $(".personaMoralSolicitado input").removeAttr("required");
 
         $("#agregarSolicitante").click(function(){
-            //Informacion de solicitante
-            var key = $("#edit_key").val();
-            if($('#step-1').parsley().validate()){
+            try{
+                //Informacion de solicitante
+                var key = $("#edit_key").val();
+                if($('#step-1').parsley().validate()){
 
-                var solicitante = {};
-                solicitante.id = $("#solicitante_id").val();
-                if($("input[name='tipo_persona_solicitante']:checked").val() == 1){
-                    solicitante.nombre = $("#idNombreSolicitante").val();
-                    solicitante.primer_apellido = $("#idPrimerASolicitante").val();
-                    solicitante.segundo_apellido = $("#idSegundoASolicitante").val();
-                    solicitante.fecha_nacimiento = dateFormat($("#idFechaNacimientoSolicitante").val());
-                    solicitante.curp = $("#idSolicitanteCURP").val();
-                    solicitante.edad = $("#idEdadSolicitante").val();
-                    solicitante.genero_id = $("#genero_id_solicitante").val();
-                    solicitante.nacionalidad_id = $("#nacionalidad_id_solicitante").val();
-                    solicitante.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitante").val();
-                    solicitante.lengua_indigena_id = $("#lengua_indigena_id_solicitante").val();
-                }else{
-                    solicitante.nombre_comercial = $("#idNombreCSolicitante").val();
+                    var solicitante = {};
+                    solicitante.id = $("#solicitante_id").val();
+                    if($("input[name='tipo_persona_solicitante']:checked").val() == 1){
+                        solicitante.nombre = $("#idNombreSolicitante").val();
+                        solicitante.primer_apellido = $("#idPrimerASolicitante").val();
+                        solicitante.segundo_apellido = $("#idSegundoASolicitante").val();
+                        solicitante.fecha_nacimiento = dateFormat($("#idFechaNacimientoSolicitante").val());
+                        solicitante.curp = $("#idSolicitanteCURP").val();
+                        solicitante.edad = $("#idEdadSolicitante").val();
+                        solicitante.genero_id = $("#genero_id_solicitante").val();
+                        solicitante.nacionalidad_id = $("#nacionalidad_id_solicitante").val();
+                        solicitante.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitante").val();
+                        solicitante.lengua_indigena_id = $("#lengua_indigena_id_solicitante").val();
+                    }else{
+                        solicitante.nombre_comercial = $("#idNombreCSolicitante").val();
 
+                    }
+                    solicitante.solicita_traductor = $("input[name='solicita_traductor_solicitante']:checked").val()
+                    solicitante.tipo_persona_id = $("input[name='tipo_persona_solicitante']:checked").val()
+                    solicitante.tipo_parte_id = 1;
+                    solicitante.activo = 1;
+                    solicitante.rfc = $("#idSolicitanteRfc").val();
+                    // datos laborales en la solicitante
+                    var dato_laboral = {};
+                    dato_laboral.id = $("#dato_laboral_id").val();
+                    dato_laboral.nombre_jefe_directo = $("#nombre_jefe_directo").val();
+                    dato_laboral.ocupacion_id = $("#ocupacion_id").val();
+                    dato_laboral.nss = $("#nss").val();
+                    dato_laboral.no_issste = $("#no_issste").val();
+                    dato_laboral.remuneracion = $("#remuneracion").val();
+                    dato_laboral.periodicidad_id = $("#periodicidad_id").val();
+                    dato_laboral.labora_actualmente = $("#labora_actualmente").is(":checked");
+                    dato_laboral.fecha_ingreso = dateFormat($("#fecha_ingreso").val());
+                    dato_laboral.fecha_salida = dateFormat($("#fecha_salida").val());
+                    dato_laboral.jornada_id = $("#jornada_id").val();
+                    dato_laboral.horas_semanales = $("#horas_semanales").val();
+                    dato_laboral.giro_comercial_id = $("#giro_comercial_hidden").val();
+                    dato_laboral.resolucion = false;
+                    solicitante.dato_laboral = dato_laboral;
+
+                    //domicilio del solicitante
+
+                    var domicilio = {};
+                    domicilio = domicilioObj.getDomicilio();
+
+
+                    solicitante.domicilios = [domicilio];
+
+                    //domicilio
+
+                    //contactos del solicitante
+                        solicitante.contactos = arrayContactoSolicitantes;
+                    //contactos
+                    if(key == ""){
+                        arraySolicitantes.push(solicitante);
+                    }else{
+
+                        arraySolicitantes[key] = solicitante;
+                    }
+
+                    limpiarSolicitante();
+                    formarTablaSolicitante();
                 }
-                solicitante.solicita_traductor = $("input[name='solicita_traductor_solicitante']:checked").val()
-                solicitante.tipo_persona_id = $("input[name='tipo_persona_solicitante']:checked").val()
-                solicitante.tipo_parte_id = 1;
-                solicitante.activo = 1;
-                solicitante.rfc = $("#idSolicitanteRfc").val();
-                // datos laborales en la solicitante
-                var dato_laboral = {};
-                dato_laboral.id = $("#dato_laboral_id").val();
-                dato_laboral.nombre_jefe_directo = $("#nombre_jefe_directo").val();
-                dato_laboral.ocupacion_id = $("#ocupacion_id").val();
-                dato_laboral.nss = $("#nss").val();
-                dato_laboral.no_issste = $("#no_issste").val();
-                dato_laboral.remuneracion = $("#remuneracion").val();
-                dato_laboral.periodicidad_id = $("#periodicidad_id").val();
-                dato_laboral.labora_actualmente = $("#labora_actualmente").is(":checked");
-                dato_laboral.fecha_ingreso = dateFormat($("#fecha_ingreso").val());
-                dato_laboral.fecha_salida = dateFormat($("#fecha_salida").val());
-                dato_laboral.jornada_id = $("#jornada_id").val();
-                dato_laboral.horas_semanales = $("#horas_semanales").val();
-                dato_laboral.giro_comercial_id = $("#giro_comercial_hidden").val();
-                dato_laboral.resolucion = false;
-                solicitante.dato_laboral = dato_laboral;
-
-                //domicilio del solicitante
-
-                var domicilio = {};
-                domicilio = domicilioObj.getDomicilio();
-
-
-                solicitante.domicilios = [domicilio];
-
-                //domicilio
-
-                //contactos del solicitante
-                    solicitante.contactos = arrayContactoSolicitantes;
-                //contactos
-                if(key == ""){
-                    arraySolicitantes.push(solicitante);
-                }else{
-
-                    arraySolicitantes[key] = solicitante;
-                }
-
-                limpiarSolicitante();
-                formarTablaSolicitante();
+            }catch(error){
+                console.log(error);
             }
         });
 
@@ -942,51 +946,55 @@
         * Funcion para agregar solicitado a lista de solicitados
         */
         $("#agregarSolicitado").click(function(){
-            if($('#step-2').parsley().validate() && arrayDomiciliosSolicitado.length > 0 ){
-                var solicitado = {};
-                key = $("#solicitado_key").val();
-                solicitado.id = $("#solicitado_id").val();
-                // Si tipo persona es fisica o moral llena diferentes campos
-                if($("input[name='tipo_persona_solicitado']:checked").val() == 1){
-                    solicitado.nombre = $("#idNombreSolicitado").val();
-                    solicitado.primer_apellido = $("#idPrimerASolicitado").val();
-                    solicitado.segundo_apellido = $("#idSegundoASolicitado").val();
-                    solicitado.fecha_nacimiento = dateFormat($("#idFechaNacimientoSolicitado").val());
-                    solicitado.curp = $("#idSolicitadoCURP").val();
-                    solicitado.edad = $("#idEdadSolicitado").val();
-                    solicitado.genero_id = $("#genero_id_solicitado").val();
-                    solicitado.nacionalidad_id = $("#nacionalidad_id_solicitado").val();
-                    solicitado.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitado").val();
-                    solicitado.lengua_indigena_id = $("#lengua_indigena_id_solicitado").val();
-                }else{
-                    solicitado.nombre_comercial = $("#idNombreCSolicitado").val();
-                }
-                solicitado.solicita_traductor = $("input[name='solicita_traductor_solicitado']:checked").val();
-                solicitado.tipo_persona_id = $("input[name='tipo_persona_solicitado']:checked").val();
-                solicitado.tipo_parte_id = 2;
-                solicitado.rfc = $("#idSolicitadoRfc").val();
-                solicitado.activo = 1;
-                solicitado.domicilios = arrayDomiciliosSolicitado;
-                //contactos del solicitado
-                solicitado.contactos = arrayContactoSolicitados;
-                //contactos
-                if(key == ""){
-                    arraySolicitados.push(solicitado);
-                }else{
+            try{
+                if($('#step-2').parsley().validate() && arrayDomiciliosSolicitado.length > 0 ){
+                    var solicitado = {};
+                    key = $("#solicitado_key").val();
+                    solicitado.id = $("#solicitado_id").val();
+                    // Si tipo persona es fisica o moral llena diferentes campos
+                    if($("input[name='tipo_persona_solicitado']:checked").val() == 1){
+                        solicitado.nombre = $("#idNombreSolicitado").val();
+                        solicitado.primer_apellido = $("#idPrimerASolicitado").val();
+                        solicitado.segundo_apellido = $("#idSegundoASolicitado").val();
+                        solicitado.fecha_nacimiento = dateFormat($("#idFechaNacimientoSolicitado").val());
+                        solicitado.curp = $("#idSolicitadoCURP").val();
+                        solicitado.edad = $("#idEdadSolicitado").val();
+                        solicitado.genero_id = $("#genero_id_solicitado").val();
+                        solicitado.nacionalidad_id = $("#nacionalidad_id_solicitado").val();
+                        solicitado.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitado").val();
+                        solicitado.lengua_indigena_id = $("#lengua_indigena_id_solicitado").val();
+                    }else{
+                        solicitado.nombre_comercial = $("#idNombreCSolicitado").val();
+                    }
+                    solicitado.solicita_traductor = $("input[name='solicita_traductor_solicitado']:checked").val();
+                    solicitado.tipo_persona_id = $("input[name='tipo_persona_solicitado']:checked").val();
+                    solicitado.tipo_parte_id = 2;
+                    solicitado.rfc = $("#idSolicitadoRfc").val();
+                    solicitado.activo = 1;
+                    solicitado.domicilios = arrayDomiciliosSolicitado;
+                    //contactos del solicitado
+                    solicitado.contactos = arrayContactoSolicitados;
+                    //contactos
+                    if(key == ""){
+                        arraySolicitados.push(solicitado);
+                    }else{
 
-                    arraySolicitados[key] = solicitado;
-                }
-                formarTablaSolicitado();
-                limpiarSolicitado();
-                arrayDomiciliosSolicitado = new Array();
-                formarTablaDomiciliosSolicitado();
-            }else{
-                swal({
-                title: 'Error',
-                text: 'Es necesario llenar todos los campos obligatorios y al menos una dirección del solicitado',
-                icon: 'error',
+                        arraySolicitados[key] = solicitado;
+                    }
+                    formarTablaSolicitado();
+                    limpiarSolicitado();
+                    arrayDomiciliosSolicitado = new Array();
+                    formarTablaDomiciliosSolicitado();
+                }else{
+                    swal({
+                    title: 'Error',
+                    text: 'Es necesario llenar todos los campos obligatorios y al menos una dirección del solicitado',
+                    icon: 'error',
 
-            });
+                });
+                }
+            }catch(error){
+                console.log(error);
             }
         });
 
@@ -1064,46 +1072,49 @@
             async:false,
             data:{},
             success:function(data){
-                arraySolicitados = Object.values(data.solicitados);
-                formarTablaSolicitado();
-                arraySolicitantes = Object.values(data.solicitantes);
-                formarTablaSolicitante();
+                try{
+                    
+                    arraySolicitados = Object.values(data.solicitados);
+                    formarTablaSolicitado();
+                    arraySolicitantes = Object.values(data.solicitantes);
+                    formarTablaSolicitante();
 
-                $.each(data.objeto_solicitudes, function (key, value) {
-                    var objeto_solicitud = {};
-                    objeto_solicitud.id = value.id;
-                    objeto_solicitud.objeto_solicitud_id = value.pivot.objeto_solicitud_id.toString();
-                    objeto_solicitud.activo = 1;
-                    arrayObjetoSolicitudes.push(objeto_solicitud);
-                });
-                // arrayObjetoSolicitudes = data.objeto_solicitudes;
-                formarTablaObjetoSol();
-                $("#observaciones").val(data.observaciones);
-                console.log(data.ratificada);
-                if(data.ratificada){
-                    $("#ratificada").prop("checked",true);
-                    $('#wizard').smartWizard("stepState", [4], "show");
-                    $(".step-5").show();
-                    $("#btnRatificarSolicitud").hide();
-                    $("#expediente_id").val(data.expediente.id);
-                }else{
-                    $('#wizard').smartWizard("stepState", [4], "hide");
-                    $(".step-5").hide();
-                    $("#btnRatificarSolicitud").show();
-                    $("#expediente_id").val("");
-                }
-                if(data.solicita_excepcion){
-                    $("#solicita_excepcion").prop("checked",true);
-                }
-                if(data.estatus_solicitud_id == 2){
-                    $("#btnRatificarSolicitud").hide();
-                }
+                    $.each(data.objeto_solicitudes, function (key, value) {
+                        var objeto_solicitud = {};
+                        objeto_solicitud.id = value.id;
+                        objeto_solicitud.objeto_solicitud_id = value.pivot.objeto_solicitud_id.toString();
+                        objeto_solicitud.activo = 1;
+                        arrayObjetoSolicitudes.push(objeto_solicitud);
+                    });
+                    // arrayObjetoSolicitudes = data.objeto_solicitudes;
+                    formarTablaObjetoSol();
+                    $("#observaciones").val(data.observaciones);
+                    console.log(data.ratificada);
+                    if(data.ratificada){
+                        $("#ratificada").prop("checked",true);
+                        $('#wizard').smartWizard("stepState", [4], "show");
+                        $(".step-5").show();
+                        $("#btnRatificarSolicitud").hide();
+                        $("#expediente_id").val(data.expediente.id);
+                    }else{
+                        $('#wizard').smartWizard("stepState", [4], "hide");
+                        $(".step-5").hide();
+                        $("#btnRatificarSolicitud").show();
+                        $("#expediente_id").val("");
+                    }
+                    if(data.solicita_excepcion){
+                        $("#solicita_excepcion").prop("checked",true);
+                    }
+                    if(data.estatus_solicitud_id == 2){
+                        $("#btnRatificarSolicitud").hide();
+                    }
 
-                $("#fechaRatificacion").val(dateFormat(data.fecha_ratificacion,2));
-                $("#fechaRecepcion").val(dateFormat(data.fecha_recepcion,2));
-                $("#fechaConflicto").val(dateFormat(data.fecha_conflicto,0));
-                
-
+                    $("#fechaRatificacion").val(dateFormat(data.fecha_ratificacion,2));
+                    $("#fechaRecepcion").val(dateFormat(data.fecha_recepcion,2));
+                    $("#fechaConflicto").val(dateFormat(data.fecha_conflicto,4));
+                }catch(error){
+                    console.log(error);
+                }
             }
         });
     }
@@ -1269,50 +1280,58 @@
     * Funcion para generar tabla a partir de array de solicitantes
     */
     function formarTablaContacto(solicitante=false){
-        var arrayS = [];
-        if(solicitante){
-            arrayS = arrayContactoSolicitantes;
-            $("#tbodyContactoSolicitante").html("");
-        }else{
-            arrayS = arrayContactoSolicitados;
-            $("#tbodyContactoSolicitado").html("");
-        }
-        var html = "";
-
-        $.each(arrayS, function (key, value) {
-            if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined")){
-                html += "<tr>";
-                $("#tipo_contacto_id_solicitante").val(value.tipo_contacto_id);
-                html += "<td> " + $("#tipo_contacto_id_solicitante :selected").text(); + " </td>";
-                html += "<td> " + value.contacto + " </td>";
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarContactoSol("+key+","+solicitante+")' ><i class='fa fa-trash'></i></a></td>";
-                html += "</tr>";
+        try{
+            var arrayS = [];
+            if(solicitante){
+                arrayS = arrayContactoSolicitantes;
+                $("#tbodyContactoSolicitante").html("");
+            }else{
+                arrayS = arrayContactoSolicitados;
+                $("#tbodyContactoSolicitado").html("");
             }
-        });
-        $("#tipo_contacto_id_solicitante").val("");
-        if(solicitante){
-            $("#tbodyContactoSolicitante").html(html);
-        }else{
-            $("#tbodyContactoSolicitado").html(html);
+            var html = "";
+
+            $.each(arrayS, function (key, value) {
+                if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined")){
+                    html += "<tr>";
+                    $("#tipo_contacto_id_solicitante").val(value.tipo_contacto_id);
+                    html += "<td> " + $("#tipo_contacto_id_solicitante :selected").text(); + " </td>";
+                    html += "<td> " + value.contacto + " </td>";
+                    html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarContactoSol("+key+","+solicitante+")' ><i class='fa fa-trash'></i></a></td>";
+                    html += "</tr>";
+                }
+            });
+            $("#tipo_contacto_id_solicitante").val("");
+            if(solicitante){
+                $("#tbodyContactoSolicitante").html(html);
+            }else{
+                $("#tbodyContactoSolicitado").html(html);
+            }
+        }catch(error){
+            console.log(error);
         }
     }
 
     function eliminarContactoSol(key, solicitante){
-        if(solicitante){
-            if(arrayContactoSolicitantes[key].id == ""){
-                arrayContactoSolicitantes = arrayContactoSolicitantes.splice(1,key);
-            }else{
-                arrayContactoSolicitantes[key].activo = 0;
-            }
-        }else{
-            if(arrayContactoSolicitados[key].id == ""){
-                arrayContactoSolicitados = arrayContactoSolicitados.splice(1,key);
-            }else{
-                arrayContactoSolicitados    [key].activo = 0;
-            }
-        }
+        try{
 
-        formarTablaContacto(solicitante);
+            if(solicitante){
+                if(arrayContactoSolicitantes[key].id == ""){
+                    arrayContactoSolicitantes = arrayContactoSolicitantes.splice(1,key);
+                }else{
+                    arrayContactoSolicitantes[key].activo = 0;
+                }
+            }else{
+                if(arrayContactoSolicitados[key].id == ""){
+                    arrayContactoSolicitados = arrayContactoSolicitados.splice(1,key);
+                }else{
+                    arrayContactoSolicitados    [key].activo = 0;
+                }
+            }
+            formarTablaContacto(solicitante);
+        }catch(error){
+            console.log(error);
+        }
     }
 
     /**
@@ -1474,7 +1493,7 @@
             $("#idNombreSolicitante").val(arraySolicitantes[key].nombre);
             $("#idPrimerASolicitante").val(arraySolicitantes[key].primer_apellido);
             $("#idSegundoASolicitante").val(arraySolicitantes[key].segundo_apellido);
-            $("#idFechaNacimientoSolicitante").val(dateFormat(arraySolicitantes[key].fecha_nacimiento,0));
+            $("#idFechaNacimientoSolicitante").val(dateFormat(arraySolicitantes[key].fecha_nacimiento,4));
             $("#idSolicitanteCURP").val(arraySolicitantes[key].curp);
             $("#genero_id_solicitante").val(arraySolicitantes[key].genero_id);
             $("#idEdadSolicitante").val(arraySolicitantes[key].edad);
@@ -1502,6 +1521,10 @@
         }
         $("#idSolicitanteRfc").val(arraySolicitantes[key].rfc);
         // datos laborales en la solicitante
+        
+        if($.isArray(arraySolicitantes[key].dato_laboral)){
+            arraySolicitantes[key].dato_laboral = arraySolicitantes[key].dato_laboral[0];
+        }
         $("#dato_laboral_id").val(arraySolicitantes[key].dato_laboral.id);
         // $("#giro_comercial_solicitante").val(arraySolicitantes[key].dato_laboral.giro_comercial_id).trigger("change");
         $("#giro_comercial_hidden").val(arraySolicitantes[key].dato_laboral.giro_comercial_id)
@@ -1517,8 +1540,8 @@
             $("#labora_actualmente").click();
         }
         $("input[name='tipo_persona_solicitante']").trigger("change");
-        $("#fecha_ingreso").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_ingreso,0));
-        $("#fecha_salida").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_salida,0));
+        $("#fecha_ingreso").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_ingreso,4));
+        $("#fecha_salida").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_salida,4));
         $("#jornada_id").val(arraySolicitantes[key].dato_laboral.jornada_id);
         $("#horas_semanales").val(arraySolicitantes[key].dato_laboral.horas_semanales);
         arrayContactoSolicitantes = arraySolicitantes[key].contactos ? arraySolicitantes[key].contactos : new Array();
@@ -1544,7 +1567,7 @@
             $("#idNombreSolicitado").val(arraySolicitados[key].nombre);
             $("#idPrimerASolicitado").val(arraySolicitados[key].primer_apellido);
             $("#idSegundoASolicitado").val(arraySolicitados[key].segundo_apellido);
-            $("#idFechaNacimientoSolicitado").val(dateFormat(arraySolicitados[key].fecha_nacimiento,0));
+            $("#idFechaNacimientoSolicitado").val(dateFormat(arraySolicitados[key].fecha_nacimiento,4));
             $("#idSolicitadoCURP").val(arraySolicitados[key].curp);
             $("#idEdadSolicitado").val(arraySolicitados[key].edad);
             $("#genero_id_solicitado").val(arraySolicitados[key].genero_id);
@@ -1656,144 +1679,164 @@
     * Funcion para guardar solicitud
     */
     function guardarSolicitud(){
-        //funcion para obtener informacion de la solicitud
-        var solicitud = getSolicitud();
-        //funcion para obtener informacion de la excepcion
-        var excepcion = getExcepcion();
-        //Se llama api para guardar solicitud
-        if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
-            var upd = "";
-            if($("#solicitud_id").val() == ""){
-                method = "POST";
-            }else{
-                method = "PUT";
-                upd = "/"+$("#solicitud_id").val();
-            }
-            $.ajax({
-                url:'/api/solicitudes'+upd,
-                type:method,
-                dataType:"json",
-                async:false,
-                data:{
-                    solicitados:arraySolicitados,
-                    solicitantes:arraySolicitantes,
-                    solicitud:solicitud,
-                    objeto_solicitudes:arrayObjetoSolicitudes,
-                    excepcion:excepcion,
-                    _token:$("input[name=_token]").val()
-
-                },
-                success:function(data){
-                    if(data.success){
-                        swal({
-                            title: 'Correcto',
-                            text: 'Solicitud guardada correctamente',
-                            icon: 'success',
-
-                        });
-                        setTimeout('', 5000);
-                        location.href='{{ route('solicitudes.index')  }}'
-                    }else{
-
-                    }
-
-                },error:function(data){
-                    var mensajes = "";
-                    $.each(data.responseJSON.errors, function (key, value) {
-                        console.log(key.split("."));
-                        console.log(value);
-                        var origen = key.split(".");
-
-                        mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
-                    });
-                    swal({
-                        title: 'Error',
-                        text: 'Es necesario validar los siguientes campos \n'+mensajes,
-                        icon: 'error'
-                    });
+        try{
+            //funcion para obtener informacion de la solicitud
+            var solicitud = getSolicitud();
+            //funcion para obtener informacion de la excepcion
+            var excepcion = getExcepcion();
+            //Se llama api para guardar solicitud
+            if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
+                var upd = "";
+                if($("#solicitud_id").val() == ""){
+                    method = "POST";
+                }else{
+                    method = "PUT";
+                    upd = "/"+$("#solicitud_id").val();
                 }
-            });
-        }else{
-            swal({
-                title: 'Error',
-                text: 'Es necesario capturar al menos un solicitante, un solicitado y datos de la solicitud',
-                icon: 'error'
-            });
+                $.ajax({
+                    url:'/api/solicitudes'+upd,
+                    type:method,
+                    dataType:"json",
+                    async:false,
+                    data:{
+                        solicitados:arraySolicitados,
+                        solicitantes:arraySolicitantes,
+                        solicitud:solicitud,
+                        objeto_solicitudes:arrayObjetoSolicitudes,
+                        excepcion:excepcion,
+                        _token:$("input[name=_token]").val()
+
+                    },
+                    success:function(data){
+                        if(data.success){
+                            swal({
+                                title: 'Correcto',
+                                text: 'Solicitud guardada correctamente',
+                                icon: 'success',
+
+                            });
+                            setTimeout('', 5000);
+                            location.href='{{ route('solicitudes.index')  }}'
+                        }else{
+
+                        }
+
+                    },error:function(data){
+                        var mensajes = "";
+                        $.each(data.responseJSON.errors, function (key, value) {
+                            console.log(key.split("."));
+                            console.log(value);
+                            var origen = key.split(".");
+
+                            mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
+                        });
+                        if(mensajes != ""){
+                            swal({
+                                title: 'Error',
+                                text: 'Es necesario validar los siguientes campos \n'+mensajes,
+                                icon: 'error'
+                            });
+                        }else{
+                            swal({
+                                title: 'Error',
+                                text: ' Error al capturar la solicitud',
+                                icon: 'error'
+                            });
+                        }
+                    }
+                });
+            }else{
+                swal({
+                    title: 'Error',
+                    text: 'Es necesario capturar al menos un solicitante, un solicitado y datos de la solicitud',
+                    icon: 'error'
+                });
+            }
+        }catch(error){
+            console.log(error);
         }
     }
 
     //funcion para obtener informacion de la solicitud
     function getSolicitud(){
-        var solicitud = {};
-        solicitud.id = $("#solicitud_id").val();
-        solicitud.observaciones = $("#observaciones").val();
-        solicitud.ratificada = $("#ratificada").is(":checked");
-        solicitud.solicita_excepcion = $("#solicita_excepcion").is(":checked");
-        solicitud.fecha_ratificacion = dateFormat($("#fechaRatificacion").val(),3);
-        solicitud.fecha_recepcion = dateFormat($("#fechaRecepcion").val(),3);
-        solicitud.fecha_conflicto = dateFormat($("#fechaConflicto").val());
-        return solicitud;
+        try{
+            var solicitud = {};
+            solicitud.id = $("#solicitud_id").val();
+            solicitud.observaciones = $("#observaciones").val();
+            solicitud.ratificada = $("#ratificada").is(":checked");
+            solicitud.solicita_excepcion = $("#solicita_excepcion").is(":checked");
+            solicitud.fecha_ratificacion = dateFormat($("#fechaRatificacion").val(),3);
+            solicitud.fecha_recepcion = dateFormat($("#fechaRecepcion").val(),3);
+            solicitud.fecha_conflicto = dateFormat($("#fechaConflicto").val());
+            return solicitud;
+        }catch(error){
+            console.log(error);
+        }
     }
 
     // Funcion para ratificar solicitudes
     $("#btnRatificarSolicitud").on("click",function(){
-        if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
-            swal({
-                title: '¿Estas seguro?',
-                text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
-                icon: 'warning',
-                buttons: {
-                    cancel: {
-                        text: 'Cancelar',
-                        value: null,
-                        visible: true,
-                        className: 'btn btn-default',
-                        closeModal: true,
-                    },
-                    confirm: {
-                        text: 'Aceptar',
-                        value: true,
-                        visible: true,
-                        className: 'btn btn-danger',
-                        closeModal: true
-                    }
-                }
-            }).then(function(isConfirm){
-                if(isConfirm){
-                    $.ajax({
-                        url:'/api/solicitud/ratificar',
-                        type:'POST',
-                        dataType:"json",
-                        async:true,
-                        data:{
-                            id:$("#solicitud_id").val()
+        try{
+            if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
+                swal({
+                    title: '¿Estas seguro?',
+                    text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'Cancelar',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true,
                         },
-                        success:function(data){
-                            if(data != null && data != ""){
-                                swal({
-                                    title: 'Correcto',
-                                    text: 'Solicitud ratificada correctamente',
-                                    icon: 'success'
-                                });
-                                location.reload();
-                                //getSolicitudFromBD($("#solicitud_id").val());
-                            }else{
-                                swal({
-                                    title: 'Error',
-                                    text: 'No se pudo ratificar',
-                                    icon: 'error'
-                                });
-                            }
+                        confirm: {
+                            text: 'Aceptar',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-danger',
+                            closeModal: true
                         }
-                    });
-                }
-            });
-        }else{
-            swal({
-                title: 'Error',
-                text: 'Llena todos los campos',
-                icon: 'warning'
-            });
+                    }
+                }).then(function(isConfirm){
+                    if(isConfirm){
+                        $.ajax({
+                            url:'/api/solicitud/ratificar',
+                            type:'POST',
+                            dataType:"json",
+                            async:true,
+                            data:{
+                                id:$("#solicitud_id").val()
+                            },
+                            success:function(data){
+                                if(data != null && data != ""){
+                                    swal({
+                                        title: 'Correcto',
+                                        text: 'Solicitud ratificada correctamente',
+                                        icon: 'success'
+                                    });
+                                    location.reload();
+                                    //getSolicitudFromBD($("#solicitud_id").val());
+                                }else{
+                                    swal({
+                                        title: 'Error',
+                                        text: 'No se pudo ratificar',
+                                        icon: 'error'
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            }else{
+                swal({
+                    title: 'Error',
+                    text: 'Llena todos los campos',
+                    icon: 'warning'
+                });
+            }
+        }catch(error){
+            console.log(error);
         }
     });
 
@@ -1822,25 +1865,29 @@
                 return data;
             },
             processResults:function(json){
-                $.each(json.data, function (key, node) {
-                    var html = '';
-                    html += '<table>';
-                    var ancestors = node.ancestors.reverse();
-                    html += '<tr><th colspan="2"><h5>* '+highlightText(node.nombre)+'</h5><th></tr>';
-                    $.each(ancestors, function (index, ancestor) {
-                        if(ancestor.id != 1){
-                            var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(index);
-                            html += '<tr><td ><b>'+ancestor.codigo+'</b></td>'+' <td style="border-left:1px solid;">'+tab+highlightText(ancestor.nombre)+'</td></tr>';
-                        }
+                try{
+                    $.each(json.data, function (key, node) {
+                        var html = '';
+                        html += '<table>';
+                        var ancestors = node.ancestors.reverse();
+                        html += '<tr><th colspan="2"><h5>* '+highlightText(node.nombre)+'</h5><th></tr>';
+                        $.each(ancestors, function (index, ancestor) {
+                            if(ancestor.id != 1){
+                                var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(index);
+                                html += '<tr><td ><b>'+ancestor.codigo+'</b></td>'+' <td style="border-left:1px solid;">'+tab+highlightText(ancestor.nombre)+'</td></tr>';
+                            }
+                        });
+                        var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(node.ancestors.length);
+                        html += '<tr><td><b>'+node.codigo+'</b></td>'+'<td style="border-left:1px solid;"> '+ tab+highlightText(node.nombre)+'</td></tr>';
+                        html += '</table>';
+                        json.data[key].html = html;
                     });
-                    var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(node.ancestors.length);
-                    html += '<tr><td><b>'+node.codigo+'</b></td>'+'<td style="border-left:1px solid;"> '+ tab+highlightText(node.nombre)+'</td></tr>';
-                    html += '</table>';
-                    json.data[key].html = html;
-                });
-                return {
-                    results: json.data
-                };
+                    return {
+                        results: json.data
+                    };
+                }catch(error){
+                    console.log(error);
+                }
             }
             // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
         },
@@ -1871,7 +1918,6 @@
             $("#selectIndigenaSolicitado").show();
         }else{
             $("#selectIndigenaSolicitado").hide();
-
         }
     });
 
@@ -1896,7 +1942,7 @@
         if($("#idFechaNacimientoSolicitado").val() != ""){
             var edad = Edad($("#idFechaNacimientoSolicitado").val())
             if(edad > 5){
-                $("#idEdadSolicitado").val()
+                $("#idEdadSolicitado").val(edad)
             }else{
                 $("#idFechaNacimientoSolicitado").val("");
                 swal({
@@ -1950,43 +1996,41 @@
             dataType:"json",
             async:true,
             success:function(data){
-                if(data != null && data != ""){
-                    var table = "";
-                    var div = "";
-                    $.each(data, function(index,element){
-                        div += '<div class="image gallery-group-1">';
-                        div += '    <div class="image-inner" style="position: relative;">';
-                        if(element.tipo == 'pdf' || element.tipo == 'PDF'){
-                            div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
-                            div += '                <div class="img" align="center">';
-                            div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
-                            div += '                </div>';
-                            div += '            </a>';
-                        }else{
-                            div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
-                            div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
-                            div += '            </a>';
-                        }
-                        div += '            <p class="image-caption">';
-                        div += '                '+element.longitud+' kb';
-                        div += '            </p>';
-                        div += '    </div>';
-                        div += '    <div class="image-info">';
-                        div += '            <h5 class="title">'+element.nombre_original+'</h5>';
-                        div += '            <div class="desc">';
-                        div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
-                        div +=                  element.descripcion+'<br>';
-                        div += '            </div>';
-                        div += '    </div>';
-                        div += '</div>';
-                    });
-                    $("#gallery").html(div);
-                }else{
-//                    swal({
-//                        title: 'Algo salio mal',
-//                        text: 'No se guardo el registro',
-//                        icon: 'warning'
-//                    });
+                try{
+                    if(data != null && data != ""){
+                        var table = "";
+                        var div = "";
+                        $.each(data, function(index,element){
+                            div += '<div class="image gallery-group-1">';
+                            div += '    <div class="image-inner" style="position: relative;">';
+                            if(element.tipo == 'pdf' || element.tipo == 'PDF'){
+                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
+                                div += '                <div class="img" align="center">';
+                                div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
+                                div += '                </div>';
+                                div += '            </a>';
+                            }else{
+                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
+                                div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
+                                div += '            </a>';
+                            }
+                            div += '            <p class="image-caption">';
+                            div += '                '+element.longitud+' kb';
+                            div += '            </p>';
+                            div += '    </div>';
+                            div += '    <div class="image-info">';
+                            div += '            <h5 class="title">'+element.nombre_original+'</h5>';
+                            div += '            <div class="desc">';
+                            div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
+                            div +=                  element.descripcion+'<br>';
+                            div += '            </div>';
+                            div += '    </div>';
+                            div += '</div>';
+                        });
+                        $("#gallery").html(div);
+                    }
+                }catch(error){
+                    console.log(error);
                 }
             }
         });

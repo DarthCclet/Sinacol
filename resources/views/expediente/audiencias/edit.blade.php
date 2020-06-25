@@ -1160,10 +1160,10 @@
                         $("#nombre").val(data.nombre);
                         $("#primer_apellido").val(data.primer_apellido);
                         $("#segundo_apellido").val(data.segundo_apellido);
-                        $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,0));
+                        $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
                         $("#genero_id").val(data.genero_id).trigger("change");
                         $("#instrumento").val(data.instrumento);
-                        $("#feha_instrumento").val(dateFormat(data.feha_instrumento,0));
+                        $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
                         $("#numero_notaria").val(data.numero_notaria);
                         $("#nombre_notario").val(data.nombre_notario);
                         $("#localidad_notaria").val(data.localidad_notaria);
