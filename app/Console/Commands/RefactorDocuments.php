@@ -3,13 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Audiencia;
+use App\Events\GenerateDocumentResolution;
 use App\ResolucionPartes;
-use App\Traits\GenerateDocument;
 use Illuminate\Console\Command;
 
 class RefactorDocuments extends Command
 {
-    use GenerateDocument;
     /**
      * The name and signature of the console command.
      *
@@ -62,10 +61,10 @@ class RefactorDocuments extends Command
             foreach($resoluciones as $key => $resolucion){
                 
                 if($resolucion->resolucion_id == 3){
-                    $this->generarConstancia($audiencia->id,$audiencia->expediente->solicitud_id,3,1,$resolucion->parte_solicitante_id,$resolucion->parte_solicitada_id);
+                    event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud_id,3,1,$resolucion->parte_solicitante_id,$resolucion->parte_solicitada_id));
                     
                 }else if($resolucion->resolucion_id == 1){
-                    $this->generarConstancia($audiencia->id,$audiencia->expediente->solicitud_id,3,2,$resolucion->parte_solicitante_id,$resolucion->parte_solicitada_id);
+                    event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud_id,3,2,$resolucion->parte_solicitante_id,$resolucion->parte_solicitada_id));
                 }
             }
         }

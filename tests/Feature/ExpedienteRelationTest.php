@@ -10,6 +10,7 @@ use App\ConciliadorAudiencia;
 use App\Contacto;
 use App\DatoLaboral;
 use App\Domicilio;
+use App\Events\GenerateDocumentResolution;
 use App\Expediente;
 use App\Parte;
 use App\ResolucionPartes;
@@ -19,11 +20,9 @@ use App\Http\Controllers\ContadorController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use App\Traits\GenerateDocument;
 
 class ExpedienteRelationTest extends TestCase
 {
-    use GenerateDocument;
    
     /**
      * A basic feature test example.
@@ -74,9 +73,11 @@ class ExpedienteRelationTest extends TestCase
         // termina audiencia 
         // se genera documento
         if($resolucion_partes->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1));
+            // $this->generarConstancia($audiencia->id,$solicitud->id,3,1);
         }else if($resolucion_partes->resolucion_id == 1){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,2);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1));
+            // $this->generarConstancia($audiencia->id,$solicitud->id,3,2);
         }
         // termina documento
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   
@@ -138,7 +139,7 @@ class ExpedienteRelationTest extends TestCase
         // termina audiencia 
         if($resolucion_partes->resolucion_id == 3){
             // se genera documento
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1));
             // termina documento
         }
 
@@ -204,7 +205,7 @@ class ExpedienteRelationTest extends TestCase
         // termina audiencia 
         if($resolucion_partes->resolucion_id == 3){
             // se genera documento
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1));
             // termina documento
         }
 
@@ -296,16 +297,16 @@ class ExpedienteRelationTest extends TestCase
         // termina audiencia 
         // se genera documento por cada resolucion parte
         if($resolucion_partes1->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado->id));
         }
         if($resolucion_partes2->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado2->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado2->id));
         }
         if($resolucion_partes3->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante2->id,$parteSolicitado->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante2->id,$parteSolicitado->id));
         }
         if($resolucion_partes4->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante2->id,$parteSolicitado2->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante2->id,$parteSolicitado2->id));
         }
         // termina documento
         // se asigna resolucion a cada parte
@@ -403,16 +404,16 @@ class ExpedienteRelationTest extends TestCase
         ]);
         // se genera documento
         if($resolucion_partes1->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado->id));
         }
         if($resolucion_partes2->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado2->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado2->id));
         }
         if($resolucion_partes3->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante2->id,$parteSolicitado->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante2->id,$parteSolicitado->id));
         }
         if($resolucion_partes4->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante2->id,$parteSolicitado2->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante2->id,$parteSolicitado2->id));
         }
         // termina documento
                         
@@ -490,10 +491,10 @@ class ExpedienteRelationTest extends TestCase
         ]);
         // se genera documento
         if($resolucion_partes->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado->id));
         }
         if($resolucion_partes1->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado2->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado2->id));
         }
         // termina documento
 
@@ -554,7 +555,7 @@ class ExpedienteRelationTest extends TestCase
         // termina audiencia 
         // se genera documento
         if($resolucion_partes->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1));
         }
         // termina documento
         $this->assertInstanceOf('\App\Solicitud',$expediente->solicitud);   
@@ -634,10 +635,10 @@ class ExpedienteRelationTest extends TestCase
         // termina audiencia 
         // se genera documento para cada resolucion
         if($resolucion_partes->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado->id));
         }
         if($resolucion_partes1->resolucion_id == 3){
-            $this->generarConstancia($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado2->id);
+            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,3,1,$parteSolicitante->id,$parteSolicitado2->id));
         }
         // termina documento
 

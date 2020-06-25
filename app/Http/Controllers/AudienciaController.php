@@ -14,6 +14,7 @@ use App\Compareciente;
 use App\TipoParte;
 use App\AudienciaParte;
 use App\ConceptoPagoResolucion;
+use App\Events\GenerateDocumentResolution;
 use App\ResolucionPartes;
 use App\Resolucion;
 use App\MotivoArchivado;
@@ -25,13 +26,11 @@ use App\Ocupacion;
 use App\Periodicidad;
 use App\ResolucionParteConcepto;
 use App\Traits\ValidateRange;
-use App\Traits\GenerateDocument;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class AudienciaController extends Controller
 {
-    use GenerateDocument;
     use ValidateRange;
     protected $request;
 
@@ -524,7 +523,7 @@ class AudienciaController extends Controller
                                 "resolucion_id" => $relacion["resolucion_individual_id"]
                             ]);
                             if($relacion["resolucion_individual_id"] == 3){
-                                $this->generarConstancia($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id);
+                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id));
                             }
                             if($relacion["resolucion_individual_id"] == 1){
                                 if(count($relacion["listaConceptosResolucion"]) > 0){
@@ -551,7 +550,7 @@ class AudienciaController extends Controller
                         "resolucion_id" => $audiencia->resolucion_id
                     ]);
                     if($audiencia->resolucion_id == 3){
-                        $this->generarConstancia($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id);
+                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id));
                     }
                 }
             }
