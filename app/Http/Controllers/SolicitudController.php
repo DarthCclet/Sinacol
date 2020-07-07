@@ -304,7 +304,7 @@ class SolicitudController extends Controller
         }catch(\Throwable $e){
             DB::rollback();
             if ($this->request->wantsJson()) {
-                return $this->sendResponse(null, 'Error');
+                return $this->sendError('Error al crear la solicitud');
             }
             return redirect('solicitudes')->with('error', 'Error al crear la solicitud');
         }
