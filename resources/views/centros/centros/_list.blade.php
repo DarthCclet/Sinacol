@@ -20,10 +20,10 @@
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                     <a class="btn btn-xs btn-primary disponibilidad" onclick="getCentroDisponibilidad({{$centro->id}})" title="Días disponibles">
-                        <i class="fa fa-calendar text-light"></i>
+                        <i class="fa fa-calendar"></i>
                     </a>
                     <a class="btn btn-xs btn-primary incidencia" onclick="getCentroIncidencias({{$centro->id}})" title="Fechas no disponibles">
-                        <i class="fa fa-calendar-times text-light"></i>
+                        <i class="fa fa-calendar-times"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar" title="Eliminar centro">
                         <i class="fa fa-trash btn-borrar"></i>

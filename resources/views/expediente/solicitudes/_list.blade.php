@@ -54,7 +54,7 @@
             var dt = $('#tabla-detalle').DataTable({
                 "deferRender": true,
                 "ajax": {
-                    "url": '/api/solicitudes',
+                    "url": '/solicitudes',
                     "dataSrc": function(json){
                         var array = new Array();
                         this.recordsTotal = json.total;

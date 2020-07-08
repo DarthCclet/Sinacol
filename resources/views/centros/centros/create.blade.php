@@ -15,7 +15,7 @@
     <h1 class="page-header">Administrar centros de conciliacion <small>Nuevo centro</small></h1>
     <!-- end page-header -->
     <!-- begin panel -->
-    {!! Form::open(['route' => 'centro.store']) !!}
+    {!! Form::open(['route' => 'centros.store']) !!}
 
     <div class="panel panel-default">
         <!-- begin panel-heading -->

@@ -26,13 +26,13 @@
                         <i class="fa fa-pencil-alt"></i>
                     </a>
                     <a class="btn btn-xs btn-primary disponibilidad" onclick="getRolesConciliador({{$conciliador->id}})">
-                        <i style="color:white;" class="fa fa-user-cog"></i>
+                        <i class="fa fa-user-cog"></i>
                     </a>
                     <a class="btn btn-xs btn-primary disponibilidad" onclick="getConciliadorDisponibilidad({{$conciliador->id}})">
-                        <i style="color:white;" class="fa fa-calendar"></i>
+                        <i class="fa fa-calendar"></i>
                     </a>
                     <a class="btn btn-xs btn-primary incidencia" onclick="getConciliadorIncidencias({{$conciliador->id}})">
-                        <i style="color:white;" class="fa fa-calendar-times"></i>
+                        <i class="fa fa-calendar-times"></i>
                     </a>
                     <button class="btn btn-xs btn-warning btn-borrar">
                         <i class="fa fa-trash btn-borrar"></i>
