@@ -13,6 +13,7 @@ class GiroComercialController extends Controller
  // private $docu;
     public function __construct(Request $request)
     {
+        $this->middleware('auth');
         $this->request = $request;
         // $this->docu = new ComunicacionCJF();
     }

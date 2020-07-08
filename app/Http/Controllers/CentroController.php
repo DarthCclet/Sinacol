@@ -17,6 +17,7 @@ class CentroController extends Controller
 
     public function __construct(Request $request)
     {
+        $this->middleware('auth');
         $this->request = $request;
     }
     /**
@@ -78,7 +79,6 @@ class CentroController extends Controller
      */
     public function store(Request $request)
     {
-        Centro::create($request->all());
         $centro = Centro::create($request->input('centro'));
         $domicilio = $request->input('domicilio');
         $centro->domicilios()->create($domicilio);

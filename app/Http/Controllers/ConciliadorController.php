@@ -16,6 +16,7 @@ class ConciliadorController extends Controller
 
     public function __construct(Request $request)
     {
+        $this->middleware('auth');
         $this->request = $request;
     }
     /**
