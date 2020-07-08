@@ -41,6 +41,7 @@ class CreateCentrosTable extends Migration
                  ]
              );
          }
+         DB::statement('ALTER SEQUENCE centros_id_seq RESTART WITH '.($json->numReg+1));
     }
 
     /**
