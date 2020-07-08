@@ -21,7 +21,7 @@ Route::resource('solicitud','SolicitudController');
 Route::POST('solicitud/ratificar','SolicitudController@Ratificar');
 Route::Get('solicitudes/documentos/{solicitud_id}','SolicitudController@getDocumentosSolicitud');
 Route::resource('resoluciones','ResolucionController');
-Route::resource('sala','SalaController');
+//Route::resource('sala','SalaController');
 Route::post('salas/disponibilidad','SalaController@disponibilidad');
 Route::Post('salas/disponibilidades','SalaController@getDisponibilidades');
 Route::Post('salas/incidencias','SalaController@incidencia');
@@ -105,3 +105,8 @@ Route::post('audiencias/solicitud/solicitud-externa', 'ServiciosCJFController@so
 
 Route::post('upload', 'DocumentoController@uploadSubmit');
 Route::post('documentoAudiencia', 'DocumentoController@postAudiencia');
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('sala','SalaController');
+});
