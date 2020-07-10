@@ -216,7 +216,8 @@
                             </div>
                             {{-- end seccion de contactos solicitados --}}
                             <!-- seccion de domicilios solicitante -->
-                            @include('includes.component.map',['identificador' => 'solicitante', 'instancia' => '1'])
+                            
+                            @include('includes.component.map',['identificador' => 'solicitante','needsMaps'=>"false", 'instancia' => '1'])
 
                             <!-- end seccion de domicilios solicitante -->
                             <!-- Seccion de Datos laborales -->
@@ -720,7 +721,7 @@
             <div class="modal-body" id="domicilio-form">
                 <input type="hidden" id="domicilio_edit">
 
-                @include('includes.component.map',['identificador' => 'solicitado', 'instancia' => 2])
+                @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"true", 'instancia' => 2])
 
             </div>
             <div class="modal-footer">
@@ -1089,7 +1090,6 @@
                     // arrayObjetoSolicitudes = data.objeto_solicitudes;
                     formarTablaObjetoSol();
                     $("#observaciones").val(data.observaciones);
-                    console.log(data.ratificada);
                     if(data.ratificada){
                         $("#ratificada").prop("checked",true);
                         $('#wizard').smartWizard("stepState", [4], "show");
@@ -1724,8 +1724,6 @@
                     },error:function(data){
                         var mensajes = "";
                         $.each(data.responseJSON.errors, function (key, value) {
-                            console.log(key.split("."));
-                            console.log(value);
                             var origen = key.split(".");
 
                             mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
@@ -1897,7 +1895,6 @@
         templateResult: function(data) {
             return data.html;
         },templateSelection: function(data) {
-            console.log(data);
             if(data.id != ""){
                 return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
             }
@@ -1908,6 +1905,7 @@
         allowClear: true,
         language: "es"
     });
+    
     $("#giro_comercial_solicitante").change(function(){
         $("#giro_comercial_hidden").val($(this).val());
     });
@@ -2066,7 +2064,7 @@
             $(".tipo_documento").select2();
         });
         $('#fileupload').bind('fileuploaddone', function(e, data) {
-            console.log("add");
+            // console.log("add");
         });
 
         // show empty row text

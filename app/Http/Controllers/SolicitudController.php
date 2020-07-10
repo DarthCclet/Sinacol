@@ -19,6 +19,7 @@ use App\GiroComercial;
 use App\GrupoPrioritario;
 use App\Jornada;
 use App\LenguaIndigena;
+use App\Municipio;
 use App\Nacionalidad;
 use App\ObjetoSolicitud;
 use App\Ocupacion;
@@ -151,9 +152,10 @@ class SolicitudController extends Controller
         $generos = $this->cacheModel('generos',Genero::class);
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades'));
+        // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
+        $municipios = array_pluck(Municipio::all(),'municipio','id');
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios'));
     }
-
     /**
      * Función para almacenar catalogos (nombre,id) en cache
      *
@@ -161,9 +163,9 @@ class SolicitudController extends Controller
      * @param [Model] $modelo
      * @return void
      */
-    private function cacheModel($nombre,$modelo){
+    private function cacheModel($nombre,$modelo,$campo = 'nombre' ){
         if (!Cache::has($nombre)) {
-            $respuesta = array_pluck($modelo::all(),'nombre','id');
+            $respuesta = array_pluck($modelo::all(),$campo,'id');
             Cache::forever($nombre, $respuesta);
         }else{
             $respuesta = Cache::get($nombre);
