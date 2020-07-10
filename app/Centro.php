@@ -4,12 +4,20 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Centro extends Model
+class Centro extends Model implements Auditable
 {
 
-    use SoftDeletes;
+    use SoftDeletes,
+    \App\Traits\CambiarEventoAudit,
+    \OwenIt\Auditing\Auditable;
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
+    public function transformAudit($data):array
+    {
+        $data = $this->cambiarEvento($data);
+        return $data;
+    }
 
     /**
      * Funcion para asociar con modelo Solicitud con hasMany

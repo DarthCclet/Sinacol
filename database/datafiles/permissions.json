@@ -19,7 +19,7 @@
         "padre_id":null
     }, {
         "id": 4,
-        "name": "Centros",
+        "name": "Configuración de Centro",
         "description": "Acceso a los centros",
         "ruta":"#",
         "padre_id":null
@@ -131,5 +131,11 @@
         "description": "Acceso a los tipos de documentos",
         "ruta":"/tipo-documento",
         "padre_id":21
+    }, {
+        "id": 23,
+        "name": "Bitácora",
+        "description": "Acceso ala bitácora de movimientos",
+        "ruta":"/bitacora",
+        "padre_id":1
     }
 ]

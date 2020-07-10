@@ -4,11 +4,20 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable;
 
-class DatoLaboral extends Model
+class DatoLaboral extends Model implements AuditableContract
 {
-  use SoftDeletes;
-  protected $table = 'datos_laborales';
+    use SoftDeletes,
+      Auditable,
+      \App\Traits\CambiarEventoAudit;
+    protected $table = 'datos_laborales';
+    public function transformAudit($data):array
+    {
+        $data = $this->cambiarEvento($data);
+        return $data;
+    }  
 
   /**
    * The attributes that are mass assignable.

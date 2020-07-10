@@ -12,8 +12,11 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Lab404\Impersonate\Models\Impersonate;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable;
 
-class User extends Authenticatable
+
+class User extends Authenticatable implements AuditableContract
 {
     use Notifiable,
         SoftDeletes,
@@ -23,8 +26,14 @@ class User extends Authenticatable
         RequestsAppends,
         AppendPolicies,
         HasRoles,
-        Impersonate;
-
+        Impersonate,
+        Auditable,
+        \App\Traits\CambiarEventoAudit;
+    public function transformAudit($data):array
+    {
+        $data = $this->cambiarEvento($data);
+        return $data;
+    }
     /**
      * Las relaciones que son cargables.
      *

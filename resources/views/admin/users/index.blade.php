@@ -81,6 +81,13 @@
                 async:false,
                 success:function(data){
                     //
+                },
+                error:function(data){
+                    swal({
+                        title: 'Error',
+                        text: 'No se puede mostrar al usuario',
+                        icon: 'error'
+                    });
                 }
             });
         }

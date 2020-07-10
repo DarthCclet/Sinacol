@@ -25,7 +25,7 @@ class ConsultaAsentamientosTest extends TestCase
             ->limit($limite)
             ->get();
 
-        dd($colonias);
+        //dd($colonias);
 
         $resultado = $colonias->where('asentamiento','=','DEL VALLE CENTRO')->first();
 

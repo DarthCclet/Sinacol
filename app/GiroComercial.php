@@ -6,17 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 use Kalnoy\Nestedset\NodeTrait;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable;
 
 
-class GiroComercial extends Model
+class GiroComercial extends Model implements AuditableContract
 {
     use SoftDeletes;
     use NodeTrait;
+    use Auditable;
+    use \App\Traits\CambiarEventoAudit;
 
     protected $table = 'giro_comerciales';
     public $incrementing = false;
     protected $guarded = ['id', 'created_at', 'updated_at',];
-
+    public function transformAudit($data):array
+    {
+        $data = $this->cambiarEvento($data);
+        return $data;
+    }
 
     /**
      * Ordena y genera las dependencias de cc mediante su código de definición

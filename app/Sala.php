@@ -8,17 +8,34 @@ use App\Traits\AppendPolicies;
 use App\Traits\LazyAppends;
 use App\Traits\LazyLoads;
 use App\Traits\RequestsAppends;
+use Illuminate\Support\Arr;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContrat;
 
-class Sala extends Model
+class Sala extends Model implements AuditableContrat
 {
     use SoftDeletes,
         LazyLoads,
         LazyAppends,
         RequestsAppends,
-        AppendPolicies; 
+        AppendPolicies,
+        \OwenIt\Auditing\Auditable,
+        \App\Traits\CambiarEventoAudit; 
     protected $table = 'salas';
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
     protected $loadable = ['centro'];
+    public function transformAudit($data):array
+    {
+        if (Arr::has($data, 'new_values.centro_id')) {
+            if($data["event"] != "created"){
+                $data['old_values']['Centro'] = Centro::find($this->getOriginal('centro_id'))->nombre;
+                unset($data['old_values']["centro_id"]);
+            }
+            $data['new_values']['Centro'] = Centro::find($this->getAttribute('centro_id'))->nombre;
+            unset($data['new_values']["centro_id"]);
+        }
+        $data = $this->cambiarEvento($data);
+        return $data;
+    }
     /*
      * Relación con la tabla Centros
      * un centro puede tener muchas salas

@@ -73,6 +73,17 @@
                 </span>
             </a>
         </li>
+        
+        <!-- El paso 5 Es para asignar Audiencias -->
+        <li class="step-6">
+            <a href="#step-6">
+
+                <span class="">
+                    Historial
+                    <small>Historial de acciones</small>
+                </span>
+            </a>
+        </li>
     </ul>
     <!-- end wizard-step -->
     <!-- begin wizard-content -->
@@ -703,7 +714,99 @@
             @endif
 
         </div>
-        <!-- end step-4 -->
+        <!-- end step-5 -->
+        <!-- begin step-6 -->
+        <div id="step-6">
+            <ul class="timeline">
+                @if(isset($audits))
+                    @foreach($audits as $audit)
+                        <li>
+                            <!-- begin timeline-time -->
+                            <div class="timeline-time">
+                                <span >{{\Carbon\Carbon::parse($audit["created_at"])->diffForHumans()}}</span>
+                                <!--<span >04:20</span>-->
+                            </div>
+                            <!-- end timeline-time -->
+                            <!-- begin timeline-icon -->
+                            <div class="timeline-icon">
+                                <a href="javascript:;">&nbsp;</a>
+                            </div>
+                            <!-- end timeline-icon -->
+                            <!-- begin timeline-body -->
+                            <div class="timeline-body">
+                                <div class="timeline-header">
+                                    <span class="userimage"><i class="fa fa-user fa-x3"></i></span>
+                                    <span class="username">
+                                        <a href="javascript:;">{{$audit["user"]}}</a> 
+                                        <small></small>
+                                    </span>
+                                </div>
+                                <div class="timeline-content">
+                                    @if($audit["elemento"] == 'Solicitud')
+                                        @if($audit["event"] == "Modificación")
+                                            <p>Se realizaron los siguientes cambios a la solicitud</p>
+                                            <p>
+                                                @foreach($audit["cambios"] as $key => $value)
+                                                    {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
+                                                @endforeach
+                                            </p>
+                                        @elseif($audit["event"] == "Inserción")
+                                            <p>Se creo la solicitud</p>
+                                        @endif
+                                    @elseif($audit["elemento"] == 'Parte')
+                                        @if($audit["event"] == "Modificación")
+                                            <p>Se realizaron los siguientes cambios a {{$audit["extra"]}}</p>
+                                            <p>
+                                                @foreach($audit["cambios"] as $key => $value)
+                                                    {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
+                                                @endforeach
+                                            </p>
+                                        @elseif($audit["event"] == "Inserción")
+                                            <p>Se creo la parte {{$audit["extra"]}}</p>
+                                        @endif
+                                    @elseif($audit["elemento"] == 'Expediente')
+                                        @if($audit["event"] == "Modificación")
+                                            <p>Se realizaron los siguientes cambios al expediente {{$audit["extra"]}}</p>
+                                            <p>
+                                                @foreach($audit["cambios"] as $key => $value)
+                                                    {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
+                                                @endforeach
+                                            </p>
+                                        @elseif($audit["event"] == "Inserción")
+                                            <p>Se ratificó la solicitud y se creo el expediente {{$audit["extra"]}}</p>
+                                        @endif
+                                    @elseif($audit["elemento"] == 'Audiencia')
+                                        @if($audit["event"] == "Modificación")
+                                            <p>Se realizaron los siguientes cambios a la audiencia {{$audit["extra"]}}</p>
+                                            <p>
+                                                @foreach($audit["cambios"] as $key => $value)
+                                                    {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
+                                                @endforeach
+                                            </p>
+                                        @elseif($audit["event"] == "Inserción")
+                                            <p>Se creo la audiencia {{$audit["extra"]}}</p>
+                                            <p>
+                                                @foreach($audit["cambios"] as $key => $value)
+                                                    @if($key == "fecha_audiencia") 
+                                                        Fecha: {{\Carbon\Carbon::parse($value["new"])->isoFormat('LL')}}<br>
+                                                    @elseif($key == "hora_inicio")
+                                                        Hora de inicio: {{\Carbon\Carbon::parse($value["new"])->format('h:i:s')}}<br>
+                                                    @elseif($key == "hora_fin")
+                                                        Hora de termino: {{\Carbon\Carbon::parse($value["new"])->format('h:i:s')}}<br>
+                                                    @endif
+                                                @endforeach
+                                            </p>
+                                        @endif
+                                    @endif
+                                </div>
+                            </div>
+                            <!-- end timeline-body -->
+                        </li>
+                    @endforeach
+                @endif
+            </ul>
+        </div>
+        <!-- end step-6 -->
     </div>
     <!-- end wizard-content -->
 </div>
@@ -1067,7 +1170,7 @@
     });
     function getSolicitudFromBD(solicitud){
         $.ajax({
-            url:'/api/solicitudes/'+solicitud,
+            url:'/solicitudes/'+solicitud,
             type:"GET",
             dataType:"json",
             async:false,
@@ -1694,7 +1797,7 @@
                     upd = "/"+$("#solicitud_id").val();
                 }
                 $.ajax({
-                    url:'/api/solicitudes'+upd,
+                    url:'/solicitudes'+upd,
                     type:method,
                     dataType:"json",
                     async:false,
@@ -1799,7 +1902,7 @@
                 }).then(function(isConfirm){
                     if(isConfirm){
                         $.ajax({
-                            url:'/api/solicitud/ratificar',
+                            url:'/solicitud/ratificar',
                             type:'POST',
                             dataType:"json",
                             async:true,
@@ -1814,7 +1917,6 @@
                                         icon: 'success'
                                     });
                                     location.reload();
-                                    //getSolicitudFromBD($("#solicitud_id").val());
                                 }else{
                                     swal({
                                         title: 'Error',
@@ -1822,6 +1924,12 @@
                                         icon: 'error'
                                     });
                                 }
+                            },error:function(data){
+                                swal({
+                                    title: 'Error',
+                                    text: ' Error al ratificar la solicitud',
+                                    icon: 'error'
+                                });
                             }
                         });
                     }
@@ -1850,7 +1958,7 @@
 
     $("#giro_comercial_solicitante").select2({
         ajax: {
-            url: '/api/giros_comerciales/filtrarGirosComerciales',
+            url: '/giros_comerciales/filtrarGirosComerciales',
             type:"POST",
             dataType:"json",
             delay: 400,
@@ -1858,7 +1966,8 @@
             data:function (params) {
                 $("#term").val(params.term);
                 var data = {
-                    nombre: params.term
+                    nombre: params.term,
+                    _token:"{{ csrf_token() }}"
                 }
                 return data;
             },
@@ -1989,7 +2098,7 @@
     });
     function cargarDocumentos(){
         $.ajax({
-            url:"/api/solicitudes/documentos/"+$("#solicitud_id").val(),
+            url:"/solicitudes/documentos/"+$("#solicitud_id").val(),
             type:"GET",
             dataType:"json",
             async:true,

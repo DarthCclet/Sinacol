@@ -8,14 +8,20 @@ use App\Traits\AppendPolicies;
 use App\Traits\LazyAppends;
 use App\Traits\LazyLoads;
 use App\Traits\RequestsAppends;
+use Illuminate\Support\Arr;
+use OwenIt\Auditing\Contracts\Auditable;
+use App\Traits\ValidTypes;
 
-class Audiencia extends Model
+class Audiencia extends Model implements Auditable
 {
     use SoftDeletes,
         LazyLoads,
         LazyAppends,
         RequestsAppends,
-        AppendPolicies;
+        AppendPolicies,
+        \OwenIt\Auditing\Auditable,
+        \App\Traits\CambiarEventoAudit,
+        ValidTypes;
 
     /**
      * Nombre de la tabla
@@ -25,6 +31,18 @@ class Audiencia extends Model
     protected $guarded = ['id','created_at','updated_at','deleted_at'];
     protected $loadable = ['conciliador', 'sala','parte','resolucion'];
 
+    public function transformAudit($data):array
+    {
+        if (Arr::has($data, 'new_values.finalizada')) {
+            if($data["event"] != "created"){
+                $data['old_values']['finalizada'] = $this->validBool($this->getOriginal('finalizada'));
+            }
+            $data['new_values']['finalizada'] = $this->validBool($this->getAttribute('finalizada'));
+        }
+        $data = $this->cambiarEvento($data);
+        return $data;
+    }
+    
     /**
      * Relación con expediente
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -47,13 +47,13 @@
         $(document).ready(function(){
             $("#id").val('{{ $conciliador->id }}');
             $.ajax({
-                url:"/api/centro",
+                url:"/centros?all=true",
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    if(data.data.data != null && data.data.data != ""){
+                    if(data.data != null && data.data != ""){
                         $("#centro_id").html("<option value=''>-- Selecciona un centro</option>");
-                        $.each(data.data.data,function(index,element){
+                        $.each(data.data,function(index,element){
                             $("#centro_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
                         });
                     }else{
@@ -100,14 +100,15 @@
             var validar = validarConciliador();
             if(!validar){
                 $.ajax({
-                    url:"/api/conciliador",
+                    url:"/conciliadores",
                     type:"POST",
                     dataType:"json",
                     data:{
                         id:$("#id").val(),
                         rol_conciliador_id:$("#rol_conciliador_id").val(),
                         persona_id:$("#persona_id").val(),
-                        centro_id:$("#centro_id").val()
+                        centro_id:$("#centro_id").val(),
+                        _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
                         if(data != null && data != ""){

@@ -16,7 +16,7 @@
     <h1 class="page-header">Administrar centros de conciliación <small>Editar centro</small></h1>
     <!-- end page-header -->
     <!-- begin panel -->
-        {!! Form::model($centro, ['route' => ['centro.update', $centro->id], 'method' => 'put'] ) !!}
+        {!! Form::model($centro, ['route' => ['centros.update', $centro->id], 'method' => 'put'] ) !!}
 
         <div class="panel panel-default">
             <!-- begin panel-heading -->

@@ -4,14 +4,12 @@ namespace App\Listeners;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
-use App\Traits\Menu;
 use OwenIt\Auditing\Models\Audit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class LogSuccessfulLogin
+class LogSuccessfulLogout
 {
-    use Menu;
     /**
      * Create the event listener.
      *
@@ -30,16 +28,10 @@ class LogSuccessfulLogin
      */
     public function handle($event)
     {
-        $rol = auth()->user()->roles->first->get();
-        $menu = $this->construirMenu($rol->id);
-        session(['menu' => $menu]);
-        session(['roles' => auth()->user()->roles]);
-        session(['rolActual' => $rol]);
-        
         $data = [
             'auditable_id' => auth()->user()->id,
-            'auditable_type' => "Logged In",
-            'event'      => "Logged In",
+            'auditable_type' => "Logged Out",
+            'event'      => "Logged Out",
             'url'        => request()->fullUrl(),
             'ip_address' => request()->getClientIp(),
             'user_agent' => request()->userAgent(),

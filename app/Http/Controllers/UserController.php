@@ -22,6 +22,7 @@ class UserController extends Controller
 
     public function __construct(Request $request)
     {
+        $this->middleware('auth');
         $this->request = $request;
     }
 
@@ -201,23 +202,34 @@ class UserController extends Controller
     }
     public function impersonate($id){
         $user = User::find($id);
-        auth()->user()->impersonate($user);
-        //Creamos las sessiones que se usaran para el impersonate
-        $rol = $user->roles->first->get();
-        $menu = $this->construirMenu($rol->id);
-        session(['menu' => $menu]);
-        session(['roles' => $user->roles]);
-        session(['rolActual' => $rol]);
-        return redirect()->route('home');
+        if(count($user->roles) > 0){
+            try{
+                auth()->user()->impersonate($user);
+                //Creamos las sessiones que se usaran para el impersonate
+                $rol = $user->roles->first->get();
+                $menu = $this->construirMenu($rol->id);
+                session(['menu' => $menu]);
+                session(['roles' => $user->roles]);
+                session(['rolActual' => $rol]);
+                return redirect()->route('home');
+            }catch(\Throwable $e){
+                return redirect('users')->with('error', 'No se puede mostrar al usuario');
+            }
+        }
+        return redirect('users')->with('error', 'El usuario no tiene roles asignados');
     }
     public function impersonate_leave(){
-        auth()->user()->leaveImpersonation();
-        //regresamos la sessiones al usuario principal
-        $rol = auth()->user()->roles->first->get();
-        $menu = $this->construirMenu($rol->id);
-        session(['menu' => $menu]);
-        session(['roles' => auth()->user()->roles]);
-        session(['rolActual' => $rol]);
-        return redirect()->route('home');
+        try{
+            auth()->user()->leaveImpersonation();
+            //regresamos la sessiones al usuario principal
+            $rol = auth()->user()->roles->first->get();
+            $menu = $this->construirMenu($rol->id);
+            session(['menu' => $menu]);
+            session(['roles' => auth()->user()->roles]);
+            session(['rolActual' => $rol]);
+            return redirect()->route('home');
+        }catch(\Throwable $e){
+            $this->sendError("No se puede abandonar al usuario","Error");
+        }
     }
 }
