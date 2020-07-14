@@ -287,12 +287,13 @@
         }
         function getSalaDisponibilidad(id){
             $.ajax({
-                url:"/api/salas/disponibilidades",
+                url:"/salas/disponibilidades",
                 type:"POST",
                 dataType:"json",
                 async:false,
                 data:{
-                    id:id
+                    id:id,
+                    _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
                     console.log(data);
@@ -316,12 +317,13 @@
             var validar = validarCampos();
             if(!validar.error){
                 $.ajax({
-                    url:"/api/salas/disponibilidad",
+                    url:"/salas/disponibilidad",
                     type:"POST",
                     dataType:"json",
                     data:{
                         id:$("#id").val(),
-                        datos:validar.datos
+                        datos:validar.datos,
+                        _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
                         $("#modal-disponinbilidad").modal("hide");
@@ -405,12 +407,13 @@
         }
         function getSalaIncidencias(id){
             $.ajax({
-                url:"/api/salas/disponibilidades",
+                url:"/salas/disponibilidades",
                 type:"POST",
                 dataType:"json",
                 async:false,
                 data:{
-                    id:id
+                    id:id,
+                    _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
                     console.log(data);
@@ -483,7 +486,7 @@
             console.log(validacion);
             if(!validacion.error){
                 $.ajax({
-                    url:"/api/salas/incidencias",
+                    url:"/salas/incidencias",
                     type:"POST",
                     dataType:"json",
                     data:{
@@ -491,7 +494,8 @@
                         incidencia_id:$("#incidencia_id").val(),
                         justificacion:$("#justificacion").val(),
                         fecha_inicio:$("#fecha_inicio").val(),
-                        fecha_fin:$("#fecha_fin").val()
+                        fecha_fin:$("#fecha_fin").val(),
+                        _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
                         getSalaIncidencias($("#id").val());
@@ -533,7 +537,7 @@
         }
         function cargarIncidencia(id){
             $.ajax({
-                url:"/api/incidencia/"+id,
+                url:"/incidencia/"+id,
                 type:"GET",
                 dataType:"json",
                 async:true,
@@ -579,10 +583,13 @@
             }).then(function(isConfirm){
                 if(isConfirm){
                     $.ajax({
-                        url:"/api/incidencia/"+id,
+                        url:"/incidencia/"+id,
                         type:"DELETE",
                         dataType:"json",
                         async:true,
+                        data:{
+                            _token:"{{ csrf_token() }}"
+                        },
                         success:function(data){
                             if(data != null && data != ""){
                                 getSalaIncidencias($("#id").val());
