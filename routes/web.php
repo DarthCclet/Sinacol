@@ -28,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('solicitudes/documentos/{solicitud_id}','SolicitudController@getDocumentosSolicitud');
     Route::resource('expedientes','ExpedienteController');
     Route::resource('audiencias','AudienciaController');
+    Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia');
     Route::get('calendario','AudienciaController@calendario');
     Route::resource('roles-atencion','RolAtencionController');
     Route::resource('objeto-solicitud','ObjetoSolicitudController');
