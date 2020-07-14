@@ -22,13 +22,48 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('users','UserController');
     Route::resource('salas','SalaController');
+    Route::post('salas/disponibilidad','SalaController@disponibilidad');
+    Route::Post('salas/disponibilidades','SalaController@getDisponibilidades');
+    Route::Post('salas/incidencias','SalaController@incidencia');
     Route::resource('centros','CentroController');
+    Route::post('centros/disponibilidad','CentroController@disponibilidad');
+    Route::Post('centros/disponibilidades','CentroController@getDisponibilidades');
+    Route::Post('centros/incidencias','CentroController@incidencia');
     Route::resource('conciliadores','ConciliadorController');
+    Route::post('conciliadores/disponibilidad','ConciliadorController@disponibilidad');
+    Route::Post('conciliadores/disponibilidades','ConciliadorController@getDisponibilidades');
+    Route::Post('conciliadores/incidencias','ConciliadorController@incidencia');
+    Route::Post('conciliadores/roles','ConciliadorController@roles');
+    Route::Post('conciliadores/ConciliadoresDisponibles','ConciliadorController@conciliadoresDisponibles');
+    Route::Get('conciliadores/ConciliadorAudiencias','ConciliadorController@conciliadorAudiencias');
+    Route::resource('disponibilidad','DisponibilidadController');
+    Route::resource('incidencia','IncidenciaController');
     Route::resource('solicitudes','SolicitudController');
+    Route::POST('solicitud/ratificar','SolicitudController@Ratificar');
     Route::Get('solicitudes/documentos/{solicitud_id}','SolicitudController@getDocumentosSolicitud');
     Route::resource('expedientes','ExpedienteController');
     Route::resource('audiencias','AudienciaController');
+    Route::resource('audiencia','AudienciaController');
+    Route::Post('audiencia/ConciliadoresDisponibles','AudienciaController@ConciliadoresDisponibles');
+    Route::Post('audiencia/SalasDisponibles','AudienciaController@SalasDisponibles');
+    Route::Post('audiencia/calendarizar','AudienciaController@calendarizar');
+    Route::Post('audiencia/getCalendario','AudienciaController@getCalendario');
+    Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
+    Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
+    Route::Post('audiencia/nuevaAudiencia','AudienciaController@NuevaAudiencia');
+    Route::Get('audiencia/documentos/{audiencia_id}','AudienciaController@getDocumentosAudiencia');
+    Route::Get('audiencia/fisicas/{id}','AudienciaController@GetPartesFisicas');
+    Route::Get('audiencia/validar_partes/{id}','AudienciaController@validarPartes');
     Route::get('calendario','AudienciaController@calendario');
+    Route::get('getAudienciaConciliador','AudienciaController@GetAudienciaConciliador');
+    Route::get('agendaConciliador','AudienciaController@AgendaConciliador');
+    Route::resource('parte','ParteController');
+    Route::Get('partes/representante/{id}','ParteController@GetRepresentanteLegal');
+    Route::Get('partes/datoLaboral/{id}','ParteController@GetDatoLaboral');
+    Route::Post('partes/datoLaboral','ParteController@GuardarDatoLaboral');
+    Route::Post('partes/representante','ParteController@GuardarRepresentanteLegal');
+    Route::Post('partes/representante/contacto','ParteController@AgregarContactoRepresentante');
+    Route::Post('partes/representante/contacto/eliminar','ParteController@EliminarContactoRepresentante');
     Route::resource('roles-atencion','RolAtencionController');
     Route::resource('objeto-solicitud','ObjetoSolicitudController');
     Route::resource('estatus-solicitud','EstatusSolicitudController');
@@ -76,6 +111,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('cambiarRol/{rol_id}','PermissionController@cambiarRol');
     Route::get('impersonate/{user_id}','UserController@impersonate')->name('impersonate');
     Route::get('impersonate_leave','UserController@impersonate_leave')->name('impersonate_leave');
+    
+    
+    // Catalogos
+    Route::resource('ambitos','AmbitoController');
+    Route::resource('clasificacion_archivos','ClasificacionArchivoController');
+    Route::resource('conceptos_pagos','ConceptoPagoResolucionesController');
+    Route::resource('estados','EstadoController');
+    Route::resource('generos','GeneroController');
+    Route::resource('lenguas_indigenas','LenguaIndigenaController');
+    Route::resource('motivos_archivado','MotivoArchivadoController');
+    Route::resource('periodicidades','PeriodicidadController');
+    Route::resource('tipos_contactos','TipoContactoController');
+    Route::resource('tipos_contadores','TipoContadorController');
+    Route::resource('tipos_discapacidades','TipoDiscapacidadController');
+    
+    
+    
 });
 
 
