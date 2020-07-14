@@ -15,8 +15,9 @@ class CreatePeriodicidadesTable extends Migration
     public function up()
     {
         Schema::create('periodicidades', function (Blueprint $table) {
-            $table->bigInteger('id')->primary()->comment('PK del catálogo de periodicidades');
+            $table->bigIncrements('id')->comment('PK del catálogo de periodicidades');
             $table->string('nombre')->comment('Nombre de la periodicidad');
+            $table->integer('dias')->nullable()->comment('Numero de dias que se van a pagar');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
         });
@@ -27,14 +28,15 @@ class CreatePeriodicidadesTable extends Migration
         foreach ($json->datos as $periodicidad){
             DB::table('periodicidades')->insert(
                 [
-                    'id' => $periodicidad->id,
                     'nombre' => $periodicidad->nombre,
+                    'dias' => $periodicidad->dias,
                 ]
             );
         }
         $tabla_nombre = 'periodicidades';
         $comentario_tabla = 'Tabla donde se almacenan periodicidades para datos laborales.';
         DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
+        DB::statement('ALTER SEQUENCE periodicidades_id_seq RESTART WITH 5');
     }
 
     /**

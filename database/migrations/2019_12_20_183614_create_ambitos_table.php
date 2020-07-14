@@ -29,6 +29,7 @@ class CreateAmbitosTable extends Migration
                 ]
             );
         }
+        DB::statement('ALTER SEQUENCE ambitos_id_seq RESTART WITH 4');
     }
 
     /**

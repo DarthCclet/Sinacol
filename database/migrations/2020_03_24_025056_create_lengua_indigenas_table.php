@@ -14,7 +14,7 @@ class CreateLenguaIndigenasTable extends Migration
     public function up()
     {
         Schema::create('lengua_indigenas', function (Blueprint $table) {
-            $table->integer('id')->primary()->comment('Llave primaria del registro');
+            $table->bigIncrements('id')->comment('Llave primaria del registro');
             $table->string('nombre')->comment('Nombre de lengua indigena');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
@@ -25,13 +25,14 @@ class CreateLenguaIndigenasTable extends Migration
         foreach ($json->datos as $vialidad){
             DB::table('lengua_indigenas')->insert(
                 [
-                    'id' => $vialidad->id,
+//                    'id' => $vialidad->id,
                     'nombre' => $vialidad->nombre,
                     'created_at' => date("Y-m-d H:d:s"),
                     'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }
+        DB::statement('ALTER SEQUENCE lengua_indigenas_id_seq RESTART WITH 91');
     }
 
     /**

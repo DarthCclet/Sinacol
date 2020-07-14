@@ -38,6 +38,7 @@ class CreateConceptoPagoResolucionesTable extends Migration
         $tabla_nombre = 'concepto_pago_resoluciones';
         $comentario_tabla = 'Tabla donde se almacena el catalogo de conceptos de pago resoluciones.';
         DB::statement("COMMENT ON TABLE $tabla_nombre IS '$comentario_tabla'");
+        DB::statement('ALTER SEQUENCE concepto_pago_resoluciones_id_seq RESTART WITH 4');
     }
 
     /**

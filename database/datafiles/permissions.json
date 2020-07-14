@@ -124,15 +124,81 @@
         "name": "Plantillas",
         "description": "Acceso a las plantillas",
         "ruta":"/plantilla-documentos",
-        "padre_id":21
+        "padre_id":20
     }, {
         "id": 22,
         "name": "Tipos de documentos",
         "description": "Acceso a los tipos de documentos",
         "ruta":"/tipo-documento",
-        "padre_id":21
+        "padre_id":20
     }, {
         "id": 23,
+        "name": "Ambitos",
+        "description": "Acceso a los ambitos",
+        "ruta":"/ambitos",
+        "padre_id":8
+    }, {
+        "id": 24,
+        "name": "Clasificación de archivos",
+        "description": "Acceso a la clasificación de archivos",
+        "ruta":"/clasificacion_archivos",
+        "padre_id":8
+    }, {
+        "id": 25,
+        "name": "Conceptos de pago",
+        "description": "Acceso a los conceptos de pago",
+        "ruta":"/conceptos_pagos",
+        "padre_id":8
+    }, {
+        "id": 26,
+        "name": "Estados",
+        "description": "Acceso a los estados",
+        "ruta":"/estados",
+        "padre_id":8
+    }, {
+        "id": 27,
+        "name": "Generos",
+        "description": "Acceso a los generos",
+        "ruta":"/generos",
+        "padre_id":8
+    }, {
+        "id": 28,
+        "name": "Lenguas indígenas",
+        "description": "Acceso a las lenguas indígenas",
+        "ruta":"/lenguas_indigenas",
+        "padre_id":8
+    }, {
+        "id": 29,
+        "name": "Motivos de archivado",
+        "description": "Acceso a los motivos de archivado",
+        "ruta":"/motivos_archivado",
+        "padre_id":8
+    }, {
+        "id": 30,
+        "name": "Periodicidades",
+        "description": "Acceso a las periodicidades",
+        "ruta":"/periodicidades",
+        "padre_id":8
+    }, {
+        "id": 31,
+        "name": "Tipos de contactos",
+        "description": "Acceso a los tipos de contactos",
+        "ruta":"/tipos_contactos",
+        "padre_id":8
+    }, {
+        "id": 32,
+        "name": "Tipos de contadores",
+        "description": "Acceso a los tipos de contadores",
+        "ruta":"/tipos_contadores",
+        "padre_id":8
+    }, {
+        "id": 33,
+        "name": "Tipos de discapacidad",
+        "description": "Acceso a los tipos de discapacidad",
+        "ruta":"/tipos_discapacidades",
+        "padre_id":8
+    }, {
+        "id": 34,
         "name": "Bitácora",
         "description": "Acceso ala bitácora de movimientos",
         "ruta":"/bitacora",

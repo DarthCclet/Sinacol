@@ -14,7 +14,7 @@ class CreateMotivoResolucionsTable extends Migration
     public function up()
     {
         Schema::create('motivo_archivados', function (Blueprint $table) {
-            $table->integer('id')->primary()->comment('Llave primaria del registro');
+            $table->bigIncrements('id')->comment('Llave primaria del registro');
             $table->string('descripcion')->comment('Descripcion del motivo');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra lógicamente.');
             $table->timestamps();
@@ -29,13 +29,13 @@ class CreateMotivoResolucionsTable extends Migration
         foreach ($json->datos as $motivos){
             DB::table('motivo_archivados')->insert(
                 [
-                    'id' => $motivos->id,
                     'descripcion' => $motivos->descripcion,
                     'created_at' => date("Y-m-d H:d:s"),
                     'updated_at' => date("Y-m-d H:d:s")
                 ]
             );
         }
+        DB::statement('ALTER SEQUENCE lengua_indigenas_id_seq RESTART WITH 4');
     }
 
     /**

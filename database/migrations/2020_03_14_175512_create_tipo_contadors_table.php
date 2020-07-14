@@ -14,7 +14,7 @@ class CreateTipoContadorsTable extends Migration
     public function up()
     {
         Schema::create('tipo_contadores', function (Blueprint $table) {
-            $table->bigInteger('id')->primary()->comment('PK de la tabla tipo_contadores');
+            $table->bigIncrements('id')->comment('PK de la tabla tipo_contadores');
             $table->string('nombre')->comment('Nombre del tipo del contador  ');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro, modifica y se borra lógicamente.');
             $table->timestamps();
@@ -26,7 +26,6 @@ class CreateTipoContadorsTable extends Migration
         foreach ($json->datos as $tipo_contador){
             DB::table('tipo_contadores')->insert(
                 [
-                    'id' => $tipo_contador->id,
                     'nombre' => $tipo_contador->nombre,
                     'created_at' => date("Y-m-d H:d:s"),
                     'updated_at' => date("Y-m-d H:d:s")
