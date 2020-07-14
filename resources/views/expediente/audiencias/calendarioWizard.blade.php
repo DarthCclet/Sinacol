@@ -124,10 +124,11 @@
         <script>
             $(document).ready(function(){
                 $.ajax({
-                    url:"/api/audiencia/getCalendario",
+                    url:"/audiencia/getCalendario",
                     type:"POST",
                     data:{
-                        centro_id:1
+                        centro_id:1,
+                        _token:"{{ csrf_token() }}"
                     },
                     dataType:"json",
                     success:function(data){
@@ -236,12 +237,13 @@
             }
             getConciliadores = function(fechaInicio,fechaFin){
                 $.ajax({
-                    url:"/api/audiencia/ConciliadoresDisponibles",
+                    url:"/audiencia/ConciliadoresDisponibles",
                     type:"POST",
                     data:{
                         fechaInicio:fechaInicio,
                         fechaFin:fechaFin,
-                        centro_id:1
+                        centro_id:1,
+                        _token:"{{ csrf_token() }}"
                     },
                     dataType:"json",
                     success:function(data){
@@ -259,12 +261,13 @@
             };
             function getSalas(fechaInicio,fechaFin){
                 $.ajax({
-                    url:"/api/audiencia/SalasDisponibles",
+                    url:"/audiencia/SalasDisponibles",
                     type:"POST",
                     data:{
                         fechaInicio:fechaInicio,
                         fechaFin:fechaFin,
-                        centro_id:1
+                        centro_id:1,
+                        _token:"{{ csrf_token() }}"
                     },
                     dataType:"json",
                     success:function(data){
@@ -296,9 +299,9 @@
                             swal({title: 'Error',text: 'Selecciona una relación al menos',icon: 'warning'});
                             return false;
                         }
-                        var url = '/api/audiencia/nuevaAudiencia';
+                        var url = '/audiencia/nuevaAudiencia';
                     }else{
-                        var url = '/api/audiencia/calendarizar';
+                        var url = '/audiencia/calendarizar';
                     }
                     $.ajax({
                         url:url,
@@ -312,7 +315,8 @@
                             asignacion:validacion.arrayEnvio,
                             nuevaCalendarizacion:'S',
                             listaRelaciones:listaRelaciones,
-                            audiencia_id:$("#audiencia_id").val()
+                            audiencia_id:$("#audiencia_id").val(),
+                            _token:"{{ csrf_token() }}"
                         },
                         dataType:"json",
                         success:function(data){

@@ -8,19 +8,7 @@
 @include('includes.component.calendar')
 
 @section('content')
-<style>
-    .highlighted{
-        background-color: #FFFF00;
-        color: #000 !important;
-    }
-    .select2-results__option--highlighted{
-        background: #348fe2 !important;
-        color: #fff !important;
-    }
-    .select2-results__options {
-        max-height: 400px;
-    }
-</style>
+
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
         <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
@@ -30,7 +18,8 @@
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->
-    <h1 class="page-header">Administrar Audiencias <small>Resolución de Audiencias</small></h1>
+    <h1 class="h2">Administrar Audiencias <small>Resolución de Audiencias</small></h1>
+    <hr class="red">
     <!-- end page-header -->
     <!-- begin panel -->
     <a href="{!! route('audiencias.index') !!}" class="btn btn-primary btn-sm pull-right"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
@@ -853,7 +842,7 @@
             cargarGeneros();
             cargarTipoContactos();
             $.ajax({
-                url:"/api/resoluciones",
+                url:"/resoluciones",
                 type:"GET",
                 dataType:"json",
                 success:function(data){
@@ -878,7 +867,7 @@
         $("#btnGuardarResolucion").on("click",function(){
             if(!validarResolucion()){
                 $.ajax({
-                    url:"/api/audiencia/validar_partes/{{ $audiencia->id }}",
+                    url:"/audiencia/validar_partes/{{ $audiencia->id }}",
                     type:"GET",
                     dataType:"json",
                     success:function(data){
@@ -1039,7 +1028,7 @@
         };
         function cargarDocumentos(){
             $.ajax({
-                url:"/api/audiencia/documentos/"+$("#audiencia_id").val(),
+                url:"/audiencia/documentos/"+$("#audiencia_id").val(),
                 type:"GET",
                 dataType:"json",
                 async:true,
@@ -1113,7 +1102,7 @@
         // Funciones de Representantes legales
         function cargarGeneros(){
             $.ajax({
-                url:"/api/generos",
+                url:"/generos",
                 type:"GET",
                 dataType:"json",
                 success:function(data){
@@ -1131,7 +1120,7 @@
         }
         function cargarTipoContactos(){
             $.ajax({
-                url:"/api/tipo_contactos",
+                url:"/tipo_contactos",
                 type:"GET",
                 dataType:"json",
                 success:function(data){
@@ -1150,7 +1139,7 @@
         }
         function AgregarRepresentante(parte_id){
             $.ajax({
-                url:"/api/partes/representante/"+parte_id,
+                url:"/partes/representante/"+parte_id,
                 type:"GET",
                 dataType:"json",
                 success:function(data){
@@ -1208,13 +1197,14 @@
         $("#btnAgregarContacto").on("click",function(){
             if($("#parte_id").val() != ""){
                 $.ajax({
-                    url:"/api/partes/representante/contacto",
+                    url:"/partes/representante/contacto",
                     type:"POST",
                     dataType:"json",
                     data:{
                         tipo_contacto_id:$("#tipo_contacto_id").val(),
                         contacto:$("#contacto").val(),
-                        parte_id:$("#parte_id").val()
+                        parte_id:$("#parte_id").val(),
+                        _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
                         if(data != null && data != ""){
@@ -1292,12 +1282,13 @@
         function eliminarContacto(indice){
             if(listaContactos[indice].id != null){
                 $.ajax({
-                    url:"/api/partes/representante/contacto/eliminar",
+                    url:"/partes/representante/contacto/eliminar",
                     type:"POST",
                     dataType:"json",
                     data:{
                         contacto_id:listaContactos[indice].id,
-                        parte_id:$("#parte_id").val()
+                        parte_id:$("#parte_id").val(),
+                        _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
                         if(data != null && data != ""){
@@ -1316,7 +1307,7 @@
         $("#btnGuardarRepresentante").on("click",function(){
             if(!validarRepresentante()){
                 $.ajax({
-                    url:"/api/partes/representante",
+                    url:"/partes/representante",
                     type:"POST",
                     dataType:"json",
                     data:{
@@ -1334,7 +1325,8 @@
                         parte_id:$("#parte_id").val(),
                         parte_representada_id:$("#parte_representada_id").val(),
                         audiencia_id:$("#audiencia_id").val(),
-                        listaContactos:listaContactos
+                        listaContactos:listaContactos,
+                        _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
                         if(data != null && data != ""){
@@ -1407,7 +1399,7 @@
         }
         function getPersonasComparecer(){
             $.ajax({
-                url:"/api/audiencia/fisicas/{{ $audiencia->id }}",
+                url:"/audiencia/fisicas/{{ $audiencia->id }}",
                 type:"GET",
                 dataType:"json",
                 success:function(data){
@@ -1453,7 +1445,7 @@
             var validar = validarResolucionComparecientes();
             if(!validar.error){
                 $.ajax({
-                    url:"/api/audiencia/resolucion",
+                    url:"/audiencia/resolucion",
                     type:"POST",
                     dataType:"json",
                     data:{
@@ -1462,7 +1454,8 @@
                         desahogo:$("#desahogo").val(),
                         resolucion_id:$("#resolucion_id").val(),
                         comparecientes:validar.comparecientes,
-                        listaRelacion:listaResolucionesIndividuales
+                        listaRelacion:listaResolucionesIndividuales,
+                        _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
                         if(data != null && data != ""){
@@ -1523,7 +1516,7 @@
             var validar = validarResolucionComparecientes();
             if(!validar.error){
                 $.ajax({
-                    url:"/api/audiencia/resolucion",
+                    url:"/audiencia/resolucion",
                     type:"POST",
                     dataType:"json",
                     data:{
@@ -1532,7 +1525,8 @@
                         desahogo:$("#desahogo").val(),
                         resolucion_id:$("#resolucion_id").val(),
                         comparecientes:validar.comparecientes,
-                        listaRelacion:[]
+                        listaRelacion:[],
+                        _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
                         if(data != null && data != ""){
@@ -1650,13 +1644,14 @@
                 }).then(function(isConfirm){
                     if(isConfirm){
                         $.ajax({
-                            url:"/api/audiencia/nuevaAudiencia",
+                            url:"/audiencia/nuevaAudiencia",
                             type:"POST",
                             dataType:"json",
                             data:{
                                 audiencia_id:'{{ $audiencia->id }}',
                                 nuevaCalendarizacion:'N',
-                                listaRelaciones:validacion.listaRelaciones
+                                listaRelaciones:validacion.listaRelaciones,
+                                _token:"{{ csrf_token() }}"
                             },
                             success:function(data){
                                 if(data != null && data != ""){
@@ -1734,7 +1729,7 @@
 
         $("#giro_comercial_solicitante").select2({
             ajax: {
-                url: '/api/giros_comerciales/filtrarGirosComerciales',
+                url: '/giros_comerciales/filtrarGirosComerciales',
                 type:"POST",
                 dataType:"json",
                 delay: 400,
@@ -1742,7 +1737,8 @@
                 data:function (params) {
                     $("#term").val(params.term);
                     var data = {
-                        nombre: params.term
+                        nombre: params.term,
+                        _token:"{{ csrf_token() }}"
                     }
                     return data;
                 },
@@ -1807,7 +1803,7 @@
         $("#btnGuardarDatoLaboral").on("click",function(){
             if(!validarDatosLaborales()){
                 $.ajax({
-                    url:"/api/partes/datoLaboral",
+                    url:"/partes/datoLaboral",
                     type:"POST",
                     dataType:"json",
                     data:{
@@ -1826,6 +1822,7 @@
                         giro_comercial_id : $("#giro_comercial_hidden").val(),
                         parte_id:$("#parte_id").val(),
                         resolucion:$("#resolucion_dato_laboral").val(),
+                        _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
                         if(data != null && data != ""){
@@ -1872,7 +1869,7 @@
         function DatosLaborales(parte_id){
             $("#parte_id").val(parte_id);
             $.ajax({
-                url:"/api/partes/datoLaboral/"+parte_id,
+                url:"/partes/datoLaboral/"+parte_id,
                 type:"GET",
                 dataType:"json",
                 success:function(data){
