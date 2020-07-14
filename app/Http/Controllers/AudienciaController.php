@@ -14,6 +14,7 @@ use App\Compareciente;
 use App\TipoParte;
 use App\AudienciaParte;
 use App\ConceptoPagoResolucion;
+use App\EtapaResolucion;
 use App\Events\GenerateDocumentResolution;
 use App\ResolucionPartes;
 use App\Resolucion;
@@ -116,6 +117,12 @@ class AudienciaController extends Controller
     public function create()
     {
         //
+    }
+
+    public function guiaAudiencia($id){
+        $etapa_resolucion = EtapaResolucion::all();
+        $audiencia = Audiencia::find($id);
+        return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia'));
     }
 
     /**
