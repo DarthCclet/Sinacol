@@ -1,11 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\TipoContador;
+use App\Periodicidad;
 use Illuminate\Http\Request;
 
-class TipoContadorController extends Controller
+class PeriodicidadController extends Controller
 {
     protected $request;
     public function __construct(Request $request) {
@@ -19,11 +18,11 @@ class TipoContadorController extends Controller
      */
     public function index()
     {
-        $tipos = TipoContador::all();
+        $periodicidades = Periodicidad::all();
         if ($this->request->wantsJson()) {
-            return $this->sendResponse($tipos, 'SUCCESS');
+            return $this->sendResponse($periodicidades, 'SUCCESS');
         }
-        return view('catalogos.tipos_contadores.index', compact('tipos'));
+        return view('catalogos.periodicidades.index', compact('periodicidades'));
     }
 
     /**
@@ -33,7 +32,7 @@ class TipoContadorController extends Controller
      */
     public function create()
     {
-        return view('catalogos.tipos_contadores.create');
+        return view('catalogos.periodicidades.create');
     }
 
     /**
@@ -44,17 +43,17 @@ class TipoContadorController extends Controller
      */
     public function store(Request $request)
     {
-        TipoContador::create($request->all());
-        return redirect('tipos_contadores');
+        Periodicidad::create($request->all());
+        return redirect('periodicidades');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(TipoContador $tipoContador)
+    public function show($id)
     {
         //
     }
@@ -62,39 +61,39 @@ class TipoContadorController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        $tipo = TipoContador::find($id);
-        return view('catalogos.tipos_contadores.edit')->with('tipo', $tipo);
+        $periodicidad = Periodicidad::find($id);
+        return view('catalogos.periodicidades.edit')->with('periodicidad', $periodicidad);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        $tipo = TipoContador::find($id);
-        $tipo->update($request->all());
-        return redirect('tipos_contadores');
+        $periodicidad = Periodicidad::find($id);
+        $periodicidad->update($request->all());
+        return redirect('periodicidades');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $tipo = TipoContador::find($id);
-        $tipo->delete();
-        return redirect('tipos_contadores');
+        $periodicidad = Periodicidad::find($id);
+        $periodicidad->delete();
+        return redirect('periodicidades');
     }
 }

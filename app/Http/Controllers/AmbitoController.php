@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class AmbitoController extends Controller
 {
+    protected $request;
+
+    public function __construct(Request $request)
+    {
+        $this->middleware('auth');
+        $this->request = $request;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +21,11 @@ class AmbitoController extends Controller
      */
     public function index()
     {
-        //
+        $ambitos = Ambito::all();
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($ambitos, 'SUCCESS');
+        }
+        return view('catalogos.ambitos.index', compact('ambitos'));
     }
 
     /**
@@ -24,7 +35,7 @@ class AmbitoController extends Controller
      */
     public function create()
     {
-        //
+        return view('catalogos.ambitos.create');
     }
 
     /**
@@ -35,7 +46,8 @@ class AmbitoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Ambito::create($request->all());
+        return redirect('ambitos');
     }
 
     /**
@@ -46,7 +58,7 @@ class AmbitoController extends Controller
      */
     public function show(Ambito $ambito)
     {
-        //
+        return $ambito;
     }
 
     /**
@@ -55,9 +67,10 @@ class AmbitoController extends Controller
      * @param  \App\Ambito  $ambito
      * @return \Illuminate\Http\Response
      */
-    public function edit(Ambito $ambito)
+    public function edit($id)
     {
-        //
+        $ambito = Ambito::find($id);
+        return view('catalogos.ambitos.edit')->with('ambito', $ambito);
     }
 
     /**
@@ -69,7 +82,8 @@ class AmbitoController extends Controller
      */
     public function update(Request $request, Ambito $ambito)
     {
-        //
+        $ambito->update($request->all());
+        return redirect('ambitos');
     }
 
     /**
@@ -80,6 +94,7 @@ class AmbitoController extends Controller
      */
     public function destroy(Ambito $ambito)
     {
-        //
+        $ambito->delete();
+        return redirect('ambitos');
     }
 }

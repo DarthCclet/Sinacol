@@ -47,7 +47,7 @@ class EstadoController extends Controller
         if ($this->request->wantsJson()) {
             return $this->sendResponse($estados, 'SUCCESS');
         }
-        abort(404);
+        return view('catalogos.estados.index', compact('estados'));
     }
 
     /**
@@ -57,7 +57,7 @@ class EstadoController extends Controller
      */
     public function create()
     {
-        //
+        return view('catalogos.estados.create');
     }
 
     /**
@@ -68,7 +68,8 @@ class EstadoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Estado::create($request->all());
+        return redirect('estados');
     }
 
     /**
@@ -77,9 +78,9 @@ class EstadoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Estado $estado)
     {
-        //
+        return $estado;
     }
 
     /**
@@ -90,7 +91,8 @@ class EstadoController extends Controller
      */
     public function edit($id)
     {
-        //
+        $estado = Estado::find($id);
+        return view('catalogos.clasificacion_archivo.edit')->with('estado', $estado);
     }
 
     /**
@@ -100,9 +102,10 @@ class EstadoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Estado $estado)
     {
-        //
+        $estado->update($request->all());
+        return redirect('estados');
     }
 
     /**
@@ -111,8 +114,9 @@ class EstadoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Estado $estado)
     {
-        //
+        $estado->delete();
+        return response()->json(null,204);
     }
 }

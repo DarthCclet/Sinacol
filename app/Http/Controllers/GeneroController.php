@@ -7,6 +7,11 @@ use App\Genero;
 
 class GeneroController extends Controller
 {
+    protected $request;
+    public function __construct(Request $request) {
+        $this->middleware('auth');
+        $this->request = $request;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +19,11 @@ class GeneroController extends Controller
      */
     public function index()
     {
-        return Genero::all();
+        $generos = Genero::all();
+        if ($this->request->wantsJson()) {
+            return $this->sendResponse($generos, 'SUCCESS');
+        }
+        return view('catalogos.generos.index', compact('generos'));
     }
 
     /**
@@ -24,7 +33,7 @@ class GeneroController extends Controller
      */
     public function create()
     {
-        //
+        return view('catalogos.generos.create');
     }
 
     /**
@@ -35,7 +44,8 @@ class GeneroController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Genero::create($request->all());
+        return redirect('generos');
     }
 
     /**
@@ -44,9 +54,9 @@ class GeneroController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Genero $genero)
     {
-        //
+        return $genero;
     }
 
     /**
@@ -57,7 +67,8 @@ class GeneroController extends Controller
      */
     public function edit($id)
     {
-        //
+        $genero = Genero::find($id);
+        return view('catalogos.generos.edit')->with('genero', $genero);
     }
 
     /**
@@ -67,9 +78,10 @@ class GeneroController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Genero $generos)
     {
-        //
+        $generos->update($request->all());
+        return redirect('generos');
     }
 
     /**
@@ -78,8 +90,9 @@ class GeneroController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Genero $generos)
     {
-        //
+        $generos->delete();
+        return response()->json(null,204);
     }
 }

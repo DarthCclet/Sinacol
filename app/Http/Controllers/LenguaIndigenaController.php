@@ -47,7 +47,8 @@ class LenguaIndigenaController extends Controller
         if ($this->request->wantsJson()) {
             return $this->sendResponse($lenguaIndigena, 'SUCCESS');
         }
-        abort(404);
+        $lenguas = $lenguaIndigena;
+        return view('catalogos.lenguas_indigenas.index', compact('lenguas'));
     }
 
     /**
@@ -57,7 +58,7 @@ class LenguaIndigenaController extends Controller
      */
     public function create()
     {
-        //
+        return view('catalogos.lenguas_indigenas.create');
     }
 
     /**
@@ -68,7 +69,8 @@ class LenguaIndigenaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        LenguaIndigena::create($request->all());
+        return redirect('lenguas_indigenas');
     }
 
     /**
@@ -77,9 +79,9 @@ class LenguaIndigenaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(LenguaIndigena $lenguaIndigena)
     {
-        //
+        return $lenguaIndigena;
     }
 
     /**
@@ -90,7 +92,8 @@ class LenguaIndigenaController extends Controller
      */
     public function edit($id)
     {
-        //
+        $lengua = LenguaIndigena::find($id);
+        return view('catalogos.lenguas_indigenas.edit')->with('lengua', $lengua);
     }
 
     /**
@@ -102,7 +105,9 @@ class LenguaIndigenaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $lengua = LenguaIndigena::find($id);
+        $lengua->update($request->all());
+        return redirect('lenguas_indigenas');
     }
 
     /**
@@ -113,6 +118,8 @@ class LenguaIndigenaController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $lengua = LenguaIndigena::find($id);
+        $lengua->delete();
+        return redirect('lenguas_indigenas');
     }
 }

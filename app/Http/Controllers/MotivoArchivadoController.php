@@ -1,16 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\TipoContador;
+use App\MotivoArchivado;
 use Illuminate\Http\Request;
 
-class TipoContadorController extends Controller
+class MotivoArchivadoController extends Controller
 {
     protected $request;
-    public function __construct(Request $request) {
-        $this->middleware('auth');
+
+    public function __construct(Request $request)
+    {
         $this->request = $request;
+        $this->middleware('auth');
     }
     /**
      * Display a listing of the resource.
@@ -19,11 +20,11 @@ class TipoContadorController extends Controller
      */
     public function index()
     {
-        $tipos = TipoContador::all();
+        $motivos = MotivoArchivado::all();
         if ($this->request->wantsJson()) {
-            return $this->sendResponse($tipos, 'SUCCESS');
+            return $this->sendResponse($motivos, 'SUCCESS');
         }
-        return view('catalogos.tipos_contadores.index', compact('tipos'));
+        return view('catalogos.motivos_archivado.index', compact('motivos'));
     }
 
     /**
@@ -33,7 +34,7 @@ class TipoContadorController extends Controller
      */
     public function create()
     {
-        return view('catalogos.tipos_contadores.create');
+        return view('catalogos.motivos_archivado.create');
     }
 
     /**
@@ -44,17 +45,17 @@ class TipoContadorController extends Controller
      */
     public function store(Request $request)
     {
-        TipoContador::create($request->all());
-        return redirect('tipos_contadores');
+        MotivoArchivado::create($request->all());
+        return redirect('motivos_archivado');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(TipoContador $tipoContador)
+    public function show($id)
     {
         //
     }
@@ -62,39 +63,39 @@ class TipoContadorController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        $tipo = TipoContador::find($id);
-        return view('catalogos.tipos_contadores.edit')->with('tipo', $tipo);
+        $motivo = MotivoArchivado::find($id);
+        return view('catalogos.motivos_archivado.edit')->with('motivo', $motivo);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        $tipo = TipoContador::find($id);
-        $tipo->update($request->all());
-        return redirect('tipos_contadores');
+        $motivo = MotivoArchivado::find($id);
+        $motivo->update($request->all());
+        return redirect('motivos_archivado');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $tipo = TipoContador::find($id);
-        $tipo->delete();
-        return redirect('tipos_contadores');
+        $motivo = MotivoArchivado::find($id);
+        $motivo->delete();
+        return redirect('motivos_archivado');
     }
 }

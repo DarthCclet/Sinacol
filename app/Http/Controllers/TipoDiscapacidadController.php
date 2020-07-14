@@ -48,7 +48,8 @@ class TipoDiscapacidadController extends Controller
         if ($this->request->wantsJson()) {
             return $this->sendResponse($tipoDiscapacidades, 'SUCCESS');
         }
-        abort(404);
+        $tipos = $tipoDiscapacidades;
+        return view('catalogos.tipos_discapacidades.index', compact('tipos'));
     }
 
     /**
@@ -58,7 +59,7 @@ class TipoDiscapacidadController extends Controller
      */
     public function create()
     {
-        //
+        return view('catalogos.tipos_discapacidades.create');
     }
 
     /**
@@ -69,7 +70,8 @@ class TipoDiscapacidadController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        TipoDiscapacidad::create($request->all());
+        return redirect('tipos_discapacidades');
     }
 
     /**
@@ -89,9 +91,10 @@ class TipoDiscapacidadController extends Controller
      * @param  \App\TipoDiscapacidad  $tipoDiscapacidad
      * @return \Illuminate\Http\Response
      */
-    public function edit(TipoDiscapacidad $tipoDiscapacidad)
+    public function edit($id)
     {
-        //
+        $tipo = TipoDiscapacidad::find($id);
+        return view('catalogos.tipos_discapacidades.edit')->with('tipo', $tipo);
     }
 
     /**
@@ -101,9 +104,11 @@ class TipoDiscapacidadController extends Controller
      * @param  \App\TipoDiscapacidad  $tipoDiscapacidad
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, TipoDiscapacidad $tipoDiscapacidad)
+    public function update(Request $request, $id)
     {
-        //
+        $tipo = TipoDiscapacidad::find($id);
+        $tipo->update($request->all());
+        return redirect('tipos_discapacidades');
     }
 
     /**
@@ -112,8 +117,10 @@ class TipoDiscapacidadController extends Controller
      * @param  \App\TipoDiscapacidad  $tipoDiscapacidad
      * @return \Illuminate\Http\Response
      */
-    public function destroy(TipoDiscapacidad $tipoDiscapacidad)
+    public function destroy($id)
     {
-        //
+        $tipo = TipoDiscapacidad::find($id);
+        $tipo->delete();
+        return redirect('tipos_discapacidades');
     }
 }

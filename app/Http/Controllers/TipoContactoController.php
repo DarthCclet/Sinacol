@@ -37,7 +37,8 @@ class TipoContactoController extends Controller
         if ($this->request->wantsJson()) {
             return $this->sendResponse($tipoContacto, 'SUCCESS');
         }
-        abort(404);
+        $tipos = $tipoContacto;
+        return view('catalogos.tipos_contactos.index', compact('tipos'));
     }
 
     /**
@@ -47,7 +48,7 @@ class TipoContactoController extends Controller
      */
     public function create()
     {
-        //
+        return view('catalogos.tipos_contactos.create');
     }
 
     /**
@@ -58,7 +59,8 @@ class TipoContactoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        TipoContacto::create($request->all());
+        return redirect('tipos_contactos');
     }
 
     /**
@@ -80,7 +82,8 @@ class TipoContactoController extends Controller
      */
     public function edit($id)
     {
-        //
+        $tipo = TipoContacto::find($id);
+        return view('catalogos.tipos_contactos.edit')->with('tipo', $tipo);
     }
 
     /**
@@ -92,7 +95,9 @@ class TipoContactoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $tipo = TipoContacto::find($id);
+        $tipo->update($request->all());
+        return redirect('tipos_contactos');
     }
 
     /**
@@ -103,6 +108,8 @@ class TipoContactoController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $tipo = TipoContacto::find($id);
+        $tipo->delete();
+        return redirect('tipos_contactos');
     }
 }

@@ -1,16 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\TipoContador;
+use App\ConceptoPagoResolucion;
 use Illuminate\Http\Request;
 
-class TipoContadorController extends Controller
+class ConceptoPagoResolucionesController extends Controller
 {
-    protected $request;
-    public function __construct(Request $request) {
-        $this->middleware('auth');
+ // private $docu;
+    public function __construct(Request $request)
+    {
         $this->request = $request;
+        $this->middleware('auth');
     }
     /**
      * Display a listing of the resource.
@@ -19,11 +19,11 @@ class TipoContadorController extends Controller
      */
     public function index()
     {
-        $tipos = TipoContador::all();
+        $conceptos = ConceptoPagoResolucion::all();
         if ($this->request->wantsJson()) {
-            return $this->sendResponse($tipos, 'SUCCESS');
+            return $this->sendResponse($conceptos, 'SUCCESS');
         }
-        return view('catalogos.tipos_contadores.index', compact('tipos'));
+        return view('catalogos.conceptos_pagos.index', compact('conceptos'));
     }
 
     /**
@@ -33,7 +33,7 @@ class TipoContadorController extends Controller
      */
     public function create()
     {
-        return view('catalogos.tipos_contadores.create');
+        return view('catalogos.conceptos_pagos.create');
     }
 
     /**
@@ -44,57 +44,57 @@ class TipoContadorController extends Controller
      */
     public function store(Request $request)
     {
-        TipoContador::create($request->all());
-        return redirect('tipos_contadores');
+        ConceptoPagoResolucion::create($request->all());
+        return redirect('conceptos_pagos');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(TipoContador $tipoContador)
+    public function show(ConceptoPagoResolucion $conceptos)
     {
-        //
+        return $conceptos;
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        $tipo = TipoContador::find($id);
-        return view('catalogos.tipos_contadores.edit')->with('tipo', $tipo);
+        $concepto = ConceptoPagoResolucion::find($id);
+        return view('catalogos.conceptos_pagos.edit')->with('concepto', $concepto);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        $tipo = TipoContador::find($id);
-        $tipo->update($request->all());
-        return redirect('tipos_contadores');
+        $concepto = ConceptoPagoResolucion::find($id);
+        $concepto->update($request->all());
+        return redirect('conceptos_pagos');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\TipoContador  $tipoContador
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $tipo = TipoContador::find($id);
-        $tipo->delete();
-        return redirect('tipos_contadores');
+        $concepto = ConceptoPagoResolucion::find($id);
+        $concepto->delete();
+        return redirect('conceptos_pagos');
     }
 }

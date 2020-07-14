@@ -14,7 +14,7 @@ class ClasificacionArchivoController extends Controller
     public function __construct(Request $request)
     {
         $this->request = $request;
-        // $this->docu = new ComunicacionCJF();
+        $this->middleware('auth');
     }
     /**
      * Display a listing of the resource.
@@ -31,15 +31,14 @@ class ClasificacionArchivoController extends Controller
         if ($this->request->get('all')) {
             $clasificacion = $clasificacion->get();
         } else {
-            $clasificacion->select("id","nombre","created_at as creado","updated_at as modificado","deleted_at as eliminado");
+            $clasificacion->select("id","nombre","entidad","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $clasificacion = $clasificacion->paginate($this->request->get('per_page', 10));
         }
 
         if ($this->request->wantsJson()) {
             return $this->sendResponse($clasificacion, 'SUCCESS');
         }
-
-        abort(404);
+        return view('catalogos.clasificacion_archivo.index', compact('clasificacion'));
     }
 
     /**
@@ -49,7 +48,7 @@ class ClasificacionArchivoController extends Controller
      */
     public function create()
     {
-        //
+        return view('catalogos.clasificacion_archivo.create');
     }
 
     /**
@@ -60,7 +59,8 @@ class ClasificacionArchivoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        ClasificacionArchivo::create($request->all());
+        return redirect('clasificacion_archivos');
     }
 
     /**
@@ -69,9 +69,9 @@ class ClasificacionArchivoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(ClasificacionArchivo $clasificacion)
     {
-        //
+        return $clasificacion;
     }
 
     /**
@@ -82,7 +82,8 @@ class ClasificacionArchivoController extends Controller
      */
     public function edit($id)
     {
-        //
+        $clasificacion = ClasificacionArchivo::find($id);
+        return view('catalogos.clasificacion_archivo.edit')->with('clasificacion', $clasificacion);
     }
 
     /**
@@ -94,7 +95,9 @@ class ClasificacionArchivoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $clasificacion = ClasificacionArchivo::find($id);
+        $clasificacion->update($request->all());
+        return redirect('clasificacion_archivos');
     }
 
     /**
@@ -105,6 +108,8 @@ class ClasificacionArchivoController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $clasificacion = ClasificacionArchivo::find($id);
+        $clasificacion->delete();
+        return redirect('clasificacion_archivos');
     }
 }

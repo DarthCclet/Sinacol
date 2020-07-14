@@ -728,6 +728,28 @@ class AudienciaController extends Controller
         return $audienciaN;
     }
 
+    ############################### A partir de este punto comienzan las funciones para el chacklist ########################################
+    public function AgendaConciliador(){
+        return view('expediente.audiencias.agendaConciliador');
+    }
+    
+    public function GetAudienciaConciliador(){
+//        obtenemos los datos del conciliador
+        $conciliador = Conciliador::find(2);
+//        obtenemos las audiencias programadas a partir de el día de hoy
+        $audiencias = $conciliador->ConciliadorAudiencia;
+        
+        $arrayEventos=[];
+        foreach($audiencias as $audiencia){
+            $start = $audiencia->audiencia->fecha_audiencia ." ". $audiencia->audiencia->hora_inicio;
+            $end = $audiencia->audiencia->fecha_audiencia ." ". $audiencia->audiencia->hora_fin;
+            array_push($arrayEventos,array("start" => $start ,"end" => $end,"title" => $audiencia->audiencia->folio."/".$audiencia->audiencia->anio,"color" => "#00ACAC"));
+        }
+        return $arrayEventos;
+        
+//        return $audiencias;
+    }
+    
      /**
      * Función para almacenar catalogos (nombre,id) en cache
      *
@@ -744,4 +766,8 @@ class AudienciaController extends Controller
         }
         return $respuesta;
     }
+    
+    
+    
+    
 }
