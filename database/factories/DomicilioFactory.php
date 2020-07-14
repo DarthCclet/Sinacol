@@ -4,6 +4,7 @@
 
 use App\Domicilio;
 use App\Estado;
+use App\Municipio;
 use App\TipoAsentamiento;
 use App\TipoVialidad;
 use Faker\Generator as Faker;
@@ -13,6 +14,7 @@ $factory->define(Domicilio::class, function (Faker $faker) {
     $tipo_asentamiento = TipoAsentamiento::inRandomOrder()->first();
     $tipo_vialidad = TipoVialidad::inRandomOrder()->first();
     $estado = Estado::inRandomOrder()->first();
+    $municipio = Municipio::inRandomOrder()->first();
     //TODO: Extraer algún domiciliable cuando ya esté disponible algun modelo docmiciliable
     $domiciliable_id = 1;
     $domiciliable_type = 'App\User';
@@ -32,6 +34,7 @@ $factory->define(Domicilio::class, function (Faker $faker) {
 
         'asentamiento' => implode(" ",$faker->words(3)),
         'municipio' => implode(" ", $faker->words(3)),
+        'municipio_id' => $municipio->id,
 
         'estado' => $estado->nombre,
         'estado_id' => $estado->id,
