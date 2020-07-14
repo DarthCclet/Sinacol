@@ -85,6 +85,8 @@ Route::post('giros_comerciales/getAncestors','GiroComercialController@getAncesto
 Route::post('giros_comerciales/getGirosComercialesByNivelId','GiroComercialController@getGirosComercialesByNivelId');
 Route::Post('giros_comerciales/cambiar_ambito','GiroComercialController@CambiarAmbito');
 Route::Post('giros_comerciales/cambiar_padre','GiroComercialController@CambiarPadre');
+Route::resource('etapa_resolucion_audiencia','EtapaResolucionAudienciaController');
+Route::get('etapa_resolucion_audiencia/audiencia/{id}','EtapaResolucionAudienciaController@getEtapasAudiencia');
 Route::resource('estados','EstadoController')->middleware('client');
 Route::resource('nacionalidades','NacionalidadController')->middleware('client');
 Route::resource('clasificacion_archivos','ClasificacionArchivoController');

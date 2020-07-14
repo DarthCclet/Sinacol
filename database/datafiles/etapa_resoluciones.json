@@ -1,0 +1,35 @@
+{
+    "datos": [
+        {
+            "id": 1,
+            "nombre": "Notificación y comparecencias",
+            "descripcion": "El conciliador auxiliar lo lleva a cabo antes de entrar a la sala"
+        },
+        {
+            "id": 2,
+            "nombre": "Preámbulo",
+            "descripcion": "El conciliador debe confirmar que sí leyó y explicó el acta"
+        },
+        {
+            "id": 3,
+            "nombre": "Primera manifestación de las partes",
+            "descripcion": " El conciliador debe confirmar que les dio la palabra y debe resumir lo que dijeron y plasmarlo en el sistema"
+        },
+        {
+            "id": 4,
+            "nombre": "Propuesta de convenio conciliatorio",
+            "descripcion": "Debe darle la cuantificación del 100% y del 50% de indemnización junto con prestaciones, pero debe ser editable para que pueda ajustarlo el conciliador según las características del caso y las manifestaciones de las partes"
+        },
+        {
+            "id": 5,
+            "nombre": "Segunda manifestación de las partes",
+            "descripcion": "Debe confirmar que les dio la palabra y resumir lo que dijeron"
+        },
+        {
+            "id": 6,
+            "nombre": "Final de la audiencia",
+            "descripcion": "Hay 3 posibilidades: convenio, segunda audiencia, constancia de no conciliación, consideramos que aquí solamente escoge el conciliador cuál de las opciones es, y sale en automático el texto"
+        }
+    ],
+    "numReg": 6
+}
