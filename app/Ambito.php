@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ambito extends Model
 {
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
+
     use SoftDeletes;
     /**
      * Funcion para asociar con modelo GiroComercial con hasMany

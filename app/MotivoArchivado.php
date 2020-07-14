@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class MotivoArchivado extends Model
 {
     use SoftDeletes;
+    protected $guarded = ['id','created_at','updated_at','deleted_at'];
     protected $table = "motivo_archivados";
     /**
      * Relación con resolucionPartes

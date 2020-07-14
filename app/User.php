@@ -88,6 +88,6 @@ class User extends Authenticatable implements AuditableContract
     public function persona()
     {
         return $this->belongsTo(Persona::class)
-            ->withDefault(['nombre'=>'No Asignado', 'primer_apellido'=>'', 'segundo_apellido'=>'']);
+            ->withDefault(['nombre'=>'Eduardo', 'primer_apellido'=>'Sánchez', 'segundo_apellido'=>'Zarco']);
     }
 }

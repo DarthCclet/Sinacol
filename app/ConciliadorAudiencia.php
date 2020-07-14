@@ -20,10 +20,12 @@ class ConciliadorAudiencia extends Model implements AuditableContract
     {
         if (Arr::has($data, 'new_values.conciliador_id')) {
             if($data["event"] != "created"){
-                $data['old_values']['conciliador'] = Sala::find($this->getOriginal('conciliador_id'))->sala;
+                $conciliador = Conciliador::find($this->getOriginal('conciliador_id'))->persona;
+                $data['old_values']['conciliador'] = $conciliador->nombre." ".$conciliador->primer_apellido." ".$conciliador->segundo_apellido;
                 unset($data['old_values']['conciliador_id']);
             }
-            $data['new_values']['conciliador'] = Sala::find($this->getAttribute('conciliador_id'))->sala;
+            $conciliadorNew = Conciliador::find($this->getAttribute('conciliador_id'))->persona;
+            $data['new_values']['conciliador'] = $conciliadorNew->nombre." ".$conciliadorNew->primer_apellido." ".$conciliadorNew->segundo_apellido;
             unset($data['new_values']['conciliador_id']);
         }
         $data = $this->cambiarEvento($data);
