@@ -51,7 +51,7 @@ class EtapaResolucionAudienciaController extends Controller
             $request->validate([
                 'etapa_resolucion_id' => 'required',
                 'audiencia_id' => 'required',
-                'evidencia' => 'required'
+//                'evidencia' => 'required'
             ]);
             $etapaAudiencia = EtapaResolucionAudiencia::where('audiencia_id', $request->audiencia_id)->where('etapa_resolucion_id',$request->etapa_resolucion_id)->first();
             if($etapaAudiencia == null){
@@ -59,7 +59,7 @@ class EtapaResolucionAudienciaController extends Controller
                 [
                     "etapa_resolucion_id"=>$request->etapa_resolucion_id,
                     "audiencia_id"=>$request->audiencia_id,
-                    "evidencia"=>$request->evidencia 
+                    "evidencia"=>isset($request->evidencia) ? $request->evidencia : true 
                 ]);
             }else{
                 $etapaAudiencia->update(["evidencia"=>$request->evidencia ]);
@@ -68,7 +68,6 @@ class EtapaResolucionAudienciaController extends Controller
                 return $this->sendResponse($etapaAudiencia, 'SUCCESS');
             }
         }catch(Exception $e){
-            dd($e);
             if ($this->request->wantsJson()) {
                 return $this->sendError('Error al guardar la etapa', 'Error');
             }

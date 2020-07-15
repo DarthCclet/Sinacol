@@ -29,6 +29,7 @@ use App\ResolucionParteConcepto;
 use App\Traits\ValidateRange;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class AudienciaController extends Controller
 {
@@ -117,12 +118,6 @@ class AudienciaController extends Controller
     public function create()
     {
         //
-    }
-
-    public function guiaAudiencia($id){
-        $etapa_resolucion = EtapaResolucion::all();
-        $audiencia = Audiencia::find($id);
-        return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia'));
     }
 
     /**
@@ -753,8 +748,50 @@ class AudienciaController extends Controller
             array_push($arrayEventos,array("start" => $start ,"end" => $end,"title" => $audiencia->audiencia->folio."/".$audiencia->audiencia->anio,"color" => "#00ACAC"));
         }
         return $arrayEventos;
-        
-//        return $audiencias;
+    }
+    public function guiaAudiencia($id){
+        $etapa_resolucion = EtapaResolucion::all();
+        $audiencia = Audiencia::find($id);
+        $partes = array();
+        foreach($audiencia->audienciaParte as $key => $parte){
+            $parte->parte->tipoParte = $parte->parte->tipoParte;
+            $partes[$key] = $parte->parte;
+        }
+        $audiencia->partes = $partes;
+        $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
+        $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
+        $jornadas = $this->cacheModel('jornadas',Jornada::class);
+        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
+        $resoluciones = $this->cacheModel('resoluciones',Resolucion::class);
+        return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones'));
+    }
+    public function guardarComparecientes(){
+        DB::beginTransaction();
+        try{
+            foreach($this->request->comparecientes as $compareciente){
+                Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $this->request->audiencia_id,"presentado" => true]);
+            }
+            DB::commit();
+            return $this->sendResponse($this->request->audiencia_id, 'SUCCESS');
+        }catch(\Throwable $e){
+            DB::rollback();
+            return $this->sendError('Error al registrar los comparecientes', 'Error');
+        }
+    }
+    public function getComparecientes(){
+        $audiencia = Audiencia::find($this->request->audiencia_id);
+        $comparecientes = array();
+        foreach($audiencia->comparecientes as $key=>$compareciente){
+            $compareciente->parte = $compareciente->parte;
+            $parteRep=[];
+            if($compareciente->parte->tipo_parte_id == 3 && $compareciente->parte->parte_representada_id != null){
+                $parteRep = Parte::find($compareciente->parte->parte_representada_id);
+            }
+            $compareciente->parte->parteRepresentada = $parteRep;
+            $compareciente->parte->tipoParte = TipoParte::find($compareciente->parte->tipo_parte_id)->nombre;
+            $comparecientes[$key] = $compareciente;
+        }
+        return $comparecientes;
     }
     
      /**
