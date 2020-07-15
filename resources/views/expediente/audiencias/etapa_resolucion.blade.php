@@ -46,7 +46,7 @@
             <!-- begin timeline-body -->
         <div class="timeline-body" style="border: 1px solid black;">
                 <div class="timeline-header">
-                <span class="username"><a href="javascript:;">{{$etapa->descripcion}}</a> <small></small></span>
+                <span class="username"><a href="javascript:;">{{$etapa->nombre}}</a> <small></small></span>
                 </div>
             <div class="timeline-content" id="contentStep{{$etapa->id}}">
                     <p>
@@ -104,22 +104,143 @@
                                 <button class="btn btn-primary" align="center" id="btnCargarComparecientes">Continuar </button>
                                 @break
                             @case(2)
+                                <label>Recuerde explicar los aspectos importantes de la audiencia de conciliación:</label>
+                                <ul>
+                                    <li>No se reconoce carácter de representante legal de la parte trabajadora, aunque podrá comparecer con acompañante.</li>
+                                    <li>Lo dicho en la audiencia de conciliación es confidencial y no constituye prueba en ningún procedimiento jurisdiccional.</li>
+                                    <li>Las características de la conciliación, enfatizar sus beneficios.</li>
+                                    <li>La explicación de lo anterior ya está precargada en el sistema, usted solamente debe confirmar que revisó estos puntos con las partes, no es necesario que escriba un resumen de este preámbulo.</li>
+                                </ul>
+                                <br/>
+                                <br/>
                                 <input type="hidden" id="evidencia{{$etapa->id}}" value="true" />
-                                <button class="btn btn-primary" onclick="nextStep({{$etapa->id}})">Continuar </button>
+                                <div class="col-md-12">
+                                    <div class="col-md-12" style="margin-bottom: 5%">
+                                        <div >
+                                            <span class="text-muted m-l-5 m-r-20" for='switch1'>El acta fue explicada por el conciliador a las partes</span>
+                                        </div>
+                                        <div >
+                                            <input type="hidden" />
+                                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="explico_acta" name='solicita_traductor_solicitante'/>
+                                        </div>
+                                    </div>
+                                <button class="btn btn-primary" onclick="if($('#explico_acta').is(':checked')){nextStep({{$etapa->id}})}else{swal({title: 'Error',text: 'Es necesario seleccionar la opcion para continuar',icon: 'error'});}">Continuar </button>
+                                </div>
                             @break
                             @case(3)
-                                <input type="text" id="evidencia{{$etapa->id}}" />
+                            <p>Darle la palabra a la parte solicitante y luego a la parte solicitada. </p>
+                            <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
+                            <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
+                                <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->id}}" >
+                                </textarea>
                                 <button class="btn btn-primary" onclick="nextStep({{$etapa->id}})">Continuar </button>
                             @break
                             @case(4)
-                                <input type="text" id="evidencia{{$etapa->id}}" />
+                                <p>
+                                    El sistema le muestra 2 opciones de propuestas de convenio: 
+                                    <ol>
+                                    <li>el cálculo del 100% considerando indemnización, partes proporcionales de prestaciones y prima de antigüedad. </li>
+                                    <li>el mismo cálculo con 50% de la indemnización constitucional. Usted puede escoger una de estas alternativas o bien modificar las tablas. Lo que deja confirmado en el sistema será la propuesta de arreglo que se mostrará en el acta de audiencia.</li>
+                                    </ol>
+                                </p>
+                                <div>
+                                    
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Prestaci&oacute;n<th><th>Propuesta completo<th><th>Propuesta 45 d&iacute;as<th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Indemnizacion constitucional de 90 dias	<td><td>$126,000<td><td>$20,700<td>
+                                            </tr>
+                                            <tr>
+                                                <td>Indemnizacion constitucional de 45 dias	<td><td>$63,000<td><td>$10,350<td>
+                                            </tr>
+                                            <tr>
+                                                <td>Aguinaldo <td><td>$7,594.52<td><td>$1,247.67<td>
+                                            </tr>
+                                            <tr>
+                                                <td>Vacaciones<td><td>$3,620.82<td><td>$126,000<td>
+                                            </tr>
+                                            <tr>
+                                                <td>Prima vacacional<td><td>$905.21<td><td>$594.85<td>
+                                            </tr>
+                                            <tr>
+                                                <td>Prima antiguedad<td><td>$3,913.33<td><td>$148.71<td>
+                                            </tr>
+                                            <tr>
+                                                <td>TOTAL PRESTACIONES LEGALES<td><td>$142,033.88<td><td>$3,652.27<td>
+                                            </tr>
+                                            <tr>
+                                                <td>PRESTACIONES CON 45 DIAS INDEM<td><td>$79,033.88<td><td>$26,343.51<td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class=" col-md-12" style="margin:5%;">
+                                    <h5 class="col-form-label col-sm-10 pt-0">Seleccione una propuesta por favor</h5>
+                                    <div class="row">
+                                        <div class="col-sm-10 ">
+                                          <div class="form-check" style="margin-top: 2%;">
+                                            <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1" checked>
+                                            <label class="form-check-label" for="gridRadios1">
+                                              100% de indemnizaci&oacute;n
+                                            </label>
+                                          </div>
+                                          <div class="form-check" style="margin-top: 2%;">
+                                            <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="option2">
+                                            <label class="form-check-label" for="gridRadios2">
+                                                50% de indemnizaci&oacute;n
+                                            </label>
+                                          </div>
+                                          <div class="row">
+                                              <div class="form-check col-md-1 " style="margin-top: 2%;">
+                                                <input class="form-check-input" type="radio" onclick="$('#modal-propuesta-convenio').modal('show')" name="gridRadios" id="propuesta_otro" value="option3">
+                                                <label class="form-check-label" for="gridRadios3">
+                                                    Otro
+                                                </label>
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <a onclick="$('#modal-propuesta-convenio').modal('show'); $('#propuesta_otro').prop('checked',true);" class="btn btn-primary">Configurar</a>
+                                            </div>
+                                        </div>
+                                        </div>
+                                      </div>
+                                </div>
+                                <table class="table table-bordered" >
+                                    <thead>
+                                        <tr>
+                                            <th>Concepto</th>
+                                            <th>Dias</th>
+                                            <th>Monto</th> 
+                                            <th>Otro</th> 
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyConceptoPrincipal">
+                                    </tbody>
+                                </table>
+                                <input type="hidden" id="evidencia{{$etapa->id}}" />
                                 <button class="btn btn-primary" onclick="nextStep({{$etapa->id}})">Continuar </button>
                             @break
                             @case(5)
-                                <input type="text" id="evidencia{{$etapa->id}}" />
+                                <p>Darle la palabra a la parte solicitante y luego a la parte solicitada. </p>
+                                <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
+                                <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
+                                <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->id}}" >
+                                </textarea>
                                 <button class="btn btn-primary" onclick="nextStep({{$etapa->id}})">Continuar </button>
                             @break
                             @case(6)
+                                <label>Debe indicar cuál de las siguientes resoluciones de audiencia procede:</label>
+                                <ul>
+                                    <li>Convenio.</li>
+                                    <li>Agendar segunda audiencia.</li>
+                                    <li>Constancia de no conciliación.</li>
+                                    <li>Las terminaciones ya están cargadas en el sistema, solamente es necesario indicar el modo de terminación de la audiencia y el resultado respecto a cada par de solicitante-solicitado para que el sistema coloque la terminación correcta al final del acta de audiencia.</li>
+                                </ul>
                                 <div class="col-md-offset-3 col-md-6 ">
                                     <div class="form-group">
                                         <label for="resolucion_id" class="col-sm-6 control-label">Resolución</label>
@@ -144,6 +265,85 @@
 </ul>
 <!-- end timeline -->
 
+
+<!--inicio modal para propuesta convenio-->
+<div class="modal" id="modal-propuesta-convenio" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Propuesta de convenio</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <h5></h5>
+                <div class="col-md-12 row">
+                    <div class="col-md-12" id="divConceptosAcordados" >
+                        <label>Conceptos de pago para resolucion</label>
+                        <div class="form-group">
+                            <label for="concepto_pago_resoluciones_id" class="col-sm-6 control-label labelResolucion">Concepto de pago</label>
+                            <div class="col-sm-10">
+                                
+                                <select id="concepto_pago_resoluciones_id" class="form-control select-element">
+                                    <option value="">-- Selecciona un concepto de pago</option>
+                                    @foreach($concepto_pago_resoluciones as $concepto)
+                                        <option value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="dias" class="col-sm-6 control-label labelResolucion">D&iacute;as a pagar</label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="dias" placeholder="D&iacute;as a pagar" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="monto" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="monto" placeholder="Monto a pagar" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="otro" class="col-sm-6 control-label labelResolucion">Descripci&oacute;n Concepto</label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="otro" placeholder="Descripci&oacute;n Concepto" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div> 
+                            <div class="text-center">
+                                <button class="btn btn-warning text-white btn-sm" id='btnAgregarConcepto'><i class="fa fa-plus"></i> Agregar Concepto</button>
+                            </div>
+                        </div>
+                        <div class="col-md-8 offset-md-2">
+                            <table class="table table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th>Concepto</th>
+                                        <th>Dias</th>
+                                        <th>Monto</th> 
+                                        <th>Otro</th> 
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyConcepto">
+                                </tbody>
+                            </table>
+                        </div>
+                        <hr>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarPropuestaConvenio"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin de modal propuesta convenio-->
 <!--inicio modal para representante legal-->
 <div class="modal" id="modal-representante" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
@@ -404,6 +604,7 @@
 @push('scripts')
 <script>
     var listaContactos = [];
+    var listaConcepto=[];
     $(document).ready(function(){
         $(".tipo_documento,.select-element,.catSelect").select2();
         $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
@@ -470,6 +671,8 @@
             $("#step"+siguiente).show();
         });
     }
+    $('.textarea    ').wysihtml5({locale: 'es-ES'});
+    getEtapasAudiencia();
         
     /*
      * Aqui inician las funciones para administrar el paso 1
@@ -728,6 +931,22 @@
         }
         cargarContactos();
     });
+    $("#btnGuardarPropuestaConvenio").on("click",function(){
+        var objeto_propuesta = {};
+        objeto_propuesta.indemnizacion90 = $("#indemnizacion90").val();
+        objeto_propuesta.indemnizacion45 = $("#indemnizacion45").val();
+        objeto_propuesta.aguinaldo = $("#aguinaldo").val();
+        objeto_propuesta.vacaciones = $("#vacaciones").val();
+        objeto_propuesta.prima_vacacional = $("#prima_vacacional").val();
+        objeto_propuesta.prima_antiguedad = $("#prima_antiguedad").val();
+        objeto_propuesta.prestaciones_legales = $("#prestaciones_legales").val();
+        objeto_propuesta.prestaciones_45 = $("#prestaciones_45").val();
+        console.log(objeto_propuesta);
+        $("#tableOtro").show();
+        $("#modal-propuesta-convenio").modal('hide')
+        // formarTablaPropuestaConvenio();
+    });
+    
     $("#btnGuardarRepresentante").on("click",function(){
         if(!validarRepresentante()){
             $.ajax({
@@ -990,6 +1209,59 @@
             $("#divFechaSalida").show();
         }
     });
+
+    $("#btnAgregarConcepto").on("click",function(){
+            if(($("#otro").val() != "" || ($("#dias").val() != "" && $("#monto").val() != "")) && $("#concepto_pago_resoluciones_id").val() != "" ){
+
+                listaConcepto.push({
+                    concepto_pago_resoluciones_id:$("#concepto_pago_resoluciones_id").val(),
+                    dias:$("#dias").val(),
+                    monto:$("#monto").val(),
+                    otro:$("#otro").val(),
+                });
+                limpiarConcepto();
+                cargarTablaConcepto();
+            }else{
+                if($("#concepto_pago_resoluciones_id").val() == ""){
+                    swal({title: 'Error',text: 'Debe seleccionar el concepto de pago',icon: 'warning'});
+                }else{
+                    swal({title: 'Error',text: 'Debe ingresar dias y monto ó descripción del concepto',icon: 'warning'});
+
+                }
+            }
+                
+        });
+        function cargarTablaConcepto(){
+            var table = '';
+            $.each(listaConcepto,function(index,concepto){
+                table +='<tr>';
+                    $("#concepto_pago_resoluciones_id").val(concepto.concepto_pago_resoluciones_id);
+                    table +='<td>'+$("#concepto_pago_resoluciones_id option:selected").text()+'</td>';
+                    $("#concepto_pago_resoluciones_id").val("");
+                    table +='<td>'+concepto.dias+'</td>';
+                    table +='<td>'+concepto.monto+'</td>';
+                    table +='<td>'+concepto.otro+'</td>';
+                    table +='<td>';
+                        table +='<button onclick="eliminarConcepto('+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
+                            table +='<i class="fa fa-trash"></i>';
+                        table +='</button>';
+                    table +='</td>';
+                table +='</tr>';
+            });
+            $("#tbodyConcepto").html(table);
+            $("#tbodyConceptoPrincipal").html(table);
+        }
+
+        function eliminarConcepto(indice){
+            listaConcepto.splice(indice,1);
+            cargarTablaConcepto();
+        }
+        function limpiarConcepto(){
+            $("#concepto_pago_resoluciones_id").val("");
+            $("#concepto_pago_resoluciones_id").trigger("change");
+            $("#dias").val("");
+            $("#monto").val("");
+        }
 </script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush

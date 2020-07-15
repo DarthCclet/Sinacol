@@ -750,7 +750,7 @@ class AudienciaController extends Controller
         return $arrayEventos;
     }
     public function guiaAudiencia($id){
-        $etapa_resolucion = EtapaResolucion::all();
+        $etapa_resolucion = EtapaResolucion::orderBy('id')->get();
         $audiencia = Audiencia::find($id);
         $partes = array();
         foreach($audiencia->audienciaParte as $key => $parte){
@@ -763,7 +763,8 @@ class AudienciaController extends Controller
         $jornadas = $this->cacheModel('jornadas',Jornada::class);
         $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
         $resoluciones = $this->cacheModel('resoluciones',Resolucion::class);
-        return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones'));
+        $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
+        return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones','concepto_pago_resoluciones'));
     }
     public function guardarComparecientes(){
         DB::beginTransaction();
