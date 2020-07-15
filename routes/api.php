@@ -91,6 +91,7 @@ Route::resource('estados','EstadoController')->middleware('client');
 Route::resource('nacionalidades','NacionalidadController')->middleware('client');
 Route::resource('clasificacion_archivos','ClasificacionArchivoController');
 Route::resource('generos','GeneroController');
+Route::Post('conceptos-resolucion/getLaboralesConceptos','ConceptosResolucionController@getLaboralesConceptos');
 //Route::resource('clasificacion_archivos','ClasificacionArchivoController')->middleware('client');
 
 //Route::resource('rol-conciliador','RolAtencionController');

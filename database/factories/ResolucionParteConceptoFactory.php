@@ -15,6 +15,7 @@ $factory->define(ResolucionParteConcepto::class, function (Faker $faker) {
         },
         "concepto_pago_resoluciones_id"=> $concepto_pago_resoluciones->id,
         "dias"=>$numero_dias,
-        "monto"=>($numero_dias * $faker->randomFloat(2,1,1000))
+        "monto"=>($numero_dias * $faker->randomFloat(2,1,1000)),
+        "otro"=>$faker->text
     ];
 });

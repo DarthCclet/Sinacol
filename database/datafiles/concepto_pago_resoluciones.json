@@ -11,8 +11,28 @@
         {
             "id": "3",
             "nombre": "Prima vacacional"
+        },
+        {
+            "id": "4",
+            "nombre": "Días de aguinaldo"
+        },
+        {
+            "id": "5",
+            "nombre": "Gratificación 'A'"
+        },
+        {
+            "id": "6",
+            "nombre": "Gratificación 'B' (20 días por año cumplido)"
+        },
+        {
+            "id": "7",
+            "nombre": "Gratificación 'C' (Prima de antigüedad topada)"
+        },
+        {
+            "id": "8",
+            "nombre": "Gratificación General 'D' (incluye cualquier otra prestación)"
         }
     ],
 
-    "numReg": 3
+    "numReg": 8
 }
