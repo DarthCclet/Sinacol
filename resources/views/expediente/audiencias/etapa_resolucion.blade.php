@@ -249,7 +249,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary" onclick="nextStep({{$etapa->id}})">Finalizar </button>
+                                <button class="btn btn-primary" id="btnFinalizar">Finalizar </button>
                             @break
                             @default
                                 
@@ -597,6 +597,103 @@
         </div>
     </div>
 </div>
+<div class="modal" id="modal-relaciones" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Relaciones extraordinarias</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <hr>
+                <h5>Registro de resoluciones extraordinarias</h5>
+                <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="parte_solicitante_id" class="col-sm-6 control-label labelResolucion">Solicitante</label>
+                            <div class="col-sm-10">
+                                <select id="parte_solicitante_id" class="form-control select-element">
+                                    <option value="">-- Selecciona un solicitante</option>
+                                    @foreach($audiencia->solicitantes as $parte)
+                                        @if($parte->parte->tipo_persona_id == 1)
+                                            <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
+                                        @else
+                                            <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="parte_solicitado_id" class="col-sm-6 control-label labelResolucion">Solicitado</label>
+                            <div class="col-sm-10">
+                                <select id="parte_solicitado_id" class="form-control select-element">
+                                    <option value="">-- Selecciona un solicitado</option>
+                                    @foreach($audiencia->solicitados as $parte)
+                                        @if($parte->parte->tipo_persona_id == 1)
+                                            <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
+                                        @else
+                                            <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="resolucion_individual_id" class="col-sm-6 control-label labelResolucion">Resolución</label>
+                            <div class="col-sm-10">
+                                {!! Form::select('resolucion_individual_id', isset($resoluciones) ? $resoluciones : [] , null, ['id'=>'resolucion_individual_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control select-element']);  !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" id="divMotivoArchivo" style="display: none;">
+                        <div class="form-group">
+                            <label for="motivo_archivado_id" class="col-sm-6 control-label labelResolucion">Motivo de archivo</label>
+                            <div class="col-sm-10">
+                                <select id="motivo_archivado_id" class="form-control select-element">
+                                    <option value="">-- Selecciona un motivo de archivado</option>
+                                    @foreach($motivos_archivo as $motivo)
+                                        <option value="{{ $motivo->id }}">{{ $motivo->descripcion }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <button class="btn btn-warning text-white btn-sm" id='btnAgregarResolucion'><i class="fa fa-plus"></i> Agregar</button>
+                        </div>
+                    </div>
+                    <div class="col-md-12 row" style="padding-top: 1em">
+                        <table class="table table-bordered" >
+                            <thead>
+                                <tr>
+                                    <th>Solicitante</th>
+                                    <th>Solicitado</th>
+                                    <th>Resolución</th>
+                                    <th>Motivo de archivo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyResolucionesIndividuales">
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
+                    <button class="btn btn-warning btn-sm m-l-5" id="btnGuardarResolucionMuchas"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Fin Modal de comparecientes y resolución individual-->
 <input type="hidden" id="parte_id">
 <input type="hidden" id="parte_representada_id">
@@ -605,6 +702,7 @@
 <script>
     var listaContactos = [];
     var listaConcepto=[];
+    var listaResolucionesIndividuales = [];
     $(document).ready(function(){
         $(".tipo_documento,.select-element,.catSelect").select2();
         $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
@@ -1262,6 +1360,145 @@
             $("#dias").val("");
             $("#monto").val("");
         }
+        /*
+     * Aqui inician las funciones para administrar el paso 6
+     * 
+     */
+    $("#btnFinalizar").on("click",function(){
+        swal({
+            title: 'Finalización de audiencia',
+            text: '¿Deseas agregar relaciones extraordinarias?',
+            icon: 'warning',
+            buttons: {
+                cancel: {
+                    text: 'No',
+                    value: null,
+                    visible: true,
+                    className: 'btn btn-default',
+                    closeModal: true
+                },
+                confirm: {
+                    text: 'Si',
+                    value: true,
+                    visible: true,
+                    className: 'btn btn-warning',
+                    closeModal: true
+                }
+            }
+        }).then(function(isConfirm){
+            if(isConfirm){
+                cargarModalRelaciones();
+            }else{
+                listaResolucionesIndividuales = [];
+                $("#btnGuardarResolucionMuchas").click();
+            }
+        });
+    });
+    function cargarModalRelaciones(){
+        $("#modal-relaciones").modal("show");
+    }
+    $("#btnAgregarResolucion").on("click",function(){
+        if(validarResolucionIndividual()){
+            var motivo_id = "";
+            var motivo_nombre = "";
+            if($("#resolucion_individual_id").val() == 4){
+                motivo_id = $("#motivo_archivado_id").val();
+                motivo_nombre = $("#motivo_archivado_id option:selected").text();
+            }
+            listaResolucionesIndividuales.push({
+                parte_solicitante_id:$("#parte_solicitante_id").val(),
+                parte_solicitante_nombre:$("#parte_solicitante_id option:selected").text(),
+                parte_solicitado_id:$("#parte_solicitado_id").val(),
+                parte_solicitado_nombre:$("#parte_solicitado_id option:selected").text(),
+                resolucion_individual_id:$("#resolucion_individual_id").val(),
+                resolucion_individual_nombre:$("#resolucion_individual_id option:selected").text(),
+//                    listaConceptosResolucion:listaConcepto,
+                motivo_archivado_id:motivo_id,
+                motivo_archivado_nombre:motivo_nombre
+            });
+            $("#parte_solicitante_id").val("").trigger("change");
+            $("#parte_solicitado_id").val("").trigger("change");
+            $("#resolucion_individual_id").val("").trigger("change");
+            $("#motivo_archivado_id").val("").trigger("change");
+//                limpiarConcepto();
+//                listaConcepto = []; 
+//                cargarTablaConcepto();
+            cargarTablaResolucionesIndividuales();
+        }
+    });
+    function validarResolucionIndividual(){
+        var error = true;
+        $(".labelResolucion").css("color","");
+        if($("#parte_solicitante_id").val() == ""){
+            error = false;
+            $("#parte_solicitante_id").parent().prev().css("color","red");
+        }
+        if($("#parte_solicitado_id").val() == ""){
+            error = false;
+            $("#parte_solicitado_id").parent().prev().css("color","red");
+        }
+        if($("#resolucion_individual_id").val() == ""){
+            error = false;
+            $("#resolucion_individual_id").parent().prev().css("color","red");
+        }
+        $.each(listaResolucionesIndividuales,function(i,e){
+            if(e.parte_solicitante_id == $("#parte_solicitante_id").val() && e.parte_solicitado_id == $("#parte_solicitado_id").val()){
+                error = false;
+                swal({title: 'Error',text: 'Ya has agregado esta relacion',icon: 'error'});
+                return false;
+            }
+        });
+        return error;
+    }
+    function cargarTablaResolucionesIndividuales(){
+        var table = '';
+        $.each(listaResolucionesIndividuales,function(i,e){
+            table +='<tr>';
+                table +='<td>'+e.parte_solicitante_nombre+'</td>';
+                table +='<td>'+e.parte_solicitado_nombre+'</td>';
+                table +='<td>'+e.resolucion_individual_nombre+'</td>';
+                table +='<td>'+e.motivo_archivado_nombre+'</td>';
+                table +='<td>';
+                    table +='<button onclick="eliminarRelacion('+i+')" class="btn btn-xs btn-warning" title="Eliminar">';
+                        table +='<i class="fa fa-trash"></i>';
+                    table +='</button>';
+                table +='</td>';
+            table +='</tr>';
+        });
+        $("#tbodyResolucionesIndividuales").html(table);
+    }
+    function eliminarRelacion(indice){
+        console.log(indice);
+        listaResolucionesIndividuales.splice(indice,1);
+        cargarTablaResolucionesIndividuales();
+    }
+    $("#btnGuardarResolucionMuchas").on("click",function(){
+        $.ajax({
+            url:"/audiencia/resolucion",
+            type:"POST",
+            dataType:"json",
+            data:{
+                audiencia_id:'{{ $audiencia->id }}',
+                convenio:$("#convenio").val(),
+                desahogo:$("#desahogo").val(),
+                resolucion_id:$("#resolucion_id").val(),
+                timeline:true,
+                listaRelacion:listaResolucionesIndividuales,
+                _token:"{{ csrf_token() }}"
+            },
+            success:function(data){
+                if(data != null && data != ""){
+                    window.location = "/audiencias/"+data.id+"/edit"
+                }else{
+                    swal({
+                        title: 'Algo salio mal',
+                        text: 'No se guardo el registro',
+                        icon: 'warning'
+                    });
+                }
+            }
+        });
+    });
 </script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush

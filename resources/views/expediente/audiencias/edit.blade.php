@@ -842,13 +842,13 @@
             cargarGeneros();
             cargarTipoContactos();
             $.ajax({
-                url:"/resoluciones",
+                url:"/resolucion-audiencia",
                 type:"GET",
                 dataType:"json",
                 success:function(data){
                     if(data.data.data != null && data.data.data != ""){
                         $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
-                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
+//                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
                         $.each(data.data.data,function(index,element){
                             $("#resolucion_id,#resolucion_individual_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
                         });
@@ -1106,9 +1106,9 @@
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    if(data != null && data != ""){
+                    if(data.data != null && data.data != ""){
                         $("#genero_id").html("<option value=''>-- Selecciona un genero</option>");
-                        $.each(data,function(index,element){
+                        $.each(data.data,function(index,element){
                             $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
                         });
                     }else{
@@ -1120,7 +1120,7 @@
         }
         function cargarTipoContactos(){
             $.ajax({
-                url:"/tipo_contactos",
+                url:"/tipos_contactos",
                 type:"GET",
                 dataType:"json",
                 success:function(data){
