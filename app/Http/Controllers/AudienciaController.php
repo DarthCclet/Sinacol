@@ -495,9 +495,13 @@ class AudienciaController extends Controller
      */
     function Resolucion(Request $request){
         $audiencia = Audiencia::find($request->audiencia_id);
+        if($request->timeline){
+            $audiencia->update(array("resolucion_id"=>$request->resolucion_id,"finalizada"=>true));
+        }else{
         $audiencia->update(array("convenio" => $request->convenio,"desahogo" => $request->desahogo,"resolucion_id"=>$request->resolucion_id,"finalizada"=>true));
         foreach($request->comparecientes as $compareciente){
             Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $audiencia->id,"presentado" => true]);
+        }
         }
         $this->guardarRelaciones($audiencia,$request->listaRelacion);
         return $audiencia;
@@ -763,8 +767,11 @@ class AudienciaController extends Controller
         $jornadas = $this->cacheModel('jornadas',Jornada::class);
         $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
         $resoluciones = $this->cacheModel('resoluciones',Resolucion::class);
+        $audiencia->solicitantes = $this->getSolicitantes($audiencia);
+        $audiencia->solicitados = $this->getSolicitados($audiencia);
+        $motivos_archivo = MotivoArchivado::all();
         $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
-        return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones','concepto_pago_resoluciones'));
+        return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones','concepto_pago_resoluciones','motivos_archivo'));
     }
     public function guardarComparecientes(){
         DB::beginTransaction();
