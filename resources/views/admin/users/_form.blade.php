@@ -37,6 +37,14 @@
                 <p class="help-block">Confirme la contraseña</p>
             </div>
         </div>
+        <div class="form-group">
+            <label for="centro_id" class="control-label">Centro</label>
+            <div class="col-sm-10">
+                {!! Form::select('users[centro_id]', isset($centros) ? $centros : [] ,isset($user) ? $user->centro_id : null , ['id'=>'centro_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control']);  !!}
+                {!! $errors->first('users[centro_id]', '<span class=text-danger>:message</span>') !!}
+                <p class="help-block">Selecciona el centro al que pertenece</p>
+            </div>
+        </div>
     </div>
 
     <div class="col-md-6">
@@ -76,8 +84,14 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <!-- / .form-group -->
+@push('scripts')
+    <script>
+        $(document).ready(function(){
+            $("#centro_id").select2({ placeholder: "Selecciona un centro" });
+        });
+    </script>
+@endpush
 
