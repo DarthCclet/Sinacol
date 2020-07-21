@@ -533,15 +533,17 @@ class AudienciaController extends Controller
                                 event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id));
                             }
                             if($relacion["resolucion_individual_id"] == 1){
-                                if(count($relacion["listaConceptosResolucion"]) > 0){
-                                    foreach($relacion["listaConceptosResolucion"] as $concepto){
-                                        ResolucionParteConcepto::create([
-                                            "resolucion_partes_id" => $resolucionParte->id,
-                                            "concepto_pago_resoluciones_id"=> $concepto["concepto_pago_resoluciones_id"],
-                                            "dias"=>$concepto["dias"],
-                                            "monto"=>$concepto["monto"],
-                                            "otro"=>$concepto["otro"]
-                                        ]);
+                                if(isset($relacion["listaConceptosResolucion"])){
+                                    if(count($relacion["listaConceptosResolucion"]) > 0){
+                                        foreach($relacion["listaConceptosResolucion"] as $concepto){
+                                            ResolucionParteConcepto::create([
+                                                "resolucion_partes_id" => $resolucionParte->id,
+                                                "concepto_pago_resoluciones_id"=> $concepto["concepto_pago_resoluciones_id"],
+                                                "dias"=>$concepto["dias"],
+                                                "monto"=>$concepto["monto"],
+                                                "otro"=>$concepto["otro"]
+                                            ]);
+                                        }
                                     }
                                 }
                             }
@@ -558,6 +560,9 @@ class AudienciaController extends Controller
                     ]);
                     if($audiencia->resolucion_id == 3){
                         event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id));
+                    }else if($audiencia->resolucion_id == 1){
+                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,3,1,$solicitante->parte_id,$solicitado->parte_id));
+                        // $this->generarConstancia($audiencia->id,$solicitud->id,3,2);
                     }
                 }
             }
@@ -754,7 +759,7 @@ class AudienciaController extends Controller
         return $arrayEventos;
     }
     public function guiaAudiencia($id){
-        $etapa_resolucion = EtapaResolucion::orderBy('id')->get();
+        $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
         $audiencia = Audiencia::find($id);
         $partes = array();
         foreach($audiencia->audienciaParte as $key => $parte){

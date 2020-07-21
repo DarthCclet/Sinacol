@@ -15,6 +15,7 @@ class CreateEtapaResolucionesTable extends Migration
     {
         Schema::create('etapa_resoluciones', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('paso');
             $table->string('nombre');
             $table->string('descripcion')->nullable();
             $table->softDeletes();
@@ -27,6 +28,7 @@ class CreateEtapaResolucionesTable extends Migration
             DB::table('etapa_resoluciones')->insert(
                 [
                     'id' => $vialidad->id,
+                    'paso' => $vialidad->paso,
                     'nombre' => $vialidad->nombre,
                     'descripcion' => $vialidad->descripcion,
                     'created_at' => date("Y-m-d H:d:s"),
