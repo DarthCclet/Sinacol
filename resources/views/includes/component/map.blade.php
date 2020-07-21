@@ -94,9 +94,9 @@
 	<div class="col-md-4">
         {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[municipio]" id="municipio{{$identificador}}" required placeholder="Municipio" type="text" value=""> --}}
         
-        {!! Form::select('domicilio[municipio_id]', isset($municipios) ? $municipios : [], isset($domicilio->municipio_id) ? $domicilio->municipio_id : '', ['id'=>'municipio_id'.$identificador,'required', 'class'=>'form-control catSelect'.$identificador.' direccionUpd'.$identificador, 'placeholder'=>'Seleccione una opcion']) !!}
+        {!! Form::select('domicilio[municipio]', isset($municipios) ? $municipios : [], isset($domicilio->municipio) ? $domicilio->municipio : '', ['id'=>'municipio'.$identificador,'required', 'class'=>'form-control '.' direccionUpd'.$identificador, 'placeholder'=>'Seleccione una opcion']) !!}
         
-        {!! $errors->first('domicilio[municipio_id]', '<span class=text-danger>:message</span>') !!}
+        {!! $errors->first('domicilio[municipio]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block needed">Nombre del municipio</p>
 	</div>
 	<div class="col-md-4">
@@ -153,7 +153,7 @@
         domicilio.campos = {
             street_number: 'num_ext'+identifier,
             route: 'vialidad'+identifier,
-            locality: 'municipio_id'+identifier,
+            locality: 'municipio'+identifier,
             sublocality_level_1: 'asentamiento'+identifier,
             administrative_area_level_1: 'estado_id'+identifier,
             country: 'pais'+identifier,
@@ -246,7 +246,7 @@
             domicilioLoc.num_int = $("#num_int"+identifier).val();
             domicilioLoc.asentamiento = $("#asentamiento"+identifier).val();
             domicilioLoc.municipio = $("#municipio"+identifier+" option:selected").text();
-            domicilioLoc.municipio_id = $("#municipio_id"+identifier).val();
+            // domicilioLoc.municipio = $("#municipio"+identifier).val();
             domicilioLoc.cp = $("#cp"+identifier).val();
             domicilioLoc.entre_calle1 = $("#entre_calle1"+identifier).val();
             domicilioLoc.entre_calle2 = $("#entre_calle2"+identifier).val();
@@ -343,6 +343,7 @@
             $("#tipo_vialidad"+identifier).val($("#tipo_vialidad_id"+identifier+" :selected").text());
         });
         $(".catSelect"+identifier).select2({width: '100%'});
+        $("#municipio"+identifier).select2({width: '100%', tags: true});
         $("#estado_id"+identifier).change(function(){
             $("#estado"+identifier).val($("#estado_id"+identifier+" :selected").text());
         });
@@ -363,7 +364,7 @@
                 url: '/api/asentamientos/filtrarAsentamientos',
                 type:"POST",
                 dataType:"json",
-                delay: 400,
+                delay: 700,
                 async:false,
                 data:function (params) {
                     $("#term"+identifier).val(params.term);
@@ -395,7 +396,7 @@
                 return data.html;
             },templateSelection: function(data) {
                 if(data.id != ""){
-                    $("#municipio_id"+identifier+" option:contains("+ data.municipio +")").prop("selected",true).trigger("change");
+                    $("#municipio"+identifier+" option:contains("+ data.municipio +")").prop("selected",true).trigger("change");
                     var estado = ""; 
                     if(data.estado.toLowerCase() == 'estado de méxico'){
                         estado = 'México';
@@ -421,7 +422,7 @@
 
         return domicilio;
     }(identificador,needsMaps));
-// $("#municipio_id".$identificador" option:contains("+ data.municipio +")").prop("selected",true);
+// $("#municipio".$identificador" option:contains("+ data.municipio +")").prop("selected",true);
     
     (function (a) {
         a.fn.limitKeyPress = function (b) {

@@ -1907,7 +1907,8 @@
                             dataType:"json",
                             async:true,
                             data:{
-                                id:$("#solicitud_id").val()
+                                id:$("#solicitud_id").val(),
+                                _token:"{{ csrf_token() }}"
                             },
                             success:function(data){
                                 if(data != null && data != ""){
@@ -1961,7 +1962,7 @@
             url: '/giros_comerciales/filtrarGirosComerciales',
             type:"POST",
             dataType:"json",
-            delay: 400,
+            delay: 700,
             async:false,
             data:function (params) {
                 $("#term").val(params.term);
