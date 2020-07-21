@@ -33,8 +33,7 @@ $factory->define(Domicilio::class, function (Faker $faker) {
         'tipo_asentamiento_id' => $tipo_asentamiento->id,
 
         'asentamiento' => implode(" ",$faker->words(3)),
-        'municipio' => implode(" ", $faker->words(3)),
-        'municipio_id' => $municipio->id,
+        'municipio' => $municipio->municipio,
 
         'estado' => $estado->nombre,
         'estado_id' => $estado->id,

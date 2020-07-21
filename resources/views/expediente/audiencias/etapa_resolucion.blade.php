@@ -23,34 +23,36 @@
 <!-- begin page-header -->
 <h1 class="page-header">Gu&iacute;a Resoluci&oacute;n <small>pasos para cumplir la audiencia</small></h1>
 <!-- end page-header -->
+<h1 class="badge badge-secondary col-md-2 offset-10" style="position: fixed; font-size: 2rem; z-index:999;" onclick="startTimer();"><span class="countdown">00:00:00</span></h1>
 <input type="hidden" id="audiencia_id" name="audiencia_id" value="{{$audiencia->id}}" />
 <!-- begin timeline -->
 <ul class="timeline">
     @foreach($etapa_resolucion as $etapa)
-        @if($etapa->id == 1)
-        <li style="" id="step{{$etapa->id}}">
+        @if($etapa->paso == 1)
+        <li style="" id="step{{$etapa->paso}}">
         @else
-        <li style="display:none;" id="step{{$etapa->id}}">
+        <li style="display:none;" id="step{{$etapa->paso}}">
         @endif
             <!-- begin timeline-time -->
             <div class="timeline-time">
-                <span class="date"></span>
-            <span class="time">{{$etapa->id}}.  {{$etapa->nombre}}</span>
+                <span class="time">{{$etapa->paso}}.  {{$etapa->nombre}}</span>
+            <span class="date showTime{{$etapa->paso}}"></span>
             </div>
             <!-- end timeline-time -->
             <!-- begin timeline-icon -->
             <div class="timeline-icon">
-            <a href="javascript:;" id="icon{{$etapa->id}}">&nbsp;</a>
+            <a href="javascript:;" id="icon{{$etapa->paso}}">&nbsp;</a>
             </div>
             <!-- end timeline-icon -->
             <!-- begin timeline-body -->
         <div class="timeline-body" style="border: 1px solid black;">
                 <div class="timeline-header">
                 <span class="username"><a href="javascript:;">{{$etapa->nombre}}</a> <small></small></span>
+                <span class="views showTime{{$etapa->paso}}"></span>
                 </div>
-            <div class="timeline-content" id="contentStep{{$etapa->id}}">
+            <div class="timeline-content" id="contentStep{{$etapa->paso}}">
                     <p>
-                        @switch($etapa->id)
+                        @switch($etapa->paso)
                             @case(1)
                                 <p>Comparecientes</p>
                                 <div class="col-md-offset-3 col-md-12 ">
@@ -100,7 +102,7 @@
                             
                             
                             
-                                <!--<input type="text" id="evidencia{{$etapa->id}}" />-->
+                                <!--<input type="text" id="evidencia{{$etapa->paso}}" />-->
                                 <button class="btn btn-primary" align="center" id="btnCargarComparecientes">Continuar </button>
                                 @break
                             @case(2)
@@ -113,7 +115,7 @@
                                 </ul>
                                 <br/>
                                 <br/>
-                                <input type="hidden" id="evidencia{{$etapa->id}}" value="true" />
+                                <input type="hidden" id="evidencia{{$etapa->paso}}" value="true" />
                                 <div class="col-md-12">
                                     <div class="col-md-12" style="margin-bottom: 5%">
                                         <div >
@@ -124,16 +126,17 @@
                                             <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="explico_acta" name='solicita_traductor_solicitante'/>
                                         </div>
                                     </div>
-                                <button class="btn btn-primary" onclick="if($('#explico_acta').is(':checked')){nextStep({{$etapa->id}})}else{swal({title: 'Error',text: 'Es necesario seleccionar la opcion para continuar',icon: 'error'});}">Continuar </button>
+                                <button class="btn btn-primary" onclick="if($('#explico_acta').is(':checked')){nextStep({{$etapa->paso}})}else{swal({title: 'Error',text: 'Es necesario seleccionar la opcion para continuar',icon: 'error'});}">Continuar </button>
                                 </div>
                             @break
                             @case(3)
-                            <p>Darle la palabra a la parte solicitante y luego a la parte solicitada. </p>
-                            <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
-                            <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
-                                <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->id}}" >
+                                <p>Darle la palabra a la parte solicitante y luego a la parte solicitada. </p>
+                                <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
+                                <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
+                                <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
-                                <button class="btn btn-primary" onclick="nextStep({{$etapa->id}})">Continuar </button>
+                                <button class="btn btn-primary" onclick="nextStep({{$etapa->paso}})">Continuar </button>
+                                
                             @break
                             @case(4)
                                 <p>
@@ -183,20 +186,20 @@
                                     <h5 class="col-form-label col-sm-10 pt-0">Seleccione una propuesta por favor</h5>
                                     <div class="row">
                                         <div class="col-sm-10 ">
-                                          <div class="form-check" style="margin-top: 2%;">
+                                        <div class="form-check" style="margin-top: 2%;">
                                             <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1" checked>
                                             <label class="form-check-label" for="gridRadios1">
-                                              100% de indemnizaci&oacute;n
+                                            100% de indemnizaci&oacute;n
                                             </label>
-                                          </div>
-                                          <div class="form-check" style="margin-top: 2%;">
+                                        </div>
+                                        <div class="form-check" style="margin-top: 2%;">
                                             <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="option2">
                                             <label class="form-check-label" for="gridRadios2">
                                                 50% de indemnizaci&oacute;n
                                             </label>
-                                          </div>
-                                          <div class="row">
-                                              <div class="form-check col-md-1 " style="margin-top: 2%;">
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-check col-md-1 " style="margin-top: 2%;">
                                                 <input class="form-check-input" type="radio" onclick="$('#modal-propuesta-convenio').modal('show')" name="gridRadios" id="propuesta_otro" value="option3">
                                                 <label class="form-check-label" for="gridRadios3">
                                                     Otro
@@ -207,7 +210,7 @@
                                             </div>
                                         </div>
                                         </div>
-                                      </div>
+                                    </div>
                                 </div>
                                 <table class="table table-bordered" >
                                     <thead>
@@ -222,16 +225,17 @@
                                     <tbody id="tbodyConceptoPrincipal">
                                     </tbody>
                                 </table>
-                                <input type="hidden" id="evidencia{{$etapa->id}}" />
-                                <button class="btn btn-primary" onclick="nextStep({{$etapa->id}})">Continuar </button>
+                                <textarea class="form-control textarea" placeholder="Comentarios ..." type="text" id="evidencia{{$etapa->paso}}" >
+                                </textarea>
+                                <button class="btn btn-primary" onclick="nextStep({{$etapa->paso}})">Continuar </button>
                             @break
                             @case(5)
                                 <p>Darle la palabra a la parte solicitante y luego a la parte solicitada. </p>
                                 <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
                                 <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
-                                <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->id}}" >
+                                <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
-                                <button class="btn btn-primary" onclick="nextStep({{$etapa->id}})">Continuar </button>
+                                <button class="btn btn-primary" onclick="nextStep({{$etapa->paso}})">Continuar </button>
                             @break
                             @case(6)
                                 <label>Debe indicar cuál de las siguientes resoluciones de audiencia procede:</label>
@@ -342,6 +346,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 <!--Fin de modal propuesta convenio-->
 <!--inicio modal para representante legal-->
@@ -601,12 +606,12 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Relaciones extraordinarias</h4>
+                <h4 class="modal-title">Relaciones homologadas</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
                 <hr>
-                <h5>Registro de resoluciones extraordinarias</h5>
+                <h5>Registro de resoluciones homologadas</h5>
                 <div class="col-md-12 row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -713,7 +718,9 @@
     function nextStep(pasoActual){
         var siguiente = pasoActual+1;
         $("#icon"+pasoActual).css("background","lightgreen");
-        $("#contentStep"+pasoActual).hide();
+        $('html,body').animate({
+            scrollTop: $("#contentStep"+pasoActual).offset().top
+        }, 'slow');
         $("#step"+siguiente).show();
         guardarEvidenciaEtapa(pasoActual);
     }
@@ -731,7 +738,9 @@
             },
             success:function(data){
                 try{
-                    
+
+                    console.log(data.data.updated_at);
+                    $(".showTime"+etapa).text(data.data.created_at);
                 }catch(error){
                     console.log(error);
                 }
@@ -758,6 +767,7 @@
     function setPasosAudiencia(etapas){
         $.each(etapas, function (key, value) {
             var pasoActual = value.etapa_resolucion_id;
+            $(".showTime"+pasoActual).text(value.updated_at);
             var siguiente = pasoActual+1;
             if(pasoActual == 1){
                 cargarComparecientes();
@@ -770,7 +780,6 @@
         });
     }
     $('.textarea    ').wysihtml5({locale: 'es-ES'});
-    getEtapasAudiencia();
         
     /*
      * Aqui inician las funciones para administrar el paso 1
@@ -811,6 +820,7 @@
                         text: 'Se han registrado los comparecientes',
                         icon: 'success'
                     });
+                    startTimer();
                     nextStep(1);
                 },
                 error:function(data){
@@ -896,7 +906,6 @@
                 $("#tbodyPartesFisicas").html(table);
                 $("#resolucionVarias").hide();
                 $("#btnCancelarVarias").hide();
-                $("#btnGuardarResolucionMuchas").hide();
                 $("#btnConfigurarResoluciones").show();
                 $("#btnGuardarResolucionUna").show();
                 $("#modal-comparecientes").modal("show");
@@ -1367,7 +1376,7 @@
     $("#btnFinalizar").on("click",function(){
         swal({
             title: 'Finalización de audiencia',
-            text: '¿Deseas agregar relaciones extraordinarias?',
+            text: '¿Deseas agregar relaciones homologadas?',
             icon: 'warning',
             buttons: {
                 cancel: {
@@ -1499,6 +1508,23 @@
             }
         });
     });
+    var timer = 0;
+    function startTimer(){
+        var timestamp = new Date(0,0,0,0,0,0);
+        var interval = 1;
+        if(timer == 0){
+
+            setInterval(function () {
+                timer = 1;
+                timestamp = new Date(timestamp.getTime() + interval*1000);
+                $('.countdown').text(formatNumberTimer(timestamp.getHours())+':'+formatNumberTimer(timestamp.getMinutes())+':'+formatNumberTimer(timestamp.getSeconds()));
+            }, 1000);
+        }
+    }
+    
+    function formatNumberTimer(n){
+        return n > 9 ? "" + n: "0" + n;
+    }
 </script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush
