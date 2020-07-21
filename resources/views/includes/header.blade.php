@@ -134,7 +134,7 @@
             dataType:"json",
             async:false,
             success:function(data){
-                getMenu();
+                window.location.href = "{{ route('home') }}";
             }
         });
     }
