@@ -22,8 +22,11 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->session()->get('rolActual')->id == 3 || $request->session()->get('rolActual')->id == 4){
-            return redirect('agendaConciliador');
+        if($request->session()->get('rolActual') != null){
+            if($request->session()->get('rolActual')->id == 3 || $request->session()->get('rolActual')->id == 4){
+                return redirect('agendaConciliador');
+            }
+            
         }
         return view('home');
     }

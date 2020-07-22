@@ -389,6 +389,11 @@ class AudienciaController extends Controller
             $multiple = true;
 
         }
+        
+        //Obtenemos el contador
+        $ContadorController = new ContadorController();
+        $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
+        
         //Se crea el registro de la audiencia
         $audiencia = Audiencia::create([
             "expediente_id" => $request->expediente_id,
@@ -398,7 +403,9 @@ class AudienciaController extends Controller
             "hora_fin" => $request->hora_fin,
             "conciliador_id" =>  1,
             "numero_audiencia" => 1,
-            "reprogramada" => false
+            "reprogramada" => false,
+            "anio" => $folio->anio,
+            "folio" => $folio->contador
         ]);
         $id_conciliador = null;
         foreach ($request->asignacion as $value) {
@@ -746,15 +753,17 @@ class AudienciaController extends Controller
     
     public function GetAudienciaConciliador(){
 //        obtenemos los datos del conciliador
-        $conciliador = Conciliador::find(2);
-//        obtenemos las audiencias programadas a partir de el día de hoy
-        $audiencias = $conciliador->ConciliadorAudiencia;
-        
+        $conciliador = $this->request->session()->get('persona')->conciliador;
+//        dd($conciliador);
+//        obtenemos las audiencias programadas a partir de el día de hoy        
         $arrayEventos=[];
-        foreach($audiencias as $audiencia){
-            $start = $audiencia->audiencia->fecha_audiencia ." ". $audiencia->audiencia->hora_inicio;
-            $end = $audiencia->audiencia->fecha_audiencia ." ". $audiencia->audiencia->hora_fin;
-            array_push($arrayEventos,array("start" => $start ,"end" => $end,"title" => $audiencia->audiencia->folio."/".$audiencia->audiencia->anio,"color" => "#00ACAC"));
+        if($conciliador != null){
+            $audiencias = $conciliador->ConciliadorAudiencia;
+            foreach($audiencias as $audiencia){
+                $start = $audiencia->audiencia->fecha_audiencia ." ". $audiencia->audiencia->hora_inicio;
+                $end = $audiencia->audiencia->fecha_audiencia ." ". $audiencia->audiencia->hora_fin;
+                array_push($arrayEventos,array("start" => $start ,"end" => $end,"title" => $audiencia->audiencia->folio."/".$audiencia->audiencia->anio,"color" => "#00ACAC","audiencia_id" => $audiencia->audiencia->id));
+            }
         }
         return $arrayEventos;
     }
