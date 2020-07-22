@@ -90,4 +90,16 @@ class User extends Authenticatable implements AuditableContract
         return $this->belongsTo(Persona::class)
             ->withDefault(['nombre'=>'Eduardo', 'primer_apellido'=>'Sánchez', 'segundo_apellido'=>'Zarco']);
     }
+    /**
+     * Una cuenta pertenece a una persona
+     *
+     * Relaciona usuario con persona de uno a uno
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function centro()
+    {
+        return $this->belongsTo(Centro::class)
+            ->withDefault(['nombre'=>'No asignado']);
+    }
 }

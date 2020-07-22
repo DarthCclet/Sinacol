@@ -45,7 +45,7 @@ class Persona extends Model implements AuditableContract
      * Relación inversa con la tabla conciliadores
      * una persona puede ser un conciliador
      */
-    public function conciliadores(){
-    	return $this->hasMany(Conciliador::class);
+    public function conciliador(){
+    	return $this->hasOne(Conciliador::class);
     }
 }

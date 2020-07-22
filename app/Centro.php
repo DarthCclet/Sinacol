@@ -33,8 +33,16 @@ class Centro extends Model implements Auditable
      * * Utilizando hasMany para relacion uno a muchos
      * * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-	public function salas(){
+    public function salas(){
       return $this->hasMany('App\Sala');
+    }
+    /**
+     * Funcion para asociar con modelo User con hasMany
+     * * Utilizando hasMany para relacion uno a muchos
+     * * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function user(){
+      return $this->hasMany('App\User');
     }
 
   /**
