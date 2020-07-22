@@ -80,7 +80,12 @@
                 div +='<li class="nav-item dropdown">';
                 div +='    <a class="nav-link dropdown-toggle" data-toggle="dropdown">';
                 div +='         <i class="fa fa-user"></i>';
-                div +='         <span class="d-none d-md-inline">'+data.nombre+'</span>&nbsp;(<small>'+data.rolActual.name+'</small>) <b class="caret"></b>';
+                console.log(data.rolActual);
+                if(data.rolActual != null && data.rolActual != ""){
+                    div +='         <span class="d-none d-md-inline">'+data.nombre+'</span>&nbsp;(<small>'+data.rolActual.name+'</small>) <b class="caret"></b>';
+                }else{
+                    div +='         <span class="d-none d-md-inline">'+data.nombre+'</span>&nbsp;(<small>Sin perfil asignado</small>) <b class="caret"></b>';
+                }
                 div +='    </a>';
                 div +='    <ul class="dropdown-menu">';
                 div +='         <li><a class="dropdown-item" href="#">Perfil</a>';
