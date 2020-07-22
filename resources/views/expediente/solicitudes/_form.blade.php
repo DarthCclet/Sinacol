@@ -918,6 +918,41 @@
         </div>
     </div>
 </div>
+ <div class="modal" id="modalNotificacion" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Tipo de notificación</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    Selecciona la forma en que se notificara a la parte solicitada.<br>
+                    <ul>
+                        <li>El solicitante entrega citatorio a solicitados: El solicitante se encargará de entregar la notifocación sin ayuda del centro</li>
+                        <li>Un actuario del centro entrega citatorio a solicitados: La tarea de entregar la notificación será del centro que asignará un actuario</li>
+                    </ul>
+                </div>
+                <div class="col-md-12">
+                    <div class="custom-control custom-radio">
+                        <input type="radio" id="radioNotificacionA" name="radioNotificacion" class="custom-control-input">
+                        <label class="custom-control-label" for="radioNotificacionA">A) El solicitante entrega citatorio a solicitados</label>
+                    </div>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" id="radioNotificacionB" name="radioNotificacion" class="custom-control-input">
+                        <label class="custom-control-label" for="radioNotificacionB">B) Un actuario del centro entrega citatorio a solicitados</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <input type="hidden" id="expediente_id">
 </div>
 @push('scripts')
@@ -1879,62 +1914,7 @@
     $("#btnRatificarSolicitud").on("click",function(){
         try{
             if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
-                swal({
-                    title: '¿Estas seguro?',
-                    text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
-                    icon: 'warning',
-                    buttons: {
-                        cancel: {
-                            text: 'Cancelar',
-                            value: null,
-                            visible: true,
-                            className: 'btn btn-default',
-                            closeModal: true,
-                        },
-                        confirm: {
-                            text: 'Aceptar',
-                            value: true,
-                            visible: true,
-                            className: 'btn btn-danger',
-                            closeModal: true
-                        }
-                    }
-                }).then(function(isConfirm){
-                    if(isConfirm){
-                        $.ajax({
-                            url:'/solicitud/ratificar',
-                            type:'POST',
-                            dataType:"json",
-                            async:true,
-                            data:{
-                                id:$("#solicitud_id").val(),
-                                _token:"{{ csrf_token() }}"
-                            },
-                            success:function(data){
-                                if(data != null && data != ""){
-                                    swal({
-                                        title: 'Correcto',
-                                        text: 'Solicitud ratificada correctamente',
-                                        icon: 'success'
-                                    });
-                                    location.reload();
-                                }else{
-                                    swal({
-                                        title: 'Error',
-                                        text: 'No se pudo ratificar',
-                                        icon: 'error'
-                                    });
-                                }
-                            },error:function(data){
-                                swal({
-                                    title: 'Error',
-                                    text: ' Error al ratificar la solicitud',
-                                    icon: 'error'
-                                });
-                            }
-                        });
-                    }
-                });
+                $("#modalNotificacion").modal("show");
             }else{
                 swal({
                     title: 'Error',
@@ -1944,6 +1924,74 @@
             }
         }catch(error){
             console.log(error);
+        }
+    });
+    
+    $("#btnGuardarRatificar").on("click",function(){
+        if($("#radioNotificacionA").is(":checked") || $("#radioNotificacionB").is(":checked")){
+            swal({
+                title: '¿Estas seguro?',
+                text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Cancelar',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-default',
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: 'Aceptar',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-danger',
+                        closeModal: true
+                    }
+                }
+            }).then(function(isConfirm){
+                if(isConfirm){
+                    $.ajax({
+                        url:'/solicitud/ratificar',
+                        type:'POST',
+                        dataType:"json",
+                        async:true,
+                        data:{
+                            id:$("#solicitud_id").val(),
+                            _token:"{{ csrf_token() }}"
+                        },
+                        success:function(data){
+                            if(data != null && data != ""){
+                                $("#modalNotificacion").modal("hide");
+                                swal({
+                                    title: 'Correcto',
+                                    text: 'Solicitud ratificada correctamente',
+                                    icon: 'success'
+                                });
+                                location.reload();
+                            }else{
+                                swal({
+                                    title: 'Error',
+                                    text: 'No se pudo ratificar',
+                                    icon: 'error'
+                                });
+                            }
+                        },error:function(data){
+                            swal({
+                                title: 'Error',
+                                text: ' Error al ratificar la solicitud',
+                                icon: 'error'
+                            });
+                        }
+                    });
+                }
+            });
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Selecciona la forma en la que notificará al solicitado',
+                icon: 'warning'
+            });
         }
     });
 
