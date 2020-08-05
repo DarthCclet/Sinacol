@@ -174,6 +174,7 @@ class AudienciaController extends Controller
         $comparecientes = array();
         foreach($audiencia->audienciaParte as $key => $parte){
             $parte->parte->tipoParte = $parte->parte->tipoParte;
+            $parte->parte->tipo_notificacion = $parte->tipo_notificacion;
             $partes[$key] = $parte->parte;
         }
         foreach($audiencia->conciliadoresAudiencias as $key => $conciliador){
@@ -205,7 +206,7 @@ class AudienciaController extends Controller
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
         $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
         $jornadas = $this->cacheModel('jornadas',Jornada::class);
-        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
+        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);        
         return view('expediente.audiencias.edit', compact('audiencia',"motivos_archivo","concepto_pago_resoluciones","periodicidades","ocupaciones","jornadas","giros_comerciales"));
     }
 
@@ -420,7 +421,13 @@ class AudienciaController extends Controller
         // Guardamos todas las Partes en la audiencia
         $partes = $audiencia->expediente->solicitud->partes;
         foreach($partes as $parte){
-            AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id]);
+            $tipo_notificacion_id = null;
+            foreach($request->listaNotificaciones as $notificaciones){
+                if($notificaciones["parte_id"] == $parte->id){
+                    $tipo_notificacion_id = $notificaciones["tipo_notificacion_id"];
+                }
+            }
+            AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
         }
         
         return $audiencia;
