@@ -36,6 +36,12 @@
                 <span class="d-sm-block d-none">Documentos</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="#default-tab-5" data-toggle="tab" class="nav-link">
+                <span class="d-sm-none">Noti</span>
+                <span class="d-sm-block d-none">Notificaciones</span>
+            </a>
+        </li>
         <li class="nav-item tab-Comparecientes">
             <a href="#default-tab-3" data-toggle="tab" class="nav-link">
                 <span class="d-sm-none">Comp</span>
@@ -243,7 +249,42 @@
                 </div>
             </div>
         </div>
-    </div>
+        <div class="tab-pane fade active show" id="default-tab-5">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-bordered" >
+                        <thead>
+                            <tr>
+                                <th>Solicitado</th>
+                                <th>RFC</th>
+                                <th>Tipo de notificación</th>
+                                <th>Estado</th>
+                                <th>Fecha de Notificación</th>
+                                <th>Conclusión de notificación</th>
+                            </tr>
+                    @foreach($audiencia->partes as $parte)
+                        @if($parte->tipo_parte_id == 2)
+                            <tr>
+                                @if($parte->tipo_persona_id == 1)
+                                <td>{{ $parte->nombre }} {{ $parte->primer_apellido }} {{ $parte->segundo_apellido }}</td>
+                                @else
+                                <td>{{ $parte->nombre_comercial }}</td>
+                                @endif
+                                <td>{{ $parte->rfc }}</td>
+                                <td>{{ $parte->tipo_notificacion->nombre }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        @endif
+                    @endforeach
+                        </thead>
+                        <tbody id="tbodyPartesFisicas">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     <!-- inicio Modal cargar archivos-->
     <div class="modal" id="modal-archivos" aria-hidden="true" style="display:none;">
         <div class="modal-dialog modal-lg">
