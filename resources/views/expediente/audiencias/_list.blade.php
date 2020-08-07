@@ -1,7 +1,13 @@
 <input type="hidden" id="ruta" value="{!! route("audiencias.edit",1) !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
-      <tr><th></th><th></th><th></th><th></th><th></th><th></th><th>Fecha de audiencia</th><th>Hora inicio</th><th>Hora fin</th><th>Numero de audiencia</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th>Conciliador</th><th>Acciones</th></tr>
+      <tr>
+          <th>Fecha de audiencia</th>
+          <th>Hora inicio</th>
+          <th>Hora fin</th>
+          <th>Folio de audiencia</th>
+          <th>Conciliador</th>
+          <th>Acciones</th></tr>
     </thead>
 
 </table>
@@ -51,35 +57,40 @@
                     }
                 },
                 "columnDefs": [
-                    {"targets": [0],visible:false},
-                    {"targets": [1],visible:false},
-                    {"targets": [2],visible:false},
-                    {"targets": [3],visible:false},
-                    {"targets": [4],visible:false},
-                    {"targets": [5],visible:false},
                     {
-                        "targets": [6],
+                        "targets": [0],
                         "render": function (data, type, row) {
                             if (data != null) {
-                                return  dateFormat(data,4);
+                                return  dateFormat(row[6],4);
                             } else {
                                 return "";
                             }
                         }
                     },
-                    {"targets": [10],visible:false},
-                    {"targets": [11],visible:false},
-                    {"targets": [12],visible:false},
-                    {"targets": [13],visible:false},
-                    {"targets": [14],visible:false},
-                    {"targets": [15],visible:false},
-                    {"targets": [16],visible:false},
                     {
-                        "targets": [17],
+                        "targets": [1],
                         "render": function (data, type, row) {
-                            
-                            if(data != null){
-                            html = ""+data.persona.nombre + " "+ data.persona.primer_apellido + " " + data.persona.segundo_apellido;
+                            return  row[7];
+                        }
+                    },
+                    {
+                        "targets": [2],
+                        "render": function (data, type, row) {
+                            return  row[8];
+                        }
+                    },
+                    {
+                        "targets": [3],
+                        "render": function (data, type, row) {
+                            return  row[17]+"/"+row[18];
+                        }
+                    },
+                    {
+                        "targets": [4],
+                        "render": function (data, type, row) {
+                            var html = "";
+                            if(row[19] != null){
+                                html = ""+row[19].persona.nombre + " "+ row[19].persona.primer_apellido + " " + row[19].persona.segundo_apellido;
 
                             }
                             return  html;

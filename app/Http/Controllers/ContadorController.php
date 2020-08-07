@@ -141,7 +141,6 @@ class ContadorController extends Controller
             ]);
             $contador->contador = 1;
         }
-//        $contador->abreviatura = $contador->centro->abreviatura;
         unset($contador->centro);
         return $contador;
     }

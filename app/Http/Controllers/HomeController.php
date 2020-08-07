@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -19,8 +20,14 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
+        if($request->session()->get('rolActual') != null){
+            if($request->session()->get('rolActual')->id == 3 || $request->session()->get('rolActual')->id == 4){
+                return redirect('agendaConciliador');
+            }
+            
+        }
         return view('home');
     }
 }

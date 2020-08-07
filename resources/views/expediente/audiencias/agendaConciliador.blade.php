@@ -73,32 +73,68 @@
                     events: audiencias,
                     eventConstraint: "businessHours",
                     eventClick: function(info) {
-                        swal({
-                            title: '¿Está seguro?',
-                            text: 'Al oprimir el botón de aceptar se dará inicio a la audiencia',
-                            icon: 'warning',
-                            buttons: {
-                                cancel: {
-                                    text: 'Cancelar',
-                                    value: null,
-                                    visible: true,
-                                    className: 'btn btn-default',
-                                    closeModal: true,
-                                },
-                                confirm: {
-                                    text: 'Aceptar',
-                                    value: true,
-                                    visible: true,
-                                    className: 'btn btn-warning',
-                                    closeModal: true
-                                }
-                            }
-                        }).then(function(isConfirm){
-                            if(isConfirm){
-                                
-                            }
-                        });
-                      }
+                        var today = moment().format('DD/MM/YYYY');;
+                        var eventDate = info.start.format('DD/MM/YYYY');;
+                        if(today == eventDate){
+                            confirmarInicio(info);
+                        }else{
+                            confirmarRevision(info);
+                        }
+                    }
+                });
+            }
+            function confirmarInicio(info){
+                swal({
+                    title: '¿Está seguro?',
+                    text: 'Al oprimir el botón de aceptar se dará inicio a la audiencia',
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'Cancelar',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true,
+                        },
+                        confirm: {
+                            text: 'Aceptar',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-warning',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(isConfirm){
+                    if(isConfirm){
+                        window.location.href = "/guiaAudiencia/"+info.audiencia_id;
+                    }
+                });
+            }
+            function confirmarRevision(info){
+                swal({
+                    title: '¿Está seguro?',
+                    text: 'Al oprimir el botón de aceptar podrás consultar los detalles de la audiencia',
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'Cancelar',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true,
+                        },
+                        confirm: {
+                            text: 'Aceptar',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-warning',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(isConfirm){
+                    if(isConfirm){
+                        window.location.href = "/audiencias/"+info.audiencia_id+"/edit";
+                    }
                 });
             }
             

@@ -31,11 +31,16 @@ class LogSuccessfulLogin
     public function handle($event)
     {
         $rol = auth()->user()->roles->first->get();
-        $menu = $this->construirMenu($rol->id);
-        session(['menu' => $menu]);
-        session(['roles' => auth()->user()->roles]);
-        session(['rolActual' => $rol]);
-        
+        if($rol != null){
+            $menu = $this->construirMenu($rol->id);
+            session(['menu' => $menu]);
+            session(['roles' => auth()->user()->roles]);
+            session(['rolActual' => $rol]);
+        }else{
+            session(['menu' => array()]);
+            session(['roles' => array()]);
+            session(['rolActual' => array()]);
+        }
         $data = [
             'auditable_id' => auth()->user()->id,
             'auditable_type' => "Logged In",
@@ -47,6 +52,8 @@ class LogSuccessfulLogin
             'updated_at' => Carbon::now(),
             'user_id' => auth()->user()->id,
         ];
+        session(['persona' => auth()->user()->persona]);
+        session(['centro' => auth()->user()->centro]);
 
         //create audit trail data
         $details = Audit::create($data);

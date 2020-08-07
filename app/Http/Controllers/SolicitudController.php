@@ -362,15 +362,18 @@ class SolicitudController extends Controller {
      */
     public function edit($id) {
         $solicitud = Solicitud::find($id);
-        $parte = Parte::where('solicitud_id', $solicitud->id);
-
-        $partes = $solicitud->with('partes')->get(); //->where('tipo_parte_id',3)->get()->first()
-
         $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
         if (count($expediente) > 0) {
             $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->get();
         } else {
             $audiencias = array();
+        }
+        $partes = array();
+        foreach($solicitud->partes as $key => $parte){
+            $parte->tipoParte = $parte->tipoParte;
+            $parte->domicilios = $parte->domicilios()->first();
+//            dd($parte);
+            $partes[$key] = $parte;
         }
         $objeto_solicitudes = $this->cacheModel('objeto_solicitudes', ObjetoSolicitud::class);
         $estatus_solicitudes = $this->cacheModel('estatus_solicitudes', EstatusSolicitud::class);
@@ -387,7 +390,7 @@ class SolicitudController extends Controller {
         $tipo_contacto = $this->cacheModel('tipo_contacto', TipoContacto::class);
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
         $audits = $this->getAcciones($solicitud, $parte->get(), $audiencias,$expediente);
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits'));
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','partes'));
     }
 
     /**
@@ -636,9 +639,14 @@ class SolicitudController extends Controller {
             $folio = $ContadorController->getContador(1, 1);
             //Creamos el expediente de la solicitud
             $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => "2", "anio" => $folio->anio, "consecutivo" => $folio->contador]);
+            //guardamos el tipo de notificacion de las partes
+//            foreach($request->listaNotificaciones as $notificaciones){
+//                $parte = Parte::find($notificaciones["parte_id"])->update(["tipo_notificacion_id" => $notificaciones["tipo_notificacion_id"]]);
+//            }
             DB::commit();
         }catch(\Throwable $e){
             DB::rollback();
+            dd($e);
             if ($this->request->wantsJson()) {
                 return $this->sendError('Error al ratificar la solicitud', 'Error');
             }

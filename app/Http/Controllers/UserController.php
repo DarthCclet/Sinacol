@@ -10,6 +10,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Traits\Menu;
+use App\Centro;
 
 class UserController extends Controller
 {
@@ -71,7 +72,8 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::all();
-        return view('admin.users.create', compact('roles'));
+        $centros = Centro::all();
+        return view('admin.users.create', compact('roles','centros'));
     }
 
     /**
@@ -128,7 +130,8 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
-        return view('admin.users.edit', compact('user','roles'));
+        $centros = Centro::pluck('nombre', 'id');
+        return view('admin.users.edit', compact('user','roles','centros'));
     }
 
     /**
@@ -151,14 +154,14 @@ class UserController extends Controller
                 'personas.rfc' => 'alphanum|required|size:13',
             ]
         );
-
         $data = $request->input('users');
 
         //Sólo cuando hay cambios de password incluimos el campo de password
         if( empty( $data['password'] ) ){
             unset($data['password']);
         }
-
+        
+//        dd($data);
         $user->fill($data)->save();
         $user->persona->fill($request->input('personas'))->save();
         

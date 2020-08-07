@@ -14,8 +14,8 @@ class CreateTextSearchFunctions extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE EXTENSION pg_trgm");
-        DB::statement("CREATE EXTENSION unaccent");
+//        DB::statement("CREATE EXTENSION pg_trgm");
+//        DB::statement("CREATE EXTENSION unaccent");
     }
 
     /**

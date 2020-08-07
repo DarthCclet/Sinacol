@@ -16,7 +16,8 @@
             </div>
             <div class="modal-body">
                 <div class="alert alert-muted">
-                    - Selecciona el conciliador y la sala donde se celebrará la audiencia
+                    - Selecciona el conciliador y la sala donde se celebrará la audiencia<br>
+                    - La fecha limite para notificar será 5 días habiles previo a la fecha de audiencia (<span id="lableFechaInicio"></span>>)
                 </div>
                 <div id="divAsignarUno">
                     <div class="col-md-12 row">
@@ -103,6 +104,61 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <h1 class="h2">Notificaciones <small>Notificación de los solicitados</small></h1>
+                <hr class="red">
+                <div class="col-md-12">
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <td>Solicitado</td>
+                                <td>Dirección</td>
+                                <td>Mapa</td>
+                                <td>Tipo de notificación</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(isset($partes))
+                            @foreach($partes as $parte)
+                            <tr>
+                                @if($parte->tipo_parte_id == 2)
+                                    @if($parte->tipo_persona_id == 1)
+                                    <td>{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</td>
+                                    @else
+                                    <td>{{$parte->nombre_comercial}}</td>
+                                    @endif
+                                    <td>{{$parte->domicilios->vialidad}} {{$parte->domicilios->num_ext}}, {{$parte->domicilios->asentamiento}} {{$parte->domicilios->municipio}}, {{$parte->domicilios->estado}}</td>
+                                    <td>
+                                        <input type="hidden" id="parte_id{{$parte->id}}" class="hddParte_id" value="{{$parte->id}}">
+                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
+                                        <a href="https://maps.google.com/?q={{$parte->domicilios->latitud}},{{$parte->domicilios->longitud}}" target="_blank" class="btn btn-xs btn-primary"><i class="fa fa-map"></i></a>
+                                        @else
+                                        <legend>Sin datos</legend>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="radioNotificacionA{{$parte->id}}" value="1" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
+                                            <label class="custom-control-label" for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio a solicitados</label>
+                                        </div>
+                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="radioNotificacionB{{$parte->id}}" value="2" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
+                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Un actuario del centro entrega citatorio a solicitados</label>
+                                        </div>
+                                        @else
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="radioNotificacionB{{$parte->id}}" value="3" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
+                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Agendar cita con actuario para entrega de citatorio</label>
+                                        </div>
+                                        @endif
+                                    </td>
+                                @endif
+                            </tr>
+                            @endforeach
+                            @endif
+                        <tbody>
+                    </table>
                 </div>
             </div>
             <div class="modal-footer">
@@ -233,6 +289,7 @@
                 getSalas(inicio,fin);
                 $("#hora_inicio").val(inicio);
                 $("#hora_fin").val(fin);
+                $("#lableFechaInicio").html(inicio.substring(1, 10));
                 $("#modal-asignar").modal("show");
             }
             getConciliadores = function(fechaInicio,fechaFin){
@@ -313,6 +370,7 @@
                             tipoAsignacion:$("#tipoAsignacion").val(),
                             expediente_id:$("#expediente_id").val(),
                             asignacion:validacion.arrayEnvio,
+                            listaNotificaciones:validacion.listaNotificaciones,
                             nuevaCalendarizacion:'S',
                             listaRelaciones:listaRelaciones,
                             audiencia_id:$("#audiencia_id").val(),
@@ -374,10 +432,31 @@
                         arrayEnvio.push({sala:$("#sala_solicitado_id").val(),conciliador:$("#conciliador_solicitado_id").val(),resolucion:false});
                     }
                 }
+                var listaNotificaciones = [];
+                if(!error){
+                    $(".hddParte_id").each(function(element){
+                        var parte_id = $(this).val();
+                        if($("#radioNotificacionA"+parte_id).is(":checked")){
+                            listaNotificaciones.push({
+                                parte_id:parte_id,
+                                tipo_notificacion_id:1
+                            });
+                        }else if($("#radioNotificacionB"+parte_id).is(":checked")){
+                            listaNotificaciones.push({
+                                parte_id:parte_id,
+                                tipo_notificacion_id:2
+                            });                
+                        }else{
+                            msg = "Indica el tipo de notificación para los solicitados";
+                            error = true;
+                        }
+                    });
+                }
                 var array = [];
                 array.error=error;
                 array.msg=msg;
                 array.arrayEnvio=arrayEnvio;
+                array.listaNotificaciones=listaNotificaciones;
                 return array;
             }
         </script>
