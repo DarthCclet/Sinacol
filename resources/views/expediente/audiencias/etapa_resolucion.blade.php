@@ -1601,10 +1601,10 @@
                     $('#dias').attr('disabled',true);
                     $('#otro').attr('disabled',true);
                     if(antiguedad > 0){
-                        if(pagoDia < (2*salarioMinimo)){
+                        if(pagoDia <= (2*salarioMinimo)){
                             monto = antiguedad * 12 * pagoDia;
                         }else{
-                            monto = antiguedad * 12 * salarioMinimo;
+                            monto = antiguedad * 12 * (2*salarioMinimo);
                         }
                     } 
                     $('#monto').val(monto);
@@ -1639,7 +1639,7 @@
                 case '7': // Prima topada por antiguedad
                     
                     break;  
-                case '8': //Gratificación D
+                case '8': //Gratificación D otro
                     break;  
                 default: //Dias de sueldo, Dias de vacaciones
 
