@@ -1,0 +1,82 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "anios_laborados": 1,
+            "dias_vacaciones": 6,
+            "descripcion": "6 dias de vaciones al primer anio laborado"
+        },
+        {
+            "id": "2",
+            "anios_laborados": 2,
+            "dias_vacaciones": 8,
+            "descripcion": "8 dias de vaciones al segundo anio laborado"
+        },
+        {
+            "id": "3",
+            "anios_laborados": 3,
+            "dias_vacaciones": 10,
+            "descripcion": "10 dias de vaciones al tercer anio laborado"
+        },
+        {
+            "id": "4",
+            "anios_laborados": 4,
+            "dias_vacaciones": 12,
+            "descripcion": "12 dias de vaciones al cuarto anio laborado"
+        },
+        {
+            "id": "5",
+            "anios_laborados": 9,
+            "dias_vacaciones": 14,
+            "descripcion": "14 dias de vaciones de 5 a 9 anios laborados"
+        },
+        {
+            "id": "6",
+            "anios_laborados": 14,
+            "dias_vacaciones": 16,
+            "descripcion": "16 dias de vaciones de 10 a 14 anios laborados"
+        },
+        {
+            "id": "7",
+            "anios_laborados": 19,
+            "dias_vacaciones": 18,
+            "descripcion": "18 dias de vaciones de 15 a 19 anios laborados"
+        },{
+            "id": "8",
+            "anios_laborados": 24,
+            "dias_vacaciones": 20,
+            "descripcion": "20 dias de vaciones de 20 a 24 anios laborados"
+        },{
+            "id": "9",
+            "anios_laborados": 29,
+            "dias_vacaciones": 22,
+            "descripcion": "22 dias de vaciones de 25 a 29 anios laborados"
+        },{
+            "id": "10",
+            "anios_laborados": 34,
+            "dias_vacaciones": 24,
+            "descripcion": "24 dias de vaciones de 30 a 34 anios laborados"
+        },{
+            "id": "11",
+            "anios_laborados": 39,
+            "dias_vacaciones": 26,
+            "descripcion": "26 dias de vaciones de 35 a 39 anios laborados"
+        },{
+            "id": "12",
+            "anios_laborados": 44,
+            "dias_vacaciones": 28,
+            "descripcion": "28 dias de vaciones de 40 a 44 anios laborados"
+        },{
+            "id": "13",
+            "anios_laborados": 49,
+            "dias_vacaciones": 30,
+            "descripcion": "30 dias de vaciones de 45 a 49 anios laborados"
+        },{
+            "id": "14",
+            "anios_laborados": 54,
+            "dias_vacaciones": 32,
+            "descripcion": "32 dias de vaciones de 50 a 54 anios laborados"
+        }
+    ],
+    "numReg": 14
+}
