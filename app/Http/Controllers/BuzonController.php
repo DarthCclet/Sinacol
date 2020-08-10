@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Parte;
 use App\Solicitud;
+use App\User;
+use App\Expediente;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\AccesoBuzonMail;
@@ -80,13 +82,13 @@ class BuzonController extends Controller
         $solicitudes = [];
         foreach($partes as $parte){
             $solicitud = $parte->solicitud;
-//            dd($solicitud);
             if($solicitud->expediente != null){
                 $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
+                $solicitud->parte = $parte;
                 $solicitudes[]=$solicitud;
+//                dd($solicitud->expediente->audiencia[0]->conciliadoresAudiencias[0]->conciliador->persona->nombre);
             }
         }
-//        dd($solicitudes[0]->expediente);
         return view("buzon.buzon", compact('solicitudes'));
     }
     private function getAcciones(Solicitud $solicitud,$partes,$expediente){
