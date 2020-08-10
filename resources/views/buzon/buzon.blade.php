@@ -17,18 +17,42 @@
             <div id="collapse{{$solicitud->id}}" class="collapse" data-parent="#accordion">
                 <div class="card-body">
                     <ul>
-                        @if($solicitud->expediente->audiencias != null)
-                        @foreach($solicitud->expediente->audiencias as $audiencia)
-                        <li>Audiencia: {{$audiencia->folio}} {{$audiencia->anio}}<br>
+                        @if($solicitud->expediente->audiencia != null)
+                        @foreach($solicitud->expediente->audiencia as $audiencia)
+                        <li>Audiencia: {{$audiencia->folio}}/{{$audiencia->anio}}<br>
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
                                     <td class="text-nowrap">Fecha de audiencia: {{$audiencia->fecha_audiencia}}</td>
                                     <td class="text-nowrap">Hora de inicio: {{$audiencia->hora_inicio}}</td>
                                     <td class="text-nowrap">Hora de termino: {{$audiencia->hora_fin}}</td>
                                 </tr>
-                                <tr>
-                                    <td class="text-nowrap">Sala: {{$audiencia->fecha_audiencia}}</td>
-                                    <td class="text-nowrap">Conciliador: {{$audiencia->fecha_audiencia}}</td>
+                                <tr>                                    
+                                    @foreach($audiencia->audienciaParte as $parte)
+                                        @if($parte->parte_id == $solicitud->parte->id)
+                                            @if(!$audiencia->multiple)
+                                                <td class="text-nowrap">Sala: {{ $audiencia->salasAudiencias[0]->sala->sala }}</td>
+                                                <td class="text-nowrap">Conciliador: {{ $audiencia->conciliadoresAudiencias[0]->conciliador->persona->nombre }} {{ $audiencia->conciliadoresAudiencias[0]->conciliador->persona->primer_apellido }} {{ $audiencia->conciliadoresAudiencias[0]->conciliador->persona->segundo_apellido }}</td>
+                                            @elseif($audiencia->multiple && $audiencia->multiple != null)
+                                                @foreach($audiencia->salas as $sala)
+                                                    @if($sala->solicitante and $parte->tipo_parte_id == 1)
+                                                        <td class="text-nowrap">Sala: {{ $sala->sala->sala }}</td>
+                                                    @elseif(!$sala->solicitante and $parte->tipo_parte_id != 1)
+                                                        <td class="text-nowrap">Sala: {{ $sala->sala->sala }}</td>
+                                                    @endif
+                                                @endforeach
+                                                @foreach($audiencia->conciliadoresAudiencias as $conciliador)
+                                                    @if($conciliador->solicitante && $parte->tipoParte->id == 1)
+                                                        <td class="text-nowrap">Conciliador: {{ $conciliador->conciliador->persona->nombre }} {{ $conciliador->conciliador->persona->primer_apellido }} {{ $conciliador->conciliador->persona->segundo_apellido }}</td>
+                                                    @elseif(!$conciliador->solicitante and $parte->tipo_parte_id != 1)
+                                                        <td class="text-nowrap">Conciliador: {{ $conciliador->conciliador->persona->nombre }} {{ $conciliador->conciliador->persona->primer_apellido }} {{ $conciliador->conciliador->persona->segundo_apellido }}</td>
+                                                    @endif
+                                                @endforeach
+                                            @else
+                                                <td class="text-nowrap">No asignado</td>
+                                                <td class="text-nowrap">No asignado
+                                            @endif
+                                        @endif
+                                    @endforeach
                                     @if($audiencia->resolucion_id != null)
                                     <td class="text-nowrap">Resolución: {{$audiencia->resolucion->nombre}}</td>
                                     @else
