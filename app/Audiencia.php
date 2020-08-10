@@ -119,4 +119,7 @@ class Audiencia extends Model implements Auditable
     public function resolucionPartes(){
         return $this->hasMany(ResolucionPartes::class);
     }
+    public function etapasResolucionAudiencia(){
+        return $this->hasMany(EtapaResolucionAudiencia::class);
+    }
 }
