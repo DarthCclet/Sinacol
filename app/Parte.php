@@ -155,12 +155,18 @@ class Parte extends Model implements Auditable
         }
 //        Validamos el grupo_prioritario
         if (Arr::has($data, 'new_values.grupo_prioritario_id')) {
-            if($data["event"] != "created"){
-                $data['old_values']['Grupo prioritario'] = GrupoPrioritario::find($this->getOriginal('grupo_prioritario_id'))->name;
-                unset($data['old_values']["grupo_prioritario_id"]);
+            if($this->getAttribute('grupo_prioritario_id') != null){
+                if($data["event"] != "created"){
+                    if($this->getOriginal('grupo_prioritario_id') != null){
+                        $data['old_values']['Grupo prioritario'] = GrupoPrioritario::find($this->getOriginal('grupo_prioritario_id'))->name;
+                    }else{
+                        $data['old_values']['Grupo prioritario'] = GrupoPrioritario::find($this->getAttribute('grupo_prioritario_id'))->name;
+                    }
+                    unset($data['old_values']["grupo_prioritario_id"]);
+                }
+                $data['new_values']['Grupo prioritario'] = GrupoPrioritario::find($this->getAttribute('grupo_prioritario_id'))->name;
+                unset($data['new_values']["grupo_prioritario_id"]);
             }
-            $data['new_values']['Grupo prioritario'] = GrupoPrioritario::find($this->getAttribute('grupo_prioritario_id'))->name;
-            unset($data['new_values']["grupo_prioritario_id"]);
         }
 //        Validamos el solicita_traductor
         if (Arr::has($data, 'new_values.solicita_traductor')) {
@@ -173,12 +179,15 @@ class Parte extends Model implements Auditable
         }
 //        Validamos la lengua_indigena
         if (Arr::has($data, 'new_values.lengua_indigena_id')) {
-            if($data["event"] != "created"){
-                $data['old_values']['Lengua indigena'] = LenguaIndigena::find($this->getOriginal('lengua_indigena_id'))->name;
-                unset($data['old_values']["lengua_indigena_id"]);
+            if($this->getAttribute('lengua_indigena_id') != null){
+                if($data["event"] != "created"){
+                    $data['old_values']['Lengua indigena'] = LenguaIndigena::find($this->getOriginal('lengua_indigena_id'))->name;
+                    unset($data['old_values']["lengua_indigena_id"]);
+                }
+                
+                $data['new_values']['Lengua indigena'] = LenguaIndigena::find($this->getAttribute('lengua_indigena_id'))->name;
+                unset($data['new_values']["lengua_indigena_id"]);
             }
-            $data['new_values']['Lengua indigena'] = LenguaIndigena::find($this->getAttribute('lengua_indigena_id'))->name;
-            unset($data['new_values']["lengua_indigena_id"]);
         }
         $data = $this->cambiarEvento($data);
         return $data;
