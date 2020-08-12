@@ -19,7 +19,7 @@ use App\GiroComercial;
 use App\GrupoPrioritario;
 use App\Jornada;
 use App\LenguaIndigena;
-use App\MotivoExcepcion;
+
 use App\Municipio;
 use App\Nacionalidad;
 use App\ObjetoSolicitud;
@@ -154,8 +154,7 @@ class SolicitudController extends Controller {
         
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
         $municipios = array_pluck(Municipio::all(),'municipio','id');
-        $motivo_excepciones = $this->cacheModel('motivo_excepciones',MotivoExcepcion::class);
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepciones'));
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios'));
     }
     /**
      * Función para almacenar catalogos (nombre,id) en cache
@@ -388,8 +387,7 @@ class SolicitudController extends Controller {
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
         $audits = $this->getAcciones($solicitud, $parte->get(), $audiencias,$expediente);
         $municipios = array_pluck(Municipio::all(),'municipio','id');
-        $motivo_excepciones = $this->cacheModel('motivo_excepciones',MotivoExcepcion::class);
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','motivo_excepciones'));
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios'));
     }
 
     /**
