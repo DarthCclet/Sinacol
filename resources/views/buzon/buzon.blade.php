@@ -17,12 +17,24 @@
             <div id="collapse{{$solicitud->id}}" class="collapse" data-parent="#accordion">
                 <div class="card-body">
                     <ul>
+                        <li>
+                            <table class="table table-striped table-bordered table-td-valign-middle">
+                                <tr>
+                                    <td class="text-nowrap">Fecha de ratificación: {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->diffForHumans()}}</td>
+                                    <td class="text-nowrap">Centro: {{$audiencia->hora_inicio}}</td>
+                                    <td class="text-nowrap"><a href="http://conciliacion.test/">Citatorio</a></td>
+                                </tr>
+                            </table>
+                            Ratificacion: {{\Carbon\Carbon::parse($solicitud->expediente->created_at)->diffForHumans()}}<br>
+                            <ul>
+                                <li><a href="http://conciliacion.test/">Citatorio</a></li>
+                            </ul>
                         @if($solicitud->expediente->audiencia != null)
                         @foreach($solicitud->expediente->audiencia as $audiencia)
                         <li>Audiencia: {{$audiencia->folio}}/{{$audiencia->anio}}<br>
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
-                                    <td class="text-nowrap">Fecha de audiencia: {{$audiencia->fecha_audiencia}}</td>
+                                    <td class="text-nowrap">Fecha de audiencia: {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->diffForHumans()}}</td>
                                     <td class="text-nowrap">Hora de inicio: {{$audiencia->hora_inicio}}</td>
                                     <td class="text-nowrap">Hora de termino: {{$audiencia->hora_fin}}</td>
                                 </tr>
