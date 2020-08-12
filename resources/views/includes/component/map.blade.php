@@ -268,7 +268,7 @@
             $("#num_ext"+identifier).val(domicilios.num_ext);
             $("#num_int"+identifier).val(domicilios.num_int);
             $("#asentamiento"+identifier).val(domicilios.asentamiento);
-            $("#municipio"+identifier).val(domicilios.municipio);
+            $("#municipio"+identifier+" option:contains("+ domicilios.municipio +")").prop("selected",true).trigger("change");
             $("#cp"+identifier).val(domicilios.cp);
             $("#entre_calle1"+identifier).val(domicilios.entre_calle1);
             $("#entre_calle2"+identifier).val(domicilios.entre_calle2);

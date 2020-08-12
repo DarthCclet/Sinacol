@@ -19,6 +19,7 @@ use App\GiroComercial;
 use App\GrupoPrioritario;
 use App\Jornada;
 use App\LenguaIndigena;
+use App\MotivoExcepcion;
 use App\Municipio;
 use App\Nacionalidad;
 use App\ObjetoSolicitud;
@@ -124,7 +125,6 @@ class SolicitudController extends Controller {
                 return $this->sendResponseDatatable($total, $total, $draw, $solicitud, null);
             }
         }
-//        dd($solicitud);
         return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes'));
     }
 
@@ -151,9 +151,11 @@ class SolicitudController extends Controller {
         $generos = $this->cacheModel('generos',Genero::class);
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
+        
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
         $municipios = array_pluck(Municipio::all(),'municipio','id');
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios'));
+        $motivo_excepciones = $this->cacheModel('motivo_excepciones',MotivoExcepcion::class);
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepciones'));
     }
     /**
      * Función para almacenar catalogos (nombre,id) en cache
@@ -217,7 +219,6 @@ class SolicitudController extends Controller {
             $date = new \DateTime();
             $solicitud['fecha_recepcion'] = $date->format('Y-m-d H:i:s');
             $solicitud['centro_id'] = $this->getCentroId();
-            // dd($solicitud);
             //Obtenemos el contador
             $ContadorController = new ContadorController();
             $folio = $ContadorController->getContador(1, 1);
@@ -232,7 +233,7 @@ class SolicitudController extends Controller {
             }
 
             $solicitantes = $request->input('solicitantes');
-
+            
             foreach ($solicitantes as $key => $value) {
                 $value['solicitud_id'] = $solicitudSaved['id'];
                 unset($value['activo']);
@@ -248,9 +249,7 @@ class SolicitudController extends Controller {
                     unset($value['contactos']);
                 }
 
-                // dd($value);
                 $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
-                // dd($domicilio);
                 // foreach ($domicilios as $key => $domicilio) {
                 unset($domicilio['activo']);
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
@@ -299,6 +298,7 @@ class SolicitudController extends Controller {
             });
             DB::commit();
         } catch (\Throwable $e) {
+            
             DB::rollback();
             if ($this->request->wantsJson()) {
                 return $this->sendError('Error al crear la solicitud', 'Error');
@@ -387,7 +387,9 @@ class SolicitudController extends Controller {
         $tipo_contacto = $this->cacheModel('tipo_contacto', TipoContacto::class);
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
         $audits = $this->getAcciones($solicitud, $parte->get(), $audiencias,$expediente);
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits'));
+        $municipios = array_pluck(Municipio::all(),'municipio','id');
+        $motivo_excepciones = $this->cacheModel('motivo_excepciones',MotivoExcepcion::class);
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','motivo_excepciones'));
     }
 
     /**
@@ -430,7 +432,6 @@ class SolicitudController extends Controller {
         try {
             // Solicitud
             $solicitud['user_id'] = 1;
-            // dd($solicitud);
             $solicitudUp = Solicitud::find($solicitud['id']);
             $exito = $solicitudUp->update($solicitud);
             if ($exito) {
@@ -466,11 +467,9 @@ class SolicitudController extends Controller {
                         unset($value['contactos']);
                     }
 
-                    // dd($value);
-
+                    
                     if (!isset($value["id"]) || $value["id"] == "") {
                         $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
-                        // dd($domicilio);
                         // foreach ($domicilios as $key => $domicilio) {
 
                         unset($domicilio['activo']);
@@ -490,7 +489,6 @@ class SolicitudController extends Controller {
                             $dato_laboralUp->update($dato_laboral);
                         } else {
                             $dato_laboral = ($parteSaved->dato_laboral()->create($dato_laboral));
-                            dd($dato_laboral);
                         }
                         unset($domicilio['activo']);
                         if (isset($domicilio["id"]) && $domicilio["id"] != "") {
@@ -519,10 +517,8 @@ class SolicitudController extends Controller {
                         }
                     }
                 } else {
-                    // dd($value['id']);
                     $parteSaved = Parte::find($value['id']);
                     $parteSaved = $parteSaved->delete();
-                    // dd($parteSaved);
                 }
             }
 
@@ -562,7 +558,6 @@ class SolicitudController extends Controller {
                             if ($domicilio["id"] != "") {
                                 $domicilioUp = Domicilio::find($domicilio["id"]);
                                 if (isset($domicilio["activo"]) && $domicilio["activo"] == 0) {
-                                    // dd($domicilios);
                                     $domicilioUp->delete();
                                 } else {
                                     unset($domicilio['activo']);
