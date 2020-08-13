@@ -448,7 +448,7 @@ class PlantillasDocumentosController extends Controller
                   $model = $element['objeto'];
                   $model_name = 'App\\' .$model;
                   if($model == 'Solicitud' ){
-                    $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find(8);
+                    $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find(1);
                     // $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
                     $objeto = new JsonResponse($solicitud);
                     $obj = json_decode($objeto->content(),true);

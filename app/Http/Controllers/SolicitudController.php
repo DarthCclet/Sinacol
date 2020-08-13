@@ -639,7 +639,7 @@ class SolicitudController extends Controller {
 //            foreach($request->listaNotificaciones as $notificaciones){
 //                $parte = Parte::find($notificaciones["parte_id"])->update(["tipo_notificacion_id" => $notificaciones["tipo_notificacion_id"]]);
 //            }
-            event(new GenerateDocumentResolution("",$request->id,4,1));
+            event(new GenerateDocumentResolution("",$request->id,4,2));
             DB::commit();
         }catch(\Throwable $e){
             DB::rollback();
