@@ -108,7 +108,6 @@ Route::post('audiencias/{tipo_resolucion}/constancia', 'ServiciosCJFController@c
 Route::post('audiencias/solicitud/solicitud-externa', 'ServiciosCJFController@solicitudExterna')->middleware('client');
 
 Route::post('solicitar_acceso','BuzonController@SolicitarAcceso')->name('solicitar_acceso');
-Route::post('validar_token/{token}/{correo}','BuzonController@validar_token');
 
 
 Route::post('upload', 'DocumentoController@uploadSubmit');
