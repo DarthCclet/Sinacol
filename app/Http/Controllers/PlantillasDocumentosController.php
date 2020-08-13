@@ -343,7 +343,7 @@ class PlantillasDocumentosController extends Controller
                    $model = $element['objeto'];
                    $model_name = 'App\\' .$model;
                    if($model == 'Solicitud' ){
-                     $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find(9);//first();
+                     $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
                      $objeto = new JsonResponse($solicitud);
                      $obj = json_decode($objeto->content(),true);
                      $idBase = intval($obj['id']);
@@ -364,8 +364,8 @@ class PlantillasDocumentosController extends Controller
                        $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
                        if($parte['tipo_parte_id'] == 1 ){//Solicitante
                          //datos laborales del solicitante
-                         $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', 8)->get();
-                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
+                        //  $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', 8)->get();
+                         $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                          $objeto = new JsonResponse($datoLaboral);
                          $datoLaboral = json_decode($objeto->content(),true);
                          $datoLaboral = Arr::except($datoLaboral[0], ['id','updated_at','created_at','deleted_at']);
