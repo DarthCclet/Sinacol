@@ -41,8 +41,21 @@
             "tabla": "conciliadores",
             "nombre": "Conciliador",
             "id_tipo": ""
+        },
+        {
+            "id": "7",
+            "objeto": "Resolucion",
+            "tabla": "resoluciones",
+            "nombre": "Resolucion",
+            "id_tipo": ""
+        },
+        {
+            "id": "8",
+            "objeto": "Expediente",
+            "tabla": "expedientes",
+            "nombre": "Expediente",
+            "id_tipo": ""
         }
-
     ],
-    "numReg": 4
+    "numReg": 7
 }

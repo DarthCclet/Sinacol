@@ -3,17 +3,17 @@
         {
             "id": "1",
             "nombre": "CONSTANCIA DE NO CONCILIACIÓN",
-            "objetos":"1,2,3"
+            "objetos":"1,2,3,4,5,6,7"
         },
         {
             "id": "2",
-            "nombre": "CONSTANCIA DE NO CONCILIACIÓN POR EXCEPCIÓN",
+            "nombre": "CONSTANCIA DE EXCEPCIÓN CONCILIACIÓN",
             "objetos":"1,2,3"
         },
         {
             "id": "3",
-            "nombre": "CONSTANCIA DE CONCILIACIÓN",
-            "objetos":"1,2,3"
+            "nombre": "CONVENIO",
+            "objetos":"1,2,3,4,5,6,7"
         },
         {
             "id": "4",
@@ -22,7 +22,7 @@
         },
         {
             "id": "5",
-            "nombre": "ACTA DE RATIFICACIÓN DE CONVENIO",
+            "nombre": "ACTA DE MULTA",
             "objetos":"1,2,3"
         },
         {
@@ -32,8 +32,8 @@
         },
         {
             "id": "7",
-            "nombre": "CONVENIO",
-            "objetos":"1,2,3"
+            "nombre": "ACTA DE AUDIENCIA",
+            "objetos":"1,2,3,4,5,6,7"
         },
         {
             "id": "8",
@@ -45,14 +45,18 @@
             "id": "9",
             "nombre": "IDENTIFICACIÓN DE PARTE",
             "objetos":"1,2,3"
-        }
-        ,
+        },
         {
             "id": "10",
             "nombre": "CONSTANCIA EMITIDA POR INSTITUCIÓN O AUTORIDAD",
             "objetos":"1,2,3"
+        },
+        {
+            "id": "11",
+            "nombre": "ACTA DE RATIFICACIÓN DE CONVENIO",
+            "objetos":"1,2,3"
         }
 
     ],
-    "numReg": 4
+    "numReg": 9
 }

@@ -59,7 +59,7 @@
                 toolbar_items_size: 'small',
                 plugins: [
                     'noneditable advlist autolink lists link image imagetools preview',
-                    ' media table paste uploadimage lineheight'
+                    ' media table advtable paste uploadimage lineheight'
                 ],
                 toolbar1: botonesHeader + botonesBody + 'basicDateButton | mybutton | fontselect fontsizeselect textcolor| undo redo ' +
                 '| bold italic underline| alignleft aligncenter alignright alignjustify | bullist numlist ' +
@@ -75,7 +75,7 @@
                 file_picker_types: 'image',
                 font_formats: 'Montserrat=Montserrat,sans-serif; Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva;',
                 paste_as_text: true,
-                lineheight_formats: "6pt 8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 22pt 24pt 26pt 36pt",
+                lineheight_formats: "6px 8px 9px 10px 11px 12px 14px 16px 18px 20px 22px 24px 26px 36px",
                 // image_list: [
                 //   {title: 'LogoSTPS', value: 'https://192.168.10.10/assets/img/logo/logo-stps-786x196.png'},
                 //   {title: 'Logo', value: 'https://192.168.10.10/assets/img/logo/logo-stps-786x196.png'}
@@ -106,36 +106,70 @@
                     arrayMenuBody =  [];
                     var arrSubmenuBodyCounter =  [];
                     if(objDoc == null){
-                      objDoc = {!! json_encode($objetoDocumento)  !!};
+                      objDoc = {!! json_encode($objetoDocumento) !!};
                     }
-                      $.each( objDoc, function( key, objeto ) {
-                            var menu = {};
-                            var arrSubmenuBody =  [];
-                            $.each( objeto['campos'], function( key, column ) {
-                                submenu =
+                    $.each( objDoc, function( key, objeto ) {
+                      
+                          var menu = {};
+                          var arrSubmenuBody =  [];
+                          var arrSubSubmenuCount =  [];
+                          $.each( objeto['campos'], function( ke, column ) {
+                            if(typeof(column) == 'object'){ //si el dato es array (datos laborales)
+                              submenuObj = {};
+                              arrSubSubmenu =  [];
+                              $.each(column['columns'], function(k, dato ) {
+                                
+                                
+                                submenuObj =
                                 {
                                   type: 'menuitem', //nestedmenuitem menuitem
-                                  text: column,
+                                  text: dato,
                                   onAction: function (_) {
-                                    let dato = (objeto['nombre']+"_"+column).toUpperCase();
-                                    let datoId = (objeto['nombre']+"_"+column).toLowerCase();
-                                    editor.insertContent('<strong class="mceNonEditable" data-nombre="'+(datoId)+'">['+dato+']</strong>&nbsp;\n');
-                                    // editor.insertContent('<strong class="mceNonEditable" data-nombre="solicitud_fecha_ratificacion">[fecha R]</strong>&nbsp;\n');
+                                    let datos = (objeto['nombre']+"_"+column['nombre']+"_"+dato).toUpperCase();
+                                    let datoId = (objeto['nombre']+"_"+column['nombre']+"_"+dato).toLowerCase();
+                                    editor.insertContent('<strong class="mceNonEditable" data-nombre="'+(datoId)+'">['+datos+']</strong>&nbsp;\n');
                                   }
                                 };
-                                arrSubmenuBody.push(submenu);
-                            });
-                            arrSubmenuBodyCounter[key] = arrSubmenuBody;
-                            menu =
-                            {
-                              type: 'nestedmenuitem', //nestedmenuitem menuitem
-                              text: objeto['nombre'],
-                              getSubmenuItems: function () {
-                                  return arrSubmenuBodyCounter[key];
-                              }
-                            };
-                            arrayMenuBody.push(menu);
-                      });
+                                console.log(dato);
+                                console.log(column['nombre']);
+                                arrSubSubmenu.push(submenuObj);
+                              });
+                            
+                              arrSubSubmenuCount[ke] = arrSubSubmenu;
+                                submenu =
+                              {
+                                type: 'nestedmenuitem', // menuitem
+                                text: column['nombre'],
+                                getSubmenuItems: function () {
+                                    return arrSubSubmenuCount[ke];
+                                }
+                              };
+                            }else{
+                              submenu =
+                              {
+                                type: 'menuitem', //nestedmenuitem menuitem
+                                text: column,
+                                onAction: function (_) {
+                                  let dato = (objeto['nombre']+"_"+column).toUpperCase();
+                                  let datoId = (objeto['nombre']+"_"+column).toLowerCase();
+                                  editor.insertContent('<strong class="mceNonEditable" data-nombre="'+(datoId)+'">['+dato+']</strong>&nbsp;\n');
+                                  // editor.insertContent('<strong class="mceNonEditable" data-nombre="solicitud_fecha_ratificacion">[fecha R]</strong>&nbsp;\n');
+                                }
+                              };
+                            }
+                              arrSubmenuBody.push(submenu);
+                          });
+                          arrSubmenuBodyCounter[key] = arrSubmenuBody;
+                          menu =
+                          {
+                            type: 'nestedmenuitem', //nestedmenuitem menuitem
+                            text: objeto['nombre'],
+                            getSubmenuItems: function () {
+                                return arrSubmenuBodyCounter[key];
+                            }
+                          };
+                          arrayMenuBody.push(menu);
+                    });
                       // Menu para condiciones
                       arrayMenuCond =  [];
                       var arrSubmenuCondCount =  [];
@@ -147,7 +181,7 @@
                               var arrSubmenuCond =  [];
                               $.each( condicion['values'], function( k, column ) {
                                 var arrSubmenuObjCond =  [];
-                                $.each( column['valores'], function(i,cat) {
+                                $.each( column['catalogos'], function(i,cat) {
                                   submenuObj = {
                                     type: 'menuitem', //nestedmenuitem
                                     text: cat['catalogo'],
