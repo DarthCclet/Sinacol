@@ -16,6 +16,7 @@ use App\AudienciaParte;
 use App\ConceptoPagoResolucion;
 use App\EtapaResolucion;
 use App\Events\GenerateDocumentResolution;
+use App\Expediente;
 use App\ResolucionPartes;
 use App\Resolucion;
 use App\MotivoArchivado;
@@ -429,7 +430,8 @@ class AudienciaController extends Controller
             }
             AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
         }
-        
+        $expediente = Expediente::find($request->expediente_id);
+        event(new GenerateDocumentResolution($audiencia->id,$expediente->solicitud_id,4,4));
         return $audiencia;
     }
     /**
@@ -546,7 +548,7 @@ class AudienciaController extends Controller
                             if($audiencia->resolucion_id == 3){
                                 event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id));
                             }else if($audiencia->resolucion_id == 1){
-                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,5,4,$solicitante->parte_id,$solicitado->parte_id));
+                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,5,2,$solicitante->parte_id,$solicitado->parte_id));
                             }
                             $bandera = false;
                         }
@@ -563,7 +565,7 @@ class AudienciaController extends Controller
                     if($audiencia->resolucion_id == 3){
                         event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,3,1,$solicitante->parte_id,$solicitado->parte_id));
                     }else if($audiencia->resolucion_id == 1){
-                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,5,4,$solicitante->parte_id,$solicitado->parte_id));
+                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,5,2,$solicitante->parte_id,$solicitado->parte_id));
                     }
                 }
                 //guardar conceptos de pago para Convenio
@@ -761,6 +763,8 @@ class AudienciaController extends Controller
             $resolucion = ResolucionPartes::find($relacion["id"]);
             $resolucion->update(["nuevaAudiencia" => true]);
         }
+        $expediente = Expediente::find($audiencia->expediente_id);
+        event(new GenerateDocumentResolution($audiencia->id,$expediente->solicitud_id,4,4));
         return $audienciaN;
     }
 

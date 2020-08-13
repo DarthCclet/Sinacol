@@ -255,12 +255,12 @@ trait GenerateDocument
             $idBase = "";
             $data = [];
             foreach ($objetos as $objeto) {
-              // var_dump($objeto);
+            // var_dump($objeto);
               foreach ($jsonElementos['datos'] as $key=>$element) {
                 if($element['id']==$objeto){
                   $model_name = 'App\\' . $element['objeto'];
                   $model = $element['objeto'];
-                  $model_name = 'App\\' .$model;
+                  $model_name = 'App\\' .$model; 
                   if($model == 'Solicitud' ){
                     $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find($idSolicitud);
                     // $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
@@ -295,15 +295,18 @@ trait GenerateDocument
                         $parte['datos_laborales'] = $datoLaboral;
                         array_push($parte1, $parte);
                         $countSolicitante += 1;
-                      }elseif ($parte['tipo_parte_id'] == 2 ) {//Solicitado
+                    }elseif ($parte['tipo_parte_id'] == 2 ) {//Solicitado
                         //representante legal solicitado
+
                         $representanteLegal = Parte::where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
                         // dd($representanteLegal);
-                        $objeto = new JsonResponse($representanteLegal);
-                        $representanteLegal = json_decode($objeto->content(),true);
-                        $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);
-                        // dd($representanteLegal);
-                        $parte['representante_legal'] = $representanteLegal;
+                        if(count($representanteLegal) > 0){
+                            $objeto = new JsonResponse($representanteLegal);
+                            $representanteLegal = json_decode($objeto->content(),true);
+                            $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);
+                            // dd($representanteLegal);
+                            $parte['representante_legal'] = $representanteLegal;
+                        }
                         $countSolicitado += 1;
                         // array_push($parte2, $parte);
                         array_push($parte2, $parte);
@@ -313,6 +316,17 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'solicitado', $parte2 );
                     $data = Arr::add( $data, 'total_solicitantes', $countSolicitante );
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
+                    
+                }elseif ($model == 'Expediente') {
+                    
+                    
+                    $expediente = Expediente::where('solicitud_id', $idBase)->get();
+                    $expedienteId = $expediente[0]->id;
+                    // dd($expedienteId);
+                    $objeto = new JsonResponse($expediente);
+                    $expediente = json_decode($objeto->content(),true);
+                    $expediente = Arr::except($expediente[0], ['id','updated_at','created_at','deleted_at']);
+                    $data = Arr::add( $data, 'expediente', $expediente );
                     // dd($data);
                   }elseif ($model == 'Audiencia') {
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
