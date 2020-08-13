@@ -64,6 +64,5 @@ class AsesoriaController extends Controller
                 return view('asesoria.default');
                 break;
         }
-
     }
 }

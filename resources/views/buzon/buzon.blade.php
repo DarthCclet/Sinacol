@@ -28,7 +28,7 @@
                                     <td class="text-nowrap"><strong>Centro:</strong> {{$solicitud->centro->nombre}}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-nowrap" colspan="5" align="center"><strong>Partes solicitadas</strong></td>
+                                    <td class="text-nowrap" colspan="5" align="center"><strong>Partes citadas</strong></td>
                                 </tr>
                                 <tr>
                                     <td class="text-nowrap" colspan="3">
@@ -67,12 +67,12 @@
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
                                     <td class="text-nowrap">
-                                        Fecha de audiencia: {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->format('d/m/Y')}} 
+                                        Fecha de audiencia: {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->format('d/m/Y')}}
                                     </td>
                                     <td class="text-nowrap">Hora de inicio: {{$audiencia->hora_inicio}}</td>
                                     <td class="text-nowrap">Hora de termino: {{$audiencia->hora_fin}}</td>
                                 </tr>
-                                <tr>                                    
+                                <tr>
                                     @foreach($audiencia->audienciaParte as $parte)
                                         @if($parte->parte_id == $solicitud->parte->id)
                                             @if(!$audiencia->multiple)
@@ -116,7 +116,7 @@
                                                     <li>
                                                         <a href="http://conciliacion.test/">Documento</a>
                                                     </li>
-                                                </ul>  
+                                                </ul>
                                             </li>
                                             @endforeach
                                         </ul>
@@ -164,8 +164,8 @@
                         $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
                         console.log(data.jornada_id);
                         $("#jornada_id").val(data.jornada_id);
-                        $("#horas_semanales").val(data.horas_semanales);                            
-                        $("#resolucion_dato_laboral").val(data.resolucion);   
+                        $("#horas_semanales").val(data.horas_semanales);
+                        $("#resolucion_dato_laboral").val(data.resolucion);
                         $(".catSelect").trigger('change')
                         $("#modal-dato-laboral").modal("show");
                     }else{
