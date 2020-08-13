@@ -8,6 +8,7 @@ use App\DatoLaboral;
 use App\Expediente;
 use App\PlantillaDocumento;
 use App\Services\StringTemplate;
+use App\Solicitud;
 use App\TipoDocumento;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
@@ -20,45 +21,82 @@ trait GenerateDocument
      * Generar documento a partir de un modelo y de una plantilla
      * @return mixed
      */
-    public function generarConstancia($idAudiencia, $idSolicitud, $tipo_documento_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null)
+    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null)
     {
         $plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
+            if($idAudiencia != ""){
 
-            $padre = Audiencia::find($idAudiencia);
-            $directorio = 'expedientes/' . $padre->expediente_id . '/audiencias/' . $idAudiencia;
-            $algo = Storage::makeDirectory($directorio, 0775, true);
-            
-            $tipoArchivo = ClasificacionArchivo::find($tipo_documento_id);
-            
-            $html = $this->renderDocumento($idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado);
-            $pdf = App::make('dompdf.wrapper');
-            $pdf->getDomPDF();
-            $pdf->loadHTML($html)->setPaper('A4');
-            
-            //al
-            
-            //al
-            //Creamos el registro
-            $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre]);
-            $plantilla = PlantillaDocumento::find($plantilla->id);
-            $nombreArchivo = $plantilla->nombre_plantilla;
-            $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
-            $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
-            $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
-            
-            $store = $pdf->save($fullPath);
-            $archivo->update([
-                "nombre" => str_replace($directorio . "/", '', $path),
-                "nombre_original" => str_replace($directorio . "/", '', $path), //str_replace($directorio, '',$path->getClientOriginalName()),
-                "descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,
-                "ruta" => $path,
-            "tipo_almacen" => "local",
-            "uri" => $path,
-            "longitud" => round(Storage::size($path) / 1024, 2),
-            "firmado" => "false",
-            "clasificacion_archivo_id" => $tipoArchivo->id,
-            ]);
+                $padre = Audiencia::find($idAudiencia);
+                $directorio = 'expedientes/' . $padre->expediente_id . '/audiencias/' . $idAudiencia;
+                $algo = Storage::makeDirectory($directorio, 0775, true);
+                
+                $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
+                
+                $html = $this->renderDocumento($idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado);
+                $pdf = App::make('dompdf.wrapper');
+                $pdf->getDomPDF();
+                $pdf->loadHTML($html)->setPaper('A4');
+                
+                //al
+                
+                //al
+                //Creamos el registro
+                $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre]);
+                $plantilla = PlantillaDocumento::find($plantilla->id);
+                $nombreArchivo = $plantilla->nombre_plantilla;
+                $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
+                $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
+                $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
+                
+                $store = $pdf->save($fullPath);
+                $archivo->update([
+                    "nombre" => str_replace($directorio . "/", '', $path),
+                    "nombre_original" => str_replace($directorio . "/", '', $path), //str_replace($directorio, '',$path->getClientOriginalName()),
+                    "descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,
+                    "ruta" => $path,
+                    "tipo_almacen" => "local",
+                    "uri" => $path,
+                    "longitud" => round(Storage::size($path) / 1024, 2),
+                    "firmado" => "false",
+                    "clasificacion_archivo_id" => $tipoArchivo->id,
+                ]);
+            }else{
+                $padre = Solicitud::find($idSolicitud);
+                $directorio = 'expedientes/' . $padre->expediente_id . '/solicitud/' . $idSolicitud;
+                $algo = Storage::makeDirectory($directorio, 0775, true);
+                
+                $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
+                
+                $html = $this->renderDocumento($idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado);
+                $pdf = App::make('dompdf.wrapper');
+                $pdf->getDomPDF();
+                $pdf->loadHTML($html)->setPaper('A4');
+                
+                //al
+                
+                //al
+                //Creamos el registro
+                $archivo = $padre->documentos()->create(["descripcion" => "Documento de solicitud " . $tipoArchivo->nombre]);
+                $plantilla = PlantillaDocumento::find($plantilla->id);
+                $nombreArchivo = $plantilla->nombre_plantilla;
+                $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
+                $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
+                $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
+                
+                $store = $pdf->save($fullPath);
+                $archivo->update([
+                    "nombre" => str_replace($directorio . "/", '', $path),
+                    "nombre_original" => str_replace($directorio . "/", '', $path), //str_replace($directorio, '',$path->getClientOriginalName()),
+                    "descripcion" => "Documento de solicitud " . $tipoArchivo->nombre,
+                    "ruta" => $path,
+                    "tipo_almacen" => "local",
+                    "uri" => $path,
+                    "longitud" => round(Storage::size($path) / 1024, 2),
+                    "firmado" => "false",
+                    "clasificacion_archivo_id" => $tipoArchivo->id,
+                ]);
+            }
             return 'Product saved successfully';
         }else{
             return 'No existe plantilla';
@@ -67,7 +105,7 @@ trait GenerateDocument
 
     public function renderDocumento($idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado)
     {
-
+        
         $vars = [];
         $data = $this->getDataModelos($idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado);
         if ($data != null) {
@@ -267,6 +305,9 @@ trait GenerateDocument
                         $data = Arr::add($data, 'expediente', $expediente);
                         // $objeto = $model_name::with('conciliador')->findOrFail(1);
                         $audiencias = $model_name::where('expediente_id', $expedienteId)->get();
+                        if($audiencias == null){
+                            $audiencias = Audiencia::where('id','>',1)->get();//$model_name::where('expediente_id', $expedienteId)->get();
+                        }
                         $conciliadorId = $audiencias[0]->conciliador_id;
                         $objeto = new JsonResponse($audiencias);
                         $audiencias = json_decode($objeto->content(), true);

@@ -10,6 +10,7 @@ use App\Expediente;
 use App\Audiencia;
 use App\Contacto;
 use App\EstatusSolicitud;
+use App\Events\GenerateDocumentResolution;
 use Illuminate\Http\Request;
 use \App\Solicitud;
 use Validator;
@@ -390,7 +391,7 @@ class SolicitudController extends Controller {
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
         $audits = $this->getAcciones($solicitud, $parte->get(), $audiencias,$expediente);
         $municipios = array_pluck(Municipio::all(),'municipio','id');
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios'));
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes'));
     }
 
     /**
@@ -633,11 +634,12 @@ class SolicitudController extends Controller {
             $edo_folio = $solicitud->centro->abreviatura;
             $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
             //Creamos el expediente de la solicitud
-            $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => "2", "anio" => $folio->anio, "consecutivo" => $folio->contador]);
+            $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
             //guardamos el tipo de notificacion de las partes
 //            foreach($request->listaNotificaciones as $notificaciones){
 //                $parte = Parte::find($notificaciones["parte_id"])->update(["tipo_notificacion_id" => $notificaciones["tipo_notificacion_id"]]);
 //            }
+            event(new GenerateDocumentResolution("",$request->id,4,1));
             DB::commit();
         }catch(\Throwable $e){
             DB::rollback();

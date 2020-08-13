@@ -542,8 +542,11 @@ class AudienciaController extends Controller
                                 "parte_solicitada_id" => $solicitado->parte_id,
                                 "resolucion_id" => $relacion["resolucion_individual_id"]
                             ]);
-                            if($relacion["resolucion_individual_id"] == 3){
+                            
+                            if($audiencia->resolucion_id == 3){
                                 event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id));
+                            }else if($audiencia->resolucion_id == 1){
+                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,3,1,$solicitante->parte_id,$solicitado->parte_id));
                             }
                             $bandera = false;
                         }
@@ -556,11 +559,11 @@ class AudienciaController extends Controller
                         "parte_solicitada_id" => $solicitado->parte_id,
                         "resolucion_id" => $audiencia->resolucion_id
                     ]);
+                    
                     if($audiencia->resolucion_id == 3){
-                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id));
-                    }else if($audiencia->resolucion_id == 1){
                         event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,3,1,$solicitante->parte_id,$solicitado->parte_id));
-                        // $this->generarConstancia($audiencia->id,$solicitud->id,3,2);
+                    }else if($audiencia->resolucion_id == 1){
+                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,5,1,$solicitante->parte_id,$solicitado->parte_id));
                     }
                 }
                 //guardar conceptos de pago para Convenio
@@ -588,6 +591,7 @@ class AudienciaController extends Controller
                 }
             }
         }
+        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,6,1));
     }
     /**
      * Funcion para obtener los documentos de la audiencia
