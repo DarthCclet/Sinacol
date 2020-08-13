@@ -39,8 +39,8 @@
             <a href="#step-2">
 
                 <span class="">
-                    Solicitado
-                    <small>Información del solicitado</small>
+                    Citado
+                    <small>Información del citado</small>
                 </span>
             </a>
         </li>
@@ -73,7 +73,7 @@
                 </span>
             </a>
         </li>
-        
+
         <!-- El paso 5 Es para asignar Audiencias -->
         <li class="step-6">
             <a href="#step-6">
@@ -110,7 +110,7 @@
                                 <div class="row">
                                     <div class="radio radio-css radio-inline">
                                         <input checked="checked" name="tipo_persona_solicitante" type="radio" id="tipo_persona_fisica_solicitante" value="1"/>
-                                        <label for="tipo_persona_fisica_solicitante">Fisica</label>
+                                        <label for="tipo_persona_fisica_solicitante">Física</label>
                                     </div>
                                     <div class="radio radio-css radio-inline">
                                         <input name="tipo_persona_solicitante" type="radio" id="tipo_persona_moral_solicitante" value="2"/>
@@ -158,17 +158,17 @@
                                     <p class="help-block">RFC del solicitante</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitante">
-                                    {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Genero</p>
+                                    <p class="help-block needed">Género</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitante">
-                                    {!! Form::select('nacionalidad_id_solicitante', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('nacionalidad_id_solicitante', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('nacionalidad_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Nacionalidad</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitante">
-                                    {!! Form::select('entidad_nacimiento_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('entidad_nacimiento_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('entidad_nacimiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Estado de nacimiento</p>
                                 </div>
@@ -187,7 +187,7 @@
                                 </div>
 
                                 <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
-                                    {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Lengua Indigena</p>
                                 </div>
@@ -200,7 +200,7 @@
                                 </div>
                                 <input type="hidden" id="contacto_id_solicitante">
                                 <div class="col-md-4">
-                                    {!! Form::select('tipo_contacto_id_solicitante', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('tipo_contacto_id_solicitante', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('tipo_contacto_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Tipo de contacto</p>
                                 </div>
@@ -227,7 +227,7 @@
                             </div>
                             {{-- end seccion de contactos solicitados --}}
                             <!-- seccion de domicilios solicitante -->
-                            
+
                             @include('includes.component.map',['identificador' => 'solicitante','needsMaps'=>"false", 'instancia' => '1'])
 
                             <!-- end seccion de domicilios solicitante -->
@@ -252,10 +252,10 @@
                                     <label id="giro_solicitante"></label>
                                     </div>
                                 </div>
-                                {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opcion','style'=>'display:none;']);  !!}
+                                {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opción','style'=>'display:none;']);  !!}
                                 <div class="col-md-12 row">
                                     <div class="col-md-4">
-                                        {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                        {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
                                         <p class="help-block needed">Categoria/Puesto</p>
                                     </div>
@@ -274,7 +274,7 @@
                                         <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
                                     </div>
                                     <div class="col-md-4">
-                                        {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                        {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
                                         <p class="help-block needed">Periodicidad</p>
                                     </div>
@@ -302,7 +302,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Jornada</p>
                                 </div>
@@ -327,7 +327,7 @@
                                 <tbody id="tbodySolicitante">
                                 </tbody>
                             </table>
-                        </div> 
+                        </div>
                     </div>
                 </div>
                 <!-- end row -->
@@ -343,11 +343,11 @@
                 <div class="row">
                     <div class="col-xl-10 offset-xl-1">
                         <div>
-                            <center><h1>Solicitado</h1></center>
+                            <center><h1>Citado</h1></center>
                             <div id="editandoSolicitado"></div>
                         </div>
                         <div>
-                            <button class="btn btn-danger" type="button" id="botonAgregarSolicitado" onclick="$('#divSolicitado').show()"> <i class="fa fa-plus"></i> Agregar solicitado</button>
+                            <button class="btn btn-danger" type="button" id="botonAgregarSolicitado" onclick="$('#divSolicitado').show()"> <i class="fa fa-plus"></i> Agregar citado</button>
                         </div>
                         <div style="display: none;" id="divSolicitado">
                             <div style="margin-left:5%; margin-bottom:3%; ">
@@ -357,7 +357,7 @@
                                 <div class="row">
                                     <div class="radio radio-css radio-inline">
                                         <input checked="checked" name="tipo_persona_solicitado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
-                                        <label for="tipo_persona_fisica_solicitado">Fisica</label>
+                                        <label for="tipo_persona_fisica_solicitado">Física</label>
                                     </div>
                                     <div class="radio radio-css radio-inline">
                                         <input name="tipo_persona_solicitado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
@@ -366,55 +366,55 @@
                                 </div>
                             </div>
                             <div class="col-md-8 personaFisicaSolicitadoNO">
-                                <input class="form-control upper" id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del solicitado" type="text" value="">
-                                <p class="help-block">CURP del solicitado</p>
+                                <input class="form-control upper" id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del citado" type="text" value="">
+                                <p class="help-block">CURP del citado</p>
                             </div>
                             <div class="col-md-12 row">
                                 <div class="col-md-4" style="display:none;">
                                     <input class="form-control" id="idsolicitado" type="text" value="253">
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitado">
-                                    <input class="form-control" required id="idNombreSolicitado" placeholder="Nombre del solicitado" type="text" value="">
-                                    <p class="help-block needed">Nombre del solicitado</p>
+                                    <input class="form-control" required id="idNombreSolicitado" placeholder="Nombre del citado" type="text" value="">
+                                    <p class="help-block needed">Nombre del citado</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitado">
-                                    <input class="form-control" required id="idPrimerASolicitado" placeholder="Primer apellido del solicitado" type="text" value="">
+                                    <input class="form-control" required id="idPrimerASolicitado" placeholder="Primer apellido del citado" type="text" value="">
 
                                     <p class="help-block needed">Primer apellido</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    <input class="form-control" id="idSegundoASolicitado" placeholder="Segundo apellido del solicitado" type="text" value="">
+                                    <input class="form-control" id="idSegundoASolicitado" placeholder="Segundo apellido del citado" type="text" value="">
 
                                     <p class="help-block">Segundo apellido</p>
                                 </div>
                                 <div class="col-md-8 personaMoralSolicitado">
-                                    <input class="form-control" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del solicitado" type="text" value="">
+                                    <input class="form-control" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del citado" type="text" value="">
                                     <p class="help-block needed">Raz&oacute;n Social</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del solicitado" type="text" value="">
+                                    <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del citado" type="text" value="">
                                     <p class="help-block">Fecha de nacimiento</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    <input class="form-control numero" disabled id="idEdadSolicitado" placeholder="Edad del solicitado" type="text" value="">
-                                    <p class="help-block">Edad del solicitado</p>
+                                    <input class="form-control numero" disabled id="idEdadSolicitado" placeholder="Edad del citado" type="text" value="">
+                                    <p class="help-block">Edad del citado</p>
                                 </div>
                                 <div class="col-md-4">
-                                    <input class="form-control upper" id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitado" type="text" value="">
-                                    <p class="help-block">RFC del solicitado</p>
+                                    <input class="form-control upper" id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del citado" type="text" value="">
+                                    <p class="help-block">RFC del citado</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block">Genero</p>
+                                    <p class="help-block">Género</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('nacionalidad_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block">Nacionalidad</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block">Estado de nacimiento</p>
                                 </div>
@@ -430,7 +430,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
-                                    {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Lengua Indigena</p>
                                 </div>
@@ -444,7 +444,7 @@
                                 <input type="hidden" id="contacto_id_solicitado">
                                 <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona solicitada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
                                 <div class="col-md-4">
-                                    {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Tipo de contacto</p>
                                 </div>
@@ -470,7 +470,7 @@
                                 </table>
                             </div>
                             {{-- end seccion de contactos solicitados --}}
-                            <!-- seccion de domicilios solicitado -->
+                            <!-- seccion de domicilios citado -->
                             <div class="col-md-12 row">
                                 <div class="row">
                                     <h4>Domicilio(s)</h4>
@@ -490,13 +490,13 @@
                                     </table>
                                 </div>
                             </div>
-                            <!-- end seccion de domicilios solicitado -->
+                            <!-- end seccion de domicilios citado -->
                             <hr style="margin-top:5%;">
                             <div>
-                                <button class="btn btn-primary" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Agregar solicitado</button>
+                                <button class="btn btn-primary" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Agregar citado</button>
                                 <button class="btn btn-danger" type="button" onclick="limpiarSolicitado()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
                             </div>
-                            
+
                         </div>
                         <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                             <table class="table table-bordered" >
@@ -538,12 +538,12 @@
                         <p class="help-block needed">Fecha de Conflicto</p>
                     </div>
                     <div class="col-md-4 estatusSolicitud">
-                        {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                        {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                         {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
                         <p class="help-block needed">Estatus de la solicitud</p>
                     </div>
                     <div class="col-md-4">
-                        {!! Form::select('objeto_solicitud_id', isset($objeto_solicitudes) ? $objeto_solicitudes : [] , null, ['id'=>'objeto_solicitud_id','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                        {!! Form::select('objeto_solicitud_id', isset($objeto_solicitudes) ? $objeto_solicitudes : [] , null, ['id'=>'objeto_solicitud_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                         {!! $errors->first('objeto_solicitud_id', '<span class=text-danger>:message</span>') !!}
                         <p class="help-block needed">Objeto de la solicitud</p>
                     </div>
@@ -737,7 +737,7 @@
                                 <div class="timeline-header">
                                     <span class="userimage"><i class="fa fa-user fa-x3"></i></span>
                                     <span class="username">
-                                        <a href="javascript:;">{{$audit["user"]}}</a> 
+                                        <a href="javascript:;">{{$audit["user"]}}</a>
                                         <small></small>
                                     </span>
                                 </div>
@@ -787,7 +787,7 @@
                                             <p>Se creo la audiencia {{$audit["extra"]}}</p>
                                             <p>
                                                 @foreach($audit["cambios"] as $key => $value)
-                                                    @if($key == "fecha_audiencia") 
+                                                    @if($key == "fecha_audiencia")
                                                         Fecha: {{\Carbon\Carbon::parse($value["new"])->isoFormat('LL')}}<br>
                                                     @elseif($key == "hora_inicio")
                                                         Hora de inicio: {{\Carbon\Carbon::parse($value["new"])->format('h:i:s')}}<br>
@@ -937,7 +937,7 @@
                     <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr>
-                                <td>Solicitado</td>
+                                <td>Citado</td>
                                 <td>Dirección</td>
                                 <td>Mapa</td>
                                 <td>Tipo de notificación</td>
@@ -1170,7 +1170,7 @@
                 }else{
                     swal({
                     title: 'Error',
-                    text: 'Es necesario llenar todos los campos obligatorios y al menos una dirección del solicitado',
+                    text: 'Es necesario llenar todos los campos obligatorios y al menos una dirección del citado',
                     icon: 'error',
 
                 });
@@ -1255,7 +1255,7 @@
             data:{},
             success:function(data){
                 try{
-                    
+
                     arraySolicitados = Object.values(data.solicitados);
                     formarTablaSolicitado();
                     arraySolicitantes = Object.values(data.solicitantes);
@@ -1357,7 +1357,7 @@
         *Funcion para limpiar campos de solicitante
         */
         function limpiarSolicitado(){
-            
+
             $("#solicitado_id").val("");
             $("#solicitado_key").val("");
             $("#idNombreSolicitado").val("");
@@ -1379,7 +1379,7 @@
                 $("#solicita_traductor_solicitado").trigger('click');
             }
 
-            $("#agregarSolicitado").html('<i class="fa fa-plus-circle"></i> Agregar solicitado');
+            $("#agregarSolicitado").html('<i class="fa fa-plus-circle"></i> Agregar citado');
             arrayContactoSolicitados = new Array();;
             arrayDomiciliosSolicitado = new Array();
             formarTablaDomiciliosSolicitado();
@@ -1665,7 +1665,7 @@
     *@argument key posicion de array a editar
     */
     function cargarEditarSolicitante(key){
-        
+
         $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Editar solicitante');
         $("#edit_key").val(key);
         $("#solicitante_id").val(arraySolicitantes[key].id);
@@ -1702,7 +1702,7 @@
         }
         $("#idSolicitanteRfc").val(arraySolicitantes[key].rfc);
         // datos laborales en la solicitante
-        
+
         if($.isArray(arraySolicitantes[key].dato_laboral)){
             arraySolicitantes[key].dato_laboral = arraySolicitantes[key].dato_laboral[0];
         }
@@ -1739,7 +1739,7 @@
     *@argument key posicion de array a editar
     */
     function cargarEditarSolicitado(key){
-        $("#agregarSolicitado").html('<i class="fa fa-edit"></i> Editar solicitado');
+        $("#agregarSolicitado").html('<i class="fa fa-edit"></i> Editar citado');
         $("#solicitado_key").val(key);
         $("#solicitado_id").val(arraySolicitados[key].id);
         // Si tipo persona es fisica o moral llena diferentes campos
@@ -1927,7 +1927,7 @@
             }else{
                 swal({
                     title: 'Error',
-                    text: 'Es necesario capturar al menos un solicitante, un solicitado y datos de la solicitud',
+                    text: 'Es necesario capturar al menos un solicitante, un citado y datos de la solicitud',
                     icon: 'error'
                 });
             }
@@ -2027,7 +2027,7 @@
             console.log(error);
         }
     });
-    
+
     $("#btnGuardarRatificar").on("click",function(){
         var validacion = validarRatificacion();
         console.log(validacion);
@@ -2090,7 +2090,7 @@
                     });
                 }
             });
-            
+
         }else{
             swal({
                 title: 'Error',
@@ -2099,7 +2099,7 @@
             });
         }
     });
-    
+
     function validarRatificacion(){
         var error = false;
         var listaNotificaciones = [];
@@ -2114,13 +2114,13 @@
                 listaNotificaciones.push({
                     parte_id:parte_id,
                     tipo_notificacion_id:2
-                });                
+                });
             }else{
                 error = true;
             }
         });
         return {error:error,listaNotificaciones:listaNotificaciones}
-    } 
+    }
 
     //funcion para obtener informacion de la excepcion
     function getExcepcion(){
@@ -2185,12 +2185,12 @@
             }
             return data.text;
         },
-        placeholder:'Seleccione una opcion',
+        placeholder:'Seleccione una opción',
         minimumInputLength:4,
         allowClear: true,
         language: "es"
     });
-    
+
     $("#giro_comercial_solicitante").change(function(){
         $("#giro_comercial_hidden").val($(this).val());
     });
