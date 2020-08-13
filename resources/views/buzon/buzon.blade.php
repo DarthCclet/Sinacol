@@ -21,10 +21,10 @@
                             <button class="btn btn-primary pull-right" style="display:hidden;">Cancelar </button>
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
-                                    <td class="text-nowrap"><strong>Fecha de Solicitud:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_solicitud)->diffForHumans()}}</td>
-                                    <td class="text-nowrap"><strong>Fecha de Conflicto:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_conflicto)->diffForHumans()}}</td>
+                                    <td class="text-nowrap"><strong>Fecha de Solicitud:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_solicitud)->format('d/m/Y')}}</td>
+                                    <td class="text-nowrap"><strong>Fecha de Conflicto:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_conflicto)->format('d/m/Y')}}</td>
                                     <td class="text-nowrap"><strong>Objeto de la solicitud:</strong> {{$solicitud->objeto_solicitudes[0]->nombre}}</td>
-                                    <td class="text-nowrap"><strong>Fecha de ratificación:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_ratificacion)->diffForHumans()}}</td>
+                                    <td class="text-nowrap"><strong>Fecha de ratificación:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_ratificacion)->format('d/m/Y')}}</td>
                                     <td class="text-nowrap"><strong>Centro:</strong> {{$solicitud->centro->nombre}}</td>
                                 </tr>
                                 <tr>
@@ -67,7 +67,7 @@
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
                                     <td class="text-nowrap">
-                                        Fecha de audiencia: {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->diffForHumans()}} 
+                                        Fecha de audiencia: {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->format('d/m/Y')}} 
                                     </td>
                                     <td class="text-nowrap">Hora de inicio: {{$audiencia->hora_inicio}}</td>
                                     <td class="text-nowrap">Hora de termino: {{$audiencia->hora_fin}}</td>
@@ -111,7 +111,7 @@
                                         <ul>
                                             @foreach($audiencia->etapasResolucionAudiencia as $etapas)
                                             <li>
-                                                {{$etapas->etapaResolucion->nombre}} (Fecha: {{\Carbon\Carbon::parse($etapas->created_at)->diffForHumans()}})
+                                                {{$etapas->etapaResolucion->nombre}} (Fecha: {{\Carbon\Carbon::parse($etapas->created_at)->format('d/m/Y')}})
                                                 <ul>
                                                     <li>
                                                         <a href="http://conciliacion.test/">Documento</a>
@@ -132,243 +132,6 @@
         </div>
         @endif
         @endforeach
-    </div>
-</div>
-<div class="modal" id="modal-representante" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Representante legal</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <h5>Datos del Representante legal</h5>
-                <div class="col-md-12 row">
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="curp" class="control-label">CURP</label>
-                            <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control" placeholder="CURP del representante legal">
-                        </div>
-                    </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="nombre" class="control-label">Nombre</label>
-                            <input type="text" id="nombre" class="form-control" placeholder="Nombre del representante legal">
-                        </div>
-                    </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="primer_apellido" class="control-label">Primer apellido</label>
-                            <input type="text" id="primer_apellido" class="form-control" placeholder="Primer apellido del representante">
-                        </div>
-                    </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="segundo_apellido" class="control-label">Segundo apellido</label>
-                            <input type="text" id="segundo_apellido" class="form-control" placeholder="Segundo apellido representante">
-                        </div>
-                    </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="fecha_nacimiento" class="control-label">Fecha de nacimiento</label>
-                            <input type="text" id="fecha_nacimiento" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="genero_id" class="col-sm-6 control-label">Genero</label>
-                        <select id="genero_id" class="form-control select-element">
-                            <option value="">-- Selecciona un genero</option>
-                        </select>
-                    </div>
-                </div>
-                <hr>
-                <h5>Datos de comprobante como representante legal</h5>
-                <div class="col-md-12 row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="instrumento" class="control-label">Instrumento</label>
-                            <input type="text" id="instrumento" class="form-control" placeholder="Instrumento que acredita la representatividad">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
-                            <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="numero_notaria" class="control-label">Número</label>
-                            <input type="text" id="numero_notaria" class="form-control" placeholder="Número de la notaría">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="nombre_notario" class="control-label">Nombre del Notario</label>
-                            <input type="text" id="nombre_notario" class="form-control" placeholder="Nombre del notario que acredita">
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="localidad_notaria" class="control-label">Localidad</label>
-                            <input type="text" id="localidad_notaria" class="form-control" placeholder="Localidad de la notaría">
-                        </div>
-                    </div>
-                </div>
-                <hr>
-                <h5>Datos de contacto</h5>
-                <div class="col-md-12 row">
-                    <div class="col-md-5">
-                        <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
-                        <select id="tipo_contacto_id" class="form-control select-element">
-                            <option value="">-- Selecciona un genero</option>
-                        </select>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label for="contacto" class="control-label">Contacto</label>
-                            <input type="text" id="contacto" class="form-control" placeholder="Información de contacto">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-primary" type="button" id="btnAgregarContacto">
-                            <i class="fa fa-plus-circle"></i> Agregar
-                        </button>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <table class="table table-bordered" >
-                        <thead>
-                            <tr>
-                                <th style="width:80%;">Tipo</th>
-                                <th style="width:80%;">Contacto</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbodyContacto">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarRepresentante"><i class="fa fa-save"></i> Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal" id="modal-dato-laboral" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Datos Laborales</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12 row">
-                    <input type="hidden" id="dato_laboral_id">
-                    <input type="hidden" id="resolucion_dato_laboral">
-                    <div class="col-md-12">
-                        <input class="form-control datoLaboral" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
-                        <p class="help-block">Nombre del Jefe directo</p>
-                    </div>
-                    <div class="col-md-12 form-group row">
-                        <input type="hidden" id="term">
-                        <div class="col-md-12 ">
-                            <select name="giro_comercial_solicitante " placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control datoLaboral"></select>
-                        </div>
-                        <div class="col-md-12">
-                            <p class="help-block needed">Giro comercial</p>
-                        <label id="giro_solicitante"></label>
-                        </div>
-                    </div>
-                    {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opcion','style'=>'display:none;']);  !!}
-                    <div class="col-md-12 row">
-                        <div class="col-md-4">
-                            {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect datoLaboral']);  !!}
-                            {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                            <p class="help-block needed">Categoria/Puesto</p>
-                        </div>
-                        <div class="col-md-4">
-                            <input class="form-control numero datoLaboral" data-parsley-type='integer' id="nss" placeholder="No. IMSS"  type="text" value="">
-                            <p class="help-block ">No. IMSS</p>
-                        </div>
-                        <div class="col-md-4">
-                            <input class="form-control numero datoLaboral" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
-                            <p class="help-block">No. ISSSTE</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 row">
-                        <div class="col-md-4">
-                            <input class="form-control numero "datoLaboral required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="Remuneraci&oacute;n (pago)" type="text" value="">
-                            <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
-                        </div>
-                        <div class="col-md-4">
-                            {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
-                            {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
-                            <p class="help-block needed">Periodicidad</p>
-                        </div>
-                        <div class="col-md-4">
-                            <input class="form-control numero datoLaboral" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
-                            <p class="help-block needed">Horas semanales</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 row">
-
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" />
-                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
-                        </div>
-                        <div class="col-md-4">
-                            <input class="form-control date datoLaboral" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
-                            <p class="help-block needed">Fecha de ingreso</p>
-                        </div>
-                        <div class="col-md-4" id="divFechaSalida">
-                            <input class="form-control date datoLaboral" id="fecha_salida" placeholder="Fecha salida" type="text" value="">
-                            <p class="help-block needed">Fecha salida</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
-                        {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
-                        <p class="help-block needed">Jornada</p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal" id="modal-documentos" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Documentos derivados de la audiencia</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-striped table-bordered table-td-valign-middle" id="table_documentos">
-                    <thead>
-                        <tr>
-                            <th class="text-nowrap">Nombre</th>
-                            <th class="text-nowrap">Tipo de documento</th>
-                            <th class="text-nowrap">Fecha de creación</th>
-                            <th class="text-nowrap">Ver</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
 </div>
 @endsection
