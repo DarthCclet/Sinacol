@@ -14,7 +14,6 @@
 Route::get('/', function () {
     return view('welcome');
 });
-
 Route::middleware(['auth'])->group(function () {
     Route::resource('users','UserController');
     Route::get('/home','HomeController@index')->name('home');
@@ -128,11 +127,15 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('tipos_contactos','TipoContactoController');
     Route::resource('tipos_contadores','TipoContadorController');
     Route::resource('tipos_discapacidades','TipoDiscapacidadController');
-    
-    
-    
 });
 
+
+Route::get('solicitud_buzon','BuzonController@SolicitudBuzon')->name('solicitud_buzon');
+
+Route::Get('partes/datoLaboral/{id}','ParteController@GetDatoLaboral');
+Route::Get('partes/representante/{id}','ParteController@GetRepresentanteLegal');
+Route::post('solicitar_acceso','BuzonController@SolicitarAcceso')->name('solicitar_acceso2');
+Route::get('buzon','BuzonController@BuzonElectronico')->name('buzon');
 
 Auth::routes(['register' => false]);
 

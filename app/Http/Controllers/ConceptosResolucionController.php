@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\DatoLaboral;
 use App\Parte;
 use App\Periodicidad;
+use App\ResolucionParteConcepto;
 use App\SalarioMinimo;
+use App\VacacionesAnio;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -100,34 +102,133 @@ class ConceptosResolucionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function guardarConceptosResolucion($conceptosResolucion = array())//idSolicitante
+    {
+        try {
+            // if(isset($relacion["listaConceptosResolucion"])){
+                // if(count($relacion["listaConceptosResolucion"]) > 0){
+                    // foreach($conceptosResolucion as $concepto){
+                    // // foreach($relacion["listaConceptosResolucion"] as $concepto){
+                    //     ResolucionParteConcepto::create([
+                    //         "resolucion_partes_id" => $resolucionParte->id,
+                    //         "concepto_pago_resoluciones_id"=> $concepto["concepto_pago_resoluciones_id"],
+                    //         "dias"=>$concepto["dias"],
+                    //         "monto"=>$concepto["monto"],
+                    //         "otro"=>$concepto["otro"]
+                    //     ]);
+                    // }
+                // }
+            // }
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
     public function getLaboralesConceptos(Request $request)//idSolicitante
     {
-        // dd($request);
-        $id = $this->request->get('solicitante_id');
-        // $id = $this->request->get('id');
-        // dd($id);
-        $parteSolicitante = Parte::find($id);
-        $datoLaboral = DatoLaboral::select('fecha_ingreso','periodicidad_id','remuneracion')->where('parte_id',$parteSolicitante->id)->get();
-        // dd($datoLaboral);
-        if(count($datoLaboral) >1){
-            $datoLaboral =$datoLaboral->where('resolucion',true)->first();
-        }else{
-            $datoLaboral =$datoLaboral->where('resolucion',false)->first();
-        }
-        $diasPeriodicidad = Periodicidad::where('id', $datoLaboral->periodicidad_id)->first();
-        $remuneracionDiaria = $datoLaboral->remuneracion / $diasPeriodicidad->dias;
-        $now = Carbon::now();
-        $anios_antiguedad = Carbon::parse($datoLaboral->fecha_ingreso)->floatDiffInYears($now);
-        $salarios = SalarioMinimo::get('salario_minimo');
-        // dd($salarios);
-        $datosL = [];
-        $datosL['remuneracionDiaria']= $remuneracionDiaria;
-        $datosL['antiguedad']= $anios_antiguedad;
-        $datosL['salarioMinimo']= $salarios[0]->salario_minimo;
-        // dd($datosL);
-        if ($this->request->wantsJson()) {
-            return $this->sendResponse($datosL, 'SUCCESS');
-        }
+        try {
+            $id = $this->request->get('solicitante_id');
+            // $id = $this->request->get('id');
+            // $parteSolicitante = Parte::find($id);
+            $datoLaboral = DatoLaboral::select('fecha_ingreso','fecha_salida','periodicidad_id','remuneracion')->where('parte_id',$id)->get();
+            // dd($datoLaboral);
+            if(count($datoLaboral) >1){
+                $datoLaboral =$datoLaboral->where('resolucion',true)->first();
+            }else{
+                $datoLaboral =$datoLaboral->where('resolucion',false)->first();
+            }
+            $diasPeriodicidad = Periodicidad::where('id', $datoLaboral->periodicidad_id)->first();
+            $remuneracionDiaria = $datoLaboral->remuneracion / $diasPeriodicidad->dias;
+            // $now = Carbon::now();
+            $anios_antiguedad = Carbon::parse($datoLaboral->fecha_ingreso)->floatDiffInYears($datoLaboral->fecha_salida);
+            $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
+            $salarios = SalarioMinimo::get('salario_minimo');
+            // dd($anios_antiguedad);
+            $datosL = [];
+            $salarioMinimo = $salarios[0]->salario_minimo;
+            $datosL['idParte']= $id;
+            $datosL['remuneracionDiaria']= $remuneracionDiaria;
+            $datosL['antiguedad']= $anios_antiguedad;
+            $datosL['salarioMinimo']= $salarioMinimo;
+            // $anioSalida = Carbon::parse($datoLaboral->fecha_salida);
+            // $anioSalida = Carbon::createFromFormat('Y-m-d', $datoLaboral->fecha_salida)->year;
+            $anioSalida = Carbon::parse($datoLaboral->fecha_salida)->startOfYear();
+            $propAguinaldo = Carbon::parse($anioSalida)->floatDiffInYears($datoLaboral->fecha_salida);
+            // dd($meses_vacaciones);
+            $vacacionesPorAnio = VacacionesAnio::all();
+            $diasVacaciones = 0;
+            foreach ($vacacionesPorAnio as $key => $vacaciones) {
+                if($vacaciones->anios_laborados >= $anios_antiguedad ){
+                    $diasVacaciones = $vacaciones->dias_vacaciones;
+                    break;
+                }
+            }
+            $pagoVacaciones = $propVacaciones * $diasVacaciones * $remuneracionDiaria;
+            $salarioTopado = ($remuneracionDiaria > (2*$salarioMinimo) ? (2*$salarioMinimo) : $remuneracionDiaria);
+            
+            //Propuesta de convenio al 100%
+            $prouestaCompleta = [];
+            array_push($prouestaCompleta,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 5, "dias"=>90, "monto"=>round($remuneracionDiaria * 90,2))); //Indemnizacion constitucional = gratificacion A
+            array_push($prouestaCompleta,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 4, "dias"=>15 * $propAguinaldo, "monto"=>round($remuneracionDiaria * 15 * $propAguinaldo,2))); //Aguinaldo = dias de aguinaldo
+            array_push($prouestaCompleta,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 2, "dias"=>$propVacaciones * $diasVacaciones, "monto"=>round($pagoVacaciones,2))); //Vacaciones = dias vacaciones
+            array_push($prouestaCompleta,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 3, "dias"=> $propVacaciones * $diasVacaciones * 0.25, "monto"=>round($pagoVacaciones * 0.25,2))); //Prima Vacacional
+            array_push($prouestaCompleta,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 7, "dias"=>$anios_antiguedad *12, "monto"=>round($salarioTopado * $anios_antiguedad *12,2))); //Prima antiguedad = gratificacion C
+            
+            $total = 0;
+            $completa['indemnizacion']= round($remuneracionDiaria * 90,2);
+            $total += $remuneracionDiaria * 90;
+            $completa['aguinaldo']= round($remuneracionDiaria * 15 * $propAguinaldo,2);
+            $total += $remuneracionDiaria * 15 * $propAguinaldo;
+            $completa['vacaciones']= round($pagoVacaciones,2);
+            $total += $pagoVacaciones;
+            $completa['prima_vacacional']= round($pagoVacaciones * 0.25,2);
+            $total += $pagoVacaciones * 0.25;
+            $completa['prima_antiguedad']= round($salarioTopado * $anios_antiguedad *12,2);
+            $total += $salarioTopado * $anios_antiguedad *12;
+            $completa['total']= round($total,2);
 
+            $datosL['completa']= $completa;
+            
+            //Propuesta de convenio al 50%
+            $prouestaAl50 = [];
+            array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 5, "dias"=>45, "monto"=>round($remuneracionDiaria * 45,2)));
+            array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 4, "dias"=>15 * $propAguinaldo, "monto"=>round($remuneracionDiaria * 15 * $propAguinaldo,2)));
+            array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 2, "dias"=>$propVacaciones * $diasVacaciones, "monto"=>round($pagoVacaciones,2)));
+            array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 3, "dias"=> $propVacaciones * $diasVacaciones * 0.25, "monto"=>round($pagoVacaciones * 0.25,2)));
+            array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 7, "dias"=>$anios_antiguedad *6, "monto"=>round($salarioTopado * $anios_antiguedad *6,2)));
+
+            $total = 0;
+            $al50['indemnizacion']= round($remuneracionDiaria * 45,2);
+            $total += $remuneracionDiaria * 45;
+            $al50['aguinaldo']= round($remuneracionDiaria * 15 * $propAguinaldo,2);
+            $total += $remuneracionDiaria * 15 * $propAguinaldo;
+            $al50['vacaciones']= round($pagoVacaciones,2);
+            $total += $pagoVacaciones;
+            $al50['prima_vacacional']= round($pagoVacaciones * 0.25,2);
+            $total += $pagoVacaciones * 0.25;
+            $al50['prima_antiguedad']= round($salarioTopado * $anios_antiguedad * 6,2);
+            $total += $salarioTopado * $anios_antiguedad * 6;
+            $al50['total']= round($total,2);
+
+            $datosL['al50']= $al50;
+            $datosL['propuestaCompleta']= $prouestaCompleta;
+            $datosL['propuestaAl50']= $prouestaAl50;
+
+            // dd($datosL);
+            if ($this->request->wantsJson()) {
+                return $this->sendResponse($datosL, 'SUCCESS');
+            }
+        } catch (\Throwable $th) {
+            $datosL = [];
+            $datosL['error']= true;
+            $datosL['mensaje']= "No se encontraron Datos Laborales";
+
+            if ($this->request->wantsJson()) {
+                return $this->sendResponse($datosL, 'ERROR');
+            }
+            // $datosL['antiguedad']= $anios_antiguedad;
+            // $datosL['salarioMinimo']= $salarios[0]->salario_minimo;
+            //throw $th;
+        }
+        
     }
 }

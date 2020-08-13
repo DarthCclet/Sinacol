@@ -31,4 +31,7 @@ class AudienciaParte extends Model implements AuditableContract
     public function parte(){
       return $this->belongsTo(Parte::class);
     }
+    public function tipo_notificacion(){
+        return $this->belongsTo(TipoNotificacion::class);
+    }
 }

@@ -174,6 +174,7 @@ class AudienciaController extends Controller
         $comparecientes = array();
         foreach($audiencia->audienciaParte as $key => $parte){
             $parte->parte->tipoParte = $parte->parte->tipoParte;
+            $parte->parte->tipo_notificacion = $parte->tipo_notificacion;
             $partes[$key] = $parte->parte;
         }
         foreach($audiencia->conciliadoresAudiencias as $key => $conciliador){
@@ -205,7 +206,7 @@ class AudienciaController extends Controller
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
         $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
         $jornadas = $this->cacheModel('jornadas',Jornada::class);
-        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
+        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);        
         return view('expediente.audiencias.edit', compact('audiencia',"motivos_archivo","concepto_pago_resoluciones","periodicidades","ocupaciones","jornadas","giros_comerciales"));
     }
 
@@ -420,7 +421,13 @@ class AudienciaController extends Controller
         // Guardamos todas las Partes en la audiencia
         $partes = $audiencia->expediente->solicitud->partes;
         foreach($partes as $parte){
-            AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id]);
+            $tipo_notificacion_id = null;
+            foreach($request->listaNotificaciones as $notificaciones){
+                if($notificaciones["parte_id"] == $parte->id){
+                    $tipo_notificacion_id = $notificaciones["tipo_notificacion_id"];
+                }
+            }
+            AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
         }
         
         return $audiencia;
@@ -510,7 +517,7 @@ class AudienciaController extends Controller
             Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $audiencia->id,"presentado" => true]);
         }
         }
-        $this->guardarRelaciones($audiencia,$request->listaRelacion);
+        $this->guardarRelaciones($audiencia,$request->listaRelacion,$request->listaConceptos);
         return $audiencia;
     }
     
@@ -519,8 +526,7 @@ class AudienciaController extends Controller
      * @param Audiencia $audiencia
      * @param type $arrayRelaciones
      */
-    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array()){
-//        dd($arrayRelaciones);
+    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array() ){
         $partes = $audiencia->audienciaParte;
         $solicitantes = $this->getSolicitantes($audiencia);
         $solicitados = $this->getSolicitados($audiencia);
@@ -539,27 +545,12 @@ class AudienciaController extends Controller
                             if($relacion["resolucion_individual_id"] == 3){
                                 event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id));
                             }
-                            if($relacion["resolucion_individual_id"] == 1){
-                                if(isset($relacion["listaConceptosResolucion"])){
-                                    if(count($relacion["listaConceptosResolucion"]) > 0){
-                                        foreach($relacion["listaConceptosResolucion"] as $concepto){
-                                            ResolucionParteConcepto::create([
-                                                "resolucion_partes_id" => $resolucionParte->id,
-                                                "concepto_pago_resoluciones_id"=> $concepto["concepto_pago_resoluciones_id"],
-                                                "dias"=>$concepto["dias"],
-                                                "monto"=>$concepto["monto"],
-                                                "otro"=>$concepto["otro"]
-                                            ]);
-                                        }
-                                    }
-                                }
-                            }
                             $bandera = false;
                         }
                     }
                 }
                 if($bandera){
-                    ResolucionPartes::create([
+                    $resolucionParte = ResolucionPartes::create([
                         "audiencia_id" => $audiencia->id,
                         "parte_solicitante_id" => $solicitante->parte_id,
                         "parte_solicitada_id" => $solicitado->parte_id,
@@ -570,6 +561,29 @@ class AudienciaController extends Controller
                     }else if($audiencia->resolucion_id == 1){
                         event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,3,1,$solicitante->parte_id,$solicitado->parte_id));
                         // $this->generarConstancia($audiencia->id,$solicitud->id,3,2);
+                    }
+                }
+                //guardar conceptos de pago para Convenio
+                if($audiencia->resolucion_id == 1 && isset($resolucionParte) ){ //Hubo conciliacion
+                // if($audiencia->resolucion_id == 1 ){ //Hubo conciliacion
+                    if(isset($listaConceptos)){
+                        if(count($listaConceptos) > 0){
+                            foreach($listaConceptos as $key=>$conceptosSolicitante){//solicitantes
+                                // foreach($conceptosSolicitante as $ke=>$conceptosPago){//conceptos por solicitante
+                                    if($key == $solicitante->parte_id ){
+                                        foreach($conceptosSolicitante as $k=>$concepto){
+                                            ResolucionParteConcepto::create([
+                                                "resolucion_partes_id" => $resolucionParte->id,
+                                                "concepto_pago_resoluciones_id"=> $concepto["concepto_pago_resoluciones_id"],
+                                                "dias"=>intval($concepto["dias"]),
+                                                "monto"=>$concepto["monto"],
+                                                "otro"=>$concepto["otro"]
+                                            ]);
+                                        }
+                                    }
+                                // }
+                            }
+                        }
                     }
                 }
             }

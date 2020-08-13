@@ -705,7 +705,7 @@
                     @if(Count($audiencias) > 0)
                         @include('expediente.audiencias._list',$audiencias)
                     @else
-                        @include('expediente.audiencias.calendarioWizard')
+                        @include('expediente.audiencias.calendarioWizard',$partes)
                     @endif
                 </div>
             </div>
@@ -919,7 +919,7 @@
     </div>
 </div>
  <div class="modal" id="modalNotificacion" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Tipo de notificación</h2>
@@ -934,14 +934,57 @@
                     </ul>
                 </div>
                 <div class="col-md-12">
-                    <div class="custom-control custom-radio">
-                        <input type="radio" id="radioNotificacionA" name="radioNotificacion" class="custom-control-input">
-                        <label class="custom-control-label" for="radioNotificacionA">A) El solicitante entrega citatorio a solicitados</label>
-                    </div>
-                    <div class="custom-control custom-radio">
-                        <input type="radio" id="radioNotificacionB" name="radioNotificacion" class="custom-control-input">
-                        <label class="custom-control-label" for="radioNotificacionB">B) Un actuario del centro entrega citatorio a solicitados</label>
-                    </div>
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <td>Solicitado</td>
+                                <td>Dirección</td>
+                                <td>Mapa</td>
+                                <td>Tipo de notificación</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(isset($partes))
+                            @foreach($partes as $parte)
+                            <tr>
+                                @if($parte->tipo_parte_id == 2)
+                                    @if($parte->tipo_persona_id == 1)
+                                    <td>{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</td>
+                                    @else
+                                    <td>{{$parte->nombre_comercial}}</td>
+                                    @endif
+                                    <td>{{$parte->domicilios->vialidad}} {{$parte->domicilios->num_ext}}, {{$parte->domicilios->asentamiento}} {{$parte->domicilios->municipio}}, {{$parte->domicilios->estado}}</td>
+                                    <td>
+                                        <input type="hidden" id="parte_id{{$parte->id}}" class="hddParte_id" value="{{$parte->id}}">
+                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
+                                        <a href="https://maps.google.com/?q={{$parte->domicilios->latitud}},{{$parte->domicilios->longitud}}" target="_blank" class="btn btn-xs btn-primary"><i class="fa fa-map"></i></a>
+                                        @else
+                                        <legend>Sin datos</legend>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="radioNotificacionA{{$parte->id}}" value="1" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
+                                            <label class="custom-control-label" for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio a solicitados</label>
+                                        </div>
+                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="radioNotificacionB{{$parte->id}}" value="2" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
+                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Un actuario del centro entrega citatorio a solicitados</label>
+                                        </div>
+                                        @else
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="radioNotificacionB{{$parte->id}}" value="3" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
+                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Agendar cita con actuario para entrega de citatorio</label>
+                                        </div>
+                                        @endif
+                                    </td>
+                                @endif
+                            </tr>
+                            @endforeach
+                            @endif
+                        <tbody>
+                    </table>
                 </div>
             </div>
             <div class="modal-footer">
@@ -954,7 +997,7 @@
     </div>
 </div>
 <input type="hidden" id="expediente_id">
-</div>
+<!--</div>-->
 @push('scripts')
 
 <script>
@@ -1914,7 +1957,65 @@
     $("#btnRatificarSolicitud").on("click",function(){
         try{
             if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
-                $("#modalNotificacion").modal("show");
+//                $("#modalNotificacion").modal("show");
+                swal({
+                    title: '¿Estas seguro?',
+                    text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'Cancelar',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true,
+                        },
+                        confirm: {
+                            text: 'Aceptar',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-danger',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(isConfirm){
+                    if(isConfirm){
+                        $.ajax({
+                            url:'/solicitud/ratificar',
+                            type:'POST',
+                            dataType:"json",
+                            async:true,
+                            data:{
+                                id:$("#solicitud_id").val(),
+//                                listaNotificaciones:validacion.listaNotificaciones,
+                                _token:"{{ csrf_token() }}"
+                            },
+                            success:function(data){
+                                if(data != null && data != ""){
+                                    $("#modalNotificacion").modal("hide");
+                                    swal({
+                                        title: 'Correcto',
+                                        text: 'Solicitud ratificada correctamente',
+                                        icon: 'success'
+                                    });
+                                    location.reload();
+                                }else{
+                                    swal({
+                                        title: 'Error',
+                                        text: 'No se pudo ratificar',
+                                        icon: 'error'
+                                    });
+                                }
+                            },error:function(data){
+                                swal({
+                                    title: 'Error',
+                                    text: ' Error al ratificar la solicitud',
+                                    icon: 'error'
+                                });
+                            }
+                        });
+                    }
+                });
             }else{
                 swal({
                     title: 'Error',
@@ -1928,7 +2029,9 @@
     });
     
     $("#btnGuardarRatificar").on("click",function(){
-        if($("#radioNotificacionA").is(":checked") || $("#radioNotificacionB").is(":checked")){
+        var validacion = validarRatificacion();
+        console.log(validacion);
+        if(!validacion.error){
             swal({
                 title: '¿Estas seguro?',
                 text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
@@ -1958,6 +2061,7 @@
                         async:true,
                         data:{
                             id:$("#solicitud_id").val(),
+                            listaNotificaciones:validacion.listaNotificaciones,
                             _token:"{{ csrf_token() }}"
                         },
                         success:function(data){
@@ -1986,14 +2090,37 @@
                     });
                 }
             });
+            
         }else{
             swal({
                 title: 'Error',
-                text: 'Selecciona la forma en la que notificará al solicitado',
+                text: 'Indica el tipo de notificación para todos los solicitados',
                 icon: 'warning'
             });
         }
     });
+    
+    function validarRatificacion(){
+        var error = false;
+        var listaNotificaciones = [];
+        $(".hddParte_id").each(function(element){
+            var parte_id = $(this).val();
+            if($("#radioNotificacionA"+parte_id).is(":checked")){
+                listaNotificaciones.push({
+                    parte_id:parte_id,
+                    tipo_notificacion_id:1
+                });
+            }else if($("#radioNotificacionB"+parte_id).is(":checked")){
+                listaNotificaciones.push({
+                    parte_id:parte_id,
+                    tipo_notificacion_id:2
+                });                
+            }else{
+                error = true;
+            }
+        });
+        return {error:error,listaNotificaciones:listaNotificaciones}
+    } 
 
     //funcion para obtener informacion de la excepcion
     function getExcepcion(){

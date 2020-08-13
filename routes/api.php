@@ -107,6 +107,10 @@ Route::get('audiencias/{tipo_resolucion}/rfc/{rfc}', 'ServiciosCJFController@lis
 Route::post('audiencias/{tipo_resolucion}/constancia', 'ServiciosCJFController@consultaExpediente')->middleware('client');
 Route::post('audiencias/solicitud/solicitud-externa', 'ServiciosCJFController@solicitudExterna')->middleware('client');
 
+Route::post('solicitar_acceso','BuzonController@SolicitarAcceso')->name('solicitar_acceso');
+Route::post('validar_token/{token}/{correo}','BuzonController@validar_token');
+
+
 Route::post('upload', 'DocumentoController@uploadSubmit');
 Route::post('documentoAudiencia', 'DocumentoController@postAudiencia');
 
