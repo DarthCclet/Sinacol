@@ -62,13 +62,15 @@ class Parte extends Model implements Auditable
         }
 //        Validamos la entidad de nacimiento
         if (Arr::has($data, 'new_values.entidad_nacimiento_id')) {
-            if (Arr::has($data, 'new_values.entidad_nacimiento_id')) {
-                if($data["event"] != "created"){
-                    $data['old_values']['Entidad de nacimiento'] = Nacionalidad::find($this->getOriginal('entidad_nacimiento_id'))->name;
-                    unset($data['old_values']["entidad_nacimiento_id"]);
+            if($this->getOriginal('entidad_nacimiento_id') != null){
+                if (Arr::has($data, 'new_values.entidad_nacimiento_id')) {
+                    if($data["event"] != "created"){
+                        $data['old_values']['Entidad de nacimiento'] = Nacionalidad::find($this->getOriginal('entidad_nacimiento_id'))->name;
+                        unset($data['old_values']["entidad_nacimiento_id"]);
+                    }
+                    $data['new_values']['Entidad de nacimiento'] = Nacionalidad::find($this->getAttribute('entidad_nacimiento_id'))->name;
+                    unset($data['new_values']["entidad_nacimiento_id"]);
                 }
-                $data['new_values']['Entidad de nacimiento'] = Nacionalidad::find($this->getAttribute('entidad_nacimiento_id'))->name;
-                unset($data['new_values']["entidad_nacimiento_id"]);
             }
         }
 //        Validamos el primer apellido
