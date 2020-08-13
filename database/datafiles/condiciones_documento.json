@@ -5,7 +5,7 @@
           {
               "id": "1",
               "nombre": "Solicitante",
-              "valores": [
+              "catalogos": [
                   {"catalogo":"Genero",
                     "val":["Masculino", "Femenino"]},
                   {"catalogo":"Tipo_Persona",
@@ -15,7 +15,7 @@
           {
               "id": "2",
               "nombre": "Solicitado",
-              "valores": [
+              "catalogos": [
                   {"catalogo":"Genero",
                     "val":["Masculino", "Femenino"]},
                   {"catalogo":"Tipo_Persona",

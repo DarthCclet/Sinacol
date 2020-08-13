@@ -19,8 +19,12 @@ use App\Parte;
 use App\Centro;
 use App\Expediente;
 use App\Audiencia;
+use App\ConceptoPagoResolucion;
 use App\DatoLaboral;
-
+use App\EtapaResolucion;
+use App\EtapaResolucionAudiencia;
+use App\ResolucionParteConcepto;
+use App\ResolucionPartes;
 use Illuminate\Support\Facades\App;
 
 class PlantillasDocumentosController extends Controller
@@ -67,21 +71,21 @@ class PlantillasDocumentosController extends Controller
        $path = base_path('database/datafiles');
        $json = json_decode(file_get_contents($path . "/elemento_documentos.json"));
          foreach ($json->datos as $key => $value){
-             $columnNames = Schema::getColumnListing($value->tabla);
-             $guarded = ['id','updated_at','created_at','deleted_at'];
-             foreach ( $guarded as $guard ){
-               $k = array_search($guard, $columnNames);
-               if (false !== $k) {
-                  unset($columnNames[$k]);
-               }
-             }
-             $objetoDocumento [] =
-                 [
-                     'objeto' => $value->objeto,
-                     'nombre' => $value->nombre,
-                     'tabla' => $value->tabla,
-                     'campos' => $columnNames
-                 ];
+            $columnNames = Schema::getColumnListing($value->tabla);
+            $guarded = ['id','updated_at','created_at','deleted_at'];
+            foreach ( $guarded as $guard ){
+              $k = array_search($guard, $columnNames);
+              if (false !== $k) {
+                unset($columnNames[$k]);
+              }
+            }
+            $objetoDocumento [] =
+              [
+                  'objeto' => $value->objeto,
+                  'nombre' => $value->nombre,
+                  'tabla' => $value->tabla,
+                  'campos' => $columnNames
+              ];
           }
         $condicionales = $this->getCondicionales();
         return view('documentos.create', compact('objetoDocumento','tipo_plantilla','condicionales'));
@@ -95,18 +99,18 @@ class PlantillasDocumentosController extends Controller
       */
      public function store(Request $request)
      {
-         $datos = $request->all();
-         if ($datos["plantilla-body"]== null) {
-             $header = view('documentos._header_documentos_default');
-             $body = view('documentos._body_documentos_default');
-             $footer = view('documentos._footer_documentos_default');
-         }
-         else
-         {
-             $header = $datos["plantilla-header"];
-             $body = $datos["plantilla-body"];
-             $footer = $datos["plantilla-footer"];
-         }
+        $datos = $request->all();
+        if ($datos["plantilla-body"]== null) {
+            $header = view('documentos._header_documentos_default');
+            $body = view('documentos._body_documentos_default');
+            $footer = view('documentos._footer_documentos_default');
+        }
+        else
+        {
+            $header = $datos["plantilla-header"];
+            $body = $datos["plantilla-body"];
+            $footer = $datos["plantilla-footer"];
+        }
        // $user = Auth::user();
         // $user_id = $user->id;
 
@@ -130,7 +134,7 @@ class PlantillasDocumentosController extends Controller
       */
      public function show($id)
      {
-         //
+        
      }
 
      /**
@@ -161,49 +165,50 @@ class PlantillasDocumentosController extends Controller
            $nombre = $plantillaDocumento->nombre_plantilla;
        }
 
-       $objetoDocumento = [];
-       //Se llena el catalogo desde el arvhivo json elemento_documentos.json
-       $path = base_path('database/datafiles');
-       $jsonElementos = json_decode(file_get_contents($path . "/elemento_documentos.json"));
-       foreach ($objetos as $key => $obj){
-         foreach ($jsonElementos->datos as $key => $value){
-           if($value->id == $obj){
-             $columnNames = Schema::getColumnListing($value->tabla);
-             $guarded = ['id','updated_at','created_at','deleted_at'];
-             foreach ( $guarded as $guard ){
-               $k = array_search($guard, $columnNames);
-               if (false !== $k) {
-                  unset($columnNames[$k]);
-               }
-             }
-             if($value->nombre =='Solicitud'){
-               array_push($columnNames,'total_solicitados');
-               array_push($columnNames,'total_solicitantes');
-               array_push($columnNames,'objeto_solicitudes');
-             }
-             if($value->nombre =='Conciliador'){
-               $columnPersona = Schema::getColumnListing('personas');
-               $guarded = ['id','updated_at','created_at','deleted_at'];
-               foreach ( $guarded as $guard ){
-                 $k = array_search($guard, $columnPersona);
-                 if (false !== $k) {
-                    unset($columnPersona[$k]);
-                 }
-               }
-               foreach ($columnPersona as $k => $valPersona) {
-                 array_push($columnNames,$valPersona);
-               }
-             }
-             $objetoDocumento [] =
-                 [
-                     'objeto' => $value->objeto,
-                     'nombre' => $value->nombre,
-                     'tabla' => $value->tabla,
-                     'campos' =>$columnNames
-                 ];
-           }
-         }
-       }
+       $objetoDocumento = $this->getObjetoDocumento($objetos);
+      //  $objetoDocumento = [];
+      //  //Se llena el catalogo desde el arvhivo json elemento_documentos.json
+      //  $path = base_path('database/datafiles');
+      //  $jsonElementos = json_decode(file_get_contents($path . "/elemento_documentos.json"));
+      //  foreach ($objetos as $key => $obj){
+      //    foreach ($jsonElementos->datos as $key => $value){
+      //      if($value->id == $obj){
+      //        $columnNames = Schema::getColumnListing($value->tabla);
+      //        $guarded = ['id','updated_at','created_at','deleted_at'];
+      //        foreach ( $guarded as $guard ){
+      //          $k = array_search($guard, $columnNames);
+      //          if (false !== $k) {
+      //             unset($columnNames[$k]);
+      //          }
+      //        }
+      //        if($value->nombre =='Solicitud'){
+      //          array_push($columnNames,'total_solicitados');
+      //          array_push($columnNames,'total_solicitantes');
+      //          array_push($columnNames,'objeto_solicitudes');
+      //        }
+      //        if($value->nombre =='Conciliador'){
+      //          $columnPersona = Schema::getColumnListing('personas');
+      //          $guarded = ['id','updated_at','created_at','deleted_at'];
+      //          foreach ( $guarded as $guard ){
+      //            $k = array_search($guard, $columnPersona);
+      //            if (false !== $k) {
+      //               unset($columnPersona[$k]);
+      //            }
+      //          }
+      //          foreach ($columnPersona as $k => $valPersona) {
+      //            array_push($columnNames,$valPersona);
+      //          }
+      //        }
+      //        $objetoDocumento [] =
+      //            [
+      //                'objeto' => $value->objeto,
+      //                'nombre' => $value->nombre,
+      //                'tabla' => $value->tabla,
+      //                'campos' =>$columnNames
+      //            ];
+      //      }
+      //    }
+      //  }
        $condicionales = $this->getCondicionales();
        return view('documentos.edit', compact('plantillaDocumento','objetoDocumento','tipo_plantilla','condicionales'));
        // return view('documentos.edit')->with('plantillaDocumento', $plantilla);
@@ -247,13 +252,13 @@ class PlantillasDocumentosController extends Controller
        }
        return redirect()->route('plantilla-documentos.index')->with('success', 'Se ha eliminado exitosamente');
      }
+
       /**
        * Cargar html default para plantillas.
        *
        * @param
        * @return \Illuminate\Http\Response
        */
-
       public function cargarDefault()
       {
         // $tipo_plantillaDoc = TipoDocumento::all();
@@ -288,10 +293,12 @@ class PlantillasDocumentosController extends Controller
         $condicionales = $this->getCondicionales();
         return view('documentos.create', compact('plantillaDocumento','objetoDocumento','tipo_plantilla','condicionales'));
        }
-       private function getObjetoDocumento($value){
-          $objetoDocumento = [];
-
-       }
+      /**
+       * Funcion para obtener variables de condiciones en el editor
+       *
+       * @param
+       * @return \Illuminate\Http\Response
+       */
        private function getCondicionales(){
          $condicionales = [];
          $path = base_path('database/datafiles');
@@ -299,6 +306,102 @@ class PlantillasDocumentosController extends Controller
          $condicionales = $json->datos;
          return $condicionales;
        }
+       /**
+       * Obtener las variables de los modelos usados en las plantillas
+       * @param
+       * @return \Illuminate\Http\Response
+       */
+
+       private function getObjetoDocumento($objetos){
+        
+        $objetoDocumento = [];
+        //Se llena el catalogo desde el arvhivo json elemento_documentos.json
+        $path = base_path('database/datafiles');
+        $jsonElementos = json_decode(file_get_contents($path . "/elemento_documentos.json"));
+        foreach ($objetos as $key => $obj){
+          foreach ($jsonElementos->datos as $key => $value){
+            if($value->id == $obj){
+              $columnNames = Schema::getColumnListing($value->tabla);
+              $guarded = ['id','updated_at','created_at','deleted_at'];
+              foreach ( $guarded as $guard ){
+                $k = array_search($guard, $columnNames);
+                if (false !== $k) {
+                  unset($columnNames[$k]);
+                }
+              }
+              if($value->nombre =='Solicitud'){
+                array_push($columnNames,'total_solicitados');
+                array_push($columnNames,'total_solicitantes');
+                array_push($columnNames,'objeto_solicitudes');
+              }
+              // dd($columnNames);
+              if($value->objeto =='Parte'){
+                if($value->id_tipo  =='1'){ // campos de datos laborales de solicitante
+                  $columnDatosLaborales = Schema::getColumnListing('datos_laborales');
+                  $guarded = ['id','updated_at','created_at','deleted_at'];
+                  foreach ( $guarded as $guard ){
+                    $k = array_search($guard, $columnDatosLaborales);
+                    if (false !== $k) {
+                      unset($columnDatosLaborales[$k]);
+                    }
+                  }
+                  // array_push($columnNames,'datos_laborales');
+                  array_push($columnNames,['nombre'=>'datos_laborales', 'columns'=>$columnDatosLaborales]);
+                  // $columnNames['datosLaborales'] = $columnDatosLaborales;
+                }
+                //representante legal de partes
+                $columnPersona = Schema::getColumnListing('personas');
+                $guarded = ['id','updated_at','created_at','deleted_at'];
+                foreach ( $guarded as $guard ){
+                  $k = array_search($guard, $columnPersona);
+                  if (false !== $k) {
+                     unset($columnPersona[$k]);
+                  }
+                }
+                // foreach ($columnPersona as $k => $valPersona) {
+                //   array_push($columnNames,$valPersona);
+                // }
+                // array_push($columnNames,'representante_legal');
+                array_push($columnNames,['nombre'=>'representante_legal', 'columns'=>$columnPersona]);
+                // $representante = Parte::where("parte_representada_id",$id)->where("representante",true)->get();
+                array_push($columnNames,'nombre_completo');
+              }
+              if($value->nombre =='Conciliador'){
+                $columnPersona = Schema::getColumnListing('personas');
+                $guarded = ['id','updated_at','created_at','deleted_at'];
+                foreach ( $guarded as $guard ){
+                  $k = array_search($guard, $columnPersona);
+                  if (false !== $k) {
+                     unset($columnPersona[$k]);
+                  }
+                }
+                foreach ($columnPersona as $k => $valPersona) {
+                  array_push($columnNames,$valPersona);
+                }
+                array_push($columnNames,'nombre_completo');
+              }
+              if($value->nombre =='Resolucion'){
+                array_push($columnNames,'total_percepciones');
+                array_push($columnNames,'propuestas_conceptos');
+                array_push($columnNames,'propuesta_configurada');
+                array_push($columnNames,'justificacion_propuesta');
+                array_push($columnNames,'primera_manifestacion');
+                array_push($columnNames,'segunda_manifestacion');
+              }
+              $objetoDocumento [] =
+              [
+                  'objeto' => $value->objeto,
+                  'nombre' => $value->nombre,
+                  'tabla' => $value->tabla,
+                  'campos' =>$columnNames
+              ];
+            }
+          }
+        }
+        // dd($objetoDocumento);
+        return $objetoDocumento; 
+       }
+
        /**
         * display PDF file.
         *
@@ -316,7 +419,7 @@ class PlantillasDocumentosController extends Controller
        // return $pdf->stream('carta.pdf');
        $pdf->stream("carta.pdf", array("Attachment" => false));
        exit(0);
-       return $pdf->download('constancia.pdf');
+      //  return $pdf->download('constancia.pdf');
 
           // $html = $this->renderDocumento($id);
           // $pdf = App::make('dompdf.wrapper');
@@ -329,121 +432,206 @@ class PlantillasDocumentosController extends Controller
 
         private function getDataModelos($id)
         {
-          $plantilla = PlantillaDocumento::find($id);
-          $tipo_plantilla = TipoDocumento::find($plantilla->tipo_documento_id);
-          $objetos = explode (",", $tipo_plantilla->objetos);
-          $path = base_path('database/datafiles');
-          $jsonElementos = json_decode(file_get_contents($path . "/elemento_documentos.json"),true);
-          $idBase = "";
-          $data = [];
-          foreach ($objetos as $objeto) {
-            foreach ($jsonElementos['datos'] as $key=>$element) {
-              if($element['id']==$objeto){
-                 $model_name = 'App\\' . $element['objeto'];
-                   $model = $element['objeto'];
-                   $model_name = 'App\\' .$model;
-                   if($model == 'Solicitud' ){
-                     $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
-                     $objeto = new JsonResponse($solicitud);
-                     $obj = json_decode($objeto->content(),true);
-                     $idBase = intval($obj['id']);
-                     $centroId = intval($obj['centro_id']);
-                     $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
-                     $data = ['solicitud' => $obj];
-                   }elseif ($model == 'Parte') {
-                     $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->where('solicitud_id',intval($idBase))->get();
-                     $objeto = new JsonResponse($partes);
-                     $obj = json_decode($objeto->content(),true);
-                     $parte2 = [];
-                     $parte1 = [];
-                     $countSolicitante = 0;
-                     $countSolicitado = 0;
-                     // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
-                     foreach ($obj as $parte ) {
-                       $parteId = $parte['id'];
-                       $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
-                       if($parte['tipo_parte_id'] == 1 ){//Solicitante
-                         //datos laborales del solicitante
-                        //  $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', 8)->get();
-                         $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
-                         $objeto = new JsonResponse($datoLaboral);
-                         $datoLaboral = json_decode($objeto->content(),true);
-                         $datoLaboral = Arr::except($datoLaboral[0], ['id','updated_at','created_at','deleted_at']);
-                         $parte['datos_laborales'] = $datoLaboral;
-                         array_push($parte1, $parte);
-                         $countSolicitante += 1;
-                       }elseif ($parte['tipo_parte_id'] == 2 ) {//Solicitado
-                         $countSolicitado += 1;
-                         array_push($parte2, $parte);
-                         array_push($parte2, $parte);
-                       }
-                     }
-                     $data = Arr::add( $data, 'solicitante', $parte1 );
-                     $data = Arr::add( $data, 'solicitado', $parte2 );
-                     $data = Arr::add( $data, 'total_solicitantes', $countSolicitante );
-                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
-                   }elseif ($model == 'Audiencia') {
-                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
-                     $expedienteId = $expediente[0]->id;
-                     $objeto = new JsonResponse($expediente);
-                     $expediente = json_decode($objeto->content(),true);
-                     $expediente = Arr::except($expediente[0], ['id','updated_at','created_at','deleted_at']);
-                     $data = Arr::add( $data, 'expediente', $expediente );
+          try {
+            $plantilla = PlantillaDocumento::find($id);
+            $tipo_plantilla = TipoDocumento::find($plantilla->tipo_documento_id);
+            $objetos = explode (",", $tipo_plantilla->objetos);
+            $path = base_path('database/datafiles');
+            $jsonElementos = json_decode(file_get_contents($path . "/elemento_documentos.json"),true);
+            $idBase = "";
+            $data = [];
+            foreach ($objetos as $objeto) {
+              // var_dump($objeto);
+              foreach ($jsonElementos['datos'] as $key=>$element) {
+                if($element['id']==$objeto){
+                  $model_name = 'App\\' . $element['objeto'];
+                  $model = $element['objeto'];
+                  $model_name = 'App\\' .$model;
+                  if($model == 'Solicitud' ){
+                    $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find(8);
+                    // $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
+                    $objeto = new JsonResponse($solicitud);
+                    $obj = json_decode($objeto->content(),true);
+                    $idBase = intval($obj['id']);
+                    $centroId = intval($obj['centro_id']);
+                    $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
+                    $data = ['solicitud' => $obj];
+                  }elseif ($model == 'Parte') {
+                    $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->where('solicitud_id',intval($idBase))->get();
+                    // dd($partes);
+                    $objeto = new JsonResponse($partes);
+                    $obj = json_decode($objeto->content(),true);
+                    $parte2 = [];
+                    $parte1 = [];
+                    $countSolicitante = 0;
+                    $countSolicitado = 0;
+                      // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
+                    foreach ($obj as $parte ) {
+                      $parteId = $parte['id'];
+                      // dd($parteId);
+                      $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
+                      if($parte['tipo_parte_id'] == 1 ){//Solicitante
+                        //datos laborales del solicitante
+                        $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
+                        // dd($datoLaboral);
+                        // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
+                        $objeto = new JsonResponse($datoLaboral);
+                        $datoLaboral = json_decode($objeto->content(),true);
+                        $datoLaboral = Arr::except($datoLaboral[0], ['id','updated_at','created_at','deleted_at']);
+                        $parte['datos_laborales'] = $datoLaboral;
+                        array_push($parte1, $parte);
+                        $countSolicitante += 1;
+                      }elseif ($parte['tipo_parte_id'] == 2 ) {//Solicitado
+                        //representante legal solicitado
+                        $representanteLegal = Parte::where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
+                        // dd($representanteLegal);
+                        $objeto = new JsonResponse($representanteLegal);
+                        $representanteLegal = json_decode($objeto->content(),true);
+                        $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);
+                        // dd($representanteLegal);
+                        $parte['representante_legal'] = $representanteLegal;
+                        $countSolicitado += 1;
+                        // array_push($parte2, $parte);
+                        array_push($parte2, $parte);
+                      }
+                    }
+                    $data = Arr::add( $data, 'solicitante', $parte1 );
+                    $data = Arr::add( $data, 'solicitado', $parte2 );
+                    $data = Arr::add( $data, 'total_solicitantes', $countSolicitante );
+                    $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
+                    // dd($data);
+                  }elseif ($model == 'Audiencia') {
+                    $expediente = Expediente::where('solicitud_id', $idBase)->get();
+                    $expedienteId = $expediente[0]->id;
+                    // dd($expedienteId);
+                    $objeto = new JsonResponse($expediente);
+                    $expediente = json_decode($objeto->content(),true);
+                    $expediente = Arr::except($expediente[0], ['id','updated_at','created_at','deleted_at']);
+                    $data = Arr::add( $data, 'expediente', $expediente );
 
-                     // $objeto = $model_name::with('conciliador')->findOrFail(1);
-                     $audiencias = $model_name::where('expediente_id',$expedienteId)->get();
-                     $conciliadorId = $audiencias[0]->conciliador_id;
-                     $objeto = new JsonResponse($audiencias);
-                     $audiencias = json_decode($objeto->content(),true);
-                     $Audiencias = [];
-                     foreach ($audiencias as $audiencia ) {
-                       $audiencia = Arr::except($audiencia, ['id','updated_at','created_at','deleted_at']);
-                       array_push($Audiencias,$audiencia);
-                     }
-                     $data = Arr::add( $data, 'audiencia', $Audiencias );
-                   }elseif ($model == 'Conciliador') {
-                     $objeto = $model_name::with('persona')->find($conciliadorId);
-                     $objeto = new JsonResponse($objeto);
-                     $conciliador = json_decode($objeto->content(),true);
-                     $conciliador = Arr::except($conciliador, ['id','updated_at','created_at','deleted_at']);
-                     $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
-                     $data = Arr::add( $data, 'conciliador', $conciliador );
-                   }elseif ($model == 'Centro') {
-                     $objeto = $model_name::find($centroId);
-                     $objeto = new JsonResponse($objeto);
-                     $centro = json_decode($objeto->content(),true);
-                     $centro = Arr::except($centro, ['id','updated_at','created_at','deleted_at']);
-                     $data = Arr::add( $data, 'centro', $centro );
-                   }else{
-                     $objeto = $model_name::first();
-                     $objeto = new JsonResponse($objeto);
-                     $otro = json_decode($objeto->content(),true);
-                     $otro = Arr::except($otro, ['id','updated_at','created_at','deleted_at']);
-                     $data = Arr::add( $data, $model , $otro );
-                   }
+                    // $objeto = $model_name::with('conciliador')->findOrFail(1);
+                    $audiencias = $model_name::where('expediente_id',$expedienteId)->get();
+                    $conciliadorId = $audiencias[0]->conciliador_id;
+                    $objeto = new JsonResponse($audiencias);
+                    $audiencias = json_decode($objeto->content(),true);
+                    $Audiencias = [];
+                    foreach ($audiencias as $audiencia ) {
+                      $audienciaId = $audiencia['id'];
+                      $resolucionAudienciaId = $audiencia['resolucion_id'];
+                      // dd($resolucionAudienciaId);
+                      $audiencia = Arr::except($audiencia, ['id','updated_at','created_at','deleted_at']);
+                      array_push($Audiencias,$audiencia);
+                    }
+                    // dd($audienciaId);
+                    $data = Arr::add( $data, 'audiencia', $Audiencias );
+                    // dd($data);
+                  }elseif ($model == 'Conciliador') {
+                    $objeto = $model_name::with('persona')->find($conciliadorId);
+                    $objeto = new JsonResponse($objeto);
+                    $conciliador = json_decode($objeto->content(),true);
+                    $conciliador = Arr::except($conciliador, ['id','updated_at','created_at','deleted_at']);
+                    $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
+                    $data = Arr::add( $data, 'conciliador', $conciliador );
+                    // dd($data);
+                  }elseif ($model == 'Centro') {
+                    $objeto = $model_name::find($centroId);
+                    $objeto = new JsonResponse($objeto);
+                    $centro = json_decode($objeto->content(),true);
+                    $centro = Arr::except($centro, ['id','updated_at','created_at','deleted_at']);
+                    $data = Arr::add( $data, 'centro', $centro );
+                    // dd($data);
+                  }elseif ($model == 'Resolucion') {
+                    $objetoResolucion = $model_name::find($resolucionAudienciaId);
+                    // dd($audienciaId);
+                    $datosResolucion=[];
+                    // dd($datosResolucion);
+                    $etapas_resolucion = EtapaResolucionAudiencia::where('audiencia_id',$audienciaId)->whereIn('etapa_resolucion_id',[3,4,5])->get();
+                    $objeto = new JsonResponse($etapas_resolucion);
+                    $etapas_resolucion = json_decode($objeto->content(),true);
+                    // dd($etapas_resolucion);
+                    $datosResolucion['resolucion']= $objetoResolucion->nombre;
+                    foreach ($etapas_resolucion as $etapa ) {
+                      // dd($etapa['etapa_resolucion_id']);
+                      if($etapa['etapa_resolucion_id'] == 3){
+                        $datosResolucion['primera_manifestacion']= $etapa['evidencia'];
+                      }else if($etapa['etapa_resolucion_id'] == 4){
+                        $datosResolucion['justificacion_propuesta']= $etapa['evidencia'];
+                        $resolucion_partes = ResolucionPartes::where('audiencia_id',$audienciaId)->first();
+                        $resolucionParteId = $resolucion_partes->id;
+                        // dd($resolucionParteId);
+                        $resolucion_conceptos = ResolucionParteConcepto::where('resolucion_partes_id',$resolucionParteId)->get();
+                        // dd($resolucion_conceptos);
+                        $tablaConceptos = '<h4>Propuestas</h4>';
+                        $tablaConceptos .= '<table style="border: 1px solid black; border-collapse: collapse;">';
+                        $tablaConceptos .= '<thead><tr><th>Prestación</th><th>Propuesta completa</th><th>Propuesta 45 días</th></tr></thead>';
+                        $tablaConceptos .= '<tbody style="border: 1px solid black;">';
+
+                        $tablaConceptos .= '</tbody>';
+                        $tablaConceptos .= '</table>';
+
+                        // $tablaConceptos .= '<h4>Propuesta Configurada </h4>';
+                        $tablaConceptosConvenio = '<table>';
+                        $tablaConceptosConvenio .= '<tbody>';
+                        $totalPercepciones = 0;
+                        foreach ($resolucion_conceptos as $concepto ) {
+                          $totalPercepciones += floatval($concepto->monto);
+                          $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
+                          $tablaConceptosConvenio .= '<tr><th style="text-align:left;" > '.$conceptoName->nombre.' </th><td style="text-align:right;">     $'.$concepto->monto.'</td></tr>';
+                        }
+                        $tablaConceptosConvenio .= '<tr><th style="text-align:left;" > Total de percepciones </th><td style="text-align:right;">     $'.$totalPercepciones.'</td></tr>';
+                        $tablaConceptosConvenio .= '</tbody>';
+                        $tablaConceptosConvenio .= '</table>';
+                        // dd($tablaConceptos);
+                        $datosResolucion['total_percepciones']= $totalPercepciones;
+                        $datosResolucion['propuestas_conceptos']= $tablaConceptos;
+                        $datosResolucion['propuesta_configurada']= $tablaConceptosConvenio;
+                        
+                      }else if($etapa['etapa_resolucion_id'] == 5){
+                        $datosResolucion['segunda_manifestacion']= $etapa['evidencia'];
+                      }
+                    }
+                    $data = Arr::add( $data, $model, $datosResolucion );
+                    // dd($data);
+                  }else{
+                    $objeto = $model_name::first();
+                    // dd($model_name);
+                    $objeto = new JsonResponse($objeto);
+                    $otro = json_decode($objeto->content(),true);
+                    $otro = Arr::except($otro, ['id','updated_at','created_at','deleted_at']);
+                    $data = Arr::add( $data, $model , $otro );
+                  }
+                }
               }
             }
+            // dd($data);
+            return $data;
+          } catch (\Throwable $th) {
+            return $data;
           }
-          return $data;
         }
+
         /*
         Convertir fechas yyyy-mm-dd hh to dd de Monthname de yyyy
          */
         private function formatoFecha($fecha)
         {
-          $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noivembre", "Diciembre"];
-          $hh= "";
-          if(strpos($fecha, " ") ){
-            $date = explode(' ', $fecha);
-            $fecha = $date[0];
-            $hh = $date[1];
-          }
-          $fecha = explode('-', $fecha);
-          $dd = $fecha[2];
-          $mm = $fecha[1];
-          $yy = $fecha[0];
-          $ddmmyy = $dd.' de '. $monthNames[intval($mm)-1]. ' de ' . $yy .' '. $hh ;
-          return $ddmmyy;
+          try {
+            $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noivembre", "Diciembre"];
+            $hh= "";
+            if(strpos($fecha, " ") ){
+              $date = explode(' ', $fecha);
+              $fecha = $date[0];
+              $hh = $date[1];
+            }
+            $fecha = explode('-', $fecha);
+            $dd = $fecha[2];
+            $mm = $fecha[1];
+            $yy = $fecha[0];
+            $ddmmyy = $dd.' de '. $monthNames[intval($mm)-1]. ' de ' . $yy .' '. $hh ;
+            return $ddmmyy;
+          } catch (\Throwable $th) {
+            return "";
+          }  
         }
 
         private function renderDocumento($id)
@@ -488,8 +676,8 @@ class PlantillasDocumentosController extends Controller
                    }
                    $vars[strtolower($key.'_'.$k)] = $val;
                  }
-               }else{//Si no es un array assoc (solicitados, solicitantes)
-                 foreach ($dato as $data) {
+               }else{//Si no es un array assoc (n solicitados, n solicitantes)
+                 foreach ($dato as $data) {//sol[0]...
                    foreach ($data as $k => $val) { // folio
                      $val = ($val === null && $val != false)? "" : $val;
                      if(gettype($val)== "boolean"){
@@ -506,9 +694,17 @@ class PlantillasDocumentosController extends Controller
                          }
                          $val = implode (", ", $names);
                        }else{
-                         if( isset($val['nombre']) && $k !='persona' ){
+                         if( isset($val['nombre']) && $k !='persona' && $k !='datos_laborales' && $k !='representante_legal'){ //catalogos
                            $val = $val['nombre'];
-                         }
+                          }elseif ($k == 'datos_laborales') {
+                            foreach ($val as $n =>$v) {
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                            }
+                          }elseif ($k == 'representante_legal') {
+                            foreach ($val as $n =>$v) {
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                            }
+                          }
                        }
                      }elseif(gettype($val)== 'string'){
                        $pos = strpos($k,'fecha');
@@ -530,7 +726,7 @@ class PlantillasDocumentosController extends Controller
         $style = "<html xmlns=\"http://www.w3.org/1999/html\">
                  <head>
                  <style>
-                 @page { margin: 150px 50px 40px 60px;}
+                 @page { margin: 150px 50px 36px 60px;}
                  @media print {
                    table { border-collapse: collapse;
                           width: 59.1193%;
@@ -545,7 +741,7 @@ class PlantillasDocumentosController extends Controller
                           }
                    }
                  .header { position: fixed; top: -150px;}
-                 .footer { position: fixed; bottom: 20px;}
+                 .footer { position: fixed; bottom: 35px;}
                  #contenedor-firma {height: 60px;}
                  </style>
                  </head>
