@@ -142,7 +142,7 @@
                                             <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="explico_acta" name='solicita_traductor_solicitante'/>
                                         </div>
                                     </div>
-                                <button class="btn btn-primary" onclick="if($('#explico_acta').is(':checked')){nextStep({{$etapa->paso}})}else{swal({title: 'Error',text: 'Es necesario seleccionar la opcion para continuar',icon: 'error'});}">Continuar </button>
+                                <button class="btn btn-primary" onclick="if($('#explico_acta').is(':checked')){nextStep({{$etapa->paso}})}else{swal({title: 'Error',text: 'Es necesario seleccionar la opción para continuar',icon: 'error'});}">Continuar </button>
                                 </div>
                             @break
                             @case(3)
@@ -272,7 +272,7 @@
                                     <div class="form-group">
                                         <label for="resolucion_id" class="col-sm-6 control-label">Resolución</label>
                                         <div class="col-sm-10">
-                                            {!! Form::select('resolucion_id', isset($resoluciones) ? $resoluciones : [] , null, ['id'=>'resolucion_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                            {!! Form::select('resolucion_id', isset($resoluciones) ? $resoluciones : [] , null, ['id'=>'resolucion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                         </div>
                                     </div>
                                 </div>
@@ -538,10 +538,10 @@
                         <label id="giro_solicitante"></label>
                         </div>
                     </div>
-                    {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opcion','style'=>'display:none;']);  !!}
+                    {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opción','style'=>'display:none;']);  !!}
                     <div class="col-md-12 row">
                         <div class="col-md-4">
-                            {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                            {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect datoLaboral']);  !!}
                             {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
                             <p class="help-block needed">Categoria/Puesto</p>
                         </div>
@@ -560,7 +560,7 @@
                             <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
                         </div>
                         <div class="col-md-4">
-                            {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                            {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
                             {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
                             <p class="help-block needed">Periodicidad</p>
                         </div>
@@ -588,7 +588,7 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                        {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
                         {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
                         <p class="help-block needed">Jornada</p>
                     </div>
@@ -687,7 +687,7 @@
                         <div class="form-group">
                             <label for="resolucion_individual_id" class="col-sm-6 control-label labelResolucion">Resolución</label>
                             <div class="col-sm-10">
-                                {!! Form::select('resolucion_individual_id', isset($resoluciones) ? $resoluciones : [] , null, ['id'=>'resolucion_individual_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control select-element']);  !!}
+                                {!! Form::select('resolucion_individual_id', isset($resoluciones) ? $resoluciones : [] , null, ['id'=>'resolucion_individual_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control select-element']);  !!}
                             </div>
                         </div>
                     </div>
@@ -1277,7 +1277,7 @@
             }
             return data.text;
         },
-        placeholder:'Seleccione una opcion',
+        placeholder:'Seleccione una opción',
         minimumInputLength:4,
         allowClear: true,
         language: "es"

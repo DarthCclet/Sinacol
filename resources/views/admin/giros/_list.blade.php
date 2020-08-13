@@ -161,7 +161,7 @@
             }
             return data.text;
         },
-        placeholder:'Seleccione una opcion',
+        placeholder:'Seleccione una opción',
         minimumInputLength:4,
         allowClear: true,
         language: "es"
@@ -199,7 +199,7 @@
             success:function(json){
                 console.log(json.data != "");
                 if(json != null && json.data != ""){
-                    $("#"+select).html("<option value=''>Selecciona una opcion</option>");
+                    $("#"+select).html("<option value=''>Selecciona una opción</option>");
                     $.each(json.data,function(index,element){
                         $("#"+select).append("<option value='"+element.id+"'>"+element.codigo+"|&nbsp;&nbsp;"+element.nombre+"</option>");
                     });
@@ -213,7 +213,7 @@
         return tieneHijos;
     }
     $(".giroNivel").select2({
-        placeholder:"Seleccione una opcion",
+        placeholder:"Seleccione una opción",
         language: "es"
     });
     $(".giroNivel").on("change",function(){

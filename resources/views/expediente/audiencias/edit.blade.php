@@ -520,10 +520,10 @@
                             <label id="giro_solicitante"></label>
                             </div>
                         </div>
-                        {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opcion','style'=>'display:none;']);  !!}
+                        {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opción','style'=>'display:none;']);  !!}
                         <div class="col-md-12 row">
                             <div class="col-md-4">
-                                {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                                {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect datoLaboral']);  !!}
                                 {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Categoria/Puesto</p>
                             </div>
@@ -542,7 +542,7 @@
                                 <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
                             </div>
                             <div class="col-md-4">
-                                {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                                {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
                                 {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Periodicidad</p>
                             </div>
@@ -570,7 +570,7 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                            {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
                             {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
                             <p class="help-block needed">Jornada</p>
                         </div>
@@ -1153,7 +1153,7 @@
                             $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
                         });
                     }else{
-                        $("#genero_id").html("<option value=''>-- Selecciona una opcion</option>");
+                        $("#genero_id").html("<option value=''>-- Selecciona una opción</option>");
                     }
                     $("#genero_id").trigger("change");
                 }
@@ -1818,7 +1818,7 @@
                 }
                 return data.text;
             },
-            placeholder:'Seleccione una opcion',
+            placeholder:'Seleccione una opción',
             minimumInputLength:4,
             allowClear: true,
             language: "es"

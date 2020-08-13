@@ -40,7 +40,7 @@
         <div class="form-group">
             <label for="centro_id" class="control-label">Centro</label>
             <div class="col-sm-10">
-                {!! Form::select('users[centro_id]', isset($centros) ? $centros : [] ,isset($user) ? $user->centro_id : null , ['id'=>'centro_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control']);  !!}
+                {!! Form::select('users[centro_id]', isset($centros) ? $centros : [] ,isset($user) ? $user->centro_id : null , ['id'=>'centro_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control']);  !!}
                 {!! $errors->first('users[centro_id]', '<span class=text-danger>:message</span>') !!}
                 <p class="help-block">Selecciona el centro al que pertenece</p>
             </div>

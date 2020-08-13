@@ -32,7 +32,7 @@
         <p class="help-block needed">Fecha de Conflicto</p>
     </div>
     <div class="col-md-4">
-        {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , null, ['id'=>'estatus_solicitud_id','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect filtros']);  !!}
+        {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , null, ['id'=>'estatus_solicitud_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect filtros']);  !!}
         {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Estatus de la solicitud</p>
     </div>

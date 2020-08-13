@@ -6,7 +6,7 @@
      <label for="tipo-plantilla-id" class="control-label offset-2">Tipo de plantilla </label>
 
   <div class="col-md-8 offset-2">
-      {!! Form::select('tipo-plantilla-id', isset($tipo_plantilla) ? $tipo_plantilla : [] ,  isset($plantillaDocumento)? $plantillaDocumento->tipo_documento_id: null , ['id'=>'tipo-plantilla-id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+      {!! Form::select('tipo-plantilla-id', isset($tipo_plantilla) ? $tipo_plantilla : [] ,  isset($plantillaDocumento)? $plantillaDocumento->tipo_documento_id: null , ['id'=>'tipo-plantilla-id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
       {!! $errors->first('tipo-plantilla-id', '<span class=text-danger>:message</span>') !!}
   </div>
 
@@ -109,7 +109,7 @@
                       objDoc = {!! json_encode($objetoDocumento) !!};
                     }
                     $.each( objDoc, function( key, objeto ) {
-                      
+
                           var menu = {};
                           var arrSubmenuBody =  [];
                           var arrSubSubmenuCount =  [];
@@ -118,8 +118,8 @@
                               submenuObj = {};
                               arrSubSubmenu =  [];
                               $.each(column['columns'], function(k, dato ) {
-                                
-                                
+
+
                                 submenuObj =
                                 {
                                   type: 'menuitem', //nestedmenuitem menuitem
@@ -134,7 +134,7 @@
                                 console.log(column['nombre']);
                                 arrSubSubmenu.push(submenuObj);
                               });
-                            
+
                               arrSubSubmenuCount[ke] = arrSubSubmenu;
                                 submenu =
                               {

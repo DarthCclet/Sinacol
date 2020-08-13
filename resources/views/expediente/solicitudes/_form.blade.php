@@ -110,7 +110,7 @@
                                 <div class="row">
                                     <div class="radio radio-css radio-inline">
                                         <input checked="checked" name="tipo_persona_solicitante" type="radio" id="tipo_persona_fisica_solicitante" value="1"/>
-                                        <label for="tipo_persona_fisica_solicitante">Fisica</label>
+                                        <label for="tipo_persona_fisica_solicitante">Física</label>
                                     </div>
                                     <div class="radio radio-css radio-inline">
                                         <input name="tipo_persona_solicitante" type="radio" id="tipo_persona_moral_solicitante" value="2"/>
@@ -158,17 +158,17 @@
                                     <p class="help-block">RFC del solicitante</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitante">
-                                    {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Género</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitante">
-                                    {!! Form::select('nacionalidad_id_solicitante', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('nacionalidad_id_solicitante', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('nacionalidad_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Nacionalidad</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitante">
-                                    {!! Form::select('entidad_nacimiento_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitante','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('entidad_nacimiento_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('entidad_nacimiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Estado de nacimiento</p>
                                 </div>
@@ -187,7 +187,7 @@
                                 </div>
 
                                 <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
-                                    {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Lengua Indigena</p>
                                 </div>
@@ -200,7 +200,7 @@
                                 </div>
                                 <input type="hidden" id="contacto_id_solicitante">
                                 <div class="col-md-4">
-                                    {!! Form::select('tipo_contacto_id_solicitante', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('tipo_contacto_id_solicitante', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('tipo_contacto_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Tipo de contacto</p>
                                 </div>
@@ -252,10 +252,10 @@
                                     <label id="giro_solicitante"></label>
                                     </div>
                                 </div>
-                                {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opcion','style'=>'display:none;']);  !!}
+                                {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opción','style'=>'display:none;']);  !!}
                                 <div class="col-md-12 row">
                                     <div class="col-md-4">
-                                        {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                        {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
                                         <p class="help-block needed">Categoria/Puesto</p>
                                     </div>
@@ -274,7 +274,7 @@
                                         <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
                                     </div>
                                     <div class="col-md-4">
-                                        {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                        {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
                                         <p class="help-block needed">Periodicidad</p>
                                     </div>
@@ -302,7 +302,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opcion','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Jornada</p>
                                 </div>
@@ -357,7 +357,7 @@
                                 <div class="row">
                                     <div class="radio radio-css radio-inline">
                                         <input checked="checked" name="tipo_persona_solicitado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
-                                        <label for="tipo_persona_fisica_solicitado">Fisica</label>
+                                        <label for="tipo_persona_fisica_solicitado">Física</label>
                                     </div>
                                     <div class="radio radio-css radio-inline">
                                         <input name="tipo_persona_solicitado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
@@ -404,17 +404,17 @@
                                     <p class="help-block">RFC del citado</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block">Género</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('nacionalidad_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block">Nacionalidad</p>
                                 </div>
                                 <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block">Estado de nacimiento</p>
                                 </div>
@@ -430,7 +430,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
-                                    {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Lengua Indigena</p>
                                 </div>
@@ -444,7 +444,7 @@
                                 <input type="hidden" id="contacto_id_solicitado">
                                 <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona solicitada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
                                 <div class="col-md-4">
-                                    {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Tipo de contacto</p>
                                 </div>
@@ -538,12 +538,12 @@
                         <p class="help-block needed">Fecha de Conflicto</p>
                     </div>
                     <div class="col-md-4 estatusSolicitud">
-                        {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                        {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                         {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
                         <p class="help-block needed">Estatus de la solicitud</p>
                     </div>
                     <div class="col-md-4">
-                        {!! Form::select('objeto_solicitud_id', isset($objeto_solicitudes) ? $objeto_solicitudes : [] , null, ['id'=>'objeto_solicitud_id','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                        {!! Form::select('objeto_solicitud_id', isset($objeto_solicitudes) ? $objeto_solicitudes : [] , null, ['id'=>'objeto_solicitud_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                         {!! $errors->first('objeto_solicitud_id', '<span class=text-danger>:message</span>') !!}
                         <p class="help-block needed">Objeto de la solicitud</p>
                     </div>
@@ -2185,7 +2185,7 @@
             }
             return data.text;
         },
-        placeholder:'Seleccione una opcion',
+        placeholder:'Seleccione una opción',
         minimumInputLength:4,
         allowClear: true,
         language: "es"
