@@ -26,6 +26,8 @@ $factory->define(Audiencia::class, function (Faker $faker) {
 		return Resolucion::inRandomOrder()->first()->id;
 	},
 	'fecha_audiencia' => $faker->dateTimeBetween('-2 years')->format("Y-m-d"),
+	'folio' => $faker->randomDigit,
+	'anio' => 2020,
 	'multiple' => $faker->boolean,
 	'hora_inicio' => $faker->time,
 	'hora_fin' => $faker->time,
