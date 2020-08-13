@@ -293,11 +293,11 @@
                                         <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
                                     </div>
                                     <div class="col-md-4">
-                                        <input class="form-control date" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
+                                        <input class="form-control dateBirth" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
                                         <p class="help-block needed">Fecha de ingreso</p>
                                     </div>
                                     <div class="col-md-4" id="divFechaSalida">
-                                        <input class="form-control date" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
+                                        <input class="form-control dateBirth" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
                                         <p class="help-block needed">Fecha salida</p>
                                     </div>
                                 </div>
