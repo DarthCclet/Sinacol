@@ -17,24 +17,58 @@
             <div id="collapse{{$solicitud->id}}" class="collapse" data-parent="#accordion">
                 <div class="card-body">
                     <ul>
-                        <li>
+                        <li>Ratificacion:
+                            <button class="btn btn-primary pull-right" style="display:hidden;">Cancelar </button>
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
-                                    <td class="text-nowrap">Fecha de ratificación: {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->diffForHumans()}}</td>
-                                    <td class="text-nowrap">Centro: {{$audiencia->hora_inicio}}</td>
-                                    <td class="text-nowrap"><a href="http://conciliacion.test/">Citatorio</a></td>
+                                    <td class="text-nowrap"><strong>Fecha de Solicitud:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_solicitud)->diffForHumans()}}</td>
+                                    <td class="text-nowrap"><strong>Fecha de Conflicto:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_conflicto)->diffForHumans()}}</td>
+                                    <td class="text-nowrap"><strong>Objeto de la solicitud:</strong> {{$solicitud->objeto_solicitudes[0]->nombre}}</td>
+                                    <td class="text-nowrap"><strong>Fecha de ratificación:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_ratificacion)->diffForHumans()}}</td>
+                                    <td class="text-nowrap"><strong>Centro:</strong> {{$solicitud->centro->nombre}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-nowrap" colspan="5" align="center"><strong>Partes solicitadas</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-nowrap" colspan="3">
+                                        <br>
+                                        @foreach($solicitud->partes as $parte)
+                                            @if($parte->tipo_parte_id == 2)
+                                                @if($parte->tipo_persona_id == 1)
+                                                - {{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}
+                                                @else
+                                                - {{$parte->nombre_comercial}}
+                                                @endif
+                                            @endif
+                                        @endforeach
+                                    </td>
+                                    <td class="text-nowrap" colspan="2">
+                                        <button class="btn btn-primary">Verificar Ubicación</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-nowrap" colspan="5">
+                                        Documentos:<br>
+                                        <ul>
+                                            <li><a href="#">Citatorio</a></li>
+                                        @if($solicitud->documentosRatificacion != null)
+                                        @foreach($solicitud->documentosRatificacion as $documento)
+                                            <li><a href="#">{{$documento->clasificacionArchivo->nombre}}</a></li>
+                                        @endforeach
+                                        @endif
+                                        </ul>
+                                    </td>
                                 </tr>
                             </table>
-                            Ratificacion: {{\Carbon\Carbon::parse($solicitud->expediente->created_at)->diffForHumans()}}<br>
-                            <ul>
-                                <li><a href="http://conciliacion.test/">Citatorio</a></li>
-                            </ul>
                         @if($solicitud->expediente->audiencia != null)
                         @foreach($solicitud->expediente->audiencia as $audiencia)
                         <li>Audiencia: {{$audiencia->folio}}/{{$audiencia->anio}}<br>
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
-                                    <td class="text-nowrap">Fecha de audiencia: {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->diffForHumans()}}</td>
+                                    <td class="text-nowrap">
+                                        Fecha de audiencia: {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->diffForHumans()}} 
+                                    </td>
                                     <td class="text-nowrap">Hora de inicio: {{$audiencia->hora_inicio}}</td>
                                     <td class="text-nowrap">Hora de termino: {{$audiencia->hora_fin}}</td>
                                 </tr>
@@ -77,16 +111,12 @@
                                         <ul>
                                             @foreach($audiencia->etapasResolucionAudiencia as $etapas)
                                             <li>
+                                                {{$etapas->etapaResolucion->nombre}} (Fecha: {{\Carbon\Carbon::parse($etapas->created_at)->diffForHumans()}})
                                                 <ul>
                                                     <li>
-                                                        {{$etapas->etapaResolucion->nombre}} (Fecha: {{\Carbon\Carbon::parse($etapas->created_at)->diffForHumans()}})
-                                                        <ul>
-                                                            <li>
-                                                                <a href="http://conciliacion.test/">Documento</a>
-                                                            </li>
-                                                        </ul>
+                                                        <a href="http://conciliacion.test/">Documento</a>
                                                     </li>
-                                                </ul>
+                                                </ul>  
                                             </li>
                                             @endforeach
                                         </ul>
