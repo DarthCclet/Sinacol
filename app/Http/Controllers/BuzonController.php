@@ -35,6 +35,7 @@ class BuzonController extends Controller
             $mail = $parte->contactos()->where("tipo_contacto_id",3)->orderBy('created_at', 'desc')->first();
             if($mail != null){
                 $correo = $mail->contacto;
+                $busqueda["correo"] = $correo;
             }
             if($correo != ""){
 //                Se crea el token
@@ -59,13 +60,27 @@ class BuzonController extends Controller
         }
     }
     Public function validar_token(){
-        $token = base64_encode($request->token);
-        $correo = base64_encode($request->correo);
-        if($token =! "" && $correo != ""){
+        $token = base64_decode($this->request->token,true);
+        $correo = base64_decode($this->request->correo);
+        if($token != "" && $correo != ""){
             if(Cache::has($token)){
-                $parte = Cache::get($token);
-                if($correo == $parte->email){
-                    return redirect('buzon')->with($parte);
+                $busqueda = Cache::get($token);
+                if($correo == $busqueda["correo"]){
+                    if($busqueda["tipo_persona_id"] == 1){
+                        $partes = Parte::where("curp",$busqueda["busqueda"])->get();
+                    }else{
+                        $partes = Parte::where("rfc",$busqueda["busqueda"])->get();
+                    }
+                    $solicitudes = [];
+                    foreach($partes as $parte){
+                        $solicitud = $parte->solicitud;
+                        if($solicitud->expediente != null){
+                            $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
+                            $solicitud->parte = $parte;
+                            $solicitudes[]=$solicitud;
+                        }
+                    }
+                    return view("buzon.buzon", compact('solicitudes'));
                 }else{
                     return view("buzon.solicitud")->with("Error","Correo del que ingresas no coincide con el token");
                 }
@@ -86,7 +101,6 @@ class BuzonController extends Controller
                 $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
                 $solicitud->parte = $parte;
                 $solicitudes[]=$solicitud;
-//                dd($solicitud->expediente->audiencia[0]->conciliadoresAudiencias[0]->conciliador->persona->nombre);
             }
         }
         return view("buzon.buzon", compact('solicitudes'));

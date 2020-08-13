@@ -9,12 +9,9 @@ use App\Filters\CatalogoFilter;
 class TipoPersonaController extends Controller
 {
     protected $request;
-
- // private $docu;
     public function __construct(Request $request)
     {
         $this->request = $request;
-        // $this->docu = new ComunicacionCJF();
     }
     /**
      * Display a listing of the resource.
