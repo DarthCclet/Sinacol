@@ -305,7 +305,7 @@ trait GenerateDocument
                         $data = Arr::add($data, 'expediente', $expediente);
                         // $objeto = $model_name::with('conciliador')->findOrFail(1);
                         $audiencias = $model_name::where('expediente_id', $expedienteId)->get();
-                        if($audiencias == null){
+                        if($audiencias->first() == null){
                             $audiencias = Audiencia::where('id','>',1)->get();//$model_name::where('expediente_id', $expedienteId)->get();
                         }
                         $conciliadorId = $audiencias[0]->conciliador_id;
