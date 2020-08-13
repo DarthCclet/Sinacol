@@ -591,7 +591,7 @@ class AudienciaController extends Controller
                 }
             }
         }
-        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,6,1));
+        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,6,3));
     }
     /**
      * Funcion para obtener los documentos de la audiencia
