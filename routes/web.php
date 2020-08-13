@@ -14,6 +14,9 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/asesoria/{accion}', 'AsesoriaController@index');
+Route::get('/solicitudes/create-public','SolicitudController@create');
 Route::middleware(['auth'])->group(function () {
     Route::resource('users','UserController');
     Route::get('/home','HomeController@index')->name('home');
@@ -113,8 +116,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('cambiarRol/{rol_id}','PermissionController@cambiarRol');
     Route::get('impersonate/{user_id}','UserController@impersonate')->name('impersonate');
     Route::get('impersonate_leave','UserController@impersonate_leave')->name('impersonate_leave');
-    
-    
+
+
     // Catalogos
     Route::resource('ambitos','AmbitoController');
     Route::resource('clasificacion_archivos','ClasificacionArchivoController');

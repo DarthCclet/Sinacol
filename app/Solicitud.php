@@ -8,7 +8,6 @@ use App\Traits\AppendPolicies;
 use App\Traits\LazyAppends;
 use App\Traits\LazyLoads;
 use App\Traits\RequestsAppends;
-use App\User;
 use Illuminate\Support\Arr;
 use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\ValidTypes;
@@ -32,7 +31,7 @@ class Solicitud extends Model implements Auditable
      * @var array
      */
     protected $loadable = [ 'estatusSolicitud','objetoSolicitud','centro','user','partes','solicitados','solicitantes'];
-    
+
     public function transformAudit($data):array
     {
 //        Validamos el estatus de la solicitud
@@ -59,7 +58,7 @@ class Solicitud extends Model implements Auditable
             }
             $data['new_values']['Solicita excepcion'] = $this->validBool($this->getAttribute('solicita_excepcion'));
             unset($data['new_values']["solicita_excepcion"]);
-        } 
+        }
 //        Validamos el campo fecha_ratificacion
         if (Arr::has($data, 'new_values.fecha_ratificacion')) {
             if($data["event"] != "created"){
@@ -68,7 +67,7 @@ class Solicitud extends Model implements Auditable
             }
             $data['new_values']['Fecha de ratificación'] = $this->getAttribute('fecha_ratificacion');
             unset($data['new_values']["fecha_ratificacion"]);
-        } 
+        }
 //        Validamos el campo fecha_conflicto
         if (Arr::has($data, 'new_values.fecha_conflicto')) {
             if($data["event"] != "created"){
@@ -77,14 +76,14 @@ class Solicitud extends Model implements Auditable
             }
             $data['new_values']['Fecha de conflicto'] = $this->getAttribute('fecha_conflicto');
             unset($data['new_values']["fecha_conflicto"]);
-        } 
+        }
 //        Validamos el campo fecha_ratificacion
         if (Arr::has($data, 'new_values.observaciones')) {
             if($data["event"] != "created"){
                 $data['old_values']['observaciones'] = $this->getOriginal('observaciones');
             }
             $data['new_values']['observaciones'] = $this->getAttribute('observaciones');
-        } 
+        }
 //        Validamos el campo usuario
         if (Arr::has($data, 'new_values.user_id')) {
             if($data["event"] != "created"){
@@ -95,7 +94,7 @@ class Solicitud extends Model implements Auditable
             $userNew = User::find($this->getAttribute('user_id'))->persona;
             $data['new_values']['usuario'] = $userNew->nombre." ".$userNew->primer_apellido." ".$userNew->segundo_apellido;
             unset($data['new_values']["user_id"]);
-        } 
+        }
         $data = $this->cambiarEvento($data);
         return $data;
     }

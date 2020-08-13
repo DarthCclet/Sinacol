@@ -44,7 +44,7 @@ class SolicitudController extends Controller {
     protected $request;
 
     public function __construct(Request $request) {
-        $this->middleware("auth");
+        //$this->middleware("auth");
         $this->request = $request;
     }
 
@@ -135,8 +135,8 @@ class SolicitudController extends Controller {
      */
     public function create()
     {
-        
-       
+
+
         $objeto_solicitudes = $this->cacheModel('objeto_solicitudes',ObjetoSolicitud::class);
         $estatus_solicitudes = $this->cacheModel('estatus_solicitudes',EstatusSolicitud::class);
         $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
@@ -678,7 +678,7 @@ class SolicitudController extends Controller {
         if (count($expediente) > 0) {
             $SolicitudAud = $SolicitudAud->merge($expediente[0]->audits()->get());
         }
-        
+
         $SolicitudAud = $SolicitudAud->sortBy('created_at');
         $audits = array();
         foreach ($SolicitudAud as $audit) {
@@ -691,7 +691,7 @@ class SolicitudController extends Controller {
                     $extra = $parte->nombre." ".$parte->primer_apellido." ".$parte->segundo_apellido;
                 }else{
                     $extra = $parte->nombre_comercial;
-                }                
+                }
             }else if($audit->auditable_type == 'App\Audiencia'){
                 $table = "Audiencia";
             }else if($audit->auditable_type == 'App\Expediente'){
