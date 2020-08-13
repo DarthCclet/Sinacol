@@ -63,7 +63,7 @@ trait GenerateDocument
                 ]);
             }else{
                 $padre = Solicitud::find($idSolicitud);
-                $directorio = 'expedientes/' . $padre->expediente_id . '/solicitud/' . $idSolicitud;
+                $directorio = 'expedientes/' . $padre->expediente->id . '/solicitud/' . $idSolicitud;
                 $algo = Storage::makeDirectory($directorio, 0775, true);
                 
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
