@@ -17,7 +17,7 @@
   <!-- end page-header -->
 
 
-{!! Form::open([ 'route' => 'rol-atencion.store' ]) !!}
+{!! Form::open([ 'route' => 'roles-atencion.store' ]) !!}
 
   <div class="panel panel-default">
       <!-- begin panel-heading -->

@@ -17,7 +17,7 @@
 <!-- end page-header -->
 
 <!-- begin panel -->
-    {!! Form::model($rolAtencion, ['route' => ['rol-atencion.update', $rolAtencion->id], 'method' => 'PUT'] ) !!}
+    {!! Form::model($rolAtencion, ['route' => ['roles-atencion.update', $rolAtencion->id], 'method' => 'PUT'] ) !!}
     <div class="panel panel-default">
         <!-- begin panel-heading -->
         <div class="panel-heading">

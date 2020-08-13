@@ -664,7 +664,7 @@
         }
         function getRoles(){
             $.ajax({
-                url:"/rol-atencion",
+                url:"/roles-atencion",
                 type:"GET",
                 dataType:"json",
                 success:function(data){
