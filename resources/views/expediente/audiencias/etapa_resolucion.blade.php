@@ -1458,7 +1458,7 @@
     $("#btnFinalizar").on("click",function(){
         swal({
             title: 'Finalización de audiencia',
-            text: '¿Deseas agregar relaciones homologadas?',
+            text: '¿Estas seguro que deseas terminar la audiencia?',
             icon: 'warning',
             // showCancelButton: true,
             buttons: {
@@ -1479,10 +1479,10 @@
             }
         }).then(function(isConfirm){
             if(isConfirm){
-                cargarModalRelaciones();
-            }else{
                 listaResolucionesIndividuales = [];
                 $("#btnGuardarResolucionMuchas").click();
+            }else{
+                // cargarModalRelaciones();
             }
         });
     });
@@ -1727,10 +1727,8 @@
         $('.collapseSolicitante').each(function() {
             idSol=$(this).attr('idSolicitante');
             if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
-                alert('otra');
                 listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
             }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
-                alert('completa');
                 listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
             }else{
                 listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
