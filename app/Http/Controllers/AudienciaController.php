@@ -546,7 +546,7 @@ class AudienciaController extends Controller
                             if($audiencia->resolucion_id == 3){
                                 event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1,$solicitante->parte_id,$solicitado->parte_id));
                             }else if($audiencia->resolucion_id == 1){
-                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,3,1,$solicitante->parte_id,$solicitado->parte_id));
+                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,5,4,$solicitante->parte_id,$solicitado->parte_id));
                             }
                             $bandera = false;
                         }
@@ -563,7 +563,7 @@ class AudienciaController extends Controller
                     if($audiencia->resolucion_id == 3){
                         event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,3,1,$solicitante->parte_id,$solicitado->parte_id));
                     }else if($audiencia->resolucion_id == 1){
-                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,5,1,$solicitante->parte_id,$solicitado->parte_id));
+                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,5,4,$solicitante->parte_id,$solicitado->parte_id));
                     }
                 }
                 //guardar conceptos de pago para Convenio
