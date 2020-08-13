@@ -101,7 +101,7 @@
                         <div class="col-md-6">
                             <div class="panel panel-default">
                                 <div class="panel-heading">
-                                    <h4 class="panel-title">Solicitado</h4>
+                                    <h4 class="panel-title">Citado</h4>
                                 </div>
                                 <div class="panel-body">
                                     <div class="col-md-12">
@@ -216,7 +216,7 @@
             function SolicitarAudiencia(inicio,fin){
                 swal({
                     title: '¿Concilian juntos?',
-                    text: 'Al oprimir aceptar se asignará solo un consiliador y una sola sala para solicitante y solicitado',
+                    text: 'Al oprimir aceptar se asignará solo un consiliador y una sola sala para solicitante y citado',
                     icon: 'warning',
                     buttons: {
                         cancel: {

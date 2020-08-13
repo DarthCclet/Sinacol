@@ -115,9 +115,9 @@
                                         </tbody>
                                     </table>
                                 </div>
-                            
-                            
-                            
+
+
+
                                 <!--<input type="text" id="evidencia{{$etapa->paso}}" />-->
                                 <button class="btn btn-primary" align="center" id="btnCargarComparecientes">Continuar </button>
                                 @break
@@ -152,19 +152,19 @@
                                 <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
                                 <button class="btn btn-primary" onclick="nextStep({{$etapa->paso}})">Continuar </button>
-                                
+
                             @break
                             @case(4)
                             <div class="accordion" id="accordionExample">
                                 <p>
-                                    El sistema le muestra 2 opciones de propuestas de convenio: 
+                                    El sistema le muestra 2 opciones de propuestas de convenio:
                                     <ol>
                                         <li>El cálculo del 100% considerando indemnización, partes proporcionales de prestaciones y prima de antigüedad. </li>
                                         <li>El mismo cálculo con 50% de la indemnización constitucional. </li><br>
                                     </ol>
                                     Usted puede escoger una de estas alternativas o bien modificar las tablas. Lo que deja confirmado en el sistema será la propuesta de arreglo que se mostrará en el acta de audiencia.
                                 </p>
-                                @foreach($audiencia->solicitantes as $solicitante) 
+                                @foreach($audiencia->solicitantes as $solicitante)
                                 {{-- <pre>{{$solicitante->parte->id}}</pre> --}}
                                     <div class="card">
                                     <div class="card-header" id="headingOne">
@@ -178,7 +178,7 @@
                                         </button>
                                         </h2>
                                     </div>
-                                
+
                                     <div id="collapse{{$solicitante->parte->id}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
                                         <div class="card-body">
                                             <input type="hidden" id="remuneracionDiaria" />
@@ -232,8 +232,8 @@
                                                         <tr>
                                                             <th>Concepto</th>
                                                             <th>Dias</th>
-                                                            <th>Monto</th> 
-                                                            <th>Otro</th> 
+                                                            <th>Monto</th>
+                                                            <th>Otro</th>
                                                             <th>Acciones</th>
                                                         </tr>
                                                     </thead>
@@ -266,7 +266,7 @@
                                     <li>Convenio.</li>
                                     <li>Agendar segunda audiencia.</li>
                                     <li>Constancia de no conciliación.</li>
-                                    <li>Las terminaciones ya están cargadas en el sistema, solamente es necesario indicar el modo de terminación de la audiencia y el resultado respecto a cada par de solicitante-solicitado para que el sistema coloque la terminación correcta al final del acta de audiencia.</li>
+                                    <li>Las terminaciones ya están cargadas en el sistema, solamente es necesario indicar el modo de terminación de la audiencia y el resultado respecto a cada par de solicitante-citado para que el sistema coloque la terminación correcta al final del acta de audiencia.</li>
                                 </ul>
                                 <div class="col-md-offset-3 col-md-6 ">
                                     <div class="form-group">
@@ -291,7 +291,7 @@
                                 <button class="btn btn-primary" id="btnFinalizar">Finalizar </button>
                             @break
                             @default
-                                
+
                         @endswitch
                     </p>
                 </div>
@@ -321,7 +321,7 @@
                         <div class="form-group">
                             <label for="concepto_pago_resoluciones_id" class="col-sm-6 control-label labelResolucion">Concepto de pago</label>
                             <div class="col-sm-10">
-                                
+
                                 <select id="concepto_pago_resoluciones_id" class="form-control select-element">
                                     <option value="">-- Selecciona un concepto de pago</option>
                                     @foreach($concepto_pago_resoluciones as $concepto)
@@ -350,7 +350,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div> 
+                        <div>
                             <div class="text-center">
                                 <button class="btn btn-warning text-white btn-sm" id='btnAgregarConcepto'><i class="fa fa-plus"></i> Agregar Concepto</button>
                             </div>
@@ -362,8 +362,8 @@
                                     <tr>
                                         <th>Concepto</th>
                                         <th>Dias</th>
-                                        <th>Monto</th> 
-                                        <th>Otro</th> 
+                                        <th>Monto</th>
+                                        <th>Otro</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -427,9 +427,9 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label for="genero_id" class="col-sm-6 control-label">Genero</label>
+                        <label for="genero_id" class="col-sm-6 control-label">Género</label>
                         <select id="genero_id" class="form-control select-element">
-                            <option value="">-- Selecciona un genero</option>
+                            <option value="">-- Selecciona un género</option>
                         </select>
                     </div>
                 </div>
@@ -473,7 +473,7 @@
                     <div class="col-md-5">
                         <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
                         <select id="tipo_contacto_id" class="form-control select-element">
-                            <option value="">-- Selecciona un genero</option>
+                            <option value="">-- Selecciona un género</option>
                         </select>
                     </div>
                     <div class="col-md-5">
@@ -668,10 +668,10 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="parte_solicitado_id" class="col-sm-6 control-label labelResolucion">Solicitado</label>
+                            <label for="parte_solicitado_id" class="col-sm-6 control-label labelResolucion">Citado</label>
                             <div class="col-sm-10">
                                 <select id="parte_solicitado_id" class="form-control select-element">
-                                    <option value="">-- Selecciona un solicitado</option>
+                                    <option value="">-- Selecciona un citado</option>
                                     @foreach($audiencia->solicitados as $parte)
                                         @if($parte->parte->tipo_persona_id == 1)
                                             <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
@@ -715,7 +715,7 @@
                             <thead>
                                 <tr>
                                     <th>Solicitante</th>
-                                    <th>Solicitado</th>
+                                    <th>Citado</th>
                                     <th>Resolución</th>
                                     <th>Motivo de archivo</th>
                                     <th>Acciones</th>
@@ -820,10 +820,10 @@
         });
     }
     $('.textarea    ').wysihtml5({locale: 'es-ES'});
-        
+
     /*
      * Aqui inician las funciones para administrar el paso 1
-     * 
+     *
      */
     $("#btnCargarComparecientes").on("click",function(){
         $.ajax({
@@ -869,7 +869,7 @@
                         text: 'No se guardo el registro',
                         icon: 'warning'
                     });
-                    
+
                 }
             });
         }
@@ -1017,7 +1017,7 @@
             type:"GET",
             dataType:"json",
             success:function(data){
-                $("#genero_id").html("<option value=''>-- Selecciona un genero</option>");
+                $("#genero_id").html("<option value=''>-- Selecciona un género</option>");
                 if(data.data.length > 0){
                     $.each(data.data,function(index,element){
                         $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
@@ -1093,7 +1093,7 @@
         $("#modal-propuesta-convenio").modal('hide')
         // formarTablaPropuestaConvenio();
     });
-    
+
     $("#btnGuardarRepresentante").on("click",function(){
         if(!validarRepresentante()){
             $.ajax({
@@ -1187,7 +1187,7 @@
         }
         return error;
     }
-    
+
     // Funciones para Datos laborales(Etapa 1)
     function DatosLaborales(parte_id){
         $("#parte_id").val(parte_id);
@@ -1216,8 +1216,8 @@
                     $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
                     console.log(data.jornada_id);
                     $("#jornada_id").val(data.jornada_id);
-                    $("#horas_semanales").val(data.horas_semanales);                            
-                    $("#resolucion_dato_laboral").val(data.resolucion);   
+                    $("#horas_semanales").val(data.horas_semanales);
+                    $("#resolucion_dato_laboral").val(data.resolucion);
                     $(".catSelect").trigger('change')
                 }
                 $("#modal-dato-laboral").modal("show");
@@ -1387,12 +1387,12 @@
             }
         }else{
             swal({title: 'Error',text: 'Debe seleccionar el concepto de pago',icon: 'warning'});
-        }   
+        }
     });
         function cargarTablaConcepto(listaConfigConceptos){
             let table = '';
             let idSolicitante = '';
-            
+
             $.each(listaConfigConceptos,function(index,concepto){
                 idSolicitante = concepto.idSolicitante;
 
@@ -1424,7 +1424,7 @@
             $("#dias").val("");
             $("#monto").val("");
         }
-        
+
         function cargarConfigConceptos(){
             $("#tbodyConcepto").html("");
             $('#modal-propuesta-convenio').modal('show');
@@ -1453,7 +1453,7 @@
         }
         /*
      * Aqui inician las funciones para administrar el paso 6
-     * 
+     *
      */
     $("#btnFinalizar").on("click",function(){
         swal({
@@ -1489,7 +1489,7 @@
     function cargarModalRelaciones(){
         $("#modal-relaciones").modal("show");
     }
-    
+
     function getDatosLaboralesParte(idParte){
         $.ajax({
             url:"/api/conceptos-resolucion/getLaboralesConceptos",
@@ -1523,11 +1523,11 @@
                         'otro':''
                     });
                 });
-                
+
                 $('#remuneracionDiaria').val(dato.remuneracionDiaria);
                 $('#salarioMinimo').val(dato.salarioMinimo);
-                $('#antiguedad').val(dato.antiguedad); 
-                $('#idSolicitante').val(dato.idParte); 
+                $('#antiguedad').val(dato.antiguedad);
+                $('#idSolicitante').val(dato.idParte);
 
                 let table = "";
                 table+=" <tr>";
@@ -1552,7 +1552,7 @@
             }
         });
     }
-    
+
     $("#resolucion_individual_id").change(function(){
         $("#divConceptosAcordados").hide();
         $("#divMotivoArchivo").hide();
@@ -1606,18 +1606,18 @@
                         }else{
                             monto = antiguedad * 12 * (2*salarioMinimo);
                         }
-                    } 
+                    }
                     $('#monto').val(monto);
                     break;
                 case '8':    //Gratificacion D
                     $('#monto').attr('disabled',true);
                     $('#dias').attr('disabled',true);
-                    $('#otro').removeAttr('disabled'); 
-                    break;  
+                    $('#otro').removeAttr('disabled');
+                    break;
                 default: //Dias de sueldo, Dias de vacaciones
                     $('#monto').attr('disabled',true);
                     $('#otro').attr('disabled',true);
-                    $('#dias').removeAttr('disabled'); 
+                    $('#dias').removeAttr('disabled');
                     break;
             }
         });
@@ -1637,10 +1637,10 @@
                     }
                     break;
                 case '7': // Prima topada por antiguedad
-                    
-                    break;  
+
+                    break;
                 case '8': //Gratificación D otro
-                    break;  
+                    break;
                 default: //Dias de sueldo, Dias de vacaciones
 
                     monto = dias * pagoDia;
@@ -1737,7 +1737,7 @@
             }
         });
         console.log(listaPropuestaConceptos);
-        
+
         $.ajax({
             url:"/audiencia/resolucion",
             type:"POST",
@@ -1779,7 +1779,7 @@
             }, 1000);
         }
     }
-    
+
     function formatNumberTimer(n){
         return n > 9 ? "" + n: "0" + n;
     }

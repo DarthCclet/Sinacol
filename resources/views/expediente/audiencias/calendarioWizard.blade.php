@@ -77,7 +77,7 @@
                         <div class="col-md-6">
                             <div class="panel panel-default">
                                 <div class="panel-heading">
-                                    <h4 class="panel-title">Solicitado</h4>
+                                    <h4 class="panel-title">Citado</h4>
                                 </div>
                                 <div class="panel-body">
                                     <div class="col-md-12">
@@ -111,7 +111,7 @@
                     <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr>
-                                <td>Solicitado</td>
+                                <td>Citado</td>
                                 <td>Dirección</td>
                                 <td>Mapa</td>
                                 <td>Tipo de notificación</td>
@@ -247,7 +247,7 @@
             function SolicitarAudiencia(inicio,fin){
                 swal({
                     title: '¿Las partes concilian en la misma sala?',
-                    text: 'Al oprimir aceptar se asignará solo un consiliador y una sola sala para solicitante y solicitado',
+                    text: 'Al oprimir aceptar se asignará solo un consiliador y una sola sala para solicitante y citado',
                     icon: 'warning',
                     buttons: {
                         cancel: {
@@ -445,7 +445,7 @@
                             listaNotificaciones.push({
                                 parte_id:parte_id,
                                 tipo_notificacion_id:2
-                            });                
+                            });
                         }else{
                             msg = "Indica el tipo de notificación para los solicitados";
                             error = true;

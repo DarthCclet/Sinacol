@@ -1,6 +1,6 @@
 @extends('layouts.default', ['paceTop' => true])
 
-@section('title', 'Generos')
+@section('title', 'Géneros')
 
 @include('includes.component.datatables')
 
@@ -9,7 +9,7 @@
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
         <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
-        <li class="breadcrumb-item active">Generos</li>
+        <li class="breadcrumb-item active">Géneros</li>
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->

@@ -218,7 +218,7 @@
                     <thead>
                         <tr>
                             <th class="text-nowrap">Solicitante</th>
-                            <th class="text-nowrap">Solicitado</th>
+                            <th class="text-nowrap">Citado</th>
                             <th class="text-nowrap">Resolucion</th>
                             <th class="text-nowrap">Motivo de archivado</th>
                             <th class="text-nowrap">Acción</th>
@@ -255,7 +255,7 @@
                     <table class="table table-bordered" >
                         <thead>
                             <tr>
-                                <th>Solicitado</th>
+                                <th>Citado</th>
                                 <th>RFC</th>
                                 <th>Tipo de notificación</th>
                                 <th>Estado</th>
@@ -410,9 +410,9 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label for="genero_id" class="col-sm-6 control-label">Genero</label>
+                            <label for="genero_id" class="col-sm-6 control-label">Género</label>
                             <select id="genero_id" class="form-control select-element">
-                                <option value="">-- Selecciona un genero</option>
+                                <option value="">-- Selecciona un género</option>
                             </select>
                         </div>
                     </div>
@@ -456,7 +456,7 @@
                         <div class="col-md-5">
                             <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
                             <select id="tipo_contacto_id" class="form-control select-element">
-                                <option value="">-- Selecciona un genero</option>
+                                <option value="">-- Selecciona un género</option>
                             </select>
                         </div>
                         <div class="col-md-5">
@@ -599,7 +599,7 @@
                         <p>
                             Esta a punto de dar resolucion a una audiencia, indique la forma de proceder<br>
                             - Marque en la tabla las personas que se presentaron a la audiencia<br>
-                            - Una resolución: La resolución aplica para todas las relaciones solicitante-solicitado<br>
+                            - Una resolución: La resolución aplica para todas las relaciones solicitante-citado<br>
                             - Configurar: Podrá agregar las excepciones a la resolución
                         </p>
                     </div>
@@ -641,10 +641,10 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="parte_solicitado_id" class="col-sm-6 control-label labelResolucion">Solicitado</label>
+                                    <label for="parte_solicitado_id" class="col-sm-6 control-label labelResolucion">Citado</label>
                                     <div class="col-sm-10">
                                         <select id="parte_solicitado_id" class="form-control select-element">
-                                            <option value="">-- Selecciona un solicitado</option>
+                                            <option value="">-- Selecciona un citado</option>
                                             @foreach($audiencia->solicitados as $parte)
                                                 @if($parte->parte->tipo_persona_id == 1)
                                                     <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
@@ -684,7 +684,7 @@
                                 <div class="form-group">
                                     <label for="concepto_pago_resoluciones_id" class="col-sm-6 control-label labelResolucion">Concepto de pago</label>
                                     <div class="col-sm-10">
-                                        
+
                                         <select id="concepto_pago_resoluciones_id" class="form-control select-element">
                                             <option value="">-- Selecciona un concepto de pago</option>
                                             @foreach($concepto_pago_resoluciones as $concepto)
@@ -713,7 +713,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div> 
+                                <div>
                                     <div class="text-center">
                                         <button class="btn btn-warning text-white btn-sm" id='btnAgregarConcepto'><i class="fa fa-plus"></i> Agregar Concepto</button>
                                     </div>
@@ -724,8 +724,8 @@
                                             <tr>
                                                 <th>Concepto</th>
                                                 <th>Dias</th>
-                                                <th>Monto</th> 
-                                                <th>Otro</th> 
+                                                <th>Monto</th>
+                                                <th>Otro</th>
                                                 <th>Acciones</th>
                                             </tr>
                                         </thead>
@@ -746,7 +746,7 @@
                                 <thead>
                                     <tr>
                                         <th>Solicitante</th>
-                                        <th>Solicitado</th>
+                                        <th>Citado</th>
                                         <th>Resolución</th>
                                         <th>Motivo de archivo</th>
                                         <th>Acciones</th>
@@ -798,7 +798,7 @@
                                     <tr>
                                         <th class="text-nowrap" style="width: 10%;"></th>
                                         <th class="text-nowrap">Solicitante</th>
-                                        <th class="text-nowrap">Solicitado</th>
+                                        <th class="text-nowrap">Citado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1148,7 +1148,7 @@
                 dataType:"json",
                 success:function(data){
                     if(data.data != null && data.data != ""){
-                        $("#genero_id").html("<option value=''>-- Selecciona un genero</option>");
+                        $("#genero_id").html("<option value=''>-- Selecciona un género</option>");
                         $.each(data.data,function(index,element){
                             $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
                         });
@@ -1287,7 +1287,7 @@
 
                 }
             }
-                
+
         });
         function cargarTablaConcepto(){
             var table = '';
@@ -1548,7 +1548,7 @@
                 $("#resolucion_individual_id").val("").trigger("change");
                 $("#motivo_archivado_id").val("").trigger("change");
                 limpiarConcepto();
-                listaConcepto = []; 
+                listaConcepto = [];
                 cargarTablaConcepto();
                 cargarTablaResolucionesIndividuales();
             }
@@ -1828,7 +1828,7 @@
         });
         //
         // Funciones de datos laborales
-        
+
         function validarDatosLaborales(){
             var error=false;
             $(".datoLaboral").each(function(){
@@ -1837,7 +1837,7 @@
                     error = true;
                 }
             });
-            
+
             return error;
         }
 
@@ -1893,7 +1893,7 @@
                 swal({title: 'Error',text: 'Llena todos los campos',icon: 'warning'});
             }
         });
-        
+
         /*
         Funcion para esconder o mostrar fecha de salida en funsion a campo labora actualmente
         */
@@ -1934,8 +1934,8 @@
                         $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
                         console.log(data.jornada_id);
                         $("#jornada_id").val(data.jornada_id);
-                        $("#horas_semanales").val(data.horas_semanales);                            
-                        $("#resolucion_dato_laboral").val(data.resolucion);   
+                        $("#horas_semanales").val(data.horas_semanales);
+                        $("#resolucion_dato_laboral").val(data.resolucion);
                         $(".catSelect").trigger('change')
                     }
                     $("#modal-dato-laboral").modal("show");
