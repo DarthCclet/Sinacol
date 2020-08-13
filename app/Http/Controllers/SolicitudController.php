@@ -626,9 +626,11 @@ class SolicitudController extends Controller {
             $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now()]);
             //Obtenemos el contador
             $ContadorController = new ContadorController();
-            $folio = $ContadorController->getContador(1, 1);
+            $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
+            $edo_folio = $solicitud->centro->abreviatura;
+            $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
             //Creamos el expediente de la solicitud
-            $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => "2", "anio" => $folio->anio, "consecutivo" => $folio->contador]);
+            $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
             DB::commit();
         }catch(\Throwable $e){
             DB::rollback();
