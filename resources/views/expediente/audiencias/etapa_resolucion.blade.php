@@ -146,7 +146,7 @@
                                 </div>
                             @break
                             @case(3)
-                                <p>Darle la palabra a la parte solicitante y luego a la parte solicitada. </p>
+                                <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
                                 <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
                                 <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
                                 <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
@@ -253,7 +253,7 @@
                                 <button class="btn btn-primary" onclick="nextStep({{$etapa->paso}})">Continuar </button>
                             @break
                             @case(5)
-                                <p>Darle la palabra a la parte solicitante y luego a la parte solicitada. </p>
+                                <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
                                 <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
                                 <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
                                 <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >

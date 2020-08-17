@@ -442,7 +442,7 @@
                                     <hr class="red">
                                 </div>
                                 <input type="hidden" id="contacto_id_solicitado">
-                                <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona solicitada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
+                                <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona citada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
                                 <div class="col-md-4">
                                     {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
@@ -927,7 +927,7 @@
             </div>
             <div class="modal-body">
                 <div class="alert alert-muted">
-                    Selecciona la forma en que se notificara a la parte solicitada.<br>
+                    Selecciona la forma en que se notificara a la parte citada.<br>
                     <ul>
                         <li>El solicitante entrega citatorio a solicitados: El solicitante se encargará de entregar la notifocación sin ayuda del centro</li>
                         <li>Un actuario del centro entrega citatorio a solicitados: La tarea de entregar la notificación será del centro que asignará un actuario</li>
