@@ -29,3 +29,5 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ (($resolucionAudiencia->currentPage() -1) * 10)+1 }} al {{ ((($resolucionAudiencia->currentPage() -1) * 10))+$resolucionAudiencia->count() }} de un total de {{ $resolucionAudiencia->total() }} registros: </p>
+{{ $resolucionAudiencia->links() }}

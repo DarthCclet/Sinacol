@@ -28,6 +28,8 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ $conceptos->total() > 0 ? ((($conceptos->currentPage() -1) * 10)+1) : 0 }} al {{ ((($conceptos->currentPage() -1) * 10))+$conceptos->count() }} de un total de {{ $conceptos->total() }} registros: </p>
+{{ $conceptos->links() }}
 <script>
 
     $("formDelete").submit(function(e){

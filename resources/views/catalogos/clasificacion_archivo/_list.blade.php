@@ -30,6 +30,8 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ $clasificacion->total() > 0 ? ((($clasificacion->currentPage() -1) * 10)+1) : 0 }} al {{ ((($clasificacion->currentPage() -1) * 10))+$clasificacion->count() }} de un total de {{ $clasificacion->total() }} registros: </p>
+{{ $clasificacion->links() }}
 <script>
 
     $("formDelete").submit(function(e){

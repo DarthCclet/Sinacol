@@ -28,6 +28,8 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ (($ambitos->currentPage() -1) * 10)+1 }} al {{ ((($ambitos->currentPage() -1) * 10))+$ambitos->count() }} de un total de {{ $ambitos->total() }} registros: </p>
+{{ $ambitos->links() }}
 <script>
 
     $("formDelete").submit(function(e){

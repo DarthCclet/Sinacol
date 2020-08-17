@@ -28,6 +28,8 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ $jornadas->total() > 0 ? ((($jornadas->currentPage() -1) * 10)+1) : 0 }} al {{ ((($jornadas->currentPage() -1) * 10))+$jornadas->count() }} de un total de {{ $jornadas->total() }} registros: </p>
+{{ $jornadas->links() }}
 <script>
     // function deleteJornada(){
     //     alert(confirm("as"));

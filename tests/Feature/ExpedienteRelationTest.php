@@ -49,6 +49,7 @@ class ExpedienteRelationTest extends TestCase
         $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
         $edo_folio = $solicitud->centro->abreviatura;
         $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
+    
         $expediente = new Expediente();
         $expediente->folio = $folio;
         $expediente->anio = $folioC->anio;
@@ -57,7 +58,8 @@ class ExpedienteRelationTest extends TestCase
         $expediente->save();
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
-        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>true,'resolucion_id'=>3]);
+        $folio = $ContadorController->getContador(3, $solicitud->centro_id);
+        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>true,"folio" => $folio->contador,"anio" => $folio->anio,'resolucion_id'=>3]);
         $compareciente_audiencia = factory(Compareciente::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $compareciente_audiencia1 = factory(Compareciente::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
         $audiencia_parte_solicitante = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
@@ -119,7 +121,8 @@ class ExpedienteRelationTest extends TestCase
 
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
-        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'resolucion_id'=>1,'finalizada' =>true]);
+        $folio = $ContadorController->getContador(3, $solicitud->centro_id);
+        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'resolucion_id'=>1,"folio" => $folio->contador,"anio" => $folio->anio,'finalizada' =>true]);
         $compareciente_audiencia = factory(Compareciente::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $audiencia_parte_solicitante = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
@@ -183,7 +186,8 @@ class ExpedienteRelationTest extends TestCase
 
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
-        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'resolucion_id'=>2,'finalizada' =>true]);
+        $folio = $ContadorController->getContador(3, $solicitud->centro_id);
+        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,"folio" => $folio->contador,"anio" => $folio->anio,'parte_responsable_id' => $parteSolicitante->id,'resolucion_id'=>2,'finalizada' =>true]);
         $audiencia_parte_solicitante = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $sala_audiencia = factory(SalaAudiencia::class)->create(['audiencia_id'=>$audiencia->id,'sala_id' => $sala->id,]);
@@ -256,7 +260,9 @@ class ExpedienteRelationTest extends TestCase
 
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
-        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitado->id,'resolucion_id'=>4,'finalizada' =>true]);
+        $folio = $ContadorController->getContador(3, $solicitud->centro_id);
+        
+        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,"folio" => $folio->contador,"anio" => $folio->anio,'parte_responsable_id' => $parteSolicitado->id,'resolucion_id'=>4,'finalizada' =>true]);
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado2->id,]);
         $compareciente_audiencia1 = factory(Compareciente::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
@@ -358,7 +364,9 @@ class ExpedienteRelationTest extends TestCase
 
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
-        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>true]);
+        $folio = $ContadorController->getContador(3, $solicitud->centro_id);
+        
+        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,"folio" => $folio->contador,"anio" => $folio->anio,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>true]);
         // Se agrega representante legal
             $representante_legal_solicitante = factory(Parte::class)->states('representanteLegal')->create(['solicitud_id'=>$solicitud->id,'parte_representada_id'=>$parteSolicitante->id]);
             $contactoRepSolicitante2 = factory(Contacto::class)->create(['contactable_id'=>$representante_legal_solicitante->id, 'contactable_type'=>'App\Parte']);
@@ -460,7 +468,9 @@ class ExpedienteRelationTest extends TestCase
 
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
-        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>true]);
+        $folio = $ContadorController->getContador(3, $solicitud->centro_id);
+        
+        $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,"folio" => $folio->contador,"anio" => $folio->anio,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>true]);
         // Se agrega representante legal
             $representante_legal_solicitante = factory(Parte::class)->states('representanteLegal')->create(['solicitud_id'=>$solicitud->id,'parte_representada_id'=>$parteSolicitado2->id]);
             $contactoRepSolicitante2 = factory(Contacto::class)->create(['contactable_id'=>$representante_legal_solicitante->id, 'contactable_type'=>'App\Parte']);
@@ -533,7 +543,9 @@ class ExpedienteRelationTest extends TestCase
         $expediente->solicitud_id = $solicitud->id;
         $expediente->save();
         //Se captura Audiencia
-        $audiencia = factory(Audiencia::class)->states('audienciaMultiple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>true]);
+        $folio = $ContadorController->getContador(3, $solicitud->centro_id);
+        
+        $audiencia = factory(Audiencia::class)->states('audienciaMultiple')->create(['expediente_id'=>$expediente->id,"folio" => $folio->contador,"anio" => $folio->anio,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>true]);
         $compareciente_audiencia = factory(Compareciente::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $compareciente_audiencia1 = factory(Compareciente::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
         $audiencia_parte_solicitante = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
@@ -599,7 +611,9 @@ class ExpedienteRelationTest extends TestCase
         $expediente->save();
 
         //Se captura Audiencia
-        $audiencia = factory(Audiencia::class)->states('audienciaMultiple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'resolucion_id'=>1,'finalizada' =>true]);
+        $folio = $ContadorController->getContador(3, $solicitud->centro_id);
+        
+        $audiencia = factory(Audiencia::class)->states('audienciaMultiple')->create(['expediente_id'=>$expediente->id,"folio" => $folio->contador,"anio" => $folio->anio,'parte_responsable_id' => $parteSolicitante->id,'resolucion_id'=>1,'finalizada' =>true]);
         
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado2->id,]);

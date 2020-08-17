@@ -17,6 +17,9 @@
 
     </tbody>
 </table>
+
+<p>Mostrando registros del {{ $estados->total() > 0 ? ((($estados->currentPage() -1) * 10)+1) : 0 }} al {{ ((($estados->currentPage() -1) * 10))+$estados->count() }} de un total de {{ $estados->total() }} registros: </p>
+{{ $estados->links() }}
 <script>
 
     $("formDelete").submit(function(e){

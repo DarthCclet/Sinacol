@@ -2,12 +2,52 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "Mujeres embarazadas"
+            "nombre": "Embarazo"
         },
         {
             "id": "2",
-            "nombre": "adultos mayores"
+            "nombre": "Razones de sexo"
+        },
+        {
+            "id": "3",
+            "nombre": "Raza"
+        },
+        {
+            "id": "4",
+            "nombre": "Religión"
+        },
+        {
+            "id": "5",
+            "nombre": "Origen étnico/ Indígenas"
+        },
+        {
+            "id": "6",
+            "nombre": "Condición social"
+        },
+        {
+            "id": "7",
+            "nombre": "Acoso u hostigamiento sexual"
+        },
+        {
+            "id": "8",
+            "nombre": "Orientación sexual"
+        },
+        {
+            "id": "9",
+            "nombre": "Origen étnico"
+        },
+        {
+            "id": "10",
+            "nombre": "Discapacidad"
+        },
+        {
+            "id": "11",
+            "nombre": "Edad (menores y adultos mayores)"
+        },
+        {
+            "id": "12",
+            "nombre": "Condición migratoria"
         }
     ],
-    "numReg": 2
+    "numReg": 12
 }

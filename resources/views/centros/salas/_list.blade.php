@@ -35,3 +35,5 @@
     @endforeach
     </tbody>
 </table>
+<p>Mostrando registros del {{ $salas->total() > 0 ? ((($salas->currentPage() -1) * 10)+1) : 0 }} al {{ ((($salas->currentPage() -1) * 10))+$salas->count() }} de un total de {{ $salas->total() }} registros: </p>
+{{ $salas->links() }}

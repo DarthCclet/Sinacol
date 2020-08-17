@@ -19,7 +19,8 @@ class ConceptoPagoResolucionesController extends Controller
      */
     public function index()
     {
-        $conceptos = ConceptoPagoResolucion::all();
+        // $conceptos = ConceptoPagoResolucion::all();
+        $conceptos = ConceptoPagoResolucion::paginate($this->request->get('per_page', 10));
         if ($this->request->wantsJson()) {
             return $this->sendResponse($conceptos, 'SUCCESS');
         }

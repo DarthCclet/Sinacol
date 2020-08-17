@@ -745,6 +745,7 @@
     var listaPropuestas={};
     var listaConfigConceptos= {};
     var listaResolucionesIndividuales = [];
+    var lastTimeStamp = "";
     $(document).ready(function(){
         $( "#accordion" ).accordion();
 
@@ -817,6 +818,8 @@
             $("#icon"+pasoActual).css("background","lightgreen");
             // $("#contentStep"+pasoActual).hide();
             $("#step"+siguiente).show();
+            lastTimeStamp = value.created_at;
+            
         });
     }
     $('.textarea    ').wysihtml5({locale: 'es-ES'});
@@ -1766,14 +1769,31 @@
 
     var timer = 0;
     function startTimer(){
-        var timestamp = new Date(0,0,0,0,0,0);
+        var days = "";
+        if(lastTimeStamp != ""){
+            lastTimeStamp = moment(lastTimeStamp)
+            var actualDate = moment();
+            var seconds = actualDate.diff(lastTimeStamp,"seconds");
+            var minutes = seconds / 60;
+            var hours = minutes /60;
+            days = hours / 24;
+            console.log(days);
+            var timestamp = new Date(0,0,0,0,0,seconds);
+        }else{
+            var timestamp = new Date(0,0,0,0,0,0);
+
+        }
         var interval = 1;
         if(timer == 0){
 
             setInterval(function () {
                 timer = 1;
-                timestamp = new Date(timestamp.getTime() + interval*1000);
-                $('.countdown').text(formatNumberTimer(timestamp.getHours())+':'+formatNumberTimer(timestamp.getMinutes())+':'+formatNumberTimer(timestamp.getSeconds()));
+                timestamp = new Date(timestamp.getTime() + interval*1000); 
+                var dias = "";
+                if(days != ""){
+                    dias = days.toString().split(".")[0]+ "dias "
+                }
+                $('.countdown').text(dias + formatNumberTimer(timestamp.getHours())+':'+formatNumberTimer(timestamp.getMinutes())+':'+formatNumberTimer(timestamp.getSeconds()));
             }, 1000);
         }
     }

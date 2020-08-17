@@ -29,3 +29,5 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ (($estatusSolicitud->currentPage() -1) * 10)+1 }} al {{ ((($estatusSolicitud->currentPage() -1) * 10))+$estatusSolicitud->count() }} de un total de {{ $estatusSolicitud->total() }} registros: </p>
+{{ $estatusSolicitud->links() }}

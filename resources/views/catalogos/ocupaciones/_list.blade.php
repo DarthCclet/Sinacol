@@ -31,7 +31,8 @@
 
     </tbody>
 </table>
-
+<p>Mostrando registros del {{ (($ocupacion->currentPage() -1) * 10)+1 }} al {{ ((($ocupacion->currentPage() -1) * 10))+$ocupacion->count() }} de un total de {{ $ocupacion->total() }} registros: </p>
+{{ $ocupacion->links() }}
 <!-- <div> -->
 <div id="btnsMultiple" style="display:none;">
     <a id="btmMultiple" class="btn btn-primary" style="color:white">

@@ -28,3 +28,5 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ $rolesAtencion->total() > 0 ? ((($rolesAtencion->currentPage() -1) * 10)+1) : 0 }} al {{ ((($rolesAtencion->currentPage() -1) * 10))+$rolesAtencion->count() }} de un total de {{ $rolesAtencion->total() }} registros: </p>
+{{ $rolesAtencion->links() }}

@@ -33,6 +33,7 @@
             </td>
         </tr>
     @endforeach
-
-    </tbody>
+    
+</tbody>
 </table>
+{{ $centros->links() }}

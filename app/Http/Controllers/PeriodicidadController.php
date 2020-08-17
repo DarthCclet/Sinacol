@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Periodicidad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PeriodicidadController extends Controller
 {
@@ -18,7 +19,8 @@ class PeriodicidadController extends Controller
      */
     public function index()
     {
-        $periodicidades = Periodicidad::all();
+        // $periodicidades = Periodicidad::all();
+        $periodicidades = Periodicidad::paginate($this->request->get('per_page', 10));
         if ($this->request->wantsJson()) {
             return $this->sendResponse($periodicidades, 'SUCCESS');
         }
@@ -43,6 +45,7 @@ class PeriodicidadController extends Controller
      */
     public function store(Request $request)
     {
+        Cache::flush();
         Periodicidad::create($request->all());
         return redirect('periodicidades');
     }
@@ -79,6 +82,7 @@ class PeriodicidadController extends Controller
      */
     public function update(Request $request, $id)
     {
+        Cache::flush();
         $periodicidad = Periodicidad::find($id);
         $periodicidad->update($request->all());
         return redirect('periodicidades');

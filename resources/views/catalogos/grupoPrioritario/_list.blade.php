@@ -29,3 +29,5 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ $grupoPrioritario->total() > 0 ? ((($grupoPrioritario->currentPage() -1) * 10)+1) : 0 }} al {{ ((($grupoPrioritario->currentPage() -1) * 10))+$grupoPrioritario->count() }} de un total de {{ $grupoPrioritario->total() }} registros: </p>
+{{ $grupoPrioritario->links() }}

@@ -22,7 +22,11 @@ $factory->define(Parte::class, function (Faker $faker) {
     //  tipoParte, genero, tipo persona, nacionalidad y estado
     //  ya que se segura que existen registros al generar la migracion
     $tipo_parte = TipoParte::whereIn('id',[1,2])->inRandomOrder()->first();
-    $grupo_prioritario = GrupoPrioritario::inRandomOrder()->first();
+    if(rand(1,0) == 0){
+        $grupo_prioritario = GrupoPrioritario::inRandomOrder()->first();
+    }else{
+        $grupo_prioritario = null;
+    }
     $genero = Genero::inRandomOrder()->first();
     $tipo_persona = TipoPersona::inRandomOrder()->first();
     $nacionalidad = Nacionalidad::inRandomOrder()->first();

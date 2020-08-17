@@ -21,7 +21,8 @@ class JornadaController extends Controller
      */
     public function index()
     {
-        $jornadas = Jornada::all();
+        // $jornadas = Jornada::all();
+        $jornadas = Jornada::paginate($this->request->get('per_page', 10));
         if ($this->request->wantsJson()) {
             return $this->sendResponse($jornadas, 'SUCCESS');
         }

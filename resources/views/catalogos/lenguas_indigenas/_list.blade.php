@@ -28,6 +28,8 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ $lenguas->total() > 0 ? ((($lenguas->currentPage() -1) * 10)+1) : 0 }} al {{ ((($lenguas->currentPage() -1) * 10))+$lenguas->count() }} de un total de {{ $lenguas->total() }} registros: </p>
+{{ $lenguas->links() }}
 <script>
 
     $("formDelete").submit(function(e){

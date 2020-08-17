@@ -30,6 +30,8 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ $periodicidades->total() > 0 ? ((($periodicidades->currentPage() -1) * 10)+1) : 0 }} al {{ ((($periodicidades->currentPage() -1) * 10))+$periodicidades->count() }} de un total de {{ $periodicidades->total() }} registros: </p>
+{{ $periodicidades->links() }}
 <script>
 
     $("formDelete").submit(function(e){

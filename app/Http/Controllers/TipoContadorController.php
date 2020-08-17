@@ -19,7 +19,8 @@ class TipoContadorController extends Controller
      */
     public function index()
     {
-        $tipos = TipoContador::all();
+        // $tipos = TipoContador::all();
+        $tipos = TipoContador::paginate($this->request->get('per_page', 10));
         if ($this->request->wantsJson()) {
             return $this->sendResponse($tipos, 'SUCCESS');
         }

@@ -21,7 +21,8 @@ class AmbitoController extends Controller
      */
     public function index()
     {
-        $ambitos = Ambito::all();
+        // $ambitos = Ambito::all();
+        $ambitos = Ambito::paginate($this->request->get('per_page', 10));
         if ($this->request->wantsJson()) {
             return $this->sendResponse($ambitos, 'SUCCESS');
         }

@@ -19,7 +19,8 @@ class GeneroController extends Controller
      */
     public function index()
     {
-        $generos = Genero::all();
+        //$generos = Genero::all();
+        $generos = Genero::paginate($this->request->get('per_page', 10));
         if ($this->request->wantsJson()) {
             return $this->sendResponse($generos, 'SUCCESS');
         }

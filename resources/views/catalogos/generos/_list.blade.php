@@ -15,3 +15,5 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ $generos->total() > 0 ? ((($generos->currentPage() -1) * 10)+1) : 0 }} al {{ ((($generos->currentPage() -1) * 10))+$generos->count() }} de un total de {{ $generos->total() }} registros: </p>
+{{ $generos->links() }}

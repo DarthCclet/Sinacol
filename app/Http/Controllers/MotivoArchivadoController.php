@@ -20,7 +20,8 @@ class MotivoArchivadoController extends Controller
      */
     public function index()
     {
-        $motivos = MotivoArchivado::all();
+        // $motivos = MotivoArchivado::all();
+        $motivos = MotivoArchivado::paginate($this->request->get('per_page', 10));
         if ($this->request->wantsJson()) {
             return $this->sendResponse($motivos, 'SUCCESS');
         }
