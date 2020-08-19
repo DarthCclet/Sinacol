@@ -23,7 +23,7 @@
           @include('expediente.solicitudes._form')
         <br>
           <div class="form-group">
-            <button class="btn btn-primary pull-right btn-sm m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save"></i> Modificar</button>
+            <button class="btn btn-primary pull-right btn-sm m-l-5 solicitudTerminada" onclick="guardarSolicitud()"><i class="fa fa-save"></i> Modificar</button>
           </div>
         {{-- {{ Form::close() }} --}}
     </div>

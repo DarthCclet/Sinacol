@@ -57,8 +57,8 @@
             <a href="#step-4">
 
                 <span class="">
-                    Documentos
-                    <small>Documentos del expediente solicitud</small>
+                    Excepci&oacute;n 
+                    <small>Casos de excepci&oacute;n de la conciliaci&oacute;n</small>
                 </span>
             </a>
         </li>
@@ -84,6 +84,16 @@
                 </span>
             </a>
         </li>
+        <!-- El paso 5 Es para asignar Audiencias -->
+        <li class="step-7">
+            <a href="#step-7">
+
+                <span class="">
+                    Documentos
+                    <small>Documentos del expediente solicitud</small>
+                </span>
+            </a>
+        </li> 
     </ul>
     <!-- end wizard-step -->
     <!-- begin wizard-content -->
@@ -190,6 +200,18 @@
                                     {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Lengua Indigena</p>
+                                </div>
+                            </div>
+                            <div class="col-md-12 row">
+                                <div class="col-md-4 personaFisicaSolicitanteNO">
+                                    {!! Form::select('motivo_excepciones_id_solicitante', isset($motivo_excepciones) ? $motivo_excepciones : [] , null, ['id'=>'motivo_excepciones_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('motivo_excepciones_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Motivo de excepcion</p>
+                                </div>
+                                <div class="col-md-4 personaFisicaSolicitanteNO" id="divGrupoPrioritario" style="display: none;">
+                                    {!! Form::select('grupo_prioritario_id_solicitante', isset($grupo_prioritario) ? $grupo_prioritario : [] , null, ['id'=>'grupo_prioritario_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('grupo_prioritario_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Grupo Vulnerable</p>
                                 </div>
                             </div>
                             {{-- Seccion de contactos solicitantes --}}
@@ -548,7 +570,7 @@
                         <p class="help-block needed">Objeto de la solicitud</p>
                     </div>
                     <div>
-                        <button class="btn btn-primary btn-sm m-l-5" onclick="agregarObjetoSol()"><i class="fa fa-save"></i> Agregar objeto</button>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnObjetoSol" onclick="agregarObjetoSol()"><i class="fa fa-save"></i> Agregar objeto</button>
                     </div>
                     <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                         <table class="table table-bordered" >
@@ -582,119 +604,41 @@
         <!-- begin step-4 -->
         <div id="step-4">
             <div class="row">
-                <div class="col-md-12">
-                    <div class="text-right">
-                        <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
+                @if (isset($audiencias))
+                <div id="divGruposPrioritarios" class="col-md-12" >
+                    <div class="col-md-12" style="text-align: center;">
+                        <h1 >Excepci&oacute;n a la conciliaci&oacute;n</h1>
+                    </div>
+                    <div class="col-md-12" style="margin-top: 2%;">
+                        <div class="solicitudTerminada">
+                            <form action="/solicitud/excepcion" id="excepcionForm" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="solicitud_id_excepcion" id="solicitud_id_excepcion">
+                                <div class="col-md-5">
+                                    {!! Form::select('conciliador_excepcion_id', isset($conciliadores) ? $conciliadores : [] , null, ['id'=>'conciliador_excepcion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('conciliador_excepcion_id', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Conciliador</p>
+                                </div>
+                                <table class="table ">
+                                    <thead>
+                                        <tr>
+                                            <th>Solicitante</th>
+                                            <th>Grupo Vulnerable</th>
+                                            <th>Accion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyGruposPrioritarios">
+
+                                    </tbody>
+                                </table>
+                                <button class="btn btn-primary " >Excepci&oacute;n de Audiencia</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-12">
-                    <div id="gallery" class="gallery row"></div>
-                    <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
-                </div>
-
-                <!-- The template to display files available for upload -->
-                <script id="template-upload" type="text/x-tmpl">
-                    {% for (var i=0, file; file=o.files[i]; i++) { %}
-                        <tr class="template-upload fade show">
-                            <td>
-                                <span class="preview"></span>
-                            </td>
-                            <td>
-                                <div class="bg-light rounded p-10 mb-2">
-                                    <dl class="m-b-0">
-                                        <dt class="text-inverse">File Name:</dt>
-                                        <dd class="name">{%=file.name%}</dd>
-                                        <dt class="text-inverse m-t-10">File Size:</dt>
-                                        <dd class="size">Processing...</dd>
-                                    </dl>
-                                </div>
-                                <strong class="error text-danger h-auto d-block text-left"></strong>
-                            </td>
-                            <td>
-                                <select class="form-control tipo_documento" name="tipo_documento_id[]">
-                                    <option value="1">Audiencia 1</option>
-                                    <option value="2">Audiencia 2</option>
-                                </select>
-                            </td>
-                            <td>
-                                <dl>
-                                    <dt class="text-inverse m-t-3">Progress:</dt>
-                                    <dd class="m-t-5">
-                                        <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 40px;">0%</div></div>
-                                    </dd>
-                                </dl>
-                            </td>
-                            <td nowrap>
-                                {% if (!i && !o.options.autoUpload) { %}
-                                    <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>
-                                        <i class="fa fa-upload fa-fw text-inverse"></i>
-                                        <span>Start</span>
-                                    </button>
-                                {% } %}
-                                {% if (!i) { %}
-                                    <button class="btn btn-default cancel width-100 p-r-20">
-                                        <i class="fa fa-trash fa-fw text-muted"></i>
-                                        <span>Cancel</span>
-                                    </button>
-                                {% } %}
-                            </td>
-                        </tr>
-                    {% } %}
-                </script>
-                <!-- The template to display files available for download -->
-                <script id="template-download" type="text/x-tmpl">
-                    {% for (var i=0, file; file=o.files[i]; i++) { %}
-                        <tr class="template-download fade show">
-                            <td width="1%">
-                                <span class="preview">
-                                    {% if (file.thumbnailUrl) { %}
-                                        <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}" class="rounded"></a>
-                                    {% } else { %}
-                                        <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
-                                            <i class="fa fa-file-image fa-lg text-muted"></i>
-                                        </div>
-                                    {% } %}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="bg-light p-10 mb-2">
-                                    <dl class="m-b-0">
-                                        <dt class="text-inverse">File Name:</dt>
-                                        <dd class="name">
-                                            {% if (file.url) { %}
-                                                <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
-                                            {% } else { %}
-                                                <span>{%=file.name%}</span>
-                                            {% } %}
-                                        </dd>
-                                        <dt class="text-inverse m-t-10">File Size:</dt>
-                                        <dd class="size">{%=o.formatFileSize(file.size)%}</dd>
-                                    </dl>
-                                    {% if (file.error) { %}
-                                        <div><span class="label label-danger">ERROR</span> {%=file.error%}</div>
-                                    {% } %}
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                {% if (file.deleteUrl) { %}
-                                    <button class="btn btn-danger delete width-100 m-r-3 p-r-20" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
-                                        <i class="fa fa-trash pull-left fa-fw text-inverse m-t-2"></i>
-                                        <span>Delete</span>
-                                    </button>
-                                    <input type="checkbox" name="delete" value="1" class="toggle">
-                                {% } else { %}
-                                    <button class="btn btn-default cancel width-100 m-r-3 p-r-20">
-                                        <i class="fa fa-trash pull-left fa-fw text-muted m-t-2"></i>
-                                        <span>Cancel</span>
-                                    </button>
-                                {% } %}
-                            </td>
-                        </tr>
-                    {% } %}
-                </script>
-            </div>
+                @endif
+                
+            </div> 
         </div>
         <!-- end step-4 -->
         <!-- begin step-5 -->
@@ -758,7 +702,7 @@
                                             <p>Se realizaron los siguientes cambios a {{$audit["extra"]}}</p>
                                             <p>
                                                 @foreach($audit["cambios"] as $key => $value)
-                                                    {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
+                                                    {{$key}} cambio de valor de <b>{{isset($value["old"]) ? $value["old"]:""}}</b> a {{$value["new"]}}<br>
                                                 @endforeach
                                             </p>
                                         @elseif($audit["event"] == "Inserción")
@@ -807,6 +751,122 @@
             </ul>
         </div>
         <!-- end step-6 -->
+        <!-- begin step-7 -->
+        <div id="step-7">
+            
+            <div class="text-right">
+                <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
+            </div>
+            <div class="col-md-12">
+                <div id="gallery" class="gallery row"></div>
+                <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
+            </div>
+
+            <!-- The template to display files available for upload -->
+            <script id="template-upload" type="text/x-tmpl">
+                {% for (var i=0, file; file=o.files[i]; i++) { %}
+                    <tr class="template-upload fade show">
+                        <td>
+                            <span class="preview"></span>
+                        </td>
+                        <td>
+                            <div class="bg-light rounded p-10 mb-2">
+                                <dl class="m-b-0">
+                                    <dt class="text-inverse">File Name:</dt>
+                                    <dd class="name">{%=file.name%}</dd>
+                                    <dt class="text-inverse m-t-10">File Size:</dt>
+                                    <dd class="size">Processing...</dd>
+                                </dl>
+                            </div>
+                            <strong class="error text-danger h-auto d-block text-left"></strong>
+                        </td>
+                        <td>
+                            <select class="form-control tipo_documento" name="tipo_documento_id[]">
+                                <option value="1">Audiencia 1</option>
+                                <option value="2">Audiencia 2</option>
+                            </select>
+                        </td>
+                        <td>
+                            <dl>
+                                <dt class="text-inverse m-t-3">Progress:</dt>
+                                <dd class="m-t-5">
+                                    <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 40px;">0%</div></div>
+                                </dd>
+                            </dl>
+                        </td>
+                        <td nowrap>
+                            {% if (!i && !o.options.autoUpload) { %}
+                                <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>
+                                    <i class="fa fa-upload fa-fw text-inverse"></i>
+                                    <span>Start</span>
+                                </button>
+                            {% } %}
+                            {% if (!i) { %}
+                                <button class="btn btn-default cancel width-100 p-r-20">
+                                    <i class="fa fa-trash fa-fw text-muted"></i>
+                                    <span>Cancel</span>
+                                </button>
+                            {% } %}
+                        </td>
+                    </tr>
+                {% } %}
+            </script>
+            <!-- The template to display files available for download -->
+            <script id="template-download" type="text/x-tmpl">
+                {% for (var i=0, file; file=o.files[i]; i++) { %}
+                    <tr class="template-download fade show">
+                        <td width="1%">
+                            <span class="preview">
+                                {% if (file.thumbnailUrl) { %}
+                                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}" class="rounded"></a>
+                                {% } else { %}
+                                    <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
+                                        <i class="fa fa-file-image fa-lg text-muted"></i>
+                                    </div>
+                                {% } %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="bg-light p-10 mb-2">
+                                <dl class="m-b-0">
+                                    <dt class="text-inverse">File Name:</dt>
+                                    <dd class="name">
+                                        {% if (file.url) { %}
+                                            <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                                        {% } else { %}
+                                            <span>{%=file.name%}</span>
+                                        {% } %}
+                                    </dd>
+                                    <dt class="text-inverse m-t-10">File Size:</dt>
+                                    <dd class="size">{%=o.formatFileSize(file.size)%}</dd>
+                                </dl>
+                                {% if (file.error) { %}
+                                    <div><span class="label label-danger">ERROR</span> {%=file.error%}</div>
+                                {% } %}
+                            </div>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            {% if (file.deleteUrl) { %}
+                                <button class="btn btn-danger delete width-100 m-r-3 p-r-20" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                                    <i class="fa fa-trash pull-left fa-fw text-inverse m-t-2"></i>
+                                    <span>Delete</span>
+                                </button>
+                                <input type="checkbox" name="delete" value="1" class="toggle">
+                            {% } else { %}
+                                <button class="btn btn-default cancel width-100 m-r-3 p-r-20">
+                                    <i class="fa fa-trash pull-left fa-fw text-muted m-t-2"></i>
+                                    <span>Cancel</span>
+                                </button>
+                            {% } %}
+                        </td>
+                    </tr>
+                {% } %}
+            </script>
+
+        </div> 
+        <!-- end step-7 -->
     </div>
     <!-- end wizard-content -->
 </div>
@@ -922,7 +982,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Tipo de notificación</h2>
+                <h2 class="modal-title">Ratificaci&oacute;n</h2>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -986,6 +1046,8 @@
                         <tbody>
                     </table>
                 </div>
+                <br>
+                
             </div>
             <div class="modal-footer">
                 <div class="text-right">
@@ -1002,13 +1064,14 @@
 
 <script>
     // Se declaran las variables globales
-    var arraySolicitados = new Array(); //Lista de solicitados
-    var arraySolicitantes = new Array(); //Lista de solicitantes
-    var arrayDomiciliosSolicitante = new Array(); // Array de domicilios para el solicitante
-    var arrayDomiciliosSolicitado = new Array(); // Array de domicilios para el solicitado
-    var arrayObjetoSolicitudes = new Array(); // Array de objeto_solicitude para el solicitado
-    var arrayContactoSolicitantes = new Array(); // Array de objeto_solicitude para el solicitado
-    var arrayContactoSolicitados = new Array(); // Array de objeto_solicitude para el solicitado
+    var arraySolicitados = []; //Lista de solicitados
+    var arraySolicitantes = []; //Lista de solicitantes
+    var arrayDomiciliosSolicitante = []; // Array de domicilios para el solicitante
+    var arrayDomiciliosSolicitado = []; // Array de domicilios para el solicitado
+    var arrayObjetoSolicitudes = []; // Array de objeto_solicitude para el solicitado
+    var arrayContactoSolicitantes = []; // Array de objeto_solicitude para el solicitado
+    var arrayContactoSolicitados = []; // Array de objeto_solicitude para el solicitado
+    var arraySolicitanteExcepcion = {}; // Array de solicitante excepción
 
     $(document).ready(function() {
         $('#wizard').smartWizard({
@@ -1032,11 +1095,12 @@
             FormMultipleUpload.init();
             Gallery.init();
             $('#wizard').smartWizard("stepState", [3], "show");
-            $(".step-4").show();
+            $(".step-7").show();
         }else{
             $(".showEdit").hide();
             $(".step-4").hide();
             $(".step-5").hide();
+            $(".step-7").hide();
             $('#wizard').smartWizard("stepState", [3], "hide");
             $('#wizard').smartWizard("stepState", [4], "hide");
             $(".estatusSolicitud").hide();
@@ -1068,6 +1132,8 @@
                         solicitante.nacionalidad_id = $("#nacionalidad_id_solicitante").val();
                         solicitante.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitante").val();
                         solicitante.lengua_indigena_id = $("#lengua_indigena_id_solicitante").val();
+                        solicitante.grupo_prioritario_id = $("#grupo_prioritario_id_solicitante").val();
+                        solicitante.motivo_excepciones_id = $("#motivo_excepciones_id_solicitante").val();
                     }else{
                         solicitante.nombre_comercial = $("#idNombreCSolicitante").val();
 
@@ -1165,7 +1231,7 @@
                     }
                     formarTablaSolicitado();
                     limpiarSolicitado();
-                    arrayDomiciliosSolicitado = new Array();
+                    arrayDomiciliosSolicitado = [];
                     formarTablaDomiciliosSolicitado();
                 }else{
                     swal({
@@ -1201,6 +1267,7 @@
                 $(".personaMoralSolicitante").show();
                 $(".personaFisicaSolicitante").hide();
                 $(".personaFisicaSolicitanteNO").hide();
+                $(".divGrupoPrioritario").hide();
             }
         });
         $("#labora_actualmente").change(function(){
@@ -1210,6 +1277,14 @@
             }else{
                 $("#fecha_salida").attr("required","");
                 $("#divFechaSalida").show();
+            }
+        });
+        $("#motivo_excepciones_id_solicitante").change(function(){
+            if($(this).val() == 3){
+                $("#divGrupoPrioritario").show();
+            }else{
+                $("#divGrupoPrioritario").hide();
+                $("#grupo_prioritario_id_solicitante").val("").trigger("change");
             }
         });
 
@@ -1240,12 +1315,76 @@
         if(edit){
             $("#solicitud_id").val(solicitud);
             $("#solicitud_id_modal").val(solicitud);
+            $("#solicitud_id_excepcion").val(solicitud);
             cargarDocumentos();
             getSolicitudFromBD(solicitud);
         }
         // getGironivel("",1,"girosNivel1solicitante");
 
     });
+    function exepcionConciliacion(){
+        var formData = new FormData();
+
+        $.ajax({
+            url:'/solicitud/excepcion',
+            type:'POST',
+            dataType:"json",
+            contentType: false,
+            processData: false,
+            data:{
+                arraySolicitanteExcepcion:arraySolicitanteExcepcion,
+                _token:$("input[name=_token]").val()
+
+            },
+            success:function(data){
+                if(data.success){
+                    swal({
+                        title: 'Correcto',
+                        text: 'Solicitud guardada correctamente',
+                        icon: 'success',
+
+                    });
+                    setTimeout('', 5000);
+                    location.href='{{ route('solicitudes.index')  }}'
+                }else{
+
+                }
+
+            },error:function(data){
+                swal({
+                    title: 'Error',
+                    text: ' Error al guardar excepción',
+                    icon: 'error'
+                });
+            }
+        });
+    }
+
+    function fortarTablaGrupoPrioritario(){
+        var html = "";
+        $.each(arraySolicitantes, function (key, value) {
+            if(value.grupo_prioritario_id != null && value.tipo_persona_id == 1){
+                html += "<tr>";
+                    console.log(value);
+                html += "<td>"+value.nombre + " " + value.primer_apellido + " " + value.segundo_apellido+"</td>";
+                $("#grupo_prioritario_id_solicitante").val(value.grupo_prioritario_id);
+                html += "<td>"+$("#grupo_prioritario_id_solicitante option:selected").text()+"</td>";
+                $("#grupo_prioritario_id_solicitante").val("");
+                html += "<td> <span class='btn btn-primary fileinput-button m-r-3'><i class='fa fa-fw fa-plus'></i><span>Agregar...</span><input type='file' accept='.pdf' name='"+value.id+"' class='fileGrupoVulnerable' idsolicitante='"+value.id+"' id='fileGrupoPrioritario"+value.id+"' multiple></span><label id='fileName"+value.id+"'></label></td>";
+                html += "</tr>";
+            }
+        });
+        $("#tbodyGruposPrioritarios").html(html);
+        $(".fileGrupoVulnerable").change(function(e){
+            var id = $(this).attr("idsolicitante");
+            $("#fileName"+id).html(e.target.files[0].name);
+            var solicitanteExcepcion = {};
+            solicitanteExcepcion.file = e.target.files[0];
+            solicitanteExcepcion.id = $(this).attr("idsolicitante");
+            solicitanteExcepcion.conciliador_id = $("#conciliador_excepcion_id").val();
+            arraySolicitanteExcepcion[$(this).attr("idsolicitante")] = solicitanteExcepcion;
+        });
+    }
     function getSolicitudFromBD(solicitud){
         $.ajax({
             url:'/solicitudes/'+solicitud,
@@ -1259,7 +1398,13 @@
                     arraySolicitados = Object.values(data.solicitados);
                     formarTablaSolicitado();
                     arraySolicitantes = Object.values(data.solicitantes);
+                    $.each(arraySolicitantes ,function(key,value){
+                        if($.isArray(arraySolicitantes[key].dato_laboral)){
+                            arraySolicitantes[key].dato_laboral = arraySolicitantes[key].dato_laboral[0];
+                        }
+                    })
                     formarTablaSolicitante();
+                    fortarTablaGrupoPrioritario()
 
                     $.each(data.objeto_solicitudes, function (key, value) {
                         var objeto_solicitud = {};
@@ -1289,10 +1434,28 @@
                     if(data.estatus_solicitud_id == 2){
                         $("#btnRatificarSolicitud").hide();
                     }
+                    if(data.estatus_solicitud_id == 3){
+                        $(".solicitudTerminada").hide();
+                    }
 
                     $("#fechaRatificacion").val(dateFormat(data.fecha_ratificacion,2));
                     $("#fechaRecepcion").val(dateFormat(data.fecha_recepcion,2));
                     $("#fechaConflicto").val(dateFormat(data.fecha_conflicto,4));
+                    var excepcion = false;
+                    $.each(arraySolicitantes,function(key,value){
+                        if(value.grupo_prioritario_id != null){
+                            excepcion = true;
+                        }
+                    });
+                    if(excepcion){
+                        $(".step-4").show();
+                        $('#wizard').smartWizard("stepState", [4], "show");
+                        $(".step-7").show();
+                        $('#wizard').smartWizard("stepState", [7], "show");
+                    }else{
+                        $(".step-4").hide();
+                        $('#wizard').smartWizard("stepState", [4], "hide");
+                    }
                 }catch(error){
                     console.log(error);
                 }
@@ -1333,6 +1496,7 @@
             $("#nacionalidad_id_solicitante").val("");
             $("#entidad_nacimiento_id_solicitante").val("");
             $("#lengua_indigena_id_solicitante").val("");
+            $("#motivo_excepciones_id_solicitante").val("");
             if($("#solicita_traductor_solicitante").is(":checked")){
                 $("#solicita_traductor_solicitante").trigger('click');
             }
@@ -1342,7 +1506,7 @@
             // $("#girosNivel1solicitante").trigger("change");
             $("#giro_solicitante").html("");
             $("input[name='tipo_persona_solicitante']").trigger("change")
-            arrayContactoSolicitantes = new Array();
+            arrayContactoSolicitantes = [];
             formarTablaContacto(true);
             $('.catSelect').trigger('change');
             domicilioObj.limpiarDomicilios();
@@ -1380,8 +1544,8 @@
             }
 
             $("#agregarSolicitado").html('<i class="fa fa-plus-circle"></i> Agregar citado');
-            arrayContactoSolicitados = new Array();;
-            arrayDomiciliosSolicitado = new Array();
+            arrayContactoSolicitados = [];;
+            arrayDomiciliosSolicitado = [];
             formarTablaDomiciliosSolicitado();
             formarTablaContacto();
             $('.catSelect').trigger('change');
@@ -1644,6 +1808,7 @@
         }else{
             arrayObjetoSolicitudes[key].activo = 0;
         }
+        $("#btnObjetoSol").show();
         formarTablaObjetoSol();
     }
 
@@ -1681,6 +1846,8 @@
             $("#nacionalidad_id_solicitante").val(arraySolicitantes[key].nacionalidad_id);
             $("#entidad_nacimiento_id_solicitante").val(arraySolicitantes[key].entidad_nacimiento_id);
             $("#lengua_indigena_id_solicitante").val(arraySolicitantes[key].lengua_indigena_id);
+            $("#grupo_prioritario_id_solicitante").val(arraySolicitantes[key].grupo_prioritario_id);
+            $("#motivo_excepciones_id_solicitante").val(arraySolicitantes[key].motivo_excepciones_id);
             if(arraySolicitantes[key].solicita_traductor == 1){
                 if(!$("#solicita_traductor_solicitante").is(":checked")){
                     $("#solicita_traductor_solicitante").trigger('click');
@@ -1725,7 +1892,7 @@
         $("#fecha_salida").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_salida,4));
         $("#jornada_id").val(arraySolicitantes[key].dato_laboral.jornada_id);
         $("#horas_semanales").val(arraySolicitantes[key].dato_laboral.horas_semanales);
-        arrayContactoSolicitantes = arraySolicitantes[key].contactos ? arraySolicitantes[key].contactos : new Array();
+        arrayContactoSolicitantes = arraySolicitantes[key].contactos ? arraySolicitantes[key].contactos : [];
         formarTablaContacto(true);
         //domicilio del solicitante
         domicilioObj.cargarDomicilio(arraySolicitantes[key].domicilios[0]);
@@ -1776,7 +1943,7 @@
         }
         $("#idSolicitadoRfc").val(arraySolicitados[key].rfc);
         $("input[name='tipo_persona_solicitado']").trigger("change");
-        arrayContactoSolicitados = arraySolicitados[key].contactos ? arraySolicitados[key].contactos : new Array();
+        arrayContactoSolicitados = arraySolicitados[key].contactos ? arraySolicitados[key].contactos : [];
         formarTablaContacto();
         // arrayContactoSolicitados = arraySolicitados[key].contactos;
         arrayDomiciliosSolicitado = arraySolicitados[key].domicilios;
@@ -1849,10 +2016,11 @@
             objeto_solicitud.id = "";
             objeto_solicitud.objeto_solicitud_id = $("#objeto_solicitud_id").val();
             objeto_solicitud.activo = 1;
-            arrayObjetoSolicitudes.push(objeto_solicitud);
+            arrayObjetoSolicitudes[0] = (objeto_solicitud);
             $("#objeto_solicitud_id :selected").prop("disabled",true);
             formarTablaObjetoSol();
             $("#objeto_solicitud_id").val("").trigger('change');
+            $("#btnObjetoSol").hide();
         }
     }
 
@@ -1957,65 +2125,65 @@
     $("#btnRatificarSolicitud").on("click",function(){
         try{
             if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
-//                $("#modalNotificacion").modal("show");
-                swal({
-                    title: '¿Estas seguro?',
-                    text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
-                    icon: 'warning',
-                    buttons: {
-                        cancel: {
-                            text: 'Cancelar',
-                            value: null,
-                            visible: true,
-                            className: 'btn btn-default',
-                            closeModal: true,
-                        },
-                        confirm: {
-                            text: 'Aceptar',
-                            value: true,
-                            visible: true,
-                            className: 'btn btn-danger',
-                            closeModal: true
-                        }
-                    }
-                }).then(function(isConfirm){
-                    if(isConfirm){
-                        $.ajax({
-                            url:'/solicitud/ratificar',
-                            type:'POST',
-                            dataType:"json",
-                            async:true,
-                            data:{
-                                id:$("#solicitud_id").val(),
-//                                listaNotificaciones:validacion.listaNotificaciones,
-                                _token:"{{ csrf_token() }}"
-                            },
-                            success:function(data){
-                                if(data != null && data != ""){
-                                    $("#modalNotificacion").modal("hide");
-                                    swal({
-                                        title: 'Correcto',
-                                        text: 'Solicitud ratificada correctamente',
-                                        icon: 'success'
-                                    });
-                                    location.reload();
-                                }else{
-                                    swal({
-                                        title: 'Error',
-                                        text: 'No se pudo ratificar',
-                                        icon: 'error'
-                                    });
-                                }
-                            },error:function(data){
-                                swal({
-                                    title: 'Error',
-                                    text: ' Error al ratificar la solicitud',
-                                    icon: 'error'
-                                });
-                            }
-                        });
-                    }
-                });
+               $("#modalNotificacion").modal("show");
+//                 swal({
+//                     title: '¿Estas seguro?',
+//                     text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
+//                     icon: 'warning',
+//                     buttons: {
+//                         cancel: {
+//                             text: 'Cancelar',
+//                             value: null,
+//                             visible: true,
+//                             className: 'btn btn-default',
+//                             closeModal: true,
+//                         },
+//                         confirm: {
+//                             text: 'Aceptar',
+//                             value: true,
+//                             visible: true,
+//                             className: 'btn btn-danger',
+//                             closeModal: true
+//                         }
+//                     }
+//                 }).then(function(isConfirm){
+//                     if(isConfirm){
+//                         $.ajax({
+//                             url:'/solicitud/ratificar',
+//                             type:'POST',
+//                             dataType:"json",
+//                             async:true,
+//                             data:{
+//                                 id:$("#solicitud_id").val(),
+// //                                listaNotificaciones:validacion.listaNotificaciones,
+//                                 _token:"{{ csrf_token() }}"
+//                             },
+//                             success:function(data){
+//                                 if(data != null && data != ""){
+//                                     $("#modalNotificacion").modal("hide");
+//                                     swal({
+//                                         title: 'Correcto',
+//                                         text: 'Solicitud ratificada correctamente',
+//                                         icon: 'success'
+//                                     });
+//                                     location.reload();
+//                                 }else{
+//                                     swal({
+//                                         title: 'Error',
+//                                         text: 'No se pudo ratificar',
+//                                         icon: 'error'
+//                                     });
+//                                 }
+//                             },error:function(data){
+//                                 swal({
+//                                     title: 'Error',
+//                                     text: ' Error al ratificar la solicitud',
+//                                     icon: 'error'
+//                                 });
+//                             }
+//                         });
+//                     }
+//                 });
             }else{
                 swal({
                     title: 'Error',
@@ -2428,6 +2596,19 @@
             }
         };
     }();
+    $("#excepcionForm").submit(function(e){
+        var falta = false;
+        
+        $(".fileGrupoVulnerable").each(function(e){
+            console.log($(this).val());
+            if($(this).val() == ""){
+                falta = true;
+            }
+        });
+        if($("#conciliador_excepcion_id").val() == "" && falta){
+            e.preventDefault();
+        }
+    });
     $(document).on('click', '[data-toggle="lightbox"]', function(event) {
         event.preventDefault();
         $(this).ekkoLightbox({
