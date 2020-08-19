@@ -1,0 +1,20 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Acoso u hostigamiento sexual",
+            "descripcion": "Causa excepción a la conciliación"
+        },
+        {
+            "id": "2",
+            "nombre": "Otros actos de violencia",
+            "descripcion": "Causa conciliación en salas separadas"
+        },
+        {
+            "id": "3",
+            "nombre": "Discriminación",
+            "descripcion": "Causa excepción a la conciliación"
+        }
+    ],
+    "numReg": 3
+}

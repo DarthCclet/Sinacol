@@ -325,4 +325,8 @@ class Parte extends Model implements Auditable
         return $this->hasMany(AudienciaParte::class);
     }
     
+    public function documentos(){
+        return $this->morphMany(Documento::class,'documentable');
+    }
+    
 }
