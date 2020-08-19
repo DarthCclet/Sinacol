@@ -8,6 +8,8 @@ use App\Domicilio;
 use App\Estado;
 use App\Expediente;
 use App\Audiencia;
+use App\ClasificacionArchivo;
+use App\Conciliador;
 use App\Contacto;
 use App\EstatusSolicitud;
 use App\Events\GenerateDocumentResolution;
@@ -20,13 +22,14 @@ use App\GiroComercial;
 use App\GrupoPrioritario;
 use App\Jornada;
 use App\LenguaIndigena;
-
+use App\MotivoExcepcion;
 use App\Municipio;
 use App\Nacionalidad;
 use App\ObjetoSolicitud;
 use App\Ocupacion;
 use App\Parte;
 use App\Periodicidad;
+use App\ResolucionParteExcepcion;
 use App\Rules\Curp;
 use App\Rules\RFC;
 use App\TipoAsentamiento;
@@ -36,6 +39,7 @@ use App\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class SolicitudController extends Controller {
 
@@ -152,10 +156,10 @@ class SolicitudController extends Controller {
         $generos = $this->cacheModel('generos',Genero::class);
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
-        
+        $motivo_excepcion = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
         $municipios = array_pluck(Municipio::all(),'municipio','id');
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios'));
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepcion'));
     }
     /**
      * Función para almacenar catalogos (nombre,id) en cache
@@ -391,7 +395,12 @@ class SolicitudController extends Controller {
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
         $audits = $this->getAcciones($solicitud, $parte->get(), $audiencias,$expediente);
         $municipios = array_pluck(Municipio::all(),'municipio','id');
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes'));
+        $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
+        // dd(Conciliador::all()->persona->full_name());
+        $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
+        // dd($conciliador);
+        // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores'));
     }
 
     /**
@@ -651,14 +660,66 @@ class SolicitudController extends Controller {
         return $solicitud;
     }
 
+    function ExcepcionConciliacion(Request $request){
+
+        $solicitud_id = $request->solicitud_id_excepcion;
+        $solicitud = Solicitud::find($solicitud_id);
+        $files = $request->file();
+        foreach($files as $parte_id => $archivo){
+            $clasificacion_archivo = 7;
+            $parte = Parte::find($parte_id);
+            if($solicitud != null){
+                $directorio = 'expedientes/' . $solicitud->expediente->id . '/solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                Storage::makeDirectory($directorio);
+                $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                $path = $archivo->store($directorio);
+                
+                $parte->documentos()->create([
+                    "nombre" => str_replace($directorio."/", '',$path),
+                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                    "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
+                    "ruta" => $path,
+                    "tipo_almacen" => "local",
+                    "uri" => $path,
+                    "longitud" => round(Storage::size($path) / 1024, 2),
+                    "firmado" => "false",
+                    "clasificacion_archivo_id" => $tipoArchivo->id ,
+                ]);
+            }
+        }
+                
+        $solicitados = Parte::where('solicitud_id',$solicitud_id)->where('tipo_parte_id',2)->get();
+        foreach ($solicitados as $key => $solicitado) {
+            foreach($request->files as $solicitante_id => $file){
+                ResolucionParteExcepcion::create(['parte_solicitante_id'=>$solicitante_id,'parte_solicitada_id'=>$solicitado->id,'conciliador_id'=>$request->conciliador_excepcion_id,'resolucion_id'=> 3 ]);
+                event(new GenerateDocumentResolution("",$solicitud_id,2,5,$solicitante_id,$solicitado->id,$request->conciliador_excepcion_id));
+            }
+        }
+        $solicitud->estatus_solicitud_id = 3;
+        $solicitud->update();
+        return redirect('solicitudes')->with('success', 'Se guardo todo');
+    }
+
     function getDocumentosSolicitud($solicitud_id) {
+        $doc = [];
         $solicitud = Solicitud::find($solicitud_id);
         $documentos = $solicitud->documentos;
         foreach ($documentos as $documento) {
             $documento->clasificacionArchivo = $documento->clasificacionArchivo;
             $documento->tipo = pathinfo($documento->ruta)['extension'];
+            array_push($doc,$documento);
         }
-        return $documentos;
+        $partes = Parte::where('solicitud_id',$solicitud_id)->get();
+        foreach($partes as $parte){
+            
+            $documentos = $parte->documentos;
+            foreach ($documentos as $documento) {
+                $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                $documento->tipo = pathinfo($documento->ruta)['extension'];
+                array_push($doc,$documento);
+            }
+        }
+        return $doc;
     }
     private function getAcciones(Solicitud $solicitud,$partes,$audiencias,$expediente){
 //         Obtenemos las acciones de la solicitud

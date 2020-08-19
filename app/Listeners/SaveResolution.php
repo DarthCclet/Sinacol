@@ -28,6 +28,6 @@ class SaveResolution implements ShouldQueue
      */
     public function handle(GenerateDocumentResolution $event)
     {
-        $this->generarConstancia($event->idAudiencia,$event->idSolicitud,$event->clasificacion_id,$event->plantilla_id,$event->idSolicitante,$event->idSolicitado);
+        $this->generarConstancia($event->idAudiencia,$event->idSolicitud,$event->clasificacion_id,$event->plantilla_id,$event->idSolicitante,$event->idSolicitado,$event->idConciliador);
     }
 }

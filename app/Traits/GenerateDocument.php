@@ -26,7 +26,7 @@ trait GenerateDocument
      * Generar documento a partir de un modelo y de una plantilla
      * @return mixed
      */
-    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null)
+    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null, $idConciliador)
     {
         $plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
@@ -38,7 +38,7 @@ trait GenerateDocument
                 
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
                 
-                $html = $this->renderDocumento($idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado);
+                $html = $this->renderDocumento($idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
                 $pdf = App::make('dompdf.wrapper');
                 $pdf->getDomPDF();
                 $pdf->loadHTML($html)->setPaper('A4');
@@ -73,7 +73,7 @@ trait GenerateDocument
                 
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
                 
-                $html = $this->renderDocumento($idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado);
+                $html = $this->renderDocumento($idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
                 $pdf = App::make('dompdf.wrapper');
                 $pdf->getDomPDF();
                 $pdf->loadHTML($html)->setPaper('A4');
@@ -108,11 +108,11 @@ trait GenerateDocument
         }
     }
 
-    public function renderDocumento($idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado)
+    public function renderDocumento($idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador)
     {
         
         $vars = [];
-        $data = $this->getDataModelos($idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado);
+        $data = $this->getDataModelos($idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador);
         if($data!=null){
             $count =0;
             foreach ($data as $key => $dato) { //solicitud
@@ -243,7 +243,7 @@ trait GenerateDocument
           $html = StringTemplate::renderPlantillaPlaceholders($blade, $vars);
           return $html;
     }
-    private function getDataModelos($idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado)
+    private function getDataModelos($idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador)
     {
         
         try {
@@ -339,7 +339,11 @@ trait GenerateDocument
 
                     // $objeto = $model_name::with('conciliador')->findOrFail(1);
                     $audiencias = $model_name::where('expediente_id',$expedienteId)->get();
-                    $conciliadorId = $audiencias[0]->conciliador_id;
+                    if($idConciliador != null){
+                      $conciliadorId = $audiencias[0]->conciliador_id;
+                    }else{
+                      $conciliadorId = $idConciliador;
+                    }
                     $objeto = new JsonResponse($audiencias);
                     $audiencias = json_decode($objeto->content(),true);
                     $Audiencias = [];
@@ -354,6 +358,9 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'audiencia', $Audiencias );
                     // dd($data);
                   }elseif ($model == 'Conciliador') {
+                    if($idConciliador != null){
+                        $conciliadorId = $idConciliador;
+                    }
                     $objeto = $model_name::with('persona')->find($conciliadorId);
                     $objeto = new JsonResponse($objeto);
                     $conciliador = json_decode($objeto->content(),true);
