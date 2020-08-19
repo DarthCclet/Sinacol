@@ -42,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('incidencia','IncidenciaController');
     Route::resource('solicitudes','SolicitudController');
     Route::POST('solicitud/ratificar','SolicitudController@Ratificar');
+    Route::POST('solicitud/excepcion','SolicitudController@ExcepcionConciliacion');
     Route::Get('solicitudes/documentos/{solicitud_id}','SolicitudController@getDocumentosSolicitud');
     Route::resource('expedientes','ExpedienteController');
     Route::resource('audiencias','AudienciaController');
