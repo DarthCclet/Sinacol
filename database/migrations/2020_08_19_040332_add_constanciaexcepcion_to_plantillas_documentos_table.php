@@ -19,8 +19,7 @@ class AddConstanciaexcepcionToPlantillasDocumentosTable extends Migration
               'objetos'=>'1,2,3,4,5,6,7'
             ]
         );
-        DB::table('plantilla_documentos')->where('nombre_plantilla','CONSTANCIA DE EXCEPCIÓN CONCILIACIÓN')->update(
-            [
+        DB::table('plantilla_documentos')->insert([
               'nombre_plantilla'=> 'CONSTANCIA DE EXCEPCIÓN A LA CONCILIACIÓN',
               'descripcion'=>'',
               'plantilla_header'=>'<table style="width: 100%; border-collapse: collapse; margin-left: auto; margin-right: auto;" border="0">
