@@ -222,7 +222,7 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            $('#data-table-default').DataTable({paging: false,"info":false,responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
+            $('#data-table-default').DataTable({language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
             /**
              * Funcion para permitir llenado de los dias disponibles
              */
@@ -277,6 +277,8 @@
                 return false;
             });
             limpiarModal();
+            $(".catSelect").select2({width: '100%'});
+            $("#municipio").select2({width: '100%', tags: true});
         });
         function limpiarModal(){
             $("input[data-change='switchDia']").each(function() {

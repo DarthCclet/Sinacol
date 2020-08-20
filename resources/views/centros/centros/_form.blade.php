@@ -23,5 +23,5 @@
             <p class="help-block">Es la duración promedio de una audiencia</p>
         </div>
     </div>
-    @include('includes.component.map',['identificador' => '', 'instancia' => '1','domicilio'=>isset($centro) ? $centro->domicilios[0] : null])
+    @include('includes.component.map',['identificador' => '', 'instancia' => '1','domicilio'=>isset($centro) ? $centro->domicilio : null,'needsMaps'=>"false"])
 </div>

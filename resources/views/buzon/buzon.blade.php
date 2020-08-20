@@ -18,7 +18,7 @@
                 <div class="card-body">
                     <ul>
                         <li>Ratificacion:
-                            <button class="btn btn-primary pull-right" style="display:hidden;">Cancelar </button>
+                            <button class="btn btn-primary pull-right" style="display:hidden;" id="btnCancelarAudiencia">Cancelar </button>
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
                                     <td class="text-nowrap"><strong>Fecha de Solicitud:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_solicitud)->format('d/m/Y')}}</td>
@@ -132,6 +132,55 @@
         </div>
         @endif
         @endforeach
+    </div>
+</div>
+<div class="modal" id="modal-cancelar" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Cancelación</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body" id="domicilio-form">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6>Cancelación de audiencia</h6>
+                        <hr class="red">
+                    </div>
+                    <div class="alert alert-muted">
+                        Esta opción esta habilitada para solicitar la cancelación de una audiencia, la cual solo se debe dar en los siguientes casos:<br>
+                        - Problemas médicos<br>
+                        - Problemas familiares con justificante<br><br>
+                        <strong>Nota! </strong>La cancelación será validada por el conciliador y una vez aprobada se le indicará la nueva fecha
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                    @if($solicitud->expediente != null)
+                    @if(count($solicitud->expediente->audiencia) > 0)
+                    
+                    <form id="fileupload" action="/api/uploadJustificante" method="POST" enctype="multipart/form-data">
+                        <input type="text" name="audiencia_id" value="{{$solicitud->expediente->audiencia[0]->id}}">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="justificante" class="control-label">Justificante</label>
+                                <input type="file" id="justificante" name="justificante" class="form-control">
+                                <p class="help-block">Selecciona el documento que servirá para evaluar la cancelación</p>
+                            </div>
+                        </div>
+                    </form>
+                    @endif
+                    @endif
+                    <div class="col-md-2">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="domicilioObj2.limpiarDomicilios()"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" onclick="agregarDomicilio()"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
@@ -251,6 +300,9 @@
                 }
             });
         }
+        $("#btnCancelarAudiencia").on("click",function(){
+            $("#modal-cancelar").modal('show');
+        });
     </script>
 @endpush
 
