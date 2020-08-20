@@ -30,6 +30,7 @@ class CreateClasificacionArchivosTable extends Migration
             ['nombre'=>'Citatorio'],
             ['nombre'=>'Convenio'],
             ['nombre'=>'Acta de audiencia'],
+            ['nombre'=>'Justificante de cancelación'],
         ])->each(function ($item){
             \App\ClasificacionArchivo::create($item);
         });
