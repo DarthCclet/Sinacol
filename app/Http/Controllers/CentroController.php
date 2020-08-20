@@ -6,10 +6,12 @@ use Illuminate\Http\Request;
 use App\Centro;
 use App\Disponibilidad;
 use App\Estado;
+use App\Municipio;
 use App\Incidencia;
 use App\Filters\CatalogoFilter;
 use App\TipoAsentamiento;
 use App\TipoVialidad; 
+use Illuminate\Support\Facades\Cache;
 
 class CentroController extends Controller
 {
@@ -55,7 +57,10 @@ class CentroController extends Controller
 
             return $this->sendResponse($centros, 'SUCCESS');
         }
-        return view('centros.centros.index', compact('centros'));
+        $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
+        $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
+        $estados = $this->cacheModel('estados',Estado::class);
+        return view('centros.centros.index', compact('centros','estados','tipos_asentamientos','tipos_vialidades'));
     }
 
     /**
@@ -68,7 +73,8 @@ class CentroController extends Controller
         $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
         $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
         $estados = array_pluck(Estado::all(),'nombre','id');
-        return view('centros.centros.create', compact('estados','tipos_asentamientos','tipos_vialidades'));
+        $municipios = array_pluck(Municipio::all(),'municipio','id');
+        return view('centros.centros.create', compact('estados','tipos_asentamientos','tipos_vialidades','municipios'));
     }
 
     /**
@@ -81,7 +87,7 @@ class CentroController extends Controller
     {
         $centro = Centro::create($request->input('centro'));
         $domicilio = $request->input('domicilio');
-        $centro->domicilios()->create($domicilio);
+        $centro->domicilio()->create($domicilio);
         return redirect('centros');
     }
 
@@ -107,8 +113,9 @@ class CentroController extends Controller
         $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
         $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
         $estados = array_pluck(Estado::all(),'nombre','id');
+        $municipios = array_pluck(Municipio::all(),'municipio','id');
         $centro->domicilios;
-        return view('centros.centros.edit', compact('centro','estados','tipos_asentamientos','tipos_vialidades'));
+        return view('centros.centros.edit', compact('centro','estados','tipos_asentamientos','tipos_vialidades','municipios'));
     }
 
     /**
@@ -122,7 +129,7 @@ class CentroController extends Controller
     {
         $centro->update($request->input('centro'));
         $domicilio = $request->input('domicilio');
-        $centro->domicilios()->create($domicilio);
+        $centro->domicilio()->create($domicilio);
         return redirect('centros');
     }
 
@@ -186,5 +193,21 @@ class CentroController extends Controller
         $centro->disponibilidades = $centro->disponibilidades;
         $centro->incidencias = $centro->incidencias;
         return $centro;
+    }
+    /**
+     * Función para almacenar catalogos (nombre,id) en cache
+     *
+     * @param [string] $nombre
+     * @param [Model] $modelo
+     * @return void
+     */
+    private function cacheModel($nombre,$modelo,$campo = 'nombre' ){
+        if (!Cache::has($nombre)) {
+            $respuesta = array_pluck($modelo::all(),$campo,'id');
+            Cache::forever($nombre, $respuesta);
+        } else {
+            $respuesta = Cache::get($nombre);
+        }
+        return $respuesta;
     }
 }

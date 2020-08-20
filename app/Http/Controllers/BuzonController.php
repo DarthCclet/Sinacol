@@ -42,7 +42,7 @@ class BuzonController extends Controller
                 $token = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
                 if (!Cache::has($token)) {
-                    Cache::put($token, $busqueda,now()->addMinutes(5));
+                    Cache::put($token, $busqueda,now()->addMinutes(50));
                 }
                 $respuesta = Cache::get($token);
                 $parte->token = $token;
@@ -77,6 +77,9 @@ class BuzonController extends Controller
                         if($solicitud->expediente != null){
                             $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
                             $solicitud->parte = $parte;
+                            foreach($solicitud->expediente->audiencia as $audiencia){
+                                $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
+                            }
                             $solicitudes[]=$solicitud;
                         }
                     }

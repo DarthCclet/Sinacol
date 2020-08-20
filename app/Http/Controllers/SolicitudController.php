@@ -151,7 +151,7 @@ class SolicitudController extends Controller {
         $nacionalidades = $this->cacheModel('nacionalidades',Nacionalidad::class);
         $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
         $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
-        $grupo_prioritario = $this->cacheModel('grupo_prioritario',GrupoPrioritario::class);
+        $grupos_prioritarios = $this->cacheModel('grupo_prioritario',GrupoPrioritario::class);
         $lengua_indigena = $this->cacheModel('lengua_indigena',LenguaIndigena::class);
         $generos = $this->cacheModel('generos',Genero::class);
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
@@ -216,6 +216,7 @@ class SolicitudController extends Controller {
         $solicitud = $request->input('solicitud');
 
         DB::beginTransaction();
+        $domiciliop ="";
         try {
             // Solicitud
             $solicitud['user_id'] = 1;
@@ -238,6 +239,8 @@ class SolicitudController extends Controller {
 
             $solicitantes = $request->input('solicitantes');
             
+            $centro = null;
+
             foreach ($solicitantes as $key => $value) {
                 $value['solicitud_id'] = $solicitudSaved['id'];
                 unset($value['activo']);
@@ -253,7 +256,9 @@ class SolicitudController extends Controller {
                     unset($value['contactos']);
                 }
 
+                // dd($value);
                 $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+                // dd($domicilio);
                 // foreach ($domicilios as $key => $domicilio) {
                 unset($domicilio['activo']);
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
@@ -265,15 +270,21 @@ class SolicitudController extends Controller {
                     }
                 }
             }
+            
+            
 
             $solicitados = $request->input('solicitados');
-
+            
             foreach ($solicitados as $key => $value) {
                 unset($value['activo']);
                 $domicilios = Array();
                 if (isset($value["domicilios"])) {
                     $domicilios = $value["domicilios"];
                     unset($value['domicilios']);
+                    if($key == 0){
+                        $domiciliop = $domicilios[0]["estado_id"];
+                        $centro = $this->getCentroId($domicilios[0]["estado_id"]);
+                    }
                 }
                 if (isset($value["contactos"])) {
                     $contactos = $value["contactos"];
@@ -295,6 +306,9 @@ class SolicitudController extends Controller {
                     }
                 }
             }
+            if($centro != null){
+                $solicitudSaved->update(["centro_id" => $centro]);
+            }
 
             // // Para cada objeto obtenido cargamos sus relaciones.
             $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
@@ -302,7 +316,6 @@ class SolicitudController extends Controller {
             });
             DB::commit();
         } catch (\Throwable $e) {
-            
             DB::rollback();
             if ($this->request->wantsJson()) {
                 return $this->sendError('Error al crear la solicitud', 'Error');
@@ -320,8 +333,12 @@ class SolicitudController extends Controller {
      *
      * @return int
      */
-    private function getCentroId() {
-        $centro = Centro::inRandomOrder()->first();
+    private function getCentroId($estado_id = null) {
+        if($estado_id != null){
+            $centro = Centro::find($estado_id);
+        }else{
+            $centro = Centro::inRandomOrder()->first();
+        }
         return $centro->id;
     }
 
@@ -478,7 +495,7 @@ class SolicitudController extends Controller {
                         unset($value['contactos']);
                     }
 
-                    
+
                     if (!isset($value["id"]) || $value["id"] == "") {
                         $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
                         // foreach ($domicilios as $key => $domicilio) {
