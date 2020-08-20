@@ -80,8 +80,8 @@ class Centro extends Model implements Auditable
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     
-    public function domicilios()
+    public function domicilio()
     {
-        return $this->morphMany(Domicilio::class, 'domiciliable');
+        return $this->morphOne(Domicilio::class, 'domiciliable');
     }
 }
