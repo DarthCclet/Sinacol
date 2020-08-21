@@ -2626,7 +2626,6 @@
             }
         });
     });
-
     $(document).on('click', '[data-toggle="iframe"]',function(event){
         event.preventDefault();
         var pdf_link = $(this).attr('href');
