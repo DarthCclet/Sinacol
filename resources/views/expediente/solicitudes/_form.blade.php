@@ -1023,19 +1023,19 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="radioNotificacionA{{$parte->id}}" value="1" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio a solicitados</label>
+                                        <div class="radio radio-css">
+                                          <input type="radio" id="radioNotificacionA{{$parte->id}}" value="1" name="radioNotificacion{{$parte->id}}" />
+                                          <label for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio a solicitados</label>
                                         </div>
                                         @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="radioNotificacionB{{$parte->id}}" value="2" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Un actuario del centro entrega citatorio a solicitados</label>
+                                        <div class="radio radio-css">
+                                          <input type="radio" id="radioNotificacionB{{$parte->id}}" value="2" name="radioNotificacion{{$parte->id}}" >
+                                          <label for="radioNotificacionB{{$parte->id}}">B) Un actuario del centro entrega citatorio a solicitados</label>
                                         </div>
                                         @else
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="radioNotificacionB{{$parte->id}}" value="3" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Agendar cita con actuario para entrega de citatorio</label>
+                                        <div class="radio radio-css">
+                                          <input type="radio" id="radioNotificacionB{{$parte->id}}" value="3" name="radioNotificacion{{$parte->id}}" >
+                                          <label for="radioNotificacionB{{$parte->id}}">B) Agendar cita con actuario para entrega de citatorio</label>
                                         </div>
                                         @endif
                                     </td>
@@ -1094,15 +1094,16 @@
             var solicitud='{{ $solicitud->id ?? ""}}';
             FormMultipleUpload.init();
             Gallery.init();
-            $('#wizard').smartWizard("stepState", [3], "show");
-            $(".step-7").show();
         }else{
             $(".showEdit").hide();
             $(".step-4").hide();
             $(".step-5").hide();
+            $(".step-6").hide();
             $(".step-7").hide();
-            $('#wizard').smartWizard("stepState", [3], "hide");
             $('#wizard').smartWizard("stepState", [4], "hide");
+            $('#wizard').smartWizard("stepState", [5], "hide");
+            $('#wizard').smartWizard("stepState", [6], "hide");
+            $('#wizard').smartWizard("stepState", [7], "hide");
             $(".estatusSolicitud").hide();
         }
 
@@ -1416,18 +1417,7 @@
                     // arrayObjetoSolicitudes = data.objeto_solicitudes;
                     formarTablaObjetoSol();
                     $("#observaciones").val(data.observaciones);
-                    if(data.ratificada){
-                        $("#ratificada").prop("checked",true);
-                        $('#wizard').smartWizard("stepState", [4], "show");
-                        $(".step-5").show();
-                        $("#btnRatificarSolicitud").hide();
-                        $("#expediente_id").val(data.expediente.id);
-                    }else{
-                        $('#wizard').smartWizard("stepState", [4], "hide");
-                        $(".step-5").hide();
-                        $("#btnRatificarSolicitud").show();
-                        $("#expediente_id").val("");
-                    }
+                    
                     if(data.solicita_excepcion){
                         $("#solicita_excepcion").prop("checked",true);
                     }
@@ -1446,15 +1436,30 @@
                         if(value.grupo_prioritario_id != null){
                             excepcion = true;
                         }
-                    });
-                    if(excepcion){
-                        $(".step-4").show();
+                    }) ;
+                    console.log(excepcion);
+                    $(".step-6").show();
+                    $('#wizard').smartWizard("stepState", [5], "show");
+                    if(data.ratificada){
+                        $("#ratificada").prop("checked",true);
+                        $("#btnRatificarSolicitud").hide();
+                        $("#expediente_id").val(data.expediente.id);
+                        $(".step-5").show();
                         $('#wizard').smartWizard("stepState", [4], "show");
-                        $(".step-7").show();
-                        $('#wizard').smartWizard("stepState", [7], "show");
+                        if(excepcion){
+                            $(".step-4").show();
+                            $('#wizard').smartWizard("stepState", [3], "show");
+                        }else{
+                            $(".step-4").hide();
+                            $('#wizard').smartWizard("stepState", [3], "hide");
+                        }
                     }else{
-                        $(".step-4").hide();
+                        $('#wizard').smartWizard("stepState", [3], "hide");
                         $('#wizard').smartWizard("stepState", [4], "hide");
+                        $(".step-5").hide();
+                        $(".step-4").hide();
+                        $("#btnRatificarSolicitud").show();
+                        $("#expediente_id").val("");
                     }
                 }catch(error){
                     console.log(error);
