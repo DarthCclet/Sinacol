@@ -102,6 +102,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::resource('giros','GiroComercialController');
+    Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
     Route::resource('documento','DocumentoController');
 
     Route::resource('permisos','PermissionController');
@@ -131,8 +132,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('tipos_contadores','TipoContadorController');
     Route::resource('tipos_discapacidades','TipoDiscapacidadController');
 });
-Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
-
+Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 
 Route::get('solicitud_buzon','BuzonController@SolicitudBuzon')->name('solicitud_buzon');
 
