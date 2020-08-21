@@ -9,6 +9,7 @@ use App\ConciliadorAudiencia;
 use App\Contacto;
 use App\DatoLaboral;
 use App\Domicilio;
+use App\Events\GenerateDocumentResolution;
 use App\Expediente;
 use App\Parte;
 use App\Sala;
@@ -28,7 +29,7 @@ class ExpedientePreAudienciaTest extends TestCase
     public function testExpedienteFisicaFisica()
     {
         // se llama el factory de solicitud para crear un registro y probar su relacion
-        $solicitud = factory(\App\Solicitud::class)->create();
+        $solicitud = factory(\App\Solicitud::class)->create(['estatus_solicitud_id'=>2]);
 
         $solicitud->objeto_solicitudes()->sync([1]);
         // se crea parte solicitado
@@ -54,6 +55,7 @@ class ExpedientePreAudienciaTest extends TestCase
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
         $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>false]);
+        event(new GenerateDocumentResolution($audiencia->id,$expediente->solicitud_id,4,4));
         $audiencia_parte_solicitante = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $sala_audiencia = factory(SalaAudiencia::class)->create(['audiencia_id'=>$audiencia->id,'sala_id' => $sala->id,]);
@@ -70,7 +72,7 @@ class ExpedientePreAudienciaTest extends TestCase
     {
         // se llama el factory de solicitud para crear un registro y probar su relacion
         // se llama el factory de solicitud para crear un registro y probar su relacion
-        $solicitud = factory(\App\Solicitud::class)->create();
+        $solicitud = factory(\App\Solicitud::class)->create(['estatus_solicitud_id'=>2]);
 
         $solicitud->objeto_solicitudes()->sync([1]);
 
@@ -99,6 +101,7 @@ class ExpedientePreAudienciaTest extends TestCase
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
         $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>false]);
+        event(new GenerateDocumentResolution($audiencia->id,$expediente->solicitud_id,4,4));
         $audiencia_parte_solicitante = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $sala_audiencia = factory(SalaAudiencia::class)->create(['audiencia_id'=>$audiencia->id,'sala_id' => $sala->id,]);
@@ -120,7 +123,7 @@ class ExpedientePreAudienciaTest extends TestCase
     {
         // se llama el factory de solicitud para crear un registro y probar su relacion
         // se llama el factory de solicitud para crear un registro y probar su relacion
-        $solicitud = factory(\App\Solicitud::class)->create();
+        $solicitud = factory(\App\Solicitud::class)->create(['estatus_solicitud_id'=>2]);
 
         $solicitud->objeto_solicitudes()->sync([1]);
 
@@ -149,6 +152,7 @@ class ExpedientePreAudienciaTest extends TestCase
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
         $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>false]);
+        event(new GenerateDocumentResolution($audiencia->id,$expediente->solicitud_id,4,4));
         $audiencia_parte_solicitante = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $sala_audiencia = factory(SalaAudiencia::class)->create(['audiencia_id'=>$audiencia->id,'sala_id' => $sala->id,]);
@@ -171,7 +175,7 @@ class ExpedientePreAudienciaTest extends TestCase
     {
         // se llama el factory de solicitud para crear un registro y probar su relacion
         // se llama el factory de solicitud para crear un registro y probar su relacion
-        $solicitud = factory(\App\Solicitud::class)->create();
+        $solicitud = factory(\App\Solicitud::class)->create(['estatus_solicitud_id'=>2]);
 
         $solicitud->objeto_solicitudes()->sync([1]);
 
@@ -208,6 +212,7 @@ class ExpedientePreAudienciaTest extends TestCase
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
         $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitado->id,'finalizada' =>false]);
+        event(new GenerateDocumentResolution($audiencia->id,$expediente->solicitud_id,4,4));
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado2->id,]);
         $audiencia_parte_solicitante = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
@@ -231,7 +236,7 @@ class ExpedientePreAudienciaTest extends TestCase
     {
         // se llama el factory de solicitud para crear un registro y probar su relacion
         // se llama el factory de solicitud para crear un registro y probar su relacion
-        $solicitud = factory(\App\Solicitud::class)->create();
+        $solicitud = factory(\App\Solicitud::class)->create(['estatus_solicitud_id'=>2]);
 
         $solicitud->objeto_solicitudes()->sync([1]);
 
@@ -268,6 +273,7 @@ class ExpedientePreAudienciaTest extends TestCase
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
         $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>false]);
+        event(new GenerateDocumentResolution($audiencia->id,$expediente->solicitud_id,4,4));
         // Se agrega representante legal
             $representante_legal_solicitante = factory(Parte::class)->states('representanteLegal')->create(['solicitud_id'=>$solicitud->id,'parte_representada_id'=>$parteSolicitante->id]);
             // $contactoRepSolicitante2 = factory(Contacto::class)->create(['contactable_id'=>$representante_legal_solicitante->id, 'contactable_type'=>'App\Parte']);
@@ -295,7 +301,7 @@ class ExpedientePreAudienciaTest extends TestCase
     {
         // se llama el factory de solicitud para crear un registro y probar su relacion
         // se llama el factory de solicitud para crear un registro y probar su relacion
-        $solicitud = factory(\App\Solicitud::class)->create();
+        $solicitud = factory(\App\Solicitud::class)->create(['estatus_solicitud_id'=>2]);
 
         $solicitud->objeto_solicitudes()->sync([1]);
 
@@ -327,6 +333,7 @@ class ExpedientePreAudienciaTest extends TestCase
         //Se captura Audiencia
         $sala = factory(Sala::class)->create();
         $audiencia = factory(Audiencia::class)->states('audienciaSimple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>false]);
+        event(new GenerateDocumentResolution($audiencia->id,$expediente->solicitud_id,4,4));
         // Se agrega representante legal
             $representante_legal_solicitante = factory(Parte::class)->states('representanteLegal')->create(['solicitud_id'=>$solicitud->id,'parte_representada_id'=>$parteSolicitado2->id]);
             $contactoRepSolicitante2 = factory(Contacto::class)->create(['contactable_id'=>$representante_legal_solicitante->id, 'contactable_type'=>'App\Parte']);
@@ -351,7 +358,7 @@ class ExpedientePreAudienciaTest extends TestCase
     public function testExpedienteFisicaFisicaMultiple()
     {
         // se llama el factory de solicitud para crear un registro y probar su relacion
-        $solicitud = factory(\App\Solicitud::class)->create();
+        $solicitud = factory(\App\Solicitud::class)->create(['estatus_solicitud_id'=>2]);
 
         $solicitud->objeto_solicitudes()->sync([1]);
         // se crea parte solicitado
@@ -376,6 +383,7 @@ class ExpedientePreAudienciaTest extends TestCase
         $expediente->save();
         //Se captura Audiencia
         $audiencia = factory(Audiencia::class)->states('audienciaMultiple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>false]);
+        event(new GenerateDocumentResolution($audiencia->id,$expediente->solicitud_id,4,4));
         $audiencia_parte_solicitante = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         //Se asigna sala multiple
@@ -398,7 +406,7 @@ class ExpedientePreAudienciaTest extends TestCase
     {
          // se llama el factory de solicitud para crear un registro y probar su relacion
         // se llama el factory de solicitud para crear un registro y probar su relacion
-        $solicitud = factory(\App\Solicitud::class)->create();
+        $solicitud = factory(\App\Solicitud::class)->create(['estatus_solicitud_id'=>2]);
 
         $solicitud->objeto_solicitudes()->sync([1]);
 
@@ -429,7 +437,7 @@ class ExpedientePreAudienciaTest extends TestCase
 
         //Se captura Audiencia
         $audiencia = factory(Audiencia::class)->states('audienciaMultiple')->create(['expediente_id'=>$expediente->id,'parte_responsable_id' => $parteSolicitante->id,'finalizada' =>false]);
-        
+        event(new GenerateDocumentResolution($audiencia->id,$expediente->solicitud_id,4,4));
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado->id,]);
         $audiencia_parte_solicitado = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitado2->id,]);
         $audiencia_parte_solicitante = factory(AudienciaParte::class)->create(['audiencia_id'=>$audiencia->id,'parte_id' => $parteSolicitante->id,]);
