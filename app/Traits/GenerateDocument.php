@@ -340,9 +340,9 @@ trait GenerateDocument
                     // $objeto = $model_name::with('conciliador')->findOrFail(1);
                     $audiencias = $model_name::where('expediente_id',$expedienteId)->get();
                     if($idConciliador != null){
-                      $conciliadorId = $audiencias[0]->conciliador_id;
-                    }else{
                       $conciliadorId = $idConciliador;
+                    }else{
+                      $conciliadorId = $audiencias[0]->conciliador_id;
                     }
                     $objeto = new JsonResponse($audiencias);
                     $audiencias = json_decode($objeto->content(),true);
