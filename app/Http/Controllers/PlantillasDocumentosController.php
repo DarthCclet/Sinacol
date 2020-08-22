@@ -471,7 +471,7 @@ class PlantillasDocumentosController extends Controller
                       // dd($parteId);
                       $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
                       if($parte['tipo_parte_id'] == 1 ){//Solicitante
-                        //datos laborales del solicitante
+                        //datos laborales del solicitante            
                         $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                         // dd($datoLaboral);
                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
@@ -485,11 +485,13 @@ class PlantillasDocumentosController extends Controller
                         //representante legal solicitado
                         $representanteLegal = Parte::where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
                         // dd($representanteLegal);
-                        $objeto = new JsonResponse($representanteLegal);
-                        $representanteLegal = json_decode($objeto->content(),true);
-                        $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);
-                        // dd($representanteLegal);
-                        $parte['representante_legal'] = $representanteLegal;
+                        if(count($representanteLegal) > 0){
+                          $objeto = new JsonResponse($representanteLegal);
+                          $representanteLegal = json_decode($objeto->content(),true);
+                          $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);
+                          // dd($representanteLegal);
+                          $parte['representante_legal'] = $representanteLegal;
+                        }
                         $countSolicitado += 1;
                         // array_push($parte2, $parte);
                         array_push($parte2, $parte);
