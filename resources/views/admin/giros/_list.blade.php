@@ -114,19 +114,21 @@
 <script>
     $("#filterGiros").select2({
         ajax: {
-            url: '/api/giros_comerciales/filtrarGirosComerciales',
+            url: '/externo/giros_comerciales/filtrarGirosComerciales',
             type:"POST",
             dataType:"json",
-            delay: 400,
+            delay: 700,
             async:false,
             data:function (params) {
                 $("#term").val(params.term);
                 var data = {
-                    nombre: params.term
+                    nombre: params.term,
+                    _token:"{{ csrf_token() }}"
                 }
                 return data;
             },
             processResults:function(json){
+                try{
                 $.each(json.data, function (key, node) {
                     var html = '';
                     html += '<table>';
@@ -146,6 +148,9 @@
                 return {
                     results: json.data
                 };
+                }catch(error){
+                    console.log(error);
+                }
             }
             // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
         },
@@ -155,7 +160,6 @@
         templateResult: function(data) {
             return data.html;
         },templateSelection: function(data) {
-            console.log(data);
             if(data.id != ""){
                 return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
             }
