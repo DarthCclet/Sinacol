@@ -22,7 +22,7 @@ class GeneroController extends Controller
         //$generos = Genero::all();
         $generos = Genero::paginate($this->request->get('per_page', 10));
         if ($this->request->wantsJson()) {
-            return $this->sendResponse($generos, 'SUCCESS');
+            return $generos;
         }
         return view('catalogos.generos.index', compact('generos'));
     }
