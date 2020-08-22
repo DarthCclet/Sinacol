@@ -83,6 +83,9 @@ class AudienciaController extends Controller
                     $audiencias->where('fecha_audiencia',">=",$date)->orderBy('fecha_audiencia','asc');
                 }
             }
+            if($this->request->get('expediente_id') != ""){
+                $audiencias->where('expediente_id',"=",$this->request->get('expediente_id'))->orderBy('fecha_audiencia','asc');
+            }
             if($this->request->get('IsDatatableScroll')){
                 $audiencias = $audiencias->with('conciliador.persona');
                 $audiencias = $audiencias->take($length)->skip($start)->get();
@@ -108,7 +111,7 @@ class AudienciaController extends Controller
                 return $this->sendResponseDatatable($total,$total,$draw,$audiencias, null);
             }
         }
-        return view('expediente.audiencias.index', compact('audiencias'));
+        return view('expediente.audiencias.index');
     }
 
     /**

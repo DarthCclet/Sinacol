@@ -11,7 +11,12 @@
     </thead>
 
 </table>
-
+@if(isset($audiencias))
+    <input type="hidden"  id="expediente_id" value="{{$audiencias[0]->expediente_id}}"  />
+@else
+    <input type="hidden"  id="expediente_id" value=""  />
+@endif
+@if(!isset($audiencias))
 <div id="divFilters" class="col-md-12 row" >
     <div class="col-md-4">
         <input class="form-control filtros" id="NoAudiencia" placeholder=" No. Audiencia" type="text" value="">
@@ -27,8 +32,8 @@
     <div class="col-md-4">
         <button class="btn btn-danger" type="button" id="limpiarFiltros" > <i class="fa fa-eraser"></i> Limpiar filtros</button>
     </div>
-
 </div>
+@endif
 
 @push('scripts')
   <script>
@@ -51,6 +56,7 @@
                         d.fechaAudiencia = dateFormat($("#fechaAudiencia").val(),1),
                         d.NoAudiencia = $("#NoAudiencia").val(),
                         d.estatus_audiencia = $("#estatus_audiencia").val(),
+                        d.expediente_id = $("#expediente_id").val(),
                         d.IsDatatableScroll = true,
                         d.loadPartes = true
                         // d.objeto_solicitud_id = $("#objeto_solicitud_id").val()

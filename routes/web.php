@@ -141,6 +141,7 @@ Route::Get('partes/representante/{id}','ParteController@GetRepresentanteLegal');
 Route::post('solicitar_acceso','BuzonController@SolicitarAcceso')->name('solicitar_acceso2');
 Route::get('buzon','BuzonController@BuzonElectronico')->name('buzon');
 Route::get('validar_token/{token}/{correo}','BuzonController@validar_token');
+Route::resource('etapa_resolucion_audiencia','EtapaResolucionAudienciaController');
 
 Auth::routes(['register' => false]);
 
