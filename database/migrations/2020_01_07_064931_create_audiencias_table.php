@@ -45,6 +45,8 @@ class CreateAudienciasTable extends Migration
             // convenio de la resolucion
             $table->mediumText('convenio')->nullable()->comment('Convenio de la audiencia');
             $table->boolean('finalizada')->default(false)->comment('indicador de finalizacion de audiencia');
+            $table->boolean('solictud_cancelcacion')->default(false)->comment('Indicador de una solicitud de cancelación de una parte');
+            $table->boolean('cancelacion_atendida')->default(false)->comment('Indicador de la atencion de solicitud de cancelación de una parte');
             $table->softDeletes()->comment('Indica la fecha y hora en que el registro se borra logicamente.');
             $table->timestamps();
         });

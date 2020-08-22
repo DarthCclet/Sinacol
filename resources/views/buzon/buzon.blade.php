@@ -1,5 +1,6 @@
 @extends('layouts.defaultBuzon')
 @include('includes.component.datatables')
+@include('includes.component.pickers')
 @section('content')
 
 <div class="col-xl-12">
@@ -18,7 +19,13 @@
                 <div class="card-body">
                     <ul>
                         <li>Ratificacion:
-                            <button class="btn btn-primary pull-right" style="display:hidden;" id="btnCancelarAudiencia">Cancelar </button>
+                            @if($solicitud->expediente != null)
+                                @if(count($solicitud->expediente->audiencia) > 0)
+                                    @if(!$solicitud->expediente->audiencia[0]->solictud_cancelcacion && !$solicitud->expediente->audiencia[0]->finalizada)
+                                    <button class="btn btn-primary pull-right" style="display:hidden;" id="btnCancelarAudiencia">Cancelar </button>
+                                    @endif
+                                @endif
+                            @endif
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
                                     <td class="text-nowrap"><strong>Fecha de Solicitud:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_solicitud)->format('d/m/Y')}}</td>
@@ -30,23 +37,23 @@
                                 <tr>
                                     <td class="text-nowrap" colspan="5" align="center"><strong>Partes citadas</strong></td>
                                 </tr>
+                                @foreach($solicitud->partes as $parte)
+                                @if($parte->tipo_parte_id == 2)
                                 <tr>
                                     <td class="text-nowrap" colspan="3">
                                         <br>
-                                        @foreach($solicitud->partes as $parte)
-                                            @if($parte->tipo_parte_id == 2)
                                                 @if($parte->tipo_persona_id == 1)
                                                 - {{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}
                                                 @else
                                                 - {{$parte->nombre_comercial}}
                                                 @endif
-                                            @endif
-                                        @endforeach
                                     </td>
                                     <td class="text-nowrap" colspan="2">
-                                        <button class="btn btn-primary">Verificar Ubicación</button>
+                                        <button class="btn btn-primary" onclick="cambiarDomicilio({{$parte->id}})">Verificar Ubicación</button>
                                     </td>
                                 </tr>
+                                @endif
+                                @endforeach
                                 <tr>
                                     <td class="text-nowrap" colspan="5">
                                         Documentos:<br>
@@ -141,6 +148,8 @@
                 <h2 class="modal-title">Cancelación</h2>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
+            <form id="fileupload" action="/api/buzon/uploadJustificante" method="POST" enctype="multipart/form-data">
+                @csrf
             <div class="modal-body" id="domicilio-form">
                 <div class="row">
                     <div class="col-md-12">
@@ -155,11 +164,10 @@
                     </div>
                     <div class="col-md-2">
                     </div>
-                    @if($solicitud->expediente != null)
-                    @if(count($solicitud->expediente->audiencia) > 0)
-                    
-                    <form id="fileupload" action="/api/uploadJustificante" method="POST" enctype="multipart/form-data">
-                        <input type="text" name="audiencia_id" value="{{$solicitud->expediente->audiencia[0]->id}}">
+                    <div class="col-md-10 form-group" >
+                    @if($solicitudes[0]->expediente != null)
+                    @if(count($solicitudes[0]->expediente->audiencia) > 0)
+                        <input type="hidden" name="audiencia_id" value="{{$solicitud->expediente->audiencia[0]->id}}">
                         <div class="col-md-8">
                             <div class="form-group">
                                 <label for="justificante" class="control-label">Justificante</label>
@@ -167,22 +175,44 @@
                                 <p class="help-block">Selecciona el documento que servirá para evaluar la cancelación</p>
                             </div>
                         </div>
-                    </form>
                     @endif
                     @endif
+                    </div>
                     <div class="col-md-2">
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button type="submit" class="btn btn-primary btn-sm m-l-5" ><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+ <div class="modal" id="modal-domicilio" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Domicilio</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body" id="domicilio-form">
+                <input type="hidden" id="domicilio_edit">
+                @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"false", 'instancia' => 2])
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="domicilioObj2.limpiarDomicilios()"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" onclick="agregarDomicilio()"><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-primary btn-sm m-l-5" onclick="guardarDomicilio()"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<input type="hidden" id="parte_idHDD">
 @endsection
 @push('scripts')
 <script type="text/javascript">
@@ -303,6 +333,49 @@
         $("#btnCancelarAudiencia").on("click",function(){
             $("#modal-cancelar").modal('show');
         });
+        function cambiarDomicilio(id){
+            $.ajax({
+                url:"/api/getDomicilioParte/"+id,
+                type:"GET",
+                dataType:"json",
+                success:function(data){
+                    if(data != null && data != ""){
+                        domicilioObj2.cargarDomicilio(data);
+                        $("#parte_idHDD").val(id);
+                        $("#modal-domicilio").modal("show");
+                    }
+                }
+            });
+        }
+        function guardarDomicilio(id){
+            if($("#estado_idsolicitado").val() != "" && $("#municipiosolicitado").val() != "" && $("#cpsolicitado").val() != "" && $("#tipo_asentamiento_idsolicitado").val() != "" && $("#asentamientosolicitado").val() != "" && $("#tipo_vialidad_idsolicitado").val() != "" && $("#vialidadsolicitado").val() != "" && $("#num_extsolicitado").val() != ""){
+                $.ajax({
+                    url:"/api/cambiarDomicilioParte",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        domicilio:domicilioObj2.getDomicilio(),
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            $('#modal-domicilio').modal('hide');
+                            domicilioObj2.limpiarDomicilios();
+                            swal({
+                                title: 'Exito',
+                                text: 'Se cambio el domicilio',
+                                icon: 'success'
+                            });
+                        }
+                    }
+                });
+            }else{
+                swal({
+                    title: 'Error',
+                    text: 'Es necesario llenar los campos obligatorios',
+                    icon: 'error'
+                });
+            }
+        }
     </script>
 @endpush
 

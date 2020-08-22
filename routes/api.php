@@ -111,7 +111,10 @@ Route::post('solicitar_acceso','BuzonController@SolicitarAcceso')->name('solicit
 
 
 Route::post('upload', 'DocumentoController@uploadSubmit');
+Route::post('buzon/uploadJustificante', 'AudienciaController@uploadJustificante');
 Route::post('documentoAudiencia', 'DocumentoController@postAudiencia');
+Route::get('getDomicilioParte/{id}', 'ParteController@getDomicilioParte');
+Route::post('cambiarDomicilioParte', 'ParteController@cambiarDomicilioParte');
 
 
 Route::middleware(['auth'])->group(function () {

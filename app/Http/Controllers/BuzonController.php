@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Parte;
 use App\Solicitud;
 use App\User;
+use App\Municipio;
 use App\Expediente;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
@@ -83,7 +84,11 @@ class BuzonController extends Controller
                             $solicitudes[]=$solicitud;
                         }
                     }
-                    return view("buzon.buzon", compact('solicitudes'));
+                    $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
+                    $estados = $this->cacheModel('estados',Estado::class);
+                    $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
+                    $municipios = array_pluck(Municipio::all(),'municipio','id');
+                    return view("buzon.buzon", compact('solicitudes','tipos_asentamientos','estados','tipos_vialidades','municipios'));
                 }else{
                     return view("buzon.solicitud")->with("Error","Correo del que ingresas no coincide con el token");
                 }
@@ -154,5 +159,21 @@ class BuzonController extends Controller
         }
         return $audits;
      }
+     /**
+     * Función para almacenar catalogos (nombre,id) en cache
+     *
+     * @param [string] $nombre
+     * @param [Model] $modelo
+     * @return void
+     */
+    private function cacheModel($nombre,$modelo,$campo = 'nombre' ){
+        if (!Cache::has($nombre)) {
+            $respuesta = array_pluck($modelo::all(),$campo,'id');
+            Cache::forever($nombre, $respuesta);
+        } else {
+            $respuesta = Cache::get($nombre);
+        }
+        return $respuesta;
+    }
     
 }
