@@ -114,7 +114,7 @@
 <script>
     $("#filterGiros").select2({
         ajax: {
-            url: '/externo/giros_comerciales/filtrarGirosComerciales',
+            url: '/giros_comerciales/filtrarGirosComerciales',
             type:"POST",
             dataType:"json",
             delay: 700,
