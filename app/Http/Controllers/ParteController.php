@@ -8,6 +8,7 @@ use App\Contacto;
 use App\TipoContacto;
 use App\AudienciaParte;
 use App\DatoLaboral;
+use App\Domicilio;
 use App\Filters\ParteFilter;
 use Validator;
 
@@ -328,5 +329,16 @@ class ParteController extends Controller
             $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
         }
         return $representante->contactos;
+    }
+    public function getDomicilioParte(){
+        $parte = Parte::find($this->request->id);
+        return $parte->domicilios[0];
+    }
+    public function cambiarDomicilioParte(){
+        $domicilio = Domicilio::find($this->request->domicilio["id"]);
+        $dom =(array) $this->request->domicilio;
+        unset($dom["activo"]);
+        $domicilio->update($dom);
+        return $domicilio;
     }
 }

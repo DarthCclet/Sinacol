@@ -26,11 +26,13 @@ use App\GiroComercial;
 use App\Jornada;
 use App\Ocupacion;
 use App\Periodicidad;
+use App\ClasificacionArchivo;
 use App\ResolucionParteConcepto;
 use App\Traits\ValidateRange;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AudienciaController extends Controller
 {
@@ -39,7 +41,9 @@ class AudienciaController extends Controller
 
     public function __construct(Request $request)
     {
-        $this->middleware('auth');
+        if(!$request->is("*buzon/*")){
+            $this->middleware('auth');
+        }
         $this->request = $request;
     }
     /**
@@ -838,6 +842,44 @@ class AudienciaController extends Controller
         return $comparecientes;
     }
     
+    public function uploadJustificante(Request $request){
+        DB::beginTransaction();
+        try{
+            $audiencia = Audiencia::find($request->audiencia_id);
+            $audiencia->update(["solictud_cancelcacion" => true]);
+            $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$request->audiencia_id;
+            Storage::makeDirectory($directorio);
+            $archivo = $request->file('justificante');
+            $tipoArchivo = ClasificacionArchivo::find(7);
+//            DB::rollback();
+//            dd($archivos);
+//            foreach($archivos as $archivo) {
+                $path = $archivo->store($directorio);
+                $audiencia->documentos()->create([
+                    "nombre" => str_replace($directorio."/", '',$path),
+                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                    "descripcion" => "Justificante ".$tipoArchivo->nombre,
+                    "ruta" => $path,
+                    "tipo_almacen" => "local",
+                    "uri" => $path,
+                    "longitud" => round(Storage::size($path) / 1024, 2),
+                    "firmado" => "false",
+                    "clasificacion_archivo_id" => 7 ,
+                ]);
+//            }
+            DB::commit();
+            return redirect()->back()->with('success', 'Se solicitó la cancelación');
+        } catch (\Throwable $e) {
+            dd($e);
+            DB::rollback();
+            if ($this->request->wantsJson()) {
+                return $this->sendError('Error');
+            }
+            return redirect()->back()->with('error', 'No se pudo solicitar la cancelación');
+        }
+        
+    }
+    
      /**
      * Función para almacenar catalogos (nombre,id) en cache
      *
@@ -854,8 +896,4 @@ class AudienciaController extends Controller
         }
         return $respuesta;
     }
-    
-    
-    
-    
 }
