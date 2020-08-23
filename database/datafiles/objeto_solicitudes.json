@@ -10,29 +10,21 @@
         },
         {
             "id": "3",
-            "nombre": "Rescisión de parte del trabajador"
+            "nombre": "Rescisión de la relación de trabajo"
         },
         {
             "id": "4",
-            "nombre": "Rescisión de parte del patrón"
+            "nombre": "Derecho de preferencia"
         },
         {
             "id": "5",
-            "nombre": "Descuento de salario"
+            "nombre": "Derecho de antigüedad"
         },
         {
             "id": "6",
-            "nombre": "Disciplina"
-        },
-        {
-            "id": "7",
-            "nombre": "Reconocimiento de Antiguedad"
-        },
-        {
-            "id": "8",
-            "nombre": "Derecho de preferencia"
+            "nombre": "Derecho de ascenso"
         }
 
     ],
-    "numReg": 8
+    "numReg": 6
 }

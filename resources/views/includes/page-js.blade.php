@@ -176,6 +176,20 @@ function Edad(FechaNacimiento) {
         }
     })(jQuery);
 $(".numero").limitKeyPress('1234567890.');
+    function countPalabras(e){
+        var texto = e.value;
+        var primerBlanco = /^ /;
+        var ultimoBlanco = / $/;
+         var variosBlancos = /[ ]+/g;
+        texto = texto.replace (variosBlancos," ");
+        texto = texto.replace (primerBlanco,"");
+        texto = texto.replace (ultimoBlanco,"");
+        textoTroceado = texto.split(texto, " ");
+        numeroPalabras = textoTroceado.length;
+        textoAreaDividido = texto.split(" ");
+        numeroPalabras = textoAreaDividido.length;
+        return numeroPalabras;
+    }
     function dateFormat(fecha,tipo = 1){
         if(fecha != "" && fecha != null){
             if(tipo == 1){

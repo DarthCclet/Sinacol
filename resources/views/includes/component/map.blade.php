@@ -33,7 +33,7 @@
 </style>
 <div class="col-md-12 mt-4 row">
 	<div class="col-md-12">
-        <h4>Domicilios</h4>
+        <h4>Domicilio</h4>
 
         <hr class="red">
 	</div>
@@ -45,11 +45,17 @@
     <input type="hidden" id="tipo_vialidad{{$identificador}}" value="{{isset($domicilio->tipo_vialidad) ? $domicilio->tipo_vialidad : '' }}" name="domicilio[tipo_vialidad]">
     <input type="hidden" id="tipo_asentamiento{{$identificador}}" value="{{isset($domicilio->tipo_asentamiento) ? $domicilio->tipo_asentamiento : '' }}" name="domicilio[tipo_asentamiento]">
     <input type="hidden" id="estado{{$identificador}}" value="{{isset($domicilio->estado) ? $domicilio->estado : '' }}" name="domicilio[estado]">
+    <div class="col-md-4 " title="Especifica si se llama calle, avenida, andador, etc." data-toggle="tooltip" data-placement="top" >
+        {!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , isset($domicilio->tipo_vialidad_id) ? $domicilio->tipo_vialidad_id : 0, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
+        {!! $errors->first('domicilio[tipo_vialidad_id]', '<span class=text-danger>:message</span>') !!}
+        <p class="help-block needed">Tipo de vialidad</p>
+    </div>
+    
     <div class="col-md-4">
         {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[vialidad]" id="vialidad{{$identificador}}" placeholder="Vialidad" required type="text" value=""> --}}
         {!! Form::text('domicilio[vialidad]', isset($domicilio->vialidad) ? $domicilio->vialidad : null, ['id'=>'vialidad'.$identificador,'required', 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Calle']) !!}
         {!! $errors->first('domicilio[vialidad]', '<span class=text-danger>:message</span>') !!}
-        <p class="help-block needed">Calle (vialidad)</p>
+        <p class="help-block needed">Nombre de la calle</p>
     </div>
     <div class="col-md-4">
         {{-- <input class="form-control numero direccionUpd{{$identificador}}" name="domicilio[num_ext]" id="num_ext{{$identificador}}" placeholder="Num Exterior" required type="text" value=""> --}}
@@ -63,16 +69,12 @@
         {!! $errors->first('domicilio[num_int]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block">Número interior</p>
     </div>
-    <div class="col-md-12">
+    <div class="col-md-12" title="Escriba el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Se escoges la correcta se autollenan los siguientes campos." data-toggle="tooltip" data-placement="top">
         <select name="autocomplete{{$identificador}}" placeholder="Seleccione" id="autocomplete{{$identificador}}" class="form-control"></select>
         <input type="hidden" id="term{{$identificador}}">
-        <p class="help-block needed">Escriba la colonia correspondiente y seleccione la opción correcta o más cercana.</p>
+        <p class="help-block needed">Escriba el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Se escoges la correcta se autollenan los siguientes campos.</p>
     </div>
-    <div class="col-md-4"   >
-        {!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , isset($domicilio->tipo_vialidad_id) ? $domicilio->tipo_vialidad_id : 0, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
-        {!! $errors->first('domicilio[tipo_vialidad_id]', '<span class=text-danger>:message</span>') !!}
-        <p class="help-block needed">Tipo de vialidad</p>
-    </div>
+    
     <div class="col-md-4">
         {!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
         {!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}

@@ -9,4 +9,5 @@ class TipoParte extends Model
 {
     use SoftDeletes;
     public $incrementing = false;
+    protected $guarded = ['id','updated_at','created_at'];
 }

@@ -306,7 +306,7 @@
 
 
 <!--inicio modal para propuesta convenio-->
-<div class="modal" id="modal-propuesta-convenio" aria-hidden="true" style="display:none;">
+<div class="modal" id="modal-propuesta-convenio" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -386,7 +386,7 @@
 </div>
 <!--Fin de modal propuesta convenio-->
 <!--inicio modal para representante legal-->
-<div class="modal" id="modal-representante" aria-hidden="true" style="display:none;">
+<div class="modal" id="modal-representante" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -513,7 +513,7 @@
 </div>
 <!--Fin de modal de representante legal-->
 <!--inicio modal para representante legal-->
-<div class="modal" id="modal-dato-laboral" aria-hidden="true" style="display:none;">
+<div class="modal" id="modal-dato-laboral" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -605,7 +605,7 @@
 </div>
 <!--Fin de modal de representante legal-->
 <!-- Inicio Modal de comparecientes y resolución individual-->
-<div class="modal" id="modal-comparecientes" style="display:none;">
+<div class="modal" id="modal-comparecientes" data-backdrop="static" data-keyboard="false" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -638,7 +638,7 @@
         </div>
     </div>
 </div>
-<div class="modal" id="modal-relaciones" style="display:none;">
+<div class="modal" id="modal-relaciones" data-backdrop="static" data-keyboard="false" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -756,18 +756,24 @@
         cargarTipoContactos();
     });
     function nextStep(pasoActual){
-        var siguiente = pasoActual+1;
-        $("#icon"+pasoActual).css("background","lightgreen");
-        $('html,body').animate({
-            scrollTop: $("#contentStep"+pasoActual).offset().top
-        }, 'slow');
-        $("#step"+siguiente).show();
-        guardarEvidenciaEtapa(pasoActual);
+        var success = guardarEvidenciaEtapa(pasoActual);
+        if(success){
+
+            var siguiente = pasoActual+1;
+            $("#icon"+pasoActual).css("background","lightgreen");
+            $('html,body').animate({
+                scrollTop: $("#contentStep"+pasoActual).offset().top
+            }, 'slow');
+            $("#step"+siguiente).show();
+        }else{
+            swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
+        }
     }
 
     function guardarEvidenciaEtapa(etapa){
+        var respuesta = true;
         $.ajax({
-            url:'/api/etapa_resolucion_audiencia',
+            url:'/etapa_resolucion_audiencia',
             type:"POST",
             dataType:"json",
             async:false,
@@ -775,18 +781,25 @@
                 etapa_resolucion_id:etapa,
                 audiencia_id:$("#audiencia_id").val(),
                 evidencia: $("#evidencia"+etapa).val(),
-                elementos_adicionales: $('#switchAdicionales').is(':checked')
+                elementos_adicionales: $('#switchAdicionales').is(':checked'),
+                _token:"{{ csrf_token() }}"
             },
             success:function(data){
                 try{
-
+                    respuesta = true;
+                    
                     console.log(data.data.updated_at);
                     $(".showTime"+etapa).text(data.data.created_at);
                 }catch(error){
                     console.log(error);
                 }
+            },
+            error:function(error){
+                console.log(error);
+                respuesta = false;
             }
         });
+        return respuesta;
     }
     function getEtapasAudiencia(){
         $.ajax({
