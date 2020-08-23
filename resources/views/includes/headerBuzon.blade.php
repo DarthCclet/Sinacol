@@ -9,7 +9,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark" style="width: 100%;">
     <div class="navbar-header">
-        <a href="/" class="navbar-brand"><span class=""><img src="{{asset('https://registro.centropruebas.com/images/logo.png')}}" width="220px"></span></a>
+        <a href="/" class="navbar-brand"><span class=""><img src="{{asset('https://framework-gb.cdn.gob.mx/landing/img/logoheader.svg')}}" width="220px"></span></a>
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#subenlaces">
             <span class="sr-only">Interruptor de Navegación</span>
             <span class="icon-bar"></span>
@@ -26,6 +26,6 @@
 </div>
 @push('scripts')
 <script>
-    
+
 </script>
 @endpush

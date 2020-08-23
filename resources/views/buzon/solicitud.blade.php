@@ -9,8 +9,8 @@
             <div class="login-header" align="center">
                 <div class="brand">
                     <span>
-                        <img src="https://registro.centropruebas.com/images/logo.png" width="220px">
-                    </span> 
+                        <img src="https://framework-gb.cdn.gob.mx/landing/img/logoheader.svg" width="220px">
+                    </span>
                     <small>Acceso al Buzón electrónico</small>
                 </div>
             </div>
@@ -18,7 +18,7 @@
             <!-- begin login-content -->
             <div class="login-content">
                     <div class="checkbox checkbox-css m-b-20">
-                        <input type="checkbox" id="remember_checkbox" /> 
+                        <input type="checkbox" id="remember_checkbox" />
                         <label for="remember_checkbox">
                             Persona Moral
                         </label>

@@ -36,8 +36,8 @@
             <div class="login-header" align="center" style="padding:10px;">
                 <div class="brand">
                     <span>
-                        <img src="https://registro.centropruebas.com/images/logo.png" width="220px">
-                    </span> 
+                        <img src="https://framework-gb.cdn.gob.mx/landing/img/logoheader.svg" width="220px">
+                    </span>
                 </div>
             </div>
             <!-- end brand -->
@@ -61,13 +61,13 @@
                 </center>
                 <p>
                     <small>
-                        En caso de no poder ver el mensaje de forma correcta Copia y pega la siguiente liga en tu navegador: 
+                        En caso de no poder ver el mensaje de forma correcta Copia y pega la siguiente liga en tu navegador:
                         <a href="{{$liga}}">{{$liga}}</a>
                     </small>
                 </p>
             </div>
             <!-- end login-content -->
         </div>
-        
+
     </body>
 </html>
