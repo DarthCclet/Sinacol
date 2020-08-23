@@ -134,7 +134,7 @@
                             <div id="editandoSolicitante"></div>
                         </div>
                         <div id="divSolicitante">
-                            <div id="datosIdentificacion">
+                            <div id="datosIdentificacionSolicitante" data-parsley-validate="true">
                                 <div class="col-md-12 mt-4">
                                     <h4>Datos de identificaci&oacute;n</h4>
                                     <hr class="red">
@@ -155,7 +155,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-8 personaFisicaSolicitanteNO">
-                                    <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" autofocus="" type="text" value="">
+                                    <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" required onblur="validaCURP(this.value);" autofocus="" type="text" value="">
                                     <p class="help-block needed">CURP del solicitante</p>
                                 </div>
                                 <div class="col-md-12 row">
@@ -226,6 +226,9 @@
                                         <p class="help-block needed">Lengua Indigena</p>
                                     </div>
                                 </div>
+                                <div  class="col-md-12 pasoSolicitante" id="continuar1">
+                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(1)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
+                                </div>
                             </div>
                             {{-- <div class="col-md-12 row">
                                 <div class="col-md-4 personaFisicaSolicitanteNO">
@@ -240,7 +243,7 @@
                                 </div>
                             </div> --}}
                             {{-- Seccion de contactos solicitantes --}}
-                            <div class="col-md-12 row">
+                            <div id="divContactoSolicitante" data-parsley-validate="true" style="display:none" class="col-md-12 row">
                                 <div class="col-md-12 mt-4">
                                     <h4>Contacto</h4>
                                     <hr class="red">
@@ -271,33 +274,44 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                <div  class="col-md-12 pasoSolicitante" id="continuar2">
+                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(2)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
+                                </div>
                             </div>
                             {{-- end seccion de contactos solicitados --}}
                             <!-- seccion de domicilios solicitante -->
-
-                            @include('includes.component.map',['identificador' => 'solicitante','needsMaps'=>"false", 'instancia' => '1'])
+                            <div id="divMapaSolicitante" data-parsley-validate="true" style="display:none">
+                                @include('includes.component.map',['identificador' => 'solicitante','needsMaps'=>"false", 'instancia' => '1'])
+                                <div class="col-md-12 pasoSolicitante"id="continuar3">
+                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(3)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
+                                </div>
+                            </div>
 
                             <!-- end seccion de domicilios solicitante -->
                             <!-- Seccion de Datos laborales -->
-                            <div class="col-md-12 row">
+                            <div id="divDatoLaboralSolicitante" data-parsley-validate="true" style="display:none" class="col-md-12 row">
                                 <div class="col-md-12 mt-4">
                                     <h4>Datos Laborales</h4>
                                     <hr class="red">
                                 </div>
                                 <input type="hidden" id="dato_laboral_id">
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <input class="form-control" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
                                     <p class="help-block">Nombre del Jefe directo</p>
                                 </div>
+                                <div class="col-md-6">
+                                    <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
+                                    <p class="help-block ">N&uacute;mero de seguro social</p>
+                                </div>
                                 <div class="col-md-12 row">
                                     <div class="col-md-4">
-                                        {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block needed">&iquest;Cuenta con salario minimo profesional?</p>
+                                        <input class="form-control" id="puesto" placeholder="Puesto" type="text" value="">
+                                        <p class="help-block ">Puesto</p>
                                     </div>
-                                    <div class="col-md-4">
-                                        <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
-                                        <p class="help-block ">N&uacute;mero de seguro social</p>
+                                    <div class="col-md-4" >
+                                        {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block ">&iquest;Tiene un salario mínimo distinto al general? En ese caso escoja del cat&aacute;logo</p>
                                     </div>
                                     {{-- <div class="col-md-4">
                                         <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
@@ -342,10 +356,13 @@
                                     {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Jornada</p>
                                 </div>
+                                <div  class="col-md-12 pasoSolicitante" id="continuar4">
+                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(4)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
+                                </div>
                             </div>
                             <!-- end Seccion de Datos laborales -->
                             <hr style="margin-top:5%;">
-                            <div>
+                            <div id="divBotonesSolicitante" style="display:none">
                                 <button class="btn btn-primary" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Agregar solicitante</button>
                                 <button class="btn btn-danger" type="button" onclick="limpiarSolicitante()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
                             </div>
@@ -383,149 +400,165 @@
                             <div id="editandoSolicitado"></div>
                         </div>
                         <div  id="divSolicitado">
-                            <div style="margin-left:5%; margin-bottom:3%; ">
-                                <label>Tipo Persona</label>
-                                <input type="hidden" id="solicitado_id">
-                                <input type="hidden" id="solicitado_key">
-                                <div class="row">
-                                    <div class="radio radio-css radio-inline">
-                                        <input checked="checked" name="tipo_persona_solicitado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
-                                        <label for="tipo_persona_fisica_solicitado">Física</label>
-                                    </div>
-                                    <div class="radio radio-css radio-inline">
-                                        <input name="tipo_persona_solicitado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
-                                        <label for="tipo_persona_moral_solicitado">Moral</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-8 personaFisicaSolicitadoNO">
-                                <input class="form-control upper" id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del citado" type="text" value="">
-                                <p class="help-block">CURP del citado</p>
-                            </div>
-                            <div class="col-md-12 row">
-                                <div class="col-md-4" style="display:none;">
-                                    <input class="form-control" id="idsolicitado" type="text" value="253">
-                                </div>
-                                <div class="col-md-4 personaFisicaSolicitado">
-                                    <input class="form-control" required id="idNombreSolicitado" placeholder="Nombre del citado" type="text" value="">
-                                    <p class="help-block needed">Nombre del citado</p>
-                                </div>
-                                <div class="col-md-4 personaFisicaSolicitado">
-                                    <input class="form-control" required id="idPrimerASolicitado" placeholder="Primer apellido del citado" type="text" value="">
+                            <div id="datosIdentificacionSolicitado" data-parsley-validate="true">
 
-                                    <p class="help-block needed">Primer apellido</p>
-                                </div>
-                                <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    <input class="form-control" id="idSegundoASolicitado" placeholder="Segundo apellido del citado" type="text" value="">
-
-                                    <p class="help-block">Segundo apellido</p>
-                                </div>
-                                <div class="col-md-8 personaMoralSolicitado">
-                                    <input class="form-control" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del citado" type="text" value="">
-                                    <p class="help-block needed">Raz&oacute;n Social</p>
-                                </div>
-                                <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del citado" type="text" value="">
-                                    <p class="help-block">Fecha de nacimiento</p>
-                                </div>
-                                <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    <input class="form-control numero" disabled id="idEdadSolicitado" placeholder="Edad del citado" type="text" value="">
-                                    <p class="help-block">Edad del citado</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control upper" id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del citado" type="text" value="">
-                                    <p class="help-block">RFC del citado</p>
-                                </div>
-                                <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block">Género</p>
-                                </div>
-                                <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('nacionalidad_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block">Nacionalidad</p>
-                                </div>
-                                <div class="col-md-4 personaFisicaSolicitadoNO">
-                                    {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block">Estado de nacimiento</p>
-                                </div>
-                            </div>
-                            <div class="col-md-12 row personaFisicaSolicitadoNO">
-                                <div class="col-md-4">
-                                    <div  >
-                                        <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
-                                    </div>
-                                    <div >
-                                        <input type="hidden" />
-                                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitado" name='solicita_traductor_solicitado'/>
+                                <div style="margin-left:5%; margin-bottom:3%; ">
+                                    <label>Tipo Persona</label>
+                                    <input type="hidden" id="solicitado_id">
+                                    <input type="hidden" id="solicitado_key">
+                                    <div class="row">
+                                        <div class="radio radio-css radio-inline">
+                                            <input checked="checked" name="tipo_persona_solicitado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
+                                            <label for="tipo_persona_fisica_solicitado">Física</label>
+                                        </div>
+                                        <div class="radio radio-css radio-inline">
+                                            <input name="tipo_persona_solicitado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
+                                            <label for="tipo_persona_moral_solicitado">Moral</label>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
-                                    {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Lengua Indigena</p>
+                                <div class="col-md-8 personaFisicaSolicitadoNO">
+                                    <input class="form-control upper" id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del citado" type="text" value="">
+                                    <p class="help-block">CURP del citado</p>
+                                </div>
+                                <div class="col-md-12 row">
+                                    <div class="col-md-4" style="display:none;">
+                                        <input class="form-control" id="idsolicitado" type="text" value="253">
+                                    </div>
+                                    <div class="col-md-4 personaFisicaSolicitado">
+                                        <input class="form-control" required id="idNombreSolicitado" placeholder="Nombre del citado" type="text" value="">
+                                        <p class="help-block needed">Nombre del citado</p>
+                                    </div>
+                                    <div class="col-md-4 personaFisicaSolicitado">
+                                        <input class="form-control" required id="idPrimerASolicitado" placeholder="Primer apellido del citado" type="text" value="">
+                                        
+                                        <p class="help-block needed">Primer apellido</p>
+                                    </div>
+                                    <div class="col-md-4 personaFisicaSolicitadoNO">
+                                        <input class="form-control" id="idSegundoASolicitado" placeholder="Segundo apellido del citado" type="text" value="">
+                                        
+                                        <p class="help-block">Segundo apellido</p>
+                                    </div>
+                                    <div class="col-md-8 personaMoralSolicitado">
+                                        <input class="form-control" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del citado" type="text" value="">
+                                        <p class="help-block needed">Raz&oacute;n Social</p>
+                                    </div>
+                                    <div class="col-md-4 personaFisicaSolicitadoNO">
+                                        <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del citado" type="text" value="">
+                                        <p class="help-block">Fecha de nacimiento</p>
+                                    </div>
+                                    <div class="col-md-4 personaFisicaSolicitadoNO">
+                                        <input class="form-control numero" disabled id="idEdadSolicitado" placeholder="Edad del citado" type="text" value="">
+                                        <p class="help-block">Edad del citado</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input class="form-control upper" id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del citado" type="text" value="">
+                                        <p class="help-block">RFC del citado</p>
+                                    </div>
+                                    <div class="col-md-4 personaFisicaSolicitadoNO">
+                                        {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block">Género</p>
+                                    </div>
+                                    <div class="col-md-4 personaFisicaSolicitadoNO">
+                                        {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('nacionalidad_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block">Nacionalidad</p>
+                                    </div>
+                                    <div class="col-md-4 personaFisicaSolicitadoNO">
+                                        {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block">Estado de nacimiento</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 row personaFisicaSolicitadoNO">
+                                    <div class="col-md-4">
+                                        <div  >
+                                            <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
+                                        </div>
+                                        <div >
+                                            <input type="hidden" />
+                                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitado" name='solicita_traductor_solicitado'/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
+                                        {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block needed">Lengua Indigena</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 pasoSolicitado" id="continuarSolicitado1">
+                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(1)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
                                 </div>
                             </div>
                             {{-- Seccion de contactos solicitados --}}
-                            <div class="col-md-12 row">
-                                <div class="col-md-12 mt-4">
-                                    <h4>Contacto</h4>
-                                    <hr class="red">
+                            <div id="divContactoSolicitado" data-parsley-validate="true" style="display:none;">
+                                <div  class="col-md-12 row">
+                                    <div class="col-md-12 mt-4">
+                                        <h4>Contacto</h4>
+                                        <hr class="red">
+                                    </div>
+                                    <input type="hidden" id="contacto_id_solicitado">
+                                    <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona citada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
+                                    <div class="col-md-4">
+                                        {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block needed">Tipo de contacto</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input class="form-control" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
+                                        <p class="help-block needed">Contacto</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitado();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                                    </div>
                                 </div>
-                                <input type="hidden" id="contacto_id_solicitado">
-                                <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona citada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
-                                <div class="col-md-4">
-                                    {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Tipo de contacto</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
-                                    <p class="help-block needed">Contacto</p>
-                                </div>
-                                <div class="col-md-4">
-                                <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitado();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
-                                </div>
-                            </div>
-                            <div class="col-md-10 offset-md-1" >
-                                <table class="table table-bordered" >
-                                    <thead>
-                                        <tr>
-                                            <th style="width:80%;">Tipo</th>
-                                            <th style="width:80%;">Contacto</th>
-                                            <th style="width:20%; text-align: center;">Accion</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbodyContactoSolicitado">
-                                    </tbody>
-                                </table>
+                                    <div class="col-md-10 offset-md-1" >
+                                        <table class="table table-bordered" >
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:80%;">Tipo</th>
+                                                    <th style="width:80%;">Contacto</th>
+                                                    <th style="width:20%; text-align: center;">Accion</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyContactoSolicitado">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-12 pasoSolicitado" id="continuarSolicitado2">
+                                        <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(2)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
+                                    </div>
                             </div>
                             {{-- end seccion de contactos solicitados --}}
                             <!-- seccion de domicilios citado -->
-                            <div class="col-md-12 row">
-                                <div class="row">
-                                    <h4>Domicilio(s)</h4>
-                                    <hr class="red">
-                                    <a style="margin-left:1%;" onclick="$('#modal-domicilio').modal('show');"> <i style="font-size:large; color:#49b6d6;" class="fa fa-plus-circle"></i> Oprima + para llenar los datos del domicilio y visualizar el mapa</a>
+                            <div id="divMapaSolicitado" data-parsley-validate="true" style="display: none;">
+                                <div  class="col-md-12 row">
+                                    <div class="row">
+                                        <h4>Domicilio(s)</h4>
+                                        <hr class="red">
+                                        <a style="margin-left:1%;" onclick="$('#modal-domicilio').modal('show');"> <i style="font-size:large; color:#49b6d6;" class="fa fa-plus-circle"></i> Oprima + para llenar los datos del domicilio y visualizar el mapa</a>
+                                    </div>
+                                    <div class="col-md-10 offset-md-1" >
+                                        <table class="table table-bordered" >
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:80%;">Domicilio</th>
+                                                    <th style="width:20%; text-align: center;">Accion</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyDomicilioSolicitado">
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                                <div class="col-md-10 offset-md-1" >
-                                    <table class="table table-bordered" >
-                                        <thead>
-                                            <tr>
-                                                <th style="width:80%;">Domicilio</th>
-                                                <th style="width:20%; text-align: center;">Accion</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="tbodyDomicilioSolicitado">
-                                        </tbody>
-                                    </table>
+                                <div class="col-md-12 pasoSolicitado" id="continuarSolicitado3">
+                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(3)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
                                 </div>
                             </div>
-                            <!-- end seccion de domicilios citado -->
+                                <!-- end seccion de domicilios citado -->
                             <hr style="margin-top:5%;">
-                            <div>
+                            <div id="divBotonesSolicitado" style="display: none;">
                                 <button class="btn btn-primary" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Agregar citado</button>
                                 <button class="btn btn-danger" type="button" onclick="limpiarSolicitado()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
                             </div>
@@ -615,7 +648,7 @@
                                         <th style="width:15%; text-align: center;">Accion</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tbodySolicitado">
+                                <tbody id="tbodySolicitadoRevision">
                                 </tbody>
                             </table>
                         </div>
@@ -1187,6 +1220,7 @@
                     dato_laboral.id = $("#dato_laboral_id").val();
                     dato_laboral.nombre_jefe_directo = $("#nombre_jefe_directo").val();
                     dato_laboral.ocupacion_id = $("#ocupacion_id").val();
+                    dato_laboral.puesto = $("#puesto").val();
                     dato_laboral.nss = $("#nss").val();
                     dato_laboral.no_issste = "";//$("#no_issste").val();
                     dato_laboral.remuneracion = $("#remuneracion").val();
@@ -1222,6 +1256,12 @@
 
                     limpiarSolicitante();
                     formarTablaSolicitante();
+
+                    $('#divContactoSolicitante').hide();
+                    $('#divMapaSolicitante').hide();
+                    $('#divDatoLaboralSolicitante').hide();
+                    $('#divBotonesSolicitante').hide();
+                    $(".pasoSolicitante").show();
                 }
             }catch(error){
                 console.log(error);
@@ -1272,13 +1312,16 @@
                     limpiarSolicitado();
                     arrayDomiciliosSolicitado = [];
                     formarTablaDomiciliosSolicitado();
+                    $('#divContactoSolicitado').hide();
+                    $('#divMapaSolicitado').hide();
+                    $('#divBotonesSolicitado').hide();
+                    $(".pasoSolicitado").show();
                 }else{
                     swal({
-                    title: 'Error',
-                    text: 'Es necesario llenar todos los campos obligatorios y al menos una dirección del citado',
-                    icon: 'error',
-
-                });
+                        title: 'Error',
+                        text: 'Es necesario llenar todos los campos obligatorios y al menos una dirección del citado',
+                        icon: 'error',
+                    });
                 }
             }catch(error){
                 console.log(error);
@@ -1526,6 +1569,7 @@
             $("#idSolicitanteRfc").val("");
             $("#nombre_jefe_directo").val("");
             $("#ocupacion_id").val("");
+            $("#puesto").val("");
             $("#nss").val("");
             $("#no_issste").val("");
             $("#remuneracion").val("");
@@ -1599,6 +1643,29 @@
 
     function agregarContactoSolicitante(){
         if($("#contacto_solicitante").val() != "" && $("#tipo_contacto_id_solicitante").val() != ""){
+            var contactoVal = $("#contacto_solicitante").val();
+            if($("#tipo_contacto_id_solicitante").val() == 3){
+
+                if(!validateEmail(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El correo no tiene la estructura correcta',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+            }else{
+                if(!/^[0-9]{10}$/.test(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El contacto debe tener 10 digitos de tipo numero',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+            }
             var contacto = {};
             idContacto = $("#contacto_id_solicitante").val();
             contacto.id = idContacto;
@@ -1617,7 +1684,7 @@
         }else{
             swal({
                 title: 'Error',
-                text: 'Los campos Tipo de contact y Contacto son obligatorios',
+                text: 'Los campos Tipo de contacto y Contacto son obligatorios',
                 icon: 'error',
 
             });
@@ -1628,35 +1695,34 @@
         $("#tipo_contacto_id_solicitante").trigger('change');
         $("#contacto_solicitante").val("");
     }
-    $("#tipo_contacto_id_solicitado").change(function(){
-        $("#contacto_solicitado").val("");
-        if($(this).val() == 3){
-            $("#contacto_solicitado").addClass("email");
-            $("#contacto_solicitado").removeClass("numero");
-            $("#contacto_solicitado").removeClass("phone");
-        }else{
-            $("#contacto_solicitado").removeClass("email");
-            $("#contacto_solicitado").addClass("numero");
-            $("#contacto_solicitado").addClass("phone");
-            $(".numero").limitKeyPress('1234567890.');
-        }
-    });
-    $("#tipo_contacto_id_solicitante").change(function(){
-        $("#contacto_solicitante").val("");
-        if($(this).val() == 3){
-            $("#contacto_solicitante").addClass("email");
-            $("#contacto_solicitante").removeClass("numero");
-            $("#contacto_solicitante").removeClass("phone");
-        }else{
-            $("#contacto_solicitante").removeClass("email");
-            $("#contacto_solicitante").addClass("numero");
-            $("#contacto_solicitante").addClass("phone");
-            $(".numero").limitKeyPress('1234567890.');
-        }
-    });
+    
 
     function agregarContactoSolicitado(){
         if($("#contacto_solicitado").val() != "" && $("#tipo_contacto_id_solicitado").val() != ""){
+            var contactoVal = $("#contacto_solicitado").val();
+            if($("#tipo_contacto_id_solicitado").val() == 3){
+
+                if(!validateEmail(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El correo no tiene la estructura correcta',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+            }else{
+                if(!/^[0-9]{10}$/.test(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El contacto debe tener 10 digitos de tipo numero',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+            }
+
             var contacto = {};
             idContacto = $("#contacto_id_solicitado").val();
             contacto.id = idContacto;
@@ -1903,6 +1969,10 @@
     *@argument key posicion de array a editar
     */
     function cargarEditarSolicitante(key){
+        $('#divContactoSolicitante').show();
+        $('#divMapaSolicitante').show();
+        $('#divDatoLaboralSolicitante').show();
+        $('#divBotonesSolicitante').show();
         $("#paso1").click();
         $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Editar solicitante');
         $("#edit_key").val(key);
@@ -1953,6 +2023,7 @@
         // getGiroEditar("solicitante");
         $("#nombre_jefe_directo").val(arraySolicitantes[key].dato_laboral.nombre_jefe_directo);
         $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
+        $("#puesto").val(arraySolicitantes[key].dato_laboral.puesto);
         $("#nss").val(arraySolicitantes[key].dato_laboral.nss);
         $("#no_issste").val(arraySolicitantes[key].dato_laboral.no_issste);
         $("#remuneracion").val(arraySolicitantes[key].dato_laboral.remuneracion);
@@ -1978,6 +2049,9 @@
     *@argument key posicion de array a editar
     */
     function cargarEditarSolicitado(key){
+        $('#divContactoSolicitado').show();
+        $('#divMapaSolicitado').show();
+        $('#divBotonesSolicitado').show();
         $("#paso2").click();
         $("#agregarSolicitado").html('<i class="fa fa-edit"></i> Editar citado');
         $("#solicitado_key").val(key);
@@ -2103,7 +2177,7 @@
             //funcion para obtener informacion de la excepcion
             var excepcion = getExcepcion();
             //Se llama api para guardar solicitud
-            if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() < 200 ){
+            if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 ){
                 var upd = "";
                 if($("#solicitud_id").val() == ""){
                     method = "POST";
@@ -2162,7 +2236,7 @@
                     }
                 });
             }else{
-                if($("#countObservaciones").val() < 200){
+                if($("#countObservaciones").val() > 200){
                     swal({
                         title: 'Error',
                         text: 'La descripción de los hechos debe tener menos de 200 palabras',
@@ -2509,6 +2583,7 @@
         $(this).val(valor.toUpperCase());
     });
 
+    
 
 /**
 *  Aqui comienzan las funciones para carga de documentos de la solicitud
@@ -2653,6 +2728,81 @@
             $("#numeroPalabras").html("<span style='color:red'>"+numeroPalabras+"</span>");   
         }
     }
+    function pasoSolicitante(pasoActual){
+        switch (pasoActual) {
+            case 1:
+                if($('#datosIdentificacionSolicitante').parsley().validate()){
+                    $('#divContactoSolicitante').show();
+                    $('#continuar1').hide();
+                    
+                }
+                break;
+            case 2:
+                if(arrayContactoSolicitantes.length > 0){
+                    $('#divMapaSolicitante').show();
+                    $('#continuar2').hide();
+                }else{
+                    swal({
+                        title: 'Error',
+                        text: 'Es necesario capturar al menos un contacto para continuar',
+                        icon: 'error',
+                    });
+                }
+            break;
+            case 3:
+                if($('#divMapaSolicitante').parsley().validate()){
+                    $('#divDatoLaboralSolicitante').show();
+                    $('#continuar3').hide();
+                }
+            break;
+            case 4:
+                if($('#divDatoLaboralSolicitante').parsley().validate()){
+                    $('#divBotonesSolicitante').show();
+                    $('#continuar4').hide();
+                }
+            break;
+            default:
+                break;
+        }
+    }
+    function pasoSolicitado(pasoActual){
+        switch (pasoActual) {
+            case 1:
+                if($('#datosIdentificacionSolicitado').parsley().validate()){
+                    $('#divContactoSolicitado').show();
+                    $('#continuarSolicitado1').hide();
+                    
+                }
+                break;
+            case 2:
+                if(arrayContactoSolicitados.length > 0){
+                    $('#divMapaSolicitado').show();
+                    $('#continuarSolicitado2').hide();
+                }else{
+                    swal({
+                        title: 'Error',
+                        text: 'Es necesario capturar al menos un contacto para continuar',
+                        icon: 'error',
+                    });
+                }
+            break;
+            case 3:
+                if(arrayDomiciliosSolicitado.length > 0){
+                    $('#divBotonesSolicitado').show();
+                    $('#continuarSolicitado3').hide();
+                }else{
+                    swal({
+                        title: 'Error',
+                        text: 'Es necesario capturar al menos un domicilio del citado',
+                        icon: 'error',
+                    });
+                }
+            break;
+            default:
+                break;
+        }
+    }
+
     function calculateDivider() {
         var dividerValue = 4;
         if ($(this).width() <= 576) {

@@ -214,6 +214,12 @@ $(".numero").limitKeyPress('1234567890.');
             
         }
     }
+    function validateEmail(email){
+        if(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)){
+            return true;
+        }
+        return false;
+    }
 
 </script>
 <!-- ================== END BASE JS ================== -->
