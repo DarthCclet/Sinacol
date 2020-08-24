@@ -7,9 +7,6 @@
       color:darkred;
       content: " (*)";
    }
-    .upper{
-        text-transform: uppercase;
-    }
     .highlighted{
         background-color: #FFFF00;
         color: #000 !important;
@@ -20,6 +17,18 @@
     }
     .select2-results__options {
         max-height: 400px;
+    }
+    .wizard-steps li.active, .wizard-steps li.current, .wizard-steps li.success {
+        background-color: #9D2449;
+        color: #fff;
+        height: 70px !important;
+        top: 0;
+    }
+    .loading-results {
+        background-image: url('/assets/img/spinner.gif');
+        background-repeat: no-repeat;
+        padding-left: 10px;
+        background-position: 120px 50%;
     }
 
 </style>
@@ -57,7 +66,7 @@
             <a href="#step-4">
 
                 <span class="">
-                    Excepci&oacute;n 
+                    Excepci&oacute;n
                     <small>Casos de excepci&oacute;n de la conciliaci&oacute;n</small>
                 </span>
             </a>
@@ -93,7 +102,7 @@
                     <small>Documentos del expediente solicitud</small>
                 </span>
             </a>
-        </li> 
+        </li>
     </ul>
     <!-- end wizard-step -->
     <!-- begin wizard-content -->
@@ -105,7 +114,7 @@
                 <!-- begin row -->
                 <div class="row" id="form">
                     <div class="col-xl-10 offset-xl-1">
-                        
+
                         <div class="col-md-12 mt-4">
                             <h2>Datos generales de la solicitud</h2>
                             <hr class="red">
@@ -126,7 +135,7 @@
                             </div>
                         </div>
                         {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opción','style'=>'display:none;']);  !!}
-                        
+
                     </div>
                     <div class="col-xl-10 offset-xl-1">
                         <div>
@@ -155,7 +164,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-8 personaFisicaSolicitanteNO">
-                                    <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" required onblur="validaCURP(this.value);" autofocus="" type="text" value="">
+                                    <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" type="text" value="">
                                     <p class="help-block needed">CURP del solicitante</p>
                                 </div>
                                 <div class="col-md-12 row">
@@ -166,19 +175,19 @@
                                 <div class="col-md-12 row">
                                     <input class="form-control" id="idsolicitante" type="hidden" value="253">
                                     <div class="col-md-4 personaFisicaSolicitante">
-                                        <input class="form-control" id="idNombreSolicitante" required placeholder="Nombre del solicitante" type="text" value="">
+                                        <input class="form-control upper" id="idNombreSolicitante" required placeholder="Nombre del solicitante" type="text" value="">
                                         <p class="help-block needed">Nombre del solicitante</p>
                                     </div>
                                     <div class="col-md-4 personaFisicaSolicitante">
-                                        <input class="form-control" id="idPrimerASolicitante" required placeholder="Primer apellido del solicitante" type="text" value="">
+                                        <input class="form-control upper" id="idPrimerASolicitante" required placeholder="Primer apellido del solicitante" type="text" value="">
                                         <p class="help-block needed">Primer apellido</p>
                                     </div>
                                     <div class="col-md-4 personaFisicaSolicitanteNO">
-                                        <input class="form-control" id="idSegundoASolicitante" placeholder="Segundo apellido del solicitante" type="text" value="">
+                                        <input class="form-control upper" id="idSegundoASolicitante" placeholder="Segundo apellido del solicitante" type="text" value="">
                                         <p class="help-block">Segundo apellido</p>
                                     </div>
                                     <div class="col-md-12 personaMoralSolicitante">
-                                        <input class="form-control" id="idNombreCSolicitante" placeholder="Raz&oacute;n social" type="text" value="">
+                                        <input class="form-control upper" id="idNombreCSolicitante" placeholder="Raz&oacute;n social" type="text" value="">
                                         <p class="help-block needed">Raz&oacute;n Social</p>
                                     </div>
                                     <div class="col-md-4 personaFisicaSolicitante">
@@ -219,7 +228,7 @@
                                             <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitante" name='solicita_traductor_solicitante'/>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
                                         {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
@@ -296,7 +305,7 @@
                                 </div>
                                 <input type="hidden" id="dato_laboral_id">
                                 <div class="col-md-6">
-                                    <input class="form-control" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
+                                    <input class="form-control upper" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
                                     <p class="help-block">Nombre del Jefe directo</p>
                                 </div>
                                 <div class="col-md-6">
@@ -305,7 +314,7 @@
                                 </div>
                                 <div class="col-md-12 row">
                                     <div class="col-md-4">
-                                        <input class="form-control" id="puesto" placeholder="Puesto" type="text" value="">
+                                        <input class="form-control upper" id="puesto" placeholder="Puesto" type="text" value="">
                                         <p class="help-block ">Puesto</p>
                                     </div>
                                     <div class="col-md-4" >
@@ -426,21 +435,21 @@
                                         <input class="form-control" id="idsolicitado" type="text" value="253">
                                     </div>
                                     <div class="col-md-4 personaFisicaSolicitado">
-                                        <input class="form-control" required id="idNombreSolicitado" placeholder="Nombre del citado" type="text" value="">
+                                        <input class="form-control upper" required id="idNombreSolicitado" placeholder="Nombre del citado" type="text" value="">
                                         <p class="help-block needed">Nombre del citado</p>
                                     </div>
                                     <div class="col-md-4 personaFisicaSolicitado">
-                                        <input class="form-control" required id="idPrimerASolicitado" placeholder="Primer apellido del citado" type="text" value="">
-                                        
+                                        <input class="form-control upper" required id="idPrimerASolicitado" placeholder="Primer apellido del citado" type="text" value="">
+
                                         <p class="help-block needed">Primer apellido</p>
                                     </div>
                                     <div class="col-md-4 personaFisicaSolicitadoNO">
-                                        <input class="form-control" id="idSegundoASolicitado" placeholder="Segundo apellido del citado" type="text" value="">
-                                        
+                                        <input class="form-control upper" id="idSegundoASolicitado" placeholder="Segundo apellido del citado" type="text" value="">
+
                                         <p class="help-block">Segundo apellido</p>
                                     </div>
                                     <div class="col-md-8 personaMoralSolicitado">
-                                        <input class="form-control" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del citado" type="text" value="">
+                                        <input class="form-control upper" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del citado" type="text" value="">
                                         <p class="help-block needed">Raz&oacute;n Social</p>
                                     </div>
                                     <div class="col-md-4 personaFisicaSolicitadoNO">
@@ -506,7 +515,7 @@
                                         <p class="help-block needed">Tipo de contacto</p>
                                     </div>
                                     <div class="col-md-4">
-                                        <input class="form-control" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
+                                        <input class="form-control text-lowercase" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
                                         <p class="help-block needed">Contacto</p>
                                     </div>
                                     <div class="col-md-4">
@@ -653,7 +662,7 @@
                             </table>
                         </div>
                     </div>
-                        
+
                     <br>
                     <br>
                     <div class="col-md-12 form-group">
@@ -708,8 +717,8 @@
                     </div>
                 </div>
                 @endif
-                
-            </div> 
+
+            </div>
         </div>
         <!-- end step-4 -->
         <!-- begin step-5 -->
@@ -824,7 +833,7 @@
         <!-- end step-6 -->
         <!-- begin step-7 -->
         <div id="step-7">
-            
+
             <div class="text-right">
                 <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
             </div>
@@ -936,7 +945,7 @@
                 {% } %}
             </script>
 
-        </div> 
+        </div>
         <!-- end step-7 -->
     </div>
     <!-- end wizard-content -->
@@ -1118,7 +1127,7 @@
                     </table>
                 </div>
                 <br>
-                
+
             </div>
             <div class="modal-footer">
                 <div class="text-right">
@@ -1321,6 +1330,7 @@
                         title: 'Error',
                         text: 'Es necesario llenar todos los campos obligatorios y al menos una dirección del citado',
                         icon: 'error',
+
                     });
                 }
             }catch(error){
@@ -1498,7 +1508,7 @@
                     // arrayObjetoSolicitudes = data.objeto_solicitudes;
                     formarTablaObjetoSol();
                     $("#observaciones").val(data.observaciones);
-                    
+
                     if(data.solicita_excepcion){
                         $("#solicita_excepcion").prop("checked",true);
                     }
@@ -1695,7 +1705,7 @@
         $("#tipo_contacto_id_solicitante").trigger('change');
         $("#contacto_solicitante").val("");
     }
-    
+
 
     function agregarContactoSolicitado(){
         if($("#contacto_solicitado").val() != "" && $("#tipo_contacto_id_solicitado").val() != ""){
@@ -2450,14 +2460,14 @@
     function highlightText(string){
         return string.replace($("#term").val().trim(),'<span class="highlighted">'+$("#term").val().trim()+"</span>");
     }
-
     $("#giro_comercial_solicitante").select2({
         ajax: {
             url: '/externo/giros_comerciales/filtrarGirosComerciales',
             type:"POST",
             dataType:"json",
-            delay: 700,
+            delay: 1000,
             async:false,
+            cache: true,
             data:function (params) {
                 $("#term").val(params.term);
                 var data = {
@@ -2497,6 +2507,7 @@
             return markup;
         },
         templateResult: function(data) {
+            if(data.loading) return 'Buscando...';
             return data.html;
         },templateSelection: function(data) {
             if(data.id != ""){
@@ -2583,7 +2594,6 @@
         $(this).val(valor.toUpperCase());
     });
 
-    
 
 /**
 *  Aqui comienzan las funciones para carga de documentos de la solicitud
@@ -2723,9 +2733,9 @@
         console.log(e);
         var numeroPalabras = countPalabras(e);
         $("#numeroPalabras").html(numeroPalabras);
-        $("#countObservaciones").val(numeroPalabras);   
+        $("#countObservaciones").val(numeroPalabras);
         if(numeroPalabras >= 201){
-            $("#numeroPalabras").html("<span style='color:red'>"+numeroPalabras+"</span>");   
+            $("#numeroPalabras").html("<span style='color:red'>"+numeroPalabras+"</span>");
         }
     }
     function pasoSolicitante(pasoActual){
@@ -2734,7 +2744,7 @@
                 if($('#datosIdentificacionSolicitante').parsley().validate()){
                     $('#divContactoSolicitante').show();
                     $('#continuar1').hide();
-                    
+
                 }
                 break;
             case 2:
@@ -2771,7 +2781,7 @@
                 if($('#datosIdentificacionSolicitado').parsley().validate()){
                     $('#divContactoSolicitado').show();
                     $('#continuarSolicitado1').hide();
-                    
+
                 }
                 break;
             case 2:
@@ -2834,7 +2844,7 @@
     }();
     $("#excepcionForm").submit(function(e){
         var falta = false;
-        
+
         $(".fileGrupoVulnerable").each(function(e){
             console.log($(this).val());
             if($(this).val() == ""){
@@ -2872,7 +2882,7 @@
 
         return false;
     });
-    
+
     $('[data-toggle="tooltip"]').tooltip();
 </script>
 
