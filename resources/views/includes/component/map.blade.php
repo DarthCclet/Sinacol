@@ -65,25 +65,25 @@
         {!! $errors->first('domicilio[vialidad]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Nombre de la vialidad o calle</p>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4" title="Es el número o identificador exterior, el que se ve desde la calle. No siempre es un número puede ser por ejemplo: MZ para manzana, SM para super Manzana, KM para los ubicados en carreteras, etc." data-toggle="tooltip" data-placement="top">
         {{-- <input class="form-control numero direccionUpd{{$identificador}}" name="domicilio[num_ext]" id="num_ext{{$identificador}}" placeholder="Num Exterior" required type="text" value=""> --}}
         {!! Form::text('domicilio[num_ext]', isset($domicilio->num_ext) ? $domicilio->num_ext : null, ['id'=>'num_ext'.$identificador,'required', 'class'=>'form-control upper direccionUpd'.$identificador, 'placeholder'=>'Número Exterior']) !!}
         {!! $errors->first('domicilio[num_ext]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Número exterior</p>
     </div>
-    <div class="col-md-4">
+<div class="col-md-4" title="Es el identificador de interior, no siempre es un número, puede ser por ejemplo: edificio A, Local N, Quinto piso, etc." data-toggle="tooltip" data-placement="top">
         {{-- <input class="form-control numero" id="num_int{{$identificador}}" name="domicilio[num_int]" placeholder="Num Interior" required type="text" value=""> --}}
         {!! Form::text('domicilio[num_int]', isset($domicilio->num_int) ? $domicilio->num_int : null, ['id'=>'num_int'.$identificador, 'class'=>'form-control upper direccionUpd'.$identificador, 'placeholder'=>'Número Interior']) !!}
         {!! $errors->first('domicilio[num_int]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block">Número interior</p>
     </div>
-    <div class="col-md-12" title="Escribe el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Se escoges la correcta se autollenan los siguientes campos." data-toggle="tooltip" data-placement="top">
+    <div class="col-md-12" title="Escribe el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Si escoges la correcta se llenarán de forma automática los demás campos." data-toggle="tooltip" data-placement="top">
         <select name="autocomplete{{$identificador}}" placeholder="Seleccione" id="autocomplete{{$identificador}}" class="form-control"></select>
         <input type="hidden" id="term{{$identificador}}">
-        <p class="help-block upper needed">Escriba el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Se escoges la correcta se autollenan los siguientes campos.</p>
+        <p class="help-block upper needed">Escribe el nombre de tu colonia.</p>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-4" title="Un asentamiento no siempre es una colonia, puede ser una unidad habitacional, un ejido, un barrio, etc." data-toggle="tooltip" data-placement="top">
         {!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'upper form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
         {!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Tipo de asentamiento</p>
@@ -95,21 +95,21 @@
         <p class="help-block needed">Colonia (asentamiento)</p>
     </div>
 
-	<div class="col-md-4">
+	<div class="col-md-4" title="En caso de la Ciudad de México se trata del nombre de la alcaldía, en otras entidades de la república se trata de municipios." data-toggle="tooltip" data-placement="top">
         {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[municipio]" id="municipio{{$identificador}}" required placeholder="Municipio" type="text" value=""> --}}
 
         {!! Form::select('domicilio[municipio]', isset($municipios) ? $municipios : [], isset($domicilio->municipio) ? $domicilio->municipio : '', ['id'=>'municipio'.$identificador,'required', 'class'=>'form-control '.' direccionUpd'.$identificador, 'placeholder'=>'Seleccione una opción']) !!}
 
         {!! $errors->first('domicilio[municipio]', '<span class=text-danger>:message</span>') !!}
-		<p class="help-block needed">Nombre del municipio</p>
+		<p class="help-block needed">Nombre del municipio / alcaldía.</p>
 	</div>
-	<div class="col-md-4">
+	<div class="col-md-4" title="Es importante indicar el código postal para una pronta ubicación." data-toggle="tooltip" data-placement="top">
 		{{-- <input class="form-control numero" id="cp{{$identificador}}" name="domicilio[cp]" required placeholder="Código Postal" maxlength="5" type="text" value=""> --}}
         {!! Form::text('domicilio[cp]', isset($domicilio->cp) ? $domicilio->cp : null, ['id'=>'cp'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Código Postal']) !!}
         {!! $errors->first('domicilio[cp]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block needed">Código postal</p>
 	</div>
-	<div class="col-md-4">
+	<div class="col-md-4" title="Cualquier dato útil para identificar el domicilio correcto es muy útil. Por ejemplo: Junto a parque de los venados. A una cuadra de estación Jardines, etc." data-toggle="tooltip" data-placement="top">
         {{-- <input class="form-control" id="referencias{{$identificador}}" name="domicilio[referencias]" placeholder="Referencias" required type="text" value=""> --}}
         {!! Form::text('domicilio[referencias]', isset($domicilio->referencias) ? $domicilio->referencias : null, ['id'=>'referencias'.$identificador, 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Referencias']) !!}
         {!! $errors->first('domicilio[referencias]', '<span class=text-danger>:message</span>') !!}
@@ -373,7 +373,8 @@
                 data:function (params) {
                     $("#term"+identifier).val(params.term);
                     var data = {
-                        direccion: params.term
+                        direccion: params.term,
+                        estado: $("#estado"+identifier).val()
                     }
                     return data;
                 },
@@ -397,6 +398,7 @@
                 return markup;
             },
             templateResult: function(data) {
+                if(data.loading) return 'Buscando...';
                 return data.html;
             },templateSelection: function(data) {
                 if(data.id != ""){
