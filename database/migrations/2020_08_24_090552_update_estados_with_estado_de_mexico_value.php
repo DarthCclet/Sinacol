@@ -21,6 +21,7 @@ class UpdateEstadosWithEstadoDeMexicoValue extends Migration
             $estado->nombre = 'Estado de México';
             $estado->save();
         }
+        DB::statement("alter table estados cluster on estados_pkey");
         DB::statement("CLUSTER estados");
         Artisan::call('cache:clear');
     }
@@ -37,6 +38,7 @@ class UpdateEstadosWithEstadoDeMexicoValue extends Migration
             $estado->nombre = 'México';
             $estado->save();
         }
+        DB::statement("alter table estados cluster on estados_pkey");
         DB::statement("CLUSTER estados");
         Artisan::call('cache:clear');
     }

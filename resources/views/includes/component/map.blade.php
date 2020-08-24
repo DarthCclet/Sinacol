@@ -451,7 +451,7 @@
 		var domicilioObj =  DomicilioObject;
 	</script>
 @else
-<script src="https://maps.googleapis.com/maps/api/js?callback=DomicilioObject.initMap&libraries=places&key=AIzaSyBx0RdMGMOYgE_eLXfCblBP9RhYDQXjrqY"></script>
+<script src="https://maps.googleapis.com/maps/api/js?callback=DomicilioObject.initMap&libraries=places&key="{{env('')}}></script>
 <script>
 	var domicilioObj2 =  DomicilioObject;
 	domicilioObj2.initMap();
