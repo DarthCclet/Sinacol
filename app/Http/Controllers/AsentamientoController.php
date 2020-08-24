@@ -46,7 +46,7 @@ class AsentamientoController extends Controller
         ->select(DB::raw("id,asentamiento,municipio,estado,cp,strict_word_similarity(unaccent('{$direccion}'), unaccent(asentamiento)) as similarity"))
         ->whereRaw(DB::raw("strict_word_similarity(unaccent('{$direccion}'), unaccent(asentamiento)) between {$minSimilitud} and 1"));
         if($estado) {
-            $query->whereRaw(DB::raw("strict_word_similarity(unaccent('{$estado}'), unaccent(estado)) between {$minSimilitud} and 1"));
+            $query->whereRaw(DB::raw("lower(unaccent('{$estado}')) = lower(unaccent(estado))"));
         }
         $asentamiento = $query->orderByRaw(DB::raw("estado = 'CIUDAD DE MEXICO',similarity desc"))
         ->limit($limite)
