@@ -3,6 +3,8 @@
 use App\Estado;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class UpdateEstadosWithEstadoDeMexicoValue extends Migration
@@ -19,6 +21,8 @@ class UpdateEstadosWithEstadoDeMexicoValue extends Migration
             $estado->nombre = 'Estado de México';
             $estado->save();
         }
+        DB::statement("CLUSTER estados");
+        Artisan::call('cache:clear');
     }
 
     /**
@@ -33,5 +37,7 @@ class UpdateEstadosWithEstadoDeMexicoValue extends Migration
             $estado->nombre = 'México';
             $estado->save();
         }
+        DB::statement("CLUSTER estados");
+        Artisan::call('cache:clear');
     }
 }
