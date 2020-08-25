@@ -968,7 +968,7 @@
  <div class="modal" id="modal-jornada" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog ">
         <div class="modal-content">
-            
+
             <div class="modal-body" >
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 <h5>Para determinar tu tipo de jornada, debes considerar las primeras 8 horas que laboras en un día.</h5>
@@ -2269,7 +2269,7 @@
                 }
             });
             if(!registrado){
-                
+
                 var objeto_solicitud = {};
                 objeto_solicitud.id = "";
                 objeto_solicitud.objeto_solicitud_id = objeto;
@@ -2291,7 +2291,7 @@
             var excepcion = getExcepcion();
             //Se llama api para guardar solicitud
             if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 ){
-                
+
                 var upd = "";
                 if($("#solicitud_id").val() == ""){
                     method = "POST";

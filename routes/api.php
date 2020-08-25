@@ -81,6 +81,7 @@ Route::resource('tipo_partes','TipoParteController')->middleware('client');
 Route::resource('giros_comerciales','GiroComercialController');
 Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 Route::post('asentamientos/filtrarAsentamientos','AsentamientoController@filtrarAsentamientos');
+Route::get('asentamientos/filtrarMunicipios','AsentamientoController@filtrarMunicipios');
 Route::post('giros_comerciales/getAncestors','GiroComercialController@getAncestors');
 Route::post('giros_comerciales/getGirosComercialesByNivelId','GiroComercialController@getGirosComercialesByNivelId');
 Route::Post('giros_comerciales/cambiar_ambito','GiroComercialController@CambiarAmbito');

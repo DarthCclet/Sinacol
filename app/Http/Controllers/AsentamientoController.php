@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Asentamiento;
 use App\Filters\CatalogoFilter;
+use App\Municipio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -65,6 +66,20 @@ class AsentamientoController extends Controller
         // else{
         //     return view('expediente.solicitudes.index');
         // }
+    }
+
+    /**
+     * Filtro de Municipios dado un Estado
+     * @return array
+     */
+    public function filtrarMunicipios()
+    {
+        $estado = $this->request->get('estado');
+        $municipios =[];
+        if($estado) {
+            $municipios = array_pluck(Municipio::whereRaw(DB::raw("lower(unaccent('{$estado}')) = lower(unaccent(estado))"))->get(),'municipio');
+        }
+        return $municipios;
     }
 
     /**

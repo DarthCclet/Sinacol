@@ -47,26 +47,26 @@
     <input type="hidden" id="estado{{$identificador}}" value="{{isset($domicilio->estado) ? $domicilio->estado : '' }}" name="domicilio[estado]">
 
 
-    <div class="col-md-4 col-md-offset-8">
+    <div class="col-md-3" title="Especifica el Estado o Entidad Federativa donde se encuentra el domicilio." data-toggle="tooltip" data-placement="top">
         {!! Form::select('domicilio[estado_id]', isset($estados) ? $estados : [] , isset($domicilio->estado_id) ? $domicilio->estado_id : 0, ['id'=>'estado_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
         {!! $errors->first('domicilio[estado_id]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Estado </p>
     </div>
 
-    <div class="col-md-4 " title="Especifica si se trata de una calle, avenida, calzada, etc. Por ejemplo, en Avenida Insurgentes, el tipo de vialidad es Avenida" data-toggle="tooltip" data-placement="top" >
+    <div class="col-md-3 " title="Especifica si se trata de una calle, avenida, calzada, etc. Por ejemplo, en Avenida Insurgentes, el tipo de vialidad es Avenida" data-toggle="tooltip" data-placement="top" >
         {!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , isset($domicilio->tipo_vialidad_id) ? $domicilio->tipo_vialidad_id : 0, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
         {!! $errors->first('domicilio[tipo_vialidad_id]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Tipo de vialidad</p>
     </div>
 
-    <div class="col-md-4" title="Es el nombre específico de la vialidad. Por ejemplo en Avenida Insurgentes será Insurgentes" data-toggle="tooltip" data-placement="top">
+    <div class="col-md-6" title="Es el nombre específico de la vialidad. Por ejemplo, en Avenida Insurgentes será Insurgentes" data-toggle="tooltip" data-placement="top">
         {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[vialidad]" id="vialidad{{$identificador}}" placeholder="Vialidad" required type="text" value=""> --}}
         {!! Form::text('domicilio[vialidad]', isset($domicilio->vialidad) ? $domicilio->vialidad : null, ['id'=>'vialidad'.$identificador,'required', 'class'=>'form-control upper direccionUpd'.$identificador, 'placeholder'=>'Vialidad o calle']) !!}
         {!! $errors->first('domicilio[vialidad]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Nombre de la vialidad o calle</p>
     </div>
-    <div class="col-md-4" title="Un asentamiento no siempre es una colonia, puede ser una unidad habitacional, un ejido, un barrio, etc." data-toggle="tooltip" data-placement="top">
-        {!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'upper form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
+    <div class="col-md-4" style="display: none;" title="Un asentamiento no siempre es una colonia, puede ser una unidad habitacional, un ejido, un barrio, etc." data-toggle="tooltip" data-placement="top">
+        {!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'placeholder' => 'Seleccione una opción', 'class' => 'upper form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
         {!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Tipo de asentamiento</p>
     </div>
@@ -82,7 +82,7 @@
         {!! $errors->first('domicilio[num_int]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block">Número interior</p>
     </div>
-    <div class="col-md-12" title="Escribe el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Si escoges la correcta se llenarán de forma automática los demás campos." data-toggle="tooltip" data-placement="top">
+    <div class="col-md-5" title="Escribe el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Si escoges la correcta se llenarán de forma automática los demás campos." data-toggle="tooltip" data-placement="top">
         <select name="asentamientoAutoc" placeholder="Seleccione" id="asentamientoAutoc{{$identificador}}" class="form-control"></select>
         <input type="hidden" id="term{{$identificador}}">
         <p class="help-block upper needed">Escribe el nombre de tu colonia.</p>
@@ -96,7 +96,7 @@
         <p class="help-block needed">Colonia (asentamiento)</p>
     </div> --}}
 
-	<div class="col-md-4" title="En caso de la Ciudad de México se trata del nombre de la alcaldía, en otras entidades de la república se trata de municipios." data-toggle="tooltip" data-placement="top">
+	<div class="col-md-5" title="En caso de la Ciudad de México se trata del nombre de la alcaldía, en otras entidades de la República se trata de municipios." data-toggle="tooltip" data-placement="top">
         {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[municipio]" id="municipio{{$identificador}}" required placeholder="Municipio" type="text" value=""> --}}
 
         {!! Form::select('domicilio[municipio]', isset($municipios) ? $municipios : [], isset($domicilio->municipio) ? $domicilio->municipio : '', ['id'=>'municipio'.$identificador,'required', 'class'=>'form-control '.' direccionUpd'.$identificador, 'placeholder'=>'Seleccione una opción']) !!}
@@ -104,7 +104,7 @@
         {!! $errors->first('domicilio[municipio]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block needed">Nombre del municipio / alcaldía.</p>
 	</div>
-	<div class="col-md-4" title="Es importante indicar el código postal para una pronta ubicación." data-toggle="tooltip" data-placement="top">
+	<div class="col-md-2" title="Es importante indicar el código postal para una pronta ubicación." data-toggle="tooltip" data-placement="top">
 		{{-- <input class="form-control numero" id="cp{{$identificador}}" name="domicilio[cp]" required placeholder="Código Postal" maxlength="5" type="text" value=""> --}}
         {!! Form::text('domicilio[cp]', isset($domicilio->cp) ? $domicilio->cp : null, ['id'=>'cp'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Código Postal']) !!}
         {!! $errors->first('domicilio[cp]', '<span class=text-danger>:message</span>') !!}
@@ -138,7 +138,6 @@
         </div>
     @endif
 </div>
-
 @push('scripts')
 <script>
 	var identificador = '{{$identificador}}';
@@ -351,6 +350,15 @@
         $("#municipio"+identifier).select2({width: '100%', tags: true});
         $("#estado_id"+identifier).change(function(){
             $("#estado"+identifier).val($("#estado_id"+identifier+" :selected").text());
+            $.get('/api/asentamientos/filtrarMunicipios?estado='+$("#estado_id"+identifier+" :selected").text(),function( data ) {
+                $('#municipio'+identifier).empty().trigger('change');
+                $("#asentamiento"+identifier).empty().trigger('change');
+                $("#asentamientoAutoc"+identifier).empty('').trigger('change');
+                $("#cp"+identifier).val("");
+                for(let i in data){
+                    $('#municipio'+identifier).append(new Option(data[i], data[i], false, false));
+                }
+            });
         });
         $("#tipo_asentamiento_id"+identifier).change(function(){
             $("#tipo_asentamiento"+identifier).val($("#tipo_asentamiento_id"+identifier+" :selected").text());
@@ -364,7 +372,7 @@
                 }
 			}
         });
-        $("#asentamientoAutoc"+identifier).on("change", function (e) { 
+        $("#asentamientoAutoc"+identifier).on("change", function (e) {
             if(e.value == ""){
                 $("#asentamiento"+identifier).val("");
             }
@@ -388,7 +396,7 @@
                     try{
                         $.each(json.data, function (key, node) {
                             var html = '';
-                            html += '<div>'+node.estado+', '+ node.municipio+', '+ node.cp+', '+ node.asentamiento+' </div>';
+                            html += '<div>'+ node.municipio+',  '+ node.asentamiento+' </div>';
                             json.data[key].html = html;
                         });
                         return {
@@ -414,17 +422,9 @@
                 if(data.id != ""){
                     if(data.estado != undefined){
                         $("#municipio"+identifier+" option:contains("+ data.municipio +")").prop("selected",true).trigger("change");
-                        var estado = "";
-                        if(data.estado.toLowerCase() == 'estado de méxico'){
-                            estado = 'México';
-                        }else{
-                            estado = data.estado.toLowerCase();
-                        }
-                        $("#estado_id"+identifier+" option:contains("+ estado +")").prop("selected",true).trigger("change");
                         $("#cp"+identifier).val(data.cp);
                         $("#asentamiento"+identifier).val(data.asentamiento);
                         $(".direccionUpd"+identifier).trigger('blur');
-                        $(".direccionUpd"+identifier).trigger('change');
                         return data.asentamiento;
                     }
                 }
@@ -456,6 +456,7 @@
     };
     $(".numero").limitKeyPress('1234567890.');
 </script>
+
 
 @if($instancia <= 1 && $needsMaps)
 

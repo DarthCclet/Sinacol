@@ -158,7 +158,8 @@ class SolicitudController extends Controller {
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
         $motivo_excepcion = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
-        $municipios = array_pluck(Municipio::all(),'municipio','id');
+        //$municipios = array_pluck(Municipio::all(),'municipio','id');
+        $municipios=[];
         return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepcion'));
     }
     /**
@@ -238,7 +239,7 @@ class SolicitudController extends Controller {
             }
 
             $solicitantes = $request->input('solicitantes');
-            
+
             $centro = null;
 
             foreach ($solicitantes as $key => $value) {
@@ -270,11 +271,11 @@ class SolicitudController extends Controller {
                     }
                 }
             }
-            
-            
+
+
 
             $solicitados = $request->input('solicitados');
-            
+
             foreach ($solicitados as $key => $value) {
                 unset($value['activo']);
                 $domicilios = Array();
@@ -690,7 +691,7 @@ class SolicitudController extends Controller {
                 Storage::makeDirectory($directorio);
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                 $path = $archivo->store($directorio);
-                
+
                 $parte->documentos()->create([
                     "nombre" => str_replace($directorio."/", '',$path),
                     "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
@@ -704,7 +705,7 @@ class SolicitudController extends Controller {
                 ]);
             }
         }
-                
+
         $solicitados = Parte::where('solicitud_id',$solicitud_id)->where('tipo_parte_id',2)->get();
         foreach ($solicitados as $key => $solicitado) {
             foreach($request->files as $solicitante_id => $file){
@@ -728,7 +729,7 @@ class SolicitudController extends Controller {
         }
         $partes = Parte::where('solicitud_id',$solicitud_id)->get();
         foreach($partes as $parte){
-            
+
             $documentos = $parte->documentos;
             foreach ($documentos as $documento) {
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
