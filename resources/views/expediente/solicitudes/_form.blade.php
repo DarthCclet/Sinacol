@@ -2395,65 +2395,65 @@
     $("#btnRatificarSolicitud").on("click",function(){
         try{
             if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
-               $("#modalNotificacion").modal("show");
-//                 swal({
-//                     title: '¿Estas seguro?',
-//                     text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
-//                     icon: 'warning',
-//                     buttons: {
-//                         cancel: {
-//                             text: 'Cancelar',
-//                             value: null,
-//                             visible: true,
-//                             className: 'btn btn-default',
-//                             closeModal: true,
-//                         },
-//                         confirm: {
-//                             text: 'Aceptar',
-//                             value: true,
-//                             visible: true,
-//                             className: 'btn btn-danger',
-//                             closeModal: true
-//                         }
-//                     }
-//                 }).then(function(isConfirm){
-//                     if(isConfirm){
-//                         $.ajax({
-//                             url:'/solicitud/ratificar',
-//                             type:'POST',
-//                             dataType:"json",
-//                             async:true,
-//                             data:{
-//                                 id:$("#solicitud_id").val(),
-// //                                listaNotificaciones:validacion.listaNotificaciones,
-//                                 _token:"{{ csrf_token() }}"
-//                             },
-//                             success:function(data){
-//                                 if(data != null && data != ""){
-//                                     $("#modalNotificacion").modal("hide");
-//                                     swal({
-//                                         title: 'Correcto',
-//                                         text: 'Solicitud ratificada correctamente',
-//                                         icon: 'success'
-//                                     });
-//                                     location.reload();
-//                                 }else{
-//                                     swal({
-//                                         title: 'Error',
-//                                         text: 'No se pudo ratificar',
-//                                         icon: 'error'
-//                                     });
-//                                 }
-//                             },error:function(data){
-//                                 swal({
-//                                     title: 'Error',
-//                                     text: ' Error al ratificar la solicitud',
-//                                     icon: 'error'
-//                                 });
-//                             }
-//                         });
-//                     }
-//                 });
+            //    $("#modalNotificacion").modal("show");
+                swal({
+                    title: '¿Estas seguro?',
+                    text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'Cancelar',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true,
+                        },
+                        confirm: {
+                            text: 'Aceptar',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-danger',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(isConfirm){
+                    if(isConfirm){
+                        $.ajax({
+                            url:'/solicitud/ratificar',
+                            type:'POST',
+                            dataType:"json",
+                            async:true,
+                            data:{
+                                id:$("#solicitud_id").val(),
+//                                listaNotificaciones:validacion.listaNotificaciones,
+                                _token:"{{ csrf_token() }}"
+                            },
+                            success:function(data){
+                                if(data != null && data != ""){
+                                    $("#modalNotificacion").modal("hide");
+                                    swal({
+                                        title: 'Correcto',
+                                        text: 'Solicitud ratificada correctamente',
+                                        icon: 'success'
+                                    });
+                                    location.reload();
+                                }else{
+                                    swal({
+                                        title: 'Error',
+                                        text: 'No se pudo ratificar',
+                                        icon: 'error'
+                                    });
+                                }
+                            },error:function(data){
+                                swal({
+                                    title: 'Error',
+                                    text: ' Error al ratificar la solicitud',
+                                    icon: 'error'
+                                });
+                            }
+                        });
+                    }
+                });
             }else{
                 swal({
                     title: 'Error',
