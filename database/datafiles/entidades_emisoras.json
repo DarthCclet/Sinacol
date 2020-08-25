@@ -1,0 +1,53 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Instituto Nacional Electoral",
+            "descripcion": "Instituto Nacional Electoral",
+            "abreviatura": "INE"
+        },
+        {
+            "id": "2",
+            "nombre": "Secretaría de Relaciones Exteriores",
+            "descripcion": "Secretaría de Relaciones Exteriores",
+            "abreviatura": "SRE"
+        },
+        {
+            "id": "3",
+            "nombre": "Secretaría de Educación Pública",
+            "descripcion": "Secretaria de Educación Pública",
+            "abreviatura": "SEP"
+        },
+        {
+            "id": "4",
+            "nombre": "Registro Nacional de Población de la Secretaría de Gobernación",
+            "descripcion": "Registro Nacional de Población de la Secretaría de Gobernación",
+            "abreviatura": "RENAPO"
+        },
+        {
+            "id": "5",
+            "nombre": "Instituto Nacional de las Personas Adultas Mayores",
+            "descripcion": "Instituto Nacional de las Personas Adultas Mayores",
+            "abreviatura": "INAPAM"
+        },
+        {
+            "id": "6",
+            "nombre": "Instituto Nacional de Migración",
+            "descripcion": "Instituto Nacional de Migración",
+            "abreviatura": "INM"
+        },
+        {
+            "id": "7",
+            "nombre": "Secretaría de Movilidad",
+            "descripcion": "Secretaría de Movilidad del Estado",
+            "abreviatura": "SEMOV"
+        },
+        {
+            "id": "8",
+            "nombre": "Secretaría del Trabajo y Previsión Social",
+            "descripcion": "Secretaría del Trabajo y Previsión Social",
+            "abreviatura": "STPS"
+        }
+    ],
+    "numReg": 8
+}
