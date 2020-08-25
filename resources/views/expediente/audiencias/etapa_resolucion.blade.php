@@ -45,9 +45,9 @@
 <ul class="timeline">
     @foreach($etapa_resolucion as $etapa)
         @if($etapa->paso == 1)
-        <li style="" id="step{{$etapa->paso}}">
+            <li style="" id="step{{$etapa->paso}}">
         @else
-        <li style="display:none;" id="step{{$etapa->paso}}">
+            <li style="display:none;" id="step{{$etapa->paso}}">
         @endif
             <!-- begin timeline-time -->
             <div class="timeline-time">
@@ -122,27 +122,81 @@
                                 <button class="btn btn-primary" align="center" id="btnCargarComparecientes">Continuar </button>
                                 @break
                             @case(2)
-                                <label>Recuerde explicar los aspectos importantes de la audiencia de conciliación:</label>
-                                <ul>
-                                    <li>No se reconoce carácter de representante legal de la parte trabajadora, aunque podrá comparecer con acompañante.</li>
-                                    <li>Lo dicho en la audiencia de conciliación es confidencial y no constituye prueba en ningún procedimiento jurisdiccional.</li>
-                                    <li>Las características de la conciliación, enfatizar sus beneficios.</li>
-                                    <li>La explicación de lo anterior ya está precargada en el sistema, usted solamente debe confirmar que revisó estos puntos con las partes, no es necesario que escriba un resumen de este preámbulo.</li>
-                                </ul>
-                                <br/>
-                                <br/>
+                                <div id="divPaso1" class="col-md-12">
+                                    <b><h5>Paso 1: Principio de conciliación personal</h5></b>
+                                    <p>
+                                        <i>Para el conciliador:</i>
+                                        No es necesario que la parte trabajadora acuda con representante legal y si acudiera no se le reconocerá como tal; aunque podrá comparecer como acompañante.
+                                    </p>
+                                    <p>
+                                        <u><i>EL CONCILIADOR LEERÁ EL SIGUIENTE TEXTO, DIRIGIENDOSE AL TRABAJADOR</i></u> “La conciliación es personal. Aunque asista el trabajador con el apoyo de cualquier persona de su confianza, el trabajador mismo es quien decide lo que pide, lo que negocia y lo que acepta o no en este proceso.”. 
+                                    </p>
+                                    <div >
+                                        {{-- <input type="hidden" /> --}}
+                                        {{-- onclick="if($('#explico_acta').is(':checked')){nextStep({{$etapa->paso}})}else{swal({title: 'Error',text: 'Es necesario seleccionar la opción para continuar',icon: 'error'});}" --}}
+                                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="paso1" name='paso1' onchange="if( $('#paso1').is(':checked')){ $('#divPaso2').show() }else{ $('#divPaso5').hide(); swal({title: 'Error',text: 'Es necesario validar la sección para continuar',icon: 'error'});}"/>
+                                    </div>
+                                    <hr/>
+                                </div>
+                                <div id="divPaso2" class="col-md-12" style="display: none">
+                                    <b><h5>Paso 2: Principio de conciliación confidencial</h5></b>
+                                    <p>
+                                        <i>Para el conciliador:</i>
+                                        Lo dicho en la audiencia de conciliación es confidencial y no constituye prueba en ningún procedimiento jurisdiccional.
+                                    </p>
+                                    <p>
+                                        <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u> “La conciliación es confidencial. Lo que se dice y se habla en esta audiencia es confidencial, no puede afectar sus derechos, ni puede ser una prueba en cualquier juicio.”. 
+                                    </p>
+                                    <div >
+                                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="paso2" name='paso2' onchange="if( $('#paso2').is(':checked')){ $('#divPaso3').show() }else{ $('#divPaso5').hide(); swal({title: 'Error',text: 'Es necesario validar la sección para continuar',icon: 'error'});}"/>
+                                    </div>
+                                    <hr/>
+                                </div>
+                                <div id="divPaso3" class="col-md-12" style="display: none">
+                                    <b><h5>Paso 3: Los principios y derechos en el proceso de la conciliación</h5></b>
+                                    <p>
+                                        <i>Para el conciliador:</i>
+                                        Explicar las características de la conciliación y los derechos de las partes en ella. Recuerde que el proceso de conciliación se realiza en conformidad con los principios constitucionales de legalidad, imparcialidad, confiabilidad, eficacia, objetividad, profesionalismo, transparencia y publicidad.
+                                    </p>
+                                    <p>
+                                        <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u> “La conciliación es un proceso ágil, objetivo, imparcial, transparente y eficaz. Cada una de las partes tendrá derecho de hablar y de ser escuchada, de plantear, de negociar y de responder. Es un proceso voluntario, no se obligará a nadie a un acuerdo que no quiere. Nos trataremos todos con respeto en esta audiencia”.
+                                    </p>
+                                    <div >
+                                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="paso3" name='paso3' onchange="if( $('#paso3').is(':checked')){ $('#divPaso4').show() }else{ $('#divPaso5').hide(); swal({title: 'Error',text: 'Es necesario validar la sección para continuar',icon: 'error'});}"/>
+                                    </div>
+                                    <hr/>
+                                </div>
+                                <div id="divPaso4" class="col-md-12" style="display: none">
+                                    <b><h5>Paso 4: Los beneficios de la conciliación: </h5></b>
+                                    <p>
+                                        <i>Para el conciliador:</i>
+                                        Debe explicar los beneficios de la conciliación en comparación con los costos, la incertidumbre y el desgaste de una demanda.
+                                    </p>
+                                    <p>
+                                        <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u> “La conciliación busca solucionar conflictos de interés entre las partes.
+                                        <ul>
+                                            <li>Buscamos un acuerdo que beneficie a ambos.</li>
+                                            <li>El proceso de una demanda implica tiempo y esfuerzo. En una demanda se debe comprobar lo que se afirma, por esto, ni el patrón ni el trabajador puede estar seguro de ganar el juicio.</li>
+                                            <li>Tanto para el trabajador como para el patrón, conviene la conciliación para evitar los costos y el desgaste.” </li>
+                                        </ul>
+                                    </p>
+                                    <div >
+                                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="paso4" name='paso4' onchange="if( $('#paso4').is(':checked')){ $('#divPaso5').show() }else{ $('#divPaso5').hide(); swal({title: 'Error',text: 'Es necesario validar la sección para continuar',icon: 'error'});}"/>
+                                    </div>
+                                    <hr/>
+                                </div>
                                 <input type="hidden" id="evidencia{{$etapa->paso}}" value="true" />
-                                <div class="col-md-12">
+                                <div class="col-md-12" id="divPaso5" style="display: none">
                                     <div class="col-md-12" style="margin-bottom: 5%">
                                         <div >
-                                            <span class="text-muted m-l-5 m-r-20" for='switch1'>El acta fue explicada por el conciliador a las partes</span>
+                                            <span class="text-muted m-l-5 m-r-20" for='switch1'>Los principios, derechos y beneficios de la conciliación fueron explicados por el conciliador a las partes.</span>
                                         </div>
                                         <div >
                                             <input type="hidden" />
-                                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="explico_acta" name='solicita_traductor_solicitante'/>
+                                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="explico_acta" name='explico_acta'/>
                                         </div>
                                     </div>
-                                <button class="btn btn-primary" onclick="if($('#explico_acta').is(':checked')){nextStep({{$etapa->paso}})}else{swal({title: 'Error',text: 'Es necesario seleccionar la opción para continuar',icon: 'error'});}">Continuar </button>
+                                    <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="if($('#explico_acta').is(':checked')){nextStep({{$etapa->paso}})}else{swal({title: 'Error',text: 'Es necesario validar la explicación para continuar',icon: 'error'});}">Continuar </button>
                                 </div>
                             @break
                             @case(3)
@@ -151,7 +205,7 @@
                                 <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
                                 <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
-                                <button class="btn btn-primary" onclick="nextStep({{$etapa->paso}})">Continuar </button>
+                                <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="nextStep({{$etapa->paso}})">Continuar </button>
 
                             @break
                             @case(4)
@@ -247,10 +301,10 @@
                                 @endforeach
                                 </div>
                                 <br>
-
+                                <p> El conciliador debe incluir una explicación y motivación breve de la propuesta configurada que fue negociada con las partes. En caso de que el acuerdo entre las partes sea por menos de la propuesta de 45 días más prestaciones, es fundamental incluir una descripción de las circunstancias específicas que explican y justifican el convenio y la cuantía acordada.</p>
                                 <textarea class="form-control textarea" placeholder="Comentarios ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
-                                <button class="btn btn-primary" onclick="nextStep({{$etapa->paso}})">Continuar </button>
+                                <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="nextStep({{$etapa->paso}})">Continuar </button>
                             @break
                             @case(5)
                                 <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
@@ -258,7 +312,7 @@
                                 <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
                                 <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
-                                <button class="btn btn-primary" onclick="nextStep({{$etapa->paso}})">Continuar </button>
+                                <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="nextStep({{$etapa->paso}})">Continuar </button>
                             @break
                             @case(6)
                                 <label>Debe indicar cuál de las siguientes resoluciones de audiencia procede:</label>
@@ -288,7 +342,7 @@
                                     <textarea class="form-control textarea" placeholder="Describir..." type="text" id="evidencia{{$etapa->paso}}">
                                     </textarea>
                                 </div>
-                                <button class="btn btn-primary" id="btnFinalizar">Finalizar </button>
+                                <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="finalizar({{$etapa->paso}})">Finalizar </button>
                             @break
                             @default
 
@@ -638,7 +692,7 @@
         </div>
     </div>
 </div>
-<div class="modal" id="modal-relaciones" data-backdrop="static" data-keyboard="false" style="display:none;">
+{{-- <div class="modal" id="modal-relaciones" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -734,6 +788,108 @@
             </div>
         </div>
     </div>
+</div> --}}
+<div class="modal" id="modal-relaciones" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Roles Solicitantes</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <hr>
+                <h5>Registro de roles solicitantes</h5>
+                <div class="col-md-12 row">
+                    {{-- <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="parte_solicitante_id" class="col-sm-6 control-label labelResolucion">Solicitante</label>
+                            <div class="col-sm-10">
+                                <select id="parte_solicitante_id" class="form-control select-element">
+                                    <option value="">-- Selecciona un solicitante</option>
+                                    @foreach($audiencia->solicitantes as $parte)
+                                        @if($parte->parte->tipo_persona_id == 1)
+                                            <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
+                                        @else
+                                            <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div> --}}
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="parte_solicitado_id" class="col-sm-6 control-label labelResolucion">Solicitado</label>
+                            <div class="col-sm-10">
+                                <select id="parte_solicitado_id" class="form-control select-element">
+                                    <option value="">-- Selecciona un solicitado</option>
+                                    @foreach($audiencia->solicitados as $parte)
+                                        @if($parte->parte->tipo_persona_id == 1)
+                                            <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
+                                        @else
+                                            <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="rol_solicitante_id" class="col-sm-6 control-label labelResolucion">Rol Solicitante</label>
+                            <div class="col-sm-10">
+                                <select id="rol_solicitante_id" class="form-control select-element">
+                                    <option value="{{ $parte->parte->id }}">Responsable principal</option>
+                                    <option value="{{ $parte->parte->id }}">Responsable solidario en el convenio</option>
+                                    <option value="{{ $parte->parte->id }}">Testigo de la celebracion del convenio</option>
+                                </select>
+                                {{-- {!! Form::select('resolucion_individual_id', isset($resoluciones) ? $resoluciones : [] , null, ['id'=>'resolucion_individual_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control select-element']);  !!} --}}
+                            </div>
+                        </div>
+                    </div>
+                    {{-- <div class="col-md-6" id="divMotivoArchivo" style="display: none;">
+                        <div class="form-group">
+                            <label for="motivo_archivado_id" class="col-sm-6 control-label labelResolucion">Motivo de archivo</label>
+                            <div class="col-sm-10">
+                                <select id="motivo_archivado_id" class="form-control select-element">
+                                    <option value="">-- Selecciona un motivo de archivado</option>
+                                    @foreach($motivos_archivo as $motivo)
+                                        <option value="{{ $motivo->id }}">{{ $motivo->descripcion }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div> --}}
+                    </div>
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <button class="btn btn-warning text-white btn-sm" id='btnAgregarResolucion'><i class="fa fa-plus"></i> Agregar</button>
+                        </div>
+                    </div>
+                    <div class="col-md-12 row" style="padding-top: 1em">
+                        <table class="table table-bordered" >
+                            <thead>
+                                <tr>
+                                    {{-- <th>Solicitante</th> --}}
+                                    <th>Solicitado</th>
+                                    <th>Rol</th>
+                                    {{-- <th>Motivo de archivo</th> --}}
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyResolucionesIndividuales">
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
+                    <button class="btn btn-warning btn-sm m-l-5" id="btnGuardarResolucionMuchas"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- Fin Modal de comparecientes y resolución individual-->
 <input type="hidden" id="parte_id">
@@ -788,14 +944,14 @@
                 try{
                     respuesta = true;
                     
-                    console.log(data.data.updated_at);
+                    // console.log(data.data.updated_at);
                     $(".showTime"+etapa).text(data.data.created_at);
                 }catch(error){
-                    console.log(error);
+                    // console.log(error);
                 }
             },
             error:function(error){
-                console.log(error);
+                // console.log(error);
                 respuesta = false;
             }
         });
@@ -813,21 +969,46 @@
                 try{
                     setPasosAudiencia(data)
                 }catch(error){
-                    console.log(error);
+                    // console.log(error);
                 }
             }
         });
     }
     function setPasosAudiencia(etapas){
+        console.log(etapas);
         $.each(etapas, function (key, value) {
             var pasoActual = value.etapa_resolucion_id;
             $(".showTime"+pasoActual).text(value.updated_at);
-            var siguiente = pasoActual+1;
-            if(pasoActual == 1){
-                cargarComparecientes();
-            }else{
-                $("#evidencia"+pasoActual).val(value.evidencia)
+            if(value.updated_at != ""){
+                $('.btnPaso'+pasoActual).hide();
             }
+            var siguiente = pasoActual+1;
+            switch (pasoActual) {
+                case 1:
+                    cargarComparecientes();
+                    break;
+                case 2://"checked":"" 
+                    if(value.evidencia == "true"){
+                        if(!$("#explico_acta").is(":checked")){
+                            $("#explico_acta").click();
+                        }
+                        for (i=0; i<=5; i++) {
+                            $("#paso"+i).click();
+                        }
+                    }
+                    
+                    // $('.btnPaso').hide(); 
+                    break;
+                case 6:
+                    
+                    break;
+                default:
+                    
+                    $("#evidencia"+pasoActual).data("wysihtml5").editor.setValue(value.evidencia);
+                    break;
+            }
+            
+                
             $("#icon"+pasoActual).css("background","lightgreen");
             // $("#contentStep"+pasoActual).hide();
             $("#step"+siguiente).show();
@@ -835,7 +1016,7 @@
             
         });
     }
-    $('.textarea    ').wysihtml5({locale: 'es-ES'});
+    $('.textarea').wysihtml5({locale: 'es-ES'});
 
     /*
      * Aqui inician las funciones para administrar el paso 1
@@ -847,7 +1028,7 @@
             type:"GET",
             dataType:"json",
             success:function(data){
-                console.log(data.pasa);
+                // console.log(data.pasa);
                 if(data.pasa){
                     getPersonasComparecer();
                 }else{
@@ -1104,7 +1285,7 @@
         objeto_propuesta.prima_antiguedad = $("#prima_antiguedad").val();
         objeto_propuesta.prestaciones_legales = $("#prestaciones_legales").val();
         objeto_propuesta.prestaciones_45 = $("#prestaciones_45").val();
-        console.log(objeto_propuesta);
+        // console.log(objeto_propuesta);
         $("#tableOtro").show();
         $("#modal-propuesta-convenio").modal('hide')
         // formarTablaPropuestaConvenio();
@@ -1194,7 +1375,7 @@
             $("#localidad_notaria").prev().css("color","red");
             error = true;
         }
-        console.log(listaContactos.length);
+        // console.log(listaContactos.length);
         if(listaContactos.length == 0){
             $("#contacto").prev().css("color","red");
             $("#tipo_contacto_id").prev().css("color","red");
@@ -1230,7 +1411,7 @@
                     }
                     $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
                     $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
-                    console.log(data.jornada_id);
+                    // console.log(data.jornada_id);
                     $("#jornada_id").val(data.jornada_id);
                     $("#horas_semanales").val(data.horas_semanales);
                     $("#resolucion_dato_laboral").val(data.resolucion);
@@ -1287,7 +1468,7 @@
         templateResult: function(data) {
             return data.html;
         },templateSelection: function(data) {
-            console.log(data);
+            // console.log(data);
             if(data.id != ""){
                 return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
             }
@@ -1343,11 +1524,11 @@
                         swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
                     }
                 },error:function(data){
-                    console.log(data);
+                    // console.log(data);
                     var mensajes = "";
                     $.each(data.responseJSON.errors, function (key, value) {
-                        console.log(key.split("."));
-                        console.log(value);
+                        // console.log(key.split("."));
+                        // console.log(value);
                         var origen = key.split(".");
 
                         mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
@@ -1471,7 +1652,8 @@
      * Aqui inician las funciones para administrar el paso 6
      *
      */
-    $("#btnFinalizar").on("click",function(){
+     function finalizar(pasoActual){
+    // $("#btnFinalizar").on("click",function(){
         swal({
             title: 'Finalización de audiencia',
             text: '¿Estas seguro que deseas terminar la audiencia?',
@@ -1495,13 +1677,28 @@
             }
         }).then(function(isConfirm){
             if(isConfirm){
-                listaResolucionesIndividuales = [];
-                $("#btnGuardarResolucionMuchas").click();
+
+                var success = guardarEvidenciaEtapa(pasoActual);
+                if(success){
+                    // var siguiente = pasoActual+1;
+                    $("#icon"+pasoActual).css("background","lightgreen");
+                    $('html,body').animate({
+                        scrollTop: $("#contentStep"+pasoActual).offset().top
+                    }, 'slow');
+                    // $("#step"+siguiente).show();
+                    listaResolucionesIndividuales = [];
+                    $("#btnGuardarResolucionMuchas").click();
+                }else{
+                    swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
+                }
+            
+                
             }else{
                 // cargarModalRelaciones();
             }
         });
-    });
+    }
+    
     function cargarModalRelaciones(){
         $("#modal-relaciones").modal("show");
     }
@@ -1665,28 +1862,57 @@
             monto = (monto >0 )? monto : "";
             $('#monto').val(monto);
         });
+
+//     $("#btnAgregarResolucion").on("click",function(){
+//         if(validarResolucionIndividual()){
+//             var motivo_id = "";
+//             var motivo_nombre = "";
+//             if($("#resolucion_individual_id").val() == 4){
+//                 motivo_id = $("#motivo_archivado_id").val();
+//                 motivo_nombre = $("#motivo_archivado_id option:selected").text();
+//             }
+//             listaResolucionesIndividuales.push({
+//                 parte_solicitante_id:$("#parte_solicitante_id").val(),
+//                 parte_solicitante_nombre:$("#parte_solicitante_id option:selected").text(),
+//                 parte_solicitado_id:$("#parte_solicitado_id").val(),
+//                 parte_solicitado_nombre:$("#parte_solicitado_id option:selected").text(),
+//                 resolucion_individual_id:$("#resolucion_individual_id").val(),
+//                 resolucion_individual_nombre:$("#resolucion_individual_id option:selected").text(),
+//                 motivo_archivado_id:motivo_id,
+//                 motivo_archivado_nombre:motivo_nombre
+//             });
+//             $("#parte_solicitante_id").val("").trigger("change");
+//             $("#parte_solicitado_id").val("").trigger("change");
+//             $("#resolucion_individual_id").val("").trigger("change");
+//             $("#motivo_archivado_id").val("").trigger("change");
+// //                limpiarConcepto();
+// //                cargarTablaConcepto();
+//             cargarTablaResolucionesIndividuales();
+//         }
+//     });
+
     $("#btnAgregarResolucion").on("click",function(){
         if(validarResolucionIndividual()){
             var motivo_id = "";
             var motivo_nombre = "";
-            if($("#resolucion_individual_id").val() == 4){
-                motivo_id = $("#motivo_archivado_id").val();
-                motivo_nombre = $("#motivo_archivado_id option:selected").text();
-            }
+            // if($("#resolucion_individual_id").val() == 4){
+            //     motivo_id = $("#motivo_archivado_id").val();
+            //     motivo_nombre = $("#motivo_archivado_id option:selected").text();
+            // }
             listaResolucionesIndividuales.push({
-                parte_solicitante_id:$("#parte_solicitante_id").val(),
-                parte_solicitante_nombre:$("#parte_solicitante_id option:selected").text(),
+                // parte_solicitante_id:$("#parte_solicitante_id").val(),
+                // parte_solicitante_nombre:$("#parte_solicitante_id option:selected").text(),
                 parte_solicitado_id:$("#parte_solicitado_id").val(),
                 parte_solicitado_nombre:$("#parte_solicitado_id option:selected").text(),
-                resolucion_individual_id:$("#resolucion_individual_id").val(),
-                resolucion_individual_nombre:$("#resolucion_individual_id option:selected").text(),
-                motivo_archivado_id:motivo_id,
-                motivo_archivado_nombre:motivo_nombre
+                rol_solicitante_id:$("#rol_solicitante_id").val(),
+                rol_solicitante_nombre:$("#rol_solicitante_id option:selected").text(),
+                // motivo_archivado_id:motivo_id,
+                // motivo_archivado_nombre:motivo_nombre
             });
             $("#parte_solicitante_id").val("").trigger("change");
             $("#parte_solicitado_id").val("").trigger("change");
-            $("#resolucion_individual_id").val("").trigger("change");
-            $("#motivo_archivado_id").val("").trigger("change");
+            $("#rol_solicitante_id").val("").trigger("change");
+            // $("#motivo_archivado_id").val("").trigger("change");
 //                limpiarConcepto();
 //                cargarTablaConcepto();
             cargarTablaResolucionesIndividuales();
@@ -1720,10 +1946,10 @@
         var table = '';
         $.each(listaResolucionesIndividuales,function(i,e){
             table +='<tr>';
-                table +='<td>'+e.parte_solicitante_nombre+'</td>';
+                // table +='<td>'+e.parte_solicitante_nombre+'</td>';
                 table +='<td>'+e.parte_solicitado_nombre+'</td>';
-                table +='<td>'+e.resolucion_individual_nombre+'</td>';
-                table +='<td>'+e.motivo_archivado_nombre+'</td>';
+                table +='<td>'+e.rol_solicitante_nombre+'</td>';
+                // table +='<td>'+e.motivo_archivado_nombre+'</td>';
                 table +='<td>';
                     table +='<button onclick="eliminarRelacion('+i+')" class="btn btn-xs btn-warning" title="Eliminar">';
                         table +='<i class="fa fa-trash"></i>';
@@ -1734,7 +1960,7 @@
         $("#tbodyResolucionesIndividuales").html(table);
     }
     function eliminarRelacion(indice){
-        console.log(indice);
+        // console.log(indice);
         listaResolucionesIndividuales.splice(indice,1);
         cargarTablaResolucionesIndividuales();
     }
@@ -1750,7 +1976,7 @@
                 listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
             }
         });
-        console.log(listaPropuestaConceptos);
+        // console.log(listaPropuestaConceptos);
 
         $.ajax({
             url:"/audiencia/resolucion",
@@ -1790,7 +2016,7 @@
             var minutes = seconds / 60;
             var hours = minutes /60;
             days = hours / 24;
-            console.log(days);
+            // console.log(days);
             var timestamp = new Date(0,0,0,0,0,seconds);
         }else{
             var timestamp = new Date(0,0,0,0,0,0);

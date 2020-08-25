@@ -3,14 +3,14 @@
         {
             "id": 1,
             "paso": 1,
-            "nombre": "Notificación y comparecencias",
+            "nombre": "Comparecencias",
             "descripcion": "El conciliador auxiliar lo lleva a cabo antes de entrar a la sala"
         },
         {
             "id": 2,
             "paso": 2,
-            "nombre": "Preámbulo",
-            "descripcion": "El conciliador debe confirmar que sí leyó y explicó el acta"
+            "nombre": "Principios, derechos y beneficios de la conciliación",
+            "descripcion": "El conciliador debe confirmar que sí leyó y explicó Principios, derechos y beneficios de la conciliación."
         },
         {
             "id": 3,
