@@ -20,7 +20,7 @@
         {{-- <form action="{{url('solicitudes')}}" method="POST"> --}}
             {{ csrf_field() }}
             @include('expediente.solicitudes._form')
-             <button class="btn btn-primary pull-right btn-lg m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save" ></i> Guardar</button>
+             
 
         {{-- </form> --}}
     </div>

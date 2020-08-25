@@ -65,6 +65,11 @@
         {!! $errors->first('domicilio[vialidad]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Nombre de la vialidad o calle</p>
     </div>
+    <div class="col-md-4" title="Un asentamiento no siempre es una colonia, puede ser una unidad habitacional, un ejido, un barrio, etc." data-toggle="tooltip" data-placement="top">
+        {!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'upper form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
+        {!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}
+        <p class="help-block needed">Tipo de asentamiento</p>
+    </div>
     <div class="col-md-4" title="Es el número o identificador exterior, el que se ve desde la calle. No siempre es un número puede ser por ejemplo: MZ para manzana, SM para super Manzana, KM para los ubicados en carreteras, etc." data-toggle="tooltip" data-placement="top">
         {{-- <input class="form-control numero direccionUpd{{$identificador}}" name="domicilio[num_ext]" id="num_ext{{$identificador}}" placeholder="Num Exterior" required type="text" value=""> --}}
         {!! Form::text('domicilio[num_ext]', isset($domicilio->num_ext) ? $domicilio->num_ext : null, ['id'=>'num_ext'.$identificador,'required', 'class'=>'form-control upper direccionUpd'.$identificador, 'placeholder'=>'Número Exterior']) !!}
@@ -78,22 +83,18 @@
         <p class="help-block">Número interior</p>
     </div>
     <div class="col-md-12" title="Escribe el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Si escoges la correcta se llenarán de forma automática los demás campos." data-toggle="tooltip" data-placement="top">
-        <select name="autocomplete{{$identificador}}" placeholder="Seleccione" id="autocomplete{{$identificador}}" class="form-control"></select>
+        <select name="asentamientoAutoc" placeholder="Seleccione" id="asentamientoAutoc{{$identificador}}" class="form-control"></select>
         <input type="hidden" id="term{{$identificador}}">
         <p class="help-block upper needed">Escribe el nombre de tu colonia.</p>
+        <input type="hidden" id="asentamiento{{$identificador}}" >
     </div>
 
-    <div class="col-md-4" title="Un asentamiento no siempre es una colonia, puede ser una unidad habitacional, un ejido, un barrio, etc." data-toggle="tooltip" data-placement="top">
-        {!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'upper form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
-        {!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}
-        <p class="help-block needed">Tipo de asentamiento</p>
-    </div>
-    <div class="col-md-4">
-        {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[asentamiento]" id="asentamiento{{$identificador}}" placeholder="Asentamiento" required type="text" value=""> --}}
+    {{-- <div class="col-md-4">
+        <input class="form-control direccionUpd{{$identificador}}" name="domicilio[asentamiento]" id="asentamiento{{$identificador}}" placeholder="Asentamiento" required type="text" value="">
         {!! Form::text('domicilio[asentamiento]', isset($domicilio->asentamiento) ? $domicilio->asentamiento : null, ['id'=>'asentamiento'.$identificador,'required', 'class'=>'form-control upper direccionUpd'.$identificador, 'placeholder'=>'Asentamiento']) !!}
         {!! $errors->first('domicilio[asentamiento]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Colonia (asentamiento)</p>
-    </div>
+    </div> --}}
 
 	<div class="col-md-4" title="En caso de la Ciudad de México se trata del nombre de la alcaldía, en otras entidades de la república se trata de municipios." data-toggle="tooltip" data-placement="top">
         {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[municipio]" id="municipio{{$identificador}}" required placeholder="Municipio" type="text" value=""> --}}
@@ -293,7 +294,7 @@
             $("#num_ext"+identifier).val("");
             $("#num_int"+identifier).val("");
             $("#asentamiento"+identifier).val("");
-            $("#municipio"+identifier).val("");
+            $("#municipio"+identifier).val("").trigger("change");
             $("#cp"+identifier).val("");
             $("#entre_calle1"+identifier).val("");
             $("#entre_calle2"+identifier).val("");
@@ -304,7 +305,7 @@
             $("#domicilio_id_modal"+identifier).val("");
             $("#domicilio_key"+identifier).val("");
             $("#vialidad"+identifier).val("");
-            $("#autocomplete"+identifier).val("");
+            $("#asentamientoAutoc"+identifier).val("").trigger("change");
             $('.catSelect'+identifier).trigger('change');
             $("#latitud"+identifier).val("");
             $("#longitud"+identifier).val("");
@@ -355,7 +356,7 @@
             $("#tipo_asentamiento"+identifier).val($("#tipo_asentamiento_id"+identifier+" :selected").text());
         });
 		$(".direccionUpd"+identifier).blur(function(){
-			if($("#tipo_vialidad_id"+identifier).val() != "" && $("#vialidad"+identifier).val() != "" && $("#num_ext"+identifier).val() != "" && $("#asentamiento"+identifier).val() && $("#municipio"+identifier).val() != "" && $("#estado_id"+identifier).val() != "" ){
+			if($("#tipo_vialidad_id"+identifier).val() != "" && $("#vialidad"+identifier).val() != "" && $("#num_ext"+identifier).val() != "" && $("#asentamiento"+identifier).val() !="" && $("#municipio"+identifier).val() != "" && $("#estado_id"+identifier).val() != "" ){
 				var direccion = $("#tipo_vialidad_id"+identifier+" :selected").text() + "," + $("#vialidad"+identifier).val() + "," + $("#num_ext"+identifier).val() + "," + $("#asentamiento"+identifier).val() + "," + $("#municipio"+identifier).val() + "." + $("#estado_id"+identifier+" :selected").text();
 				$("#direccion_marker"+identifier).val(direccion);
                 if(needMaps == 'true'){
@@ -363,7 +364,12 @@
                 }
 			}
         });
-        $("#autocomplete"+identifier).select2({
+        $("#asentamientoAutoc"+identifier).on("change", function (e) { 
+            if(e.value == ""){
+                $("#asentamiento"+identifier).val("");
+            }
+         });
+        $("#asentamientoAutoc"+identifier).select2({
             ajax: {
                 url: '/api/asentamientos/filtrarAsentamientos',
                 type:"POST",
@@ -399,30 +405,36 @@
             },
             templateResult: function(data) {
                 if(data.loading) return 'Buscando...';
-                return data.html;
+                if(data.html != undefined){
+                    return data.html;
+                }else{
+                    return data.text;
+                }
             },templateSelection: function(data) {
                 if(data.id != ""){
-                    $("#municipio"+identifier+" option:contains("+ data.municipio +")").prop("selected",true).trigger("change");
-                    var estado = "";
-                    if(data.estado.toLowerCase() == 'estado de méxico'){
-                        estado = 'México';
-                    }else{
-                        estado = data.estado.toLowerCase();
+                    if(data.estado != undefined){
+                        $("#municipio"+identifier+" option:contains("+ data.municipio +")").prop("selected",true).trigger("change");
+                        var estado = "";
+                        if(data.estado.toLowerCase() == 'estado de méxico'){
+                            estado = 'México';
+                        }else{
+                            estado = data.estado.toLowerCase();
+                        }
+                        $("#estado_id"+identifier+" option:contains("+ estado +")").prop("selected",true).trigger("change");
+                        $("#cp"+identifier).val(data.cp);
+                        $("#asentamiento"+identifier).val(data.asentamiento);
+                        $(".direccionUpd"+identifier).trigger('blur');
+                        $(".direccionUpd"+identifier).trigger('change');
+                        return data.asentamiento;
                     }
-                    $("#estado_id"+identifier+" option:contains("+ estado +")").prop("selected",true).trigger("change");
-                    $("#cp"+identifier).val(data.cp);
-                    $("#asentamiento"+identifier).val(data.asentamiento);
-                    $("#tipo_asentamiento_id"+identifier).val(7);
-                    $("#tipo_vialidad_id"+identifier).val(5);
-                    $(".direccionUpd"+identifier).trigger('blur');
-                    $(".direccionUpd"+identifier).trigger('change');
-                    return "<b>"+data.estado+', '+ data.municipio+', '+ data.cp+', '+ data.asentamiento;
                 }
+                $("#asentamiento"+identifier).val(data.text);
                 return data.text;
             },
             placeholder:'Seleccione una opción',
             minimumInputLength:4,
             allowClear: true,
+            tags: true,
             language: "es"
         });
 

@@ -32,6 +32,11 @@
     }
 
 </style>
+@if(auth()->user())
+    <input type="hidden" id="externo" value="0">
+@else
+    <input type="hidden" id="externo" value="1">
+@endif
 <div id="wizard" class="col-md-12" >
     <!-- begin wizard-step -->
     <ul class="wizard-steps">
@@ -119,10 +124,32 @@
                             <h2>Datos generales de la solicitud</h2>
                             <hr class="red">
                         </div>
-                        <div class="col-md-6">
-                            {!! Form::select('objeto_solicitud_id', isset($objeto_solicitudes) ? $objeto_solicitudes : [] , null, ['id'=>'objeto_solicitud_id','onchange'=>'agregarObjetoSol()','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                            {!! $errors->first('objeto_solicitud_id', '<span class=text-danger>:message</span>') !!}
-                            <p class="help-block needed">Objeto de la solicitud</p>
+                        <div class="col-md-4">
+                            <input class="form-control date" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
+                            <p class="help-block needed">Fecha de Conflicto</p>
+                        </div>
+                        <div class="col-md-12 row">
+                            <div class="col-md-6">
+                                {!! Form::select('objeto_solicitud_id', isset($objeto_solicitudes) ? $objeto_solicitudes : [] , null, ['id'=>'objeto_solicitud_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                {!! $errors->first('objeto_solicitud_id', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Objeto de la solicitud</p>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-primary" type="button" onclick="agregarObjetoSol()" id="btnObjetoSol" > <i class="fa fa-plus-circle"></i> Agregar Objeto</button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                            <table class="table table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th>Objeto</th>
+                                        <th>Acci&oacute;n</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyObjetoSol">
+                                </tbody>
+                            </table>
                         </div>
                         <div class="col-md-12 form-group row">
                             <input type="hidden" id="term">
@@ -287,7 +314,7 @@
                                     <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(2)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
                                 </div>
                             </div>
-                            {{-- end seccion de contactos solicitados --}}
+                            {{-- end seccion de contactos citados --}}
                             <!-- seccion de domicilios solicitante -->
                             <div id="divMapaSolicitante" data-parsley-validate="true" style="display:none">
                                 @include('includes.component.map',['identificador' => 'solicitante','needsMaps'=>"false", 'instancia' => '1'])
@@ -298,7 +325,7 @@
 
                             <!-- end seccion de domicilios solicitante -->
                             <!-- Seccion de Datos laborales -->
-                            <div id="divDatoLaboralSolicitante" data-parsley-validate="true" style="display:none" class="col-md-12 row">
+                            <div id="divDatoLaboralSolicitante" style="display: none;" data-parsley-validate="true"  class="col-md-12 row">
                                 <div class="col-md-12 mt-4">
                                     <h4>Datos Laborales</h4>
                                     <hr class="red">
@@ -313,14 +340,14 @@
                                     <p class="help-block ">N&uacute;mero de seguro social</p>
                                 </div>
                                 <div class="col-md-12 row">
-                                    <div class="col-md-4">
+                                    <div class="col-md-6">
                                         <input class="form-control upper" id="puesto" placeholder="Puesto" type="text" value="">
                                         <p class="help-block ">Puesto</p>
                                     </div>
-                                    <div class="col-md-4" >
+                                    <div class="col-md-6" >
                                         {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block ">&iquest;Tiene un salario mínimo distinto al general? En ese caso escoja del cat&aacute;logo</p>
+                                        <p class="help-block ">&iquest;En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoja del catálogo. Si no, deja vacío.</p>
                                     </div>
                                     {{-- <div class="col-md-4">
                                         <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
@@ -361,12 +388,18 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4">
+                                    {{-- <select id="jornada_id" required="" class="form-control catSelect" name="jornada_id" data-select2-id="jornada_id" tabindex="-1" aria-hidden="true">
+                                        <option selected="selected" value="" data-select2-id="19">Seleccione una opción</option>
+                                        @foreach($jornadas as $jornada)
+                                            <option value="{{$jornada->id}}" > {{$jornada->nombre}} </option>
+                                        @endforeach
+                                    </select> --}}
                                     {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
                                     {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Jornada</p>
                                 </div>
-                                <div  class="col-md-12 pasoSolicitante" id="continuar4">
-                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(4)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
+                                <div>
+                                    <a style="font-size: medium;" onclick="$('#modal-jornada').modal('show');"><i class="fa fa-question-circle"></i></a>
                                 </div>
                             </div>
                             <!-- end Seccion de Datos laborales -->
@@ -375,20 +408,6 @@
                                 <button class="btn btn-primary" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Agregar solicitante</button>
                                 <button class="btn btn-danger" type="button" onclick="limpiarSolicitante()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
                             </div>
-                        </div>
-                         <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                            <table class="table table-bordered" >
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Curp</th>
-                                        <th>RFC</th>
-                                        <th>Accion</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbodySolicitante">
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
@@ -546,19 +565,24 @@
                                     <div class="row">
                                         <h4>Domicilio(s)</h4>
                                         <hr class="red">
-                                        <a style="margin-left:1%;" onclick="$('#modal-domicilio').modal('show');"> <i style="font-size:large; color:#49b6d6;" class="fa fa-plus-circle"></i> Oprima + para llenar los datos del domicilio y visualizar el mapa</a>
+                                        {{-- <a style="margin-left:1%;" onclick="$('#modal-domicilio').modal('show');"> <i style="font-size:large; color:#49b6d6;" class="fa fa-plus-circle"></i> Oprima + para llenar los datos del domicilio y visualizar el mapa</a> --}}
                                     </div>
-                                    <div class="col-md-10 offset-md-1" >
-                                        <table class="table table-bordered" >
-                                            <thead>
-                                                <tr>
-                                                    <th style="width:80%;">Domicilio</th>
-                                                    <th style="width:20%; text-align: center;">Accion</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="tbodyDomicilioSolicitado">
-                                            </tbody>
-                                        </table>
+                                    @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"true", 'instancia' => 2])
+                                    <div style="margin-top: 2%;" class="col-md-12">
+
+                                        {{-- <button class="btn btn-primary btn-sm m-l-5" onclick="agregarDomicilio()"><i class="fa fa-save"></i> Guardar Domicilio</button> --}}
+                                        {{-- <div class="col-md-10 offset-md-1" >
+                                            <table class="table table-bordered" >
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:80%;">Domicilio</th>
+                                                        <th style="width:20%; text-align: center;">Accion</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbodyDomicilioSolicitado">
+                                                </tbody>
+                                            </table>
+                                        </div> --}}
                                     </div>
                                 </div>
                                 <div class="col-md-12 pasoSolicitado" id="continuarSolicitado3">
@@ -572,20 +596,6 @@
                                 <button class="btn btn-danger" type="button" onclick="limpiarSolicitado()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
                             </div>
 
-                        </div>
-                        <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                            <table class="table table-bordered" >
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Curp</th>
-                                        <th>RFC</th>
-                                        <th style="width:15%; text-align: center;">Accion</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbodySolicitado">
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
@@ -608,10 +618,6 @@
                         <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
                         <p class="help-block needed">Fecha de Recepción</p>
                     </div>
-                    <div class="col-md-4">
-                        <input class="form-control date" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
-                        <p class="help-block needed">Fecha de Conflicto</p>
-                    </div>
                     <div class="col-md-4 estatusSolicitud">
                         {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                         {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
@@ -625,9 +631,10 @@
                                 <thead>
                                     <tr>
                                         <th>Objeto</th>
+                                        <th>Acci&oacute;n</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tbodyObjetoSol">
+                                <tbody id="tbodyObjetoSolRevision">
                                 </tbody>
                             </table>
                         </div>
@@ -646,7 +653,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div><h4>Solicitados</h4></div>
+                        <div><h4>Citados</h4></div>
                         <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                             <table class="table table-bordered" >
                                 <thead>
@@ -667,7 +674,7 @@
                     <br>
                     <div class="col-md-12 form-group">
                         <textarea rows="4" class="form-control" id="observaciones" onkeyup="validarPalabras(this)"></textarea>
-                        <p class="help-block">Descripci&oacute;n de los hechos motivo de la solicitud (<label id="numeroPalabras">0</label> de 200)</p>
+                        <p class="help-block">Descripci&oacute;n de los hechos motivo de la solicitud (<label id="numeroPalabras">0</label> de 200 palabras)</p>
                         <input type="hidden" id="countObservaciones" />
                     </div>
                 </div>
@@ -678,6 +685,10 @@
                     <button class="btn btn-primary btn-sm m-l-5" id="btnRatificarSolicitud"><i class="fa fa-check"></i> Ratificar Solicitud</button>
                 </div>
             @endif
+            <div class="col-md-12">
+                <button style="float: right;" class="btn btn-primary pull-right btn-lg m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save" ></i> Guardar</button>
+            </div>
+
         </div>
         </div>
         <!-- end step-3 -->
@@ -954,23 +965,25 @@
 
 <!-- inicio Modal Domicilio-->
 
- <div class="modal" id="modal-domicilio" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
+ <div class="modal" id="modal-jornada" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog ">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Domicilio</h2>
+            
+            <div class="modal-body" >
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body" id="domicilio-form">
-                <input type="hidden" id="domicilio_edit">
-
-                @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"true", 'instancia' => 2])
-
+                <h5>Para determinar tu tipo de jornada, debes considerar las primeras 8 horas que laboras en un día.</h5>
+                <p style="font-size:large;">
+                    <ol>
+                        <li>Si estas 8 horas transcurren entre 6 am y 8 pm, es una jornada "DIURNA".</li>
+                        <li>Si estas primeras 8 horas incluyen 3 horas o menos dentro del horario 8 pm - 6 am, es una jornada "MIXTA"</li>
+                        <li>Si estas 8 horas incluyen 3.5 o más horas dentro del horario 8 pm - 6 am, es una jornada NOCTURNA. </li>
+                        <li>En caso de que tengas algunas jornadas diurnas y otras mixtas o nocturnas, debes poner una jornada "MIXTA".</li>
+                    </ol>
+                </p>
             </div>
             <div class="modal-footer">
                 <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="domicilioObj2.limpiarDomicilios()"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" onclick="agregarDomicilio()"><i class="fa fa-save"></i> Guardar</button>
+                    <a class="btn btn-primary btn-sm" class="close" data-dismiss="modal" aria-hidden="true" ><i class="fa fa-times"></i> Aceptar</a>
                 </div>
             </div>
         </div>
@@ -1069,8 +1082,8 @@
                 <div class="alert alert-muted">
                     Selecciona la forma en que se notificara a la parte citada.<br>
                     <ul>
-                        <li>El solicitante entrega citatorio a solicitados: El solicitante se encargará de entregar la notifocación sin ayuda del centro</li>
-                        <li>Un actuario del centro entrega citatorio a solicitados: La tarea de entregar la notificación será del centro que asignará un actuario</li>
+                        <li>El solicitante entrega citatorio a citados: El solicitante se encargará de entregar la notifocación sin ayuda del centro</li>
+                        <li>Un actuario del centro entrega citatorio a citados: La tarea de entregar la notificación será del centro que asignará un actuario</li>
                     </ul>
                 </div>
                 <div class="col-md-12">
@@ -1105,12 +1118,12 @@
                                     <td>
                                         <div class="radio radio-css">
                                           <input type="radio" id="radioNotificacionA{{$parte->id}}" value="1" name="radioNotificacion{{$parte->id}}" />
-                                          <label for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio a solicitados</label>
+                                          <label for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio a citados</label>
                                         </div>
                                         @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
                                         <div class="radio radio-css">
                                           <input type="radio" id="radioNotificacionB{{$parte->id}}" value="2" name="radioNotificacion{{$parte->id}}" >
-                                          <label for="radioNotificacionB{{$parte->id}}">B) Un actuario del centro entrega citatorio a solicitados</label>
+                                          <label for="radioNotificacionB{{$parte->id}}">B) Un actuario del centro entrega citatorio a citados</label>
                                         </div>
                                         @else
                                         <div class="radio radio-css">
@@ -1144,13 +1157,13 @@
 
 <script>
     // Se declaran las variables globales
-    var arraySolicitados = []; //Lista de solicitados
+    var arraySolicitados = []; //Lista de citados
     var arraySolicitantes = []; //Lista de solicitantes
     var arrayDomiciliosSolicitante = []; // Array de domicilios para el solicitante
-    var arrayDomiciliosSolicitado = []; // Array de domicilios para el solicitado
-    var arrayObjetoSolicitudes = []; // Array de objeto_solicitude para el solicitado
-    var arrayContactoSolicitantes = []; // Array de objeto_solicitude para el solicitado
-    var arrayContactoSolicitados = []; // Array de objeto_solicitude para el solicitado
+    var arrayDomiciliosSolicitado = []; // Array de domicilios para el citado
+    var arrayObjetoSolicitudes = []; // Array de objeto_solicitude para el citado
+    var arrayContactoSolicitantes = []; // Array de objeto_solicitude para el citado
+    var arrayContactoSolicitados = []; // Array de objeto_solicitude para el citado
     var arraySolicitanteExcepcion = {}; // Array de solicitante excepción
 
     $(document).ready(function() {
@@ -1168,6 +1181,8 @@
             },
             lang: { next: 'Siguiente', previous: 'Anterior' }
         });
+        $('.sw-btn-prev').hide();
+        $('.sw-btn-next').hide();
         if(edit){
             $(".estatusSolicitud").show();
             $(".showEdit").show();
@@ -1271,6 +1286,36 @@
                     $('#divDatoLaboralSolicitante').hide();
                     $('#divBotonesSolicitante').hide();
                     $(".pasoSolicitante").show();
+                    swal({
+                        title: '¿Quieres seguir capturando solicitante(s) o proceder a capturar citado(s)?',
+                        text: '',
+                        icon: '',
+                        buttons: {
+                            cancel: {
+                                text: 'Capturar otro solicitante',
+                                value: null,
+                                visible: true,
+                                className: 'btn btn-primary',
+                                closeModal: true,
+                            },
+                            confirm: {
+                                text: 'Capturar Citado(s)',
+                                value: true,
+                                visible: true,
+                                className: 'btn btn-primary',
+                                closeModal: true
+                            }
+                        }
+                    }).then(function(isConfirm){
+                        if(isConfirm){
+                            $('#paso2').click();
+                        }else{
+                            divSolicitante
+                            $('html,body').animate({
+                                scrollTop: $("#divSolicitante").offset().top
+                            }, 'slow');
+                        }
+                    });
                 }
             }catch(error){
                 console.log(error);
@@ -1279,52 +1324,93 @@
 
 
         /**
-        * Funcion para agregar solicitado a lista de solicitados
+        * Funcion para agregar citado a lista de citados
         */
         $("#agregarSolicitado").click(function(){
             try{
-                if($('#step-2').parsley().validate() && arrayDomiciliosSolicitado.length > 0 ){
-                    var solicitado = {};
-                    key = $("#solicitado_key").val();
-                    solicitado.id = $("#solicitado_id").val();
-                    // Si tipo persona es fisica o moral llena diferentes campos
-                    if($("input[name='tipo_persona_solicitado']:checked").val() == 1){
-                        solicitado.nombre = $("#idNombreSolicitado").val();
-                        solicitado.primer_apellido = $("#idPrimerASolicitado").val();
-                        solicitado.segundo_apellido = $("#idSegundoASolicitado").val();
-                        solicitado.fecha_nacimiento = dateFormat($("#idFechaNacimientoSolicitado").val());
-                        solicitado.curp = $("#idSolicitadoCURP").val();
-                        solicitado.edad = $("#idEdadSolicitado").val();
-                        solicitado.genero_id = $("#genero_id_solicitado").val();
-                        solicitado.nacionalidad_id = $("#nacionalidad_id_solicitado").val();
-                        solicitado.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitado").val();
-                        solicitado.lengua_indigena_id = $("#lengua_indigena_id_solicitado").val();
-                    }else{
-                        solicitado.nombre_comercial = $("#idNombreCSolicitado").val();
-                    }
-                    solicitado.solicita_traductor = $("input[name='solicita_traductor_solicitado']:checked").val();
-                    solicitado.tipo_persona_id = $("input[name='tipo_persona_solicitado']:checked").val();
-                    solicitado.tipo_parte_id = 2;
-                    solicitado.rfc = $("#idSolicitadoRfc").val();
-                    solicitado.activo = 1;
-                    solicitado.domicilios = arrayDomiciliosSolicitado;
-                    //contactos del solicitado
-                    solicitado.contactos = arrayContactoSolicitados;
-                    //contactos
-                    if(key == ""){
-                        arraySolicitados.push(solicitado);
-                    }else{
+                if($('#step-2').parsley().validate()  ){
+                    agregarDomicilio();
+                    if(arrayDomiciliosSolicitado.length > 0 ){
 
-                        arraySolicitados[key] = solicitado;
-                    }
-                    formarTablaSolicitado();
-                    limpiarSolicitado();
-                    arrayDomiciliosSolicitado = [];
-                    formarTablaDomiciliosSolicitado();
-                    $('#divContactoSolicitado').hide();
-                    $('#divMapaSolicitado').hide();
-                    $('#divBotonesSolicitado').hide();
-                    $(".pasoSolicitado").show();
+                        var solicitado = {};
+                        key = $("#solicitado_key").val();
+                        solicitado.id = $("#solicitado_id").val();
+                        // Si tipo persona es fisica o moral llena diferentes campos
+                        if($("input[name='tipo_persona_solicitado']:checked").val() == 1){
+                            solicitado.nombre = $("#idNombreSolicitado").val();
+                            solicitado.primer_apellido = $("#idPrimerASolicitado").val();
+                            solicitado.segundo_apellido = $("#idSegundoASolicitado").val();
+                            solicitado.fecha_nacimiento = dateFormat($("#idFechaNacimientoSolicitado").val());
+                            solicitado.curp = $("#idSolicitadoCURP").val();
+                            solicitado.edad = $("#idEdadSolicitado").val();
+                            solicitado.genero_id = $("#genero_id_solicitado").val();
+                            solicitado.nacionalidad_id = $("#nacionalidad_id_solicitado").val();
+                            solicitado.entidad_nacimiento_id = $("#entidad_nacimiento_id_solicitado").val();
+                            solicitado.lengua_indigena_id = $("#lengua_indigena_id_solicitado").val();
+                        }else{
+                            solicitado.nombre_comercial = $("#idNombreCSolicitado").val();
+                        }
+                        solicitado.solicita_traductor = $("input[name='solicita_traductor_solicitado']:checked").val();
+                        solicitado.tipo_persona_id = $("input[name='tipo_persona_solicitado']:checked").val();
+                        solicitado.tipo_parte_id = 2;
+                        solicitado.rfc = $("#idSolicitadoRfc").val();
+                        solicitado.activo = 1;
+                        solicitado.domicilios = arrayDomiciliosSolicitado;
+                        //contactos del solicitado
+                        solicitado.contactos = arrayContactoSolicitados;
+                        //contactos
+                        if(key == ""){
+                            arraySolicitados.push(solicitado);
+                        }else{
+
+                            arraySolicitados[key] = solicitado;
+                        }
+                        formarTablaSolicitado();
+                        limpiarSolicitado();
+                        arrayDomiciliosSolicitado = [];
+                        formarTablaDomiciliosSolicitado();
+                        $('#divContactoSolicitado').hide();
+                        $('#divMapaSolicitado').hide();
+                        $('#divBotonesSolicitado').hide();
+                        $(".pasoSolicitado").show();
+                        swal({
+                            title: '¿Quieres seguir capturando citados?',
+                            text: '',
+                            icon: '',
+                            buttons: {
+                                cancel: {
+                                    text: 'Capturar otro citado',
+                                    value: null,
+                                    visible: true,
+                                    className: 'btn btn-primary',
+                                    closeModal: true,
+                                },
+                                confirm: {
+                                    text: 'Continuar',
+                                    value: true,
+                                    visible: true,
+                                    className: 'btn btn-primary',
+                                    closeModal: true
+                                }
+                            }
+                        }).then(function(isConfirm){
+                            if(isConfirm){
+                                $('#paso3').click();
+                            }else{
+                                divSolicitante
+                                $('html,body').animate({
+                                    scrollTop: $("#divSolicitado").offset().top
+                                }, 'slow');
+                            }
+                        });
+                    }else{
+                    swal({
+                        title: 'Error',
+                        text: 'Es necesario llenar todos los campos obligatorios y al menos una dirección del citado',
+                        icon: 'error',
+
+                    });
+                }
                 }else{
                     swal({
                         title: 'Error',
@@ -1830,6 +1916,7 @@
         var html = "";
 
         $("#tbodyObjetoSol").html("");
+        $("#tbodyObjetoSolRevision").html("");
 
         $.each(arrayObjetoSolicitudes, function (key, value) {
             if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined" )){
@@ -1842,6 +1929,7 @@
         });
         $("#objeto_solicitud_id").val("");
         $("#tbodyObjetoSol").html(html);
+        $("#tbodyObjetoSolRevision").html(html);
     }
     /**
     * Funcion para generar tabla a partir de array de solicitantes
@@ -1956,7 +2044,6 @@
         }else{
             arrayObjetoSolicitudes[key].activo = 0;
         }
-        $("#btnObjetoSol").show();
         formarTablaObjetoSol();
     }
 
@@ -2104,6 +2191,7 @@
         formarTablaContacto();
         // arrayContactoSolicitados = arraySolicitados[key].contactos;
         arrayDomiciliosSolicitado = arraySolicitados[key].domicilios;
+        cargarEditarDomicilioSolicitado(0);
         formarTablaDomiciliosSolicitado();
         $('.catSelect').trigger('change');
         $("#botonAgregarSolicitado").hide();
@@ -2116,7 +2204,6 @@
     function cargarEditarDomicilioSolicitado(key){
         $("#domicilio_edit").val(key)
         domicilioObj2.cargarDomicilio(arrayDomiciliosSolicitado[key]);
-        $('#modal-domicilio').modal('show');
         $('.catSelect').trigger('change');
     }
 
@@ -2146,11 +2233,11 @@
         if($("#estado_idsolicitado").val() != "" && $("#municipiosolicitado").val() != "" && $("#cpsolicitado").val() != "" && $("#tipo_asentamiento_idsolicitado").val() != "" && $("#asentamientosolicitado").val() != "" && $("#tipo_vialidad_idsolicitado").val() != "" && $("#vialidadsolicitado").val() != "" && $("#num_extsolicitado").val() != ""){
             key = $("#domicilio_edit").val();
 
-            if(key == ""){
-                arrayDomiciliosSolicitado.push(domicilioObj2.getDomicilio());
-            }else{
-                arrayDomiciliosSolicitado[key] = domicilioObj2.getDomicilio();
-            }
+            // if(key == ""){
+            //     arrayDomiciliosSolicitado.push(domicilioObj2.getDomicilio());
+            // }else{
+                arrayDomiciliosSolicitado[0] = domicilioObj2.getDomicilio();
+            // }
 
             formarTablaDomiciliosSolicitado();
             $('#modal-domicilio').modal('hide');
@@ -2167,13 +2254,29 @@
     * Funcion para agregar Domicilio de solicitante y solicitado
     */
     function agregarObjetoSol(){
-        if($("#objeto_solicitud_id").val() != ""){
-            var objeto_solicitud = {};
-            objeto_solicitud.id = "";
-            objeto_solicitud.objeto_solicitud_id = $("#objeto_solicitud_id").val();
-            objeto_solicitud.activo = 1;
-            arrayObjetoSolicitudes[0] = (objeto_solicitud);
-            formarTablaObjetoSol();
+        var objeto = $("#objeto_solicitud_id").val();
+        $("#objeto_solicitud_id").val("").trigger("change");
+        if(objeto != ""){
+            registrado = false;
+            $.each(arrayObjetoSolicitudes,function(index,value){
+                if(value.objeto_solicitud_id == objeto){
+                    swal({
+                        title: 'Error',
+                        text: 'El objeto ya esta registrado',
+                        icon: 'error'
+                    });
+                    registrado = true;
+                }
+            });
+            if(!registrado){
+                
+                var objeto_solicitud = {};
+                objeto_solicitud.id = "";
+                objeto_solicitud.objeto_solicitud_id = objeto;
+                objeto_solicitud.activo = 1;
+                arrayObjetoSolicitudes.push(objeto_solicitud);
+                formarTablaObjetoSol();
+            }
         }
     }
 
@@ -2188,6 +2291,7 @@
             var excepcion = getExcepcion();
             //Se llama api para guardar solicitud
             if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 ){
+                
                 var upd = "";
                 if($("#solicitud_id").val() == ""){
                     method = "POST";
@@ -2195,8 +2299,13 @@
                     method = "PUT";
                     upd = "/"+$("#solicitud_id").val();
                 }
+                var externo = "";
+                if($("#externo").val() == 1){
+                    externo = "/store-public";
+                }
+
                 $.ajax({
-                    url:'/solicitudes'+upd,
+                    url:'/solicitudes'+externo+upd,
                     type:method,
                     dataType:"json",
                     async:false,
@@ -2748,13 +2857,13 @@
                 }
                 break;
             case 2:
-                if(arrayContactoSolicitantes.length > 0){
+                if(arrayContactoSolicitantes.length > 1){
                     $('#divMapaSolicitante').show();
                     $('#continuar2').hide();
                 }else{
                     swal({
                         title: 'Error',
-                        text: 'Es necesario capturar al menos un contacto para continuar',
+                        text: 'Es necesario capturar al menos un correo y un numero de telefono para continuar',
                         icon: 'error',
                     });
                 }
@@ -2762,13 +2871,8 @@
             case 3:
                 if($('#divMapaSolicitante').parsley().validate()){
                     $('#divDatoLaboralSolicitante').show();
-                    $('#continuar3').hide();
-                }
-            break;
-            case 4:
-                if($('#divDatoLaboralSolicitante').parsley().validate()){
                     $('#divBotonesSolicitante').show();
-                    $('#continuar4').hide();
+                    $('#continuar3').hide();
                 }
             break;
             default:
@@ -2797,7 +2901,7 @@
                 }
             break;
             case 3:
-                if(arrayDomiciliosSolicitado.length > 0){
+                if($('#divMapaSolicitado').parsley().validate()){
                     $('#divBotonesSolicitado').show();
                     $('#continuarSolicitado3').hide();
                 }else{
@@ -2886,7 +2990,7 @@
     $('[data-toggle="tooltip"]').tooltip();
 </script>
 
-<script src="/assets/plugins/parsleyjs/dist/parsley.min.js"></script>
+
 <script src="/assets/plugins/highlight.js/highlight.min.js"></script>
 
 @endpush

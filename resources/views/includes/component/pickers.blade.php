@@ -40,6 +40,8 @@
     <!-- Libreria Wizard -->
     <script src="/assets/plugins/smartwizard/dist/js/jquery.smartWizard.js"></script>
     <!--<script src="/assets/js/demo/form-wizards.demo.js"></script>-->
+    <script src="/assets/plugins/parsleyjs/dist/parsley.min.js"></script>
+    <script src="/assets/plugins/parsleyjs/dist/i18n/es.js"></script>
 
     <!--Librerias wysihtml5-->
     <script src="/assets/plugins/ckeditor/ckeditor.js"></script>
