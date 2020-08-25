@@ -2,20 +2,16 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "Matutino"
+            "nombre": "DIURNA"
         },
         {
             "id": "2",
-            "nombre": "Vespertino"
+            "nombre": "NOCTURNA"
         },
         {
             "id": "3",
-            "nombre": "Nocturno"
-        },
-        {
-            "id": "4",
-            "nombre": "Mixto"
+            "nombre": "MIXTA"
         }
     ],
-    "numReg": 4
+    "numReg": 3
 }
