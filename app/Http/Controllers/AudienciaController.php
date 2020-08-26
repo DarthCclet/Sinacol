@@ -13,6 +13,7 @@ use App\Parte;
 use App\Compareciente;
 use App\TipoParte;
 use App\AudienciaParte;
+use App\EtapaResolucionAudiencia;
 use App\ConceptoPagoResolucion;
 use App\EtapaResolucion;
 use App\Events\GenerateDocumentResolution;
@@ -214,8 +215,26 @@ class AudienciaController extends Controller
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
         $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
         $jornadas = $this->cacheModel('jornadas',Jornada::class);
-        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);        
-        return view('expediente.audiencias.edit', compact('audiencia',"motivos_archivo","concepto_pago_resoluciones","periodicidades","ocupaciones","jornadas","giros_comerciales"));
+        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
+        $clasificacion_archivos = $this->cacheModel('clasificacion_archivo',ClasificacionArchivo::class);
+
+
+        $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
+        $resoluciones = $this->cacheModel('resoluciones',Resolucion::class);
+        $audiencia->solicitantes = $this->getSolicitantes($audiencia);
+        $audiencia->solicitados = $this->getSolicitados($audiencia);
+        $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
+
+
+        if($audiencia->solictud_cancelcacion){
+            $audiencia->justificante_id == null;
+            foreach($audiencia->documentos as $documento){
+                if($documento->clasificacion_archivo_id == 7){
+                    $audiencia->justificante_id = $documento->id;
+                }
+            }
+        }
+        return view('expediente.audiencias.edit', compact('audiencia','etapa_resolucion','resoluciones','concepto_pago_resoluciones',"motivos_archivo","concepto_pago_resoluciones","periodicidades","ocupaciones","jornadas","giros_comerciales","clasificacion_archivos"));
     }
 
     /**
@@ -517,17 +536,31 @@ class AudienciaController extends Controller
      * @return array
      */
     function Resolucion(Request $request){
-        $audiencia = Audiencia::find($request->audiencia_id);
-        if($request->timeline){
-            $audiencia->update(array("resolucion_id"=>$request->resolucion_id,"finalizada"=>true));
-        }else{
-        $audiencia->update(array("convenio" => $request->convenio,"desahogo" => $request->desahogo,"resolucion_id"=>$request->resolucion_id,"finalizada"=>true));
-        foreach($request->comparecientes as $compareciente){
-            Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $audiencia->id,"presentado" => true]);
+        try{
+            DB::beginTransaction();
+            $audiencia = Audiencia::find($request->audiencia_id);
+            if($request->timeline){
+                $audiencia->update(array("resolucion_id"=>$request->resolucion_id,"finalizada"=>true));
+            }else{
+            $audiencia->update(array("convenio" => $request->convenio,"desahogo" => $request->desahogo,"resolucion_id"=>$request->resolucion_id,"finalizada"=>true));
+                foreach($request->comparecientes as $compareciente){
+                    Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $audiencia->id,"presentado" => true]);
+                }
+            }
+            $this->guardarRelaciones($audiencia,$request->listaRelacion,$request->listaConceptos);
+            $etapaAudiencia = EtapaResolucionAudiencia::create([
+                "etapa_resolucion_id"=>6,
+                "audiencia_id"=>$audiencia->id,
+                "evidencia"=>true 
+            ]);
+            DB::commit();
+            return $audiencia;
+        }catch(\Throwable $e){
+            
+            DB::rollback();
+            dd($e);
+            return $this->sendError('Error al registrar los comparecientes', 'Error');
         }
-        }
-        $this->guardarRelaciones($audiencia,$request->listaRelacion,$request->listaConceptos);
-        return $audiencia;
     }
     
     /**
@@ -898,5 +931,23 @@ class AudienciaController extends Controller
             $respuesta = Cache::get($nombre);
         }
         return $respuesta;
+    }
+    public function negarCancelacion(){
+        $audiencia = Audiencia::find($this->request->audiencia_id);
+        $audiencia->update(["cancelacion_atendida" => true]);
+        return $audiencia;
+    }
+    public function cambiarFecha() {
+        try{
+            DB::beginTransaction();
+            $audiencia = Audiencia::find($this->request->audiencia_id);
+            $audiencia->update(["fecha_audiencia" => $this->request->fecha_audiencia,"hora_inicio" => $this->request->hora_inicio,"hora_fin" => $this->request->hora_fin,"cancelacion_atendida" => true]);
+            event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,4,4));
+            DB::commit();
+            return $audiencia;
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return $this->sendError('Algo salio mal al tratar de reagendar', 'Error');
+        }
     }
 }

@@ -175,5 +175,4 @@ class BuzonController extends Controller
         }
         return $respuesta;
     }
-    
 }

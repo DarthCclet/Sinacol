@@ -127,18 +127,15 @@ class ConceptosResolucionController extends Controller
     {
         try {
             $id = $this->request->get('solicitante_id');
-            // $id = $this->request->get('id');
-            // $parteSolicitante = Parte::find($id);
-            $datoLaboral = DatoLaboral::select('fecha_ingreso','fecha_salida','periodicidad_id','remuneracion')->where('parte_id',$id)->get();
-            // dd($datoLaboral);
-            if(count($datoLaboral) >1){
+            $parte = Parte::find($id);
+            $datoLaboral = $parte->dato_laboral;
+            if(count($datoLaboral) > 1){
                 $datoLaboral =$datoLaboral->where('resolucion',true)->first();
             }else{
                 $datoLaboral =$datoLaboral->where('resolucion',false)->first();
             }
             $diasPeriodicidad = Periodicidad::where('id', $datoLaboral->periodicidad_id)->first();
             $remuneracionDiaria = $datoLaboral->remuneracion / $diasPeriodicidad->dias;
-            // $now = Carbon::now();
             $anios_antiguedad = Carbon::parse($datoLaboral->fecha_ingreso)->floatDiffInYears($datoLaboral->fecha_salida);
             $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
             $salarios = SalarioMinimo::get('salario_minimo');
