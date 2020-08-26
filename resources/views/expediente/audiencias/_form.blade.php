@@ -97,41 +97,4 @@
             </tbody>
         </table>
     </div>
-    <div class="col-md-offset-3 col-md-6 ">
-        <!-- begin panel -->
-	<div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">Convenio</h4>
-            </div>
-            <!-- begin panel-body -->
-            <div class="panel-body">
-                    {!! Form::textarea('convenio', isset($audiencia) ? $audiencia->convenio : null, ['class'=>'form-control textarea', 'id'=>'convenio', 'placeholder'=>'Describir el convenio ...','rows'=>'12']) !!}
-		</div>
-	</div>
-	<!-- end panel -->
-    </div>
-    <div class="col-md-offset-3 col-md-6 ">
-        <!-- begin panel -->
-	<div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">Desahogo</h4>
-            </div>
-            <!-- begin panel-body -->
-            <div class="panel-body">
-                {!! Form::textarea('desahogo', isset($audiencia) ? $audiencia->desahogo : null, ['class'=>'form-control textarea', 'id'=>'desahogo', 'placeholder'=>'Describir el desahogo ...','rows'=>'12']) !!}
-                <!--<textarea class="textarea form-control" id="desahogo" placeholder="Describir el desahogo ..." rows="12"></textarea>-->
-            </div>
-	</div>
-	<!-- end panel -->
-    </div>
-    <div class="col-md-offset-3 col-md-6 ">
-        <div class="form-group">
-            <label for="resolucion_id" class="col-sm-6 control-label">Resolución</label>
-            <div class="col-sm-10">
-                <select id="resolucion_id" class="form-control select-element">
-                    <option value="">-- Selecciona una resolución</option>
-                </select>
-            </div>
-        </div>
-    </div>
 </div>
