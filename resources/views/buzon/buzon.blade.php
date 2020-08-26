@@ -19,13 +19,6 @@
                 <div class="card-body">
                     <ul>
                         <li>Ratificacion:
-                            @if($solicitud->expediente != null)
-                                @if(count($solicitud->expediente->audiencia) > 0)
-                                    @if(!$solicitud->expediente->audiencia[0]->solictud_cancelcacion && !$solicitud->expediente->audiencia[0]->finalizada)
-                                    <button class="btn btn-primary pull-right" style="display:hidden;" id="btnCancelarAudiencia">Cancelar </button>
-                                    @endif
-                                @endif
-                            @endif
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
                                     <td class="text-nowrap"><strong>Fecha de Solicitud:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_solicitud)->format('d/m/Y')}}</td>
@@ -49,7 +42,7 @@
                                                 @endif
                                     </td>
                                     <td class="text-nowrap" colspan="2">
-                                        <button class="btn btn-primary" onclick="cambiarDomicilio({{$parte->id}})">Verificar Ubicación</button>
+                                        <button class="btn btn-primary" onclick="cambiarDomicilio({{$parte->id}})">Verificar domicilio</button>
                                     </td>
                                 </tr>
                                 @endif
@@ -58,10 +51,15 @@
                                     <td class="text-nowrap" colspan="5">
                                         Documentos:<br>
                                         <ul>
-                                            <li><a href="#">Citatorio</a></li>
-                                        @if($solicitud->documentosRatificacion != null)
-                                        @foreach($solicitud->documentosRatificacion as $documento)
-                                            <li><a href="#">{{$documento->clasificacionArchivo->nombre}}</a></li>
+                                        @if($solicitud->expediente->audiencia != null)
+                                        @foreach($solicitud->expediente->audiencia as $key => $audiencia)
+                                            @if($key == 0)
+                                                @foreach($audiencia->documentos as $documento)
+                                                @if($documento->clasificacion_archivo_id == 4)
+                                                    <li><a href="/api/documentos/getFile/{{$documento->id}}" target="_blank">{{$documento->clasificacionArchivo->nombre}}</a></li>
+                                                @endif
+                                                @endforeach
+                                            @endif
                                         @endforeach
                                         @endif
                                         </ul>
@@ -69,8 +67,18 @@
                                 </tr>
                             </table>
                         @if($solicitud->expediente->audiencia != null)
-                        @foreach($solicitud->expediente->audiencia as $audiencia)
-                        <li>Audiencia: {{$audiencia->folio}}/{{$audiencia->anio}}<br>
+                        @foreach($solicitud->expediente->audiencia as $key => $audiencia)
+                        <li>Audiencia: {{$audiencia->folio}}/{{$audiencia->anio}}
+                            @if($key == 0)
+                                @if($solicitud->expediente != null)
+                                    @if(count($solicitud->expediente->audiencia) > 0)
+                                        @if(!$solicitud->expediente->audiencia[0]->solicitud_cancelacion && !$solicitud->expediente->audiencia[0]->finalizada)
+                                        <button class="btn btn-primary btn-small pull-right" onclick="reprogramarAudiencia({{$solicitud->expediente->audiencia[0]->id}})">Reprogramar audiencia </button>
+                                        @endif
+                                    @endif
+                                @endif
+                            @endif
+                            <br>
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
                                     <td class="text-nowrap">
@@ -119,11 +127,15 @@
                                             @foreach($audiencia->etapasResolucionAudiencia as $etapas)
                                             <li>
                                                 {{$etapas->etapaResolucion->nombre}} (Fecha: {{\Carbon\Carbon::parse($etapas->created_at)->format('d/m/Y')}})
+                                                @if($etapas->etapa_resolucion_id == 6)
                                                 <ul>
-                                                    <li>
-                                                        <a href="http://conciliacion.test/">Documento</a>
-                                                    </li>
+                                                    @foreach($audiencia->documentos as $key => $documento)
+                                                    @if($documento->clasificacion_archivo_id == 5 || $documento->clasificacion_archivo_id == 6)
+                                                    <li><a href="/api/documentos/getFile/{{$documento->id}}" target="_blank">{{$documento->clasificacionArchivo->nombre}}</a></li>
+                                                    @endif
+                                                    @endforeach
                                                 </ul>
+                                                @endif
                                             </li>
                                             @endforeach
                                         </ul>
@@ -145,7 +157,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Cancelación</h2>
+                <h2 class="modal-title">Reagendar audiencia</h2>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <form id="fileupload" action="/api/buzon/uploadJustificante" method="POST" enctype="multipart/form-data">
@@ -153,14 +165,13 @@
             <div class="modal-body" id="domicilio-form">
                 <div class="row">
                     <div class="col-md-12">
-                        <h6>Cancelación de audiencia</h6>
+                        <h6>Solicitud de nueva fecha para audiencia</h6>
                         <hr class="red">
                     </div>
                     <div class="alert alert-muted">
-                        Esta opción esta habilitada para solicitar la cancelación de una audiencia, la cual solo se debe dar en los siguientes casos:<br>
-                        - Problemas médicos<br>
-                        - Problemas familiares con justificante<br><br>
-                        <strong>Nota! </strong>La cancelación será validada por el conciliador y una vez aprobada se le indicará la nueva fecha
+                        Esta opción está habilitada para solicitar el reagendado de la audiencia por causa justificada, en conformidad con al Artículo 684-E fracción IX de la LFT.<br><br>
+                        
+                        <strong>Nota!</strong> la solicitud de reagendar será validada por el conciliador y una vez aprobada se le avisará nueva fecha por este buzón
                     </div>
                     <div class="col-md-2">
                     </div>
@@ -171,7 +182,7 @@
                         <div class="col-md-8">
                             <div class="form-group">
                                 <label for="justificante" class="control-label">Justificante</label>
-                                <input type="file" id="justificante" name="justificante" class="form-control">
+                                <input type="file" id="justificante" name="justificante" class="form-control" required>
                                 <p class="help-block">Selecciona el documento que servirá para evaluar la cancelación</p>
                             </div>
                         </div>
@@ -216,6 +227,9 @@
 @endsection
 @push('scripts')
 <script type="text/javascript">
+        function reprogramarAudiencia(id){
+            $("#modal-cancelar").modal('show');
+        }
         function DatosLaborales(parte_id){
             $("#parte_id").val(parte_id);
             $.ajax({
@@ -330,9 +344,6 @@
                 }
             });
         }
-        $("#btnCancelarAudiencia").on("click",function(){
-            $("#modal-cancelar").modal('show');
-        });
         function cambiarDomicilio(id){
             $.ajax({
                 url:"/api/getDomicilioParte/"+id,
