@@ -2,7 +2,7 @@
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
-      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Año</th><th>Centro</th><th>user</th><th>ratificada</th><th>excepcion</th><th>Fecha Ratificación</th><th>Fecha Recepción</th><th>Observaciones</th><th>deleted_at</th><th>created_at</th><th>updated_at</th><th>Fecha Conflicto</th><th>Partes</th><th>Expediente</th><th>Acción</th></tr>
+      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Año</th><th>Centro</th><th>user</th><th>ratificada</th><th>excepcion</th><th>Fecha Ratificación</th><th>Fecha Recepción</th><th>Observaciones</th><th>deleted_at</th><th>created_at</th><th>updated_at</th><th>Fecha Conflicto</th><th>Partes</th><th>Expediente</th><th>Días para expiraci&oacute;n</th><th>Acción</th></tr>
     </thead>
 
 </table>
@@ -158,20 +158,40 @@
                     {
                         "targets": [16],
                         "render": function (data, type, row) {
-                            console.log(data);
                             html = "N/A";
                             if(data != null){
                             html = ""+data.folio;
-
                             }
                             return  html;
                         }
                     },
                     {
-                        "targets": -1,
+                        "targets": -2,
                         "render": function (data, type, row) {
                                 // console.log(row[0]);
-
+                                if(row[1] == "2" && row[8] != null){
+                                    var d = new Date();
+                                    var dateToday = d.getFullYear()+"-"+String(d.getMonth() + 1).padStart(2, '0')+"-"+String(d.getDate()).padStart(2, '0');
+                                    var date1 = new Date(row[8].split(" ")[0]);
+                                    var date2 = new Date(dateToday);
+                                    var dias = date2 - date1;
+                                    dias = (dias/ (1000 * 3600 * 24));
+                                    diasExpira = 45;
+                                    resultado = diasExpira - dias;
+                                    if(resultado > 0){
+                                        return resultado +" d&iacute;as";
+                                    }
+                                    expiro  = resultado * -1;
+                                    return  "<p style='color:red;'>Expir&oacute; hace: " + expiro+ " d&iacute;as </p>";
+                                }else{
+                                    return '';
+                                }
+                            }
+                        // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a>&nbsp;<button class="btn btn-xs btn-danger btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
+                    },
+                    {
+                        "targets": -1,
+                        "render": function (data, type, row) {
                                 return '<div style="display: inline-block;"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
                             }
                         // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a>&nbsp;<button class="btn btn-xs btn-danger btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
