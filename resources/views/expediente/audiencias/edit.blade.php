@@ -95,6 +95,8 @@
             </div>
             @endif
             @include('expediente.audiencias._form')
+            <h3 class="h3">Administrar Audiencias <small>Resolución de Audiencias</small></h3>
+            <hr class="red">
             <div class="col-md-12">
                 <ul class="timeline">
                     @foreach($etapa_resolucion as $etapa)
@@ -660,8 +662,13 @@
                     <div class="col-md-12 row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="instrumento" class="control-label">Instrumento</label>
-                                <input type="text" id="instrumento" class="form-control" placeholder="Instrumento que acredita la representatividad">
+                                <label for="clasificacion_archivo_id" class="control-label">Instrumento</label>
+                                <select id="clasificacion_archivo_id" class="form-control select-element">
+                                    <option value="">-- Selecciona un género</option>
+                                    @foreach($clasificacion_archivos_Representante as $clasificacion)
+                                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -670,22 +677,10 @@
                                 <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="numero_notaria" class="control-label">Número</label>
-                                <input type="text" id="numero_notaria" class="form-control" placeholder="Número de la notaría">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="nombre_notario" class="control-label">Nombre del Notario</label>
-                                <input type="text" id="nombre_notario" class="form-control" placeholder="Nombre del notario que acredita">
-                            </div>
-                        </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="localidad_notaria" class="control-label">Localidad</label>
-                                <input type="text" id="localidad_notaria" class="form-control" placeholder="Localidad de la notaría">
+                                <label for="detalle_instrumento" class="control-label">Detalle del instrumento notarial</label>
+                                <textarea type="text" id="detalle_instrumento" class="form-control" placeholder=""></textarea>
                             </div>
                         </div>
                     </div>
@@ -1444,11 +1439,9 @@
                         $("#segundo_apellido").val(data.segundo_apellido);
                         $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
                         $("#genero_id").val(data.genero_id).trigger("change");
-                        $("#instrumento").val(data.instrumento);
+                        $("#clasificacion_archivo_id").val(data.clasificacion_archivo_id).change();
                         $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
-                        $("#numero_notaria").val(data.numero_notaria);
-                        $("#nombre_notario").val(data.nombre_notario);
-                        $("#localidad_notaria").val(data.localidad_notaria);
+                        $("#detalle_instrumento").val(data.detalle_instrumento);
                         $("#parte_id").val(data.id);
                         listaContactos = data.contactos;
                     }else{
@@ -1458,11 +1451,9 @@
                         $("#segundo_apellido").val("");
                         $("#fecha_nacimiento").val("");
                         $("#genero_id").val("").trigger("change");
-                        $("#instrumento").val("");
+                        $("#clasificacion_archivo_id").val("").change();
                         $("#feha_instrumento").val("");
-                        $("#numero_notaria").val("");
-                        $("#nombre_notario").val("");
-                        $("#localidad_notaria").val("");
+                        $("#detalle_instrumento").val("");
                         $("#parte_id").val("");
                         listaContactos = [];
                     }
@@ -1610,11 +1601,9 @@
                         segundo_apellido:$("#segundo_apellido").val(),
                         fecha_nacimiento:dateFormat($("#fecha_nacimiento").val()),
                         genero_id:$("#genero_id").val(),
-                        instrumento:$("#instrumento").val(),
+                        clasificacion_archivo_id:$("#clasificacion_archivo_id").val(),
                         feha_instrumento:dateFormat($("#feha_instrumento").val()),
-                        numero_notaria:$("#numero_notaria").val(),
-                        nombre_notario:$("#nombre_notario").val(),
-                        localidad_notaria:$("#localidad_notaria").val(),
+                        detalle_instrumento:$("#detalle_instrumento").val(),
                         parte_id:$("#parte_id").val(),
                         parte_representada_id:$("#parte_representada_id").val(),
                         audiencia_id:$("#audiencia_id").val(),
@@ -1661,26 +1650,19 @@
                 $("#genero_id").prev().css("color","red");
                 error = true;
             }
-            if($("#instrumento").val() == ""){
-                $("#instrumento").prev().css("color","red");
+            if($("#clasificacion_archivo_id").val() == ""){
+                $("#clasificacion_archivo_id").prev().css("color","red");
                 error = true;
             }
             if($("#feha_instrumento").val() == ""){
                 $("#feha_instrumento").prev().css("color","red");
                 error = true;
             }
-            if($("#numero_notaria").val() == ""){
-                $("#numero_notaria").prev().css("color","red");
+            if($("#detalle_instrumento").val() == ""){
+                $("#detalle_instrumento").prev().css("color","red");
                 error = true;
             }
-            if($("#nombre_notario").val() == ""){
-                $("#nombre_notario").prev().css("color","red");
-                error = true;
-            }
-            if($("#localidad_notaria").val() == ""){
-                $("#localidad_notaria").prev().css("color","red");
-                error = true;
-            }
+            
             console.log(listaContactos.length);
             if(listaContactos.length == 0){
                 $("#contacto").prev().css("color","red");
