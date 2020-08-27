@@ -336,6 +336,18 @@
                                     <p class="help-block">Nombre del Jefe directo</p>
                                 </div>
                                 <div class="col-md-6">
+                                    <input class="form-control upper" id="nombre_contrato" placeholder="Nombre de quien te contrato" type="text" value="">
+                                    <p class="help-block">&iquest;Quien te contrato?</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <input class="form-control upper" id="nombre_paga" placeholder="Nombre quien te paga" type="text" value="">
+                                    <p class="help-block">&iquest;Quien te paga?</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <input class="form-control upper" id="nombre_prestas_servicio" placeholder="Nombre de a quien le prestas tus servicios" type="text" value="">
+                                    <p class="help-block">&iquest;A quien prestas el servicio?</p>
+                                </div>
+                                <div class="col-md-6">
                                     <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
                                     <p class="help-block ">N&uacute;mero de seguro social</p>
                                 </div>
@@ -405,8 +417,8 @@
                             <!-- end Seccion de Datos laborales -->
                             <hr style="margin-top:5%;">
                             <div id="divBotonesSolicitante" style="display:none">
-                                <button class="btn btn-primary" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Agregar solicitante</button>
                                 <button class="btn btn-danger" type="button" onclick="limpiarSolicitante()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
+                                <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Validar y agregar solicitante</button>
                             </div>
                         </div>
                     </div>
@@ -855,6 +867,7 @@
 
             <!-- The template to display files available for upload -->
             <script id="template-upload" type="text/x-tmpl">
+                @if(isset($solicitud))
                 {% for (var i=0, file; file=o.files[i]; i++) { %}
                     <tr class="template-upload fade show">
                         <td>
@@ -863,7 +876,7 @@
                         <td>
                             <div class="bg-light rounded p-10 mb-2">
                                 <dl class="m-b-0">
-                                    <dt class="text-inverse">File Name:</dt>
+                                    <dt class="text-inverse">Nombre del documento:</dt>
                                     <dd class="name">{%=file.name%}</dd>
                                     <dt class="text-inverse m-t-10">File Size:</dt>
                                     <dd class="size">Processing...</dd>
@@ -872,16 +885,32 @@
                             <strong class="error text-danger h-auto d-block text-left"></strong>
                         </td>
                         <td>
-                            <select class="form-control tipo_documento" name="tipo_documento_id[]">
-                                <option value="1">Audiencia 1</option>
-                                <option value="2">Audiencia 2</option>
+                            <select class="form-control catSelectFile" name="tipo_documento_id[]">
+                                <option value="">Seleccione una opci&oacute;n</option>
+                                @if(isset($clasificacion_archivo))
+                                    @foreach($clasificacion_archivo as $clasificacion)
+                                        <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-control catSelectFile" name="parte[]">
+                                <option value="">Seleccione una opci&oacute;n</option>
+                                @if(isset($solicitud))
+                                    @foreach($solicitud->partes as $parte)
+                                        @if($parte->tipo_parte_id == 1)
+                                            <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>
+                                        @endif
+                                    @endforeach
+                                @endif
                             </select>
                         </td>
                         <td>
                             <dl>
                                 <dt class="text-inverse m-t-3">Progress:</dt>
                                 <dd class="m-t-5">
-                                    <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 40px;">0%</div></div>
+                                    <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>
                                 </dd>
                             </dl>
                         </td>
@@ -889,9 +918,11 @@
                             {% if (!i && !o.options.autoUpload) { %}
                                 <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>
                                     <i class="fa fa-upload fa-fw text-inverse"></i>
-                                    <span>Start</span>
+                                    <span>Guardar</span>
                                 </button>
                             {% } %}
+                        </td>
+                        <td nowrap>
                             {% if (!i) { %}
                                 <button class="btn btn-default cancel width-100 p-r-20">
                                     <i class="fa fa-trash fa-fw text-muted"></i>
@@ -901,9 +932,11 @@
                         </td>
                     </tr>
                 {% } %}
+                @endif
             </script>
             <!-- The template to display files available for download -->
             <script id="template-download" type="text/x-tmpl">
+                @if(isset($solicitud))
                 {% for (var i=0, file; file=o.files[i]; i++) { %}
                     <tr class="template-download fade show">
                         <td width="1%">
@@ -920,7 +953,7 @@
                         <td>
                             <div class="bg-light p-10 mb-2">
                                 <dl class="m-b-0">
-                                    <dt class="text-inverse">File Name:</dt>
+                                    <dt class="text-inverse">Nombre del archivo:</dt>
                                     <dd class="name">
                                         {% if (file.url) { %}
                                             <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
@@ -933,6 +966,9 @@
                                 </dl>
                                 {% if (file.error) { %}
                                     <div><span class="label label-danger">ERROR</span> {%=file.error%}</div>
+                                {% } %}
+                                {% if (file.success) { %}
+                                    <div><span class="label label-success">Correcto</span> {%=file.success%}</div>
                                 {% } %}
                             </div>
                         </td>
@@ -954,6 +990,7 @@
                         </td>
                     </tr>
                 {% } %}
+                @endif
             </script>
 
         </div>
@@ -995,7 +1032,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Archivos de Audiencia</h4>
+                <h4 class="modal-title">Documentos de identificaci&oacute;n</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -1008,10 +1045,10 @@
                                         <span>Agregar...</span>
                                         <input type="file" name="files[]" multiple>
                                 </span>
-                                <button type="submit" class="btn btn-primary start m-r-3">
+                                {{-- <button type="submit" class="btn btn-primary start m-r-3">
                                         <i class="fa fa-fw fa-upload"></i>
                                         <span>Cargar</span>
-                                </button>
+                                </button> --}}
                                 <button type="reset" class="btn btn-default cancel m-r-3" id="btnCancelFiles">
                                         <i class="fa fa-fw fa-ban"></i>
                                         <span>Cancelar</span>
@@ -1036,7 +1073,9 @@
                                     <th width="10%">VISTA PREVIA</th>
                                     <th>INFORMACION</th>
                                     <th>TIPO DE DOCUMENTO</th>
+                                    <th>PARTE RELACIONADA</th>
                                     <th>PROGRESO</th>
+                                    <th width="1%"></th>
                                     <th width="1%"></th>
                                 </tr>
                             </thead>
@@ -1054,6 +1093,7 @@
             </div>
             <div class="modal-footer">
                 <div class="text-right">
+                    <a class="btn btn-primary btn-sm" data-dismiss="modal" onclick="continuarRatificacion()"><i class="fa fa-sign-out"></i> Continuar a ratificaci&oacute;n</a>
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-sign-out"></i> Cerrar</a>
                 </div>
             </div>
@@ -1071,7 +1111,7 @@
         </div>
     </div>
 </div>
- <div class="modal" id="modalNotificacion" aria-hidden="true" style="display:none;">
+ <div class="modal" id="modalRatificacion" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -1079,65 +1119,25 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-muted">
-                    Selecciona la forma en que se notificara a la parte citada.<br>
-                    <ul>
-                        <li>El solicitante entrega citatorio a citados: El solicitante se encargará de entregar la notifocación sin ayuda del centro</li>
-                        <li>Un actuario del centro entrega citatorio a citados: La tarea de entregar la notificación será del centro que asignará un actuario</li>
-                    </ul>
+                <div class="">
+                    <div>
+                        <h5>Personas a Ratificar.</h5>
+                    </div>
                 </div>
                 <div class="col-md-12">
                     <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr>
-                                <td>Citado</td>
-                                <td>Dirección</td>
-                                <td>Mapa</td>
-                                <td>Tipo de notificación</td>
+                                <td>Solicitante</td>
+                                <td>Documento</td>
                             </tr>
                         </thead>
-                        <tbody>
-                            @if(isset($partes))
-                            @foreach($partes as $parte)
-                            <tr>
-                                @if($parte->tipo_parte_id == 2)
-                                    @if($parte->tipo_persona_id == 1)
-                                    <td>{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</td>
-                                    @else
-                                    <td>{{$parte->nombre_comercial}}</td>
-                                    @endif
-                                    <td>{{$parte->domicilios->vialidad}} {{$parte->domicilios->num_ext}}, {{$parte->domicilios->asentamiento}} {{$parte->domicilios->municipio}}, {{$parte->domicilios->estado}}</td>
-                                    <td>
-                                        <input type="hidden" id="parte_id{{$parte->id}}" class="hddParte_id" value="{{$parte->id}}">
-                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
-                                        <a href="https://maps.google.com/?q={{$parte->domicilios->latitud}},{{$parte->domicilios->longitud}}" target="_blank" class="btn btn-xs btn-primary"><i class="fa fa-map"></i></a>
-                                        @else
-                                        <legend>Sin datos</legend>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="radio radio-css">
-                                          <input type="radio" id="radioNotificacionA{{$parte->id}}" value="1" name="radioNotificacion{{$parte->id}}" />
-                                          <label for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio a citados</label>
-                                        </div>
-                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
-                                        <div class="radio radio-css">
-                                          <input type="radio" id="radioNotificacionB{{$parte->id}}" value="2" name="radioNotificacion{{$parte->id}}" >
-                                          <label for="radioNotificacionB{{$parte->id}}">B) Un actuario del centro entrega citatorio a citados</label>
-                                        </div>
-                                        @else
-                                        <div class="radio radio-css">
-                                          <input type="radio" id="radioNotificacionB{{$parte->id}}" value="3" name="radioNotificacion{{$parte->id}}" >
-                                          <label for="radioNotificacionB{{$parte->id}}">B) Agendar cita con actuario para entrega de citatorio</label>
-                                        </div>
-                                        @endif
-                                    </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                            @endif
+                        <tbody id="tbodyRatificacion">
                         <tbody>
                     </table>
+                </div>
+                <div style="margin: 2%;">
+                    <a class="btn btn-primary btn-sm" style="float: right;" data-dismiss="modal" onclick="$('#modal-archivos').modal('show');" ><i class="fa fa-plus"></i> Agregar Documentos</a>
                 </div>
                 <br>
 
@@ -1145,7 +1145,7 @@
             <div class="modal-footer">
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Ratificar</button>
                 </div>
             </div>
         </div>
@@ -1165,6 +1165,7 @@
     var arrayContactoSolicitantes = []; // Array de objeto_solicitude para el citado
     var arrayContactoSolicitados = []; // Array de objeto_solicitude para el citado
     var arraySolicitanteExcepcion = {}; // Array de solicitante excepción
+    var ratifican = false;; // Array de solicitante excepción
 
     $(document).ready(function() {
         $('#wizard').smartWizard({
@@ -1243,6 +1244,9 @@
                     var dato_laboral = {};
                     dato_laboral.id = $("#dato_laboral_id").val();
                     dato_laboral.nombre_jefe_directo = $("#nombre_jefe_directo").val();
+                    dato_laboral.nombre_prestas_servicio = $("#nombre_prestas_servicio").val();
+                    dato_laboral.nombre_paga = $("#nombre_paga").val();
+                    dato_laboral.nombre_contrato = $("#nombre_contrato").val();
                     dato_laboral.ocupacion_id = $("#ocupacion_id").val();
                     dato_laboral.puesto = $("#puesto").val();
                     dato_laboral.nss = $("#nss").val();
@@ -1664,6 +1668,9 @@
             $(".personaFisicaSolicitante").show();
             $("#idSolicitanteRfc").val("");
             $("#nombre_jefe_directo").val("");
+            $("#nombre_prestas_servicio").val("");
+            $("#nombre_paga").val("");
+            $("#nombre_contrato").val("");
             $("#ocupacion_id").val("");
             $("#puesto").val("");
             $("#nss").val("");
@@ -1833,6 +1840,7 @@
             }
 
             formarTablaContacto();
+            limpiarContactoSolicitado();
         }else{
             swal({
                 title: 'Error',
@@ -2071,7 +2079,7 @@
         $('#divDatoLaboralSolicitante').show();
         $('#divBotonesSolicitante').show();
         $("#paso1").click();
-        $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Editar solicitante');
+        $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Validar y Editar solicitante');
         $("#edit_key").val(key);
         $("#solicitante_id").val(arraySolicitantes[key].id);
         if(arraySolicitantes[key].tipo_persona_id == 1){
@@ -2119,6 +2127,9 @@
         $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
         // getGiroEditar("solicitante");
         $("#nombre_jefe_directo").val(arraySolicitantes[key].dato_laboral.nombre_jefe_directo);
+        $("#nombre_prestas_servicio").val(arraySolicitantes[key].dato_laboral.nombre_prestas_servicio);
+        $("#nombre_paga").val(arraySolicitantes[key].dato_laboral.nombre_paga);
+        $("#nombre_contrato").val(arraySolicitantes[key].dato_laboral.nombre_contrato);
         $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
         $("#puesto").val(arraySolicitantes[key].dato_laboral.puesto);
         $("#nss").val(arraySolicitantes[key].dato_laboral.nss);
@@ -2394,82 +2405,16 @@
     // Funcion para ratificar solicitudes
     $("#btnRatificarSolicitud").on("click",function(){
         try{
-            if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
-            //    $("#modalNotificacion").modal("show");
-                swal({
-                    title: '¿Estas seguro?',
-                    text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
-                    icon: 'warning',
-                    buttons: {
-                        cancel: {
-                            text: 'Cancelar',
-                            value: null,
-                            visible: true,
-                            className: 'btn btn-default',
-                            closeModal: true,
-                        },
-                        confirm: {
-                            text: 'Aceptar',
-                            value: true,
-                            visible: true,
-                            className: 'btn btn-danger',
-                            closeModal: true
-                        }
-                    }
-                }).then(function(isConfirm){
-                    if(isConfirm){
-                        $.ajax({
-                            url:'/solicitud/ratificar',
-                            type:'POST',
-                            dataType:"json",
-                            async:true,
-                            data:{
-                                id:$("#solicitud_id").val(),
-//                                listaNotificaciones:validacion.listaNotificaciones,
-                                _token:"{{ csrf_token() }}"
-                            },
-                            success:function(data){
-                                if(data != null && data != ""){
-                                    $("#modalNotificacion").modal("hide");
-                                    swal({
-                                        title: 'Correcto',
-                                        text: 'Solicitud ratificada correctamente',
-                                        icon: 'success'
-                                    });
-                                    location.reload();
-                                }else{
-                                    swal({
-                                        title: 'Error',
-                                        text: 'No se pudo ratificar',
-                                        icon: 'error'
-                                    });
-                                }
-                            },error:function(data){
-                                swal({
-                                    title: 'Error',
-                                    text: ' Error al ratificar la solicitud',
-                                    icon: 'error'
-                                });
-                            }
-                        });
-                    }
-                });
-            }else{
-                swal({
-                    title: 'Error',
-                    text: 'Llena todos los campos',
-                    icon: 'warning'
-                });
-            }
+            cargarDocumentos();
+            $("#modalRatificacion").modal("show");
+//             
         }catch(error){
             console.log(error);
         }
     });
 
     $("#btnGuardarRatificar").on("click",function(){
-        var validacion = validarRatificacion();
-        console.log(validacion);
-        if(!validacion.error){
+        if(ratifican){
             swal({
                 title: '¿Estas seguro?',
                 text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
@@ -2499,12 +2444,11 @@
                         async:true,
                         data:{
                             id:$("#solicitud_id").val(),
-                            listaNotificaciones:validacion.listaNotificaciones,
                             _token:"{{ csrf_token() }}"
                         },
                         success:function(data){
                             if(data != null && data != ""){
-                                $("#modalNotificacion").modal("hide");
+                                $("#modalRatificacion").modal("hide");
                                 swal({
                                     title: 'Correcto',
                                     text: 'Solicitud ratificada correctamente',
@@ -2532,32 +2476,13 @@
         }else{
             swal({
                 title: 'Error',
-                text: 'Indica el tipo de notificación para todos los solicitados',
+                text: 'Al menos un solicitante debe presentar documentos para ratificar',
                 icon: 'warning'
             });
         }
     });
-
-    function validarRatificacion(){
-        var error = false;
-        var listaNotificaciones = [];
-        $(".hddParte_id").each(function(element){
-            var parte_id = $(this).val();
-            if($("#radioNotificacionA"+parte_id).is(":checked")){
-                listaNotificaciones.push({
-                    parte_id:parte_id,
-                    tipo_notificacion_id:1
-                });
-            }else if($("#radioNotificacionB"+parte_id).is(":checked")){
-                listaNotificaciones.push({
-                    parte_id:parte_id,
-                    tipo_notificacion_id:2
-                });
-            }else{
-                error = true;
-            }
-        });
-        return {error:error,listaNotificaciones:listaNotificaciones}
+    function continuarRatificacion(){
+        $("#modalRatificacion").modal('show');
     }
 
     //funcion para obtener informacion de la excepcion
@@ -2716,10 +2641,26 @@
             url:"/solicitudes/documentos/"+$("#solicitud_id").val(),
             type:"GET",
             dataType:"json",
-            async:true,
+            async:false,
             success:function(data){
                 try{
                     if(data != null && data != ""){
+                        //Carga información en la ratificacion
+                        var html = "";
+                   $.each(data, function (key, value) {
+                       if(value.documentable_type == "App\\Parte"){
+                            var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
+                            if(parte != undefined){
+                                html += "<tr>";
+                                html += "<td>"+parte.nombre + " " + parte.primer_apellido + " " + parte.segundo_apellido+"</td>";
+                                html += "<td>"+value.nombre_original + " "+ value.clasificacion_archivo_id+"</td>";
+                                html += "</tr>";
+                                ratifican = true;
+                            }
+                       }
+                   });
+                    $("#tbodyRatificacion").html(html);
+                        // end carga ratificacion
                         var table = "";
                         var div = "";
                         $.each(data, function(index,element){
@@ -2766,7 +2707,7 @@
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
             stop: function(e,data){
               cargarDocumentos();
-              $("#modal-archivos").modal("hide");
+            //   $("#modal-archivos").modal("hide");
             }
             // Uncomment the following to send cross-domain cookies:
             //xhrFields: {withCCOLOR_REDentials: true},
@@ -2783,9 +2724,17 @@
         );
 
         // hide empty row text
+        $('#fileupload').on('fileuploadsend', function (e, data) {
+            console.log(e);
+            console.log(data);
+            
+            // if(){
+            //     e.preventDefault();
+            // }    
+        })
         $('#fileupload').bind('fileuploadadd', function(e, data) {
             $('#fileupload [data-id="empty"]').hide();
-            $(".tipo_documento").select2();
+            $(".catSelectFile").select2();
         });
         $('#fileupload').bind('fileuploaddone', function(e, data) {
             // console.log("add");
@@ -2889,16 +2838,8 @@
                 }
                 break;
             case 2:
-                if(arrayContactoSolicitados.length > 0){
-                    $('#divMapaSolicitado').show();
-                    $('#continuarSolicitado2').hide();
-                }else{
-                    swal({
-                        title: 'Error',
-                        text: 'Es necesario capturar al menos un contacto para continuar',
-                        icon: 'error',
-                    });
-                }
+                $('#divMapaSolicitado').show();
+                $('#continuarSolicitado2').hide();
             break;
             case 3:
                 if($('#divMapaSolicitado').parsley().validate()){
