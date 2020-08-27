@@ -149,7 +149,7 @@ class DocumentoController extends Controller
         
         try{
             $existeDocumento = $parte->documentos;
-            if($solicitud != null && $existeDocumento == null){
+            if($solicitud != null && count($existeDocumento) == 0 ){
                 $archivo = $request->files;
                 $solicitud_id = $solicitud->id;
                 $clasificacion_archivo= $request->tipo_documento_id[0];
