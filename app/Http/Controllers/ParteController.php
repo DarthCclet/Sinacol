@@ -273,12 +273,10 @@ class ParteController extends Controller
                 "segundo_apellido" => $request->segundo_apellido,
                 "fecha_nacimiento" => $request->fecha_nacimiento,
                 "genero_id" => $request->genero_id,
-                "instrumento" => $request->instrumento,
+                "clasificacion_archivo_id" => $request->clasificacion_archivo_id,
                 "genero_id" => $request->genero_id,
                 "feha_instrumento" => $request->feha_instrumento,
-                "numero_notaria" => $request->numero_notaria,
-                "nombre_notario" => $request->nombre_notario,
-                "localidad_notaria" => $request->localidad_notaria
+                "detalle_instrumento" => $request->detalle_instrumento
             ]);
         }else{
             $parte_representada = Parte::find($request->parte_representada_id);
@@ -293,12 +291,10 @@ class ParteController extends Controller
                 "segundo_apellido" => $request->segundo_apellido,
                 "fecha_nacimiento" => $request->fecha_nacimiento,
                 "genero_id" => $request->genero_id,
-                "instrumento" => $request->instrumento,
+                "detalle_instrumento" => $request->detalle_instrumento,
                 "genero_id" => $request->genero_id,
                 "feha_instrumento" => $request->feha_instrumento,
-                "numero_notaria" => $request->numero_notaria,
-                "nombre_notario" => $request->nombre_notario,
-                "localidad_notaria" => $request->localidad_notaria,
+                "detalle_instrumento" => $request->detalle_instrumento,
                 "parte_representada_id" => $request->parte_representada_id,
                 "representante" => true
             ]);

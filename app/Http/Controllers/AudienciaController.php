@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Audiencia;
 use App\Conciliador;
 use App\Sala;
+use App\EntidadEmisora;
 use App\ConciliadorAudiencia;
 use App\SalaAudiencia;
 use App\Centro;
@@ -217,14 +218,15 @@ class AudienciaController extends Controller
         $jornadas = $this->cacheModel('jornadas',Jornada::class);
         $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
         $clasificacion_archivos = $this->cacheModel('clasificacion_archivo',ClasificacionArchivo::class);
-
-
+        $clasificacion_archivos_Representante = ClasificacionArchivo::all();
         $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
         $resoluciones = $this->cacheModel('resoluciones',Resolucion::class);
         $audiencia->solicitantes = $this->getSolicitantes($audiencia);
         $audiencia->solicitados = $this->getSolicitados($audiencia);
         $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
 
+        $entidad = ClasificacionArchivo::find(1);
+//        dd($entidad->entidad_emisora);
 
         if($audiencia->solictud_cancelcacion){
             $audiencia->justificante_id == null;
@@ -234,7 +236,7 @@ class AudienciaController extends Controller
                 }
             }
         }
-        return view('expediente.audiencias.edit', compact('audiencia','etapa_resolucion','resoluciones','concepto_pago_resoluciones',"motivos_archivo","concepto_pago_resoluciones","periodicidades","ocupaciones","jornadas","giros_comerciales","clasificacion_archivos"));
+        return view('expediente.audiencias.edit', compact('audiencia','etapa_resolucion','resoluciones','concepto_pago_resoluciones',"motivos_archivo","concepto_pago_resoluciones","periodicidades","ocupaciones","jornadas","giros_comerciales","clasificacion_archivos","clasificacion_archivos_Representante"));
     }
 
     /**
