@@ -210,8 +210,7 @@ class SolicitudController extends Controller {
             'solicitados.*.tipo_parte_id' => 'required',
             'solicitados.*.tipo_persona_id' => 'required',
             'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
-            'solicitados.*.domicilios' => 'required',
-            'solicitados.*.contactos' => 'required',
+            'solicitados.*.domicilios' => 'required'
         ]);
 
         $solicitud = $request->input('solicitud');
@@ -455,7 +454,6 @@ class SolicitudController extends Controller {
             'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
             'solicitados.*.genero_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.domicilios' => 'required',
-            'solicitados.*.contactos' => 'required',
         ]);
         $solicitud = $request->input('solicitud');
         DB::beginTransaction();
