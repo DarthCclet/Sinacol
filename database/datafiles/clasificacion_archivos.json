@@ -1,0 +1,241 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Credencial de elector",
+            "tipo_archivo_id":1,
+            "entidad_emisora_id":1
+        },
+        {
+            "id": "2",
+            "nombre": "Pasaporte",
+            "tipo_archivo_id":1,
+            "entidad_emisora_id":2
+        },
+        {
+            "id": "3",
+            "nombre": "Cédula Profesional",
+            "tipo_archivo_id":1,
+            "entidad_emisora_id":3
+        },
+        {
+            "id": "4",
+            "nombre": "Cédula de Identidad Personal",
+            "tipo_archivo_id":1,
+            "entidad_emisora_id":4
+        },
+        {
+            "id": "5",
+            "nombre": "Credencial del INAPAM",
+            "tipo_archivo_id":1,
+            "entidad_emisora_id":5
+        },
+        {
+            "id": "6",
+            "nombre": "Documento migratorio",
+            "tipo_archivo_id":1,
+            "entidad_emisora_id":6
+        },
+        {
+            "id": "7",
+            "nombre": "Licencia de conducir",
+            "tipo_archivo_id":1,
+            "entidad_emisora_id":7
+        },
+        {
+            "id": "8",
+            "nombre": "Acta Constitutiva",
+            "tipo_archivo_id":2,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "9",
+            "nombre": "Poder",
+            "tipo_archivo_id":2,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "10",
+            "nombre": "Registro sindical",
+            "tipo_archivo_id":2,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "11",
+            "nombre": "Toma de nota",
+            "tipo_archivo_id":2,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "12",
+            "nombre": "Comprobante de pago",
+            "tipo_archivo_id":3,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "13",
+            "nombre": "Constancia de incompetencia",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "14",
+            "nombre": "Citatorio",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "15",
+            "nombre": "Acta de audiencia",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "16",
+            "nombre": "Convenio",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "17",
+            "nombre": "Constancia de no conciliación",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "18",
+            "nombre": "Acta de multa",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "19",
+            "nombre": "Acta de no comparecencia en fecha de pago",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "20",
+            "nombre": "Oficio especial",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "21",
+            "nombre": "Resolución de archivo",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "22",
+            "nombre": "Razón de notificación citatorio",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "23",
+            "nombre": "Razón de notificación multa",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+
+        {
+            "id": "24",
+            "nombre": "Constancia de incompetencia con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "25",
+            "nombre": "Citatorio con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "26",
+            "nombre": "Acta de audiencia con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "27",
+            "nombre": "Convenio con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "28",
+            "nombre": "Constancia de no conciliación con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "29",
+            "nombre": "Acta de multa con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "30",
+            "nombre": "Acta de no comparecencia en fecha de pago con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "31",
+            "nombre": "Oficio especial con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "32",
+            "nombre": "Resolución de archivo con firma autógrafao",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "33",
+            "nombre": "Razón de notificación citatorio con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "34",
+            "nombre": "Razón de notificación multa con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "35",
+            "nombre": "Oficio",
+            "tipo_archivo_id":6,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "36",
+            "nombre": "Justificante médico",
+            "tipo_archivo_id":7,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "37",
+            "nombre": "Otro",
+            "tipo_archivo_id":8,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "38",
+            "nombre": "Carta poder",
+            "tipo_archivo_id":9,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "39",
+            "nombre": "Poder notarial",
+            "tipo_archivo_id":9,
+            "entidad_emisora_id":null
+        }
+    ],
+
+    "numReg": 39
+}
