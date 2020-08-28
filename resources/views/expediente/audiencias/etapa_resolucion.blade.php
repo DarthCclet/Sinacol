@@ -1479,7 +1479,9 @@
                 if(extra){
                     $('#datosBasicos').hide();
                     $('#datosExtras').show();
-
+                }else{
+                    $('#datosBasicos').show();
+                    $('#datosExtras').hide();
                 }
             }
         });
@@ -1553,14 +1555,14 @@
                 error = true;
             }
         });
-        if($('#resolucion_id').val() == 1){
-            $(".datoLaboralExtra").each(function(){
-                if($(this).val() == ""){
-                    $(this).prev().css("color","red");
-                    error = true;
-                }
-            });
-        }
+        // if($('#resolucion_id').val() == 1){
+        //     $(".datoLaboralExtra").each(function(){
+        //         if($(this).val() == ""){
+        //             $(this).prev().css("color","red");
+        //             error = true;
+        //         }
+        //     });
+        // }
         return error;
     }
     $("#btnGuardarDatoLaboral").on("click",function(){
