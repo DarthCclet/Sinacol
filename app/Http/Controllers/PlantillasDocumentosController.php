@@ -807,6 +807,9 @@ class PlantillasDocumentosController extends Controller
                           }elseif ($k == 'datos_laborales') {
                             foreach ($val as $n =>$v) {
                               $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                              if($n == "comida_dentro"){
+                                $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
+                              }
                             }
                           }elseif ($k == 'nombre_completo') {
                             $vars[strtolower($key.'_'.$k)] = $val;
