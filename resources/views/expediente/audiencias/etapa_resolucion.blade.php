@@ -330,6 +330,40 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-offset-3 col-md-12" id="divLaboralesExtras" style="display: none">
+                                    <table class="table table-striped table-bordered table-td-valign-middle">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-nowrap">Tipo Parte</th>
+                                                <th class="text-nowrap">Nombre de la parte</th>
+                                                <th class="text-nowrap" style="width: 10%;">Datos Laborales</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($audiencia->partes as $parte)
+                                            @if($parte->tipo_parte_id == 1)
+                                                <tr>
+                                                    <td class="text-nowrap">{{ $parte->tipoParte->nombre }}</td>
+                                                    @if($parte->tipo_persona_id == 1)
+                                                        <td class="text-nowrap">{{ $parte->nombre }} {{ $parte->primer_apellido }} {{ $parte->segundo_apellido }}</td>
+                                                    @else
+                                                        <td class="text-nowrap">{{ $parte->nombre_comercial }}</td>
+                                                    @endif
+                                                    <td>
+                                                        @if($parte->tipo_parte_id == 1)
+                                                        <div style="display: inline-block;">
+                                                            <button onclick="DatosLaborales({{$parte->id}},true)" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Datos Laborales">
+                                                                <i class="fa fa-briefcase"></i>
+                                                            </button>
+                                                        </div>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                                 <div class="col-md-12" style="margin-bottom: 5%">
                                     <div >
                                         <span class="text-muted m-l-5 m-r-20" for='switchAdicionales'>Existen elementos adicionales para el cumplimiento de prestaciones o prestaciones adicionales.</span>
@@ -568,7 +602,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <div class="col-md-12 row">
+                <div class="col-md-12 row" id="datosBasicos">
                     <input type="hidden" id="dato_laboral_id">
                     <input type="hidden" id="resolucion_dato_laboral">
                     <div class="col-md-12">
@@ -638,6 +672,43 @@
                         {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
                         {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
                         <p class="help-block needed">Jornada</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="col-md-12 row" id="datosExtras" style="display:none">
+                    <div class="col-md-12 row">
+                        <div class="col-md-4">
+                            <input class="form-control datoLaboralExtra" id="horario_laboral" placeholder="HH:MM a HH:MM" type="text" value="">
+                            <p class="help-block needed">Horario laboral</p>
+                        </div>
+                        <div class="col-md-4">
+                            <input class="form-control datoLaboralExtra" id="horario_comida" placeholder="HH:MM a HH:MM" type="text" value="">
+                            <p class="help-block needed">Horario de comida</p>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="checkbox" value="1"  class="datoLaboralExtra" data-render="switchery" data-theme="default" id="comida_dentro" name='comida_dentro'/>
+                            <p class="help-block needed">Comida dentro de las instalaciones</p>
+                        </div>
+                    </div>
+                    <div class="col-md-12 row">
+                        <div class="col-md-4">
+                            <input class="form-control datoLaboralExtra" id="dias_descanso" placeholder="n días, los cuales correspondían a dddd" type="text" value="">
+                            <p class="help-block needed">Indica número y días de descanso</p>
+                        </div>
+                        <div class="col-md-4">
+                            <input class="form-control numero datoLaboralExtra" required data-parsley-type='integer' id="dias_vacaciones" placeholder="Días de vacaciones por año" type="text" value="">
+                            <p class="help-block needed">Días de vacaciones</p>
+                        </div>
+                        <div class="col-md-4">
+                            <input class="form-control date datoLaboralExtra" data-parsley-type='integer' id="dias_aguinaldo" placeholder="Días de aguinaldo por año" type="text" value="">
+                            <p class="help-block needed">Días de aguinaldo</p>
+                        </div>
+                    </div>
+                    <div class="col-md-12 row">
+                        <div class="col-md-12">
+                            <input class="form-control date datoLaboralExtra" id="prestaciones_adicionales" placeholder="Prestaciones adicionales" type="text" value="">
+                            <p class="help-block needed">Otras prestaciones en especie (bonos, vales de despensa, seguros de gastos médicos mayores etc)</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1363,9 +1434,17 @@
         }
         return error;
     }
+    $("#resolucion_id").on("change",function(){
+        if($("#resolucion_id").val() == 1){
+            $('#divLaboralesExtras').show();
+        }else{
+            $('#divLaboralesExtras').hide();
+        }
+    });
+    
 
-    // Funciones para Datos laborales(Etapa 1)
-    function DatosLaborales(parte_id){
+    // Funciones para Datos laborales(Etapa 1,6)
+    function DatosLaborales(parte_id,extra=null){
         $("#parte_id").val(parte_id);
         $.ajax({
             url:"/partes/datoLaboral/"+parte_id,
@@ -1397,6 +1476,11 @@
                     $(".catSelect").trigger('change')
                 }
                 $("#modal-dato-laboral").modal("show");
+                if(extra){
+                    $('#datosBasicos').hide();
+                    $('#datosExtras').show();
+
+                }
             }
         });
     }
@@ -1469,6 +1553,14 @@
                 error = true;
             }
         });
+        if($('#resolucion_id').val() == 1){
+            $(".datoLaboralExtra").each(function(){
+                if($(this).val() == ""){
+                    $(this).prev().css("color","red");
+                    error = true;
+                }
+            });
+        }
         return error;
     }
     $("#btnGuardarDatoLaboral").on("click",function(){
@@ -1493,6 +1585,14 @@
                     giro_comercial_id : $("#giro_comercial_hidden").val(),
                     parte_id:$("#parte_id").val(),
                     resolucion:$("#resolucion_dato_laboral").val(),
+                    //datos laborales extra
+                    horario_laboral:$("#horario_laboral").val(),
+                    horario_comida:$("#horario_comida").val(),
+                    comida_dentro:$("#comida_dentro").val(),
+                    dias_descanso:$("#dias_descanso").val(),
+                    dias_vacaciones:$("#dias_vacaciones").val(),
+                    dias_aguinaldo:$("#dias_aguinaldo").val(),
+                    prestaciones_adicionales:$("#prestaciones_adicionales").val(),
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){

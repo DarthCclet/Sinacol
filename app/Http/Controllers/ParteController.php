@@ -239,6 +239,13 @@ class ParteController extends Controller
                 'parte_id' => $request->parte_id,
                 'giro_comercial_id' => $request->giro_comercial_id,
                 'resolucion' => true,
+                'horario_laboral' => $request->horario_laboral,
+                'horario_comida' => $request->horario_comida,
+                'comida_dentro' => $request->comida_dentro,
+                'dias_descanso' => $request->dias_descanso,
+                'dias_vacaciones' => $request->dias_vacaciones,
+                'dias_aguinaldo' => $request->dias_aguinaldo,
+                'prestaciones_adicionales' => $request->prestaciones_adicionales,
             ]);
         }else{
             $datos_laborales = DatoLaboral::create([
