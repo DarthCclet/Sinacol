@@ -628,22 +628,22 @@
                         </div>
                         <div class="col-md-4">
                             <input class="form-control numero datoLaboral" data-parsley-type='integer' id="nss" placeholder="No. IMSS"  type="text" value="">
-                            <p class="help-block ">No. IMSS</p>
+                            <p class="help-block ">No. Seguro social</p>
                         </div>
-                        <div class="col-md-4">
+                        {{-- <div class="col-md-4">
                             <input class="form-control numero datoLaboral" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
                             <p class="help-block">No. ISSSTE</p>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="col-md-12 row">
                         <div class="col-md-4">
                             <input class="form-control numero "datoLaboral required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="Remuneraci&oacute;n (pago)" type="text" value="">
-                            <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
+                            <p class="help-block needed">¿Cuánto te pagan?</p>
                         </div>
                         <div class="col-md-4">
                             {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
                             {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
-                            <p class="help-block needed">Periodicidad</p>
+                            <p class="help-block needed">¿Cada cuánto te pagan?</p>
                         </div>
                         <div class="col-md-4">
                             <input class="form-control numero datoLaboral" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
@@ -1460,7 +1460,7 @@
                     $("#nombre_jefe_directo").val(data.nombre_jefe_directo);
                     $("#ocupacion_id").val(data.ocupacion_id);
                     $("#nss").val(data.nss);
-                    $("#no_issste").val(data.no_issste);
+                    //$("#no_issste").val(data.no_issste);
                     $("#remuneracion").val(data.remuneracion);
                     $("#periodicidad_id").val(data.periodicidad_id);
                     if(data.labora_actualmente != $("#labora_actualmente").is(":checked")){
@@ -1580,7 +1580,7 @@
                     nombre_jefe_directo : $("#nombre_jefe_directo").val(),
                     ocupacion_id : $("#ocupacion_id").val(),
                     nss : $("#nss").val(),
-                    no_issste : $("#no_issste").val(),
+                    //no_issste : $("#no_issste").val(),
                     remuneracion : $("#remuneracion").val(),
                     periodicidad_id : $("#periodicidad_id").val(),
                     labora_actualmente : $("#labora_actualmente").is(":checked"),
