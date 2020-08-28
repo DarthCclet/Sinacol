@@ -88,7 +88,7 @@
                     {
                         "targets": [0],
                         "render": function (data, type, row) {
-                            return  row[17]+"/"+row[18];
+                            return  row[19]+"/"+row[20];
                         }
                     },
                     {
