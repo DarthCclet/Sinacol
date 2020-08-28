@@ -48,7 +48,7 @@
 
 
     <div class="col-md-3" title="Especifica el Estado o Entidad Federativa donde se encuentra el domicilio." data-toggle="tooltip" data-placement="top">
-        {!! Form::select('domicilio[estado_id]', isset($estados) ? $estados : [] , isset($domicilio->estado_id) ? $domicilio->estado_id : 0, ['id'=>'estado_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
+        {!! Form::select('domicilio[estado_id]', isset($estados) ? $estados : [] , isset($domicilio->estado_id) ? $domicilio->estado_id : 0, ['id'=>'estado_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control estadoSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
         {!! $errors->first('domicilio[estado_id]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Estado </p>
     </div>
@@ -268,9 +268,11 @@
             return domicilioLoc;
         }
         domicilio.cargarDomicilio = function(domicilios){
+            $("#estado_id"+identifier).val(domicilios.estado_id).trigger('change');
             $("#domicilio_id"+identifier).val(domicilios.id);
             $("#num_ext"+identifier).val(domicilios.num_ext);
             $("#num_int"+identifier).val(domicilios.num_int);
+            
             $("#asentamiento"+identifier).val(domicilios.asentamiento);
             $("#municipio"+identifier+" option:contains("+ domicilios.municipio +")").prop("selected",true).trigger("change");
             $("#cp"+identifier).val(domicilios.cp);
@@ -280,7 +282,6 @@
             $("#tipo_vialidad_id"+identifier).val(domicilios.tipo_vialidad_id);
             $("#vialidad"+identifier).val(domicilios.vialidad);
             $("#tipo_asentamiento_id"+identifier).val(domicilios.tipo_asentamiento_id);
-            $("#estado_id"+identifier).val(domicilios.estado_id);
             $("#latitud"+identifier).val(domicilios.latitud);
             $("#longitud"+identifier).val(domicilios.longitud);
             var lat = $('#latitud'+identifier).val() ? $('#latitud'+identifier).val() : "19.398606";
@@ -300,7 +301,7 @@
             $("#referencias"+identifier).val("");
             $("#tipo_vialidad_id"+identifier).val("");
             $("#tipo_asentamiento_id"+identifier).val("");
-            $("#estado_id"+identifier).val("");
+            $("#estado_id"+identifier).val("").trigger('change');
             $("#domicilio_id_modal"+identifier).val("");
             $("#domicilio_key"+identifier).val("");
             $("#vialidad"+identifier).val("");
@@ -347,18 +348,36 @@
             $("#tipo_vialidad"+identifier).val($("#tipo_vialidad_id"+identifier+" :selected").text());
         });
         $(".catSelect"+identifier).select2({width: '100%'});
+        $(".estadoSelect"+identifier).select2({width: '100%'});
         $("#municipio"+identifier).select2({width: '100%', tags: true});
         $("#estado_id"+identifier).change(function(){
             $("#estado"+identifier).val($("#estado_id"+identifier+" :selected").text());
-            $.get('/api/asentamientos/filtrarMunicipios?estado='+$("#estado_id"+identifier+" :selected").text(),function( data ) {
-                $('#municipio'+identifier).empty().trigger('change');
-                $("#asentamiento"+identifier).empty().trigger('change');
-                $("#asentamientoAutoc"+identifier).empty('').trigger('change');
-                $("#cp"+identifier).val("");
-                for(let i in data){
-                    $('#municipio'+identifier).append(new Option(data[i], data[i], false, false));
+            $.ajax({
+                url : '/api/asentamientos/filtrarMunicipios?estado='+$("#estado_id"+identifier+" :selected").text(),
+                type : "get",
+                async: false,
+                success : function(data) {
+                    $('#municipio'+identifier).empty().trigger('change');
+                    $("#asentamiento"+identifier).empty().trigger('change');
+                    $("#asentamientoAutoc"+identifier).empty('').trigger('change');
+                    $("#cp"+identifier).val("");
+                    $('#municipio'+identifier).append(new Option("Seleccione una opción","", false, false));
+                    for(let i in data){
+                        $('#municipio'+identifier).append(new Option(data[i], data[i], false, false));
+                    }
+                },
+                error: function() {
                 }
             });
+            // $.get('/api/asentamientos/filtrarMunicipios?estado='+$("#estado_id"+identifier+" :selected").text(),function( data ) {
+            //     $('#municipio'+identifier).empty().trigger('change');
+            //     $("#asentamiento"+identifier).empty().trigger('change');
+            //     $("#asentamientoAutoc"+identifier).empty('').trigger('change');
+            //     $("#cp"+identifier).val("");
+            //     for(let i in data){
+            //         $('#municipio'+identifier).append(new Option(data[i], data[i], false, false));
+            //     }
+            // });
         });
         $("#tipo_asentamiento_id"+identifier).change(function(){
             $("#tipo_asentamiento"+identifier).val($("#tipo_asentamiento_id"+identifier+" :selected").text());

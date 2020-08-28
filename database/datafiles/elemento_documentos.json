@@ -8,6 +8,13 @@
             "id_tipo": ""
         },
         {
+            "id": "5",
+            "objeto": "Audiencia",
+            "tabla": "audiencias",
+            "nombre": "Audiencia",
+            "id_tipo": ""
+        },
+        {
             "id": "2",
             "objeto": "Parte",
             "tabla": "partes",
@@ -29,13 +36,6 @@
             "id_tipo": ""
         },
         {
-            "id": "5",
-            "objeto": "Audiencia",
-            "tabla": "audiencias",
-            "nombre": "Audiencia",
-            "id_tipo": ""
-        },
-        {
             "id": "6",
             "objeto": "Conciliador",
             "tabla": "conciliadores",
@@ -54,6 +54,13 @@
             "objeto": "Expediente",
             "tabla": "expedientes",
             "nombre": "Expediente",
+            "id_tipo": ""
+        },
+        {
+            "id": "8",
+            "objeto": "Sala",
+            "tabla": "salas",
+            "nombre": "Sala",
             "id_tipo": ""
         }
     ],

@@ -60,6 +60,8 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('audiencia/validar_partes/{id}','AudienciaController@validarPartes');
     Route::Post('audiencia/comparecientes','AudienciaController@guardarComparecientes');
     Route::Get('audiencia/comparecientes/{audiencia_id}','AudienciaController@getComparecientes');
+    Route::Get('audiencia/negarCancelacion/{audiencia_id}','AudienciaController@negarCancelacion');
+    Route::Get('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
     Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia');
     Route::get('calendario','AudienciaController@calendario');
     Route::get('getAudienciaConciliador','AudienciaController@GetAudienciaConciliador');

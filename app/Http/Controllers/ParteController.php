@@ -187,7 +187,7 @@ class ParteController extends Controller
     }
     
     /**
-     * Funcion para obtener el representante legal de una parte
+     * Funcion para obtener datos laborales de una parte
      * @param id $id
      * @return parte
      */
@@ -208,9 +208,9 @@ class ParteController extends Controller
     public function GuardarDatoLaboral(Request $request){
         $request->validate([
             'nombre_jefe_directo' => 'required|String',
-            'ocupacion_id' => 'required|Integer',
+            //'ocupacion_id' => 'required|Integer',
             'nss' => 'required|String',
-            'no_issste' => 'required|String',
+            //'no_issste' => 'required|String',
             'remuneracion' => 'required',
             'periodicidad_id' => 'required|Integer',
             'labora_actualmente' => 'required',
@@ -226,36 +226,50 @@ class ParteController extends Controller
             
             $datos_laborales->update([
                 'nombre_jefe_directo' => $request->nombre_jefe_directo,
-                'ocupacion_id' => $request->ocupacion_id,
-                'nss' => $request->nss,
-                'no_issste' => $request->no_issste,
+                //'ocupacion_id' => $request->ocupacion_id,
+                //'nss' => $request->nss,
+                //'no_issste' => $request->no_issste,
                 'remuneracion' => $request->remuneracion,
                 'periodicidad_id' => $request->periodicidad_id,
                 'labora_actualmente' => $request->labora_actualmente,
                 'fecha_ingreso' => $request->fecha_ingreso,
-                'fecha_salida' => $request->fecha_salida,
+                //'fecha_salida' => $request->fecha_salida,
                 'jornada_id' => $request->jornada_id,
                 'horas_semanales' => $request->horas_semanales,
                 'parte_id' => $request->parte_id,
                 'giro_comercial_id' => $request->giro_comercial_id,
                 'resolucion' => true,
+                'horario_laboral' => $request->horario_laboral,
+                'horario_comida' => $request->horario_comida,
+                'comida_dentro' => $request->comida_dentro,
+                'dias_descanso' => $request->dias_descanso,
+                'dias_vacaciones' => $request->dias_vacaciones,
+                'dias_aguinaldo' => $request->dias_aguinaldo,
+                'prestaciones_adicionales' => $request->prestaciones_adicionales,
             ]);
         }else{
             $datos_laborales = DatoLaboral::create([
                 'nombre_jefe_directo' => $request->nombre_jefe_directo,
-                'ocupacion_id' => $request->ocupacion_id,
-                'nss' => $request->nss,
-                'no_issste' => $request->no_issste,
+                //'ocupacion_id' => $request->ocupacion_id,
+                //'nss' => $request->nss,
+                //'no_issste' => $request->no_issste,
                 'remuneracion' => $request->remuneracion,
                 'periodicidad_id' => $request->periodicidad_id,
                 'labora_actualmente' => $request->labora_actualmente,
                 'fecha_ingreso' => $request->fecha_ingreso,
-                'fecha_salida' => $request->fecha_salida,
+                //'fecha_salida' => $request->fecha_salida,
                 'jornada_id' => $request->jornada_id,
                 'horas_semanales' => $request->horas_semanales,
                 'parte_id' => $request->parte_id,
                 'giro_comercial_id' => $request->giro_comercial_id,
                 'resolucion' => true,
+                'horario_laboral' => $request->horario_laboral,
+                'horario_comida' => $request->horario_comida,
+                'comida_dentro' => $request->comida_dentro,
+                'dias_descanso' => $request->dias_descanso,
+                'dias_vacaciones' => $request->dias_vacaciones,
+                'dias_aguinaldo' => $request->dias_aguinaldo,
+                'prestaciones_adicionales' => $request->prestaciones_adicionales,
             ]);
         }
         
@@ -273,12 +287,10 @@ class ParteController extends Controller
                 "segundo_apellido" => $request->segundo_apellido,
                 "fecha_nacimiento" => $request->fecha_nacimiento,
                 "genero_id" => $request->genero_id,
-                "instrumento" => $request->instrumento,
+                "clasificacion_archivo_id" => $request->clasificacion_archivo_id,
                 "genero_id" => $request->genero_id,
                 "feha_instrumento" => $request->feha_instrumento,
-                "numero_notaria" => $request->numero_notaria,
-                "nombre_notario" => $request->nombre_notario,
-                "localidad_notaria" => $request->localidad_notaria
+                "detalle_instrumento" => $request->detalle_instrumento
             ]);
         }else{
             $parte_representada = Parte::find($request->parte_representada_id);
@@ -293,12 +305,10 @@ class ParteController extends Controller
                 "segundo_apellido" => $request->segundo_apellido,
                 "fecha_nacimiento" => $request->fecha_nacimiento,
                 "genero_id" => $request->genero_id,
-                "instrumento" => $request->instrumento,
+                "detalle_instrumento" => $request->detalle_instrumento,
                 "genero_id" => $request->genero_id,
                 "feha_instrumento" => $request->feha_instrumento,
-                "numero_notaria" => $request->numero_notaria,
-                "nombre_notario" => $request->nombre_notario,
-                "localidad_notaria" => $request->localidad_notaria,
+                "detalle_instrumento" => $request->detalle_instrumento,
                 "parte_representada_id" => $request->parte_representada_id,
                 "representante" => true
             ]);

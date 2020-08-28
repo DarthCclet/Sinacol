@@ -7,6 +7,8 @@ use App\Documento;
 use App\Audiencia;
 use App\Solicitud;
 use App\ClasificacionArchivo;
+use App\Parte;
+use Exception;
 use Validator;
 use Illuminate\Support\Facades\Storage;
 class DocumentoController extends Controller
@@ -137,28 +139,51 @@ class DocumentoController extends Controller
     }
     public function solicitud(Request $request)
     {
+        
+       if(!isset($request->parte) || $request->parte[0] == null || !isset($request->tipo_documento_id) || $request->tipo_documento_id[0] == null){
+            return '{ "files": [ { "error": "No se capturo tipo de documento o parte solicitada", "name": "thumb2.jpg" } ] }';
+       }
+
+        $parte = Parte::find($request->parte[0]);
         $solicitud = Solicitud::find($request->solicitud_id[0]);
-        if($solicitud != null){
-            $directorio = 'solicitud/'.$solicitud->id;
-            Storage::makeDirectory($directorio);
-            $archivos = $request->file('files');
-            $tipoArchivo = ClasificacionArchivo::find($request->tipo_documento_id[0]);
-            foreach($archivos as $archivo) {
-                $path = $archivo->store($directorio);
-                $solicitud->documentos()->create([
-                    "nombre" => str_replace($directorio."/", '',$path),
-                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                    "descripcion" => "Documento de solicitud ".$tipoArchivo->nombre,
-                    "ruta" => $path,
-                    "tipo_almacen" => "local",
-                    "uri" => $path,
-                    "longitud" => round(Storage::size($path) / 1024, 2),
-                    "firmado" => "false",
-                    "clasificacion_archivo_id" => $tipoArchivo->id ,
-                ]);
+        
+        try{
+            $existeDocumento = $parte->documentos;
+            if($solicitud != null && count($existeDocumento) == 0 ){
+                $archivo = $request->files;
+                $solicitud_id = $solicitud->id;
+                $clasificacion_archivo= $request->tipo_documento_id[0];
+                $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                Storage::makeDirectory($directorio);
+                $archivos = $request->file('files');
+                $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                foreach($archivos as $archivo) {
+                    $path = $archivo->store($directorio);
+
+                    $documento = $parte->documentos()->create([
+                        "nombre" => str_replace($directorio."/", '',$path),
+                        "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                        // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                        "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
+                        "ruta" => $path,
+                        "tipo_almacen" => "local",
+                        "uri" => $path,
+                        "longitud" => round(Storage::size($path) / 1024, 2),
+                        "firmado" => "false",
+                        "clasificacion_archivo_id" => $tipoArchivo->id ,
+                    ]);
+                }
+                return '{ "files": [ { "success": "Docuemnto almacenado correctamente", "error":0, "name": "'.$tipoArchivo->nombre.'.pdf" } ] }';
+            }else{
+                return '{ "files": [ { "error": "Ya existe un documento para este solicitante", "name": "" } ] }';
+
             }
+            
+        }catch(Exception $e){
+
+            return '{ "files": [ { "error": "No se pudo guardar el archivo", "name": "thumb2.jpg" } ] }';
         }
-        return 'Product saved successfully';
+        return '{ "files": [ { "error": "No se capturo solicitud", "name": "thumb2.jpg" } ] }';
     }
     public function getFile($id){
         $documento = Documento::find($id);

@@ -3,6 +3,7 @@
 @section('title', 'Clasificación de archivos')
 
 @include('includes.component.datatables')
+@include('includes.component.pickers')
 
 @section('content')
     <ol class="breadcrumb float-xl-right">
@@ -40,3 +41,22 @@
 {{ Form::close() }}
 <input type="hidden" id="id">
 @endsection
+@push('scripts')
+<script>
+    $('#btnGuardar').on('click', function (e) {
+        let that = this;
+        console.log('boton clic');
+        e.preventDefault();
+        if($("#nombre").val() != "" && $("#tipo_archivo_id").val() != ""  && $("#entidad_emisora_id").val() != "" ){
+            $(that).closest('form').submit();
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Llena todos los campos',
+                icon: 'warning'
+            });
+        }
+        return false;
+    });
+</script>
+@endpush

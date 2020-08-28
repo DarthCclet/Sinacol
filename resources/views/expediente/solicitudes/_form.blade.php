@@ -336,6 +336,18 @@
                                     <p class="help-block">Nombre del Jefe directo</p>
                                 </div>
                                 <div class="col-md-6">
+                                    <input class="form-control upper" id="nombre_contrato" placeholder="Nombre de quien te contrato" type="text" value="">
+                                    <p class="help-block">&iquest;Quien te contrato?</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <input class="form-control upper" id="nombre_paga" placeholder="Nombre quien te paga" type="text" value="">
+                                    <p class="help-block">&iquest;Quien te paga?</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <input class="form-control upper" id="nombre_prestas_servicio" placeholder="Nombre de a quien le prestas tus servicios" type="text" value="">
+                                    <p class="help-block">&iquest;A quien prestas el servicio?</p>
+                                </div>
+                                <div class="col-md-6">
                                     <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
                                     <p class="help-block ">N&uacute;mero de seguro social</p>
                                 </div>
@@ -405,8 +417,8 @@
                             <!-- end Seccion de Datos laborales -->
                             <hr style="margin-top:5%;">
                             <div id="divBotonesSolicitante" style="display:none">
-                                <button class="btn btn-primary" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Agregar solicitante</button>
                                 <button class="btn btn-danger" type="button" onclick="limpiarSolicitante()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
+                                <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Validar y agregar solicitante</button>
                             </div>
                         </div>
                     </div>
@@ -793,7 +805,7 @@
                                             <p>Se realizaron los siguientes cambios a {{$audit["extra"]}}</p>
                                             <p>
                                                 @foreach($audit["cambios"] as $key => $value)
-                                                    {{$key}} cambio de valor de <b>{{isset($value["old"]) ? $value["old"]:""}}</b> a {{$value["new"]}}<br>
+                                                    {{$key}} cambio de valor de <b>{{isset($value["old"]) ? $value["old"]:""}}</b> a {{isset($value["new"])?$value["new"]:""}}<br>
                                                 @endforeach
                                             </p>
                                         @elseif($audit["event"] == "Inserción")
@@ -855,6 +867,7 @@
 
             <!-- The template to display files available for upload -->
             <script id="template-upload" type="text/x-tmpl">
+                @if(isset($solicitud))
                 {% for (var i=0, file; file=o.files[i]; i++) { %}
                     <tr class="template-upload fade show">
                         <td>
@@ -863,7 +876,7 @@
                         <td>
                             <div class="bg-light rounded p-10 mb-2">
                                 <dl class="m-b-0">
-                                    <dt class="text-inverse">File Name:</dt>
+                                    <dt class="text-inverse">Nombre del documento:</dt>
                                     <dd class="name">{%=file.name%}</dd>
                                     <dt class="text-inverse m-t-10">File Size:</dt>
                                     <dd class="size">Processing...</dd>
@@ -872,16 +885,32 @@
                             <strong class="error text-danger h-auto d-block text-left"></strong>
                         </td>
                         <td>
-                            <select class="form-control tipo_documento" name="tipo_documento_id[]">
-                                <option value="1">Audiencia 1</option>
-                                <option value="2">Audiencia 2</option>
+                            <select class="form-control catSelectFile" name="tipo_documento_id[]">
+                                <option value="">Seleccione una opci&oacute;n</option>
+                                @if(isset($clasificacion_archivo))
+                                    @foreach($clasificacion_archivo as $clasificacion)
+                                        <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-control catSelectFile" name="parte[]">
+                                <option value="">Seleccione una opci&oacute;n</option>
+                                @if(isset($solicitud))
+                                    @foreach($solicitud->partes as $parte)
+                                        @if($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3 )
+                                            <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>
+                                        @endif
+                                    @endforeach
+                                @endif
                             </select>
                         </td>
                         <td>
                             <dl>
                                 <dt class="text-inverse m-t-3">Progress:</dt>
                                 <dd class="m-t-5">
-                                    <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 40px;">0%</div></div>
+                                    <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>
                                 </dd>
                             </dl>
                         </td>
@@ -889,9 +918,11 @@
                             {% if (!i && !o.options.autoUpload) { %}
                                 <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>
                                     <i class="fa fa-upload fa-fw text-inverse"></i>
-                                    <span>Start</span>
+                                    <span>Guardar</span>
                                 </button>
                             {% } %}
+                        </td>
+                        <td nowrap>
                             {% if (!i) { %}
                                 <button class="btn btn-default cancel width-100 p-r-20">
                                     <i class="fa fa-trash fa-fw text-muted"></i>
@@ -901,9 +932,11 @@
                         </td>
                     </tr>
                 {% } %}
+                @endif
             </script>
             <!-- The template to display files available for download -->
             <script id="template-download" type="text/x-tmpl">
+                @if(isset($solicitud))
                 {% for (var i=0, file; file=o.files[i]; i++) { %}
                     <tr class="template-download fade show">
                         <td width="1%">
@@ -920,7 +953,7 @@
                         <td>
                             <div class="bg-light p-10 mb-2">
                                 <dl class="m-b-0">
-                                    <dt class="text-inverse">File Name:</dt>
+                                    <dt class="text-inverse">Nombre del archivo:</dt>
                                     <dd class="name">
                                         {% if (file.url) { %}
                                             <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
@@ -933,6 +966,9 @@
                                 </dl>
                                 {% if (file.error) { %}
                                     <div><span class="label label-danger">ERROR</span> {%=file.error%}</div>
+                                {% } %}
+                                {% if (file.success) { %}
+                                    <div><span class="label label-success">Correcto</span> {%=file.success%}</div>
                                 {% } %}
                             </div>
                         </td>
@@ -954,6 +990,7 @@
                         </td>
                     </tr>
                 {% } %}
+                @endif
             </script>
 
         </div>
@@ -992,10 +1029,10 @@
 <!-- Fin Modal de Domicilio-->
 <!-- inicio Modal cargar archivos-->
 <div class="modal" id="modal-archivos" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Archivos de Audiencia</h4>
+                <h4 class="modal-title">Documentos de identificaci&oacute;n</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -1008,10 +1045,10 @@
                                         <span>Agregar...</span>
                                         <input type="file" name="files[]" multiple>
                                 </span>
-                                <button type="submit" class="btn btn-primary start m-r-3">
+                                {{-- <button type="submit" class="btn btn-primary start m-r-3">
                                         <i class="fa fa-fw fa-upload"></i>
                                         <span>Cargar</span>
-                                </button>
+                                </button> --}}
                                 <button type="reset" class="btn btn-default cancel m-r-3" id="btnCancelFiles">
                                         <i class="fa fa-fw fa-ban"></i>
                                         <span>Cancelar</span>
@@ -1036,7 +1073,9 @@
                                     <th width="10%">VISTA PREVIA</th>
                                     <th>INFORMACION</th>
                                     <th>TIPO DE DOCUMENTO</th>
+                                    <th>PARTE RELACIONADA</th>
                                     <th>PROGRESO</th>
+                                    <th width="1%"></th>
                                     <th width="1%"></th>
                                 </tr>
                             </thead>
@@ -1054,6 +1093,7 @@
             </div>
             <div class="modal-footer">
                 <div class="text-right">
+                    <a class="btn btn-primary btn-sm" data-dismiss="modal" onclick="continuarRatificacion()"><i class="fa fa-sign-out"></i> Continuar a ratificaci&oacute;n</a>
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-sign-out"></i> Cerrar</a>
                 </div>
             </div>
@@ -1071,7 +1111,7 @@
         </div>
     </div>
 </div>
- <div class="modal" id="modalNotificacion" aria-hidden="true" style="display:none;">
+ <div class="modal" id="modalRatificacion" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -1079,65 +1119,41 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-muted">
-                    Selecciona la forma en que se notificara a la parte citada.<br>
-                    <ul>
-                        <li>El solicitante entrega citatorio a citados: El solicitante se encargará de entregar la notifocación sin ayuda del centro</li>
-                        <li>Un actuario del centro entrega citatorio a citados: La tarea de entregar la notificación será del centro que asignará un actuario</li>
-                    </ul>
+                <div class="">
+                    <div>
+                        <h5>Personas a Ratificar.</h5>
+                    </div>
                 </div>
                 <div class="col-md-12">
+                    <div id="divNeedRepresentante" style="display: none;">
+                        <input type="hidden" id="parte_id" />
+                        <input type="hidden" id="parte_representada_id">
+                        <h4>Agregar representante</h4>
+                        <table class="table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <td>Solicitante</td>
+                                    <td>Accion</td>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyRepresentante">
+                            <tbody>
+                        </table>
+                    </div>
+
                     <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr>
-                                <td>Citado</td>
-                                <td>Dirección</td>
-                                <td>Mapa</td>
-                                <td>Tipo de notificación</td>
+                                <td>Solicitante</td>
+                                <td>Documento</td>
                             </tr>
                         </thead>
-                        <tbody>
-                            @if(isset($partes))
-                            @foreach($partes as $parte)
-                            <tr>
-                                @if($parte->tipo_parte_id == 2)
-                                    @if($parte->tipo_persona_id == 1)
-                                    <td>{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</td>
-                                    @else
-                                    <td>{{$parte->nombre_comercial}}</td>
-                                    @endif
-                                    <td>{{$parte->domicilios->vialidad}} {{$parte->domicilios->num_ext}}, {{$parte->domicilios->asentamiento}} {{$parte->domicilios->municipio}}, {{$parte->domicilios->estado}}</td>
-                                    <td>
-                                        <input type="hidden" id="parte_id{{$parte->id}}" class="hddParte_id" value="{{$parte->id}}">
-                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
-                                        <a href="https://maps.google.com/?q={{$parte->domicilios->latitud}},{{$parte->domicilios->longitud}}" target="_blank" class="btn btn-xs btn-primary"><i class="fa fa-map"></i></a>
-                                        @else
-                                        <legend>Sin datos</legend>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="radio radio-css">
-                                          <input type="radio" id="radioNotificacionA{{$parte->id}}" value="1" name="radioNotificacion{{$parte->id}}" />
-                                          <label for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio a citados</label>
-                                        </div>
-                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
-                                        <div class="radio radio-css">
-                                          <input type="radio" id="radioNotificacionB{{$parte->id}}" value="2" name="radioNotificacion{{$parte->id}}" >
-                                          <label for="radioNotificacionB{{$parte->id}}">B) Un actuario del centro entrega citatorio a citados</label>
-                                        </div>
-                                        @else
-                                        <div class="radio radio-css">
-                                          <input type="radio" id="radioNotificacionB{{$parte->id}}" value="3" name="radioNotificacion{{$parte->id}}" >
-                                          <label for="radioNotificacionB{{$parte->id}}">B) Agendar cita con actuario para entrega de citatorio</label>
-                                        </div>
-                                        @endif
-                                    </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                            @endif
+                        <tbody id="tbodyRatificacion">
                         <tbody>
                     </table>
+                </div>
+                <div style="margin: 2%;">
+                    <a class="btn btn-primary btn-sm" style="float: right;" data-dismiss="modal" onclick="$('#modal-archivos').modal('show');" ><i class="fa fa-plus"></i> Agregar Documentos</a>
                 </div>
                 <br>
 
@@ -1145,12 +1161,132 @@
             <div class="modal-footer">
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Ratificar</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<!--inicio modal para representante legal-->
+<div class="modal" id="modal-representante" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Representante legal</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <h5>Datos del Representante legal</h5>
+                <div class="col-md-12 row">
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label for="curp" class="control-label">CURP</label>
+                            <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control" placeholder="CURP del representante legal">
+                        </div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label for="nombre" class="control-label">Nombre</label>
+                            <input type="text" id="nombre" class="form-control" placeholder="Nombre del representante legal">
+                        </div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label for="primer_apellido" class="control-label">Primer apellido</label>
+                            <input type="text" id="primer_apellido" class="form-control" placeholder="Primer apellido del representante">
+                        </div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label for="segundo_apellido" class="control-label">Segundo apellido</label>
+                            <input type="text" id="segundo_apellido" class="form-control" placeholder="Segundo apellido representante">
+                        </div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label for="fecha_nacimiento" class="control-label">Fecha de nacimiento</label>
+                            <input type="text" id="fecha_nacimiento" class="form-control dateBirth" placeholder="Fecha de nacimiento del representante">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="genero_id" class="col-sm-6 control-label">Género</label>
+                        <select id="genero_id" class="form-control select-element">
+                            <option value="">-- Selecciona un género</option>
+                        </select>
+                    </div>
+                </div>
+                <hr>
+                <h5>Datos de comprobante como representante legal</h5>
+                <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="clasificacion_archivo_id" class="control-label">Instrumento</label>
+                            <select id="clasificacion_archivo_id" class="form-control select-element">
+                                <option value="">-- Selecciona un género</option>
+                                @foreach($clasificacion_archivo as $clasificacion)
+                                <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
+                            <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="detalle_instrumento" class="control-label">Detalle del instrumento notarial</label>
+                            <textarea type="text" id="detalle_instrumento" class="form-control" placeholder=""></textarea>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <h5>Datos de contacto</h5>
+                <div class="col-md-12 row">
+                    <div class="col-md-5">
+                        <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
+                        <select id="tipo_contacto_id" class="form-control select-element">
+                            <option value="">-- Selecciona un género</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label for="contacto" class="control-label">Contacto</label>
+                            <input type="text" id="contacto" class="form-control" placeholder="Información de contacto">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary" type="button" id="btnAgregarContacto">
+                            <i class="fa fa-plus-circle"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <table class="table table-bordered" >
+                        <thead>
+                            <tr>
+                                <th style="width:80%;">Tipo</th>
+                                <th style="width:80%;">Contacto</th>
+                                <th style="width:20%; text-align: center;">Accion</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyContacto">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarRepresentante"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin de modal de representante legal-->
 <input type="hidden" id="expediente_id">
 <!--</div>-->
 @push('scripts')
@@ -1165,6 +1301,7 @@
     var arrayContactoSolicitantes = []; // Array de objeto_solicitude para el citado
     var arrayContactoSolicitados = []; // Array de objeto_solicitude para el citado
     var arraySolicitanteExcepcion = {}; // Array de solicitante excepción
+    var ratifican = false;; // Array de solicitante excepción
 
     $(document).ready(function() {
         $('#wizard').smartWizard({
@@ -1243,6 +1380,9 @@
                     var dato_laboral = {};
                     dato_laboral.id = $("#dato_laboral_id").val();
                     dato_laboral.nombre_jefe_directo = $("#nombre_jefe_directo").val();
+                    dato_laboral.nombre_prestas_servicio = $("#nombre_prestas_servicio").val();
+                    dato_laboral.nombre_paga = $("#nombre_paga").val();
+                    dato_laboral.nombre_contrato = $("#nombre_contrato").val();
                     dato_laboral.ocupacion_id = $("#ocupacion_id").val();
                     dato_laboral.puesto = $("#puesto").val();
                     dato_laboral.nss = $("#nss").val();
@@ -1638,6 +1778,8 @@
                         $("#btnRatificarSolicitud").show();
                         $("#expediente_id").val("");
                     }
+                    cargarGeneros();
+                    cargarTipoContactos();
                 }catch(error){
                     console.log(error);
                 }
@@ -1664,6 +1806,9 @@
             $(".personaFisicaSolicitante").show();
             $("#idSolicitanteRfc").val("");
             $("#nombre_jefe_directo").val("");
+            $("#nombre_prestas_servicio").val("");
+            $("#nombre_paga").val("");
+            $("#nombre_contrato").val("");
             $("#ocupacion_id").val("");
             $("#puesto").val("");
             $("#nss").val("");
@@ -1833,6 +1978,7 @@
             }
 
             formarTablaContacto();
+            limpiarContactoSolicitado();
         }else{
             swal({
                 title: 'Error',
@@ -2071,7 +2217,7 @@
         $('#divDatoLaboralSolicitante').show();
         $('#divBotonesSolicitante').show();
         $("#paso1").click();
-        $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Editar solicitante');
+        $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Validar y Editar solicitante');
         $("#edit_key").val(key);
         $("#solicitante_id").val(arraySolicitantes[key].id);
         if(arraySolicitantes[key].tipo_persona_id == 1){
@@ -2119,6 +2265,9 @@
         $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
         // getGiroEditar("solicitante");
         $("#nombre_jefe_directo").val(arraySolicitantes[key].dato_laboral.nombre_jefe_directo);
+        $("#nombre_prestas_servicio").val(arraySolicitantes[key].dato_laboral.nombre_prestas_servicio);
+        $("#nombre_paga").val(arraySolicitantes[key].dato_laboral.nombre_paga);
+        $("#nombre_contrato").val(arraySolicitantes[key].dato_laboral.nombre_contrato);
         $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
         $("#puesto").val(arraySolicitantes[key].dato_laboral.puesto);
         $("#nss").val(arraySolicitantes[key].dato_laboral.nss);
@@ -2230,7 +2379,7 @@
     * Funcion para agregar Domicilio de solicitante y solicitado
     */
     function agregarDomicilio(){
-        if($("#estado_idsolicitado").val() != "" && $("#municipiosolicitado").val() != "" && $("#cpsolicitado").val() != "" && $("#tipo_asentamiento_idsolicitado").val() != "" && $("#asentamientosolicitado").val() != "" && $("#tipo_vialidad_idsolicitado").val() != "" && $("#vialidadsolicitado").val() != "" && $("#num_extsolicitado").val() != ""){
+        if($("#estado_idsolicitado").val() != "" && $("#municipiosolicitado").val() != "" && $("#cpsolicitado").val() != "" && $("#asentamientosolicitado").val() != "" && $("#tipo_vialidad_idsolicitado").val() != "" && $("#vialidadsolicitado").val() != "" && $("#num_extsolicitado").val() != ""){
             key = $("#domicilio_edit").val();
 
             // if(key == ""){
@@ -2394,82 +2543,30 @@
     // Funcion para ratificar solicitudes
     $("#btnRatificarSolicitud").on("click",function(){
         try{
-            if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0){
-            //    $("#modalNotificacion").modal("show");
-                swal({
-                    title: '¿Estas seguro?',
-                    text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
-                    icon: 'warning',
-                    buttons: {
-                        cancel: {
-                            text: 'Cancelar',
-                            value: null,
-                            visible: true,
-                            className: 'btn btn-default',
-                            closeModal: true,
-                        },
-                        confirm: {
-                            text: 'Aceptar',
-                            value: true,
-                            visible: true,
-                            className: 'btn btn-danger',
-                            closeModal: true
-                        }
-                    }
-                }).then(function(isConfirm){
-                    if(isConfirm){
-                        $.ajax({
-                            url:'/solicitud/ratificar',
-                            type:'POST',
-                            dataType:"json",
-                            async:true,
-                            data:{
-                                id:$("#solicitud_id").val(),
-//                                listaNotificaciones:validacion.listaNotificaciones,
-                                _token:"{{ csrf_token() }}"
-                            },
-                            success:function(data){
-                                if(data != null && data != ""){
-                                    $("#modalNotificacion").modal("hide");
-                                    swal({
-                                        title: 'Correcto',
-                                        text: 'Solicitud ratificada correctamente',
-                                        icon: 'success'
-                                    });
-                                    location.reload();
-                                }else{
-                                    swal({
-                                        title: 'Error',
-                                        text: 'No se pudo ratificar',
-                                        icon: 'error'
-                                    });
-                                }
-                            },error:function(data){
-                                swal({
-                                    title: 'Error',
-                                    text: ' Error al ratificar la solicitud',
-                                    icon: 'error'
-                                });
-                            }
-                        });
-                    }
+            cargarDocumentos();
+            var solicitanteMenor = arraySolicitantes.filter(x=>x.edad < 18);
+            if(solicitanteMenor.length > 0){
+                $("#divNeedRepresentante").show();
+                var html = "";
+                $.each(solicitanteMenor,function(key,parte){
+                    html += "<tr>";
+                    html += "<td>"+parte.nombre + " " + parte.primer_apellido + " " + parte.segundo_apellido+"</td>";
+                    html += "<td><button class='btn btn-primary' type='button' onclick='AgregarRepresentante("+parte.id+")' id='btnaddRep"+parte.id+"' > <i class='fa fa-plus-circle'></i> Agregar Representante</button> <span style='color:green; font-size:Large;' id='tieneRepresentante"+parte.id+"'></span></td>";
+                    html += "</tr>";
                 });
+                $("#tbodyRepresentante").html(html);
             }else{
-                swal({
-                    title: 'Error',
-                    text: 'Llena todos los campos',
-                    icon: 'warning'
-                });
+                    $("#divNeedRepresentante").hide();
             }
+            $("#modalRatificacion").modal("show");
+//             
         }catch(error){
             console.log(error);
         }
     });
 
     $("#btnGuardarRatificar").on("click",function(){
-        var validacion = validarRatificacion();
-        console.log(validacion);
-        if(!validacion.error){
+        if(ratifican){
             swal({
                 title: '¿Estas seguro?',
                 text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
@@ -2499,12 +2596,11 @@
                         async:true,
                         data:{
                             id:$("#solicitud_id").val(),
-                            listaNotificaciones:validacion.listaNotificaciones,
                             _token:"{{ csrf_token() }}"
                         },
                         success:function(data){
                             if(data != null && data != ""){
-                                $("#modalNotificacion").modal("hide");
+                                $("#modalRatificacion").modal("hide");
                                 swal({
                                     title: 'Correcto',
                                     text: 'Solicitud ratificada correctamente',
@@ -2532,32 +2628,13 @@
         }else{
             swal({
                 title: 'Error',
-                text: 'Indica el tipo de notificación para todos los solicitados',
+                text: 'Al menos un solicitante debe presentar documentos para ratificar',
                 icon: 'warning'
             });
         }
     });
-
-    function validarRatificacion(){
-        var error = false;
-        var listaNotificaciones = [];
-        $(".hddParte_id").each(function(element){
-            var parte_id = $(this).val();
-            if($("#radioNotificacionA"+parte_id).is(":checked")){
-                listaNotificaciones.push({
-                    parte_id:parte_id,
-                    tipo_notificacion_id:1
-                });
-            }else if($("#radioNotificacionB"+parte_id).is(":checked")){
-                listaNotificaciones.push({
-                    parte_id:parte_id,
-                    tipo_notificacion_id:2
-                });
-            }else{
-                error = true;
-            }
-        });
-        return {error:error,listaNotificaciones:listaNotificaciones}
+    function continuarRatificacion(){
+        $("#modalRatificacion").modal('show');
     }
 
     //funcion para obtener informacion de la excepcion
@@ -2720,6 +2797,22 @@
             success:function(data){
                 try{
                     if(data != null && data != ""){
+                        //Carga información en la ratificacion
+                        var html = "";
+                   $.each(data, function (key, value) {
+                       if(value.documentable_type == "App\\Parte"){
+                            // var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
+                            // if(parte != undefined){
+                                html += "<tr>";
+                                html += "<td>"+value.parte+"</td>";
+                                html += "<td>"+value.nombre_original + " "+ value.clasificacion_archivo_id+"</td>";
+                                html += "</tr>";
+                                ratifican = true;
+                            // }
+                       }
+                   });
+                    $("#tbodyRatificacion").html(html);
+                        // end carga ratificacion
                         var table = "";
                         var div = "";
                         $.each(data, function(index,element){
@@ -2766,7 +2859,7 @@
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
             stop: function(e,data){
               cargarDocumentos();
-              $("#modal-archivos").modal("hide");
+            //   $("#modal-archivos").modal("hide");
             }
             // Uncomment the following to send cross-domain cookies:
             //xhrFields: {withCCOLOR_REDentials: true},
@@ -2783,9 +2876,15 @@
         );
 
         // hide empty row text
+        $('#fileupload').on('fileuploadsend', function (e, data) {
+            
+            // if(){
+            //     e.preventDefault();
+            // }    
+        })
         $('#fileupload').bind('fileuploadadd', function(e, data) {
             $('#fileupload [data-id="empty"]').hide();
-            $(".tipo_documento").select2();
+            $(".catSelectFile").select2();
         });
         $('#fileupload').bind('fileuploaddone', function(e, data) {
             // console.log("add");
@@ -2839,7 +2938,6 @@
         });
     };
     function validarPalabras(e){
-        console.log(e);
         var numeroPalabras = countPalabras(e);
         $("#numeroPalabras").html(numeroPalabras);
         $("#countObservaciones").val(numeroPalabras);
@@ -2889,16 +2987,8 @@
                 }
                 break;
             case 2:
-                if(arrayContactoSolicitados.length > 0){
-                    $('#divMapaSolicitado').show();
-                    $('#continuarSolicitado2').hide();
-                }else{
-                    swal({
-                        title: 'Error',
-                        text: 'Es necesario capturar al menos un contacto para continuar',
-                        icon: 'error',
-                    });
-                }
+                $('#divMapaSolicitado').show();
+                $('#continuarSolicitado2').hide();
             break;
             case 3:
                 if($('#divMapaSolicitado').parsley().validate()){
@@ -2950,7 +3040,6 @@
         var falta = false;
 
         $(".fileGrupoVulnerable").each(function(e){
-            console.log($(this).val());
             if($(this).val() == ""){
                 falta = true;
             }
@@ -2959,6 +3048,228 @@
             e.preventDefault();
         }
     });
+    var listaContactos = [];
+    function AgregarRepresentante(parte_id){
+        $.ajax({
+            url:"/partes/representante/"+parte_id,
+            type:"GET",
+            dataType:"json",
+            success:function(data){
+                if(data != null && data != ""){
+                    data = data[0];
+                    $("#tieneRepresentante"+parte_id).html("<i class='fa fa-check'></i> ");
+                    $("#btnaddRep"+parte_id).html("Ver Representante");
+                    $("#curp").val(data.curp);
+                    $("#nombre").val(data.nombre);
+                    $("#primer_apellido").val(data.primer_apellido);
+                    $("#segundo_apellido").val(data.segundo_apellido);
+                    $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
+                    $("#genero_id").val(data.genero_id).trigger("change");
+                    $("#clasificacion_archivo_id").val(data.clasificacion_archivo_id).change();
+                    $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
+                    $("#detalle_instrumento").val(data.detalle_instrumento);
+                    $("#parte_id").val(data.id);
+                    listaContactos = data.contactos;
+                }else{
+                    $("#curp").val("");
+                    $("#nombre").val("");
+                    $("#primer_apellido").val("");
+                    $("#segundo_apellido").val("");
+                    $("#fecha_nacimiento").val("");
+                    $("#genero_id").val("").trigger("change");
+                    $("#clasificacion_archivo_id").val("").change();
+                    $("#feha_instrumento").val("");
+                    $("#detalle_instrumento").val("");
+                    $("#parte_id").val("");
+                    listaContactos = [];
+                }
+                $("#tipo_contacto_id").val("").trigger("change");
+                $("#contacto").val("");
+                $("#parte_representada_id").val(parte_id);
+                cargarContactos();
+                $("#modal-representante").modal("show");
+            }
+        });
+    }
+    function cargarGeneros(){
+        $.ajax({
+            url:"/generos",
+            type:"GET",
+            dataType:"json",
+            success:function(data){
+                $("#genero_id").html("<option value=''>-- Selecciona un género</option>");
+                if(data.data.length > 0){
+                    $.each(data.data,function(index,element){
+                        $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                    });
+                }
+                $("#genero_id").trigger("change");
+            }
+        });
+    }
+
+    function cargarTipoContactos(){
+        $.ajax({
+            url:"/tipos_contactos",
+            type:"GET",
+            dataType:"json",
+            success:function(data){
+                if(data.data.total > 0){
+                    $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                    $.each(data.data.data,function(index,element){
+                        $("#tipo_contacto_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                    });
+                }else{
+                    $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                }
+                $("#tipo_contacto_id").trigger("change");
+            }
+        });
+    }
+    $("#btnAgregarContacto").on("click",function(){
+        if($("#parte_id").val() != ""){
+            $.ajax({
+                url:"/partes/representante/contacto",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    tipo_contacto_id:$("#tipo_contacto_id").val(),
+                    contacto:$("#contacto").val(),
+                    parte_id:$("#parte_id").val(),
+                    _token:"{{ csrf_token() }}"
+                },
+                success:function(data){
+                    if(data != null && data != ""){
+                        listaContactos = data;
+                        cargarContactos();
+                    }else{
+                        swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                    }
+                }
+            });
+        }else{
+            listaContactos.push({
+                tipo_contacto_id:$("#tipo_contacto_id").val(),
+                contacto:$("#contacto").val(),
+                id:null,
+                tipo_contacto:{
+                    nombre:$("#tipo_contacto_id option:selected").text()
+                }
+            });
+        }
+        cargarContactos();
+    });
+    function validarRepresentante(){
+        var error=false;
+        $(".control-label").css("color","");
+        if($("#curp").val() == ""){
+            $("#curp").prev().css("color","red");
+            error = true;
+        }
+        if($("#nombre").val() == ""){
+            $("#nombre").prev().css("color","red");
+            error = true;
+        }
+        if($("#primer_apellido").val() == ""){
+            $("#primer_apellido").prev().css("color","red");
+            error = true;
+        }
+        if($("#segundo_apellido").val() == ""){
+            $("#segundo_apellido").prev().css("color","red");
+            error = true;
+        }
+        if($("#fecha_nacimiento").val() == ""){
+            $("#fecha_nacimiento").prev().css("color","red");
+            error = true;
+        }
+        if($("#genero_id").val() == ""){
+            $("#genero_id").prev().css("color","red");
+            error = true;
+        }
+        if($("#instrumento").val() == ""){
+            $("#instrumento").prev().css("color","red");
+            error = true;
+        }
+        if($("#feha_instrumento").val() == ""){
+            $("#feha_instrumento").prev().css("color","red");
+            error = true;
+        }
+        if($("#numero_notaria").val() == ""){
+            $("#numero_notaria").prev().css("color","red");
+            error = true;
+        }
+        if($("#nombre_notario").val() == ""){
+            $("#nombre_notario").prev().css("color","red");
+            error = true;
+        }
+        if($("#localidad_notaria").val() == ""){
+            $("#localidad_notaria").prev().css("color","red");
+            error = true;
+        }
+        if(listaContactos.length == 0){
+            $("#contacto").prev().css("color","red");
+            $("#tipo_contacto_id").prev().css("color","red");
+            error = true;
+            error = true;
+        }
+        return error;
+    }
+
+    function cargarContactos(){
+        var table = "";
+        $.each(listaContactos, function(index,element){
+            table +='<tr>';
+            table +='   <td>'+element.tipo_contacto.nombre+'</td>';
+            table +='   <td>'+element.contacto+'</td>';
+            table +='   <td style="text-align: center;">';
+            table +='       <a class="btn btn-xs btn-warning" onclick="eliminarContacto('+index+')">'
+            table +='           <i class="fa fa-trash" style="color:white;"></i>';
+            table +='       </a>';
+            table +='   </td>';
+            table +='<tr>';
+        });
+        $("#tbodyContacto").html(table);
+    }
+
+    $("#btnGuardarRepresentante").on("click",function(){
+        if(!validarRepresentante()){
+            $.ajax({
+                url:"/partes/representante",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    clasificacion_archivo_id:$("#clasificacion_archivo_id").val(),
+                    detalle_instrumento:$("#detalle_instrumento").val(),
+                    parte_representada_id:$("#parte_representada_id").val(),
+                    curp:$("#curp").val(),
+                    nombre:$("#nombre").val(),
+                    primer_apellido:$("#primer_apellido").val(),
+                    segundo_apellido:$("#segundo_apellido").val(),
+                    fecha_nacimiento:dateFormat($("#fecha_nacimiento").val()),
+                    genero_id:$("#genero_id").val(),
+                    instrumento:$("#instrumento").val(),
+                    feha_instrumento:dateFormat($("#feha_instrumento").val()),
+                    parte_id:$("#parte_id").val(),
+                    parte_representada_id:$("#parte_representada_id").val(),
+                    listaContactos:listaContactos,
+                    _token:"{{ csrf_token() }}"
+                },
+                success:function(data){
+                    if(data != null && data != ""){
+                        $("#tieneRepresentante"+data.id).html("Correcto <i class='fa fa-check'></i> ");
+                        $("#btnaddRep"+data.id).html("Ver Representante");
+                        swal({title: 'Exito',text: 'Se agrego el representante',icon: 'success'});
+                        $("#modal-representante").modal("hide");
+                    }else{
+                        swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                    }
+                }
+            });
+        }else{
+            swal({title: 'Error',text: 'Llena todos los campos',icon: 'warning'});
+        }
+    });
+
     $(document).on('click', '[data-toggle="lightbox"]', function(event) {
         event.preventDefault();
         $(this).ekkoLightbox({

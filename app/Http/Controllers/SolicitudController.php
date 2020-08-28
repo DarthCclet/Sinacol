@@ -50,7 +50,7 @@ class SolicitudController extends Controller {
     protected $request;
 
     public function __construct(Request $request) {
-        //$this->middleware("auth");
+        // $this->middleware("auth");
         $this->request = $request;
     }
 
@@ -157,10 +157,11 @@ class SolicitudController extends Controller {
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
         $motivo_excepcion = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
+        $clasificacion_archivo = ClasificacionArchivo::all();
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
         //$municipios = array_pluck(Municipio::all(),'municipio','id');
         $municipios=[];
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepcion'));
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepcion','clasificacion_archivo'));
     }
     /**
      * Función para almacenar catalogos (nombre,id) en cache
@@ -210,8 +211,7 @@ class SolicitudController extends Controller {
             'solicitados.*.tipo_parte_id' => 'required',
             'solicitados.*.tipo_persona_id' => 'required',
             'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
-            'solicitados.*.domicilios' => 'required',
-            'solicitados.*.contactos' => 'required',
+            'solicitados.*.domicilios' => 'required'
         ]);
 
         $solicitud = $request->input('solicitud');
@@ -414,11 +414,12 @@ class SolicitudController extends Controller {
         $audits = $this->getAcciones($solicitud, $parte->get(), $audiencias,$expediente);
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
+        $clasificacion_archivo = ClasificacionArchivo::all();
         // dd(Conciliador::all()->persona->full_name());
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
         // dd($conciliador);
         // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores'));
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo'));
     }
 
     /**
@@ -454,7 +455,6 @@ class SolicitudController extends Controller {
             'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
             'solicitados.*.genero_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.domicilios' => 'required',
-            'solicitados.*.contactos' => 'required',
         ]);
         $solicitud = $request->input('solicitud');
         DB::beginTransaction();
@@ -662,6 +662,13 @@ class SolicitudController extends Controller {
             $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
             //Creamos el expediente de la solicitud
             $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
+            foreach ($solicitud->partes as $key => $parte) {
+                if(count($parte->documentos) == 0){
+                    $parte->ratifico = true;
+                    $parte->update();
+                }else{
+                }
+            }
             //guardamos el tipo de notificacion de las partes
 //            foreach($request->listaNotificaciones as $notificaciones){
 //                $parte = Parte::find($notificaciones["parte_id"])->update(["tipo_notificacion_id" => $notificaciones["tipo_notificacion_id"]]);
@@ -734,6 +741,7 @@ class SolicitudController extends Controller {
             foreach ($documentos as $documento) {
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                 $documento->tipo = pathinfo($documento->ruta)['extension'];
+                $documento->parte = $parte->nombre. " ".$parte->primer_apellido." ".$parte->segundo_apellido;
                 array_push($doc,$documento);
             }
         }

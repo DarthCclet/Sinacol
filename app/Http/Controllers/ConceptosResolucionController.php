@@ -127,19 +127,16 @@ class ConceptosResolucionController extends Controller
     {
         try {
             $id = $this->request->get('solicitante_id');
-            // $id = $this->request->get('id');
-            // $parteSolicitante = Parte::find($id);
-            $datoLaboral = DatoLaboral::select('fecha_ingreso','fecha_salida','periodicidad_id','remuneracion')->where('parte_id',$id)->get();
-            // dd($datoLaboral);
-            if(count($datoLaboral) >1){
-                $datoLaboral =$datoLaboral->where('resolucion',true)->first();
+            $parte = Parte::find($id);
+            $datoLaboral = $parte->dato_laboral;
+            if(count($datoLaboral) > 1){
+                $datoLaborales =$datoLaboral->where('resolucion',true)->first();
             }else{
-                $datoLaboral =$datoLaboral->where('resolucion',false)->first();
+                $datoLaborales =$datoLaboral->where('resolucion',false)->first();
             }
-            $diasPeriodicidad = Periodicidad::where('id', $datoLaboral->periodicidad_id)->first();
-            $remuneracionDiaria = $datoLaboral->remuneracion / $diasPeriodicidad->dias;
-            // $now = Carbon::now();
-            $anios_antiguedad = Carbon::parse($datoLaboral->fecha_ingreso)->floatDiffInYears($datoLaboral->fecha_salida);
+            $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
+            $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
+            $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears($datoLaborales->fecha_salida);
             $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
             $salarios = SalarioMinimo::get('salario_minimo');
             // dd($anios_antiguedad);
@@ -151,8 +148,8 @@ class ConceptosResolucionController extends Controller
             $datosL['salarioMinimo']= $salarioMinimo;
             // $anioSalida = Carbon::parse($datoLaboral->fecha_salida);
             // $anioSalida = Carbon::createFromFormat('Y-m-d', $datoLaboral->fecha_salida)->year;
-            $anioSalida = Carbon::parse($datoLaboral->fecha_salida)->startOfYear();
-            $propAguinaldo = Carbon::parse($anioSalida)->floatDiffInYears($datoLaboral->fecha_salida);
+            $anioSalida = Carbon::parse($datoLaborales->fecha_salida)->startOfYear();
+            $propAguinaldo = Carbon::parse($anioSalida)->floatDiffInYears($datoLaborales->fecha_salida);
             // dd($meses_vacaciones);
             $vacacionesPorAnio = VacacionesAnio::all();
             $diasVacaciones = 0;
@@ -220,7 +217,7 @@ class ConceptosResolucionController extends Controller
         } catch (\Throwable $th) {
             $datosL = [];
             $datosL['error']= true;
-            $datosL['mensaje']= "No se encontraron Datos Laborales";
+            $datosL['mensaje']= "No se encontraron datos". $th;
 
             if ($this->request->wantsJson()) {
                 return $this->sendResponse($datosL, 'ERROR');

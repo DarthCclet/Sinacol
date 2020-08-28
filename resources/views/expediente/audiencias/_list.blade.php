@@ -2,10 +2,10 @@
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
       <tr>
+          <th>Folio de audiencia</th>
           <th>Fecha de audiencia</th>
           <th>Hora inicio</th>
           <th>Hora fin</th>
-          <th>Folio de audiencia</th>
           <th>Conciliador</th>
           <th>Acciones</th></tr>
     </thead>
@@ -64,7 +64,7 @@
                 },
                 "columnDefs": [
                     {
-                        "targets": [0],
+                        "targets": [1],
                         "render": function (data, type, row) {
                             if (data != null) {
                                 return  dateFormat(row[6],4);
@@ -74,19 +74,19 @@
                         }
                     },
                     {
-                        "targets": [1],
+                        "targets": [2],
                         "render": function (data, type, row) {
                             return  row[7];
                         }
                     },
                     {
-                        "targets": [2],
+                        "targets": [3],
                         "render": function (data, type, row) {
                             return  row[8];
                         }
                     },
                     {
-                        "targets": [3],
+                        "targets": [0],
                         "render": function (data, type, row) {
                             return  row[17]+"/"+row[18];
                         }
@@ -95,6 +95,7 @@
                         "targets": [4],
                         "render": function (data, type, row) {
                             var html = "";
+                            console.log(row);
                             if(row[19] != null){
                                 html = ""+row[19].persona.nombre + " "+ row[19].persona.primer_apellido + " " + row[19].persona.segundo_apellido;
 

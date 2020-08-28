@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\ClasificacionArchivo;
+use App\TipoArchivo;
+use App\EntidadEmisora;
 use App\Filters\CatalogoFilter;
 
 class ClasificacionArchivoController extends Controller
@@ -31,7 +33,7 @@ class ClasificacionArchivoController extends Controller
         if ($this->request->get('all')) {
             $clasificacion = $clasificacion->get();
         } else {
-            $clasificacion->select("id","nombre","entidad","created_at as creado","updated_at as modificado","deleted_at as eliminado");
+            $clasificacion->select("id","nombre","entidad_emisora_id","tipo_archivo_id","created_at as creado","updated_at as modificado","deleted_at as eliminado");
             $clasificacion = $clasificacion->paginate($this->request->get('per_page', 10));
         }
 
@@ -48,7 +50,9 @@ class ClasificacionArchivoController extends Controller
      */
     public function create()
     {
-        return view('catalogos.clasificacion_archivo.create');
+        $tiposArchivos = array_pluck(TipoArchivo::all(),'nombre','id');
+        $entidades = array_pluck(EntidadEmisora::all(),'nombre','id');
+        return view('catalogos.clasificacion_archivo.create',compact('tiposArchivos','entidades'));
     }
 
     /**
@@ -82,8 +86,10 @@ class ClasificacionArchivoController extends Controller
      */
     public function edit($id)
     {
+        $tiposArchivos = array_pluck(TipoArchivo::all(),'nombre','id');
+        $entidades = array_pluck(EntidadEmisora::all(),'nombre','id');
         $clasificacion = ClasificacionArchivo::find($id);
-        return view('catalogos.clasificacion_archivo.edit')->with('clasificacion', $clasificacion);
+        return view('catalogos.clasificacion_archivo.edit',compact('tiposArchivos','entidades','clasificacion'));
     }
 
     /**

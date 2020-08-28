@@ -330,6 +330,40 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-offset-3 col-md-12" id="divLaboralesExtras" style="display: none">
+                                    <table class="table table-striped table-bordered table-td-valign-middle">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-nowrap">Tipo Parte</th>
+                                                <th class="text-nowrap">Nombre de la parte</th>
+                                                <th class="text-nowrap" style="width: 10%;">Datos Laborales</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($audiencia->partes as $parte)
+                                            @if($parte->tipo_parte_id == 1)
+                                                <tr>
+                                                    <td class="text-nowrap">{{ $parte->tipoParte->nombre }}</td>
+                                                    @if($parte->tipo_persona_id == 1)
+                                                        <td class="text-nowrap">{{ $parte->nombre }} {{ $parte->primer_apellido }} {{ $parte->segundo_apellido }}</td>
+                                                    @else
+                                                        <td class="text-nowrap">{{ $parte->nombre_comercial }}</td>
+                                                    @endif
+                                                    <td>
+                                                        @if($parte->tipo_parte_id == 1)
+                                                        <div style="display: inline-block;">
+                                                            <button onclick="DatosLaborales({{$parte->id}},true)" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Datos Laborales">
+                                                                <i class="fa fa-briefcase"></i>
+                                                            </button>
+                                                        </div>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                                 <div class="col-md-12" style="margin-bottom: 5%">
                                     <div >
                                         <span class="text-muted m-l-5 m-r-20" for='switchAdicionales'>Existen elementos adicionales para el cumplimiento de prestaciones o prestaciones adicionales.</span>
@@ -492,8 +526,13 @@
                 <div class="col-md-12 row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="instrumento" class="control-label">Instrumento</label>
-                            <input type="text" id="instrumento" class="form-control" placeholder="Instrumento que acredita la representatividad">
+                            <label for="clasificacion_archivo_id_representante" class="control-label">Instrumento</label>
+                            <select id="clasificacion_archivo_id_representante" class="form-control select-element">
+                                <option value="">-- Selecciona un género</option>
+                                @foreach($clasificacion_archivos_Representante as $clasificacion)
+                                <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -502,22 +541,10 @@
                             <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="numero_notaria" class="control-label">Número</label>
-                            <input type="text" id="numero_notaria" class="form-control" placeholder="Número de la notaría">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="nombre_notario" class="control-label">Nombre del Notario</label>
-                            <input type="text" id="nombre_notario" class="form-control" placeholder="Nombre del notario que acredita">
-                        </div>
-                    </div>
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="localidad_notaria" class="control-label">Localidad</label>
-                            <input type="text" id="localidad_notaria" class="form-control" placeholder="Localidad de la notaría">
+                            <label for="detalle_instrumento" class="control-label">Detalle del instrumento notarial</label>
+                            <textarea type="text" id="detalle_instrumento" class="form-control" placeholder=""></textarea>
                         </div>
                     </div>
                 </div>
@@ -575,7 +602,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <div class="col-md-12 row">
+                <div class="col-md-12 row" id="datosBasicos">
                     <input type="hidden" id="dato_laboral_id">
                     <input type="hidden" id="resolucion_dato_laboral">
                     <div class="col-md-12">
@@ -601,22 +628,22 @@
                         </div>
                         <div class="col-md-4">
                             <input class="form-control numero datoLaboral" data-parsley-type='integer' id="nss" placeholder="No. IMSS"  type="text" value="">
-                            <p class="help-block ">No. IMSS</p>
+                            <p class="help-block ">No. Seguro social</p>
                         </div>
-                        <div class="col-md-4">
+                        {{-- <div class="col-md-4">
                             <input class="form-control numero datoLaboral" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
                             <p class="help-block">No. ISSSTE</p>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="col-md-12 row">
                         <div class="col-md-4">
                             <input class="form-control numero "datoLaboral required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="Remuneraci&oacute;n (pago)" type="text" value="">
-                            <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
+                            <p class="help-block needed">¿Cuánto te pagan?</p>
                         </div>
                         <div class="col-md-4">
                             {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
                             {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
-                            <p class="help-block needed">Periodicidad</p>
+                            <p class="help-block needed">¿Cada cuánto te pagan?</p>
                         </div>
                         <div class="col-md-4">
                             <input class="form-control numero datoLaboral" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
@@ -645,6 +672,43 @@
                         {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
                         {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
                         <p class="help-block needed">Jornada</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="col-md-12 row" id="datosExtras" style="display:none">
+                    <div class="col-md-12 row">
+                        <div class="col-md-4">
+                            <input class="form-control datoLaboralExtra" id="horario_laboral" placeholder="HH:MM a HH:MM" type="text" value="">
+                            <p class="help-block needed">Horario laboral</p>
+                        </div>
+                        <div class="col-md-4">
+                            <input class="form-control datoLaboralExtra" id="horario_comida" placeholder="HH:MM a HH:MM" type="text" value="">
+                            <p class="help-block needed">Horario de comida</p>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="checkbox" value="1"  class="datoLaboralExtra" data-render="switchery" data-theme="default" id="comida_dentro" name='comida_dentro'/>
+                            <p class="help-block needed">Comida dentro de las instalaciones</p>
+                        </div>
+                    </div>
+                    <div class="col-md-12 row">
+                        <div class="col-md-4">
+                            <input class="form-control datoLaboralExtra" id="dias_descanso" placeholder="n días, los cuales correspondían a dddd" type="text" value="">
+                            <p class="help-block needed">Indica número y días de descanso</p>
+                        </div>
+                        <div class="col-md-4">
+                            <input class="form-control numero datoLaboralExtra" required data-parsley-type='integer' id="dias_vacaciones" placeholder="Días de vacaciones por año" type="text" value="">
+                            <p class="help-block needed">Días de vacaciones</p>
+                        </div>
+                        <div class="col-md-4">
+                            <input class="form-control date datoLaboralExtra" data-parsley-type='integer' id="dias_aguinaldo" placeholder="Días de aguinaldo por año" type="text" value="">
+                            <p class="help-block needed">Días de aguinaldo</p>
+                        </div>
+                    </div>
+                    <div class="col-md-12 row">
+                        <div class="col-md-12">
+                            <input class="form-control date datoLaboralExtra" id="prestaciones_adicionales" placeholder="Prestaciones adicionales" type="text" value="">
+                            <p class="help-block needed">Otras prestaciones en especie (bonos, vales de despensa, seguros de gastos médicos mayores etc)</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1163,11 +1227,9 @@
                     $("#segundo_apellido").val(data.segundo_apellido);
                     $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
                     $("#genero_id").val(data.genero_id).trigger("change");
-                    $("#instrumento").val(data.instrumento);
+                    $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).change();
                     $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
-                    $("#numero_notaria").val(data.numero_notaria);
-                    $("#nombre_notario").val(data.nombre_notario);
-                    $("#localidad_notaria").val(data.localidad_notaria);
+                    $("#detalle_instrumento").val(data.detalle_instrumento);
                     $("#parte_id").val(data.id);
                     listaContactos = data.contactos;
                 }else{
@@ -1177,11 +1239,9 @@
                     $("#segundo_apellido").val("");
                     $("#fecha_nacimiento").val("");
                     $("#genero_id").val("").trigger("change");
-                    $("#instrumento").val("");
+                    $("#clasificacion_archivo_id_representante").val("").change();
                     $("#feha_instrumento").val("");
-                    $("#numero_notaria").val("");
-                    $("#nombre_notario").val("");
-                    $("#localidad_notaria").val("");
+                    $("#detalle_instrumento").val("");
                     $("#parte_id").val("");
                     listaContactos = [];
                 }
@@ -1304,11 +1364,9 @@
                     segundo_apellido:$("#segundo_apellido").val(),
                     fecha_nacimiento:dateFormat($("#fecha_nacimiento").val()),
                     genero_id:$("#genero_id").val(),
-                    instrumento:$("#instrumento").val(),
+                    clasificacion_archivo_id:$("#clasificacion_archivo_id_representante").val(),
                     feha_instrumento:dateFormat($("#feha_instrumento").val()),
-                    numero_notaria:$("#numero_notaria").val(),
-                    nombre_notario:$("#nombre_notario").val(),
-                    localidad_notaria:$("#localidad_notaria").val(),
+                    detalle_instrumento:$("#detalle_instrumento").val(),
                     parte_id:$("#parte_id").val(),
                     parte_representada_id:$("#parte_representada_id").val(),
                     audiencia_id:$("#audiencia_id").val(),
@@ -1355,24 +1413,16 @@
             $("#genero_id").prev().css("color","red");
             error = true;
         }
-        if($("#instrumento").val() == ""){
-            $("#instrumento").prev().css("color","red");
+        if($("#clasificacion_archivo_id_representante").val() == ""){
+            $("#clasificacion_archivo_id_representante").prev().css("color","red");
             error = true;
         }
         if($("#feha_instrumento").val() == ""){
             $("#feha_instrumento").prev().css("color","red");
             error = true;
         }
-        if($("#numero_notaria").val() == ""){
-            $("#numero_notaria").prev().css("color","red");
-            error = true;
-        }
-        if($("#nombre_notario").val() == ""){
-            $("#nombre_notario").prev().css("color","red");
-            error = true;
-        }
-        if($("#localidad_notaria").val() == ""){
-            $("#localidad_notaria").prev().css("color","red");
+        if($("#detalle_instrumento").val() == ""){
+            $("#detalle_instrumento").prev().css("color","red");
             error = true;
         }
         // console.log(listaContactos.length);
@@ -1384,9 +1434,17 @@
         }
         return error;
     }
+    $("#resolucion_id").on("change",function(){
+        if($("#resolucion_id").val() == 1){
+            $('#divLaboralesExtras').show();
+        }else{
+            $('#divLaboralesExtras').hide();
+        }
+    });
+    
 
-    // Funciones para Datos laborales(Etapa 1)
-    function DatosLaborales(parte_id){
+    // Funciones para Datos laborales(Etapa 1,6)
+    function DatosLaborales(parte_id,extra=null){
         $("#parte_id").val(parte_id);
         $.ajax({
             url:"/partes/datoLaboral/"+parte_id,
@@ -1402,7 +1460,7 @@
                     $("#nombre_jefe_directo").val(data.nombre_jefe_directo);
                     $("#ocupacion_id").val(data.ocupacion_id);
                     $("#nss").val(data.nss);
-                    $("#no_issste").val(data.no_issste);
+                    //$("#no_issste").val(data.no_issste);
                     $("#remuneracion").val(data.remuneracion);
                     $("#periodicidad_id").val(data.periodicidad_id);
                     if(data.labora_actualmente != $("#labora_actualmente").is(":checked")){
@@ -1418,6 +1476,13 @@
                     $(".catSelect").trigger('change')
                 }
                 $("#modal-dato-laboral").modal("show");
+                if(extra){
+                    $('#datosBasicos').hide();
+                    $('#datosExtras').show();
+                }else{
+                    $('#datosBasicos').show();
+                    $('#datosExtras').hide();
+                }
             }
         });
     }
@@ -1484,12 +1549,24 @@
     });
     function validarDatosLaborales(){
         var error=false;
-        $(".datoLaboral").each(function(){
-            if($(this).val() == ""){
-                $(this).prev().css("color","red");
-                error = true;
-            }
-        });
+        // if($('#resolucion_id').val() == 1){
+        //     var error=false;
+        //     $(".datoLaboral").each(function(){
+        //         if($(this).val() == ""){
+        //             $(this).prev().css("color","red");
+        //             error = true;
+        //         }
+        //     });
+            // 
+            //     $(".datoLaboralExtra").each(function(){
+            //         if($(this).val() == ""){
+            //             $(this).prev().css("color","red");
+            //             error = true;
+            //         }
+            //     });
+        // }else{
+
+        // }
         return error;
     }
     $("#btnGuardarDatoLaboral").on("click",function(){
@@ -1503,7 +1580,7 @@
                     nombre_jefe_directo : $("#nombre_jefe_directo").val(),
                     ocupacion_id : $("#ocupacion_id").val(),
                     nss : $("#nss").val(),
-                    no_issste : $("#no_issste").val(),
+                    //no_issste : $("#no_issste").val(),
                     remuneracion : $("#remuneracion").val(),
                     periodicidad_id : $("#periodicidad_id").val(),
                     labora_actualmente : $("#labora_actualmente").is(":checked"),
@@ -1514,6 +1591,14 @@
                     giro_comercial_id : $("#giro_comercial_hidden").val(),
                     parte_id:$("#parte_id").val(),
                     resolucion:$("#resolucion_dato_laboral").val(),
+                    //datos laborales extra
+                    horario_laboral:$("#horario_laboral").val(),
+                    horario_comida:$("#horario_comida").val(),
+                    comida_dentro:$("#comida_dentro").val(),
+                    dias_descanso:$("#dias_descanso").val(),
+                    dias_vacaciones:$("#dias_vacaciones").val(),
+                    dias_aguinaldo:$("#dias_aguinaldo").val(),
+                    prestaciones_adicionales:$("#prestaciones_adicionales").val(),
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){

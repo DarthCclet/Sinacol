@@ -14,4 +14,10 @@ class ClasificacionArchivo extends Model
     {
         return $this->hasMany(Documento::class);
     }
+    public function entidad_emisora(){
+        return $this->belongsTo(EntidadEmisora::class)->withDefault(['nombre'=>'No asignado']);
+    }
+    public function tipo_archivo(){
+        return $this->belongsTo(TipoArchivo::class)->withDefault(['nombre'=>'No asignado']);
+    }
 }

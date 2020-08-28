@@ -3,6 +3,7 @@
     <tr>
         <th width="1%"></th>
         <th class="text-nowrap">Clasificación</th>
+        <th class="text-nowrap">Tipo de archivo</th>
         <th class="text-nowrap">Entidad emisora</th>
         <th width="10%">Acciones</th>
     </tr>
@@ -12,7 +13,8 @@
         <tr class="odd gradeX">
             <td width="1%" class="f-s-600 text-inverse">{{$clas->id}}</td>
             <td>{{$clas->nombre}}</td>
-            <td>{{$clas->entidad}}</td>
+            <td>{{$clas->tipo_archivo->nombre}}</td>
+            <td>{{$clas->entidad_emisora->nombre}}</td>
             <td class="all">
                 {!! Form::open(['action' => ['ClasificacionArchivoController@destroy', $clas->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">

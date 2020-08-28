@@ -383,7 +383,8 @@
                                 if(origen == 'audiencias'){
                                     window.location.href = "audiencias/"+data.id+"/edit";
                                 }else{
-                                    window.location.href = "{{ route('audiencias.index')}}";
+                                    window.location.href = "/audiencias/"+data.id+"/edit";
+                                    // window.location.href = "{{ route('audiencias.index')}}";
                                 }
                             }else{
                                 swal({
