@@ -31,11 +31,11 @@ class UpdateDataToPartes extends Migration
     public function down()
     {
         Schema::table('partes', function (Blueprint $table) {
-            $table->string('numero_notaria');
-            $table->string('localidad_notaria');
-            $table->string('nombre_notario');
+            $table->string('numero_notaria')->nullable();
+            $table->string('localidad_notaria')->nullable();
+            $table->string('nombre_notario')->nullable();
             $table->dropForeign(['clasificacion_archivo_id']);
-            $table->dropForeign('clasificacion_archivo_id');
+            $table->dropColumn('clasificacion_archivo_id');
             $table->dropColumn('detalle_instrumento');
         });
     }
