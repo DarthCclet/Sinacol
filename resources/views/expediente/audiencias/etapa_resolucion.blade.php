@@ -1549,19 +1549,23 @@
     });
     function validarDatosLaborales(){
         var error=false;
-        $(".datoLaboral").each(function(){
-            if($(this).val() == ""){
-                $(this).prev().css("color","red");
-                error = true;
-            }
-        });
         // if($('#resolucion_id').val() == 1){
-        //     $(".datoLaboralExtra").each(function(){
+        //     var error=false;
+        //     $(".datoLaboral").each(function(){
         //         if($(this).val() == ""){
         //             $(this).prev().css("color","red");
         //             error = true;
         //         }
         //     });
+            // 
+            //     $(".datoLaboralExtra").each(function(){
+            //         if($(this).val() == ""){
+            //             $(this).prev().css("color","red");
+            //             error = true;
+            //         }
+            //     });
+        // }else{
+
         // }
         return error;
     }
