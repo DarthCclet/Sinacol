@@ -1029,7 +1029,7 @@
 <!-- Fin Modal de Domicilio-->
 <!-- inicio Modal cargar archivos-->
 <div class="modal" id="modal-archivos" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Documentos de identificaci&oacute;n</h4>
