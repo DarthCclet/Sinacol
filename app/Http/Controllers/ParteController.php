@@ -304,8 +304,10 @@ class ParteController extends Controller
                     "tipo_contacto_id" => $contacto["tipo_contacto_id"],
                 ]);
             }
-            // Creamos la relacion en audiencias_partes
-            AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+            if(isset($request->audiencia_id) && $request->audiencia_id != ""){
+                // Creamos la relacion en audiencias_partes
+                AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+            }
         }
         return $parte;
     }

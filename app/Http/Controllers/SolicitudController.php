@@ -662,7 +662,7 @@ class SolicitudController extends Controller {
             //Creamos el expediente de la solicitud
             $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
             foreach ($solicitud->partes as $key => $parte) {
-                if($parte->documentos != null){
+                if(count($parte->documentos) == 0){
                     $parte->ratifico = true;
                     $parte->update();
                 }else{
@@ -740,6 +740,7 @@ class SolicitudController extends Controller {
             foreach ($documentos as $documento) {
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                 $documento->tipo = pathinfo($documento->ruta)['extension'];
+                $documento->parte = $parte->nombre. " ".$parte->primer_apellido." ".$parte->segundo_apellido;
                 array_push($doc,$documento);
             }
         }
