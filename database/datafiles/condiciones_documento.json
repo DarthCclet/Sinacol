@@ -9,7 +9,11 @@
                   {"catalogo":"Genero",
                     "val":["Masculino", "Femenino"]},
                   {"catalogo":"Tipo_Persona",
-                      "val":["Fisica", "Moral"]}
+                      "val":["Fisica", "Moral"]},
+                  {"catalogo":"Notifica",
+                    "val":[""]},
+                  {"catalogo":"Concilia",
+                      "val":["por_separado"]}
                     ]
           },
           {
@@ -20,6 +24,14 @@
                     "val":["Masculino", "Femenino"]},
                   {"catalogo":"Tipo_Persona",
                       "val":["Fisica", "Moral"]}
+                    ]
+          },
+          {
+              "id": "3",
+              "nombre": "Audiencia",
+              "catalogos": [
+                  {"catalogo":"Por_separado",
+                    "val":[""]}
                     ]
           }
 

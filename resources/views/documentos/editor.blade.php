@@ -40,7 +40,7 @@
             botonesHeader = "btnHeader | ";
           }
           if(selector == "#plantilla-body"){
-            botonesBody = "btnBody | btnBodyConditions | ";
+            botonesBody = "btnBody | btnBodyConditions | btnOtrosBody | ";
           }
           if(selector == "#plantilla-footer"){
             botonesBody = "btnFooter | ";
@@ -59,11 +59,11 @@
                 toolbar_items_size: 'small',
                 plugins: [
                     'noneditable advlist autolink lists link image imagetools preview',
-                    ' media table advtable paste uploadimage lineheight'
+                    ' media table advtable paste uploadimage lineheight pagebreak'
                 ],
                 toolbar1: botonesHeader + botonesBody + 'basicDateButton | mybutton | fontselect fontsizeselect textcolor| undo redo ' +
                 '| bold italic underline| alignleft aligncenter alignright alignjustify | bullist numlist ' +
-                '| outdent indent lineheightselect | table | uploadimage image  ',
+                '| outdent indent | lineheightselect | table | uploadimage image | pagebreak forecolor backcolor',
                 toolbar2: "",
                 // paste_data_images: true,
               	images_upload_handler: function (blobInfo, success, failure) {
@@ -188,9 +188,13 @@
                                     onAction: function (_) {
                                       let condString = "";
                                       $.each(cat['val'], function( j,val){
+                                        let valu = (val != "") ? '_'+val : "";
                                         condString = condicion['tipoCondicion']+'_'+column['nombre']+'_'+cat['catalogo'];
-                                        editor.insertContent('<strong class="mceNonEditable" data-nombre="">['+(condString+'_'+val).toUpperCase()+']</strong><br>&nbsp;');
+                                        editor.insertContent('<strong class="mceNonEditable" data-nombre="">['+(condString+valu).toUpperCase()+']</strong><br>&nbsp;');
                                       });
+                                      if(cat['catalogo'] == "Notifica"){
+                                        editor.insertContent('<strong class="mceNonEditable" data-nombre="">[SI_NO_NOTIFICA]</strong><br>&nbsp;');
+                                      }
                                       editor.insertContent('<strong class="mceNonEditable" data-nombre="">[FIN_'+(condString).toUpperCase()+']</strong>&nbsp;\n');
                                     }
                                   }
@@ -274,6 +278,43 @@
                       //     arrayMenuBody;
                       //   callback(items);
                       // }
+                    });
+                    // editor.ui.registry.addButton('btnOtrosBody', {
+                    //   text: 'Fecha Actual',
+                    //   onAction: function (_) {
+                    //     editor.insertContent('<strong class="mceNonEditable" data-nombre="fecha_actual">[FECHA_ACTUAL]</strong>');
+                    //   }
+                    //   // onAction: () => alert('Button clicked!')
+                    // });
+                    editor.ui.registry.addMenuButton('btnOtrosBody', {
+                      text: 'Otros',
+                      fetch: function (callback) {
+                        var itemsF = [
+                          {
+                              type: 'menuitem',
+                              text: 'Fecha Actual',
+                              tooltip: 'Insert Current Date',
+                              onAction: function (_) {
+                                editor.insertContent('<strong class="mceNonEditable" data-nombre="fecha_actual">[FECHA_ACTUAL]</strong>');
+                                // const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noivembre", "Diciembre"];
+                                // let today = new Date();
+                                // let dd = today.getDate();
+                                // let mm = monthNames[today.getMonth()];
+                                // let yyyy = today.getFullYear();
+                                // today = dd+' de '+mm+' de '+yyyy;
+                                // editor.insertContent( today );
+                              }
+                          },
+                          {
+                              type: 'menuitem',
+                              text: 'Hora Actual',
+                              onAction: function (_) {
+                                editor.insertContent('<strong class="mceNonEditable" data-nombre="hora_actual">[HORA_ACTUAL]</strong>');
+                              }
+                          },
+                        ]
+                        callback(itemsF);
+                      }
                     });
                     editor.ui.registry.addMenuButton('btnFooter', {
                       text: 'Pie de Pagina',

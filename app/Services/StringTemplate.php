@@ -1,10 +1,11 @@
 <?php
 namespace App\Services;
 
-
+use ErrorException;
 use Exception;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
+use ParseError;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Throwable;
 
@@ -21,12 +22,13 @@ class StringTemplate
     public static function render($string, $vars)
     {
         $php = Blade::compileString($string);
-
         $obLevel = ob_get_level();
         ob_start();
         extract($vars, EXTR_SKIP);
         try {
             eval('?' . '>' . $php);
+        } catch (ErrorException $err) {
+
         } catch (Exception $e) {
             while (ob_get_level() > $obLevel) ob_end_clean();
             throw $e;
@@ -59,21 +61,69 @@ class StringTemplate
     public static function sustituyePlaceholdersConditionals($string, $vars){
       if(Str::contains($string, '[REPETIR')) {
         $countRepetir = substr_count($string, '[FIN_REPETIR');
-        // dd($countRepetir);
       }
       if(Str::contains($string, '[SI_')){
         $countSi = substr_count($string, '[FIN_SI');
+        $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
+        $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
+        if($vars['solicitado_tipo_notificacion'] != null && $countTipoNotificacion >0){
+          switch ($vars['solicitado_tipo_notificacion']) {
+            case 1: // El solicitante entrega citatorio a solicitados
+              // texto de notificacion por solicitante
+              $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
+              $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
+
+              $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+              $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+              
+              $string = $htmlA . $sliceNotificacion . $htmlB;
+            break;
+            case 2: //El actuario del centro entrega citatorio a solicitados
+              // texto de notificacion por actuario
+              $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
+              $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+
+              $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+              $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+              
+              $string = $htmlA . $sliceNotificacion . $htmlB;
+            break;
+          }
+        }
+        if($vars['audiencia_multiple'] != null && $countAudienciaSeparada > 0){
+          if($vars['audiencia_multiple'] == 'Si') { // Audiencia en salas diferentes
+              // texto de audiencia por separado
+              $sliceSeparado = Str::after($string, '[SI_AUDIENCIA_POR_SEPARADO]');
+              $sliceSeparado = Str::before($sliceSeparado, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
+              $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
+              $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
+              
+              $string = $htmlA . $sliceSeparado . $htmlB;
+          }else{//audiencia en misma sala
+              // texto de 
+              $sliceSeparado = "";
+              $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
+              $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
+              
+              $string = $htmlA . $sliceSeparado . $htmlB;
+          //   // break;
+          }
+        }
+        
 
         $partes = ['solicitado','solicitante'];
         foreach ($partes as $key => $parteL) {
           $htmlA ="";
           $htmlB ="";
           $slice  ="";
-            $parte = strtoupper($parteL);
+          $parte = strtoupper($parteL);
+          $countPersona = substr_count($string,'[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
+          // $countPersonaMoral = substr_count($string,'[SI_'.$parte.'_IPO_PERSONA_MORAL]');
+          $countGenero = substr_count($string,'[SI_'.$parte.'_GENERO_MASCULINO]');
+          // $countGeneroFem = substr_count($string,'[SI_'.$parte.'_IPO_PERSONA_MORAL]');
 
-            if($vars[$parteL.'_genero_id'] != null){
-              switch ($vars[$parteL.'_genero_id']) {
-
+          if($vars[$parteL.'_genero_id'] != null && $countGenero >0){
+            switch ($vars[$parteL.'_genero_id']) {
               case 2:
                 $count = substr_count($string, '[SI_'.$parte.'_GENERO_MASCULINO]');
                 if($count > 0){
@@ -97,38 +147,37 @@ class StringTemplate
                   $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_GENERO]');
                   $string = $htmlA . $slice . $htmlB;
                 }
-                break;
-              }
+              break;
+            }
           }
-          if($vars[$parteL.'_tipo_persona_id'] != null){
+          
+          if($vars[$parteL.'_tipo_persona_id'] != null  && ($countPersona >0) ){
             switch ($vars[$parteL.'_tipo_persona_id']) {
-            case 2:
-              $count = substr_count($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
-              if($count > 0){
-                //Texto entre condiciones
-                $slice = Str::after($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
-                $slice = Str::before($slice, '[SI');
+              case 1: //fisica
+                $count = substr_count($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
+                if($count > 0){
+                  //Texto entre condiciones
+                  $sliceFisica = Str::after($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
+                  $sliceFisica = Str::before($sliceFisica, '[SI_');
+                  $htmlA = Str::before($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
+                  $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_TIPO_PERSONA]');
+                  $string = $htmlA . $sliceFisica . $htmlB;
+                }
+                break;
+              case 2: //moral
+                $count = substr_count($string, '[SI_'.$parte.'_TIPO_PERSONA_MORAL]');
+                if($count > 0){
+                  $sliceMoral = Str::after($string, '[SI_'.$parte.'_TIPO_PERSONA_MORAL]');
+                  $sliceMoral = Str::before($sliceMoral, '[FIN_SI');
 
-                $htmlA = Str::before($string, '[SI_');
-                $htmlB = Str::after($string, '[FIN_SI_'.$parte.'TIPO_PERSONA]');
-                $string = $htmlA . $slice . $htmlB;
-              }
-              break;
-            case 1:
-              $count = substr_count($string, '[SI_'.$parte.'_TIPO_PERSONA_MORAL]');
-              if($count > 0){
-                $slice = Str::after($string, '[SI_'.$parte.'_TIPO_PERSONA_MORAL]');
-                $slice = Str::before($slice, '[FIN_SI');
-
-                $htmlA = Str::before($string, '[SI_');
-                $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_TIPO_PERSONA]');
-                $string = $htmlA . $slice . $htmlB;
-              }
-              break;
+                  $htmlA = Str::before($string, '[SI_');
+                  $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_TIPO_PERSONA]');
+                  $string = $htmlA . $sliceMoral . $htmlB;
+                }
+                break;
+            }
           }
         }
-      }
-
       }
       return $string;
     }
