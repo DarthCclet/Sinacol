@@ -6,14 +6,50 @@ use Illuminate\Http\Request;
 
 class AsesoriaController extends Controller
 {
+    protected $request;
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
+
     public function index($accion)
     {
 
         switch ($accion){
-            case 'trabajador':
-                return view('asesoria.trabajador');
+            case '10':
+                return view('asesoria.a10');
                 break;
-            case 'trabajador-1':
+            case '1010':
+                $max_paso = 1013;
+                $paso = ($this->request->get('from',1010) + 1);
+                $asset_paso = $paso.'.jpg';
+                $paso_next = $paso;
+                if($paso >= $max_paso){
+                    $accion = '10101010';
+                    $paso_next = '10101009';
+                }
+                return view('asesoria.a1010', compact('accion', 'asset_paso', 'paso_next'));
+                break;
+            case '101010':
+                return view('asesoria.a101010');
+                break;
+            case '10101010':
+                $max_paso = 10101017;
+                $paso = ($this->request->get('from',10101009) + 1);
+                $asset_paso = $paso.'.jpg';
+                $paso_next = $paso;
+                if($paso >= $max_paso){
+                    $accion = '1010101010';
+                }
+                return view('asesoria.a10101010', compact('accion', 'asset_paso', 'paso_next'));
+                break;
+
+            case '1010101010':
+                return view('asesoria.a1010101010');
+                break;
+            case '101010101010':
+                return view('asesoria.a101010101010');
+                break;
             case 'trabajador-2':
             case 'trabajador-3':
             case 'trabajador-4':
