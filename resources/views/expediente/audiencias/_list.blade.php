@@ -95,8 +95,9 @@
                         "targets": [4],
                         "render": function (data, type, row) {
                             var html = "";
-                            if(row[19] != null){
-                                html = ""+row[19].persona.nombre + " "+ row[19].persona.primer_apellido + " " + row[19].persona.segundo_apellido;
+                            console.log(row);
+                            if(row[21] != null){
+                                html = ""+row[21].persona.nombre + " "+ row[21].persona.primer_apellido + " " + row[21].persona.segundo_apellido;
 
                             }
                             return  html;
