@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Jornada;
+use App\Ocupacion;
+use App\Periodicidad;
 use Illuminate\Http\Request;
 
 class AsesoriaController extends Controller
@@ -96,6 +99,12 @@ class AsesoriaController extends Controller
             case 'trabajador-asesoria-10':
                 return view('asesoria.trabajador-asesoria-l10');
                 break;
+            case 'presolicitud':
+                $jornadas = array_pluck(Jornada::all(),'nombre','id');
+                $periodicidades = array_pluck(Periodicidad::all(),'nombre','id');
+                $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
+                return view('asesoria.presolicitud', compact('jornadas','periodicidades','ocupaciones'));
+            break;
             default:
                 return view('asesoria.default');
                 break;
