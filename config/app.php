@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Conciliación STPS'),
+    'name' => env('APP_NAME', 'Conciliación'),
 
     /*
     |--------------------------------------------------------------------------

@@ -9,7 +9,7 @@
         <div class="news-feed">
             <div class="news-image" style="background-color: #235B4E; background-image: url({{asset('assets/img/logo/fondo-verde.jpg')}})"></div>
             <div class="news-caption">
-                <h4 class="caption-title">Conciliación <b>STPS</b> </h4>
+                <h4 class="caption-title">Conciliación</h4>
                 <p>
                     Sistema de gestión del proceso de Conciliación.
                     <b>V 0.1</b>
@@ -22,7 +22,7 @@
             <!-- begin login-header -->
             <div class="login-header">
                 <div class="brand">
-                    Conciliación <b>STPS</b>
+                    Conciliación
                     <small>Ingrese sus datos de acceso</small>
                 </div>
                 <div class="icon">

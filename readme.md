@@ -1,4 +1,4 @@
-# ConciliacionSTPS
+# Conciliacion
 Sistema de gestión de conciliaciones laborales
 ## Instalación
 ### Clonar el repositorio en el directorio de trabajo
