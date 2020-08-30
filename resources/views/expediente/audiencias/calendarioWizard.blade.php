@@ -105,7 +105,7 @@
                         </div>
                     </div>
                 </div>
-                <h1 class="h2">Notificaciones <small>Notificación de los solicitados</small></h1>
+                <h1 class="h2">Notificaciones <small>Notificación de los citados</small></h1>
                 <hr class="red">
                 <div class="col-md-12">
                     <table class="table table-striped table-bordered table-hover">
@@ -139,17 +139,17 @@
                                     <td>
                                         <div class="custom-control custom-radio">
                                             <input type="radio" id="radioNotificacionA{{$parte->id}}" value="1" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio a solicitados</label>
+                                            <label class="custom-control-label" for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio al citado(s)</label>
                                         </div>
                                         @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
                                         <div class="custom-control custom-radio">
                                             <input type="radio" id="radioNotificacionB{{$parte->id}}" value="2" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Un actuario del centro entrega citatorio a solicitados</label>
+                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Un notificador del centro entrega citatorio al citado(s)</label>
                                         </div>
                                         @else
                                         <div class="custom-control custom-radio">
                                             <input type="radio" id="radioNotificacionB{{$parte->id}}" value="3" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Agendar cita con actuario para entrega de citatorio</label>
+                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Agendar cita con el notificador para entrega de citatorio</label>
                                         </div>
                                         @endif
                                     </td>
@@ -448,7 +448,7 @@
                                 tipo_notificacion_id:2
                             });
                         }else{
-                            msg = "Indica el tipo de notificación para los solicitados";
+                            msg = "Indica el tipo de notificación para los citados";
                             error = true;
                         }
                     });
