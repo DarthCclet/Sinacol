@@ -55,7 +55,7 @@ class AddAcuseSolicitudToTipoDocumentosTable extends Migration
      */
     public function down()
     {
-        Schema::table('tipo_documentos', function (Blueprint $table) {
+        Schema::table('plantilla_documentos', function (Blueprint $table) {
             //
         });
     }

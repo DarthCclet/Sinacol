@@ -1,5 +1,6 @@
 <?php
 
+use App\TipoDocumento;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -14,17 +15,23 @@ class UpdateDataToTipoDocumentosTable extends Migration
      */
     public function up()
     {
-        DB::table('tipo_documentos')->truncate();
         $path = base_path('database/datafiles');
         $json = json_decode(file_get_contents($path . "/tipo_documentos.json"));
-        //Se llena el catalogo desde el arvhivo json concepto_pago_resoluciones.json
+        //Se llena el catalogo desde el arvhivo json tipo_documentos.json
         foreach ($json->datos as $objeto){
-            DB::table('tipo_documentos')->insert([
-                'nombre' => $objeto->nombre,
-                'objetos' => $objeto->objetos,
-                'created_at' => date("Y-m-d H:d:s"),
-                'updated_at' => date("Y-m-d H:d:s"),
-            ]);
+            $tipoDoc = TipoDocumento::find($objeto->id);
+            if($tipoDoc != null){
+                $tipoDoc->update(['nombre'=>$objeto->nombre,
+                                'objetos' => $objeto->objetos
+                ]);
+            }else{
+                DB::table('tipo_documentos')->insert(
+                    [
+                        'nombre' => $objeto->nombre,
+                        'tipo_archivo_id' => $objeto->objetos
+                    ]
+                );
+            }
         }
     }
 
