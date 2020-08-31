@@ -44,6 +44,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('solicitudes','SolicitudController');
     Route::POST('solicitud/ratificar','SolicitudController@Ratificar');
     Route::POST('solicitud/excepcion','SolicitudController@ExcepcionConciliacion');
+    Route::Get('solicitud/correos/{solicitud_id}','SolicitudController@validarCorreos');
+    Route::POST('solicitud/correos','SolicitudController@cargarCorreos');
     Route::Get('solicitudes/documentos/{solicitud_id}','SolicitudController@getDocumentosSolicitud');
     Route::resource('expedientes','ExpedienteController');
     Route::resource('audiencias','AudienciaController');
@@ -112,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('roles','RoleController');
     Route::get('roles/permisos/{id}','RoleController@GetPermisosRol');
     Route::put('roles/permisos/{id}','RoleController@DeletePermisosRol');
-    Route::post('usuario/roles/','UserController@AddRol');
+    Route::post('usuario/roles','UserController@AddRol');
     Route::get('usuario/roles/{id}','UserController@GetRoles');
     Route::post('usuario/roles/delete','UserController@EliminarRol');
 
