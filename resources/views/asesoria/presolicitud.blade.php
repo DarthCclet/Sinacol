@@ -9,7 +9,7 @@
                 <hr class="red">
             </div>
             <input type="hidden" id="dato_laboral_id">
-           
+
             <div class="col-md-12 row">
                 <div class="col-md-4">
                     <input class="form-control numero required" required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
@@ -42,7 +42,7 @@
             <div class="col-md-6" >
                 {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                 {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block ">&iquest;En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoja del catálogo. Si no, deja vacío.</p>
+                <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoja del catálogo. Si no, deje vacío.</p>
             </div>
             <div>
                 <a style="font-size: medium;" onclick="$('#modal-jornada').modal('show');"><i class="fa fa-question-circle"></i></a>
@@ -115,6 +115,7 @@
         </div>
     </div>
 </div>
+    <a href="/asesoria/101010101010" class="btn btn-primary btn-lg m-10 float-right" type="button">Siguiente</a>
 <!-- Fin Modal de Domicilio-->
 
 @push('scripts')

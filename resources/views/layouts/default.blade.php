@@ -2,6 +2,15 @@
 <html lang="{{ app()->getLocale() }}">
 <head>
 	@include('includes.head')
+    <style>
+        .navbar-header {
+            width: 440px !important;
+        }
+        .navbar-brand {
+            margin-left: 0px !important;
+            padding-left: 0px !important;
+        }
+    </style>
 </head>
 @php
 	$bodyClass = (!empty($boxedLayout)) ? 'boxed-layout' : '';
