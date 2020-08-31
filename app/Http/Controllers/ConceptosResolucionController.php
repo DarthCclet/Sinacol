@@ -243,10 +243,10 @@ class ConceptosResolucionController extends Controller
             $anios_antiguedad_int = intval($anios_antiguedad);
             // dd($request->fecha_ingreso);
             $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
-            if($request->ocupacion_id != ""){
-                $salarios = SalarioMinimo::get('salario_minimo');
-            }else{
+            if($request->ocupacion_id != "" && $request->ocupacion_id != null){
                 $salarios = Ocupacion::find($request->ocupacion_id)->get('salario_resto_del_pais');
+            }else{
+                $salarios = SalarioMinimo::get('salario_minimo');
             }
             // dd($anios_antiguedad);
             $datosL = [];

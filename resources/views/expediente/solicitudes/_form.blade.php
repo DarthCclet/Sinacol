@@ -30,6 +30,9 @@
         padding-left: 10px;
         background-position: 120px 50%;
     }
+    .upper{
+        text-transform: uppercase;
+    }
 
 </style>
 @if(auth()->user())

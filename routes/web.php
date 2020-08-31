@@ -18,6 +18,7 @@ Route::get('/', function () {
 Route::get('/asesoria/{accion}', 'AsesoriaController@index');
 Route::get('/solicitudes/create-public','SolicitudController@create');
 Route::post('/solicitudes/store-public','SolicitudController@store');
+Route::Get('solicitudes/documentos/{solicitud_id}/acuse','SolicitudController@getAcuseSolicitud');
 Route::middleware(['auth'])->group(function () {
     Route::resource('users','UserController');
     Route::get('/home','HomeController@index')->name('home');
