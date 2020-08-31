@@ -17,7 +17,7 @@
         <a href="/asesoria/1010101010/?origen={{$origen}}" class="btn btn-primary btn-lg m-10 float-right" type="button">Siguiente</a>
     @elseif($origen == '10501010')
         <h2>Presentación: Derechos de preferencia, antigüedad y ascenso</h2>
-        <a href="/solicitudes/create-public/?origen={{$origen}}" class="btn btn-primary btn-lg m-10 float-right" type="button">Siguiente</a>
+        <a href="/asesoria/101010101010/?origen={{$origen}}" class="btn btn-primary btn-lg m-10 float-right" type="button">Siguiente</a>
     @endif
 
 @endsection
