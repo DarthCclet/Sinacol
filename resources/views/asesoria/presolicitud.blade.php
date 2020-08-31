@@ -150,13 +150,21 @@
                     periodicidad_id:$("#periodicidad_id").val(),
                     origen:$("#origen").val(),
                     remuneracion:$("#remuneracion").val(),
+                    ocupacion_id:$("#ocupacion_id").val(),
                     fecha_ingreso:dateFormat($("#fecha_ingreso").val()),
-                    ocupacion_id:dateFormat($("#ocupacion_id").val()),
                     fecha_salida:dateFormat($("#fecha_salida").val()),
-                    labora_actualmente:dateFormat($("#labora_actualmente").val()),
+                    labora_actualmente:$("#labora_actualmente").val(),
                 },
                 success:function(datos){
-                    
+                    var datosLaborales = {};
+                    datosLaborales.periodicidad_id=$("#periodicidad_id").val();
+                    datosLaborales.origen=$("#origen").val();
+                    datosLaborales.remuneracion=$("#remuneracion").val();
+                    datosLaborales.ocupacion_id=$("#ocupacion_id").val();
+                    datosLaborales.fecha_ingreso=dateFormat($("#fecha_ingreso").val());
+                    datosLaborales.fecha_salida=dateFormat($("#fecha_salida").val());
+                    datosLaborales.labora_actualmente=$("#labora_actualmente").val();
+                    localStorage.setItem("datos_laborales",JSON.stringify(datosLaborales))
                     let dato = datos.data;
                     listaPropuestas[dato.idParte]= [];
                     listaPropuestas[dato.idParte]['completa'] = [];
@@ -285,6 +293,7 @@
         $('#divTablaAjuste').hide();
         $('#divTablaCompleto').hide();
     }
+    localStorage.setItem('miGato', 'Juan');
     $(".dateBirth").datepicker({
         changeMonth: true,
         changeYear: true,
