@@ -46,7 +46,7 @@ class AsesoriaController extends Controller
             case '10301010':
                 $max_paso = 10101017;
                 $paso = ($this->request->get('from',10101009) + 1);
-                $origen = $this->request->get('source', 10101010)."1010";
+                $origen = $this->request->get('source', 10101010);
                 $asset_paso = $paso.'.jpg';
                 $paso_next = $paso;
                 if($paso >= $max_paso){
