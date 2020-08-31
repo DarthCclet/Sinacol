@@ -164,7 +164,7 @@
             <div class="modal-footer">
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardar"><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarAudiencia"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
@@ -247,7 +247,7 @@
             function SolicitarAudiencia(inicio,fin){
                 swal({
                     title: '¿Las partes concilian en la misma sala?',
-                    text: 'Al oprimir aceptar se asignará solo un consiliador y una sola sala para solicitante y citado',
+                    text: 'Al oprimir aceptar se asignará solo un conciliador y una sola sala para solicitante y citado',
                     icon: 'warning',
                     buttons: {
                         cancel: {
@@ -338,7 +338,7 @@
                     }
                 });
             }
-            $("#btnGuardar").on("click",function(){
+            $("#btnGuardarAudiencia").on("click",function(){
                 var validacion = validarAsignacion();
                 if(!validacion.error){
                     var listaRelaciones = [];

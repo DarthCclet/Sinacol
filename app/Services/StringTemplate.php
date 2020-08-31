@@ -66,47 +66,51 @@ class StringTemplate
         $countSi = substr_count($string, '[FIN_SI');
         $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
         $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
-        if($vars['solicitado_tipo_notificacion'] != null && $countTipoNotificacion >0){
-          switch ($vars['solicitado_tipo_notificacion']) {
-            case 1: // El solicitante entrega citatorio a solicitados
-              // texto de notificacion por solicitante
-              $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
-              $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
+        if (isset($vars['solicitado_tipo_notificacion'])){
+          if($vars['solicitado_tipo_notificacion'] != null && $countTipoNotificacion >0){
+            switch ($vars['solicitado_tipo_notificacion']) {
+              case 1: // El solicitante entrega citatorio a solicitados
+                // texto de notificacion por solicitante
+                $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
+                $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
 
-              $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-              $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-              
-              $string = $htmlA . $sliceNotificacion . $htmlB;
-            break;
-            case 2: //El actuario del centro entrega citatorio a solicitados
-              // texto de notificacion por actuario
-              $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
-              $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                
+                $string = $htmlA . $sliceNotificacion . $htmlB;
+              break;
+              case 2: //El actuario del centro entrega citatorio a solicitados
+                // texto de notificacion por actuario
+                $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
+                $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
 
-              $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-              $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-              
-              $string = $htmlA . $sliceNotificacion . $htmlB;
-            break;
+                $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                
+                $string = $htmlA . $sliceNotificacion . $htmlB;
+              break;
+            }
           }
         }
-        if($vars['audiencia_multiple'] != null && $countAudienciaSeparada > 0){
-          if($vars['audiencia_multiple'] == 'Si') { // Audiencia en salas diferentes
-              // texto de audiencia por separado
-              $sliceSeparado = Str::after($string, '[SI_AUDIENCIA_POR_SEPARADO]');
-              $sliceSeparado = Str::before($sliceSeparado, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
-              $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
-              $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
-              
-              $string = $htmlA . $sliceSeparado . $htmlB;
-          }else{//audiencia en misma sala
-              // texto de 
-              $sliceSeparado = "";
-              $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
-              $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
-              
-              $string = $htmlA . $sliceSeparado . $htmlB;
-          //   // break;
+        if (isset($vars['audiencia_multiple'])){
+          if($vars['audiencia_multiple'] != null && $countAudienciaSeparada > 0){
+            if($vars['audiencia_multiple'] == 'Si') { // Audiencia en salas diferentes
+                // texto de audiencia por separado
+                $sliceSeparado = Str::after($string, '[SI_AUDIENCIA_POR_SEPARADO]');
+                $sliceSeparado = Str::before($sliceSeparado, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
+                $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
+                $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
+                
+                $string = $htmlA . $sliceSeparado . $htmlB;
+            }else{//audiencia en misma sala
+                // texto de 
+                $sliceSeparado = "";
+                $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
+                $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
+                
+                $string = $htmlA . $sliceSeparado . $htmlB;
+            //   // break;
+            }
           }
         }
         
