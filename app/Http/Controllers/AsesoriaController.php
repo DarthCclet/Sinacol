@@ -71,7 +71,7 @@ class AsesoriaController extends Controller
                 $asset_paso = $paso.'.jpg';
                 $paso_next = $paso;
                 if($paso >= $max_paso){
-                    $accion = 'solicitud/create-public';
+                    $accion = '../solicitudes/create-public';
                 }
                 return view('asesoria.a101010101010',  compact('accion', 'asset_paso', 'paso_next', 'origen'));
                 break;
