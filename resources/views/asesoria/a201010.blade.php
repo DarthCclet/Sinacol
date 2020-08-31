@@ -3,9 +3,6 @@
 @section('content')
 
     <div class="align-middle" >
-
-
-
         <div class="btn-group center offset-3" role="group" aria-label="...">
             <p>
                 <br>
@@ -18,14 +15,25 @@
                 <br>
                 <br>
                 <br>
-                <a href="/asesoria/10" class="btn btn-primary btn-lg m-10" type="button">SOY TRABAJADOR</a>
-                <a href="/asesoria/20" class="btn btn-primary btn-lg m-10" type="button">SOY PATRON</a>
-                <a href="/asesoria/202010" class="btn btn-primary btn-lg m-10" type="button">SOY SINDICATO</a>
-
             </p>
+            <h2>Presentación Resición Por Parte del Patrón</h2>
         </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+
+        <a href="#" class="btn btn-primary btn-lg m-10 float-right" type="button">Solicitud de conciliación individual</a>
 
     </div>
-
 
 @endsection

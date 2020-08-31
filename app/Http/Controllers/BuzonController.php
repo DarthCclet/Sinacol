@@ -83,6 +83,7 @@ class BuzonController extends Controller
             $estados = $this->cacheModel('estados',Estado::class);
             $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
             $municipios = array_pluck(Municipio::all(),'municipio','id');
+           
             return view("buzon.buzon", compact('solicitudes','tipos_asentamientos','estados','tipos_vialidades','municipios'));
         }else{
             return redirect()->back();

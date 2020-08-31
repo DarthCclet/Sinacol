@@ -148,6 +148,7 @@ Route::post('solicitar_acceso','BuzonController@SolicitarAcceso')->name('solicit
 Route::get('buzon','BuzonController@BuzonElectronico')->name('buzon');
 Route::get('validar_token/{token}/{correo}','BuzonController@validar_token');
 Route::resource('etapa_resolucion_audiencia','EtapaResolucionAudienciaController');
+Route::post('acceso_buzon','BuzonController@AccesoBuzon')->name('acceso_buzon');
 
 Auth::routes(['register' => false]);
 

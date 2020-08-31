@@ -2,9 +2,9 @@
 
 @section('content')
 
-    <div class="embed-responsive embed-responsive-21by9">
-        <iframe class="embed-responsive-item" id="vid" src="/assets/img/asesoria/101010101010/index.html"></iframe>
-    </div>
-    <a href="/solicitudes/create-public" class="btn btn-primary btn-lg m-10 float-right" type="button">Finalizar</a>
+    <a href="/asesoria/{{$accion}}?from={{$paso_next}}&source={{$accion}}" class="text-black h4 mb-4">
+        <img width="1024" class="mx-auto d-block" src="/assets/img/asesoria/101010101010/{{$asset_paso}}" alt="">
+    </a>
+    <a href="/solicitudes/create-public" class="btn btn-primary btn-lg m-10 float-right" type="button">Llenar solicitud de conciliación</a>
 
 @endsection

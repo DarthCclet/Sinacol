@@ -67,3 +67,59 @@ $factory->state(Persona::class, 'admin', function (Faker $faker) {
         'tipo_persona_id' => $tipoPersona->id
     ];
 });
+/**
+ * Factory para agregar Orientador
+ */
+$factory->state(Persona::class, 'orientador', function (Faker $faker) {
+    $tipoPersona = TipoPersona::where('abreviatura', 'F')->first();
+    return [
+        'nombre' => 'orientador',
+        'primer_apellido' => '',
+        'segundo_apellido' => '',
+        'razon_social' => null,
+        'fecha_nacimiento' => null,
+        'tipo_persona_id' => $tipoPersona->id
+    ];
+});
+/**
+ * Factory para agregar Orientador
+ */
+$factory->state(Persona::class, 'orientador', function (Faker $faker) {
+    $tipoPersona = TipoPersona::where('abreviatura', 'F')->first();
+    return [
+        'nombre' => 'Orientador',
+        'primer_apellido' => '',
+        'segundo_apellido' => '',
+        'razon_social' => null,
+        'fecha_nacimiento' => null,
+        'tipo_persona_id' => $tipoPersona->id
+    ];
+});
+/**
+ * Factory para agregar personal conciliador
+ */
+$factory->state(Persona::class, 'personal_conciliador', function (Faker $faker) {
+    $tipoPersona = TipoPersona::where('abreviatura', 'F')->first();
+    return [
+        'nombre' => 'Personal',
+        'primer_apellido' => 'Conciliador',
+        'segundo_apellido' => '',
+        'razon_social' => null,
+        'fecha_nacimiento' => null,
+        'tipo_persona_id' => $tipoPersona->id
+    ];
+});
+/**
+ * Factory para agregar Orientador
+ */
+$factory->state(Persona::class, 'supervisor_conciliacion', function (Faker $faker) {
+    $tipoPersona = TipoPersona::where('abreviatura', 'F')->first();
+    return [
+        'nombre' => 'Supervisor',
+        'primer_apellido' => 'de',
+        'segundo_apellido' => 'Conciliacion',
+        'razon_social' => null,
+        'fecha_nacimiento' => null,
+        'tipo_persona_id' => $tipoPersona->id
+    ];
+});

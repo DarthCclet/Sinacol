@@ -1,29 +1,8 @@
 @extends('layouts.default')
 
 @section('content')
+    <a href="/asesoria/inicio" class="text-black h4 mb-4">
+        <img width="1024" class="mx-auto d-block" src="/assets/img/asesoria/home.jpg" alt="">
+    </a>
 
-<div class="align-middle" >
-
-
-
-                <div class="btn-group center offset-3" role="group" aria-label="...">
-                    <p>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <a href="/asesoria/10" class="btn btn-primary btn-lg m-10" type="button">SOY TRABAJADOR</a>
-                        <a href="/asesoria/20" class="btn btn-primary btn-lg m-10" type="button">SOY PATRON</a>
-                        <a href="/asesoria/30" class="btn btn-primary btn-lg m-10" type="button">SOY SINDICATO</a>
-
-                    </p>
-                </div>
-
-</div>
 @endsection
