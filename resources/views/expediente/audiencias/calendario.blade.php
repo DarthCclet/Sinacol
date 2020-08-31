@@ -216,7 +216,7 @@
             function SolicitarAudiencia(inicio,fin){
                 swal({
                     title: '¿Concilian juntos?',
-                    text: 'Al oprimir aceptar se asignará solo un consiliador y una sola sala para solicitante y citado',
+                    text: 'Al oprimir aceptar se asignará solo un conciliador y una sola sala para solicitante y citado',
                     icon: 'warning',
                     buttons: {
                         cancel: {

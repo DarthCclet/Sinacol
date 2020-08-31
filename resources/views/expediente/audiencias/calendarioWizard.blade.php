@@ -164,7 +164,7 @@
             <div class="modal-footer">
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardar"><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarAudiencia"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
@@ -338,7 +338,7 @@
                     }
                 });
             }
-            $("#btnGuardar").on("click",function(){
+            $("#btnGuardarAudiencia").on("click",function(){
                 var validacion = validarAsignacion();
                 if(!validacion.error){
                     var listaRelaciones = [];
@@ -451,6 +451,7 @@
                             msg = "Indica el tipo de notificación para los citados";
                             error = true;
                         }
+                        console.log(listaNotificaciones);
                     });
                 }
                 var array = [];
@@ -458,6 +459,7 @@
                 array.msg=msg;
                 array.arrayEnvio=arrayEnvio;
                 array.listaNotificaciones=listaNotificaciones;
+                console.log(array);
                 return array;
             }
         </script>

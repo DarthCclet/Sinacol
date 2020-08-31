@@ -292,7 +292,6 @@
         $('#divTablaAjuste').hide();
         $('#divTablaCompleto').hide();
     }
-    localStorage.setItem('miGato', 'Juan');
     $(".dateBirth").datepicker({
         changeMonth: true,
         changeYear: true,
