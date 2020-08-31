@@ -1286,6 +1286,37 @@
         </div>
     </div>
 </div>
+<div class="modal" id="modal-registro-correos" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Representante legal</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    - Para ingresar al buzón electronico se debe registrar una dirección de correo, los siguientes solicitantes no registraron una cuenta, indica su correo o solicita un acceso del sistema
+                </div>
+                <table class="table table-bordered table-striped table-hover" id="tableSolicitantesCorreo">
+                    <thead>
+                        <tr>
+                            <th>Solicitante</th>
+                            <th></th>
+                            <th>Correo electrónico</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarCorreos"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <!--Fin de modal de representante legal-->
 <input type="hidden" id="expediente_id">
 <!--</div>-->
@@ -2567,64 +2598,95 @@
 
     $("#btnGuardarRatificar").on("click",function(){
         if(ratifican){
-            swal({
-                title: '¿Estas seguro?',
-                text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
-                icon: 'warning',
-                buttons: {
-                    cancel: {
-                        text: 'Cancelar',
-                        value: null,
-                        visible: true,
-                        className: 'btn btn-default',
-                        closeModal: true,
-                    },
-                    confirm: {
-                        text: 'Aceptar',
-                        value: true,
-                        visible: true,
-                        className: 'btn btn-danger',
-                        closeModal: true
-                    }
-                }
-            }).then(function(isConfirm){
-                if(isConfirm){
-                    $.ajax({
-                        url:'/solicitud/ratificar',
-                        type:'POST',
-                        dataType:"json",
-                        async:true,
-                        data:{
-                            id:$("#solicitud_id").val(),
-                            _token:"{{ csrf_token() }}"
-                        },
-                        success:function(data){
-                            if(data != null && data != ""){
-                                $("#modalRatificacion").modal("hide");
-                                swal({
-                                    title: 'Correcto',
-                                    text: 'Solicitud ratificada correctamente',
-                                    icon: 'success'
-                                });
-                                location.reload();
-                            }else{
-                                swal({
-                                    title: 'Error',
-                                    text: 'No se pudo ratificar',
-                                    icon: 'error'
+            $.ajax({
+                url:'/solicitud/correos/'+$("#solicitud_id").val(),
+                type:'GET',
+                dataType:"json",
+                async:true,
+                success:function(data){
+                    if(data == null || data == ""){
+                        swal({
+                            title: '¿Estas seguro?',
+                            text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
+                            icon: 'warning',
+                            buttons: {
+                                cancel: {
+                                    text: 'Cancelar',
+                                    value: null,
+                                    visible: true,
+                                    className: 'btn btn-default',
+                                    closeModal: true,
+                                },
+                                confirm: {
+                                    text: 'Aceptar',
+                                    value: true,
+                                    visible: true,
+                                    className: 'btn btn-danger',
+                                    closeModal: true
+                                }
+                            }
+                        }).then(function(isConfirm){
+                            if(isConfirm){
+                                $.ajax({
+                                    url:'/solicitud/ratificar',
+                                    type:'POST',
+                                    dataType:"json",
+                                    async:true,
+                                    data:{
+                                        id:$("#solicitud_id").val(),
+                                        _token:"{{ csrf_token() }}"
+                                    },
+                                    success:function(data){
+                                        if(data != null && data != ""){
+                                            $("#modalRatificacion").modal("hide");
+                                            swal({
+                                                title: 'Correcto',
+                                                text: 'Solicitud ratificada correctamente',
+                                                icon: 'success'
+                                            });
+                                            location.reload();
+                                        }else{
+                                            swal({
+                                                title: 'Error',
+                                                text: 'No se pudo ratificar',
+                                                icon: 'error'
+                                            });
+                                        }
+                                    },error:function(data){
+                                        swal({
+                                            title: 'Error',
+                                            text: ' Error al ratificar la solicitud',
+                                            icon: 'error'
+                                        });
+                                    }
                                 });
                             }
-                        },error:function(data){
-                            swal({
-                                title: 'Error',
-                                text: ' Error al ratificar la solicitud',
-                                icon: 'error'
-                            });
-                        }
-                    });
+                        });
+                    }else{
+                        var tableSolicitantes = '';
+                        $.each(data, function(index,element){
+                            tableSolicitantes +='<tr>';
+                            if(element.tipo_persona_id == 1){
+                                tableSolicitantes +='<td>'+elment.nombre+' '+elment.primer_apellido+' '+elment.segundo_apellido+'</td>';
+                            }else{
+                                tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
+                            }
+                            tableSolicitantes += '  <td>';
+                            tableSolicitantes += '      <div class="col-md-12">';
+                            tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
+                            tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
+                            tableSolicitantes += '      </div>';
+                            tableSolicitantes += '  </td>';
+                            tableSolicitantes += '  <td>';
+                            tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
+                            tableSolicitantes += '  </td>';
+                            tableSolicitantes +='</tr>';
+                        });
+                        $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
+                        $("#modal-registro-correos").modal("show");
+                    }
                 }
             });
-
         }else{
             swal({
                 title: 'Error',
@@ -2635,6 +2697,73 @@
     });
     function continuarRatificacion(){
         $("#modalRatificacion").modal('show');
+    }
+    function checkCorreo(id){
+        if(!$("#checkCorreo"+id).is(":checked")){
+            $("#correoValidar"+id).prop("disabled",false);
+        }else{
+            $("#correoValidar"+id).prop("disabled",true);
+        }
+    }
+    $("#btnGuardarCorreos").on("click",function(){
+        var validacion = validarCorreos();
+        if(!validacion.error){
+            $.ajax({
+                url:'/solicitud/correos',
+                type:'POST',
+                dataType:"json",
+                async:true,
+                data:{
+                    _token:"{{ csrf_token() }}",
+                    listaCorreos:validacion.listaCorreos
+                },
+                success:function(data){
+                    $("#modal-registro-correos").modal("hide");
+                },error:function(error){
+                    swal({
+                        title: 'Error',
+                        text: 'Ocurrio un error al guardar los correos',
+                        icon: 'warning'
+                    });
+                }
+            });
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Si no se desea generar accesos, se deben proporcionar los correos',
+                icon: 'warning'
+            });
+        }
+    });
+    function validarCorreos(){
+        var listaCorreos = [];
+        var error = false;
+        $.each($(".checkCorreo"),function(index,element){
+            var id = $(element).data('id');
+            $("#correoValidar"+id).css("border-color","");
+            if($(element).is(":checked")){
+                listaCorreos.push({
+                    crearAcceso:true,
+                    correo:"",
+                    parte_id:id
+                });
+            }else{
+                if($("#correoValidar"+id).val() != ""){
+                    listaCorreos.push({
+                        crearAcceso:false,
+                        correo:$("#correoValidar"+id).val(),
+                        parte_id:id
+                    });
+                }else{
+                    error = true;
+                    $("#correoValidar"+id).css("border-color","red");
+                }
+            }
+        });
+        var respuesta = new Array();
+        respuesta.error=error;
+        respuesta.listaCorreos=listaCorreos;
+        return respuesta;
     }
 
     //funcion para obtener informacion de la excepcion

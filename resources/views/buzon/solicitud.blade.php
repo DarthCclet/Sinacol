@@ -35,6 +35,33 @@
             </div>
             <!-- end login-content -->
 	</div>
+<div class="modal" id="modal-acceso" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Acceso al buzon</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    - No encontramos correos electronicos registrados, por favor proporciona el correo y contraseña que te proporcionó el centro
+                </div>
+                <form action="{{route('acceso_buzon')}}" method="POST" name="form_acceso_buzon">
+                    {{csrf_field()}}
+                    <div class="form-group m-b-20">
+                        <input type="text" class="form-control form-control-lg" placeholder="Correo" id="correo_buzon" name="correo_buzon"/>
+                    </div>
+                    <div class="form-group m-b-20">
+                        <input type="password" class="form-control form-control-lg" placeholder="Contraseña" id="password_buzon" name="password_buzon"/>
+                    </div>
+                    <div class="login-buttons">
+                        <button class="btn btn-primary btn-block btn-lg" id="btnIngresar">Ingresar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 @push('scripts')
 <script type="text/javascript">
@@ -65,11 +92,15 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
-                        swal({
-                            title: 'Correcto',
-                            text: data.mensaje,
-                            icon: 'success'
-                        });
+                        if(data.correo){
+                            swal({
+                                title: 'Correcto',
+                                text: data.mensaje,
+                                icon: 'success'
+                            });
+                        }else{
+                            $("#modal-acceso").modal("show");
+                        }
                     },error:function(data){
                         var mensajes = "";
                             swal({
@@ -105,5 +136,18 @@
             console.log(error);
             return {error:error,tipo_persona_id:tipo_persona_id};
 	}
+        $("#btnIngresar").on("click",function(e){
+            let that = this;
+            e.preventDefault();
+            if($("#correo_buzon").val() != "" && $("#password_buzon").val() != ""){
+                $(that).closest('form').submit();
+            }else{
+                swal({
+                    title: 'Error',
+                    text: 'Coloca usuario y password',
+                    icon: 'error'
+                });
+            }
+        });
 </script>
 @endpush

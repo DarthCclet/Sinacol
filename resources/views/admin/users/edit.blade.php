@@ -92,7 +92,7 @@
         $("#btnAgregarRol").on("click",function(){
             if($("#rol").val() != ""){
                 $.ajax({
-                    url:"/usuario/roles/",
+                    url:"/usuario/roles",
                     type:"POST",
                     dataType:"json",
                     async:true,

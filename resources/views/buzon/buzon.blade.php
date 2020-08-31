@@ -55,7 +55,7 @@
                                         @foreach($solicitud->expediente->audiencia as $key => $audiencia)
                                             @if($key == 0)
                                                 @foreach($audiencia->documentos as $documento)
-                                                @if($documento->clasificacion_archivo_id == 4)
+                                                @if($documento->clasificacion_archivo_id == 14 || $documento->clasificacion_archivo_id == 18 || $documento->clasificacion_archivo_id == 19)
                                                     <li><a href="/api/documentos/getFile/{{$documento->id}}" target="_blank">{{$documento->clasificacionArchivo->nombre}}</a></li>
                                                 @endif
                                                 @endforeach
@@ -130,7 +130,7 @@
                                                 @if($etapas->etapa_resolucion_id == 6)
                                                 <ul>
                                                     @foreach($audiencia->documentos as $key => $documento)
-                                                    @if($documento->clasificacion_archivo_id == 5 || $documento->clasificacion_archivo_id == 6)
+                                                    @if($documento->clasificacion_archivo_id == 15 || $documento->clasificacion_archivo_id == 16 || $documento->clasificacion_archivo_id == 17)
                                                     <li><a href="/api/documentos/getFile/{{$documento->id}}" target="_blank">{{$documento->clasificacionArchivo->nombre}}</a></li>
                                                     @endif
                                                     @endforeach
