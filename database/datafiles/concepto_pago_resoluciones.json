@@ -30,7 +30,11 @@
         },
         {
             "id": "8",
-            "nombre": "Gratificación General 'D' (incluye cualquier otra prestación)"
+            "nombre": "Gratificación General 'D' (Incluye cualquier otra prestación)"
+        },
+        {
+            "id": "9",
+            "nombre": "Gratificación General 'E' (Prestaciones en especie)"
         }
     ],
 

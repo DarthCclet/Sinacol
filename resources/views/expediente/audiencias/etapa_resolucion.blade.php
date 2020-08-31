@@ -1908,6 +1908,11 @@
                     $('#monto').val(monto);
                     break;
                 case '8':    //Gratificacion D
+                    $('#monto').removeAttr('disabled');
+                    $('#dias').attr('disabled',true);
+                    $('#otro').attr('disabled',true);
+                    break;
+                case '9':    //Gratificacion E
                     $('#monto').attr('disabled',true);
                     $('#dias').attr('disabled',true);
                     $('#otro').removeAttr('disabled');
