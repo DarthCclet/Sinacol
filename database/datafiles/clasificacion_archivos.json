@@ -234,8 +234,14 @@
             "nombre": "Poder notarial",
             "tipo_archivo_id":9,
             "entidad_emisora_id":null
+        },
+        {
+            "id": "40",
+            "nombre": "Acuse de solicitud",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
         }
     ],
 
-    "numReg": 39
+    "numReg": 40
 }
