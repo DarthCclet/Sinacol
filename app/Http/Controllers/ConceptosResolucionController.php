@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DatoLaboral;
+use App\Ocupacion;
 use App\Parte;
 use App\Periodicidad;
 use App\ResolucionParteConcepto;
@@ -231,13 +232,22 @@ class ConceptosResolucionController extends Controller
     public function getLaboralesConceptosPre(Request $request)
     {
         try {
-
+            $labora_actualmente = $request->labora_actualmente;
             $diasPeriodicidad = Periodicidad::where('id', $request->periodicidad_id)->first();
             $remuneracionDiaria = $request->remuneracion / $diasPeriodicidad->dias;
-            $anios_antiguedad = Carbon::parse($request->fecha_ingreso)->floatDiffInYears($request->fecha_salida);
+            if($labora_actualmente != ""){
+                $anios_antiguedad = Carbon::parse($request->fecha_ingreso)->floatDiffInYears($request->fecha_salida);
+            }else{
+                $anios_antiguedad = Carbon::parse($request->fecha_ingreso)->floatDiffInYears(Carbon::now());
+            }
+            $anios_antiguedad_int = intval($anios_antiguedad);
             // dd($request->fecha_ingreso);
             $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
-            $salarios = SalarioMinimo::get('salario_minimo');
+            if($request->ocupacion_id != ""){
+                $salarios = SalarioMinimo::get('salario_minimo');
+            }else{
+                $salarios = Ocupacion::find($request->ocupacion_id)->get('salario_resto_del_pais');
+            }
             // dd($anios_antiguedad);
             $datosL = [];
             $salarioMinimo = $salarios[0]->salario_minimo;
@@ -279,13 +289,12 @@ class ConceptosResolucionController extends Controller
             $completa['prima_vacacional']= round($pagoVacaciones * 0.25,2);
             $total += $pagoVacaciones * 0.25;
             $completa['prima_antiguedad']= round($salarioTopado * $anios_antiguedad *12,2);
-            $gratificacionB = ($anios_antiguedad * 20) * $remuneracionDiaria ;
+            $gratificacionB = ($anios_antiguedad_int * 20) * $remuneracionDiaria ;
             $completa['gratificacion_b'] = round($gratificacionB);
             $total += $salarioTopado * $anios_antiguedad *12;
             $completa['total']= round($total,2);
             $datosL['completa']= $completa;
-            $datosL['anios_antiguedad']= $anios_antiguedad;
-            
+            $datosL['anios_antiguedad']= $anios_antiguedad_int;
             //Propuesta de convenio al 50%
             $prouestaAl50 = [];
             array_push($prouestaAl50,array( "concepto_pago_resoluciones_id"=> 5, "dias"=>45, "monto"=>round($remuneracionDiaria * 45,2)));

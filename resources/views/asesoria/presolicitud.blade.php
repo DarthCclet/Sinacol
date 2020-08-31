@@ -12,16 +12,16 @@
            
             <div class="col-md-12 row">
                 <div class="col-md-4">
-                    <input class="form-control numero " required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
+                    <input class="form-control numero required" required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
                     <p class="help-block needed">&iquest;Cu&aacute;nto te pagan?</p>
                 </div>
                 <div class="col-md-4">
-                    {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
+                    {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect required']);  !!}
                     {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
                     <p class="help-block needed">&iquest;Cada cuándo te pagan?</p>
                 </div>
                 <div class="col-md-4">
-                    <input class="form-control numero" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
+                    <input class="form-control numero required" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
                     <p class="help-block needed">Horas semanales</p>
                 </div>
             </div>
@@ -34,11 +34,11 @@
                     <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
                 </div>
                 <div class="col-md-4">
-                    <input class="form-control dateBirth" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
+                    <input class="form-control dateBirth required" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
                     <p class="help-block needed">Fecha de ingreso</p>
                 </div>
                 <div class="col-md-4" id="divFechaSalida">
-                    <input class="form-control dateBirth" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
+                    <input class="form-control dateBirth" id="fecha_salida" placeholder="Fecha salida" type="text" value="">
                     <p class="help-block needed">Fecha salida</p>
                 </div>
             </div>
@@ -130,128 +130,149 @@
         if($("#labora_actualmente").is(":checked")){
             $("#divFechaSalida").hide();
             $("#fecha_salida").removeAttr("required");
+            $("#fecha_salida").removeClass("required");
+            $("#fecha_salida").val("");
         }else{
-            $("#fecha_salida").attr("required","");
+            $("#fecha_salida").addClass("required");
             $("#divFechaSalida").show();
         }
     });
 
     function getDatosLaboralesParte(){
-        $.ajax({
-            url:"/api/conceptos-resolucion/getLaboralesConceptosPre",
-            type:"POST",
-            dataType:"json",
-            data:{
-                periodicidad_id:$("#periodicidad_id").val(),
-                origen:$("#origen").val(),
-                remuneracion:$("#remuneracion").val(),
-                fecha_ingreso:dateFormat($("#fecha_ingreso").val()),
-                fecha_salida:dateFormat($("#fecha_salida").val()),
-            },
-            success:function(datos){
-                let dato = datos.data;
-                listaPropuestas[dato.idParte]= [];
-                listaPropuestas[dato.idParte]['completa'] = [];
-                listaPropuestas[dato.idParte]['al50'] = [];
-                $.each(dato.propuestaCompleta,function(index,propuesta){
-                    listaPropuestas[propuesta.idSolicitante]['completa'].push({
-                        'idSolicitante':propuesta.idSolicitante,
-                        'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
-                        'dias':propuesta.dias,
-                        'monto':propuesta.monto,
-                        'otro':''
+        var validate = true;
+        $(".required").each(function(){
+            if($(this).val() == ""){
+                validate = false;
+            }
+        });
+        if(validate){
+            $.ajax({
+                url:"/api/conceptos-resolucion/getLaboralesConceptosPre",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    periodicidad_id:$("#periodicidad_id").val(),
+                    origen:$("#origen").val(),
+                    remuneracion:$("#remuneracion").val(),
+                    fecha_ingreso:dateFormat($("#fecha_ingreso").val()),
+                    ocupacion_id:dateFormat($("#ocupacion_id").val()),
+                    fecha_salida:dateFormat($("#fecha_salida").val()),
+                    labora_actualmente:dateFormat($("#labora_actualmente").val()),
+                },
+                success:function(datos){
+                    let dato = datos.data;
+                    listaPropuestas[dato.idParte]= [];
+                    listaPropuestas[dato.idParte]['completa'] = [];
+                    listaPropuestas[dato.idParte]['al50'] = [];
+                    $.each(dato.propuestaCompleta,function(index,propuesta){
+                        listaPropuestas[propuesta.idSolicitante]['completa'].push({
+                            'idSolicitante':propuesta.idSolicitante,
+                            'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
+                            'dias':propuesta.dias,
+                            'monto':propuesta.monto,
+                            'otro':''
+                        });
                     });
-                });
-                $.each(dato.propuestaAl50,function(index,propuesta){
-                    listaPropuestas[propuesta.idSolicitante]['al50'].push({
-                        'idSolicitante':propuesta.idSolicitante,
-                        'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
-                        'dias':propuesta.dias,
-                        'monto':propuesta.monto,
-                        'otro':''
+                    $.each(dato.propuestaAl50,function(index,propuesta){
+                        listaPropuestas[propuesta.idSolicitante]['al50'].push({
+                            'idSolicitante':propuesta.idSolicitante,
+                            'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
+                            'dias':propuesta.dias,
+                            'monto':propuesta.monto,
+                            'otro':''
+                        });
                     });
-                });
 
-                $('#remuneracionDiaria').val(dato.remuneracionDiaria);
-                $('#salarioMinimo').val(dato.salarioMinimo);
-                $('#antiguedad').val(dato.antiguedad);
-                if($("#origen").val() == "10101010"){
-                    let table = "";
-                    table+=" <tr>";
-                    table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td><td class="amount" > $'+ (dato.al50.indemnizacion).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.aguinaldo).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.vacaciones).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_vacacional).toLocaleString("en-US") +"</td>";
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Prima antigüedad</th><td class="amount"> $'+ (dato.completa.prima_antiguedad ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_antiguedad).toLocaleString("en-US") +"</td>";
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (dato.completa.total ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.total).toLocaleString("en-US") +"</td>";
-                    table+=" </tr>";
-                    $('#tbodyPropuestaCompleto').html(table);
-                    $('#divTablaCompleto').show();
-                    $('#divTablaAjuste').hide();
-                }else if($("#origen").val() == "10201010"){
-                    var total = dato.completa.aguinaldo + dato.completa.vacaciones +dato.completa.prima_vacacional;
-                    let table = "";
-                    table+=" <tr>";
-                    table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    if(dato.anios_antiguedad >= 15){
+                    $('#remuneracionDiaria').val(dato.remuneracionDiaria);
+                    $('#salarioMinimo').val(dato.salarioMinimo);
+                    $('#antiguedad').val(dato.antiguedad);
+                    if($("#origen").val() == "10101010"){
+                        let table = "";
+                        table+=" <tr>";
+                        table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td><td class="amount" > $'+ (dato.al50.indemnizacion).toLocaleString("en-US") +'</td>';
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.aguinaldo).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.vacaciones).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_vacacional).toLocaleString("en-US") +"</td>";
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Prima antigüedad</th><td class="amount"> $'+ (dato.completa.prima_antiguedad ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_antiguedad).toLocaleString("en-US") +"</td>";
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (dato.completa.total ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.total).toLocaleString("en-US") +"</td>";
+                        table+=" </tr>";
+                        $('#tbodyPropuestaCompleto').html(table);
+                        $('#divTablaCompleto').show();
+                        $('#divTablaAjuste').hide();
+                    }else if($("#origen").val() == "10201010"){
+                        var total = dato.completa.aguinaldo + dato.completa.vacaciones +dato.completa.prima_vacacional;
+                        let table = "";
+                        table+=" <tr>";
+                        table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td>';
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td>';
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td>';
+                        table+=" </tr>";
+                        if(dato.anios_antiguedad >= 15){
+                            table+=" <tr>";
+                            table+=' <th>Prima antigüedad</th><td class="amount"> $'+ (dato.completa.prima_antiguedad ).toLocaleString("en-US") +'</td>';
+                            table+=" </tr>";
+                            total = total + dato.completa.prima_antiguedad;
+                        }
+                        table+=" <tr>";
+                        table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (total ).toLocaleString("en-US") +'</td>';
+                        table+=" </tr>";
+                        $('#tbodyPropuesta').html(table);
+                        $('#divTablaAjuste').show();
+                        $('#divTablaCompleto').hide();
+                    }else if($("#origen").val() == "10301010"){
+                        var total = dato.completa.aguinaldo + dato.completa.vacaciones +dato.completa.prima_vacacional+dato.completa.prima_antiguedad+dato.completa.gratificacion_b;
+                        let table = "";
+                        table+=" <tr>";
+                        table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td>';
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td>';
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td>';
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td>';
+                        table+=" </tr>";
                         table+=" <tr>";
                         table+=' <th>Prima antigüedad</th><td class="amount"> $'+ (dato.completa.prima_antiguedad ).toLocaleString("en-US") +'</td>';
                         table+=" </tr>";
-                        total = total + dato.completa.prima_antiguedad;
+                        table+=" <tr>";
+                        table+=' <th>Gratificaci&oacute;n B (20 d&iacute;as)</th><td class="amount"> $'+ (dato.completa.gratificacion_b ).toLocaleString("en-US") +'</td>';
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (total ).toLocaleString("en-US") +'</td>';
+                        table+=" </tr>";
+                        $('#tbodyPropuesta').html(table);
+                        $('#divTablaAjuste').show();
+                        $('#divTablaCompleto').hide();
                     }
-                    table+=" <tr>";
-                    table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (total ).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    $('#tbodyPropuesta').html(table);
-                    $('#divTablaAjuste').show();
-                    $('#divTablaCompleto').hide();
-                }else if($("#origen").val() == "10301010"){
-                    var total = dato.completa.aguinaldo + dato.completa.vacaciones +dato.completa.prima_vacacional+dato.completa.prima_antiguedad+dato.completa.gratificacion_b;
-                    let table = "";
-                    table+=" <tr>";
-                    table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td>';
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Prima antigüedad</th><td class="amount"> $'+ (dato.completa.prima_antiguedad ).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Gratificaci&oacute;n B (20 d&iacute;as)</th><td class="amount"> $'+ (dato.completa.gratificacion_b ).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (total ).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    $('#tbodyPropuesta').html(table);
-                    $('#divTablaAjuste').show();
-                    $('#divTablaCompleto').hide();
                 }
-            }
         });
+        }else{
+            $('#tbodyPropuesta').html("");
+            $('#divTablaAjuste').hide();
+            $('#divTablaCompleto').hide();
+            swal({
+                title: 'Error',
+                text: 'Es necesario capturar todos los campos requeridos',
+                icon: 'error',
+            });
+        }
     }
     $(".dateBirth").datepicker({
         changeMonth: true,
