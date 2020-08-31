@@ -61,9 +61,9 @@
         <div>
             @if($origen == "10101010")
                 <p>La propuesta completa reúne las indemnizaciones por despido, que incluyen la indemnización constitucional y la prima de antigüedad, al 100%. Se suman a esta propuesta el 100% de las prestaciones adquiridas de aguinaldo, vacaciones y prima vacacional. La propuesta de 45 días incluye la mitad de la indemnización constitucional, la mitad de la prima de antigüedad y al 100% de las prestaciones adquiridas. Generalmente en la pláticas y audiencias de conciliación, se arregla el conflicto de despido en una rango entre estas dos propuestas.</p>
-            @elseif($origen == "10201010")
+            @elseif($origen == "10201010" || $origen == "10301010")
                 <p>PRESTACIONES: Se muestran el cálculo las prestaciones de la Ley Federal del Trabajo, el aguinaldo, las vacaciones y la prima vacacional, proporcionales en cada caso al año en curso. En caso de que haya laborado 15 años o más, se muestra adicionalmente la prima de antigüedad porque ésta vuelve una prestación adquirida. El finiquito de ley en caso de que haya renunciado de manera voluntaria, incluye estas prestaciones (sin o con la prima de antigüedad dependiendo de no haber o haber cumplido 15 años de servicio) además de cualquier salario u otra prestación devengada (ejemplo: días laborados que no se pagaron, aguinaldo del año anterior, etc.)</p>
-            @elseif($origen == "10301010")
+            @elseif($origen == "10401010")
                 <p>RESCISIÓN: En el caso de la rescisión de la relación de trabajo por culpa de acciones del patrón y sin culpa del trabajador, el 100% de la compensación legal incluye indemnización constitucional de 90 días de salario, la prima de antigüedad y las prestaciones adquiridas aguinaldo, vacaciones y prima vacacional. Adicionalmente, el trabajador debe recibir 20 días por año laborado a su salario actual, lo que se llama Gratificación B en la tabla a continuación. Es importante recordar que aunque aquí le mostramos el cálculo del 100%, dada la incertidumbre, costo y tiempo de un juicio laboral, en la conciliación es recomendable considerar el arreglo del conflicto en una menor cantidad que la de un juicio ganado.</p>
             @endif
         </div>
@@ -214,7 +214,7 @@
                         $('#tbodyPropuestaCompleto').html(table);
                         $('#divTablaCompleto').show();
                         $('#divTablaAjuste').hide();
-                    }else if($("#origen").val() == "10201010"){
+                    }else if($("#origen").val() == "10201010" || $("#origen").val() == "10301010"){
                         var total = dato.completa.aguinaldo + dato.completa.vacaciones +dato.completa.prima_vacacional;
                         let table = "";
                         table+=" <tr>";
@@ -238,7 +238,7 @@
                         $('#tbodyPropuesta').html(table);
                         $('#divTablaAjuste').show();
                         $('#divTablaCompleto').hide();
-                    }else if($("#origen").val() == "10301010"){
+                    }else if($("#origen").val() == "10401010"){
                         var total = dato.completa.aguinaldo + dato.completa.vacaciones +dato.completa.prima_vacacional+dato.completa.prima_antiguedad+dato.completa.gratificacion_b;
                         let table = "";
                         table+=" <tr>";

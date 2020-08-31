@@ -10,10 +10,10 @@
         <h2>Video: Prestaciones laborales</h2>
         <a href="/asesoria/1010101010/?origen={{$origen}}" class="btn btn-primary btn-lg m-10 float-right" type="button">Siguiente</a>
     @elseif($origen == '10301010')
-        <h2>Presentación: Recisión por parte del trabajador</h2>
+        <h2>Video: Prestaciones laborales</h2>
         <a href="/asesoria/1010101010/?origen={{$origen}}" class="btn btn-primary btn-lg m-10 float-right" type="button">Siguiente</a>
     @elseif($origen == '10401010')
-        <h2>Presentación: Derechos de preferencia, antigüedad y ascenso</h2>
+        <h2>Presentación: Recisión por parte del trabajador</h2>
         <a href="/asesoria/1010101010/?origen={{$origen}}" class="btn btn-primary btn-lg m-10 float-right" type="button">Siguiente</a>
     @elseif($origen == '10501010')
         <h2>Presentación: Derechos de preferencia, antigüedad y ascenso</h2>
