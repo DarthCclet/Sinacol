@@ -316,6 +316,7 @@ class SolicitudController extends Controller {
                 $solicitudSaved->loadDataFromRequest();
             });
             DB::commit();
+            event(new GenerateDocumentResolution("",$solicitudSaved->id,40,6));
         } catch (\Throwable $e) {
             DB::rollback();
             if ($this->request->wantsJson()) {
@@ -746,6 +747,22 @@ class SolicitudController extends Controller {
             }
         }
         return $doc;
+    }
+    function getAcuseSolicitud($solicitud_id) {
+        $doc = [];
+        $solicitud = Solicitud::find($solicitud_id);
+        if($solicitud != null){
+            $documentos = $solicitud->documentos;
+            foreach ($documentos as $documento) {
+                $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                if($documento->clasificacionArchivo->id == 40){    
+                    $documento->tipo = pathinfo($documento->ruta)['extension'];
+                    array_push($doc,$documento);
+                }
+            }
+            return $doc;
+        }
+        return $this->sendError('No se puede obtener el acuse', 'Error');
     }
     private function getAcciones(Solicitud $solicitud,$partes,$audiencias,$expediente){
 //         Obtenemos las acciones de la solicitud

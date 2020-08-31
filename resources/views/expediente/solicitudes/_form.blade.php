@@ -697,8 +697,11 @@
                     <button class="btn btn-primary btn-sm m-l-5" id="btnRatificarSolicitud"><i class="fa fa-check"></i> Ratificar Solicitud</button>
                 </div>
             @endif
-            <div class="col-md-12">
+            <div class="col-md-12" id="btnGuardar">
                 <button style="float: right;" class="btn btn-primary pull-right btn-lg m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save" ></i> Guardar</button>
+            </div>
+            <div class="col-md-12" id="btnGetAcuse" style="display: none;">
+                <a id="btnAcuse" href="/api/documentos/getFile/" class="btn btn-primary pull-right btn-lg m-l-5" target="_blank"><i class="fa fa-file" ></i> Descargar Acuse</a>
             </div>
 
         </div>
@@ -2506,8 +2509,10 @@
                                 icon: 'success',
 
                             });
-                            setTimeout('', 5000);
-                            location.href='{{ route('solicitudes.index')  }}'
+                            // setTimeout('', 5000);
+                            // location.href='{{ route('solicitudes.index')  }}'
+                            $("#solicitud_id").val(data.data.id);
+                            getDocumentoAcuse();
                         }else{
 
                         }
@@ -2972,6 +2977,25 @@
                             div += '</div>';
                         });
                         $("#gallery").html(div);
+                    }
+                }catch(error){
+                    console.log(error);
+                }
+            }
+        });
+    }
+    function getDocumentoAcuse(){
+        $.ajax({
+            url:"/solicitudes/documentos/"+$("#solicitud_id").val()+"/acuse",
+            type:"GET",
+            dataType:"json",
+            async:true,
+            success:function(data){
+                try{
+                    if(data != null && data != ""){
+                        $("#btnGuardar").hide();
+                        $("#btnAcuse").attr("href","/api/documentos/getFile/"+data[0].id)
+                        $("#btnGetAcuse").show();
                     }
                 }catch(error){
                     console.log(error);
