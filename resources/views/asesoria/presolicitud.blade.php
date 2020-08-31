@@ -3,9 +3,9 @@
 @include('includes.component.pickers')
 @section('content')
     <div class="align-middle align-center" style="margin-left: 10%; margin-right:10%; ">
-        <div  data-parsley-validate="true"  class="col-md-12 row">
+        <div  data-parsley-validate="true" class="col-md-12 row DatosLaborales">
             <div class="col-md-12 mt-4">
-                <h3>Presolicitud</h3>
+                <h3>Datos laborales para cuantificaci&oacute;n</h3>
                 <hr class="red">
             </div>
             <input type="hidden" id="dato_laboral_id">
@@ -20,18 +20,15 @@
                     {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
                     <p class="help-block needed">&iquest;Cada cuándo te pagan?</p>
                 </div>
-                <div class="col-md-4">
-                    <input class="form-control numero required" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
-                    <p class="help-block needed">Horas semanales</p>
-                </div>
             </div>
             <div class="col-md-12 row">
-
-                <div class="col-md-2">
-                    <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
-                </div>
-                <div class="col-md-2">
-                    <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
+                <div class="col-md-4 row" style="display:{{isset($origen) && $origen == '10101010' ? 'none' : 'block'}}">
+                    <div class="col-md-6">
+                        <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
+                    </div>
+                    <div class="col-md-6" >
+                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <input class="form-control dateBirth required" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
@@ -41,17 +38,6 @@
                     <input class="form-control dateBirth" id="fecha_salida" placeholder="Fecha salida" type="text" value="">
                     <p class="help-block needed">Fecha salida</p>
                 </div>
-            </div>
-            <div class="col-md-4">
-                {{-- <select id="jornada_id" required="" class="form-control catSelect" name="jornada_id" data-select2-id="jornada_id" tabindex="-1" aria-hidden="true">
-                    <option selected="selected" value="" data-select2-id="19">Seleccione una opción</option>
-                    @foreach($jornadas as $jornada)
-                    <option value="{{$jornada->id}}" > {{$jornada->nombre}} </option>
-                    @endforeach
-                </select> --}}
-                {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
-                {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block needed">Jornada</p>
             </div>
             <div class="col-md-6" >
                 {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
@@ -63,14 +49,24 @@
             </div>
         </div>
         <div>
-            <button onclick="getDatosLaboralesParte()" class="btn btn-primary">Consultar</button>
+            <button onclick="getDatosLaboralesParte()"  class="btn btn-primary DatosLaborales">Mostrar calculos</button>
+            <button style="display: none; margin-top:2%;"  onclick="editarDatos()" class="btn btn-primary divPropuesta">Editar datos</button>
         </div>
     </div>
-    <div id="divPropuesta" class="align-middle align-center" style="margin-left: 10%; margin-right:10%; ">
+    <div  style="display: none; margin: 3% 15% 0 15%;" class="align-middle align-center divPropuesta">
         <input type="hidden" id="origen" value="{{$origen}}" />
         <input type="hidden" id="remuneracionDiaria" />
         <input type="hidden" id="salarioMinimo"/>
         <input type="hidden" id="antiguedad"/>
+        <div>
+            @if($origen == "10101010")
+                <p>La propuesta completa reúne las indemnizaciones por despido, que incluyen la indemnización constitucional y la prima de antigüedad, al 100%. Se suman a esta propuesta el 100% de las prestaciones adquiridas de aguinaldo, vacaciones y prima vacacional. La propuesta de 45 días incluye la mitad de la indemnización constitucional, la mitad de la prima de antigüedad y al 100% de las prestaciones adquiridas. Generalmente en la pláticas y audiencias de conciliación, se arregla el conflicto de despido en una rango entre estas dos propuestas.</p>
+            @elseif($origen == "10201010")
+                <p>PRESTACIONES: Se muestran el cálculo las prestaciones de la Ley Federal del Trabajo, el aguinaldo, las vacaciones y la prima vacacional, proporcionales en cada caso al año en curso. En caso de que haya laborado 15 años o más, se muestra adicionalmente la prima de antigüedad porque ésta vuelve una prestación adquirida. El finiquito de ley en caso de que haya renunciado de manera voluntaria, incluye estas prestaciones (sin o con la prima de antigüedad dependiendo de no haber o haber cumplido 15 años de servicio) además de cualquier salario u otra prestación devengada (ejemplo: días laborados que no se pagaron, aguinaldo del año anterior, etc.)</p>
+            @elseif($origen == "10301010")
+                <p>RESCISIÓN: En el caso de la rescisión de la relación de trabajo por culpa de acciones del patrón y sin culpa del trabajador, el 100% de la compensación legal incluye indemnización constitucional de 90 días de salario, la prima de antigüedad y las prestaciones adquiridas aguinaldo, vacaciones y prima vacacional. Adicionalmente, el trabajador debe recibir 20 días por año laborado a su salario actual, lo que se llama Gratificación B en la tabla a continuación. Es importante recordar que aunque aquí le mostramos el cálculo del 100%, dada la incertidumbre, costo y tiempo de un juicio laboral, en la conciliación es recomendable considerar el arreglo del conflicto en una menor cantidad que la de un juicio ganado.</p>
+            @endif
+        </div>
         <div>
             <table class="table" id="divTablaCompleto" style="display: none;">
                 <thead>
@@ -160,6 +156,7 @@
                     labora_actualmente:dateFormat($("#labora_actualmente").val()),
                 },
                 success:function(datos){
+                    
                     let dato = datos.data;
                     listaPropuestas[dato.idParte]= [];
                     listaPropuestas[dato.idParte]['completa'] = [];
@@ -262,8 +259,14 @@
                         $('#divTablaCompleto').hide();
                     }
                 }
-        });
+            });
+            $(".divPropuesta").show();
+            $(".editarDatos").show();
+            $(".DatosLaborales").hide();
         }else{
+            $(".divPropuesta").hide();
+            $(".editarDatos").hide();
+            $(".DatosLaborales").show();
             $('#tbodyPropuesta').html("");
             $('#divTablaAjuste').hide();
             $('#divTablaCompleto').hide();
@@ -273,6 +276,14 @@
                 icon: 'error',
             });
         }
+    }
+    function editarDatos(){
+        $(".divPropuesta").hide();
+        $(".editarDatos").hide();
+        $(".DatosLaborales").show();
+        $('#tbodyPropuesta').html("");
+        $('#divTablaAjuste').hide();
+        $('#divTablaCompleto').hide();
     }
     $(".dateBirth").datepicker({
         changeMonth: true,
