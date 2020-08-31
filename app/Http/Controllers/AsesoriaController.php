@@ -24,6 +24,8 @@ class AsesoriaController extends Controller
                 return view('asesoria.a10');
                 break;
             case '1020':
+                //Soy patron
+                return view('asesoria.a20');
             case '1030':
             case '1010':
                 //Presentación excepciones
@@ -82,6 +84,29 @@ class AsesoriaController extends Controller
                 $origen = $this->request->origen;
                 return view('asesoria.presolicitud', compact('jornadas','periodicidades','ocupaciones','origen'));
             break;
+
+
+            //RUTA PATRON
+            case '20':
+                //Soy patron
+                return view('asesoria.a20');
+                break;
+            case '2010':
+                //Soy patron - conflicto individual
+                return view('asesoria.a2010');
+            case '201010':
+                //Soy patron - conflicto individual
+                return view('asesoria.a201010');
+                break;
+            case '202010':
+                //Soy patron - conflicto individual
+                return view('asesoria.a202010');
+                break;
+            case '2020':
+                //Soy patron - conflicto colectivo
+                return view('asesoria.a2020');
+                break;
+
             default:
                 return view('asesoria.default');
                 break;
