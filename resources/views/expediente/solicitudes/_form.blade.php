@@ -1670,9 +1670,21 @@
             $("#solicitud_id_excepcion").val(solicitud);
             cargarDocumentos();
             getSolicitudFromBD(solicitud);
+        }else{
+            if(localStorage.getItem("datos_laborales")){
+                var datos_laborales_storage = localStorage.getItem("datos_laborales");
+                datos_laborales_storage = JSON.parse(datos_laborales_storage);
+                $("#periodicidad_id").val(datos_laborales_storage.periodicidad_id).trigger('change');
+                $("#remuneracion").val(datos_laborales_storage.remuneracion);
+                $("#ocupacion_id").val(datos_laborales_storage.ocupacion_id).trigger('change');
+                $("#fecha_ingreso").val(datos_laborales_storage.fecha_ingreso);
+                if(datos_laborales_storage.labora_actualmente != $("#labora_actualmente").is(":checked")){
+                    $("#labora_actualmente").click();
+                }
+                $("#fecha_salida").val(datos_laborales_storage.fecha_salida);
+            }
         }
         // getGironivel("",1,"girosNivel1solicitante");
-
     });
     function exepcionConciliacion(){
         var formData = new FormData();
