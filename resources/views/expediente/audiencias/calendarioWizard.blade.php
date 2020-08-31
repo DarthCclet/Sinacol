@@ -247,7 +247,7 @@
             function SolicitarAudiencia(inicio,fin){
                 swal({
                     title: '¿Las partes concilian en la misma sala?',
-                    text: 'Al oprimir aceptar se asignará solo un consiliador y una sola sala para solicitante y citado',
+                    text: 'Al oprimir aceptar se asignará solo un conciliador y una sola sala para solicitante y citado',
                     icon: 'warning',
                     buttons: {
                         cancel: {
@@ -451,7 +451,6 @@
                             msg = "Indica el tipo de notificación para los citados";
                             error = true;
                         }
-                        console.log(listaNotificaciones);
                     });
                 }
                 var array = [];
@@ -459,7 +458,6 @@
                 array.msg=msg;
                 array.arrayEnvio=arrayEnvio;
                 array.listaNotificaciones=listaNotificaciones;
-                console.log(array);
                 return array;
             }
         </script>
