@@ -21,7 +21,7 @@ class UpdateDataToTipoDocumentosTable extends Migration
         foreach ($json->datos as $objeto){
             DB::table('tipo_documentos')->insert([
                 'nombre' => $objeto->nombre,
-                'objetos' => $objeto->nombre,
+                'objetos' => $objeto->objetos,
                 'created_at' => date("Y-m-d H:d:s"),
                 'updated_at' => date("Y-m-d H:d:s"),
             ]);
