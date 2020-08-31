@@ -791,5 +791,57 @@ class SolicitudController extends Controller {
         }
         return $audits;
      }
-
+    public function validarCorreos(){
+        $solicitud = Solicitud::find($this->request->solicitud_id);
+        $array = array();
+        foreach($solicitud->partes as $parte){
+            if($parte->tipo_parte_id == 1){
+                $pasa = false;
+                foreach($parte->contactos as $contacto){
+                    if($contacto->tipo_contacto_id == 3){
+                        $pasa = true;
+                    }
+                }
+                if(!$pasa){
+                    $array[] = $parte;
+                }
+            }
+        }
+        return $array;
+    }
+    public function cargarCorreos(){
+        try{
+            DB::beginTransaction();
+            foreach ($this->request->listaCorreos as $listaCorreos){
+                $parte = Parte::find($listaCorreos["parte_id"]);
+                if($listaCorreos["crearAcceso"]){
+                    $arrayCorreo = $this->construirCorreo($parte);
+                    $parte->update([
+                        "correo_buzon" => $arrayCorreo["correo"],
+                        "password_buzon" => $arrayCorreo["password"]
+                    ]);
+                }else{
+                    $parte->contactos()->create([
+                        "tipo_contacto_id" => 3,
+                        "contacto" => $listaCorreos["correo"]
+                    ]);
+                }
+            }
+            DB::commit();
+            return $this->sendResponse("success", "Se guardaron los correos");
+        }catch(\Throwable $e){
+            DB::rollback();
+            return $this->sendError('Error al guardar los correos', 'Error');
+        }
+    }
+    private function construirCorreo(Parte $parte){
+        if($parte->tipo_persona == 1){
+            $correo = $parte->nombre.".".$parte->primer_apellido."@centro.gob.mx";
+            $password = substr($parte->nombre, 0, 1).$parte->primer_apellido;
+        }else{
+            $correo = $parte->nombre_comercial."@centro.gob.mx";
+            $password = $parte->nombre_comercial;
+        }
+        return ["correo" => strtolower($correo),"password" => strtolower($password)];
+    }
 }

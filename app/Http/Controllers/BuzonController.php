@@ -51,13 +51,41 @@ class BuzonController extends Controller
                 $composicion = base64_encode($token)."/".base64_encode($correo);
                 $liga = "http://conciliacion.test/validar_token/".$composicion;
                 Mail::to($correo)->send(new AccesoBuzonMail($parte,$liga));
-                
-                return array("mensaje" => 'Se envio un correo con el acceso a la dirección '.$correo);
+                return array(["correo" => true,"mensaje" => 'Se envio un correo con el acceso a la dirección '.$correo]);                
             }else{
-                return $this->sendError('No hay correos registrados ', 'Error');
+                return array(["correo" => false,"mensaje" => 'No hay correos registrados']);
             }
         }else{
             return $this->sendError('No hay registros con este dato', 'Error');
+        }
+    }
+    public function AccesoBuzon(){
+        $partesBusqueda = Parte::where("correo_buzon", $this->request->correo_buzon)->where("password_buzon",$this->request->password_buzon)->get();
+        if($partesBusqueda != null){
+            if($partesBusqueda[0]->tipo_persona_id == 1){
+                $partes = Parte::where("curp",$partesBusqueda[0]->curp)->get();
+            }else{
+                $partes = Parte::where("rfc",$partesBusqueda[0]->rfc)->get();
+            }
+            $solicitudes = [];
+            foreach($partes as $parte){
+                $solicitud = $parte->solicitud;
+                if($solicitud->expediente != null){
+                    $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
+                    $solicitud->parte = $parte;
+                    foreach($solicitud->expediente->audiencia as $audiencia){
+                        $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
+                    }
+                    $solicitudes[]=$solicitud;
+                }
+            }
+            $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
+            $estados = $this->cacheModel('estados',Estado::class);
+            $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
+            $municipios = array_pluck(Municipio::all(),'municipio','id');
+            return view("buzon.buzon", compact('solicitudes','tipos_asentamientos','estados','tipos_vialidades','municipios'));
+        }else{
+            return redirect()->back();
         }
     }
     Public function validar_token(){
