@@ -410,6 +410,18 @@ class PlantillasDocumentosController extends Controller
               if($value->nombre =='Sala'){
                 array_push($columnNames,'nombre');
               }
+              if($value->nombre =='Centro'){
+                $columnDomicilio = Schema::getColumnListing('domicilios');
+                $exclude = ['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','hora_atencion_de','hora_atencion_a','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id'];
+                foreach ( $exclude as $exclu ){
+                  $k = array_search($exclu, $columnDomicilio);
+                  if (false !== $k) {
+                     unset($columnDomicilio[$k]);
+                  }
+                }
+                array_push($columnNames,'domicilio_completo');
+                array_push($columnNames,['nombre'=>'domicilio', 'columns'=>$columnDomicilio]);
+              }
               $objetoDocumento [] =
               [
                   'objeto' => $value->objeto,
@@ -592,10 +604,14 @@ class PlantillasDocumentosController extends Controller
                     $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
                     $data = Arr::add( $data, 'conciliador', $conciliador );
                   }elseif ($model == 'Centro') {
-                    $objeto = $model_name::find($centroId);
+                    $objeto = $model_name::with('domicilio')->find($centroId);
+                    $dom_centro = $objeto->domicilio;
                     $objeto = new JsonResponse($objeto);
                     $centro = json_decode($objeto->content(),true);
                     $centro = Arr::except($centro, ['id','updated_at','created_at','deleted_at']);
+                    
+                    $centro['domicilio'] = Arr::except($centro['domicilio'], ['id','updated_at','created_at','deleted_at','domiciliable_id','domiciliable_type']); 
+                    $centro['domicilio_completo'] = $dom_centro->tipo_vialidad.' '.$dom_centro->vialidad.' No.'.$dom_centro->num_ext.', '.$dom_centro->municipio.', '.$dom_centro->estado;
                     $data = Arr::add( $data, 'centro', $centro );
                   }elseif ($model == 'Resolucion') {
                     $objetoResolucion = $model_name::find($resolucionAudienciaId);
@@ -843,7 +859,7 @@ class PlantillasDocumentosController extends Controller
         $style = "<html xmlns=\"http://www.w3.org/1999/html\">
                  <head>
                  <style>
-                 @page { margin: 165px 50px 39px 60px;
+                 @page { margin: 95px 50px 39px 60px;
                         }
                  @media print {
                    table { border-collapse: collapse;
@@ -858,7 +874,7 @@ class PlantillasDocumentosController extends Controller
                             font-family: Montserrat, sans-serif; font-size: 10pt;
                           }
                    }
-                 .header { position: fixed; top: -150px;}
+                 .header { position: fixed; top: -60px;}
                  .footer { position: fixed; bottom: 35px;}
                  #contenedor-firma {height: 60px;}
                  </style>
