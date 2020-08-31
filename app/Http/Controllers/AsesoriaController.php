@@ -103,7 +103,8 @@ class AsesoriaController extends Controller
                 $jornadas = array_pluck(Jornada::all(),'nombre','id');
                 $periodicidades = array_pluck(Periodicidad::all(),'nombre','id');
                 $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
-                return view('asesoria.presolicitud', compact('jornadas','periodicidades','ocupaciones'));
+                $origen = $this->request->origen;
+                return view('asesoria.presolicitud', compact('jornadas','periodicidades','ocupaciones','origen'));
             break;
             default:
                 return view('asesoria.default');

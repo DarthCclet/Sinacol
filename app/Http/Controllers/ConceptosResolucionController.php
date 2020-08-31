@@ -228,4 +228,105 @@ class ConceptosResolucionController extends Controller
         }
         
     }
+    public function getLaboralesConceptosPre(Request $request)
+    {
+        try {
+
+            $diasPeriodicidad = Periodicidad::where('id', $request->periodicidad_id)->first();
+            $remuneracionDiaria = $request->remuneracion / $diasPeriodicidad->dias;
+            $anios_antiguedad = Carbon::parse($request->fecha_ingreso)->floatDiffInYears($request->fecha_salida);
+            // dd($request->fecha_ingreso);
+            $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
+            $salarios = SalarioMinimo::get('salario_minimo');
+            // dd($anios_antiguedad);
+            $datosL = [];
+            $salarioMinimo = $salarios[0]->salario_minimo;
+            $datosL['remuneracionDiaria']= $remuneracionDiaria;
+            $datosL['antiguedad']= $anios_antiguedad;
+            $datosL['salarioMinimo']= $salarioMinimo;
+            // $anioSalida = Carbon::parse($datoLaboral->fecha_salida);
+            // $anioSalida = Carbon::createFromFormat('Y-m-d', $datoLaboral->fecha_salida)->year;
+            $anioSalida = Carbon::parse($request->fecha_salida)->startOfYear();
+            $propAguinaldo = Carbon::parse($anioSalida)->floatDiffInYears($request->fecha_salida);
+            // dd($meses_vacaciones);
+            $vacacionesPorAnio = VacacionesAnio::all();
+            $diasVacaciones = 0;
+            foreach ($vacacionesPorAnio as $key => $vacaciones) {
+                if($vacaciones->anios_laborados >= $anios_antiguedad ){
+                    $diasVacaciones = $vacaciones->dias_vacaciones;
+                    break;
+                }
+            }
+            $pagoVacaciones = $propVacaciones * $diasVacaciones * $remuneracionDiaria;
+            
+            $salarioTopado = ($remuneracionDiaria > (2*$salarioMinimo) ? (2*$salarioMinimo) : $remuneracionDiaria);
+            
+            //Propuesta de convenio al 100%
+            $prouestaCompleta = [];
+            array_push($prouestaCompleta,array( "concepto_pago_resoluciones_id"=> 5, "dias"=>90, "monto"=>round($remuneracionDiaria * 90,2))); //Indemnizacion constitucional = gratificacion A
+            array_push($prouestaCompleta,array( "concepto_pago_resoluciones_id"=> 4, "dias"=>15 * $propAguinaldo, "monto"=>round($remuneracionDiaria * 15 * $propAguinaldo,2))); //Aguinaldo = dias de aguinaldo
+            array_push($prouestaCompleta,array( "concepto_pago_resoluciones_id"=> 2, "dias"=>$propVacaciones * $diasVacaciones, "monto"=>round($pagoVacaciones,2))); //Vacaciones = dias vacaciones
+            array_push($prouestaCompleta,array( "concepto_pago_resoluciones_id"=> 3, "dias"=> $propVacaciones * $diasVacaciones * 0.25, "monto"=>round($pagoVacaciones * 0.25,2))); //Prima Vacacional
+            array_push($prouestaCompleta,array( "concepto_pago_resoluciones_id"=> 7, "dias"=>$anios_antiguedad *12, "monto"=>round($salarioTopado * $anios_antiguedad *12,2))); //Prima antiguedad = gratificacion C
+            
+            $total = 0;
+            $completa['indemnizacion']= round($remuneracionDiaria * 90,2);
+            $total += $remuneracionDiaria * 90;
+            $completa['aguinaldo']= round($remuneracionDiaria * 15 * $propAguinaldo,2);
+            $total += $remuneracionDiaria * 15 * $propAguinaldo;
+            $completa['vacaciones']= round($pagoVacaciones,2);
+            $total += $pagoVacaciones;
+            $completa['prima_vacacional']= round($pagoVacaciones * 0.25,2);
+            $total += $pagoVacaciones * 0.25;
+            $completa['prima_antiguedad']= round($salarioTopado * $anios_antiguedad *12,2);
+            $gratificacionB = ($anios_antiguedad * 20) * $remuneracionDiaria ;
+            $completa['gratificacion_b'] = round($gratificacionB);
+            $total += $salarioTopado * $anios_antiguedad *12;
+            $completa['total']= round($total,2);
+            $datosL['completa']= $completa;
+            $datosL['anios_antiguedad']= $anios_antiguedad;
+            
+            //Propuesta de convenio al 50%
+            $prouestaAl50 = [];
+            array_push($prouestaAl50,array( "concepto_pago_resoluciones_id"=> 5, "dias"=>45, "monto"=>round($remuneracionDiaria * 45,2)));
+            array_push($prouestaAl50,array( "concepto_pago_resoluciones_id"=> 4, "dias"=>15 * $propAguinaldo, "monto"=>round($remuneracionDiaria * 15 * $propAguinaldo,2)));
+            array_push($prouestaAl50,array( "concepto_pago_resoluciones_id"=> 2, "dias"=>$propVacaciones * $diasVacaciones, "monto"=>round($pagoVacaciones,2)));
+            array_push($prouestaAl50,array( "concepto_pago_resoluciones_id"=> 3, "dias"=> $propVacaciones * $diasVacaciones * 0.25, "monto"=>round($pagoVacaciones * 0.25,2)));
+            array_push($prouestaAl50,array( "concepto_pago_resoluciones_id"=> 7, "dias"=>$anios_antiguedad *6, "monto"=>round($salarioTopado * $anios_antiguedad *6,2)));
+
+            $total = 0;
+            $al50['indemnizacion']= round($remuneracionDiaria * 45,2);
+            $total += $remuneracionDiaria * 45;
+            $al50['aguinaldo']= round($remuneracionDiaria * 15 * $propAguinaldo,2);
+            $total += $remuneracionDiaria * 15 * $propAguinaldo;
+            $al50['vacaciones']= round($pagoVacaciones,2);
+            $total += $pagoVacaciones;
+            $al50['prima_vacacional']= round($pagoVacaciones * 0.25,2);
+            $total += $pagoVacaciones * 0.25;
+            $al50['prima_antiguedad']= round($salarioTopado * $anios_antiguedad * 6,2);
+            $total += $salarioTopado * $anios_antiguedad * 6;
+            $al50['total']= round($total,2);
+
+            $datosL['al50']= $al50;
+            $datosL['propuestaCompleta']= $prouestaCompleta;
+            $datosL['propuestaAl50']= $prouestaAl50;
+
+            // dd($datosL);
+            if ($this->request->wantsJson()) {
+                return $this->sendResponse($datosL, 'SUCCESS');
+            }
+        } catch (\Throwable $th) {
+            $datosL = [];
+            $datosL['error']= true;
+            $datosL['mensaje']= "No se encontraron datos". $th;
+
+            if ($this->request->wantsJson()) {
+                return $this->sendResponse($datosL, 'ERROR');
+            }
+            // $datosL['antiguedad']= $anios_antiguedad;
+            // $datosL['salarioMinimo']= $salarios[0]->salario_minimo;
+            //throw $th;
+        }
+        
+    }
 }
