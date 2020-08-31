@@ -23,10 +23,10 @@ class AsesoriaController extends Controller
                 //Soy trabajador
                 return view('asesoria.a10');
                 break;
-            case '1020':
-                //Soy patron
-                return view('asesoria.a20');
+            case '1050':
+            case '1040':
             case '1030':
+            case '1020':
             case '1010':
                 //Presentación excepciones
                 $max_paso = 1014;
@@ -46,6 +46,8 @@ class AsesoriaController extends Controller
             case '10101010':
             case '10201010':
             case '10301010':
+            case '10401010':
+            case '10501010':
                 $max_paso = 10101017;
                 $paso = ($this->request->get('from',10101009) + 1);
                 $origen = $this->request->get('source', 10101010);
@@ -53,6 +55,9 @@ class AsesoriaController extends Controller
                 $paso_next = $paso;
                 if($paso >= $max_paso){
                     $accion = '1010101010';
+                }
+                if($origen == '10501010'){
+                    $accion = '../solicitudes/create-public';
                 }
                 return view('asesoria.a10101010', compact('accion', 'asset_paso', 'paso_next', 'origen'));
                 break;
