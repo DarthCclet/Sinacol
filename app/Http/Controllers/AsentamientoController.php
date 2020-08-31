@@ -44,8 +44,8 @@ class AsentamientoController extends Controller
         // $giros_comerciales = GiroComercial::find(1)->descendants;
         // $asentamiento=$asentamiento->select("id","cp","asentamiento","tipo_asentamiento","municipio","estado",DB::raw("CONCAT(cp,',',asentamiento,',',tipo_asentamiento,',',municipio,',',estado) as direccion"))->orderBy('estado','asc')->get();
         $query = DB::table('asentamientos')
-        ->select(DB::raw("id,asentamiento,municipio,estado,cp,strict_word_similarity(unaccent('{$direccion}'), unaccent(asentamiento)) as similarity"))
-        ->whereRaw(DB::raw("strict_word_similarity(unaccent('{$direccion}'), unaccent(asentamiento)) between {$minSimilitud} and 1"));
+        ->select(DB::raw("id,asentamiento,municipio,estado,cp,strict_word_similarity('{$direccion}', asentamiento) as similarity"))
+        ->whereRaw(DB::raw("strict_word_similarity('{$direccion}', unaccent(asentamiento)) between {$minSimilitud} and 1"));
         if($estado) {
             $query->whereRaw(DB::raw("lower(unaccent('{$estado}')) = lower(unaccent(estado))"));
         }
@@ -77,7 +77,7 @@ class AsentamientoController extends Controller
         $estado = $this->request->get('estado');
         $municipios =[];
         if($estado) {
-            $municipios = array_pluck(Municipio::whereRaw(DB::raw("lower(unaccent('{$estado}')) = lower(unaccent(estado))"))->get(),'municipio');
+            $municipios = array_pluck(Municipio::whereRaw(DB::raw("lower('{$estado}') = lower(estado)"))->get(),'municipio');
         }
         return $municipios;
     }

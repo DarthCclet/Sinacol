@@ -204,7 +204,6 @@ class SolicitudController extends Controller {
             'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
             'solicitantes.*.dato_laboral' => 'required',
             'solicitantes.*.domicilios' => 'required',
-            'solicitantes.*.contactos' => 'required',
             'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.rfc' => ['nullable', new RFC],
@@ -252,6 +251,7 @@ class SolicitudController extends Controller {
                     $domicilio = $value["domicilios"][0];
                     unset($value['domicilios']);
                 }
+                $contactos = [];
                 if (isset($value["contactos"])) {
                     $contactos = $value["contactos"];
                     unset($value['contactos']);
@@ -820,7 +820,9 @@ class SolicitudController extends Controller {
                     }
                 }
                 if(!$pasa){
-                    $array[] = $parte;
+                    if($parte->correo_buzon == null || $parte->correo_buzon == ""){
+                        $array[] = $parte;
+                    }
                 }
             }
         }
@@ -853,11 +855,11 @@ class SolicitudController extends Controller {
     }
     private function construirCorreo(Parte $parte){
         if($parte->tipo_persona == 1){
-            $correo = $parte->nombre.".".$parte->primer_apellido."@centro.gob.mx";
-            $password = substr($parte->nombre, 0, 1).$parte->primer_apellido;
+            $correo = str_replace(' ', '', $parte->nombre).".".str_replace(' ', '', $parte->primer_apellido).".".$parte->id."@centro.gob.mx";
+            $password = str_replace(' ', '', $parte->curp);
         }else{
-            $correo = $parte->nombre_comercial."@centro.gob.mx";
-            $password = $parte->nombre_comercial;
+            $correo = str_replace(' ', '', $parte->nombre_comercial).".".$parte->id."@centro.gob.mx";
+            $password = str_replace(' ', '', $parte->rfc);
         }
         return ["correo" => strtolower($correo),"password" => strtolower($password)];
     }
