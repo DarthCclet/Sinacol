@@ -483,8 +483,8 @@ class PlantillasDocumentosController extends Controller
                   $model = $element['objeto'];
                   $model_name = 'App\\' .$model;
                   if($model == 'Solicitud' ){
-                    //$solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find(1);
-                    $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
+                    $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find(8);
+                    // $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
                     $objeto = new JsonResponse($solicitud);
                     $obj = json_decode($objeto->content(),true);
                     $idBase = intval($obj['id']);
@@ -610,9 +610,12 @@ class PlantillasDocumentosController extends Controller
                     $centro = json_decode($objeto->content(),true);
                     $centro = Arr::except($centro, ['id','updated_at','created_at','deleted_at']);
                     
-                    $centro['domicilio'] = Arr::except($centro['domicilio'], ['id','updated_at','created_at','deleted_at','domiciliable_id','domiciliable_type']); 
-                    $centro['domicilio_completo'] = $dom_centro->tipo_vialidad.' '.$dom_centro->vialidad.' No.'.$dom_centro->num_ext.', '.$dom_centro->municipio.', '.$dom_centro->estado;
+                    $dom_centro = new JsonResponse($dom_centro);
+                    $dom_centro = json_decode($dom_centro->content(),true);
+                    $centro['domicilio'] = Arr::except($dom_centro, ['id','updated_at','created_at','deleted_at','domiciliable_id','domiciliable_type']); 
+                    $centro['domicilio_completo'] = strtoupper($dom_centro['tipo_vialidad'].' '.$dom_centro['vialidad'].' No.'.$dom_centro['num_ext'].', '.$dom_centro['municipio'].', '.$dom_centro['estado']);
                     $data = Arr::add( $data, 'centro', $centro );
+                    // dd($data);
                   }elseif ($model == 'Resolucion') {
                     $objetoResolucion = $model_name::find($resolucionAudienciaId);
                     $datosResolucion=[];
@@ -781,6 +784,10 @@ class PlantillasDocumentosController extends Controller
                            $vars[strtolower($key.'_'.$n)] = $v;
                           }
                           $vars[strtolower($key.'_nombre_completo')] = $val['nombre'].' '.$val['primer_apellido'].' '.$val['segundo_apellido'];
+                       }else{
+                          foreach ($val as $n =>$v) {
+                            $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                          }
                        }
                      }
                    }elseif(gettype($val)== 'string'){
@@ -859,8 +866,8 @@ class PlantillasDocumentosController extends Controller
         $style = "<html xmlns=\"http://www.w3.org/1999/html\">
                  <head>
                  <style>
-                 @page { margin: 95px 50px 39px 60px;
-                        }
+                 @page { margin: 100px 50px 39px 60px;
+                      }
                  @media print {
                    table { border-collapse: collapse;
                           width: 59.1193%;
@@ -874,7 +881,7 @@ class PlantillasDocumentosController extends Controller
                             font-family: Montserrat, sans-serif; font-size: 10pt;
                           }
                    }
-                 .header { position: fixed; top: -60px;}
+                 .header { position: fixed; top: -90px;}
                  .footer { position: fixed; bottom: 35px;}
                  #contenedor-firma {height: 60px;}
                  </style>
