@@ -3,7 +3,7 @@
         {
             "id": "1",
             "nombre": "CONSTANCIA DE NO CONCILIACIÓN",
-            "objetos":"1,2,3,4,5,6,7"
+            "objetos":"1,5,2,3,4,5,6,7,8"
         },
         {
             "id": "2",
@@ -13,7 +13,7 @@
         {
             "id": "3",
             "nombre": "CONVENIO",
-            "objetos":"1,2,3,4,5,6,7"
+            "objetos":"1,5,2,3,4,6,7,8"
         },
         {
             "id": "4",
@@ -23,28 +23,28 @@
         {
             "id": "5",
             "nombre": "ACTA DE MULTA",
-            "objetos":"1,2,3"
+            "objetos":"1,5,3,4,6,8,"
         },
         {
             "id": "6",
             "nombre": "CITATORIO DE CONCILIACIÓN",
-            "objetos":"1,2,3"
+            "objetos":"1,5,2,3,4,6,8,9"
         },
         {
             "id": "7",
             "nombre": "ACTA DE AUDIENCIA",
-            "objetos":"1,2,3,4,5,6,7"
+            "objetos":"1,5,2,3,4,6,7,8,9"
         },
         {
             "id": "8",
-            "nombre": "CONSTANCIA DE REPRESENTANTE LEGAL DE PERSONA MORAL",
-            "objetos":"1,2,3"
+            "nombre": "CONVENIO DE REINSTALACION",
+            "objetos":"1,5,2,3,4,6,7,8"
         }
         ,
         {
             "id": "9",
-            "nombre": "IDENTIFICACIÓN DE PARTE",
-            "objetos":"1,2,3"
+            "nombre": "NOTIFICACIÓN DE ARCHIVADO POR NO COMPARECENCIA",
+            "objetos":"1,5,2,3,4,6,8,9"
         },
         {
             "id": "10",

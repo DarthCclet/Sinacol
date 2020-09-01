@@ -57,12 +57,12 @@
             "id_tipo": ""
         },
         {
-            "id": "8",
+            "id": "9",
             "objeto": "Sala",
             "tabla": "salas",
             "nombre": "Sala",
             "id_tipo": ""
         }
     ],
-    "numReg": 7
+    "numReg": 9
 }
