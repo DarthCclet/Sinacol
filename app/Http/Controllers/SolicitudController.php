@@ -412,7 +412,7 @@ class SolicitudController extends Controller {
         $lengua_indigena = $this->cacheModel('lengua_indigena', LenguaIndigena::class);
         $tipo_contacto = $this->cacheModel('tipo_contacto', TipoContacto::class);
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
-        $audits = $this->getAcciones($solicitud, $parte->get(), $audiencias,$expediente);
+        $audits = $this->getAcciones($solicitud, $solicitud->partes, $audiencias,$expediente);
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         $clasificacion_archivo = ClasificacionArchivo::all();
