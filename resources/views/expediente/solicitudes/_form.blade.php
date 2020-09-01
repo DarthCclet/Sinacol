@@ -895,13 +895,15 @@
                                 <option value="">Seleccione una opci&oacute;n</option>
                                 @if(isset($clasificacion_archivo))
                                     @foreach($clasificacion_archivo as $clasificacion)
+                                        @if($clasificacion->tipo_archivo_id == 1)
                                         <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                        @endif
                                     @endforeach
                                 @endif
                             </select>
                         </td>
                         <td>
-                            <select class="form-control catSelectFile" name="parte[]">
+                            <select class="form-control catSelectFile parteClass" name="parte[]">
                                 <option value="">Seleccione una opci&oacute;n</option>
                                 @if(isset($solicitud))
                                     @foreach($solicitud->partes as $parte)
@@ -1087,7 +1089,7 @@
                             </thead>
                             <tbody class="files">
                                 <tr data-id="empty">
-                                    <td colspan="4" class="text-center text-muted p-t-30 p-b-30">
+                                    <td colspan="5" class="text-center text-muted p-t-30 p-b-30">
                                         <div class="m-b-10"><i class="fa fa-file fa-3x"></i></div>
                                         <div>Sin documentos</div>
                                     </td>
@@ -1187,7 +1189,7 @@
                     <div class="col-md-6 ">
                         <div class="form-group">
                             <label for="curp" class="control-label">CURP</label>
-                            <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control" placeholder="CURP del representante legal">
+                            <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control upper" placeholder="CURP del representante legal">
                         </div>
                     </div>
                     <div class="col-md-6 ">
@@ -1211,7 +1213,7 @@
                     <div class="col-md-6 ">
                         <div class="form-group">
                             <label for="fecha_nacimiento" class="control-label">Fecha de nacimiento</label>
-                            <input type="text" id="fecha_nacimiento" class="form-control dateBirth" placeholder="Fecha de nacimiento del representante">
+                            <input type="text" id="fecha_nacimiento" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -1222,39 +1224,12 @@
                     </div>
                 </div>
                 <hr>
-                <h5>Datos de comprobante como representante legal</h5>
-                <div class="col-md-12 row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="clasificacion_archivo_id" class="control-label">Instrumento</label>
-                            <select id="clasificacion_archivo_id" class="form-control select-element">
-                                <option value="">-- Selecciona un género</option>
-                                @foreach($clasificacion_archivo as $clasificacion)
-                                <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
-                            <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="detalle_instrumento" class="control-label">Detalle del instrumento notarial</label>
-                            <textarea type="text" id="detalle_instrumento" class="form-control" placeholder=""></textarea>
-                        </div>
-                    </div>
-                </div>
-                <hr>
                 <h5>Datos de contacto</h5>
                 <div class="col-md-12 row">
                     <div class="col-md-5">
                         <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
                         <select id="tipo_contacto_id" class="form-control select-element">
-                            <option value="">-- Selecciona un género</option>
+                            <option value="">-- Selecciona un tipo de contacto</option>
                         </select>
                     </div>
                     <div class="col-md-5">
@@ -1339,6 +1314,7 @@
     var arrayContactoSolicitados = []; // Array de objeto_solicitude para el citado
     var arraySolicitanteExcepcion = {}; // Array de solicitante excepción
     var ratifican = false;; // Array de solicitante excepción
+    var listaContactos=[];
 
     $(document).ready(function() {
         $('#wizard').smartWizard({
@@ -1375,6 +1351,8 @@
             $('#wizard').smartWizard("stepState", [7], "hide");
             $(".estatusSolicitud").hide();
         }
+        $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
+        $(".select-element").select2();
 
         $(".personaMoralSolicitado").hide();
         $(".personaMoralSolicitante").hide();
@@ -3420,6 +3398,7 @@
                     parte_id:$("#parte_id").val(),
                     parte_representada_id:$("#parte_representada_id").val(),
                     listaContactos:listaContactos,
+                    fuente_solicitud:true,
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
@@ -3427,6 +3406,7 @@
                         $("#tieneRepresentante"+data.id).html("Correcto <i class='fa fa-check'></i> ");
                         $("#btnaddRep"+data.id).html("Ver Representante");
                         swal({title: 'Exito',text: 'Se agrego el representante',icon: 'success'});
+                        actualizarPartes();
                         $("#modal-representante").modal("hide");
                     }else{
                         swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
@@ -3465,6 +3445,54 @@
 
         return false;
     });
+    function eliminarContacto(indice){
+            if(listaContactos[indice].id != null){
+                $.ajax({
+                    url:"/partes/representante/contacto/eliminar",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        contacto_id:listaContactos[indice].id,
+                        parte_id:$("#parte_id").val(),
+                        _token:"{{ csrf_token() }}"
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            listaContactos = data;
+                            cargarContactos();
+                        }else{
+                            swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                        }
+                    }
+                });
+            }else{
+                listaContactos.splice(indice,1);
+                cargarContactos();
+            }
+        }
+        function actualizarPartes(){
+            $.ajax({
+                url:"/partes/getComboDocumentos/{{$solicitud->id}}",
+                type:"GET",
+                dataType:"json",
+                success:function(data){
+                    if(data != null && data != ""){
+                        var html="";
+                        $.each(data, function(index,element){
+                            if(element.tipo_persona_id == 1){
+                                html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</option>';
+                            }else{
+                                html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                            }
+                        });
+                        $(".parteClass").html(html);
+                    }else{
+                        swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                    }
+                }
+            });
+        }
+        
 
     $('[data-toggle="tooltip"]').tooltip();
 </script>
