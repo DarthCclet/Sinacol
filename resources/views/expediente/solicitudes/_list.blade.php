@@ -149,7 +149,7 @@
                             html += "<div>";
                             html += "<h5>Solicitantes</h5>";
                             html += solicitados;
-                            html += "<h5>Solicitados</h5>";
+                            html += "<h5>Citados</h5>";
                             html += solicitantes;
                             html += "</div>";
                             return  html;
