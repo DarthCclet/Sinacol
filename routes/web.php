@@ -76,6 +76,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('partes/representante','ParteController@GuardarRepresentanteLegal');
     Route::Post('partes/representante/contacto','ParteController@AgregarContactoRepresentante');
     Route::Post('partes/representante/contacto/eliminar','ParteController@EliminarContactoRepresentante');
+    Route::GET('partes/getComboDocumentos/{solicitud_id}','ParteController@getPartesComboDocumentos');
     Route::resource('roles-atencion','RolAtencionController');
     Route::resource('objeto-solicitud','ObjetoSolicitudController');
     Route::resource('estatus-solicitud','EstatusSolicitudController');
