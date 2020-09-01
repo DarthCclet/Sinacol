@@ -1,4 +1,4 @@
-@extends('layouts.empty', ['paceTop' => true])
+@extends('layouts.default', ['paceTop' => true])
 
 @section('title', 'Buzón electrónico')
 
@@ -24,10 +24,10 @@
                         </label>
                     </div>
                     <div class="form-group m-b-20" id="divCurp">
-                        <input type="text" class="form-control form-control-lg" placeholder="curp" id="curp"/>
+                        <input type="text" class="form-control form-control-lg" placeholder="Ingrese su CURP" id="curp"/>
                     </div>
                     <div class="form-group m-b-20" style="display: none;" id="divRfc">
-                        <input type="text" class="form-control form-control-lg" placeholder="rfc" id="rfc"/>
+                        <input type="text" class="form-control form-control-lg" placeholder="Ingrese su RFC" id="rfc"/>
                     </div>
                     <div class="login-buttons">
                         <button class="btn btn-success btn-block btn-lg" id="btnSolicitar">Solicitar acceso</button>

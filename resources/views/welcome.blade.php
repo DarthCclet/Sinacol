@@ -1,8 +1,11 @@
 @extends('layouts.default')
 
 @section('content')
-    <a href="/asesoria/inicio" class="text-black h4 mb-4">
-        <img width="1024" class="mx-auto d-block" src="/assets/img/asesoria/home.jpg" alt="">
-    </a>
-
+    <img width="1024" class="mx-auto d-block" src="/assets/img/asesoria/home.jpg" alt="" usemap="#NavMap">
+    <map name="NavMap">
+        <area alt="Ingrese al sistema" title="Ingrese al sistema" href="/asesoria/inicio" coords="738,421,1024,622" shape="rect">
+        <area alt="Ingresoa mi buzón laboral" title="Ingresoa mi buzón laboral" href="/solicitud_buzon" coords="733,1,1023,204" shape="rect">
+        <area alt="Ingresa al sistema" title="Ingresa al sistema" href="/asesoria/inicio" coords="1,1,722,619" shape="rect">
+        <area alt="Ingresa al sistema" title="Ingresa al sistema" href="/asesoria/inicio" coords="725,219,1023,405" shape="rect">
+    </map>
 @endsection
