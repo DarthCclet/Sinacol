@@ -3006,6 +3006,75 @@
             stop: function(e,data){
               cargarDocumentos();
             //   $("#modal-archivos").modal("hide");
+            },uploadTemplate: function (o) {
+                var rows = $();
+                $.each(o.files, function (index, file) {
+                    var row = $('<tr class="template-upload fade show">'+
+                    '    <td>'+
+                    '        <span class="preview"></span>'+
+                    '    </td>'+
+                    '    <td>'+
+                    '        <div class="bg-light rounded p-10 mb-2">'+
+                    '            <dl class="m-b-0">'+
+                    '                <dt class="text-inverse">Nombre del documento:</dt>'+
+                    '                <dd class="name">'+file.name+'</dd>'+
+                    '                <dt class="text-inverse m-t-10">File Size:</dt>'+
+                    '                <dd class="size">Processing...</dd>'+
+                    '            </dl>'+
+                    '        </div>'+
+                    '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
+                    '    </td>'+
+                    '    <td>'+
+                    '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
+                    '            <option value="">Seleccione una opci&oacute;n</option>'+
+                    '            @if(isset($clasificacion_archivo))'+
+                    '                @foreach($clasificacion_archivo as $clasificacion)'+
+                    '                    @if($clasificacion->tipo_archivo_id == 1)'+
+                    '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
+                    '                    @endif'+
+                    '                @endforeach'+
+                    '            @endif'+
+                    '        </select>'+
+                    '    </td>'+
+                    '    <td>'+
+                    '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
+                    '            <option value="">Seleccione una opci&oacute;n</option>'+
+                    '            @if(isset($solicitud))'+
+                    '                @foreach($solicitud->partes as $parte)'+
+                    '                    @if($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3 )'+
+                    '                        <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>'+
+                    '                    @endif'+
+                    '                @endforeach'+
+                    '            @endif'+
+                    '        </select>'+
+                    '    </td>'+
+                    '    <td>'+
+                    '        <dl>'+
+                    '            <dt class="text-inverse m-t-3">Progress:</dt>'+
+                    '            <dd class="m-t-5">'+
+                    '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
+                    '            </dd>'+
+                    '        </dl>'+
+                    '    </td>'+
+                    '    <td nowrap>'+
+                    '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
+                    '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
+                    '                <span>Guardar</span>'+
+                    '            </button>'+
+                    '    </td>'+
+                    '    <td nowrap>'+
+                    '            <button class="btn btn-default cancel width-100 p-r-20">'+
+                    '                <i class="fa fa-trash fa-fw text-muted"></i>'+
+                    '                <span>Cancel</span>'+
+                    '            </button>'+
+                    '    </td>'+
+                    '</tr>');
+                    if (file.error) {
+                        row.find('.error').text(file.error);
+                    }
+                    rows = rows.add(row);
+                });
+                return rows;
             }
             // Uncomment the following to send cross-domain cookies:
             //xhrFields: {withCCOLOR_REDentials: true},
@@ -3478,14 +3547,82 @@
                 success:function(data){
                     if(data != null && data != ""){
                         var html="";
-                        $.each(data, function(index,element){
-                            if(element.tipo_persona_id == 1){
-                                html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</option>';
-                            }else{
-                                html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                        $('#fileupload').fileupload({
+                            uploadTemplate: function (o) {
+                                var rows = $();
+                                $.each(o.files, function (index, file) {
+                                    var html= '<tr class="template-upload fade show">'+
+                                    '    <td>'+
+                                    '        <span class="preview"></span>'+
+                                    '    </td>'+
+                                    '    <td>'+
+                                    '        <div class="bg-light rounded p-10 mb-2">'+
+                                    '            <dl class="m-b-0">'+
+                                    '                <dt class="text-inverse">Nombre del documento:</dt>'+
+                                    '                <dd class="name">'+file.name+'</dd>'+
+                                    '                <dt class="text-inverse m-t-10">File Size:</dt>'+
+                                    '                <dd class="size">Processing...</dd>'+
+                                    '            </dl>'+
+                                    '        </div>'+
+                                    '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
+                                    '    </td>'+
+                                    '    <td>'+
+                                    '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
+                                    '            <option value="">Seleccione una opci&oacute;n</option>'+
+                                    '            @if(isset($clasificacion_archivo))'+
+                                    '                @foreach($clasificacion_archivo as $clasificacion)'+
+                                    '                    @if($clasificacion->tipo_archivo_id == 1)'+
+                                    '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
+                                    '                    @endif'+
+                                    '                @endforeach'+
+                                    '            @endif'+
+                                    '        </select>'+
+                                    '    </td>'+
+                                    '    <td>'+
+                                    '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
+                                    '            <option value="">Seleccione una opci&oacute;n</option>'+
+                                    '            @if(isset($solicitud))';
+                                    $.each(data, function(index,element){
+                                        if(element.tipo_persona_id == 1){
+                                            html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</option>';
+                                        }else{
+                                            html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                                            html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                                        }
+                                    });
+                                    html +='    @endif'+
+                                    '        </select>'+
+                                    '    </td>'+
+                                    '    <td>'+
+                                    '        <dl>'+
+                                    '            <dt class="text-inverse m-t-3">Progress:</dt>'+
+                                    '            <dd class="m-t-5">'+
+                                    '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
+                                    '            </dd>'+
+                                    '        </dl>'+
+                                    '    </td>'+
+                                    '    <td nowrap>'+
+                                    '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
+                                    '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
+                                    '                <span>Guardar</span>'+
+                                    '            </button>'+
+                                    '    </td>'+
+                                    '    <td nowrap>'+
+                                    '            <button class="btn btn-default cancel width-100 p-r-20">'+
+                                    '                <i class="fa fa-trash fa-fw text-muted"></i>'+
+                                    '                <span>Cancel</span>'+
+                                    '            </button>'+
+                                    '    </td>'+
+                                    '</tr>';
+                                    var row = $(html);
+                                    if (file.error) {
+                                        row.find('.error').text(file.error);
+                                    }
+                                    rows = rows.add(row);
+                                });
+                                return rows;
                             }
                         });
-                        $(".parteClass").html(html);
                     }else{
                         swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
                     }
