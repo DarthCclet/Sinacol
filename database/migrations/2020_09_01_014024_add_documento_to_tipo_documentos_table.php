@@ -21,6 +21,7 @@ class AddDocumentoToTipoDocumentosTable extends Migration
             //Se llena el catalogo desde el arvhivo json tipo_documentos.json
             foreach ($json->datos as $objeto){
                 $tipoDoc = TipoDocumento::find($objeto->id);
+                $maxId = $objeto->id;
                 if($tipoDoc != null){
                     $tipoDoc->update(['nombre'=>$objeto->nombre,
                                     'objetos' => $objeto->objetos
@@ -28,11 +29,16 @@ class AddDocumentoToTipoDocumentosTable extends Migration
                 }else{
                     DB::table('tipo_documentos')->insert(
                         [
+                            'id' => $objeto->id,
                             'nombre' => $objeto->nombre,
                             'objetos' => $objeto->objetos
                         ]
                     );
                 }
+            }
+            $tipo_documentos = TipoDocumento::where('id','>',$maxId)->get();
+            foreach ($tipo_documentos as $key => $objeto) {
+                $objeto->delete();
             }
         });
     }
