@@ -3472,7 +3472,7 @@
         }
         function actualizarPartes(){
             $.ajax({
-                url:"/partes/getComboDocumentos/{{$solicitud->id}}",
+                url:"/partes/getComboDocumentos/{{isset($solicitud->id) ? $solicitud->id: '' }}",
                 type:"GET",
                 dataType:"json",
                 success:function(data){
