@@ -10,6 +10,7 @@ use App\AudienciaParte;
 use App\DatoLaboral;
 use App\Domicilio;
 use App\Filters\ParteFilter;
+use App\Solicitud;
 use Validator;
 
 class ParteController extends Controller
@@ -319,7 +320,9 @@ class ParteController extends Controller
                 ]);
             }
             // Creamos la relacion en audiencias_partes
-            AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+            if(!isset($request->fuente_solicitud)){
+                AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+            }
         }
         return $parte;
     }
@@ -350,5 +353,10 @@ class ParteController extends Controller
         unset($dom["activo"]);
         $domicilio->update($dom);
         return $domicilio;
+    }
+    public function getPartesComboDocumentos() {
+        $solicitud = Solicitud::find($this->request->solicitud_id);
+        $partes = $solicitud->partes()->whereIn("tipo_parte_id",[1,3])->get();
+        return $partes;
     }
 }
