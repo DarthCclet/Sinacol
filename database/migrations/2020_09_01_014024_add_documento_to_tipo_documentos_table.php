@@ -29,7 +29,7 @@ class AddDocumentoToTipoDocumentosTable extends Migration
                     DB::table('tipo_documentos')->insert(
                         [
                             'nombre' => $objeto->nombre,
-                            'tipo_archivo_id' => $objeto->objetos
+                            'objetos' => $objeto->objetos
                         ]
                     );
                 }
