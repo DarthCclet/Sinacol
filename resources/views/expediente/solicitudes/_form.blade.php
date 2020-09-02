@@ -66,7 +66,7 @@
 
                 <span class="">
                     Solicitud
-                    <small>Información general de la solicitud</small>
+                    <small>Información de la solicitud</small>
                 </span>
             </a>
         </li>
@@ -75,7 +75,7 @@
 
                 <span class="">
                     Excepci&oacute;n
-                    <small>Casos de excepci&oacute;n de la conciliaci&oacute;n</small>
+                    <small>Casos de excepci&oacute;n</small>
                 </span>
             </a>
         </li>
@@ -107,7 +107,7 @@
 
                 <span class="">
                     Documentos
-                    <small>Documentos del expediente solicitud</small>
+                    <small>Documentos del expediente</small>
                 </span>
             </a>
         </li>
@@ -2644,7 +2644,7 @@
                     $("#divNeedRepresentante").hide();
             }
             $("#modalRatificacion").modal("show");
-//             
+//
         }catch(error){
             console.log(error);
         }
@@ -3253,10 +3253,10 @@
 
         // hide empty row text
         $('#fileupload').on('fileuploadsend', function (e, data) {
-            
+
             // if(){
             //     e.preventDefault();
-            // }    
+            // }
         })
         $('#fileupload').bind('fileuploadadd', function(e, data) {
             $('#fileupload [data-id="empty"]').hide();
@@ -3795,7 +3795,7 @@
                 }
             });
         }
-        
+
 
     $('[data-toggle="tooltip"]').tooltip();
 </script>
