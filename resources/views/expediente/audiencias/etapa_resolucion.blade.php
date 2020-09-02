@@ -5,6 +5,7 @@
 @include('includes.component.datatables')
 @include('includes.component.pickers')
 @include('includes.component.calendar')
+@include('includes.component.dropzone')
 @push('styles')
 @endpush
     <style>
@@ -528,7 +529,7 @@
                         <div class="form-group">
                             <label for="clasificacion_archivo_id_representante" class="control-label">Instrumento</label>
                             <select id="clasificacion_archivo_id_representante" class="form-control select-element">
-                                <option value="">-- Selecciona un género</option>
+                                <option value="">-- Selecciona un instrumento</option>
                                 @foreach($clasificacion_archivos_Representante as $clasificacion)
                                 <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                 @endforeach
@@ -745,6 +746,7 @@
                         <tbody id="tbodyPartesFisicas">
                         </tbody>
                     </table>
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
                 </div>
             </div>
             <div class="modal-footer">
@@ -756,11 +758,11 @@
         </div>
     </div>
 </div>
-{{-- <div class="modal" id="modal-relaciones" style="display:none;">
+ <div class="modal" id="modal-relaciones" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Relaciones homologadas</h4>
+                <h4 class="modal-title">Relaciones binarias</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -801,14 +803,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="resolucion_individual_id" class="col-sm-6 control-label labelResolucion">Resolución</label>
-                            <div class="col-sm-10">
-                                {!! Form::select('resolucion_individual_id', isset($resoluciones) ? $resoluciones : [] , null, ['id'=>'resolucion_individual_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control select-element']);  !!}
-                            </div>
-                        </div>
-                    </div>
                     <div class="col-md-6" id="divMotivoArchivo" style="display: none;">
                         <div class="form-group">
                             <label for="motivo_archivado_id" class="col-sm-6 control-label labelResolucion">Motivo de archivo</label>
@@ -834,8 +828,6 @@
                                 <tr>
                                     <th>Solicitante</th>
                                     <th>Citado</th>
-                                    <th>Resolución</th>
-                                    <th>Motivo de archivo</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -852,8 +844,8 @@
             </div>
         </div>
     </div>
-</div> --}}
-<div class="modal" id="modal-relaciones" style="display:none;">
+</div>
+{{-- <div class="modal" id="modal-relaciones2" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -864,23 +856,6 @@
                 <hr>
                 <h5>Registro de roles solicitantes</h5>
                 <div class="col-md-12 row">
-                    {{-- <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="parte_solicitante_id" class="col-sm-6 control-label labelResolucion">Solicitante</label>
-                            <div class="col-sm-10">
-                                <select id="parte_solicitante_id" class="form-control select-element">
-                                    <option value="">-- Selecciona un solicitante</option>
-                                    @foreach($audiencia->solicitantes as $parte)
-                                        @if($parte->parte->tipo_persona_id == 1)
-                                            <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
-                                        @else
-                                            <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
-                                        @endif
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div> --}}
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="parte_solicitado_id" class="col-sm-6 control-label labelResolucion">Solicitado</label>
@@ -907,23 +882,10 @@
                                     <option value="{{ $parte->parte->id }}">Responsable solidario en el convenio</option>
                                     <option value="{{ $parte->parte->id }}">Testigo de la celebracion del convenio</option>
                                 </select>
-                                {{-- {!! Form::select('resolucion_individual_id', isset($resoluciones) ? $resoluciones : [] , null, ['id'=>'resolucion_individual_id', 'required','placeholder' => 'Seleccione una opcion', 'class' => 'form-control select-element']);  !!} --}}
+
                             </div>
                         </div>
                     </div>
-                    {{-- <div class="col-md-6" id="divMotivoArchivo" style="display: none;">
-                        <div class="form-group">
-                            <label for="motivo_archivado_id" class="col-sm-6 control-label labelResolucion">Motivo de archivo</label>
-                            <div class="col-sm-10">
-                                <select id="motivo_archivado_id" class="form-control select-element">
-                                    <option value="">-- Selecciona un motivo de archivado</option>
-                                    @foreach($motivos_archivo as $motivo)
-                                        <option value="{{ $motivo->id }}">{{ $motivo->descripcion }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div> --}}
                     </div>
                     <div class="col-md-12">
                         <div class="text-center">
@@ -934,10 +896,8 @@
                         <table class="table table-bordered" >
                             <thead>
                                 <tr>
-                                    {{-- <th>Solicitante</th> --}}
                                     <th>Solicitado</th>
                                     <th>Rol</th>
-                                    {{-- <th>Motivo de archivo</th> --}}
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -954,8 +914,216 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 <!-- Fin Modal de comparecientes y resolución individual-->
+<!-- inicio Modal cargar archivos-->
+<div class="modal" id="modal-archivos" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Documentos de identificaci&oacute;n</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="fileupload" action="/api/comparecientes/documentos" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" id="audiencia_id_comparece" name="audiencia_idC[]" value="{{$audiencia->id}}" />
+                    <div class="row fileupload-buttonbar">
+                        <div class="col-xl-12">
+                                <span class="btn btn-primary fileinput-button m-r-3">
+                                        <i class="fa fa-fw fa-plus"></i>
+                                        <span>Agregar...</span>
+                                        <input type="file" name="files[]" multiple>
+                                </span>
+                                {{-- <button type="submit" class="btn btn-primary start m-r-3">
+                                        <i class="fa fa-fw fa-upload"></i>
+                                        <span>Cargar</span>
+                                </button> --}}
+                                <button type="reset" class="btn btn-default cancel m-r-3" id="btnCancelFiles">
+                                        <i class="fa fa-fw fa-ban"></i>
+                                        <span>Cancelar</span>
+                                </button>
+                                <!-- The global file processing state -->
+                                <span class="fileupload-process"></span>
+                        </div>
+                        <!-- The global progress state -->
+                        <div class="col-xl-5 fileupload-progress fade d-none d-xl-block">
+                                <!-- The global progress bar -->
+                                <div class="progress progress-striped active m-b-0">
+                                        <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                                </div>
+                                <!-- The extended global progress state -->
+                                <div class="progress-extended">&nbsp;</div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-condensed text-nowrap mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="10%">VISTA PREVIA</th>
+                                    <th>INFORMACION</th>
+                                    <th>TIPO DE DOCUMENTO</th>
+                                    <th>PARTE RELACIONADA</th>
+                                    <th>PROGRESO</th>
+                                    <th width="1%"></th>
+                                    <th width="1%"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="files">
+                                <tr data-id="empty">
+                                    <td colspan="4" class="text-center text-muted p-t-30 p-b-30">
+                                        <div class="m-b-10"><i class="fa fa-file fa-3x"></i></div>
+                                        <div>Sin documentos</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-primary btn-sm" data-dismiss="modal" onclick="continuarComparecencia()"><i class="fa fa-sign-out"></i> Continuar a Comparecencias</a>
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-sign-out"></i> Cerrar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display:none;">
+    <div class="text-right">
+        <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
+    </div>
+    <div class="col-md-12">
+        <div id="gallery" class="gallery row"></div>
+        <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
+    </div>
+
+    <!-- The template to display files available for upload -->
+    <script id="template-upload" type="text/x-tmpl">
+        {% for (var i=0, file; file=o.files[i]; i++) { %}
+            <tr class="template-upload fade show">
+                <td>
+                    <span class="preview"></span>
+                </td>
+                <td>
+                    <div class="bg-light rounded p-10 mb-2">
+                        <dl class="m-b-0">
+                            <dt class="text-inverse">Nombre del documento:</dt>
+                            <dd class="name">{%=file.name%}</dd>
+                            <dt class="text-inverse m-t-10">File Size:</dt>
+                            <dd class="size">Processing...</dd>
+                        </dl>
+                    </div>
+                    <strong class="error text-danger h-auto d-block text-left"></strong>
+                </td>
+                <td>
+                    <select class="form-control catSelectFile" name="tipo_documento_id[]">
+                        <option value="">Seleccione una opci&oacute;n</option>
+                        @if(isset($clasificacion_archivo))
+                            @foreach($clasificacion_archivo as $clasificacion)
+                                <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control catSelectFile" id="parte_relacionada" name="parte[]">
+                        <option value="">Seleccione una opci&oacute;n</option>
+                        @if(isset($audiencia->partes))
+                            @foreach($audiencia->partes as $parte)
+                                @if($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3 )
+                                    <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>
+                                @endif
+                            @endforeach
+                        @endif
+                    </select>
+                </td>
+                <td>
+                    <dl>
+                        <dt class="text-inverse m-t-3">Progress:</dt>
+                        <dd class="m-t-5">
+                            <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>
+                        </dd>
+                    </dl>
+                </td>
+                <td nowrap>
+                    {% if (!i && !o.options.autoUpload) { %}
+                        <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>
+                            <i class="fa fa-upload fa-fw text-inverse"></i>
+                            <span>Guardar</span>
+                        </button>
+                    {% } %}
+                </td>
+                <td nowrap>
+                    {% if (!i) { %}
+                        <button class="btn btn-default cancel width-100 p-r-20">
+                            <i class="fa fa-trash fa-fw text-muted"></i>
+                            <span>Cancel</span>
+                        </button>
+                    {% } %}
+                </td>
+            </tr>
+        {% } %}
+    </script>
+    <!-- The template to display files available for download -->
+    <script id="template-download" type="text/x-tmpl">
+        {% for (var i=0, file; file=o.files[i]; i++) { %}
+            <tr class="template-download fade show">
+                <td width="1%">
+                    <span class="preview">
+                        {% if (file.thumbnailUrl) { %}
+                            <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}" class="rounded"></a>
+                        {% } else { %}
+                            <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
+                                <i class="fa fa-file-image fa-lg text-muted"></i>
+                            </div>
+                        {% } %}
+                    </span>
+                </td>
+                <td>
+                    <div class="bg-light p-10 mb-2">
+                        <dl class="m-b-0">
+                            <dt class="text-inverse">Nombre del archivo:</dt>
+                            <dd class="name">
+                                {% if (file.url) { %}
+                                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                                {% } else { %}
+                                    <span>{%=file.name%}</span>
+                                {% } %}
+                            </dd>
+                            <dt class="text-inverse m-t-10">File Size:</dt>
+                            <dd class="size">{%=o.formatFileSize(file.size)%}</dd>
+                        </dl>
+                        {% if (file.error) { %}
+                            <div><span class="label label-danger">ERROR</span> {%=file.error%}</div>
+                        {% } %}
+                        {% if (file.success) { %}
+                            <div><span class="label label-success">Correcto</span> {%=file.success%}</div>
+                        {% } %}
+                    </div>
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                    {% if (file.deleteUrl) { %}
+                        <button class="btn btn-danger delete width-100 m-r-3 p-r-20" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                            <i class="fa fa-trash pull-left fa-fw text-inverse m-t-2"></i>
+                            <span>Delete</span>
+                        </button>
+                        <input type="checkbox" name="delete" value="1" class="toggle">
+                    {% } else { %}
+                        <button class="btn btn-default cancel width-100 m-r-3 p-r-20">
+                            <i class="fa fa-trash pull-left fa-fw text-muted m-t-2"></i>
+                            <span>Cancel</span>
+                        </button>
+                    {% } %}
+                </td>
+            </tr>
+        {% } %}
+
+    </script>
+</div>
+<!-- Fin Modal de cargar archivos-->
 <input type="hidden" id="parte_id">
 <input type="hidden" id="parte_representada_id">
 @endsection
@@ -974,6 +1142,8 @@
         cargarGeneros();
         getEtapasAudiencia();
         cargarTipoContactos();
+        FormMultipleUpload.init();
+        Gallery.init();
     });
     function nextStep(pasoActual){
         var success = guardarEvidenciaEtapa(pasoActual);
@@ -982,13 +1152,191 @@
             var siguiente = pasoActual+1;
             $("#icon"+pasoActual).css("background","lightgreen");
             $('html,body').animate({
-                scrollTop: $("#contentStep"+pasoActual).offset().top
+                scrollTop: $("#contentStep"+siguiente).offset().top
             }, 'slow');
             $("#step"+siguiente).show();
         }else{
             swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
         }
     }
+
+    function continuarComparecencia(){
+        getPersonasComparecer();
+        $("#modal-comparecientes").modal("show");
+    }
+
+    $("#btnAgregarArchivo").on("click",function(){
+        $("#btnCancelFiles").click();
+        $("#modal-archivos").modal("show");
+    });
+
+    //files functions
+    var handleJqueryFileUpload = function() {
+        // Initialize the jQuery File Upload widget:
+        $('#fileupload').fileupload({
+            autoUpload: false,
+            disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
+            maxFileSize: 5000000,
+            acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
+            stop: function(e,data){
+                cargarDocumentos();
+            //   $("#modal-archivos").modal("hide");
+            }
+            // Uncomment the following to send cross-domain cookies:
+            //xhrFields: {withCCOLOR_REDentials: true},
+        });
+
+        // Enable iframe cross-domain access via COLOR_REDirect option:
+        $('#fileupload').fileupload(
+            'option',
+            'COLOR_REDirect',
+            window.location.href.replace(
+                    /\/[^\/]*$/,
+                    '/cors/result.html?%s'
+            )
+        );
+
+        // hide empty row text
+        $('#fileupload').on('fileuploadsend', function (e, data) {
+            
+            // if(){
+            //     e.preventDefault();
+            // }    
+        })
+        $('#fileupload').bind('fileuploadadd', function(e, data) {
+            $('#fileupload [data-id="empty"]').hide();
+            $(".catSelectFile").select2();
+        });
+        $('#fileupload').bind('fileuploaddone', function(e, data) {
+            // console.log("add");
+        });
+
+        // show empty row text
+        $('#fileupload').bind('fileuploadfail', function(e, data) {
+            var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
+            if (rowLeft === 0) {
+                    $('#fileupload [data-id="empty"]').show();
+            } else {
+                    $('#fileupload [data-id="empty"]').hide();
+            }
+        });
+
+        // Upload server status check for browsers with CORS support:
+        if ($.support.cors) {
+                $.ajax({
+                        type: 'HEAD'
+                }).fail(function () {
+                        $('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
+                });
+        }
+
+        // Load & display existing files:
+        $('#fileupload').addClass('fileupload-processing');
+        $.ajax({
+                // Uncomment the following to send cross-domain cookies:
+                //xhrFields: {withCCOLOR_REDentials: true},
+                url: $('#fileupload').fileupload('option', 'url'),
+                dataType: 'json',
+                context: $('#fileupload')[0]
+        }).always(function () {
+                $(this).removeClass('fileupload-processing');
+        }).done(function (result) {
+                $(this).fileupload('option', 'done')
+                .call(this, $.Event('done'), {result: result});
+        });
+    };
+    var handleIsotopesGallery = function() {
+        var container = $('#gallery');
+        $(window).on('resize', function() {
+            var dividerValue = calculateDivider();
+            var containerWidth = $(container).width();
+            var columnWidth = containerWidth / dividerValue;
+            $(container).isotope({
+                masonry: {
+                    columnWidth: columnWidth
+                }
+            });
+        });
+    };
+    var FormMultipleUpload = function () {
+        "use strict";
+        return {
+            //main function
+            init: function () {
+                handleJqueryFileUpload();
+            }
+        };
+    }();
+    var Gallery = function () {
+        "use strict";
+        return {
+            //main function
+            init: function () {
+                handleIsotopesGallery();
+            }
+        };
+    }();
+    // end files function
+
+    function cargarDocumentos(){
+            $.ajax({
+                url:"/audiencia/documentos/"+$("#audiencia_id").val(),
+                type:"GET",
+                dataType:"json",
+                async:true,
+                success:function(data){
+                    if(data != null && data != ""){
+                        var html = "";
+                        $.each(data, function (key, value) {
+                            if(value.documentable_type == "App\\Parte"){
+                                    // var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
+                                    // if(parte != undefined){
+                                        html += "<tr>";
+                                        html += "<td>"+value.parte+"</td>";
+                                        html += "<td>"+value.nombre_original + " "+ value.clasificacion_archivo_id+"</td>";
+                                        html += "</tr>";
+                                        ratifican = true;
+                                    // }
+                            }
+                        });
+                        $("#tbodyRatificacion").html(html);
+                        var table = "";
+                        var div = "";
+                        $.each(data, function(index,element){
+                            console.log(element);
+                            div += '<div class="image gallery-group-1">';
+                            div += '    <div class="image-inner" style="position: relative;">';
+                            if(element.tipo == 'pdf' || element.tipo == 'PDF'){
+                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
+                                div += '                <div class="img" align="center">';
+                                div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
+                                div += '                </div>';
+                                div += '            </a>';
+                            }else{
+                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
+                                div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
+                                div += '            </a>';
+                            }
+                            div += '            <p class="image-caption">';
+                            div += '                '+element.longitud+' kb';
+                            div += '            </p>';
+                            div += '    </div>';
+                            div += '    <div class="image-info">';
+                            div += '            <h5 class="title">'+element.nombre_original+'</h5>';
+                            div += '            <div class="desc">';
+                            div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
+                            div +=                  element.descripcion+'<br>';
+                            div += '            </div>';
+                            div += '    </div>';
+                            div += '</div>';
+                        });
+                        $("#gallery").html(div);
+                    }else{
+
+                    }
+                }
+            });
+        }
 
     function guardarEvidenciaEtapa(etapa){
         var respuesta = true;
@@ -1088,7 +1436,7 @@
      */
     $("#btnCargarComparecientes").on("click",function(){
         $.ajax({
-            url:"/audiencia/validar_partes/{{ $audiencia->id }}",
+            url:"/audiencia/validar_partes/{{$audiencia->id}}",
             type:"GET",
             dataType:"json",
             success:function(data){
@@ -1096,7 +1444,32 @@
                 if(data.pasa){
                     getPersonasComparecer();
                 }else{
-                    swal({title: 'Error',text: 'Debes agregar el representante legal de todas las personas Morales',icon: 'error'});
+                    swal({
+                        title: '¿Ya capturaste todos los representantes?',
+                        text: 'Recuerde capturar a los representantes legales comparecientes para que aparezcan en la lista',
+                        icon: '',
+                        // showCancelButton: true,
+                        buttons: {
+                            cancel: {
+                                text: 'No',
+                                value: null,
+                                visible: true,
+                                className: 'btn btn-default',
+                                closeModal: true
+                            },
+                            confirm: {
+                                text: 'Si',
+                                value: true,
+                                visible: true,
+                                className: 'btn btn-warning',
+                                closeModal: true
+                            }
+                        }
+                    }).then(function(isConfirm){
+                        if(isConfirm){
+                            getPersonasComparecer();
+                        }
+                    });
                 }
             }
         });
@@ -1121,8 +1494,17 @@
                         text: 'Se han registrado los comparecientes',
                         icon: 'success'
                     });
-                    startTimer();
-                    nextStep(1);
+                    if(data.finalizada == true){
+                        swal({
+                            title: 'Éxito',
+                            text: 'La audiencia no iniciara',
+                            icon: 'success'
+                        });
+                    }else{
+                        cargarComparecientes();
+                        startTimer();
+                        nextStep(1);
+                    }
                 },
                 error:function(data){
                     swal({
@@ -1191,19 +1573,27 @@
             dataType:"json",
             success:function(data){
                 var table = "";
+                var options = "";
                 $.each(data, function(index,element){
                     table +='<tr>';
                     table +='   <td>'+element.tipo_parte.nombre+'</td>';
                     table +='   <td>'+element.nombre+'</td>';
                     table +='   <td>'+element.primer_apellido+'</td>';
                     table +='   <td>'+element.segundo_apellido+'</td>';
-                    table +='   <td>';
-                    table +='       <div class="col-md-2">';
-                    table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
-                    table +='       </div>';
+                    if(element.documentos.length >= 1){
+                        table +='   <td>';
+                        table +='       <div class="col-md-2">';
+                        table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
+                        table +='</div>';
+                    }else{
+                        table +='   <td>Por identificar</td>';
+                    }
                     table +='   </td>';
                     table +='</tr>';
+                    options = '<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</option>';
                 });
+                $("#parte_relacionada").empty();
+                $("#parte_relacionada").html(options);
                 $("#tbodyPartesFisicas").html(table);
                 $("#resolucionVarias").hide();
                 $("#btnCancelarVarias").hide();
@@ -1739,49 +2129,102 @@
      */
      function finalizar(pasoActual){
     // $("#btnFinalizar").on("click",function(){
-        swal({
-            title: 'Finalización de audiencia',
-            text: '¿Estas seguro que deseas terminar la audiencia?',
-            icon: 'warning',
-            // showCancelButton: true,
-            buttons: {
-                cancel: {
-                    text: 'No',
-                    value: null,
-                    visible: true,
-                    className: 'btn btn-default',
-                    closeModal: true
-                },
-                confirm: {
-                    text: 'Si',
-                    value: true,
-                    visible: true,
-                    className: 'btn btn-warning',
-                    closeModal: true
-                }
-            }
-        }).then(function(isConfirm){
-            if(isConfirm){
+        var resolucion = $("#resolucion_id").val();
+        if(resolucion != "" ){
+            if(resolucion == 1){
+                swal({
+                    title: 'Se convino con todos los citados?',
+                    text: '',
+                    icon: 'warning',
+                    // showCancelButton: true,
+                    buttons: {
+                        cancel: {
+                            text: 'No',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true
+                        },
+                        confirm: {
+                            text: 'Si',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-warning',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(isConfirm){
+                    if(isConfirm){
 
-                var success = guardarEvidenciaEtapa(pasoActual);
-                if(success){
-                    // var siguiente = pasoActual+1;
-                    $("#icon"+pasoActual).css("background","lightgreen");
-                    $('html,body').animate({
-                        scrollTop: $("#contentStep"+pasoActual).offset().top
-                    }, 'slow');
-                    // $("#step"+siguiente).show();
-                    listaResolucionesIndividuales = [];
-                    $("#btnGuardarResolucionMuchas").click();
-                }else{
-                    swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
-                }
-            
-                
+                        var success = guardarEvidenciaEtapa(pasoActual);
+                        if(success){
+                            // var siguiente = pasoActual+1;
+                            $("#icon"+pasoActual).css("background","lightgreen");
+                            $('html,body').animate({
+                                scrollTop: $("#contentStep"+pasoActual).offset().top
+                            }, 'slow');
+                            // $("#step"+siguiente).show();
+                            listaResolucionesIndividuales = [];
+                            $("#btnGuardarResolucionMuchas").click();
+                        }else{
+                            swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
+                        }
+                    
+                        
+                    }else{
+                        cargarModalRelaciones();
+                    }
+                });
             }else{
-                // cargarModalRelaciones();
+                swal({
+                    title: '',
+                    text: '¿Estas seguro que deseas terminar la audiencia?',
+                    icon: 'warning',
+                    // showCancelButton: true,
+                    buttons: {
+                        cancel: {
+                            text: 'No',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true
+                        },
+                        confirm: {
+                            text: 'Si',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-warning',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(isConfirm){
+                    if(isConfirm){
+
+                        var success = guardarEvidenciaEtapa(pasoActual);
+                        if(success){
+                            // var siguiente = pasoActual+1;
+                            $("#icon"+pasoActual).css("background","lightgreen");
+                            $('html,body').animate({
+                                scrollTop: $("#contentStep"+pasoActual).offset().top
+                            }, 'slow');
+                            // $("#step"+siguiente).show();
+                            listaResolucionesIndividuales = [];
+                            $("#btnGuardarResolucionMuchas").click();
+                        }else{
+                            swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
+                        }
+                    
+                        
+                    }
+                });
             }
-        });
+        }else{
+            swal({
+                title: 'Alerta',
+                text: 'Seleccione una resolución para la audiencia',
+                icon: 'warning'
+            });
+        }
     }
     
     function cargarModalRelaciones(){
@@ -1851,35 +2294,6 @@
         });
     }
 
-    $("#resolucion_individual_id").change(function(){
-        $("#divConceptosAcordados").hide();
-        $("#divMotivoArchivo").hide();
-        if($("#resolucion_individual_id").val() == 4){
-            $("#divMotivoArchivo").show();
-        }else if($("#resolucion_individual_id").val() == 1){
-            //Datos laborales para conceptos
-            // $.ajax({
-            //     url:"/api/conceptos-resolucion/getLaboralesConceptos",
-            //     type:"POST",
-            //     dataType:"json",
-            //     data:{
-            //         // audiencia_id:'{{ $audiencia->id }}',
-            //         solicitante_id:$("#parte_solicitante_id").val()
-            //     },
-            //     success:function(datos){
-            //         console.log(datos);
-            //         $('#remuneracionDiaria').val(datos.data.remuneracionDiaria);
-            //         $('#salarioMinimo').val(datos.data.salarioMinimo);
-            //         $('#antiguedad').val(datos.data.antiguedad);
-            //     }
-            // });
-            $("#divConceptosAcordados").show();
-
-        }
-        else{
-            $("#divMotivoArchivo").hide();
-        }
-    });
         $("#concepto_pago_resoluciones_id").on("change",function(){
             concepto = $("#concepto_pago_resoluciones_id").val();
             // $('#remuneracionDiaria').val(130);
@@ -1953,61 +2367,51 @@
             $('#monto').val(monto);
         });
 
-//     $("#btnAgregarResolucion").on("click",function(){
-//         if(validarResolucionIndividual()){
-//             var motivo_id = "";
-//             var motivo_nombre = "";
-//             if($("#resolucion_individual_id").val() == 4){
-//                 motivo_id = $("#motivo_archivado_id").val();
-//                 motivo_nombre = $("#motivo_archivado_id option:selected").text();
-//             }
-//             listaResolucionesIndividuales.push({
-//                 parte_solicitante_id:$("#parte_solicitante_id").val(),
-//                 parte_solicitante_nombre:$("#parte_solicitante_id option:selected").text(),
-//                 parte_solicitado_id:$("#parte_solicitado_id").val(),
-//                 parte_solicitado_nombre:$("#parte_solicitado_id option:selected").text(),
-//                 resolucion_individual_id:$("#resolucion_individual_id").val(),
-//                 resolucion_individual_nombre:$("#resolucion_individual_id option:selected").text(),
-//                 motivo_archivado_id:motivo_id,
-//                 motivo_archivado_nombre:motivo_nombre
-//             });
-//             $("#parte_solicitante_id").val("").trigger("change");
-//             $("#parte_solicitado_id").val("").trigger("change");
-//             $("#resolucion_individual_id").val("").trigger("change");
-//             $("#motivo_archivado_id").val("").trigger("change");
-// //                limpiarConcepto();
-// //                cargarTablaConcepto();
-//             cargarTablaResolucionesIndividuales();
-//         }
-//     });
-
     $("#btnAgregarResolucion").on("click",function(){
         if(validarResolucionIndividual()){
             var motivo_id = "";
             var motivo_nombre = "";
-            // if($("#resolucion_individual_id").val() == 4){
-            //     motivo_id = $("#motivo_archivado_id").val();
-            //     motivo_nombre = $("#motivo_archivado_id option:selected").text();
-            // }
             listaResolucionesIndividuales.push({
-                // parte_solicitante_id:$("#parte_solicitante_id").val(),
-                // parte_solicitante_nombre:$("#parte_solicitante_id option:selected").text(),
+                parte_solicitante_id:$("#parte_solicitante_id").val(),
+                parte_solicitante_nombre:$("#parte_solicitante_id option:selected").text(),
                 parte_solicitado_id:$("#parte_solicitado_id").val(),
                 parte_solicitado_nombre:$("#parte_solicitado_id option:selected").text(),
-                rol_solicitante_id:$("#rol_solicitante_id").val(),
-                rol_solicitante_nombre:$("#rol_solicitante_id option:selected").text(),
-                // motivo_archivado_id:motivo_id,
-                // motivo_archivado_nombre:motivo_nombre
             });
             $("#parte_solicitante_id").val("").trigger("change");
             $("#parte_solicitado_id").val("").trigger("change");
-            $("#rol_solicitante_id").val("").trigger("change");
-            // $("#motivo_archivado_id").val("").trigger("change");
+            $("#motivo_archivado_id").val("").trigger("change");
 //                limpiarConcepto();
 //                cargarTablaConcepto();
             cargarTablaResolucionesIndividuales();
         }
     });
+
+//     $("#btnAgregarResolucion").on("click",function(){
+//         if(validarResolucionIndividual()){
+//             var motivo_id = "";
+//             var motivo_nombre = "";
+//             // if($("#terminacion_bilateral_id").val() == 4){
+//             //     motivo_id = $("#motivo_archivado_id").val();
+//             //     motivo_nombre = $("#motivo_archivado_id option:selected").text();
+//             // }
+//             listaResolucionesIndividuales.push({
+//                 // parte_solicitante_id:$("#parte_solicitante_id").val(),
+//                 // parte_solicitante_nombre:$("#parte_solicitante_id option:selected").text(),
+//                 parte_solicitado_id:$("#parte_solicitado_id").val(),
+//                 parte_solicitado_nombre:$("#parte_solicitado_id option:selected").text(),
+//                 rol_solicitante_id:$("#parte_solicitado_id").val(),
+//                 rol_solicitante_nombre:$("#parte_solicitado_id option:selected").text(),
+//                 // motivo_archivado_id:motivo_id,
+//                 // motivo_archivado_nombre:motivo_nombre
+//             });
+//             $("#parte_solicitante_id").val("").trigger("change");
+//             $("#parte_solicitado_id").val("").trigger("change");
+//             // $("#motivo_archivado_id").val("").trigger("change");
+// //                limpiarConcepto();
+// //                cargarTablaConcepto();
+//             cargarTablaResolucionesIndividuales();
+//         }
+//     });
     function validarResolucionIndividual(){
         var error = true;
         $(".labelResolucion").css("color","");
@@ -2018,10 +2422,6 @@
         if($("#parte_solicitado_id").val() == ""){
             error = false;
             $("#parte_solicitado_id").parent().prev().css("color","red");
-        }
-        if($("#resolucion_individual_id").val() == ""){
-            error = false;
-            $("#resolucion_individual_id").parent().prev().css("color","red");
         }
         $.each(listaResolucionesIndividuales,function(i,e){
             if(e.parte_solicitante_id == $("#parte_solicitante_id").val() && e.parte_solicitado_id == $("#parte_solicitado_id").val()){
@@ -2038,8 +2438,7 @@
             table +='<tr>';
                 // table +='<td>'+e.parte_solicitante_nombre+'</td>';
                 table +='<td>'+e.parte_solicitado_nombre+'</td>';
-                table +='<td>'+e.rol_solicitante_nombre+'</td>';
-                // table +='<td>'+e.motivo_archivado_nombre+'</td>';
+                table +='<td>'+e.parte_solicitado_nombre+'</td>';
                 table +='<td>';
                     table +='<button onclick="eliminarRelacion('+i+')" class="btn btn-xs btn-warning" title="Eliminar">';
                         table +='<i class="fa fa-trash"></i>';
@@ -2055,10 +2454,11 @@
         cargarTablaResolucionesIndividuales();
     }
     $("#btnGuardarResolucionMuchas").on("click",function(){
-        let listaPropuestaConceptos = {};
+        var listaPropuestaConceptos = {};
         $('.collapseSolicitante').each(function() {
             idSol=$(this).attr('idSolicitante');
-            if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+            alert(idSol);
+            if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='otra'){
                 listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
             }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                 listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
@@ -2066,34 +2466,42 @@
                 listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
             }
         });
+        
         // console.log(listaPropuestaConceptos);
-
-        $.ajax({
-            url:"/audiencia/resolucion",
-            type:"POST",
-            dataType:"json",
-            data:{
-                audiencia_id:'{{ $audiencia->id }}',
-                convenio:$("#convenio").val(),
-                desahogo:$("#desahogo").val(),
-                resolucion_id:$("#resolucion_id").val(),
-                timeline:true,
-                listaRelacion:listaResolucionesIndividuales,
-                listaConceptos:listaPropuestaConceptos,
-                _token:"{{ csrf_token() }}"
-            },
-            success:function(data){
-                if(data != null && data != ""){
-                    window.location = "/audiencias/"+data.id+"/edit"
-                }else{
-                    swal({
-                        title: 'Algo salio mal',
-                        text: 'No se guardo el registro',
-                        icon: 'warning'
-                    });
+        if(listaPropuestaConceptos.length > 0){
+            $.ajax({
+                url:"/audiencia/resolucion",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    audiencia_id:'{{ $audiencia->id }}',
+                    convenio:$("#convenio").val(),
+                    desahogo:$("#desahogo").val(),
+                    resolucion_id:$("#resolucion_id").val(),
+                    timeline:true,
+                    listaRelacion:listaResolucionesIndividuales,
+                    listaConceptos:listaPropuestaConceptos,
+                    _token:"{{ csrf_token() }}"
+                },
+                success:function(data){
+                    if(data != null && data != ""){
+                        window.location = "/audiencias/"+data.id+"/edit"
+                    }else{
+                        swal({
+                            title: 'Algo salio mal',
+                            text: 'No se guardo el registro',
+                            icon: 'warning'
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }else{
+            swal({
+                title: 'Alerta',
+                text: 'Seleccione configuración de la propuesta para cada solicitante',
+                icon: 'warning'
+            });
+        }
     });
 
     var timer = 0;
