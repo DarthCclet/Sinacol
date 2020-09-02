@@ -1,0 +1,25 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Archivado por falta de comparecencia del solicitante"
+        },
+        {
+            "id": "2",
+            "nombre": "Audiencia reagendada"
+        },
+        {
+            "id": "3",
+            "nombre": "Convenio"
+        },
+        {
+            "id": "4",
+            "nombre": "Convenio con otro citado."
+        },
+        {
+            "id": "5",
+            "nombre": "No hubo conciliación."
+        }
+    ],
+    "numReg": 4
+}

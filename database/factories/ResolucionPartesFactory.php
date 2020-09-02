@@ -6,10 +6,11 @@ use App\Audiencia;
 use App\Parte;
 use App\Resolucion;
 use App\ResolucionPartes;
+use App\TerminacionBilateral;
 use Faker\Generator as Faker;
 
 $factory->define(ResolucionPartes::class, function (Faker $faker) {
-    $resolucion_id = Resolucion::inRandomOrder()->first();
+    $terminacion_bilateral = TerminacionBilateral::inRandomOrder()->first();
     return [
         "audiencia_id" => function () {
             return factory(App\Audiencia::class)->create()->id;
@@ -20,7 +21,7 @@ $factory->define(ResolucionPartes::class, function (Faker $faker) {
         "parte_solicitada_id" => function () {
             return factory(App\Parte::class)->state("solicitado")->create()->id;
         },
-        "resolucion_id" => $resolucion_id
+        "terminacion_bilateral_id" => $terminacion_bilateral
     ];
 });
 
