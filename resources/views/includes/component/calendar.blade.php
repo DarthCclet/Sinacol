@@ -6,5 +6,6 @@
 @push('scripts')
 	<script src="/assets/plugins/moment/moment.js"></script>
 	<script src="/assets/plugins/fullcalendar/dist/fullcalendar.min.js"></script>
+        <script src='/assets/plugins/fullcalendar/dist/locale/es.js'></script>
 @endpush
 
