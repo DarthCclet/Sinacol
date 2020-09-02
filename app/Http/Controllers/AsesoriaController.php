@@ -45,8 +45,7 @@ class AsesoriaController extends Controller
                 break;
 
             case '10101010':
-            case '10301010':
-            case '10401010':
+
             case '10501010':
                 $max_paso = 10101017;
                 $paso = ($this->request->get('from',10101009) + 1);
@@ -61,6 +60,7 @@ class AsesoriaController extends Controller
                 }
                 return view('asesoria.a10101010', compact('accion', 'asset_paso', 'paso_next', 'origen'));
                 break;
+            case '10301010':
             case '10201010':
                 //Presentación de Prestaciones laborales
                 $max_paso = 10201018;
@@ -76,6 +76,22 @@ class AsesoriaController extends Controller
                     $accion = '1010101010';
                 }
                 return view('asesoria.a10201010', compact('accion', 'asset_paso', 'paso_next', 'origen'));
+                break;
+            case '10401010':
+                //Rescición por parte del trabajador
+                $max_paso = 10401014;
+                $from = $this->request->get('from',10401010);
+                if($from < 10401010){
+                    $from = 10401010;
+                }
+                $paso = ($from + 1);
+                $origen = $this->request->get('source', 10401010);
+                $asset_paso = $paso.'.jpg';
+                $paso_next = $paso;
+                if($paso >= $max_paso){
+                    $accion = '1010101010';
+                }
+                return view('asesoria.a10401010', compact('accion', 'asset_paso', 'paso_next', 'origen'));
                 break;
             case '1010101010':
                 //este es el calculo del pre registro
