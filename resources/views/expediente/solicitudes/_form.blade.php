@@ -1109,6 +1109,29 @@
     </div>
 </div>
 <!-- Fin Modal de cargar archivos-->
+{{-- Modal confirma falta de correo --}}
+<div class="modal" id="modal_valida_correo" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h5>No capturo correo electronico, tome en cuenta que el correo electronico es muy importante para el seguimiento del proceso de conciliaci&oacute;n</h5>
+                <div>
+                    <label for="sin_correo">Seleccione si no tiene correo electr&oacute;nico</label>
+                    <input type="checkbox" value="1" onchange="if($('#sin_correo').is(':checked')){ $('#btnContinuarCorreo').removeAttr('disabled'); }else{ $('#btnContinuarCorreo').attr('disabled', true);  }" data-render="switchery" data-theme="default" id="sin_correo" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Capturar correo</a>
+                    <button class="btn btn-primary btn-sm m-l-5" disabled data-dismiss="modal" onclick="$('#divMapaSolicitante').show();$('#continuar2').hide();"  id='btnContinuarCorreo'><i class="fa fa-save"></i> Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{-- Modal confirma falta de correo --}}
+
 <div class="modal" id="modal-visor" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -2573,7 +2596,7 @@
     $("#btnRatificarSolicitud").on("click",function(){
         try{
             cargarDocumentos();
-            var solicitanteMenor = arraySolicitantes.filter(x=>x.edad < 18);
+            var solicitanteMenor = arraySolicitantes.filter(x=>x.edad < 16);
             if(solicitanteMenor.length > 0){
                 $("#divNeedRepresentante").show();
                 var html = "";
@@ -2665,7 +2688,7 @@
                         $.each(data, function(index,element){
                             tableSolicitantes +='<tr>';
                             if(element.tipo_persona_id == 1){
-                                tableSolicitantes +='<td>'+elment.nombre+' '+elment.primer_apellido+' '+elment.segundo_apellido+'</td>';
+                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</td>';
                             }else{
                                 tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
                             }
@@ -2850,13 +2873,13 @@
     $("#idFechaNacimientoSolicitante").change(function(){
         if($("#idFechaNacimientoSolicitante").val() != ""){
             var edad = Edad($("#idFechaNacimientoSolicitante").val());
-            if(edad > 5){
+            if(edad > 15){
                 $("#idEdadSolicitante").val(edad);
             }else{
                 $("#idFechaNacimientoSolicitante").val("")
                 swal({
                     title: 'Error',
-                    text: 'La edad debe ser mayor de 5 años',
+                    text: 'La edad debe ser mayor de 15 años',
                     icon: 'warning'
                 });
             }
@@ -2867,13 +2890,13 @@
     $("#idFechaNacimientoSolicitado").change(function(){
         if($("#idFechaNacimientoSolicitado").val() != ""){
             var edad = Edad($("#idFechaNacimientoSolicitado").val())
-            if(edad > 5){
+            if(edad > 18){
                 $("#idEdadSolicitado").val(edad)
             }else{
                 $("#idFechaNacimientoSolicitado").val("");
                 swal({
                     title: 'Error',
-                    text: 'La edad debe ser mayor de 5 años',
+                    text: 'La edad debe ser mayor de 18 años',
                     icon: 'warning'
                 });
             }
@@ -3170,13 +3193,18 @@
                 }
                 break;
             case 2:
-                if(arrayContactoSolicitantes.length > 1){
-                    $('#divMapaSolicitante').show();
-                    $('#continuar2').hide();
+                if(arrayContactoSolicitantes.length > 0){
+                    var tieneCorreo = arrayContactoSolicitantes.find(x=>x.tipo_contacto_id == 3);
+                    if(tieneCorreo != undefined){
+                        $('#divMapaSolicitante').show();
+                        $('#continuar2').hide();
+                    }else{
+                        $("#modal_valida_correo").modal("show");
+                    }
                 }else{
                     swal({
                         title: 'Error',
-                        text: 'Es necesario capturar al menos un correo y un numero de telefono para continuar',
+                        text: 'Es necesario capturar al menos un contacto para continuar',
                         icon: 'error',
                     });
                 }
