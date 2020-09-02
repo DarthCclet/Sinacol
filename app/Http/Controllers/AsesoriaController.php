@@ -97,14 +97,22 @@ class AsesoriaController extends Controller
                 return view('asesoria.a20');
                 break;
             case '2010':
-                //Soy patron - conflicto individual
+                //Soy patron - conflicto individual o colectivo
                 return view('asesoria.a2010');
             case '201010':
                 //Soy patron - conflicto individual
-                return view('asesoria.a201010');
+                $max_paso = 201014;
+                $paso = ($this->request->get('from',201010) + 1);
+                $origen = $this->request->get('source', 201010);
+                $asset_paso = $paso.'.jpg';
+                $paso_next = $paso;
+                if($paso >= $max_paso){
+                    $accion = '../solicitudes/create-public?origen=patron-individual';
+                }
+                return view('asesoria.a201010',  compact('accion', 'asset_paso', 'paso_next', 'origen'));
                 break;
             case '202010':
-                //Soy patron - conflicto individual
+                //Soy patron - conflicto colectivo
                 return view('asesoria.a202010');
                 break;
             case '2020':
