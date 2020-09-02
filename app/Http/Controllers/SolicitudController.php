@@ -36,6 +36,10 @@ use App\TipoAsentamiento;
 use App\TipoContacto;
 use App\TipoVialidad;
 use App\User;
+use App\Sala;
+use App\SalaAudiencia;
+use App\ConciliadorAudiencia;
+use App\AudienciaParte;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -654,10 +658,8 @@ class SolicitudController extends Controller {
         DB::beginTransaction();
         try{
             $solicitud = Solicitud::find($request->id);
-            //Indicamos que la solicitud ha sido ratificada
-            $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now()]);
-            //Obtenemos el contador
             $ContadorController = new ContadorController();
+            //Obtenemos el contador
             $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
             $edo_folio = $solicitud->centro->abreviatura;
             $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
@@ -667,14 +669,67 @@ class SolicitudController extends Controller {
                 if(count($parte->documentos) == 0){
                     $parte->ratifico = true;
                     $parte->update();
-                }else{
                 }
             }
-            //guardamos el tipo de notificacion de las partes
-//            foreach($request->listaNotificaciones as $notificaciones){
-//                $parte = Parte::find($notificaciones["parte_id"])->update(["tipo_notificacion_id" => $notificaciones["tipo_notificacion_id"]]);
-//            }
+            if($request->inmediata){
+                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => true]);
+                // Obtenemos la sala virtual
+                $sala_id = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->get()[0]->id;
+                //obtenemos al conciliador disponible
+                $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
+                $conciliadoresDisponibles = array();
+                foreach($conciliadores as $conciliador){
+                    $conciliadorDisponible = false;
+                    foreach($conciliador->rolesConciliador as $roles){
+                        if($roles->rol_atencion_id == 2){
+                            $conciliadorDisponible = true;
+                        }
+                    }
+                    if($conciliadorDisponible){
+                        $conciliadoresDisponibles[]=$conciliador;
+                    }
+                }
+                $conciliador_id = null;
+                if(count($conciliadoresDisponibles) > 0){
+                    $conciliador = $this->array_random_assoc($conciliadoresDisponibles);
+                }else{
+                    return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
+                }
+                
+                
+                // Registramos la audiencia
+                //Obtenemos el contador
+                $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+                //creamos el registro de la audiencia
+                $audiencia = Audiencia::create([
+                    "expediente_id" => $expediente->id,
+                    "multiple" => false,
+                    "fecha_audiencia" => now()->format('Y-m-d'),
+                    "hora_inicio" => now()->format('H:i:s'), 
+                    "hora_fin" => \Carbon\Carbon::now()->addHours(1)->format('H:i:s'),
+                    "conciliador_id" =>  $conciliador[0]->id,
+                    "numero_audiencia" => 1,
+                    "reprogramada" => false,
+                    "anio" => $folioAudiencia->anio,
+                    "folio" => $folioAudiencia->contador
+                ]);
+                
+                // guardamos la sala y el consiliador a la audiencia
+                ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador[0]->id,"solicitante" => true]);
+                SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
+                // Guardamos todas las Partes en la audiencia
+                $partes = $solicitud->partes;
+                foreach($partes as $parte){
+                    AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
+                }
+                event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,4,4));
+                DB::commit();
+                return $audiencia;
+            }else{
+                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
+            }
             DB::commit();
+            return $solicitud;
         }catch(\Throwable $e){
             DB::rollback();
             dd($e);
@@ -683,7 +738,16 @@ class SolicitudController extends Controller {
             }
             return redirect('solicitudes')->with('error', 'Error al ratificar la solicitud');
         }
-        return $solicitud;
+    }
+    function array_random_assoc($arr, $num = 1) {
+        $keys = array_keys($arr);
+        shuffle($keys);
+
+        $r = array();
+        for ($i = 0; $i < $num; $i++) {
+            $r[$keys[$i]] = $arr[$keys[$i]];
+        }
+        return $r;
     }
 
     function ExcepcionConciliacion(Request $request){
