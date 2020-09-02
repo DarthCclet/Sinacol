@@ -34,7 +34,7 @@ trait GenerateDocument
      */
     public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null, $idConciliador)
     {
-        $plantilla = PlantillaDocumento::find($plantilla_id);
+		$plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
             if($idAudiencia != ""){
 
@@ -44,13 +44,13 @@ trait GenerateDocument
                 
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
                 
-                $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
+				$html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
                 $pdf = App::make('dompdf.wrapper');
                 $pdf->getDomPDF();
                 $pdf->loadHTML($html)->setPaper('A4');
                 
                 //al
-                
+
                 //al
                 //Creamos el registro
                 $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre]);
@@ -298,7 +298,11 @@ trait GenerateDocument
                     $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
-                    $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->where('solicitud_id',intval($idBase))->get();
+					if($idSolicitante != "" || $idSolicitado != ""){
+						$partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante, $idSolicitado])->get();
+					}else{
+						$partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->where('solicitud_id',intval($idBase))->get();
+					}
                     $objeto = new JsonResponse($partes);
                     $obj = json_decode($objeto->content(),true);
                     $parte2 = [];

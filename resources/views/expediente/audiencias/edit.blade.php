@@ -477,7 +477,7 @@
                             @else
                                 <td>{{$resolucion->parteSolicitada->nombre_comercial}}</td>
                             @endif
-                            <td>{{$resolucion->resolucion->nombre}}</td>
+                            <td>{{$resolucion->terminacion_bilateral->nombre}}</td>
                             <td>{{$resolucion->motivoArchivado->descripcion}}</td>
                             <td></td>
                         </tr>
@@ -1037,7 +1037,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach($audiencia->resolucionPartes as $resolucion)
-                                        @if($resolucion->resolucion_id == 2)
+                                        @if($resolucion->terminacion_bilateral_id == 2)
                                         <tr>
                                             <td>
                                             @if(!$resolucion->nuevaAudiencia)

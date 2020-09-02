@@ -629,7 +629,7 @@ class SolicitudController extends Controller {
             DB::rollback();
             if ($this->request->wantsJson()) {
 
-                return $this->sendError('Error');
+                return $this->sendError('Error'.$e->getMessage());
             }
             return redirect('solicitudes')->with('error', 'Error al crear la solicitud');
         }

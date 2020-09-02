@@ -9,12 +9,13 @@ use App\TipoAsentamiento;
 use App\TipoVialidad;
 use Faker\Generator as Faker;
 use Illuminate\Database\Eloquent\Factory;
+use Illuminate\Support\Facades\DB;
 
 $factory->define(Domicilio::class, function (Faker $faker) {
     $tipo_asentamiento = TipoAsentamiento::inRandomOrder()->first();
     $tipo_vialidad = TipoVialidad::inRandomOrder()->first();
     $estado = Estado::inRandomOrder()->first();
-    $municipio = Municipio::inRandomOrder()->first();
+    $municipio = Municipio::whereRaw(DB::raw("lower(unaccent('{$estado->nombre}')) = lower(unaccent(estado))"))->get('municipio')->first();
     //TODO: Extraer algún domiciliable cuando ya esté disponible algun modelo docmiciliable
     $domiciliable_id = 1;
     $domiciliable_type = 'App\User';

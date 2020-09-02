@@ -43,7 +43,7 @@ class ResolucionPartes extends Model
      * Relación con la tabla partes para los solicitados
      * un centro puede tener muchas salas
      */
-    public function resolucion(){
-        return $this->belongsTo(Resolucion::class);
+    public function terminacion_bilateral(){
+        return $this->belongsTo(TerminacionBilateral::class);
     }
 }
