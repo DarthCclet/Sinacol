@@ -133,7 +133,7 @@
                             var html = "";
                             var solicitantes = "";
                             var solicitados = "";
-                            $.each(data,function(key, value){
+                            $.each(row[16],function(key, value){
                                 var nombre = "";
                                 if(value.tipo_persona_id == 1){
                                         nombre = value.nombre + " " + value.primer_apellido + " " + value.segundo_apellido
@@ -158,9 +158,10 @@
                     {
                         "targets": [16],
                         "render": function (data, type, row) {
+                            console.log(row[17]);
                             html = "N/A";
-                            if(data != null){
-                            html = ""+data.folio;
+                            if(row[17] != null){
+                            html = ""+row[17].folio;
                             }
                             return  html;
                         }

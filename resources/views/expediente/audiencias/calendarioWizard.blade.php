@@ -208,6 +208,8 @@
                     },
                     selectable: true,
                     selectHelper: true,
+                    firstHour:7,
+                    minTime:7,
 //                    slotDuration:arregloGeneral.duracionPromedio,
 //                    slotDuration:"01:00:00",
                     select: function(start, end,a,b) {

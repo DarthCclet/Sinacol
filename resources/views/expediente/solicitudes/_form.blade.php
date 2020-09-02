@@ -1150,16 +1150,15 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <div class="">
-                    <div>
-                        <h5>Personas a Ratificar.</h5>
-                    </div>
-                </div>
                 <div class="col-md-12">
                     <div id="divNeedRepresentante" style="display: none;">
+                        <h5>Representantes legales</h5>
+                        <hr class="red">
+                        <div class="alert alert-muted">
+                            <strong>Menor de edad:</strong> Detectamos que al menos un solicitante no es mayor de edad, para poder continuar con la solicitud es necesario agregar al representante legal del menor y la identificación oficial de dicho representante.
+                        </div>
                         <input type="hidden" id="parte_id" />
                         <input type="hidden" id="parte_representada_id">
-                        <h4>Agregar representante</h4>
                         <table class="table table-striped table-bordered table-hover">
                             <thead>
                                 <tr>
@@ -1171,7 +1170,8 @@
                             <tbody>
                         </table>
                     </div>
-
+                    <h5>Identificaciones</h5>
+                    <hr class="red">
                     <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr>
@@ -1193,6 +1193,7 @@
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Ratificar</button>
+                    <button class="btn btn-success btn-sm m-l-5" id='btnGuardarConvenio'><i class="fa fa-save"></i> Ratificar con convenio</button>
                 </div>
             </div>
         </div>
@@ -1321,6 +1322,38 @@
         </div>
     </div>
 </div>
+
+<div class="modal" id="modal-aviso-resolucion-inmediata" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Ratificación inmediata</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    <p>
+                        Usted está a punto de ratificar la solicitud para que se de resolución inmediatamente, las indicaciones para esta resolución son las siguientes.<br><br>
+                        <ul>
+                            <li>Debido a que no se requiere sala para realizar la audiencia, se asignará una sala virtual y el conciliador será asignado de acuerdo a la disponibilidad</li>
+                            <li>Debido a que ya hay un convenio entré las partes, la unica labor del conciliador será dar fe de lo acordado</li>
+                            <li>Se deberá acceder a la guia de audiencia donde se llenarán los datos requerido para extender la ratificación y el documento que de esta resulte</li>
+                            <li>Si desea continuar con el proceso de ratificación inmediata presione ratificar</li>
+                            <li>Si desea agendar una audiencia para conciliar, presione cancelar</li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnRatificarInmediata"><i class="fa fa-arrow-right"></i> Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!--Fin de modal de representante legal-->
 <input type="hidden" id="expediente_id">
 <!--</div>-->
@@ -2596,7 +2629,7 @@
     $("#btnRatificarSolicitud").on("click",function(){
         try{
             cargarDocumentos();
-            var solicitanteMenor = arraySolicitantes.filter(x=>x.edad < 16);
+            var solicitanteMenor = arraySolicitantes.filter(x=>x.edad <= 16);
             if(solicitanteMenor.length > 0){
                 $("#divNeedRepresentante").show();
                 var html = "";
@@ -2715,6 +2748,111 @@
                 icon: 'warning'
             });
         }
+    });
+    $("#btnGuardarConvenio").on("click",function(){
+        if(ratifican){
+            $.ajax({
+                url:'/solicitud/correos/'+$("#solicitud_id").val(),
+                type:'GET',
+                dataType:"json",
+                async:true,
+                success:function(data){
+                    if(data == null || data == ""){
+                        $("#modal-aviso-resolucion-inmediata").modal("show");
+                    }else{
+                        var tableSolicitantes = '';
+                        $.each(data, function(index,element){
+                            tableSolicitantes +='<tr>';
+                            if(element.tipo_persona_id == 1){
+                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</td>';
+                            }else{
+                                tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
+                            }
+                            tableSolicitantes += '  <td>';
+                            tableSolicitantes += '      <div class="col-md-12">';
+                            tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
+                            tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
+                            tableSolicitantes += '      </div>';
+                            tableSolicitantes += '  </td>';
+                            tableSolicitantes += '  <td>';
+                            tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
+                            tableSolicitantes += '  </td>';
+                            tableSolicitantes +='</tr>';
+                        });
+                        $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
+                        $("#modal-registro-correos").modal("show");
+                    }
+                }
+            });
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Al menos un solicitante debe presentar documentos para ratificar',
+                icon: 'warning'
+            });
+        }
+    });
+    $("#btnRatificarInmediata").on("click",function(){
+        swal({
+            title: '¿Estas seguro?',
+            text: 'Al oprimir aceptar se creará un expediente y podra relizar la resolución inmediatamente',
+            icon: 'warning',
+            buttons: {
+                cancel: {
+                    text: 'Cancelar',
+                    value: null,
+                    visible: true,
+                    className: 'btn btn-default',
+                    closeModal: true,
+                },
+                confirm: {
+                    text: 'Aceptar',
+                    value: true,
+                    visible: true,
+                    className: 'btn btn-danger',
+                    closeModal: true
+                }
+            }
+        }).then(function(isConfirm){
+            if(isConfirm){
+                $.ajax({
+                    url:'/solicitud/ratificar',
+                    type:'POST',
+                    dataType:"json",
+                    async:true,
+                    data:{
+                        id:$("#solicitud_id").val(),
+                        inmediata:true,
+                        _token:"{{ csrf_token() }}"
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            $("#modal-aviso-resolucion-inmediata").modal("hide");
+                            $("#modalRatificacion").modal("hide");
+                            swal({
+                                title: 'Correcto',
+                                text: 'Solicitud ratificada correctamente',
+                                icon: 'success'
+                            });
+                            window.location.href = "/guiaAudiencia/"+data.id;
+                        }else{
+                            swal({
+                                title: 'Error',
+                                text: 'No se pudo ratificar',
+                                icon: 'error'
+                            });
+                        }
+                    },error:function(data){
+                        console.log(data);
+                        swal({
+                            title: 'Error',
+                            text: data.message,
+                            icon: 'error'
+                        });
+                    }
+                });
+            }
+        });
     });
     function continuarRatificacion(){
         $("#modalRatificacion").modal('show');
