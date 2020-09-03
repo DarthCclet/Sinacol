@@ -48,6 +48,7 @@
                 });
             });
             function construirCalendario(audiencias){
+                console.log(audiencias);
                 $('#external-events .fc-event').each(function() {
                     // store data so the calendar knows to render an event upon drop
                     $(this).data('event', {
@@ -63,6 +64,8 @@
                     },
                     selectable: true,
                     defaultView:'agendaDay',
+                    minTime: audiencias.minTime,
+                    maxTime: audiencias.maxTime,
                     select: function(start, end,a,b) {
                         $('#calendar').fullCalendar('unselect');
                     },
@@ -70,7 +73,7 @@
                         return event.rendering !== 'background';
                     },
                     allDaySlot:false,
-                    events: audiencias,
+                    events: audiencias.eventos,
                     eventConstraint: "businessHours",
                     eventClick: function(info) {
                         var today = moment().format('DD/MM/YYYY');;
