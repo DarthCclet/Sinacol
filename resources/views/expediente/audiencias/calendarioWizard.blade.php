@@ -188,6 +188,13 @@
                     },
                     dataType:"json",
                     success:function(data){
+                        if(data.minTime != "23:59:59" && data.maxTime != "00:00:00"){
+                            swal({
+                                title: 'Error',
+                                text: 'No está configurada la disponibilidad del centro',
+                                icon: 'warning'
+                            });
+                        }
                         construirCalendario(data);
                     }
                 });
@@ -208,10 +215,8 @@
                     },
                     selectable: true,
                     selectHelper: true,
-                    firstHour:7,
-                    minTime:7,
-//                    slotDuration:arregloGeneral.duracionPromedio,
-//                    slotDuration:"01:00:00",
+                    minTime: arregloGeneral.minTime,
+                    maxTime: arregloGeneral.maxtime,
                     select: function(start, end,a,b) {
                         var ahora = new Date();
                         end=moment(end).add(1, 'hours').add(30,'minutes').format('Y-MM-DD HH:mm:ss');
