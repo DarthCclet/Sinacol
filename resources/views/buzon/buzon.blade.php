@@ -282,7 +282,7 @@
                         $("#curp").val(data.curp);
                         $("#nombre").val(data.nombre);
                         $("#primer_apellido").val(data.primer_apellido);
-                        $("#segundo_apellido").val(data.segundo_apellido);
+                        $("#segundo_apellido").val((data.segundo_apellido || ""));
                         $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
                         $("#genero_id").val(data.genero_id).trigger("change");
                         $("#instrumento").val(data.instrumento);

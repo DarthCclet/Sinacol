@@ -66,7 +66,7 @@
 
                 <span class="">
                     Solicitud
-                    <small>Información general de la solicitud</small>
+                    <small>Información de la solicitud</small>
                 </span>
             </a>
         </li>
@@ -75,7 +75,7 @@
 
                 <span class="">
                     Excepci&oacute;n
-                    <small>Casos de excepci&oacute;n de la conciliaci&oacute;n</small>
+                    <small>Casos de excepci&oacute;n</small>
                 </span>
             </a>
         </li>
@@ -107,7 +107,7 @@
 
                 <span class="">
                     Documentos
-                    <small>Documentos del expediente solicitud</small>
+                    <small>Documentos del expediente</small>
                 </span>
             </a>
         </li>
@@ -169,7 +169,7 @@
                     </div>
                     <div class="col-xl-10 offset-xl-1">
                         <div>
-                            <center><h1>Solicitante</h1></center>
+                            <center><h1>Solicitante <span id="labelTipoSolicitante"></span></h1></center>
                             <div id="editandoSolicitante"></div>
                         </div>
                         <div id="divSolicitante">
@@ -178,7 +178,7 @@
                                     <h4>Datos de identificaci&oacute;n</h4>
                                     <hr class="red">
                                 </div>
-                                <div style="margin-left:5%; margin-bottom:3%; ">
+                                <div style="margin-left:5%; margin-bottom:3%; " id="divTipoPersona">
                                     <input type="hidden" id="solicitante_id">
                                     <input type="hidden" id="edit_key">
                                     <label>Tipo Persona</label>
@@ -193,7 +193,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-8 personaFisicaSolicitanteNO">
+                                <div class="col-md-8 personaFisicaSolicitante">
                                     <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" type="text" value="">
                                     <p class="help-block needed">CURP del solicitante</p>
                                 </div>
@@ -212,7 +212,7 @@
                                         <input class="form-control upper" id="idPrimerASolicitante" required placeholder="Primer apellido del solicitante" type="text" value="">
                                         <p class="help-block needed">Primer apellido</p>
                                     </div>
-                                    <div class="col-md-4 personaFisicaSolicitanteNO">
+                                    <div class="col-md-4 personaFisicaSolicitante">
                                         <input class="form-control upper" id="idSegundoASolicitante" placeholder="Segundo apellido del solicitante" type="text" value="">
                                         <p class="help-block">Segundo apellido</p>
                                     </div>
@@ -232,6 +232,17 @@
                                         <input class="form-control upper" id="idSolicitanteRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitante" type="text" value="">
                                         <p class="help-block">RFC del solicitante</p>
                                     </div>
+                                    
+                                    <div class="col-md-4 sindicato" style="display: none;">
+                                        <input class="form-control upper " id="registro_sindical" placeholder="Registro sindical" type="text" value="">
+                                        <p class="help-block needed">Registro sindical</p>
+                                    </div>
+                                    
+                                    <div class="col-md-4 sindicato" style="display: none;">
+                                        <input class="form-control upper" id="contrato_colectivo" placeholder="Contrato Colectivo" type="text" value="">
+                                        <p class="help-block">Contrato colectivo</p>
+                                    </div>
+                                    
                                     <div class="col-md-4 personaFisicaSolicitante">
                                         {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
@@ -248,7 +259,7 @@
                                         <p class="help-block needed">Estado de nacimiento</p>
                                     </div>
                                 </div>
-                                <div class="col-md-12 row personaFisicaSolicitanteNO">
+                                <div class="col-md-12 row personaFisicaSolicitante">
                                     <div class="col-md-4">
                                         <div >
                                             <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
@@ -328,7 +339,7 @@
 
                             <!-- end seccion de domicilios solicitante -->
                             <!-- Seccion de Datos laborales -->
-                            <div id="divDatoLaboralSolicitante" style="display: none;" data-parsley-validate="true"  class="col-md-12 row">
+                            <div id="divDatoLaboralSolicitante" style="display: none;"  class="col-md-12 row">
                                 <div class="col-md-12 mt-4">
                                     <h4>Datos Laborales</h4>
                                     <hr class="red">
@@ -371,16 +382,16 @@
                                 </div>
                                 <div class="col-md-12 row">
                                     <div class="col-md-4">
-                                        <input class="form-control numero " required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
+                                        <input class="form-control numero requiredLaboral" required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
                                         <p class="help-block needed">&iquest;Cu&aacute;nto te pagan?</p>
                                     </div>
                                     <div class="col-md-4">
-                                        {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
+                                        {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboral']);  !!}
                                         {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
                                         <p class="help-block needed">&iquest;Cada cuándo te pagan?</p>
                                     </div>
                                     <div class="col-md-4">
-                                        <input class="form-control numero" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
+                                        <input class="form-control numero requiredLaboral" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
                                         <p class="help-block needed">Horas semanales</p>
                                     </div>
                                 </div>
@@ -394,11 +405,11 @@
                                         <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
                                     </div>
                                     <div class="col-md-4">
-                                        <input class="form-control dateBirth" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
+                                        <input class="form-control dateBirth requiredLaboral" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
                                         <p class="help-block needed">Fecha de ingreso</p>
                                     </div>
                                     <div class="col-md-4" id="divFechaSalida">
-                                        <input class="form-control dateBirth" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
+                                        <input class="form-control dateBirth requiredLaboral" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
                                         <p class="help-block needed">Fecha salida</p>
                                     </div>
                                 </div>
@@ -409,7 +420,7 @@
                                             <option value="{{$jornada->id}}" > {{$jornada->nombre}} </option>
                                         @endforeach
                                     </select> --}}
-                                    {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
+                                    {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboral']);  !!}
                                     {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Jornada</p>
                                 </div>
@@ -625,6 +636,7 @@
                     <center>  <h1>Solicitud</h1></center>
                 <div class="col-md-12 row">
                     <input type="hidden" id="solicitud_id">
+                    <input type="hidden" id="tipo_solicitud_id" value="{{$origen}}">
                     <div class="col-md-4 showEdit" >
                         <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de ratificación" type="text" value="">
                         <p class="help-block">Fecha de Ratificación</p>
@@ -907,7 +919,7 @@
                                 <option value="">Seleccione una opci&oacute;n</option>
                                 @if(isset($solicitud))
                                     @foreach($solicitud->partes as $parte)
-                                        @if($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3 )
+                                        @if(($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3) && $parte->tipo_persona_id == 1 )
                                             <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>
                                         @endif
                                     @endforeach
@@ -1154,7 +1166,7 @@
                     <div id="divNeedRepresentante" style="display: none;">
                         <h5>Representantes legales</h5>
                         <hr class="red">
-                        <div class="alert alert-muted">
+                        <div class="alert alert-muted" style="display: none;" id="menorAlert" >
                             <strong>Menor de edad:</strong> Detectamos que al menos un solicitante no es mayor de edad, para poder continuar con la solicitud es necesario agregar al representante legal del menor y la identificación oficial de dicho representante.
                         </div>
                         <input type="hidden" id="parte_id" />
@@ -1248,6 +1260,36 @@
                     </div>
                 </div>
                 <hr>
+                <div id="representanteMoral" style="display: none;">
+
+                    <h5>Datos de comprobante como representante legal</h5>
+                    <div class="col-md-12 row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="clasificacion_archivo_id_representante" class="control-label">Instrumento</label>
+                                <select id="clasificacion_archivo_id_representante" class="form-control select-element">
+                                    <option value="">-- Selecciona un instrumento</option>
+                                    @foreach($clasificacion_archivos_Representante as $clasificacion)
+                                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
+                                <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="detalle_instrumento" class="control-label">Detalle del instrumento notarial</label>
+                                <textarea type="text" id="detalle_instrumento" class="form-control" placeholder=""></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
                 <h5>Datos de contacto</h5>
                 <div class="col-md-12 row">
                     <div class="col-md-5">
@@ -1438,36 +1480,42 @@
                         solicitante.lengua_indigena_id = $("#lengua_indigena_id_solicitante").val();
                         solicitante.grupo_prioritario_id = "";//$("#grupo_prioritario_id_solicitante").val();
                         solicitante.motivo_excepciones_id = "";//$("#motivo_excepciones_id_solicitante").val();
+                        solicitante.solicita_traductor = $("input[name='solicita_traductor_solicitante']:checked").val()
                     }else{
                         solicitante.nombre_comercial = $("#idNombreCSolicitante").val();
+                        if($("#tipo_solicitud_id").val() == "4"){
+                            solicitante.registro_sindical = $("#registro_sindical").val();
+                            solicitante.contrato_colectivo = $("#contrato_colectivo").val();
+                        }
 
                     }
-                    solicitante.solicita_traductor = $("input[name='solicita_traductor_solicitante']:checked").val()
                     solicitante.tipo_persona_id = $("input[name='tipo_persona_solicitante']:checked").val()
                     solicitante.tipo_parte_id = 1;
                     solicitante.activo = 1;
                     solicitante.rfc = $("#idSolicitanteRfc").val();
                     // datos laborales en la solicitante
-                    var dato_laboral = {};
-                    dato_laboral.id = $("#dato_laboral_id").val();
-                    dato_laboral.nombre_jefe_directo = $("#nombre_jefe_directo").val();
-                    dato_laboral.nombre_prestas_servicio = $("#nombre_prestas_servicio").val();
-                    dato_laboral.nombre_paga = $("#nombre_paga").val();
-                    dato_laboral.nombre_contrato = $("#nombre_contrato").val();
-                    dato_laboral.ocupacion_id = $("#ocupacion_id").val();
-                    dato_laboral.puesto = $("#puesto").val();
-                    dato_laboral.nss = $("#nss").val();
-                    dato_laboral.no_issste = "";//$("#no_issste").val();
-                    dato_laboral.remuneracion = $("#remuneracion").val();
-                    dato_laboral.periodicidad_id = $("#periodicidad_id").val();
-                    dato_laboral.labora_actualmente = $("#labora_actualmente").is(":checked");
-                    dato_laboral.fecha_ingreso = dateFormat($("#fecha_ingreso").val());
-                    dato_laboral.fecha_salida = dateFormat($("#fecha_salida").val());
-                    dato_laboral.jornada_id = $("#jornada_id").val();
-                    dato_laboral.horas_semanales = $("#horas_semanales").val();
-                    dato_laboral.giro_comercial_id = $("#giro_comercial_hidden").val();
-                    dato_laboral.resolucion = false;
-                    solicitante.dato_laboral = dato_laboral;
+                    if($("#tipo_solicitud_id").val() == "1"){
+                        var dato_laboral = {};
+                        dato_laboral.id = $("#dato_laboral_id").val();
+                        dato_laboral.nombre_jefe_directo = $("#nombre_jefe_directo").val();
+                        dato_laboral.nombre_prestas_servicio = $("#nombre_prestas_servicio").val();
+                        dato_laboral.nombre_paga = $("#nombre_paga").val();
+                        dato_laboral.nombre_contrato = $("#nombre_contrato").val();
+                        dato_laboral.ocupacion_id = $("#ocupacion_id").val();
+                        dato_laboral.puesto = $("#puesto").val();
+                        dato_laboral.nss = $("#nss").val();
+                        dato_laboral.no_issste = "";//$("#no_issste").val();
+                        dato_laboral.remuneracion = $("#remuneracion").val();
+                        dato_laboral.periodicidad_id = $("#periodicidad_id").val();
+                        dato_laboral.labora_actualmente = $("#labora_actualmente").is(":checked");
+                        dato_laboral.fecha_ingreso = dateFormat($("#fecha_ingreso").val());
+                        dato_laboral.fecha_salida = dateFormat($("#fecha_salida").val());
+                        dato_laboral.jornada_id = $("#jornada_id").val();
+                        dato_laboral.horas_semanales = $("#horas_semanales").val();
+                        dato_laboral.giro_comercial_id = $("#giro_comercial_hidden").val();
+                        dato_laboral.resolucion = false;
+                        solicitante.dato_laboral = dato_laboral;
+                    }
 
                     //domicilio del solicitante
 
@@ -1526,6 +1574,12 @@
                                 scrollTop: $("#divSolicitante").offset().top
                             }, 'slow');
                         }
+                    });
+                }else{
+                    swal({
+                        title: 'Error',
+                        text: 'Revisa que los campos requeridos esten correctos',
+                        icon: 'error',
                     });
                 }
             }catch(error){
@@ -1722,6 +1776,19 @@
             }
         }
         // getGironivel("",1,"girosNivel1solicitante");
+        if($("#tipo_solicitud_id").val() == 4){
+            $("#labelTipoSolicitante").text("(Sindicato)")
+            $("#divTipoPersona").hide();
+            $("#tipo_persona_moral_solicitante").prop("checked", true).trigger('change');
+            $(".sindicato").show();
+            $("#registro_sindical").attr("required",true);
+        }else if($("#tipo_solicitud_id").val() == 3){
+            $("#labelTipoSolicitante").text("(Patron colectiva)")
+        }else if($("#tipo_solicitud_id").val() == 2){
+            $("#labelTipoSolicitante").text("(Patron individual)")
+        }else if($("#tipo_solicitud_id").val() == 1){
+            $("#labelTipoSolicitante").text("(Trabajador)")
+        }
     });
     function exepcionConciliacion(){
         var formData = new FormData();
@@ -2174,7 +2241,7 @@
             if(value.activo == "1"){
                 html += "<tr>";
                 if(value.tipo_persona_id == 1){
-                    html += "<td>" + value.nombre + " " + value.primer_apellido + " " + value.segundo_apellido + "</td>";
+                    html += "<td>" + value.nombre + " " + value.primer_apellido + " " + (value.segundo_apellido|| "") + "</td>";
                 }else{
                     html += "<td> " + value.nombre_comercial + " </td>";
                 }
@@ -2212,13 +2279,13 @@
             if(value.activo == "1"){
                 html += "<tr>";
                 if(value.tipo_persona_id == 1){
-                    html += "<td>" + value.nombre + " " + value.primer_apellido + " " + value.segundo_apellido + "</td>";
+                    html += "<td>" + value.nombre + " " + value.primer_apellido + " " + (value.segundo_apellido || "") + "</td>";
                 }else{
                     html += "<td> " + value.nombre_comercial + " </td>";
                 }
 
                 if(value.tipo_persona_id == 1){
-                    html += "<td> " + value.curp + " </td>";
+                    html += "<td> " + (value.curp || "") + " </td>";
                 }else{
                     html += "<td></td>";
                 }
@@ -2297,17 +2364,16 @@
     function cargarEditarSolicitante(key){
         $('#divContactoSolicitante').show();
         $('#divMapaSolicitante').show();
-        $('#divDatoLaboralSolicitante').show();
         $('#divBotonesSolicitante').show();
         $("#paso1").click();
         $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Validar y Editar solicitante');
         $("#edit_key").val(key);
         $("#solicitante_id").val(arraySolicitantes[key].id);
         if(arraySolicitantes[key].tipo_persona_id == 1){
-            $("#editandoSolicitante").html("<center><h3>Editando a "+ arraySolicitantes[key].nombre+" "+arraySolicitantes[key].primer_apellido+" "+arraySolicitantes[key].segundo_apellido+ "</h3></center>");
+            $("#editandoSolicitante").html("<center><h3>Editando a "+ arraySolicitantes[key].nombre+" "+arraySolicitantes[key].primer_apellido+" "+(arraySolicitantes[key].segundo_apellido|| "")+ "</h3></center>");
             $("#idNombreSolicitante").val(arraySolicitantes[key].nombre);
             $("#idPrimerASolicitante").val(arraySolicitantes[key].primer_apellido);
-            $("#idSegundoASolicitante").val(arraySolicitantes[key].segundo_apellido);
+            $("#idSegundoASolicitante").val((arraySolicitantes[key].segundo_apellido|| ""));
             $("#idFechaNacimientoSolicitante").val(dateFormat(arraySolicitantes[key].fecha_nacimiento,4));
             $("#idSolicitanteCURP").val(arraySolicitantes[key].curp);
             $("#genero_id_solicitante").val(arraySolicitantes[key].genero_id);
@@ -2326,45 +2392,50 @@
                     $("#solicita_traductor_solicitante").trigger('click');
                 }
             }
-            $("#tipo_persona_fisica_solicitante").prop("checked", true);
+            $("#tipo_persona_fisica_solicitante").prop("checked", true).trigger('change');
             $(".personaMoralSolicitante").hide();
             $(".personaFisicaSolicitante").show();
         }else{
+            alert();
             $("#editandoSolicitante").html("<center><h3>Editando a "+ arraySolicitantes[key].nombre_comercial+ "</h3></center>");
             $(".personaMoralSolicitante").show();
             $(".personaFisicaSolicitante").hide();
-            $("#tipo_persona_moral_solicitante").prop("checked", true);
+            $("#tipo_persona_moral_solicitante").prop("checked", true).trigger('change');
             $("#idNombreCSolicitante").val(arraySolicitantes[key].nombre_comercial);
         }
         $("#idSolicitanteRfc").val(arraySolicitantes[key].rfc);
         // datos laborales en la solicitante
-
-        if($.isArray(arraySolicitantes[key].dato_laboral)){
-            arraySolicitantes[key].dato_laboral = arraySolicitantes[key].dato_laboral[0];
+        if(arraySolicitantes[key].dato_laboral != undefined){
+            if($.isArray(arraySolicitantes[key].dato_laboral)){
+                arraySolicitantes[key].dato_laboral = arraySolicitantes[key].dato_laboral[0];
+            }
+            $("#dato_laboral_id").val(arraySolicitantes[key].dato_laboral.id);
+            $('#divDatoLaboralSolicitante').show();
+            // $("#giro_comercial_solicitante").val(arraySolicitantes[key].dato_laboral.giro_comercial_id).trigger("change");
+            $("#giro_comercial_hidden").val(arraySolicitantes[key].dato_laboral.giro_comercial_id)
+            $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
+            // getGiroEditar("solicitante");
+            $("#nombre_jefe_directo").val(arraySolicitantes[key].dato_laboral.nombre_jefe_directo);
+            $("#nombre_prestas_servicio").val(arraySolicitantes[key].dato_laboral.nombre_prestas_servicio);
+            $("#nombre_paga").val(arraySolicitantes[key].dato_laboral.nombre_paga);
+            $("#nombre_contrato").val(arraySolicitantes[key].dato_laboral.nombre_contrato);
+            $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
+            $("#puesto").val(arraySolicitantes[key].dato_laboral.puesto);
+            $("#nss").val(arraySolicitantes[key].dato_laboral.nss);
+            $("#no_issste").val(arraySolicitantes[key].dato_laboral.no_issste);
+            $("#remuneracion").val(arraySolicitantes[key].dato_laboral.remuneracion);
+            $("#periodicidad_id").val(arraySolicitantes[key].dato_laboral.periodicidad_id);
+            if(arraySolicitantes[key].dato_laboral.labora_actualmente != $("#labora_actualmente").is(":checked")){
+                $("#labora_actualmente").click();
+            }
+            $("input[name='tipo_persona_solicitante']").trigger("change");
+            $("#fecha_ingreso").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_ingreso,4));
+            $("#fecha_salida").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_salida,4));
+            $("#jornada_id").val(arraySolicitantes[key].dato_laboral.jornada_id);
+            $("#horas_semanales").val(arraySolicitantes[key].dato_laboral.horas_semanales);
+        }else{
+            $(".requiredLaboral").removeAttr('required');
         }
-        $("#dato_laboral_id").val(arraySolicitantes[key].dato_laboral.id);
-        // $("#giro_comercial_solicitante").val(arraySolicitantes[key].dato_laboral.giro_comercial_id).trigger("change");
-        $("#giro_comercial_hidden").val(arraySolicitantes[key].dato_laboral.giro_comercial_id)
-        $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
-        // getGiroEditar("solicitante");
-        $("#nombre_jefe_directo").val(arraySolicitantes[key].dato_laboral.nombre_jefe_directo);
-        $("#nombre_prestas_servicio").val(arraySolicitantes[key].dato_laboral.nombre_prestas_servicio);
-        $("#nombre_paga").val(arraySolicitantes[key].dato_laboral.nombre_paga);
-        $("#nombre_contrato").val(arraySolicitantes[key].dato_laboral.nombre_contrato);
-        $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
-        $("#puesto").val(arraySolicitantes[key].dato_laboral.puesto);
-        $("#nss").val(arraySolicitantes[key].dato_laboral.nss);
-        $("#no_issste").val(arraySolicitantes[key].dato_laboral.no_issste);
-        $("#remuneracion").val(arraySolicitantes[key].dato_laboral.remuneracion);
-        $("#periodicidad_id").val(arraySolicitantes[key].dato_laboral.periodicidad_id);
-        if(arraySolicitantes[key].dato_laboral.labora_actualmente != $("#labora_actualmente").is(":checked")){
-            $("#labora_actualmente").click();
-        }
-        $("input[name='tipo_persona_solicitante']").trigger("change");
-        $("#fecha_ingreso").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_ingreso,4));
-        $("#fecha_salida").val(dateFormat(arraySolicitantes[key].dato_laboral.fecha_salida,4));
-        $("#jornada_id").val(arraySolicitantes[key].dato_laboral.jornada_id);
-        $("#horas_semanales").val(arraySolicitantes[key].dato_laboral.horas_semanales);
         arrayContactoSolicitantes = arraySolicitantes[key].contactos ? arraySolicitantes[key].contactos : [];
         formarTablaContacto(true);
         //domicilio del solicitante
@@ -2387,10 +2458,10 @@
         $("#solicitado_id").val(arraySolicitados[key].id);
         // Si tipo persona es fisica o moral llena diferentes campos
         if(arraySolicitados[key].tipo_persona_id == 1){
-            $("#editandoSolicitado").html("<center><h3>Editando a "+ arraySolicitados[key].nombre+" "+arraySolicitados[key].primer_apellido+" "+arraySolicitados[key].segundo_apellido+ "</h3></center>");
+            $("#editandoSolicitado").html("<center><h3>Editando a "+ arraySolicitados[key].nombre+" "+arraySolicitados[key].primer_apellido+" "+(arraySolicitados[key].segundo_apellido|| "")+ "</h3></center>");
             $("#idNombreSolicitado").val(arraySolicitados[key].nombre);
             $("#idPrimerASolicitado").val(arraySolicitados[key].primer_apellido);
-            $("#idSegundoASolicitado").val(arraySolicitados[key].segundo_apellido);
+            $("#idSegundoASolicitado").val((arraySolicitados[key].segundo_apellido|| ""));
             $("#idFechaNacimientoSolicitado").val(dateFormat(arraySolicitados[key].fecha_nacimiento,4));
             $("#idSolicitadoCURP").val(arraySolicitados[key].curp);
             $("#idEdadSolicitado").val(arraySolicitados[key].edad);
@@ -2619,6 +2690,7 @@
             solicitud.fecha_ratificacion = dateFormat($("#fechaRatificacion").val(),3);
             solicitud.fecha_recepcion = dateFormat($("#fechaRecepcion").val(),3);
             solicitud.fecha_conflicto = dateFormat($("#fechaConflicto").val());
+            solicitud.tipo_solicitud_id = $("#tipo_solicitud_id").val();
             return solicitud;
         }catch(error){
             console.log(error);
@@ -2629,14 +2701,22 @@
     $("#btnRatificarSolicitud").on("click",function(){
         try{
             cargarDocumentos();
-            var solicitanteMenor = arraySolicitantes.filter(x=>x.edad <= 16);
-            if(solicitanteMenor.length > 0){
+            var solicitanteMenor = arraySolicitantes.filter(x=>x.edad <= 16).filter(x=>x.edad != null);
+            var solicitanteMoral = arraySolicitantes.filter(x=>x.tipo_persona_id == "2");
+            if(solicitanteMenor.length > 0 || solicitanteMoral.length > 0){
                 $("#divNeedRepresentante").show();
                 var html = "";
+                console.log(solicitanteMenor);
                 $.each(solicitanteMenor,function(key,parte){
                     html += "<tr>";
-                    html += "<td>"+parte.nombre + " " + parte.primer_apellido + " " + parte.segundo_apellido+"</td>";
-                    html += "<td><button class='btn btn-primary' type='button' onclick='AgregarRepresentante("+parte.id+")' id='btnaddRep"+parte.id+"' > <i class='fa fa-plus-circle'></i> Agregar Representante</button> <span style='color:green; font-size:Large;' id='tieneRepresentante"+parte.id+"'></span></td>";
+                    html += "<td>"+parte.nombre + " " + parte.primer_apellido + " " + (parte.segundo_apellido|| "")+"</td>";
+                    html += "<td><button class='btn btn-primary' type='button' onclick='AgregarRepresentante("+parte.id+",1)' id='btnaddRep"+parte.id+"' > <i class='fa fa-plus-circle'></i> Agregar Representante</button> <span style='color:green; font-size:Large;' id='tieneRepresentante"+parte.id+"'></span></td>";
+                    html += "</tr>";
+                });
+                $.each(solicitanteMoral,function(key,parte){
+                    html += "<tr>";
+                    html += "<td>"+parte.nombre_comercial +"</td>";
+                    html += "<td><button class='btn btn-primary' type='button' onclick='AgregarRepresentante("+parte.id+",0)' id='btnaddRep"+parte.id+"' > <i class='fa fa-plus-circle'></i> Agregar Representante</button> <span style='color:green; font-size:Large;' id='tieneRepresentante"+parte.id+"'></span></td>";
                     html += "</tr>";
                 });
                 $("#tbodyRepresentante").html(html);
@@ -2644,7 +2724,7 @@
                     $("#divNeedRepresentante").hide();
             }
             $("#modalRatificacion").modal("show");
-//             
+//
         }catch(error){
             console.log(error);
         }
@@ -2721,7 +2801,7 @@
                         $.each(data, function(index,element){
                             tableSolicitantes +='<tr>';
                             if(element.tipo_persona_id == 1){
-                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</td>';
+                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
                             }else{
                                 tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
                             }
@@ -2764,7 +2844,7 @@
                         $.each(data, function(index,element){
                             tableSolicitantes +='<tr>';
                             if(element.tipo_persona_id == 1){
-                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</td>';
+                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
                             }else{
                                 tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
                             }
@@ -3190,7 +3270,7 @@
                     '            <option value="">Seleccione una opci&oacute;n</option>'+
                     '            @if(isset($clasificacion_archivo))'+
                     '                @foreach($clasificacion_archivo as $clasificacion)'+
-                    '                    @if($clasificacion->tipo_archivo_id == 1)'+
+                    '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
                     '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
                     '                    @endif'+
                     '                @endforeach'+
@@ -3202,7 +3282,7 @@
                     '            <option value="">Seleccione una opci&oacute;n</option>'+
                     '            @if(isset($solicitud))'+
                     '                @foreach($solicitud->partes as $parte)'+
-                    '                    @if($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3 )'+
+                    '                    @if(($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3) && $parte->tipo_persona_id == 1  )'+
                     '                        <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>'+
                     '                    @endif'+
                     '                @endforeach'+
@@ -3253,10 +3333,10 @@
 
         // hide empty row text
         $('#fileupload').on('fileuploadsend', function (e, data) {
-            
+
             // if(){
             //     e.preventDefault();
-            // }    
+            // }
         })
         $('#fileupload').bind('fileuploadadd', function(e, data) {
             $('#fileupload [data-id="empty"]').hide();
@@ -3349,9 +3429,17 @@
             break;
             case 3:
                 if($('#divMapaSolicitante').parsley().validate()){
-                    $('#divDatoLaboralSolicitante').show();
-                    $('#divBotonesSolicitante').show();
-                    $('#continuar3').hide();
+                    if($("#tipo_solicitud_id").val() == 1){
+                        $('#divDatoLaboralSolicitante').show();
+                        $('#divBotonesSolicitante').show();
+                        $(".requiredLaboral").attr('required',true);
+                        $('#continuar3').hide();
+                    }else{
+                        $("#divDatoLaboralSolicitante").removeAttr('data-parsley-validate');
+                        $(".requiredLaboral").removeAttr('required');
+                        $('#divBotonesSolicitante').show();
+                        $('#continuar3').hide();
+                    }
                 }
             break;
             default:
@@ -3430,7 +3518,7 @@
         }
     });
     var listaContactos = [];
-    function AgregarRepresentante(parte_id){
+    function AgregarRepresentante(parte_id,tipoRepresentante){
         $.ajax({
             url:"/partes/representante/"+parte_id,
             type:"GET",
@@ -3443,7 +3531,7 @@
                     $("#curp").val(data.curp);
                     $("#nombre").val(data.nombre);
                     $("#primer_apellido").val(data.primer_apellido);
-                    $("#segundo_apellido").val(data.segundo_apellido);
+                    $("#segundo_apellido").val((data.segundo_apellido|| ""));
                     $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
                     $("#genero_id").val(data.genero_id).trigger("change");
                     $("#clasificacion_archivo_id").val(data.clasificacion_archivo_id).change();
@@ -3467,6 +3555,13 @@
                 $("#tipo_contacto_id").val("").trigger("change");
                 $("#contacto").val("");
                 $("#parte_representada_id").val(parte_id);
+                if(tipoRepresentante == 1){
+                    $("#menorAlert").show();
+                    $("#representanteMoral").hide();
+                }else{
+                    $("#menorAlert").hide();
+                    $("#representanteMoral").show();
+                }
                 cargarContactos();
                 $("#modal-representante").modal("show");
             }
@@ -3737,7 +3832,7 @@
                                     '            <option value="">Seleccione una opci&oacute;n</option>'+
                                     '            @if(isset($clasificacion_archivo))'+
                                     '                @foreach($clasificacion_archivo as $clasificacion)'+
-                                    '                    @if($clasificacion->tipo_archivo_id == 1)'+
+                                    '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
                                     '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
                                     '                    @endif'+
                                     '                @endforeach'+
@@ -3750,11 +3845,12 @@
                                     '            @if(isset($solicitud))';
                                     $.each(data, function(index,element){
                                         if(element.tipo_persona_id == 1){
-                                            html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</option>';
-                                        }else{
-                                            html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
-                                            html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                                            html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</option>';
                                         }
+                                        // else{
+                                        //     html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                                        //     // html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                                        // }
                                     });
                                     html +='    @endif'+
                                     '        </select>'+
@@ -3795,7 +3891,7 @@
                 }
             });
         }
-        
+
 
     $('[data-toggle="tooltip"]').tooltip();
 </script>

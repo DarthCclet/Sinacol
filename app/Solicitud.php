@@ -158,6 +158,9 @@ class Solicitud extends Model implements Auditable
     {
         return $this->hasOne(Expediente::class);
     }
+    public function tipoSolicitud(){
+        return $this->belongsTo(TipoSolicitud::class);
+      }
     public function documentos(){
         return $this->morphMany(Documento::class,'documentable');
     }

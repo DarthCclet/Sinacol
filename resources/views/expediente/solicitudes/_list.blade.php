@@ -2,7 +2,7 @@
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
-      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Año</th><th>Centro</th><th>user</th><th>ratificada</th><th>excepcion</th><th>Fecha Ratificación</th><th>Fecha Recepción</th><th>Observaciones</th><th>deleted_at</th><th>created_at</th><th>updated_at</th><th>Fecha Conflicto</th><th>Partes</th><th>Expediente</th><th>Días para expiraci&oacute;n</th><th>Acción</th></tr>
+      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Año</th><th>Fecha Ratificación</th><th>Fecha Recepción</th><th>Fecha Conflicto</th><th>Partes</th><th>Expediente</th><th>Días para expiraci&oacute;n</th><th>Acción</th></tr>
     </thead>
 
 </table>
@@ -88,13 +88,12 @@
                             }
                         }
                     },
-                    {"targets": [4], "visible": false},
-                    {"targets": [5], "visible": false},
-                    {"targets": [6], "visible": false},
-                    {"targets": [7], "visible": false},
+                    {"targets": [2]},
+                    {"targets": [3]},
                     {
-                        "targets": [8],
+                        "targets": [4],
                         "render": function (data, type, row) {
+                                console.log(data);
                             if (data != null) {
                                 return  dateFormat(data,2);
                             } else {
@@ -103,7 +102,7 @@
                         }
                     },
                     {
-                        "targets": [9],
+                        "targets": [5],
                         "render": function (data, type, row) {
                             if (data != null) {
                                 return  dateFormat(data,2);
@@ -112,13 +111,9 @@
                             }
                         }
                     },
-                    {"targets": [10], "visible": false},
-
-                    {"targets": [11], "visible": false},
-                    {"targets": [12], "visible": false},
-                    {"targets": [13], "visible": false},
+                   
                     {
-                        "targets": [14],
+                        "targets": [6],
                         "render": function (data, type, row) {
                             if (data != null) {
                                 return  dateFormat(data);
@@ -128,12 +123,12 @@
                         }
                     },
                     {
-                        "targets": [15],
+                        "targets": [7],
                         "render": function (data, type, row) {
                             var html = "";
                             var solicitantes = "";
                             var solicitados = "";
-                            $.each(row[16],function(key, value){
+                            $.each(row[7],function(key, value){
                                 var nombre = "";
                                 if(value.tipo_persona_id == 1){
                                         nombre = value.nombre + " " + value.primer_apellido + " " + value.segundo_apellido
@@ -156,12 +151,12 @@
                         }
                     },
                     {
-                        "targets": [16],
+                        "targets": [8],
                         "render": function (data, type, row) {
-                            console.log(row[17]);
+                            console.log(row[8]);
                             html = "N/A";
-                            if(row[17] != null){
-                            html = ""+row[17].folio;
+                            if(row[8] != null){
+                            html = ""+row[8].folio;
                             }
                             return  html;
                         }
@@ -170,10 +165,10 @@
                         "targets": -2,
                         "render": function (data, type, row) {
                                 // console.log(row[0]);
-                                if(row[1] == "2" && row[8] != null){
+                                if(row[1] == "2" && row[4] != null){
                                     var d = new Date();
                                     var dateToday = d.getFullYear()+"-"+String(d.getMonth() + 1).padStart(2, '0')+"-"+String(d.getDate()).padStart(2, '0');
-                                    var date1 = new Date(row[8].split(" ")[0]);
+                                    var date1 = new Date(row[4].split(" ")[0]);
                                     var date2 = new Date(dateToday);
                                     var dias = date2 - date1;
                                     dias = (dias/ (1000 * 3600 * 24));
