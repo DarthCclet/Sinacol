@@ -317,7 +317,7 @@
                                             <tr>
                                                 <th style="width:80%;">Tipo</th>
                                                 <th style="width:80%;">Contacto</th>
-                                                <th style="width:20%; text-align: center;">Accion</th>
+                                                <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                             </tr>
                                         </thead>
                                         <tbody id="tbodyContactoSolicitante">
@@ -573,7 +573,7 @@
                                                 <tr>
                                                     <th style="width:80%;">Tipo</th>
                                                     <th style="width:80%;">Contacto</th>
-                                                    <th style="width:20%; text-align: center;">Accion</th>
+                                                    <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="tbodyContactoSolicitado">
@@ -602,7 +602,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th style="width:80%;">Domicilio</th>
-                                                        <th style="width:20%; text-align: center;">Accion</th>
+                                                        <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="tbodyDomicilioSolicitado">
@@ -611,15 +611,13 @@
                                         </div> --}}
                                     </div>
                                 </div>
-                                <div class="col-md-12 pasoSolicitado" id="continuarSolicitado3">
-                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(3)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
-                                </div>
+                                
                             </div>
                                 <!-- end seccion de domicilios citado -->
                             <hr style="margin-top:5%;">
                             <div id="divBotonesSolicitado" style="display: none;">
-                                <button class="btn btn-primary" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Agregar citado</button>
                                 <button class="btn btn-danger" type="button" onclick="limpiarSolicitado()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
+                                <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Validar y Agregar citado</button>
                             </div>
 
                         </div>
@@ -673,7 +671,7 @@
                                         <th>Nombre</th>
                                         <th>Curp</th>
                                         <th>RFC</th>
-                                        <th>Accion</th>
+                                        <th>Acci&oacute;n</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbodySolicitanteRevision">
@@ -688,7 +686,7 @@
                                         <th>Nombre</th>
                                         <th>Curp</th>
                                         <th>RFC</th>
-                                        <th style="width:15%; text-align: center;">Accion</th>
+                                        <th style="width:15%; text-align: center;">Acci&oacute;n</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbodySolicitadoRevision">
@@ -745,7 +743,7 @@
                                         <tr>
                                             <th>Solicitante</th>
                                             <th>Grupo Vulnerable</th>
-                                            <th>Accion</th>
+                                            <th>Acci&oacute;n</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbodyGruposPrioritarios">
@@ -1175,7 +1173,7 @@
                             <thead>
                                 <tr>
                                     <td>Solicitante</td>
-                                    <td>Accion</td>
+                                    <td>Acci&oacute;n</td>
                                 </tr>
                             </thead>
                             <tbody id="tbodyRepresentante">
@@ -1316,7 +1314,7 @@
                             <tr>
                                 <th style="width:80%;">Tipo</th>
                                 <th style="width:80%;">Contacto</th>
-                                <th style="width:20%; text-align: center;">Accion</th>
+                                <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyContacto">
@@ -1637,6 +1635,7 @@
                         $('#divContactoSolicitado').hide();
                         $('#divMapaSolicitado').hide();
                         $('#divBotonesSolicitado').hide();
+                        $("#tipo_persona_fisica_solicitado").click().trigger('change');
                         $(".pasoSolicitado").show();
                         swal({
                             title: '¿Quieres seguir capturando citados?',
@@ -2350,7 +2349,6 @@
     * @argument key posicion de array a eliminar
     */
     function eliminarSolicitado(key){
-        $("#paso2").click();
         if(arraySolicitados[key].id == ""){
             arraySolicitados.splice(1,key);
         }else{
@@ -3459,7 +3457,8 @@
                 break;
             case 2:
                 $('#divMapaSolicitado').show();
-                $('#continuarSolicitado2').hide();
+                // $('#continuarSolicitado2').hide();
+                 $('#divBotonesSolicitado').show();
             break;
             case 3:
                 if($('#divMapaSolicitado').parsley().validate()){
