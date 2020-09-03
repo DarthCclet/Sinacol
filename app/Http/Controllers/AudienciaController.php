@@ -309,7 +309,7 @@ class AudienciaController extends Controller
         $fechaFinSola = date('Y-m-d',strtotime($request->fechaFin));
         $horaFin = date('H:i:s',strtotime($request->fechaFin));
        
-        $conciliadores = Conciliador::all();
+        $conciliadores = Conciliador::where("centro_id", auth()->user()->centro_id)->get();
         $conciliadoresResponse=[];
         foreach($conciliadores as $conciliador){
 //            $pasa=false;
@@ -342,7 +342,7 @@ class AudienciaController extends Controller
 //                }
 //            }
 //            if($pasa){
-//                $conciliador->persona = $conciliador->persona;
+                $conciliador->persona = $conciliador->persona;
 //            }
                 $conciliadoresResponse[]=$conciliador;
         }
@@ -364,45 +364,45 @@ class AudienciaController extends Controller
         $fechaFinSola = date('Y-m-d',strtotime($request->fechaFin));
         $horaFin = date('H:i:s',strtotime($request->fechaFin));
         ## Obtenemos las salas -> en el futuro seran filtradas por el centro de la sesión
-        $salas = Sala::all();
+        $salas = Sala::where("centro_id", auth()->user()->centro_id)->get();
         $salasResponse=[];
         ## Recorremos las salas para la audiencia
         foreach($salas as $sala){
-            $pasa=false;
-            ## buscamos si tiene disponibilidad y si esta en el día que se solicita
-            if(count($sala->disponibilidades) > 0){
-                foreach($sala->disponibilidades as $disp){
-                    if($disp["dia"] == $diaSemana){
-                        $pasa = true;
-                    }
-                }
-            }else{$pasa=false;}
-            if($pasa){
-                ## Validamos que no haya incidencias
-                foreach($sala->incidencias as $inci){
-                    if($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]){
-                        $pasa=false;
-                    }
-                }
-                if($pasa){
-                    ## validamos que no haya audiencias en el horario solicitado
-                    foreach($sala->salaAudiencia as $salaAudiencia){
-                        $audiencias = $salaAudiencia->audiencia->where("fecha_audiencia",$fechaInicioSola)->get();
-                        if(count($audiencias) > 0){
-                            foreach($audiencias as $audiencia){
-                                //Buscamos que la hora inicio no este entre una audiencia
-                                $horaInicioAudiencia= $audiencia->hora_inicio;
-                                $horaFinAudiencia= $audiencia->hora_fin;
-                                $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-                            }
-                        }
-                    }
-                }
-            }
-            
-            if($pasa){
+//            $pasa=false;
+//            ## buscamos si tiene disponibilidad y si esta en el día que se solicita
+//            if(count($sala->disponibilidades) > 0){
+//                foreach($sala->disponibilidades as $disp){
+//                    if($disp["dia"] == $diaSemana){
+//                        $pasa = true;
+//                    }
+//                }
+//            }else{$pasa=false;}
+//            if($pasa){
+//                ## Validamos que no haya incidencias
+//                foreach($sala->incidencias as $inci){
+//                    if($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]){
+//                        $pasa=false;
+//                    }
+//                }
+//                if($pasa){
+//                    ## validamos que no haya audiencias en el horario solicitado
+//                    foreach($sala->salaAudiencia as $salaAudiencia){
+//                        $audiencias = $salaAudiencia->audiencia->where("fecha_audiencia",$fechaInicioSola)->get();
+//                        if(count($audiencias) > 0){
+//                            foreach($audiencias as $audiencia){
+//                                //Buscamos que la hora inicio no este entre una audiencia
+//                                $horaInicioAudiencia= $audiencia->hora_inicio;
+//                                $horaFinAudiencia= $audiencia->hora_fin;
+//                                $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            
+//            if($pasa){
                 $salasResponse[]=$sala;
-            }
+//            }
         }
         return $salasResponse;
     }
