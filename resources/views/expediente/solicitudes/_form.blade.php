@@ -212,7 +212,7 @@
                                         <input class="form-control upper" id="idPrimerASolicitante" required placeholder="Primer apellido del solicitante" type="text" value="">
                                         <p class="help-block needed">Primer apellido</p>
                                     </div>
-                                    <div class="col-md-4 personaFisicaSolicitante">
+                                    <div class="col-md-4 personaFisicaSolicitanteNO">
                                         <input class="form-control upper" id="idSegundoASolicitante" placeholder="Segundo apellido del solicitante" type="text" value="">
                                         <p class="help-block">Segundo apellido</p>
                                     </div>
@@ -259,7 +259,7 @@
                                         <p class="help-block needed">Estado de nacimiento</p>
                                     </div>
                                 </div>
-                                <div class="col-md-12 row personaFisicaSolicitante">
+                                <div class="col-md-12 row personaFisicaSolicitanteNO">
                                     <div class="col-md-4">
                                         <div >
                                             <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
