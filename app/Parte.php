@@ -43,14 +43,14 @@ class Parte extends Model implements Auditable
             unset($data['new_values']["tipo_persona_id"]);
         }
 //        Validamos el genero_id
-        if (Arr::has($data, 'new_values.genero_id')) {
-            if($data["event"] != "created"){
-                $data['old_values']['Genero'] = Genero::find($this->getOriginal('genero_id'))->name;
-                unset($data['old_values']["genero_id"]);
-            }
-            $data['new_values']['Genero'] = Genero::find($this->getAttribute('genero_id'))->name;
-            unset($data['new_values']["genero_id"]);
-        }
+        // if (Arr::has($data, 'new_values.genero_id')) {
+        //     if($data["event"] != "created"){
+        //         $data['old_values']['Genero'] = Genero::find($this->getOriginal('genero_id'))->name;
+        //         unset($data['old_values']["genero_id"]);
+        //     }
+        //     $data['new_values']['Genero'] = Genero::find($this->getAttribute('genero_id'))->name;
+        //     unset($data['new_values']["genero_id"]);
+        // }
 //        Validamos la nacionalidad
         if (Arr::has($data, 'new_values.nacionalidad_id')) {
             if($data["event"] != "created"){
