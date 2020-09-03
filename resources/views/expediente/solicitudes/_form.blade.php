@@ -1913,6 +1913,8 @@
                         $("#expediente_id").val(data.expediente.id);
                         $(".step-5").show();
                         $('#wizard').smartWizard("stepState", [4], "show");
+                        expedientee = true;
+                        expediente_id = data.expediente.id;
                         // if(excepcion){
                         //     $(".step-4").show();
                         //     $('#wizard').smartWizard("stepState", [3], "show");
