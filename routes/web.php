@@ -77,6 +77,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('plantilla-documentos','PlantillasDocumentosController');
     Route::resource('tipo-documento','TipoDocumentoController');
     Route::resource('bitacora','BitacoraController');
+    Route::resource('oficio-documentos','OficiosDocumentosController');
+    Route::Post('oficio-documento/imprimirPDF','OficiosDocumentosController@imprimirPDF')->name('oficio-documento.imprimirPDF');
     Route::get('plantilla-documento/imprimirPDF','PlantillasDocumentosController@imprimirPDF');
     Route::get('plantilla-documento/cargarDefault','PlantillasDocumentosController@cargarDefault');
     Route::get('plantilla-documento/{id}/imprimirPDF','PlantillasDocumentosController@imprimirPDF')->name('plantilla-documento/imprimirPDF');
