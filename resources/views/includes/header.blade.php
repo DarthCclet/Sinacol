@@ -79,9 +79,11 @@
                         div +='</li>';
                     }
                 });
-                if(expedientee){
-                    div +='<li class="nav-item"> <a class="nav-link" href="/oficio-documentos/'+expediente_id+'">Oficios</a> </li>';
-                }
+                try{
+                    if(expedientee){
+                        div +='<li class="nav-item"> <a class="nav-link" href="/oficio-documentos/'+expediente_id+'">Oficios</a> </li>';
+                    }
+                }catch(err){}
                 $("#divMenu").html(div);
                 div="";
                 div +='<li class="nav-item dropdown">';
