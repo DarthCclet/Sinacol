@@ -161,13 +161,13 @@ class SolicitudController extends Controller {
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
         $motivo_excepcion = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
-        $origen = isset($this->request->origen) ?$this->request->origen : 1;
+        $tipo_solicitud_id = isset($this->request->solicitud) ?$this->request->solicitud : 1;
         $clasificacion_archivo = ClasificacionArchivo::all();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
         //$municipios = array_pluck(Municipio::all(),'municipio','id');
         $municipios=[];
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepcion','clasificacion_archivo','origen','clasificacion_archivos_Representante'));
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepcion','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante'));
     }
     /**
      * Función para almacenar catalogos (nombre,id) en cache
@@ -194,7 +194,7 @@ class SolicitudController extends Controller {
      */
     public function store(Request $request) {
 
-        if($request->origen == 1){
+        if($request->tipo_solicitud_id == 1){
             $request->validate([
                 'solicitud.fecha_conflicto' => 'required',
                 'solicitud.solicita_excepcion' => 'required',
@@ -459,12 +459,12 @@ class SolicitudController extends Controller {
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         $clasificacion_archivo = ClasificacionArchivo::all();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
-        $origen = $solicitud->tipo_solicitud_id;
+        $tipo_solicitud_id = $solicitud->tipo_solicitud_id;
         // dd(Conciliador::all()->persona->full_name());
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
         // dd($conciliador);
         // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','origen','clasificacion_archivos_Representante'));
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante'));
     }
 
     /**

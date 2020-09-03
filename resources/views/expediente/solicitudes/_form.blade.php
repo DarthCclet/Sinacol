@@ -636,7 +636,7 @@
                     <center>  <h1>Solicitud</h1></center>
                 <div class="col-md-12 row">
                     <input type="hidden" id="solicitud_id">
-                    <input type="hidden" id="tipo_solicitud_id" value="{{$origen}}">
+                    <input type="hidden" id="tipo_solicitud_id" value="{{$tipo_solicitud_id}}">
                     <div class="col-md-4 showEdit" >
                         <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de ratificación" type="text" value="">
                         <p class="help-block">Fecha de Ratificación</p>
