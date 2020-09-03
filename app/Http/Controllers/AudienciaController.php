@@ -329,8 +329,9 @@ class AudienciaController extends Controller
                 if($pasa){
                     $conciliadoresAudiencia = array();
                     foreach($conciliador->conciliadorAudiencia as $conciliadorAudiencia){
-                        $audiencias = $conciliadorAudiencia->audiencia->where("fecha_audiencia",$fechaInicioSola)->get();
+                        $audiencias = $conciliadorAudiencia->audiencia;
                         if(count($audiencias) > 0){
+                            $audiencias->where("fecha_audiencia",$fechaInicioSola)->get();
                             foreach($audiencias as $audiencia){
                                 //Buscamos que la hora inicio no este entre una audiencia
                                 $horaInicioAudiencia= $audiencia->hora_inicio;
@@ -387,8 +388,9 @@ class AudienciaController extends Controller
                 if($pasa){
                     ## validamos que no haya audiencias en el horario solicitado
                     foreach($sala->salaAudiencia as $salaAudiencia){
-                        $audiencias = $salaAudiencia->audiencia->where("fecha_audiencia",$fechaInicioSola)->get();
+                        $audiencias = $salaAudiencia->audiencia;
                         if(count($audiencias) > 0){
+                            $audiencias->where("fecha_audiencia",$fechaInicioSola)->get();
                             foreach($audiencias as $audiencia){
                                 //Buscamos que la hora inicio no este entre una audiencia
                                 $horaInicioAudiencia= $audiencia->hora_inicio;
