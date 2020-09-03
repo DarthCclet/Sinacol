@@ -15,7 +15,7 @@
                 <br>
                 <br>
                 <br>
-                <a href="/asesoria/2010" class="btn btn-primary btn-lg m-10" type="button">CONFLICTO INDIVIDUAL</a>
+                <a href="/asesoria/2010" class="btn btn-primary btn-lg m-10" type="button">CONFLICTO INDIVIDUAL...</a>
                 <a href="/asesoria/2020" class="btn btn-primary btn-lg m-10" type="button">CONFLICTO COLECTIVO</a>
 
 

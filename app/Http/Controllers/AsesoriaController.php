@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jornada;
 use App\Ocupacion;
 use App\Periodicidad;
+use Dompdf\Image\Cache;
 use Illuminate\Http\Request;
 
 class AsesoriaController extends Controller
@@ -21,6 +22,7 @@ class AsesoriaController extends Controller
         switch ($accion){
             case '10':
                 //Soy trabajador
+
                 return view('asesoria.a10');
                 break;
             case '1050':
@@ -100,10 +102,12 @@ class AsesoriaController extends Controller
                 $origen = $this->request->get('source', 10501010);
                 $asset_paso = $paso.'.jpg';
                 $paso_next = $paso;
+                $last = false;
                 if($paso >= $max_paso){
-                    $accion = '../solicitudes/create-public';
+                    $accion = '../solicitudes/create-public/?solicitud=1';
+                    $last = true;
                 }
-                return view('asesoria.a10501010', compact('accion', 'asset_paso', 'paso_next', 'origen'));
+                return view('asesoria.a10501010', compact('accion', 'asset_paso', 'paso_next', 'origen', 'last'));
                 break;
 
             case '1010101010':
@@ -121,10 +125,12 @@ class AsesoriaController extends Controller
                 $origen = $this->request->get('source', 10101010);
                 $asset_paso = $paso.'.jpg';
                 $paso_next = $paso;
+                $last = false;
                 if($paso >= $max_paso){
                     $accion = '../solicitudes/create-public';
+                    $last = true;
                 }
-                return view('asesoria.a101010101010',  compact('accion', 'asset_paso', 'paso_next', 'origen'));
+                return view('asesoria.a101010101010',  compact('accion', 'asset_paso', 'paso_next', 'origen', 'last'));
                 break;
             case 'presolicitud':
                 $jornadas = array_pluck(Jornada::all(),'nombre','id');
@@ -150,10 +156,12 @@ class AsesoriaController extends Controller
                 $origen = $this->request->get('source', 201010);
                 $asset_paso = $paso.'.jpg';
                 $paso_next = $paso;
+                $last = false;
                 if($paso >= $max_paso){
-                    $accion = '../solicitudes/create-public?origen=patron-individual';
+                    $accion = '../solicitudes/create-public/?solicitud=2';
+                    $last = true;
                 }
-                return view('asesoria.a201010',  compact('accion', 'asset_paso', 'paso_next', 'origen'));
+                return view('asesoria.a201010',  compact('accion', 'asset_paso', 'paso_next', 'origen', 'last'));
                 break;
             case '202010':
                 //Soy patron - conflicto colectivo
