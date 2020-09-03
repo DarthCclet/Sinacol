@@ -131,7 +131,7 @@
                             $.each(row[7],function(key, value){
                                 var nombre = "";
                                 if(value.tipo_persona_id == 1){
-                                        nombre = value.nombre + " " + value.primer_apellido + " " + value.segundo_apellido
+                                        nombre = value.nombre + " " + value.primer_apellido + " " + (value.segundo_apellido || "")
                                 }else{
                                     nombre = value.nombre_comercial;
                                 }
