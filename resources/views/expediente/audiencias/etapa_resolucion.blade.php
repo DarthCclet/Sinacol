@@ -1046,9 +1046,7 @@
                         <option value="">Seleccione una opci&oacute;n</option>
                         @if(isset($audiencia->partes))
                             @foreach($audiencia->partes as $parte)
-                                @if($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3 )
                                     <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>
-                                @endif
                             @endforeach
                         @endif
                     </select>
