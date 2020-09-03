@@ -473,7 +473,7 @@ class AudienciaController extends Controller
     public function getCalendario(Request $request)
     {
         // inicio obtenemos los datos del centro donde no trabajará
-        $centro = Centro::find($request->centro_id);
+        $centro = auth()->user()->centro;
         $centroDisponibilidad = $centro->disponibilidades;
         $laboresCentro=array();
         foreach($centroDisponibilidad as $key => $value){
@@ -487,13 +487,17 @@ class AudienciaController extends Controller
         foreach($centroIncidencias as $key => $value){
             $arrayFechas = $this->validarIncidenciasCentro($value,$arrayFechas);
         }
-        $arrayAudiencias=$this->getTodasAudiencias($request->centro_id);
+        $arrayAudiencias=$this->getTodasAudiencias($centro->id);
         $ev=array_merge($arrayFechas,$arrayAudiencias);
         //construimos el arreglo general
         $arregloGeneral = array();
         $arregloGeneral["laboresCentro"] = $laboresCentro;
         $arregloGeneral["incidenciasCentro"] = $ev;
         $arregloGeneral["duracionPromedio"] = $centro->duracionAudiencia;
+        //obtenemos el minmaxtime
+        $minmax= $this->getMinMaxTime($centro);
+        $arregloGeneral["minTime"] = $minmax["hora_inicio"];
+        $arregloGeneral["maxtime"] = $minmax["hora_fin"];
         return $arregloGeneral;
     }
     /**
@@ -1045,5 +1049,19 @@ class AudienciaController extends Controller
             DB::rollback();
             return $this->sendError('Algo salio mal al tratar de reagendar', 'Error');
         }
+    }
+    public function getMinMaxTime(Centro $centro){
+//        Recorremos las disponibilidades
+        $horaIniciopiv = "23:59:59";
+        $horaFinpiv = "00:00:00";
+        foreach($centro->disponibilidades as $disponibilidad){
+            if($disponibilidad->hora_inicio < $horaIniciopiv){
+                $horaIniciopiv = $disponibilidad->hora_inicio;
+            }
+            if($disponibilidad->hora_fin > $horaIniciopiv){
+                $horaFinpiv = $disponibilidad->hora_fin;
+            }
+        }
+        return array("hora_inicio" => $horaIniciopiv, "hora_fin" =>$horaFinpiv);
     }
 }
