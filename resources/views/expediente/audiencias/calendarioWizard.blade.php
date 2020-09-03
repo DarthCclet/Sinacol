@@ -188,7 +188,9 @@
                     },
                     dataType:"json",
                     success:function(data){
-                        if(data.minTime != "23:59:59" && data.maxTime != "00:00:00"){
+                        console.log(data.minTime);
+                        console.log(data.maxtime);
+                        if(data.minTime == "23:59:59" && data.maxtime == "00:00:00"){
                             swal({
                                 title: 'Error',
                                 text: 'No está configurada la disponibilidad del centro',
