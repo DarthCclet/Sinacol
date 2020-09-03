@@ -45,8 +45,7 @@ class AsesoriaController extends Controller
                 break;
 
             case '10101010':
-
-            case '10501010':
+            case '10301010':
                 $max_paso = 10101017;
                 $paso = ($this->request->get('from',10101009) + 1);
                 $origen = $this->request->get('source', 10101010);
@@ -55,12 +54,8 @@ class AsesoriaController extends Controller
                 if($paso >= $max_paso){
                     $accion = '1010101010';
                 }
-                if($origen == '10501010'){
-                    $accion = '../solicitudes/create-public';
-                }
                 return view('asesoria.a10101010', compact('accion', 'asset_paso', 'paso_next', 'origen'));
                 break;
-            case '10301010':
             case '10201010':
                 //Presentación de Prestaciones laborales
                 $max_paso = 10201018;
@@ -93,6 +88,24 @@ class AsesoriaController extends Controller
                 }
                 return view('asesoria.a10401010', compact('accion', 'asset_paso', 'paso_next', 'origen'));
                 break;
+
+            case '10501010':
+                // Preferencia, derecho de antigüedad o ascenso
+                $max_paso = 10501017;
+                $from = $this->request->get('from',10501010);
+                if($from < 10501010){
+                    $from = 10501010;
+                }
+                $paso = ($from + 1);
+                $origen = $this->request->get('source', 10501010);
+                $asset_paso = $paso.'.jpg';
+                $paso_next = $paso;
+                if($paso >= $max_paso){
+                    $accion = '../solicitudes/create-public';
+                }
+                return view('asesoria.a10501010', compact('accion', 'asset_paso', 'paso_next', 'origen'));
+                break;
+
             case '1010101010':
                 //este es el calculo del pre registro
                 $jornadas = array_pluck(Jornada::all(),'nombre','id');
