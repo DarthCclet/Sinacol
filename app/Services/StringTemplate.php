@@ -201,4 +201,19 @@ class StringTemplate
 
         return self::render($blade, $vars);
     }
+    /**
+     * Regresa una cadena HTML compilada desde placeholders pasando por plantilla blade hasta html
+     * @param $string string Cadena con placeholders
+     * @param $vars array Variables a sustituir en plantilla blade
+     * @return string
+     * @throws Exception
+     * @throws FatalThrowableError
+     */
+    public static function renderOficioPlaceholders($string, $vars)
+    {
+        // $string = self::sustituyePlaceholdersConditionals($string,$vars);
+        $blade = self::sustituyePlaceholders($string);
+
+        return self::render($blade, $vars);
+    }
 }

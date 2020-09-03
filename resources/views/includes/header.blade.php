@@ -19,6 +19,10 @@
     </div>
     <div class="collapse navbar-collapse" id="main_nav">
         <ul class="navbar-nav mr-auto" id='divMenu'></ul>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item" id='liMenuOficio'>
+            </li>
+        </ul>
         <ul class="navbar-nav ml-auto" id='divUser'></ul>
     </div>
 
@@ -75,6 +79,11 @@
                         div +='</li>';
                     }
                 });
+                try{
+                    if(expedientee){
+                        div +='<li class="nav-item"> <a class="nav-link" href="/oficio-documentos/'+expediente_id+'">Oficios</a> </li>';
+                    }
+                }catch(err){}
                 $("#divMenu").html(div);
                 div="";
                 div +='<li class="nav-item dropdown">';
