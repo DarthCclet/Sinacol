@@ -113,7 +113,7 @@ class SolicitudController extends Controller {
                 $solicitud = $solicitud->with("expediente");
             }
             if ($this->request->get('IsDatatableScroll')) {
-                $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get();
+                $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto']);
             } else {
                 $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
             }
@@ -161,11 +161,13 @@ class SolicitudController extends Controller {
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
         $motivo_excepcion = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
+        $origen = $this->request->origen;
         $clasificacion_archivo = ClasificacionArchivo::all();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
         //$municipios = array_pluck(Municipio::all(),'municipio','id');
         $municipios=[];
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepcion','clasificacion_archivo'));
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepcion','clasificacion_archivo','origen','clasificacion_archivos_Representante'));
     }
     /**
      * Función para almacenar catalogos (nombre,id) en cache
@@ -192,30 +194,58 @@ class SolicitudController extends Controller {
      */
     public function store(Request $request) {
 
-        $request->validate([
-            'solicitud.fecha_conflicto' => 'required',
-            'solicitud.solicita_excepcion' => 'required',
-            'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.rfc' => ['nullable', new RFC],
-            'solicitantes.*.tipo_parte_id' => 'required',
-            'solicitantes.*.tipo_persona_id' => 'required',
-            'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
-            'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
-            'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.dato_laboral' => 'required',
-            'solicitantes.*.domicilios' => 'required',
-            'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-            'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-            'solicitados.*.rfc' => ['nullable', new RFC],
-            'solicitados.*.tipo_parte_id' => 'required',
-            'solicitados.*.tipo_persona_id' => 'required',
-            'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
-            'solicitados.*.domicilios' => 'required'
-        ]);
+        if($request->origen == 1){
+            $request->validate([
+                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.solicita_excepcion' => 'required',
+                'solicitud.tipo_solicitud_id' => 'required',
+                'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
+                'solicitantes.*.tipo_parte_id' => 'required',
+                'solicitantes.*.tipo_persona_id' => 'required',
+                'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
+                'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
+                'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.dato_laboral' => 'required',
+                'solicitantes.*.domicilios' => 'required',
+                'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
+                'solicitados.*.tipo_parte_id' => 'required',
+                'solicitados.*.tipo_persona_id' => 'required',
+                'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
+                'solicitados.*.domicilios' => 'required'
+            ]);
+        }else{
+            $request->validate([
+                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.solicita_excepcion' => 'required',
+                'solicitud.tipo_solicitud_id' => 'required',
+                'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
+                'solicitantes.*.tipo_parte_id' => 'required',
+                'solicitantes.*.tipo_persona_id' => 'required',
+                'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
+                'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
+                'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.domicilios' => 'required',
+                'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
+                'solicitados.*.tipo_parte_id' => 'required',
+                'solicitados.*.tipo_persona_id' => 'required',
+                'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
+                'solicitados.*.domicilios' => 'required'
+            ]); 
+        }
 
         $solicitud = $request->input('solicitud');
 
@@ -225,6 +255,9 @@ class SolicitudController extends Controller {
             // Solicitud
             $solicitud['user_id'] = 1;
             $solicitud['estatus_solicitud_id'] = 1;
+            if(!isset($solicitud['tipo_solicitud_id'])){
+                $solicitud['tipo_solicitud_id'] = 1;
+            }
             $date = new \DateTime();
             $solicitud['fecha_recepcion'] = $date->format('Y-m-d H:i:s');
             $solicitud['centro_id'] = $this->getCentroId();
@@ -248,9 +281,11 @@ class SolicitudController extends Controller {
             foreach ($solicitantes as $key => $value) {
                 $value['solicitud_id'] = $solicitudSaved['id'];
                 unset($value['activo']);
-                $dato_laboral = $value['dato_laboral'];
+                if(isset($value['dato_laboral'])){
+                    $dato_laboral = $value['dato_laboral'];
+                    unset($value['dato_laboral']);
+                }
 
-                unset($value['dato_laboral']);
                 if (isset($value["domicilios"])) {
                     $domicilio = $value["domicilios"][0];
                     unset($value['domicilios']);
@@ -262,7 +297,10 @@ class SolicitudController extends Controller {
                 }
 
                 // dd($value);
-                $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+                $parteSaved = Parte::create($value);
+                if(isset($dato_laboral)){
+                    $parteSaved->dato_laboral()->create($dato_laboral);
+                }
                 // dd($domicilio);
                 // foreach ($domicilios as $key => $domicilio) {
                 unset($domicilio['activo']);
@@ -324,7 +362,7 @@ class SolicitudController extends Controller {
         } catch (\Throwable $e) {
             DB::rollback();
             if ($this->request->wantsJson()) {
-                return $this->sendError('Error al crear la solicitud', 'Error');
+                return $this->sendError('Error al crear la solicitud'.$e->getMessage(), 'Error');
             }
             return redirect('solicitudes')->with('error', 'Error al crear la solicitud');
         }
@@ -420,11 +458,13 @@ class SolicitudController extends Controller {
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         $clasificacion_archivo = ClasificacionArchivo::all();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        $origen = $solicitud->tipo_solicitud_id;
         // dd(Conciliador::all()->persona->full_name());
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
         // dd($conciliador);
         // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo'));
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','origen','clasificacion_archivos_Representante'));
     }
 
     /**

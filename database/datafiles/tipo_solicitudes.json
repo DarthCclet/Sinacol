@@ -1,0 +1,21 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Trabajador"
+        },
+        {
+            "id": "2",
+            "nombre": "Patron individual"
+        },
+        {
+            "id": "3",
+            "nombre": "Patron colectiva"
+        },
+        {
+            "id": "4",
+            "nombre": "Sindicato"
+        }
+    ],
+    "numReg": 4
+}
