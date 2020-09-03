@@ -1777,17 +1777,17 @@
         }
         // getGironivel("",1,"girosNivel1solicitante");
         if($("#tipo_solicitud_id").val() == 4){
-            $("#labelTipoSolicitante").text("(Sindicato)")
+            $("#labelTipoSolicitante").text("Sindicato")
             $("#divTipoPersona").hide();
             $("#tipo_persona_moral_solicitante").prop("checked", true).trigger('change');
             $(".sindicato").show();
             $("#registro_sindical").attr("required",true);
         }else if($("#tipo_solicitud_id").val() == 3){
-            $("#labelTipoSolicitante").text("(Patron colectiva)")
+            $("#labelTipoSolicitante").text("Patrón (colectiva)")
         }else if($("#tipo_solicitud_id").val() == 2){
-            $("#labelTipoSolicitante").text("(Patron individual)")
+            $("#labelTipoSolicitante").text("Patrón (individual)")
         }else if($("#tipo_solicitud_id").val() == 1){
-            $("#labelTipoSolicitante").text("(Trabajador)")
+            $("#labelTipoSolicitante").text("Trabajador")
         }
     });
     function exepcionConciliacion(){
@@ -3093,7 +3093,7 @@
     $("#idFechaNacimientoSolicitante").change(function(){
         if($("#idFechaNacimientoSolicitante").val() != ""){
             var edad = Edad($("#idFechaNacimientoSolicitante").val());
-            if(edad > 15){
+            if(edad >= 15){
                 $("#idEdadSolicitante").val(edad);
             }else{
                 $("#idFechaNacimientoSolicitante").val("")
@@ -3110,7 +3110,7 @@
     $("#idFechaNacimientoSolicitado").change(function(){
         if($("#idFechaNacimientoSolicitado").val() != ""){
             var edad = Edad($("#idFechaNacimientoSolicitado").val())
-            if(edad > 18){
+            if(edad >= 18){
                 $("#idEdadSolicitado").val(edad)
             }else{
                 $("#idFechaNacimientoSolicitado").val("");
@@ -3668,10 +3668,10 @@
             $("#instrumento").prev().css("color","red");
             error = true;
         }
-        if($("#feha_instrumento").val() == ""){
-            $("#feha_instrumento").prev().css("color","red");
-            error = true;
-        }
+        // if($("#feha_instrumento").val() == ""){
+        //     $("#feha_instrumento").prev().css("color","red");
+        //     error = true;
+        // }
         if($("#numero_notaria").val() == ""){
             $("#numero_notaria").prev().css("color","red");
             error = true;
