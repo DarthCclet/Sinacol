@@ -1768,11 +1768,11 @@
                 $("#periodicidad_id").val(datos_laborales_storage.periodicidad_id).trigger('change');
                 $("#remuneracion").val(datos_laborales_storage.remuneracion);
                 $("#ocupacion_id").val(datos_laborales_storage.ocupacion_id).trigger('change');
-                $("#fecha_ingreso").val(datos_laborales_storage.fecha_ingreso);
+                $("#fecha_ingreso").val(dateFormat(datos_laborales_storage.fecha_ingreso,4));
                 if(datos_laborales_storage.labora_actualmente != $("#labora_actualmente").is(":checked")){
                     $("#labora_actualmente").click();
                 }
-                $("#fecha_salida").val(datos_laborales_storage.fecha_salida);
+                $("#fecha_salida").val(dateFormat(datos_laborales_storage.fecha_salida,4));
             }
         }
         // getGironivel("",1,"girosNivel1solicitante");
