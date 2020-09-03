@@ -88,7 +88,7 @@
                     {
                         "targets": [0],
                         "render": function (data, type, row) {
-                            return  row[19]+"/"+row[20];
+                            return  row[17]+"/"+row[18];
                         }
                     },
                     {
@@ -96,8 +96,8 @@
                         "render": function (data, type, row) {
                             var html = "";
                             console.log(row);
-                            if(row[21] != null){
-                                html = ""+row[21].persona.nombre + " "+ row[21].persona.primer_apellido + " " + (row[21].persona.segundo_apellido|| "");
+                            if(row[19] != null){
+                                html = ""+row[19].persona.nombre + " "+ row[19].persona.primer_apellido + " " + (row[19].persona.segundo_apellido|| "");
 
                             }
                             return  html;
