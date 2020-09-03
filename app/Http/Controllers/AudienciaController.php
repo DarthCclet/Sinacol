@@ -855,8 +855,7 @@ class AudienciaController extends Controller
     
     public function GetAudienciaConciliador(){
 //        obtenemos los datos del conciliador
-        $conciliador = $this->request->session()->get('persona')->conciliador;
-//        dd($conciliador);
+        $conciliador = auth()->user()->persona->conciliador;
 //        obtenemos las audiencias programadas a partir de el día de hoy        
         $arrayEventos=[];
         if($conciliador != null){
@@ -867,7 +866,10 @@ class AudienciaController extends Controller
                 array_push($arrayEventos,array("start" => $start ,"end" => $end,"title" => $audiencia->audiencia->folio."/".$audiencia->audiencia->anio,"color" => "#00ACAC","audiencia_id" => $audiencia->audiencia->id));
             }
         }
-        return $arrayEventos;
+        // obtenemos el horario menor y mayor del conciliador
+        $maxMinDisponibilidad = $this->getMinMaxConciliador($conciliador);
+        $response = array("eventos" => $arrayEventos,"minTime"=>$maxMinDisponibilidad["hora_inicio"],"maxTime"=>$maxMinDisponibilidad["hora_fin"]  );
+        return $response;
     }
     public function guiaAudiencia($id){
         $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
@@ -1055,6 +1057,20 @@ class AudienciaController extends Controller
         $horaIniciopiv = "23:59:59";
         $horaFinpiv = "00:00:00";
         foreach($centro->disponibilidades as $disponibilidad){
+            if($disponibilidad->hora_inicio < $horaIniciopiv){
+                $horaIniciopiv = $disponibilidad->hora_inicio;
+            }
+            if($disponibilidad->hora_fin > $horaIniciopiv){
+                $horaFinpiv = $disponibilidad->hora_fin;
+            }
+        }
+        return array("hora_inicio" => $horaIniciopiv, "hora_fin" =>$horaFinpiv);
+    }
+    public function getMinMaxConciliador(Conciliador $conciliador){
+//        Recorremos las disponibilidades
+        $horaIniciopiv = "23:59:59";
+        $horaFinpiv = "00:00:00";
+        foreach($conciliador->disponibilidades as $disponibilidad){
             if($disponibilidad->hora_inicio < $horaIniciopiv){
                 $horaIniciopiv = $disponibilidad->hora_inicio;
             }
