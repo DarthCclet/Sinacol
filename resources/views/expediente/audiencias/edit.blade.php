@@ -1436,7 +1436,7 @@
                         $("#curp").val(data.curp);
                         $("#nombre").val(data.nombre);
                         $("#primer_apellido").val(data.primer_apellido);
-                        $("#segundo_apellido").val(data.segundo_apellido);
+                        $("#segundo_apellido").val((data.segundo_apellido|| ""));
                         $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
                         $("#genero_id").val(data.genero_id).trigger("change");
                         $("#clasificacion_archivo_id").val(data.clasificacion_archivo_id).change();
@@ -1684,7 +1684,7 @@
                         table +='   <td>'+element.tipo_parte.nombre+'</td>';
                         table +='   <td>'+element.nombre+'</td>';
                         table +='   <td>'+element.primer_apellido+'</td>';
-                        table +='   <td>'+element.segundo_apellido+'</td>';
+                        table +='   <td>'+(element.segundo_apellido|| "")+'</td>';
                         table +='   <td>';
                         table +='       <div class="col-md-2">';
                         table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';

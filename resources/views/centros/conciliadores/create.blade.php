@@ -67,7 +67,7 @@
                     if(data != null && data != ""){
                         $("#persona_id").html("<option value=''>-- Selecciona una persona</option>");
                         $.each(data,function(index,element){
-                            $("#persona_id").append("<option value='"+element.id+"'>"+element.nombre+" "+element.primer_apellido+" "+element.segundo_apellido+"</option>");
+                            $("#persona_id").append("<option value='"+element.id+"'>"+element.nombre+" "+element.primer_apellido+" "+(element.segundo_apellido || "")+"</option>");
                         });
                     }else{
                         $("#persona_id").html("<option value=''>-- Selecciona una persona</option>");

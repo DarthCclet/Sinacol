@@ -331,7 +331,7 @@
                     console.log(data);
                     if(data != null){
                         $("#id").val(data.id);
-                        $("#nombreConciliador").text(data.persona.nombre+' '+data.persona.primer_apellido+' '+data.persona.segundo_apellido);
+                        $("#nombreConciliador").text(data.persona.nombre+' '+data.persona.primer_apellido+' '+(data.persona.segundo_apellido|| ""));
                         limpiarModal();
                         $.each(data.disponibilidades,function(index,data){
                             var elm = $("#switch"+data.dia);
@@ -451,7 +451,7 @@
                     console.log(data);
                     if(data != null){
                         $("#id").val(data.id);
-                        $("#nombreConciliadorIncidencia").text(data.persona.nombre+' '+data.persona.primer_apellido+' '+data.persona.segundo_apellido);
+                        $("#nombreConciliadorIncidencia").text(data.persona.nombre+' '+data.persona.primer_apellido+' '+(data.persona.segundo_apellido|| ""));
                         limpiarModalIncidencia();
                         var table = `
                             <table id="data-table-incidencias" class="table table-striped table-bordered table-condensed table-td-valign-middle">

@@ -97,7 +97,7 @@
                             var html = "";
                             console.log(row);
                             if(row[21] != null){
-                                html = ""+row[21].persona.nombre + " "+ row[21].persona.primer_apellido + " " + row[21].persona.segundo_apellido;
+                                html = ""+row[21].persona.nombre + " "+ row[21].persona.primer_apellido + " " + (row[21].persona.segundo_apellido|| "");
 
                             }
                             return  html;
