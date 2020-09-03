@@ -15,13 +15,11 @@
                 <br>
                 <br>
                 <br>
-                <a href="/asesoria/2010" class="btn btn-primary btn-lg m-10" type="button">CONFLICTO INDIVIDUAL</a>
-                <a href="/asesoria/2020" class="btn btn-primary btn-lg m-10" type="button">CONFLICTO COLECTIVO</a>
-
-
+                <a href="/asesoria/2010" data-toggle="modal" data-target="#confirmar" class="btn btn-primary btn-lg m-10" type="button">CONFLICTO INDIVIDUAL.</a>
+                <a href="/asesoria/2020" data-toggle="modal" data-target="#confirmar" class="btn btn-primary btn-lg m-10" type="button">CONFLICTO COLECTIVO</a>
             </p>
         </div>
-
     </div>
 
 @endsection
+

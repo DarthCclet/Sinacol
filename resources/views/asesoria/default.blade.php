@@ -20,7 +20,7 @@
                 <br>
                 <a href="/asesoria/10" class="btn btn-primary btn-lg m-10" type="button">SOY TRABAJADOR</a>
                 <a href="/asesoria/20" class="btn btn-primary btn-lg m-10" type="button">SOY PATRON</a>
-                <a href="/asesoria/202010" class="btn btn-primary btn-lg m-10" type="button">SOY SINDICATO</a>
+                <a href="/solicitudes/create-public/?solicitud=4" class="btn btn-primary btn-lg m-10" type="button">SOY SINDICATO</a>
 
             </p>
         </div>

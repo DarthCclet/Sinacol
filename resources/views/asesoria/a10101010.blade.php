@@ -1,9 +1,14 @@
 @extends('layouts.default')
 
 @section('content')
+    <style>
+        .video-container{
+            outline: none;
+        }
+    </style>
     @if($origen == '10101010')
     <div class="embed-responsive embed-responsive-21by9">
-        <video controls id="vid">
+        <video controls id="vid" class="video-container">
             <source src="/assets/img/asesoria/Asesoria-1080p-200828.mp4?autoplay=1">
         </video>
     </div>

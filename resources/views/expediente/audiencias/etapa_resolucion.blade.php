@@ -239,6 +239,7 @@
                                             <input type="hidden" id="remuneracionDiaria" />
                                             <input type="hidden" id="salarioMinimo"/>
                                             <input type="hidden" id="antiguedad"/>
+                                            <input type="hidden" id="tiempoVencido"/>
                                             <input type="hidden" id="idSolicitante"/>
                                             <div>
                                                 <div>
@@ -257,30 +258,36 @@
                                                     <div class="row">
                                                         <div class="col-sm-10 ">
                                                         <div class="form-check row" style="margin-top: 2%;">
-                                                            <input class="form-check-input" type="radio" name="radiosPropuesta{{$solicitante->parte->id}}" id="gridRadios1" value="completa" checked>
-                                                            <label class="form-check-label" for="gridRadios1">
+                                                            <input class="form-check-input" type="radio" name="radiosPropuesta{{$solicitante->parte->id}}" id="radioCompleta" value="completa">
+                                                            <label class="form-check-label" for="radioCompleta">
                                                                 100% de indemnizaci&oacute;n
                                                             </label>
                                                         </div>
                                                         <div class="form-check row" style="margin-top: 2%;">
-                                                            <input class="form-check-input" type="radio" name="radiosPropuesta{{$solicitante->parte->id}}" id="gridRadios2" value="al50">
-                                                            <label class="form-check-label" for="gridRadios2">
+                                                            <input class="form-check-input" type="radio" name="radiosPropuesta{{$solicitante->parte->id}}" id="radioAl50" value="al50">
+                                                            <label class="form-check-label" for="radioAl50">
                                                                 50% de indemnizaci&oacute;n
                                                             </label>
                                                         </div>
                                                         <div class="row">
                                                             <div class="form-check col-md-1 " style="margin-top: 2%;">
-                                                                <input class="form-check-input" type="radio" onclick="cargarConfigConceptos();" name="radiosPropuesta{{$solicitante->parte->id}}" id="propuesta_otro" value="otra">
-                                                                <label class="form-check-label" for="gridRadios3">
+                                                                <input class="form-check-input radiosPropuestas" type="radio" name="radiosPropuesta{{$solicitante->parte->id}}" id="radioOtro" value="otra">
+                                                                <label class="form-check-label" for="radioOtro">
                                                                     Otro
                                                                 </label>
                                                             </div>
-                                                            <div class="form-group col-md-4">
-                                                                <a onclick="cargarConfigConceptos(); $('#propuesta_otro').prop('checked',true);" class="btn btn-primary">Configurar</a>
-                                                            </div>
+                                                        </div>
+                                                        <div class="form-check row" style="margin-top: 2%;">
+                                                            <input class="form-check-input radiosPropuestas" type="radio" name="radiosPropuesta{{$solicitante->parte->id}}" id="radioReinstalacion" value="reinstalacion">
+                                                            <label class="form-check-label" for="radioReinstalacion">
+                                                                Reinstalaci&oacute;n
+                                                            </label>
                                                         </div>
                                                         </div>
                                                     </div>
+                                                </div>
+                                                <div class="form-group col-md-2 offset-10" style="display: none" id="btnConfig">
+                                                    <a onclick="cargarConfigConceptos();" class="btn btn-primary">Configurar</a>
                                                 </div>
                                                 <table class="table table-bordered" >
                                                     <thead>
@@ -327,7 +334,7 @@
                                     <div class="form-group">
                                         <label for="resolucion_id" class="col-sm-6 control-label">Resolución</label>
                                         <div class="col-sm-10">
-                                            {!! Form::select('resolucion_id', isset($resoluciones) ? $resoluciones : [] , null, ['id'=>'resolucion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                            {!! Form::select('resolucion_id', isset($resoluciones) ? $resoluciones : [] ,isset($audiencia->resolucion_id) ? $audiencia->resolucion_id :null , ['id'=>'resolucion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                         </div>
                                     </div>
                                 </div>
@@ -353,7 +360,7 @@
                                                     <td>
                                                         @if($parte->tipo_parte_id == 1)
                                                         <div style="display: inline-block;">
-                                                            <button onclick="DatosLaborales({{$parte->id}},true)" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Datos Laborales">
+                                                            <button onclick="DatosLaborales({{$parte->id}},true)" class="btn btn-xs btn-primary" title="Datos Laborales">
                                                                 <i class="fa fa-briefcase"></i>
                                                             </button>
                                                         </div>
@@ -409,11 +416,19 @@
                         <h5>Conceptos de pago para resolucion</h5>
                         <div class="form-group">
                             <label for="concepto_pago_resoluciones_id" class="col-sm-6 control-label labelResolucion">Concepto de pago</label>
-                            <div class="col-sm-10">
+                            <div class="col-sm-10  select-otro" >
 
-                                <select id="concepto_pago_resoluciones_id" class="form-control select-element">
+                                <select id="concepto_pago_resoluciones_id" class="form-control select-element conceptosPago" >
                                     <option value="">-- Selecciona un concepto de pago</option>
                                     @foreach($concepto_pago_resoluciones as $concepto)
+                                        <option value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-sm-10 select-reinstalacion">
+                                <select id="concepto_pago_reinstalacion_id" class="form-control select-element conceptosPago" style="display:none">
+                                    <option value="">-- Selecciona un concepto de pago</option>
+                                    @foreach($concepto_pago_reinstalacion as $concepto)
                                         <option value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
                                     @endforeach
                                 </select>
@@ -1339,6 +1354,11 @@
         }
 
     function guardarEvidenciaEtapa(etapa){
+        if(etapa==6){
+            evidencia = ($('#switchAdicionales').is(':checked')) ? $("#evidencia"+etapa).val(): 'false';
+        }else{
+            evidencia = $("#evidencia"+etapa).val();
+        }        
         var respuesta = true;
         $.ajax({
             url:'/etapa_resolucion_audiencia',
@@ -1348,7 +1368,7 @@
             data:{
                 etapa_resolucion_id:etapa,
                 audiencia_id:$("#audiencia_id").val(),
-                evidencia: $("#evidencia"+etapa).val(),
+                evidencia: evidencia,
                 elementos_adicionales: $('#switchAdicionales').is(':checked'),
                 _token:"{{ csrf_token() }}"
             },
@@ -1356,10 +1376,8 @@
                 try{
                     respuesta = true;
                     
-                    // console.log(data.data.updated_at);
                     $(".showTime"+etapa).text(data.data.created_at);
                 }catch(error){
-                    // console.log(error);
                 }
             },
             error:function(error){
@@ -1412,7 +1430,14 @@
                     // $('.btnPaso').hide(); 
                     break;
                 case 6:
-                    
+                if(value.elementos_adicionales == "true"){
+                        if(!$("#switchAdicionales").is(":checked")){
+                            $("#switchAdicionales").click();
+                        }
+                        for (i=0; i<=5; i++) {
+                            $("#paso"+i).click();
+                        }
+                    }
                     break;
                 default:
                     
@@ -1735,7 +1760,7 @@
         objeto_propuesta.prima_antiguedad = $("#prima_antiguedad").val();
         objeto_propuesta.prestaciones_legales = $("#prestaciones_legales").val();
         objeto_propuesta.prestaciones_45 = $("#prestaciones_45").val();
-        // console.log(objeto_propuesta);
+        console.log(objeto_propuesta);
         $("#tableOtro").show();
         $("#modal-propuesta-convenio").modal('hide')
         // formarTablaPropuestaConvenio();
@@ -1863,7 +1888,16 @@
                     $("#jornada_id").val(data.jornada_id);
                     $("#horas_semanales").val(data.horas_semanales);
                     $("#resolucion_dato_laboral").val(data.resolucion);
-                    $(".catSelect").trigger('change')
+                    $(".catSelect").trigger('change');
+
+                    //datos laborales extra
+                    $("#horario_laboral").val(data.horario_laboral);
+                    $("#horario_comida").val(data.horario_comida);
+                    $("#comida_dentro").val(data.comida_dentro);
+                    $("#dias_descanso").val(data.dias_descanso);
+                    $("#dias_vacaciones").val(data.dias_vacaciones);
+                    $("#dias_aguinaldo").val(data.dias_aguinaldo);
+                    $("#prestaciones_adicionales").val(data.prestaciones_adicionales);
                 }
                 $("#modal-dato-laboral").modal("show");
                 if(extra){
@@ -1937,26 +1971,32 @@
     $("#giro_comercial_solicitante").change(function(){
         $("#giro_comercial_hidden").val($(this).val());
     });
-    function validarDatosLaborales(){
-        var error=false;
-        // if($('#resolucion_id').val() == 1){
-        //     var error=false;
-        //     $(".datoLaboral").each(function(){
-        //         if($(this).val() == ""){
-        //             $(this).prev().css("color","red");
-        //             error = true;
-        //         }
-        //     });
-            // 
-            //     $(".datoLaboralExtra").each(function(){
-            //         if($(this).val() == ""){
-            //             $(this).prev().css("color","red");
-            //             error = true;
-            //         }
-            //     });
-        // }else{
 
-        // }
+    function validarDatosLaborales(tipo=null){
+        var error=false;
+        // if(tipo == 1){
+        if( $('#datosExtras').is( ":visible" ) || tipo ==1){
+            if($('#resolucion_id').val() == "1"){
+                $(".datoLaboralExtra").each(function(){
+                    if($(this).val() == ""){
+                        $(this).prev().css("color","red");
+                        error = true;
+                        msj = "Es necesario llenar todos los datos laborales para el convenio."
+                    }
+                });
+            }
+        }else{
+            $(".datoLaboral").each(function(){
+                if($(this).val() == ""){
+                    $(this).prev().css("color","red");
+                    error = true;
+                    msj = "Es necesario llenar los datos laborales."
+                }
+            });
+        }
+        if(error){
+            swal({title: 'Error',text: msj,icon: 'warning'});
+        }
         return error;
     }
     $("#btnGuardarDatoLaboral").on("click",function(){
@@ -2015,8 +2055,6 @@
                     });
                 }
             });
-        }else{
-            swal({title: 'Error',text: 'Llena todos los campos',icon: 'warning'});
         }
     });
     $("#labora_actualmente").change(function(){
@@ -2029,49 +2067,59 @@
         }
     });
     $("#btnAgregarConcepto").on("click",function(){
-        if( $("#concepto_pago_resoluciones_id").val() != "" ){
-            let idSolicitante =$("#idSolicitante").val();
-            if( $("#concepto_pago_resoluciones_id").val() == 7 || ( ($("#otro").val() != "") || ($("#dias").val() != "" && $("#monto").val() != "") ) ){
-                let existe = false;
-                $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
-                    if(concepto.concepto_pago_resoluciones_id == $("#concepto_pago_resoluciones_id").val() ){
-                        existe= true;
-                    }
-                });
-                if(existe){
-                    swal({title: 'Error',text: 'El concepto de pago ya se encuentra registrado',icon: 'warning'});
-                }else{
-                    if(listaConfigConceptos[idSolicitante] == undefined ){
-                        listaConfigConceptos[idSolicitante] = [];
-                    }
-                    listaConfigConceptos[idSolicitante].push({
-                        idSolicitante:$("#idSolicitante").val(),
-                        concepto_pago_resoluciones_id:$("#concepto_pago_resoluciones_id").val(),
-                        dias:$("#dias").val(),
-                        monto:$("#monto").val(),
-                        otro:$("#otro").val(),
+        if( $('#radioReinstalacion').is(':checked') ){
+            comboConceptos = $("#concepto_pago_reinstalacion_id");
+        }else{
+            comboConceptos = $("#concepto_pago_resoluciones_id");
+        }
+            if( comboConceptos.val() != "" ){
+                let idSolicitante =$("#idSolicitante").val();
+                if( comboConceptos.val() == 7 || comboConceptos.val() == 10 || ( ($("#otro").val() != "") || ($("#dias").val() != "" && $("#monto").val() != "")  || ($("#monto").val() != "" && comboConceptos.val() == 8) ) ){
+                    let existe = false;
+                    $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
+                        if(concepto.concepto_pago_resoluciones_id == comboConceptos.val() ){
+                            existe= true;
+                        }
                     });
-                    limpiarConcepto();
-                    cargarTablaConcepto(listaConfigConceptos[[idSolicitante]]);
+                    if(existe){
+                        swal({title: 'Error',text: 'El concepto de pago ya se encuentra registrado',icon: 'warning'});
+                    }else{
+                        if(listaConfigConceptos[idSolicitante] == undefined ){
+                            listaConfigConceptos[idSolicitante] = [];
+                        }
+                        listaConfigConceptos[idSolicitante].push({
+                            idSolicitante:$("#idSolicitante").val(),
+                            concepto_pago_resoluciones_id:comboConceptos.val(),
+                            dias:$("#dias").val(),
+                            monto:$("#monto").val(),
+                            otro:$("#otro").val(),
+                        });
+                        limpiarConcepto();
+                        cargarTablaConcepto(listaConfigConceptos[[idSolicitante]]);
+                    }
+                }else{
+                    swal({title: 'Error',text: 'Debe ingresar dias y monto ó descripción del concepto',icon: 'warning'});
                 }
             }else{
-                swal({title: 'Error',text: 'Debe ingresar dias y monto ó descripción del concepto',icon: 'warning'});
+                swal({title: 'Error',text: 'Debe seleccionar el concepto de pago',icon: 'warning'});
             }
-        }else{
-            swal({title: 'Error',text: 'Debe seleccionar el concepto de pago',icon: 'warning'});
-        }
     });
         function cargarTablaConcepto(listaConfigConceptos){
             let table = '';
             let idSolicitante = '';
+            if( $('#radioReinstalacion').is(':checked') ){
+                comboConceptos = 'concepto_pago_reinstalacion_id';
+            }else{
+                comboConceptos = "concepto_pago_resoluciones_id";
+            }
 
             $.each(listaConfigConceptos,function(index,concepto){
                 idSolicitante = concepto.idSolicitante;
 
                 table +='<tr>';
-                    $("#concepto_pago_resoluciones_id").val(concepto.concepto_pago_resoluciones_id);
-                    table +='<td>'+$("#concepto_pago_resoluciones_id option:selected").text()+'</td>';
-                    $("#concepto_pago_resoluciones_id").val("");
+                    $("#"+comboConceptos).val(concepto.concepto_pago_resoluciones_id);
+                    table +='<td>'+$("#"+comboConceptos+" option:selected").text()+'</td>';
+                    $("#"+comboConceptos).val("");
                     table +='<td>'+concepto.dias+'</td>';
                     table +='<td>'+concepto.monto+'</td>';
                     table +='<td>'+concepto.otro+'</td>';
@@ -2096,10 +2144,76 @@
             $("#dias").val("");
             $("#monto").val("");
         }
+        
+        var radioRO = '';
+        $(".radiosPropuestas").click(function(e){
+            $('#btnConfig').show();
+            // if(radioRO == $(this).val()){
+            //     return false;
+            // }
+            if(radioRO != $(this).val()){
+                var esReinstalacion = false;
+                if(radioRO == 'reinstalacion'){
+                    esReinstalacion = true;
+                }
+                var actual = $(this).val();
+                
+                nombrePropuesta = ($('#radioReinstalacion').is(':checked')) ? "Configurada" : "de Reinstalacion";
+                if(Object.keys(listaConfigConceptos).length > 0){
+                    swal({
+                        title: 'Descartar propuesta',
+                        text: '¿Estas seguro que deseas descartar la propuesta '+nombrePropuesta+'?',
+                        icon: 'warning',
+                        buttons: {
+                            cancel: {
+                                text: 'No',
+                                value: null,
+                                visible: true,
+                                className: 'btn btn-default',
+                                closeModal: true
+                            },
+                            confirm: {
+                                text: 'Si',
+                                value: true,
+                                visible: true,
+                                className: 'btn btn-warning',
+                                closeModal: true
+                            }
+                        }
+                    }).then(function(isConfirm){
+                        if(isConfirm){
+                            listaConfigConceptos = {};
+                            cargarConfigConceptos();
+                            let idSolicitante = $('#idSolicitante').val();
+                            $("#tbodyConceptoPrincipal"+idSolicitante).html("");
+                            radioRO = actual;
+                        }else{
+                            if(esReinstalacion){
+                                $('#radioReinstalacion').prop('checked',true);
+                                radioRO = 'reinstalacion';
+                            }else{
+                                $('#radioOtro').prop('checked',true);
+                                radioRO = 'otra'
+                            }
+                        }
+                    });
+                }else{
+                    cargarConfigConceptos();
+                    radioRO = actual;
+                }
+            }
+        });
 
         function cargarConfigConceptos(){
             $("#tbodyConcepto").html("");
             $('#modal-propuesta-convenio').modal('show');
+            if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
+                $(".select-reinstalacion").show();
+                $(".select-otro").hide();
+            }else{
+                $(".select-otro").show();
+                $(".select-reinstalacion").hide();
+            }
             let table = '';
             let idSolicitante = $('#idSolicitante').val();
             $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
@@ -2132,50 +2246,54 @@
         var resolucion = $("#resolucion_id").val();
         if(resolucion != "" ){
             if(resolucion == 1){
-                swal({
-                    title: 'Se convino con todos los citados?',
-                    text: '',
-                    icon: 'warning',
-                    // showCancelButton: true,
-                    buttons: {
-                        cancel: {
-                            text: 'No',
-                            value: null,
-                            visible: true,
-                            className: 'btn btn-default',
-                            closeModal: true
-                        },
-                        confirm: {
-                            text: 'Si',
-                            value: true,
-                            visible: true,
-                            className: 'btn btn-warning',
-                            closeModal: true
+                errorDatosConvenio = validarDatosLaborales(1);
+                if(!errorDatosConvenio){
+                    swal({
+                        title: 'Se convino con todos los citados?',
+                        text: '',
+                        icon: 'warning',
+                        // showCancelButton: true,
+                        buttons: {
+                            cancel: {
+                                text: 'No',
+                                value: null,
+                                visible: true,
+                                className: 'btn btn-default',
+                                closeModal: true
+                            },
+                            confirm: {
+                                text: 'Si',
+                                value: true,
+                                visible: true,
+                                className: 'btn btn-warning',
+                                closeModal: true
+                            }
                         }
-                    }
-                }).then(function(isConfirm){
-                    if(isConfirm){
+                    }).then(function(isConfirm){
+                        if(isConfirm){
 
-                        var success = guardarEvidenciaEtapa(pasoActual);
-                        if(success){
-                            // var siguiente = pasoActual+1;
-                            $("#icon"+pasoActual).css("background","lightgreen");
-                            $('html,body').animate({
-                                scrollTop: $("#contentStep"+pasoActual).offset().top
-                            }, 'slow');
-                            // $("#step"+siguiente).show();
-                            listaResolucionesIndividuales = [];
-                            $("#btnGuardarResolucionMuchas").click();
+                            var success = guardarEvidenciaEtapa(pasoActual);
+                            if(success){
+                                // var siguiente = pasoActual+1;
+                                $("#icon"+pasoActual).css("background","lightgreen");
+                                $('html,body').animate({
+                                    scrollTop: $("#contentStep"+pasoActual).offset().top
+                                }, 'slow');
+                                // $("#step"+siguiente).show();
+                                listaResolucionesIndividuales = [];
+                                $("#btnGuardarResolucionMuchas").click();
+                            }else{
+                                swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
+                            }
                         }else{
-                            swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
+                            cargarModalRelaciones();
                         }
-                    
-                        
-                    }else{
-                        cargarModalRelaciones();
-                    }
-                });
+                    });
+                }else{
+                    swal({title: 'Error',text: 'Es necesario capturar los datos laborales requeridos para el convenio',icon: 'error'});
+                }
             }else{
+                
                 swal({
                     title: '',
                     text: '¿Estas seguro que deseas terminar la audiencia?',
@@ -2213,8 +2331,6 @@
                         }else{
                             swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
                         }
-                    
-                        
                     }
                 });
             }
@@ -2268,6 +2384,7 @@
                 $('#remuneracionDiaria').val(dato.remuneracionDiaria);
                 $('#salarioMinimo').val(dato.salarioMinimo);
                 $('#antiguedad').val(dato.antiguedad);
+                $('#tiempoVencido').val(dato.tiempoVencido);
                 $('#idSolicitante').val(dato.idParte);
 
                 let table = "";
@@ -2294,8 +2411,14 @@
         });
     }
 
-        $("#concepto_pago_resoluciones_id").on("change",function(){
-            concepto = $("#concepto_pago_resoluciones_id").val();
+    
+        $(".conceptosPago").on("change",function(){
+            if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
+                concepto = $("#concepto_pago_reinstalacion_id").val();
+            }else{
+                concepto = $("#concepto_pago_resoluciones_id").val();
+            }
+        // $("#concepto_pago_resoluciones_id").on("change",function(){
             // $('#remuneracionDiaria').val(130);
             // $('#antiguedad').val(3.2);
             // $('#salarioMinimo').val(123.22);
@@ -2303,6 +2426,7 @@
             pagoDia = $('#remuneracionDiaria').val();
             antiguedad = $('#antiguedad').val();
             salarioMinimo = $('#salarioMinimo').val();
+            tiempoVencido = $('#tiempoVencido').val();
 
             $('#monto').val('');
             $('#dias').val('');
@@ -2319,6 +2443,7 @@
                             monto = antiguedad * 12 * (2*salarioMinimo);
                         }
                     }
+                    monto = monto.toFixed(2);
                     $('#monto').val(monto);
                     break;
                 case '8':    //Gratificacion D
@@ -2330,6 +2455,13 @@
                     $('#monto').attr('disabled',true);
                     $('#dias').attr('disabled',true);
                     $('#otro').removeAttr('disabled');
+                    break;
+                case '10':    //Salarios vencidos
+                    monto = (tiempoVencido * pagoDia).toFixed(2);
+                    $('#monto').val(monto);
+                    $('#monto').attr('disabled',true);
+                    $('#dias').attr('disabled',true);
+                    $('#otro').attr('disabled',true);
                     break;
                 default: //Dias de sueldo, Dias de vacaciones
                     $('#monto').attr('disabled',true);
@@ -2363,7 +2495,7 @@
                     monto = dias * pagoDia;
                     break;
             }
-            monto = (monto >0 )? monto : "";
+            monto = (monto >0 )? monto.toFixed(2) : "";
             $('#monto').val(monto);
         });
 
@@ -2454,21 +2586,26 @@
         cargarTablaResolucionesIndividuales();
     }
     $("#btnGuardarResolucionMuchas").on("click",function(){
-        var listaPropuestaConceptos = {};
+        let listaPropuestaConceptos = {};
+        error =false;
         $('.collapseSolicitante').each(function() {
+            // let idSolicitante =$("#idSolicitante").val();
             idSol=$(this).attr('idSolicitante');
-            alert(idSol);
-            if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='otra'){
-                listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
-            }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
-                listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
+            if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                    listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
+                }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
+                    listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
+                }else{
+                    listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
+                }
             }else{
-                listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
+                error =true;
+                swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
             }
         });
-        
-        // console.log(listaPropuestaConceptos);
-        if(listaPropuestaConceptos.length > 0){
+        console.log(listaPropuestaConceptos);
+        if(!error){
             $.ajax({
                 url:"/audiencia/resolucion",
                 type:"POST",
@@ -2496,11 +2633,7 @@
                 }
             });
         }else{
-            swal({
-                title: 'Alerta',
-                text: 'Seleccione configuración de la propuesta para cada solicitante',
-                icon: 'warning'
-            });
+            swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
         }
     });
 
