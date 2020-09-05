@@ -68,6 +68,7 @@ class AudienciaController extends Controller
         if ($this->request->get('all') ) {
             $audiencias = $audiencias->get();
         } else {
+            
             $length = $this->request->get('length');
             $start = $this->request->get('start');
             $limSup = " 23:59:59";
@@ -95,7 +96,7 @@ class AudienciaController extends Controller
             }
             if($this->request->get('IsDatatableScroll')){
                 $audiencias = $audiencias->with('conciliador.persona');
-                $audiencias = $audiencias->take($length)->skip($start)->get();
+                $audiencias = $audiencias->orderBy("fecha_audiencia", 'desc')->take($length)->skip($start)->get(['id','folio','anio','fecha_audiencia','hora_inicio','hora_fin','conciliador_id']);
                 // $audiencias = $audiencias->select(['id','conciliador','numero_audiencia','fecha_audiencia','hora_inicio','hora_fin'])->orderBy("fecha_audiencia",'desc')->take($length)->skip($start)->get();
             }else{
                 $audiencias = $audiencias->paginate($this->request->get('per_page', 10));
@@ -894,6 +895,30 @@ class AudienciaController extends Controller
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones','concepto_pago_resoluciones','concepto_pago_reinstalacion','motivos_archivo','clasificacion_archivos_Representante','clasificacion_archivo','terminacion_bilaterales'));
+    }
+    public function resolucionUnica($id){
+        $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
+        $audiencia = Audiencia::find($id);
+        $partes = array();
+        foreach($audiencia->audienciaParte as $key => $parte){
+            $parte->parte->tipoParte = $parte->parte->tipoParte;
+            $partes[$key] = $parte->parte;
+        }
+        $solicitud = $audiencia->expediente->solicitud;
+        $audiencia->partes = $partes;
+        $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
+        $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
+        $jornadas = $this->cacheModel('jornadas',Jornada::class);
+        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
+        $resoluciones = $this->cacheModel('resoluciones',Resolucion::class);
+        $terminacion_bilaterales = $this->cacheModel('terminacion_bilaterales',TerminacionBilateral::class);
+        $audiencia->solicitantes = $this->getSolicitantes($audiencia);
+        $audiencia->solicitados = $this->getSolicitados($audiencia);
+        $motivos_archivo = MotivoArchivado::all();
+        $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
+        $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        return view('expediente.audiencias.resolucion_unica',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones','concepto_pago_resoluciones','motivos_archivo','clasificacion_archivos_Representante','clasificacion_archivo','terminacion_bilaterales','solicitud'));
     }
     public function guardarComparecientes(){
         DB::beginTransaction();

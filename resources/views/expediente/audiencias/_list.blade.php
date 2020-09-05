@@ -64,10 +64,16 @@
                 },
                 "columnDefs": [
                     {
+                        "targets": [0],
+                        "render": function (data, type, row) {
+                            return  row[1]+"/"+row[2];
+                        }
+                    },
+                    {
                         "targets": [1],
                         "render": function (data, type, row) {
                             if (data != null) {
-                                return  dateFormat(row[6],4);
+                                return  dateFormat(row[3],4);
                             } else {
                                 return "";
                             }
@@ -76,28 +82,22 @@
                     {
                         "targets": [2],
                         "render": function (data, type, row) {
-                            return  row[7];
+                            return  row[4];
                         }
                     },
                     {
                         "targets": [3],
                         "render": function (data, type, row) {
-                            return  row[8];
+                            return  row[5];
                         }
                     },
-                    {
-                        "targets": [0],
-                        "render": function (data, type, row) {
-                            return  row[17]+"/"+row[18];
-                        }
-                    },
+                    
                     {
                         "targets": [4],
                         "render": function (data, type, row) {
                             var html = "";
-                            console.log(row);
-                            if(row[19] != null){
-                                html = ""+row[19].persona.nombre + " "+ row[19].persona.primer_apellido + " " + (row[19].persona.segundo_apellido|| "");
+                            if(row[7] != null){
+                                html = ""+row[7].persona.nombre + " "+ row[7].persona.primer_apellido + " " + (row[7].persona.segundo_apellido|| "");
 
                             }
                             return  html;
@@ -135,12 +135,10 @@
                 },
                 "stateSaveParams": function (settings, data) {
                 //data.search.search = "";
-                  console.log(data);
                 },
                 "dom": "tiS", // UI layout
             });
             dt.on( 'draw', function () {
-                console.log('tratando de poner')
                 if(filtrado){
                 //dt.scroller().scrollToRow(0);
                 filtrado = false;
