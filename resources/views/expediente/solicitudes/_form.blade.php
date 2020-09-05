@@ -317,7 +317,7 @@
                                             <tr>
                                                 <th style="width:80%;">Tipo</th>
                                                 <th style="width:80%;">Contacto</th>
-                                                <th style="width:20%; text-align: center;">Accion</th>
+                                                <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                             </tr>
                                         </thead>
                                         <tbody id="tbodyContactoSolicitante">
@@ -405,11 +405,11 @@
                                         <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
                                     </div>
                                     <div class="col-md-4">
-                                        <input class="form-control dateBirth requiredLaboral" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
+                                        <input class="form-control requiredLaboral" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
                                         <p class="help-block needed">Fecha de ingreso</p>
                                     </div>
                                     <div class="col-md-4" id="divFechaSalida">
-                                        <input class="form-control dateBirth requiredLaboral" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
+                                        <input class="form-control requiredLaboral" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
                                         <p class="help-block needed">Fecha salida</p>
                                     </div>
                                 </div>
@@ -554,17 +554,19 @@
                                     </div>
                                     <input type="hidden" id="contacto_id_solicitado">
                                     <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona citada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
-                                    <div class="col-md-4">
-                                        {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block needed">Tipo de contacto</p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input class="form-control text-lowercase" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
-                                        <p class="help-block needed">Contacto</p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitado();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-4">
+                                            {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block needed">Tipo de contacto</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input class="form-control text-lowercase" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
+                                            <p class="help-block needed">Contacto</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitado();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                                        </div>
                                     </div>
                                 </div>
                                     <div class="col-md-10 offset-md-1" >
@@ -573,7 +575,7 @@
                                                 <tr>
                                                     <th style="width:80%;">Tipo</th>
                                                     <th style="width:80%;">Contacto</th>
-                                                    <th style="width:20%; text-align: center;">Accion</th>
+                                                    <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="tbodyContactoSolicitado">
@@ -602,7 +604,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th style="width:80%;">Domicilio</th>
-                                                        <th style="width:20%; text-align: center;">Accion</th>
+                                                        <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="tbodyDomicilioSolicitado">
@@ -611,18 +613,17 @@
                                         </div> --}}
                                     </div>
                                 </div>
-                                <div class="col-md-12 pasoSolicitado" id="continuarSolicitado3">
-                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(3)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
-                                </div>
+                                
                             </div>
                                 <!-- end seccion de domicilios citado -->
                             <hr style="margin-top:5%;">
                             <div id="divBotonesSolicitado" style="display: none;">
-                                <button class="btn btn-primary" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Agregar citado</button>
                                 <button class="btn btn-danger" type="button" onclick="limpiarSolicitado()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
+                                <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Validar y Agregar citado</button>
                             </div>
 
                         </div>
+                        <button class="btn btn-primary" style="float: right; margin-top: 2%;" type="button" onclick="$('#paso3').click()" > <i class="fa fa-arrow-right"></i> Continuar a solicitud</button>
                     </div>
                 </div>
                 <!-- end row -->
@@ -673,7 +674,7 @@
                                         <th>Nombre</th>
                                         <th>Curp</th>
                                         <th>RFC</th>
-                                        <th>Accion</th>
+                                        <th>Acci&oacute;n</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbodySolicitanteRevision">
@@ -688,7 +689,7 @@
                                         <th>Nombre</th>
                                         <th>Curp</th>
                                         <th>RFC</th>
-                                        <th style="width:15%; text-align: center;">Accion</th>
+                                        <th style="width:15%; text-align: center;">Acci&oacute;n</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbodySolicitadoRevision">
@@ -745,7 +746,7 @@
                                         <tr>
                                             <th>Solicitante</th>
                                             <th>Grupo Vulnerable</th>
-                                            <th>Accion</th>
+                                            <th>Acci&oacute;n</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbodyGruposPrioritarios">
@@ -1175,7 +1176,7 @@
                             <thead>
                                 <tr>
                                     <td>Solicitante</td>
-                                    <td>Accion</td>
+                                    <td>Acci&oacute;n</td>
                                 </tr>
                             </thead>
                             <tbody id="tbodyRepresentante">
@@ -1316,7 +1317,7 @@
                             <tr>
                                 <th style="width:80%;">Tipo</th>
                                 <th style="width:80%;">Contacto</th>
-                                <th style="width:20%; text-align: center;">Accion</th>
+                                <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyContacto">
@@ -1637,6 +1638,7 @@
                         $('#divContactoSolicitado').hide();
                         $('#divMapaSolicitado').hide();
                         $('#divBotonesSolicitado').hide();
+                        $("#tipo_persona_fisica_solicitado").click().trigger('change');
                         $(".pasoSolicitado").show();
                         swal({
                             title: '¿Quieres seguir capturando citados?',
@@ -1768,26 +1770,26 @@
                 $("#periodicidad_id").val(datos_laborales_storage.periodicidad_id).trigger('change');
                 $("#remuneracion").val(datos_laborales_storage.remuneracion);
                 $("#ocupacion_id").val(datos_laborales_storage.ocupacion_id).trigger('change');
-                $("#fecha_ingreso").val(datos_laborales_storage.fecha_ingreso);
+                $("#fecha_ingreso").val(dateFormat(datos_laborales_storage.fecha_ingreso,4));
                 if(datos_laborales_storage.labora_actualmente != $("#labora_actualmente").is(":checked")){
                     $("#labora_actualmente").click();
                 }
-                $("#fecha_salida").val(datos_laborales_storage.fecha_salida);
+                $("#fecha_salida").val(dateFormat(datos_laborales_storage.fecha_salida,4));
             }
         }
         // getGironivel("",1,"girosNivel1solicitante");
         if($("#tipo_solicitud_id").val() == 4){
-            $("#labelTipoSolicitante").text("(Sindicato)")
+            $("#labelTipoSolicitante").text("Sindicato")
             $("#divTipoPersona").hide();
             $("#tipo_persona_moral_solicitante").prop("checked", true).trigger('change');
             $(".sindicato").show();
             $("#registro_sindical").attr("required",true);
         }else if($("#tipo_solicitud_id").val() == 3){
-            $("#labelTipoSolicitante").text("(Patron colectiva)")
+            $("#labelTipoSolicitante").text("Patrón (colectiva)")
         }else if($("#tipo_solicitud_id").val() == 2){
-            $("#labelTipoSolicitante").text("(Patron individual)")
+            $("#labelTipoSolicitante").text("Patrón (individual)")
         }else if($("#tipo_solicitud_id").val() == 1){
-            $("#labelTipoSolicitante").text("(Trabajador)")
+            $("#labelTipoSolicitante").text("Trabajador")
         }
     });
     function exepcionConciliacion(){
@@ -2189,13 +2191,13 @@
 
             if(solicitante){
                 if(arrayContactoSolicitantes[key].id == ""){
-                    arrayContactoSolicitantes = arrayContactoSolicitantes.splice(1,key);
+                    arrayContactoSolicitantes = arrayContactoSolicitantes.splice(key,1);
                 }else{
                     arrayContactoSolicitantes[key].activo = 0;
                 }
             }else{
                 if(arrayContactoSolicitados[key].id == ""){
-                    arrayContactoSolicitados = arrayContactoSolicitados.splice(1,key);
+                    arrayContactoSolicitados = arrayContactoSolicitados.splice(key,1);
                 }else{
                     arrayContactoSolicitados    [key].activo = 0;
                 }
@@ -2313,7 +2315,7 @@
     function eliminarSolicitante(key){
         $("#paso1").click();
         if(arraySolicitantes[key].id == ""){
-            arraySolicitantes = arraySolicitantes.splice(1,key);
+            arraySolicitantes = arraySolicitantes.splice(key,1);
         }else{
             arraySolicitantes[key].activo = 0;
         }
@@ -2325,7 +2327,7 @@
     */
     function eliminarDomicilio(key){
         if(arrayDomiciliosSolicitado[key].id == ""){
-            arrayDomiciliosSolicitado = arrayDomiciliosSolicitado.splice(1,key);
+            arrayDomiciliosSolicitado = arrayDomiciliosSolicitado.splice(key,1);
         }else{
             arrayDomiciliosSolicitado[key].activo = 0;
         }
@@ -2338,7 +2340,7 @@
     */
     function eliminarObjetoSol(key){
         if(arrayObjetoSolicitudes[key].id == ""){
-            arrayObjetoSolicitudes = arrayObjetoSolicitudes.splice(1,key);
+            arrayObjetoSolicitudes = arrayObjetoSolicitudes.splice(key,1);
         }else{
             arrayObjetoSolicitudes[key].activo = 0;
         }
@@ -2350,9 +2352,9 @@
     * @argument key posicion de array a eliminar
     */
     function eliminarSolicitado(key){
-        $("#paso2").click();
+        alert(key);
         if(arraySolicitados[key].id == ""){
-            arraySolicitados.splice(1,key);
+            arraySolicitados.splice(key,1);
         }else{
             arraySolicitados[key].activo = 0;
         }
@@ -3093,7 +3095,7 @@
     $("#idFechaNacimientoSolicitante").change(function(){
         if($("#idFechaNacimientoSolicitante").val() != ""){
             var edad = Edad($("#idFechaNacimientoSolicitante").val());
-            if(edad > 15){
+            if(edad >= 15){
                 $("#idEdadSolicitante").val(edad);
             }else{
                 $("#idFechaNacimientoSolicitante").val("")
@@ -3110,7 +3112,7 @@
     $("#idFechaNacimientoSolicitado").change(function(){
         if($("#idFechaNacimientoSolicitado").val() != ""){
             var edad = Edad($("#idFechaNacimientoSolicitado").val())
-            if(edad > 18){
+            if(edad >= 18){
                 $("#idEdadSolicitado").val(edad)
             }else{
                 $("#idFechaNacimientoSolicitado").val("");
@@ -3138,6 +3140,39 @@
         yearRange: "c-80:",
         format:'dd/mm/yyyy',
     });
+
+
+ var getDate = function (input) {
+    return new Date(input.date.valueOf());
+ }
+
+    $('#fecha_ingreso').datepicker({
+        format: "dd/mm/yyyy",
+        changeMonth: true,
+        changeYear: true,
+        maxDate:0,
+        yearRange: "c-80:",
+        language: 'es',
+        autoclose: true,
+    });
+    var a = $('#fecha_ingreso').datepicker("getDate");
+    $('#fecha_salida').datepicker({
+        format: "dd/mm/yyyy",
+        language: "es",
+        maxDate:0,
+        yearRange: "c-80:",
+        changeMonth: true,
+        changeYear: true,
+        autoclose: true
+    });
+
+    $('#fecha_ingreso').datepicker().on('change', function (ev) {
+        var date2 = $('#fecha_ingreso').datepicker('getDate'); 
+        date2.setDate(date2.getDate()+1); 
+        $('#fecha_salida').datepicker("option", "minDate", date2);
+    });
+    
+
     $(".date").datepicker({useCurrent: false,format:'dd/mm/yyyy'});
     $(".dateTime").datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm:ss'});
     $(".date").keypress(function(event){
@@ -3459,7 +3494,8 @@
                 break;
             case 2:
                 $('#divMapaSolicitado').show();
-                $('#continuarSolicitado2').hide();
+                // $('#continuarSolicitado2').hide();
+                 $('#divBotonesSolicitado').show();
             break;
             case 3:
                 if($('#divMapaSolicitado').parsley().validate()){
@@ -3668,10 +3704,10 @@
             $("#instrumento").prev().css("color","red");
             error = true;
         }
-        if($("#feha_instrumento").val() == ""){
-            $("#feha_instrumento").prev().css("color","red");
-            error = true;
-        }
+        // if($("#feha_instrumento").val() == ""){
+        //     $("#feha_instrumento").prev().css("color","red");
+        //     error = true;
+        // }
         if($("#numero_notaria").val() == ""){
             $("#numero_notaria").prev().css("color","red");
             error = true;

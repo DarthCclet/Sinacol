@@ -68,6 +68,7 @@ class AudienciaController extends Controller
         if ($this->request->get('all') ) {
             $audiencias = $audiencias->get();
         } else {
+            
             $length = $this->request->get('length');
             $start = $this->request->get('start');
             $limSup = " 23:59:59";
@@ -95,7 +96,7 @@ class AudienciaController extends Controller
             }
             if($this->request->get('IsDatatableScroll')){
                 $audiencias = $audiencias->with('conciliador.persona');
-                $audiencias = $audiencias->take($length)->skip($start)->get();
+                $audiencias = $audiencias->orderBy("fecha_audiencia", 'desc')->take($length)->skip($start)->get(['id','folio','anio','fecha_audiencia','hora_inicio','hora_fin','conciliador_id']);
                 // $audiencias = $audiencias->select(['id','conciliador','numero_audiencia','fecha_audiencia','hora_inicio','hora_fin'])->orderBy("fecha_audiencia",'desc')->take($length)->skip($start)->get();
             }else{
                 $audiencias = $audiencias->paginate($this->request->get('per_page', 10));
@@ -309,7 +310,7 @@ class AudienciaController extends Controller
         $fechaFinSola = date('Y-m-d',strtotime($request->fechaFin));
         $horaFin = date('H:i:s',strtotime($request->fechaFin));
        
-        $conciliadores = Conciliador::all();
+        $conciliadores = Conciliador::where("centro_id", auth()->user()->centro_id)->get();
         $conciliadoresResponse=[];
         foreach($conciliadores as $conciliador){
             $pasa=false;
@@ -329,22 +330,19 @@ class AudienciaController extends Controller
                 if($pasa){
                     $conciliadoresAudiencia = array();
                     foreach($conciliador->conciliadorAudiencia as $conciliadorAudiencia){
-                        $audiencias = $conciliadorAudiencia->audiencia->where("fecha_audiencia",$fechaInicioSola)->get();
-                        if(count($audiencias) > 0){
-                            foreach($audiencias as $audiencia){
-                                //Buscamos que la hora inicio no este entre una audiencia
-                                $horaInicioAudiencia= $audiencia->hora_inicio;
-                                $horaFinAudiencia= $audiencia->hora_fin;
-                                $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-                            }
+                        if($conciliadorAudiencia->audiencia->fecha_audiencia ==  $fechaInicioSola){
+                            //Buscamos que la hora inicio no este entre una audiencia
+                            $horaInicioAudiencia= $conciliadorAudiencia->audiencia->hora_inicio;
+                            $horaFinAudiencia= $conciliadorAudiencia->audiencia->hora_fin;
+                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
                         }
                     }
                 }
             }
             if($pasa){
                 $conciliador->persona = $conciliador->persona;
-                $conciliadoresResponse[]=$conciliador;
             }
+                $conciliadoresResponse[]=$conciliador;
         }
         return $conciliadoresResponse;
     }
@@ -364,7 +362,7 @@ class AudienciaController extends Controller
         $fechaFinSola = date('Y-m-d',strtotime($request->fechaFin));
         $horaFin = date('H:i:s',strtotime($request->fechaFin));
         ## Obtenemos las salas -> en el futuro seran filtradas por el centro de la sesión
-        $salas = Sala::all();
+        $salas = Sala::where("centro_id", auth()->user()->centro_id)->get();
         $salasResponse=[];
         ## Recorremos las salas para la audiencia
         foreach($salas as $sala){
@@ -387,14 +385,11 @@ class AudienciaController extends Controller
                 if($pasa){
                     ## validamos que no haya audiencias en el horario solicitado
                     foreach($sala->salaAudiencia as $salaAudiencia){
-                        $audiencias = $salaAudiencia->audiencia->where("fecha_audiencia",$fechaInicioSola)->get();
-                        if(count($audiencias) > 0){
-                            foreach($audiencias as $audiencia){
-                                //Buscamos que la hora inicio no este entre una audiencia
-                                $horaInicioAudiencia= $audiencia->hora_inicio;
-                                $horaFinAudiencia= $audiencia->hora_fin;
-                                $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-                            }
+                        if($salaAudiencia->audiencia->fecha_audiencia ==  $fechaInicioSola){
+                            //Buscamos que la hora inicio no este entre una audiencia
+                            $horaInicioAudiencia= $salaAudiencia->audiencia->hora_inicio;
+                            $horaFinAudiencia= $salaAudiencia->audiencia->hora_fin;
+                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
                         }
                     }
                 }
@@ -547,21 +542,24 @@ class AudienciaController extends Controller
         try{
             DB::beginTransaction();
             $audiencia = Audiencia::find($request->audiencia_id);
-            if($request->timeline){
-                $audiencia->update(array("resolucion_id"=>$request->resolucion_id,"finalizada"=>true));
-            }else{
-                $audiencia->update(array("convenio" => $request->convenio,"desahogo" => $request->desahogo,"resolucion_id"=>$request->resolucion_id,"finalizada"=>true));
-                foreach($request->comparecientes as $compareciente){
-                    Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $audiencia->id,"presentado" => true]);
+            if(!$audiencia->finalizada){
+
+                if($request->timeline){
+                    $audiencia->update(array("resolucion_id"=>$request->resolucion_id,"finalizada"=>true));
+                }else{
+                    $audiencia->update(array("convenio" => $request->convenio,"desahogo" => $request->desahogo,"resolucion_id"=>$request->resolucion_id,"finalizada"=>true));
+                    foreach($request->comparecientes as $compareciente){
+                        Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $audiencia->id,"presentado" => true]);
+                    }
                 }
+                $this->guardarRelaciones($audiencia,$request->listaRelacion,$request->listaConceptos);
+                $etapaAudiencia = EtapaResolucionAudiencia::create([
+                    "etapa_resolucion_id"=>6,
+                    "audiencia_id"=>$audiencia->id,
+                    "evidencia"=>true 
+                ]);
+                DB::commit();
             }
-            $this->guardarRelaciones($audiencia,$request->listaRelacion,$request->listaConceptos);
-            $etapaAudiencia = EtapaResolucionAudiencia::create([
-                "etapa_resolucion_id"=>6,
-                "audiencia_id"=>$audiencia->id,
-                "evidencia"=>true 
-            ]);
-            DB::commit();
             return $audiencia;
         }catch(\Throwable $e){
             
@@ -889,10 +887,35 @@ class AudienciaController extends Controller
         $audiencia->solicitantes = $this->getSolicitantes($audiencia);
         $audiencia->solicitados = $this->getSolicitados($audiencia);
         $motivos_archivo = MotivoArchivado::all();
+        $concepto_pago_resoluciones = ConceptoPagoResolucion::where('id','<',9)->get();
+        $concepto_pago_reinstalacion = ConceptoPagoResolucion::whereIn('id',[8,9,10])->get();
+        $clasificacion_archivo = ClasificacionArchivo::all();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones','concepto_pago_resoluciones','concepto_pago_reinstalacion','motivos_archivo','clasificacion_archivos_Representante','clasificacion_archivo','terminacion_bilaterales'));
+    }
+    public function resolucionUnica($id){
+        $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
+        $audiencia = Audiencia::find($id);
+        $partes = array();
+        foreach($audiencia->audienciaParte as $key => $parte){
+            $parte->parte->tipoParte = $parte->parte->tipoParte;
+            $partes[$key] = $parte->parte;
+        }
+        $solicitud = $audiencia->expediente->solicitud;
+        $audiencia->partes = $partes;
+        $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
+        $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
+        $jornadas = $this->cacheModel('jornadas',Jornada::class);
+        $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
+        $resoluciones = $this->cacheModel('resoluciones',Resolucion::class);
+        $terminacion_bilaterales = $this->cacheModel('terminacion_bilaterales',TerminacionBilateral::class);
+        $audiencia->solicitantes = $this->getSolicitantes($audiencia);
+        $audiencia->solicitados = $this->getSolicitados($audiencia);
+        $motivos_archivo = MotivoArchivado::all();
         $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
-        return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones','concepto_pago_resoluciones','motivos_archivo','clasificacion_archivos_Representante','clasificacion_archivo','terminacion_bilaterales'));
+        return view('expediente.audiencias.resolucion_unica',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones','concepto_pago_resoluciones','motivos_archivo','clasificacion_archivos_Representante','clasificacion_archivo','terminacion_bilaterales','solicitud'));
     }
     public function guardarComparecientes(){
         DB::beginTransaction();
@@ -900,60 +923,66 @@ class AudienciaController extends Controller
             $solicitantes = false;
             $citados = false;
             $audiencia = Audiencia::find($this->request->audiencia_id);
-            foreach($this->request->comparecientes as $compareciente){
-                $parte_compareciente = Parte::find($compareciente);
-                if($parte_compareciente->tipo_parte_id == 1){
-                    $solicitantes = true;
-                }else if($parte_compareciente->tipo_parte_id == 2){
-                    $citados = true;
-                }else if($parte_compareciente->tipo_parte_id == 3){
-                    $parte_representada = Parte::find($parte_compareciente->parte_representada_id);
-                    if($parte_representada->tipo_parte_id == 1){
+            if(!$audiencia->finalizada){
+                
+                foreach($this->request->comparecientes as $compareciente){
+                    $parte_compareciente = Parte::find($compareciente);
+                    if($parte_compareciente->tipo_parte_id == 1){
                         $solicitantes = true;
-                    }else if($parte_representada->tipo_parte_id == 2){
+                    }else if($parte_compareciente->tipo_parte_id == 2){
                         $citados = true;
+                    }else if($parte_compareciente->tipo_parte_id == 3){
+                        $parte_representada = Parte::find($parte_compareciente->parte_representada_id);
+                        if($parte_representada->tipo_parte_id == 1){
+                            $solicitantes = true;
+                        }else if($parte_representada->tipo_parte_id == 2){
+                            $citados = true;
+                        }
                     }
+                
+                    Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $this->request->audiencia_id,"presentado" => true]);
                 }
+                if(!$solicitantes){
+                    //Archivado y se genera formato de acta de archivado por no comparecencia
                 
-                Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $this->request->audiencia_id,"presentado" => true]);
-            }
-            if(!$solicitantes){
-                //Archivado y se genera formato de acta de archivado por no comparecencia
+                    $audiencia->update(array("resolucion_id"=>4,"finalizada"=>true));
+                    $solicitantes = $this->getSolicitantes($audiencia);
+                    $solicitados = $this->getSolicitados($audiencia);
+                    foreach($solicitantes as $solicitante){
+                        foreach($solicitados as $solicitado){
+                            $resolucionParte = ResolucionPartes::create([
+                                "audiencia_id" => $audiencia->id,
+                                "parte_solicitante_id" => $solicitante->parte_id,
+                                "parte_solicitada_id" => $solicitado->parte_id,
+                                "terminacion_bilateral_id" => 1
+                                ]);
+                            }
+                        }
+                        // Se genera archivo de acta de archivado
+                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1));
                 
-                $audiencia->update(array("resolucion_id"=>4,"finalizada"=>true));
-                $solicitantes = $this->getSolicitantes($audiencia);
-                $solicitados = $this->getSolicitados($audiencia);
-                foreach($solicitantes as $solicitante){
-                    foreach($solicitados as $solicitado){
-                        $resolucionParte = ResolucionPartes::create([
-                            "audiencia_id" => $audiencia->id,
-                            "parte_solicitante_id" => $solicitante->parte_id,
-                            "parte_solicitada_id" => $solicitado->parte_id,
-                            "terminacion_bilateral_id" => 1
-                        ]);
                     }
-                }
-                // Se genera archivo de acta de archivado
-                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1));
-                
-            }
-            if($solicitantes && !$citados){
-                //Constancia de no conciliacion de todos los citados 
-                $audiencia->update(array("resolucion_id"=>3,"finalizada"=>true));
-                $solicitantes = $this->getSolicitantes($audiencia);
-                $solicitados = $this->getSolicitados($audiencia);
-                foreach($solicitantes as $solicitante){
-                    foreach($solicitados as $solicitado){
-                        $resolucionParte = ResolucionPartes::create([
-                            "audiencia_id" => $audiencia->id,
-                            "parte_solicitante_id" => $solicitante->parte_id,
-                            "parte_solicitada_id" => $solicitado->parte_id,
-                            "terminacion_bilateral_id" => 5
-                        ]);
-                        //Se genera constancia de no conciliacion
-                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,17,1,$solicitante->parte_id,$solicitado->parte_id));
+                    if($solicitantes && !$citados){
+                        //Constancia de no conciliacion de todos los citados 
+                        $audiencia->update(array("resolucion_id"=>3,"finalizada"=>true));
+                        $solicitantes = $this->getSolicitantes($audiencia);
+                        $solicitados = $this->getSolicitados($audiencia);
+                        foreach($solicitantes as $solicitante){
+                            foreach($solicitados as $solicitado){
+                                $resolucionParte = ResolucionPartes::create([
+                                    "audiencia_id" => $audiencia->id,
+                                    "parte_solicitante_id" => $solicitante->parte_id,
+                                    "parte_solicitada_id" => $solicitado->parte_id,
+                                    "terminacion_bilateral_id" => 5
+                                ]);
+                                //Se genera constancia de no conciliacion
+                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,17,1,$solicitante->parte_id,$solicitado->parte_id));
+                                
+                                // Se genera archivo de acta de multa
+                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,18,7,$solicitante->parte_id,$solicitado->parte_id));
+                            }
+                        }
                     }
-                }
             }
             DB::commit();
             return $this->sendResponse($audiencia, 'SUCCESS');
