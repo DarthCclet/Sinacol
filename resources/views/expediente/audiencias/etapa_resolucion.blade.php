@@ -1512,18 +1512,34 @@
                 },
                 success:function(data){
                     $("#modal-comparecientes").modal("hide");
-                    swal({
-                        title: 'Éxito',
-                        text: 'Se han registrado los comparecientes',
-                        icon: 'success'
-                    });
-                    if(data.finalizada == true){
+                    if(data.data.finalizada == true){
                         swal({
-                            title: 'Éxito',
-                            text: 'La audiencia no iniciara',
-                            icon: 'success'
+                        title: 'Éxito',
+                        text: 'La audiencia fue finalizada',
+                        icon: 'warning',
+                        buttons: {
+                            confirm: {
+                                text: 'Aceptar',
+                                value: true,
+                                visible: true,
+                                className: 'btn btn-warning',
+                                closeModal: true
+                            }
+                        }
+                        }).then(function(isConfirm){
+                            if(isConfirm){
+                            
+                            }else{
+                                
+                            }
+                            window.location.href = "/audiencias";
                         });
                     }else{
+                        swal({
+                            title: 'Éxito',
+                            text: 'Se han registrado los comparecientes',
+                            icon: 'success'
+                        });
                         cargarComparecientes();
                         startTimer();
                         nextStep(1);
