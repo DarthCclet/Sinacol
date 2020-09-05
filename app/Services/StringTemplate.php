@@ -28,7 +28,7 @@ class StringTemplate
         try {
             eval('?' . '>' . $php);
         } catch (ErrorException $err) {
-
+            dd($err);
         } catch (Exception $e) {
             while (ob_get_level() > $obLevel) ob_end_clean();
             throw $e;
@@ -59,6 +59,7 @@ class StringTemplate
      * @return string
      */
     public static function sustituyePlaceholdersConditionals($string, $vars){
+
       if(Str::contains($string, '[REPETIR')) {
         $countRepetir = substr_count($string, '[FIN_REPETIR');
       }
@@ -76,7 +77,7 @@ class StringTemplate
 
                 $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
                 $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-                
+
                 $string = $htmlA . $sliceNotificacion . $htmlB;
               break;
               case 2: //El actuario del centro entrega citatorio a solicitados
@@ -86,7 +87,7 @@ class StringTemplate
 
                 $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
                 $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-                
+
                 $string = $htmlA . $sliceNotificacion . $htmlB;
               break;
             }
@@ -100,20 +101,20 @@ class StringTemplate
                 $sliceSeparado = Str::before($sliceSeparado, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
                 $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
                 $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
-                
+
                 $string = $htmlA . $sliceSeparado . $htmlB;
             }else{//audiencia en misma sala
-                // texto de 
+                // texto de
                 $sliceSeparado = "";
                 $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
                 $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
-                
+
                 $string = $htmlA . $sliceSeparado . $htmlB;
             //   // break;
             }
           }
         }
-        
+
 
         $partes = ['solicitado','solicitante'];
         foreach ($partes as $key => $parteL) {
@@ -154,7 +155,7 @@ class StringTemplate
               break;
             }
           }
-          
+
           if($vars[$parteL.'_tipo_persona_id'] != null  && ($countPersona >0) ){
             switch ($vars[$parteL.'_tipo_persona_id']) {
               case 1: //fisica
@@ -196,9 +197,16 @@ class StringTemplate
      */
     public static function renderPlantillaPlaceholders($string, $vars)
     {
-        $string = self::sustituyePlaceholdersConditionals($string,$vars);
+        $string = self::sustituyePlaceholdersConditionals($string, $vars);
+        $vars_necesarias = [];
+        if(preg_match_all('/\[(\w+)\]/',$string,$vars_necesarias) && isset($vars_necesarias[1])) {
+            foreach ($vars_necesarias[1] as $varname) {
+                if (!isset($vars[mb_strtolower($varname)])) {
+                    $vars[mb_strtolower($varname)] = '<span style="color: red;">' . $varname . '</span>';
+                }
+            }
+        }
         $blade = self::sustituyePlaceholders($string);
-
         return self::render($blade, $vars);
     }
     /**
