@@ -740,7 +740,7 @@
 <!--Fin de modal de representante legal-->
 <!-- Inicio Modal de comparecientes y resolución individual-->
 <div class="modal" id="modal-comparecientes" data-backdrop="static" data-keyboard="false" style="display:none;">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Comparecientes</h4>
@@ -1042,11 +1042,13 @@
                     </select>
                 </td>
                 <td>
-                    <select class="form-control catSelectFile" id="parte_relacionada" name="parte[]">
+                    <select class="form-control catSelectFile parte_relacionada" id="parte_relacionada" name="parte[]">
                         <option value="">Seleccione una opci&oacute;n</option>
                         @if(isset($audiencia->partes))
                             @foreach($audiencia->partes as $parte)
+                                @if($parte->tipo_persona_id == 1)
                                     <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>
+                                @endif
                             @endforeach
                         @endif
                     </select>
@@ -1612,7 +1614,7 @@
             dataType:"json",
             success:function(data){
                 var table = "";
-                var options = "";
+                var options = "<option value=''>Seleccione una opci&oacute;n</option>";
                 $.each(data, function(index,element){
                     table +='<tr>';
                     table +='   <td>'+element.tipo_parte.nombre+'</td>';
@@ -1629,9 +1631,10 @@
                     }
                     table +='   </td>';
                     table +='</tr>';
-                    options = '<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</option>';
+                    options += '<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</option>';
                 });
                 $("#parte_relacionada").empty();
+                console.log(options);
                 $("#parte_relacionada").html(options);
                 $("#tbodyPartesFisicas").html(table);
                 $("#resolucionVarias").hide();
@@ -2288,11 +2291,7 @@
 
                             var success = guardarEvidenciaEtapa(pasoActual);
                             if(success){
-                                // var siguiente = pasoActual+1;
                                 $("#icon"+pasoActual).css("background","lightgreen");
-                                $('html,body').animate({
-                                    scrollTop: $("#contentStep"+pasoActual).offset().top
-                                }, 'slow');
                                 // $("#step"+siguiente).show();
                                 listaResolucionesIndividuales = [];
                                 $("#btnGuardarResolucionMuchas").click();
@@ -2334,11 +2333,7 @@
 
                         var success = guardarEvidenciaEtapa(pasoActual);
                         if(success){
-                            // var siguiente = pasoActual+1;
                             $("#icon"+pasoActual).css("background","lightgreen");
-                            $('html,body').animate({
-                                scrollTop: $("#contentStep"+pasoActual).offset().top
-                            }, 'slow');
                             // $("#step"+siguiente).show();
                             listaResolucionesIndividuales = [];
                             $("#btnGuardarResolucionMuchas").click();

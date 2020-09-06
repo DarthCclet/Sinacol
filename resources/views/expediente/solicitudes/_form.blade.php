@@ -717,7 +717,7 @@
                 <button style="float: right;" class="btn btn-primary pull-right btn-lg m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save" ></i> Guardar</button>
             </div>
             <div class="col-md-12" id="btnGetAcuse" style="display: none;">
-                <a id="btnAcuse" href="/api/documentos/getFile/" class="btn btn-primary pull-right btn-lg m-l-5" target="_blank"><i class="fa fa-file" ></i> Descargar Acuse</a>
+                <a id="btnAcuse" href="/api/documentos/getFile/" style="padding: 1% 2% 1% 2%; font-size: large;" class="btn btn-primary pull-right btn-lg m-l-5" target="_blank"><i class="fa fa-file" ></i> Descargar Acuse</a>
             </div>
 
         </div>
@@ -1775,6 +1775,7 @@
                     $("#labora_actualmente").click();
                 }
                 $("#fecha_salida").val(dateFormat(datos_laborales_storage.fecha_salida,4));
+                localStorage.clear();
             }
         }
         // getGironivel("",1,"girosNivel1solicitante");
@@ -3265,6 +3266,7 @@
                 try{
                     if(data != null && data != ""){
                         $("#btnGuardar").hide();
+                        swal({title: 'Exito',text: 'Descarga tu acuse para presentarlo en la solicitud',icon: 'success'});
                         $("#btnAcuse").attr("href","/api/documentos/getFile/"+data[0].id)
                         $("#btnGetAcuse").show();
                     }

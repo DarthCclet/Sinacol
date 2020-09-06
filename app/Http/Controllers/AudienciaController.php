@@ -96,7 +96,7 @@ class AudienciaController extends Controller
             }
             if($this->request->get('IsDatatableScroll')){
                 $audiencias = $audiencias->with('conciliador.persona');
-                $audiencias = $audiencias->orderBy("fecha_audiencia", 'desc')->take($length)->skip($start)->get(['id','folio','anio','fecha_audiencia','hora_inicio','hora_fin','conciliador_id']);
+                $audiencias = $audiencias->orderBy("fecha_audiencia", 'desc')->take($length)->skip($start)->get(['id','folio','anio','fecha_audiencia','hora_inicio','hora_fin','conciliador_id','finalizada']);
                 // $audiencias = $audiencias->select(['id','conciliador','numero_audiencia','fecha_audiencia','hora_inicio','hora_fin'])->orderBy("fecha_audiencia",'desc')->take($length)->skip($start)->get();
             }else{
                 $audiencias = $audiencias->paginate($this->request->get('per_page', 10));

@@ -7,6 +7,7 @@
           <th>Hora inicio</th>
           <th>Hora fin</th>
           <th>Conciliador</th>
+          <th>Estatus</th>
           <th>Acciones</th></tr>
     </thead>
 
@@ -96,9 +97,21 @@
                         "targets": [4],
                         "render": function (data, type, row) {
                             var html = "";
-                            if(row[7] != null){
-                                html = ""+row[7].persona.nombre + " "+ row[7].persona.primer_apellido + " " + (row[7].persona.segundo_apellido|| "");
+                            if(row[8] != null){
+                                html = ""+row[8].persona.nombre + " "+ row[8].persona.primer_apellido + " " + (row[8].persona.segundo_apellido|| "");
 
+                            }
+                            return  html;
+                        }
+                    },
+                    {
+                        "targets": [5],
+                        "render": function (data, type, row) {
+                            var html = "";
+                            if(row[7] == true){
+                                html = "Finalizada";
+                            }else{
+                                html = "Pendiente";
                             }
                             return  html;
                         }
@@ -107,8 +120,11 @@
                         "targets": -1,
                         "render": function (data, type, row) {
                                 // console.log(row[0]);
-
-                                return '<div style="display: inline-block;"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div><div style="display: inline-block;"><a href="'+ruta.replace('/audiencias/1/edit',"/guiaAudiencia/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-clipboard-list"></i></a></div>';
+                                var guia = "";
+                                if(row[7] == false){
+                                    guia = '<div style="display: inline-block;"><a href="'+ruta.replace('/audiencias/1/edit',"/guiaAudiencia/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-clipboard-list"></i></a></div>';
+                                }
+                                return '<div style="display: inline-block;"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>'+guia;
                             }
                         // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a>&nbsp;<button class="btn btn-xs btn-danger btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
                     }

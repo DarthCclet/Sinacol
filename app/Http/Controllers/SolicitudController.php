@@ -144,9 +144,16 @@ class SolicitudController extends Controller {
      */
     public function create()
     {
+        $tipo_solicitud_id = isset($this->request->solicitud) ?$this->request->solicitud : 1;
+        if($tipo_solicitud_id == 1){
+            $tipo_objeto_solicitudes_id = 1;
+        }else if($tipo_solicitud_id == 2){
+            $tipo_objeto_solicitudes_id = 2;
+        }else{
+            $tipo_objeto_solicitudes_id = 3;
 
-
-        $objeto_solicitudes = $this->cacheModel('objeto_solicitudes',ObjetoSolicitud::class);
+        }
+        $objeto_solicitudes = array_pluck(ObjetoSolicitud::where('tipo_objeto_solicitudes_id',$tipo_objeto_solicitudes_id)->get(),'nombre','id');
         $estatus_solicitudes = $this->cacheModel('estatus_solicitudes',EstatusSolicitud::class);
         $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
         $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
@@ -161,7 +168,7 @@ class SolicitudController extends Controller {
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
         $motivo_excepcion = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
-        $tipo_solicitud_id = isset($this->request->solicitud) ?$this->request->solicitud : 1;
+        
         $clasificacion_archivo = ClasificacionArchivo::all();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
@@ -440,7 +447,17 @@ class SolicitudController extends Controller {
 //            dd($parte);
             $partes[$key] = $parte;
         }
-        $objeto_solicitudes = $this->cacheModel('objeto_solicitudes', ObjetoSolicitud::class);
+        
+        $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ?$solicitud->tipo_solicitud_id : 1;
+        if($tipo_solicitud_id == 1){
+            $tipo_objeto_solicitudes_id = 1;
+        }else if($tipo_solicitud_id == 2){
+            $tipo_objeto_solicitudes_id = 2;
+        }else{
+            $tipo_objeto_solicitudes_id = 3;
+
+        }
+        $objeto_solicitudes = array_pluck(ObjetoSolicitud::where('tipo_objeto_solicitudes_id',$tipo_objeto_solicitudes_id)->get(),'nombre','id');
         $estatus_solicitudes = $this->cacheModel('estatus_solicitudes', EstatusSolicitud::class);
         $giros_comerciales = $this->cacheModel('giros_comerciales', GiroComercial::class);
         $tipos_vialidades = $this->cacheModel('tipos_vialidades', TipoVialidad::class);
@@ -459,7 +476,7 @@ class SolicitudController extends Controller {
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         $clasificacion_archivo = ClasificacionArchivo::all();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
-        $tipo_solicitud_id = $solicitud->tipo_solicitud_id;
+        
         // dd(Conciliador::all()->persona->full_name());
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
         // dd($conciliador);

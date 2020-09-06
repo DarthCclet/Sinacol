@@ -2,29 +2,134 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "Despido"
+            "nombre": "Despido",
+            "tipo_objeto_solicitudes_id": "1"
         },
         {
             "id": "2",
-            "nombre": "Pago de prestaciones"
+            "nombre": "Pago de prestaciones",
+            "tipo_objeto_solicitudes_id": "1"
         },
         {
             "id": "3",
-            "nombre": "Rescisión de la relación de trabajo"
+            "nombre": "Rescisión de la relación de trabajo",
+            "tipo_objeto_solicitudes_id": "1"
         },
         {
             "id": "4",
-            "nombre": "Derecho de preferencia"
+            "nombre": "Derecho de preferencia",
+            "tipo_objeto_solicitudes_id": "1"
         },
         {
             "id": "5",
-            "nombre": "Derecho de antigüedad"
+            "nombre": "Derecho de antigüedad",
+            "tipo_objeto_solicitudes_id": "1"
         },
         {
             "id": "6",
-            "nombre": "Derecho de ascenso"
+            "nombre": "Derecho de ascenso",
+            "tipo_objeto_solicitudes_id": "1"
+        },
+        {
+            "id": "7",
+            "nombre": "Rescisión de parte del patrón",
+            "tipo_objeto_solicitudes_id": "2"
+        },
+        {
+            "id": "8",
+            "nombre": "Omisiones en el Reglamento Interior (Art 424 F IV)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "9",
+            "nombre": "Revisión del reglamento Interior por disposiciones contrarias a la Ley (Art 424 F IV)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "10",
+            "nombre": "Modif. Colect. condiciones de trabajo por cambio de condiciones económicas (Art 426. F. I; CCT)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "11",
+            "nombre": "Modif. Colect. condiciones de trabajo por cambio de condiciones económicas (Art 426. F. I; Contrato Ley)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "12",
+            "nombre": "Modif. Colect. condiciones de trabajo por desequilibrio por aumento de costo de vida (Art 426. F. II; CCT)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "13",
+            "nombre": "Modif. Colect. condiciones de trabajo por cambio de condiciones económicas (Art 426. F. II; Contrato Ley)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "14",
+            "nombre": "Suspensión Colectiva de las Relaciones de Trabajo. Fuerza mayor. (Art 427, F. I)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "15",
+            "nombre": "Suspensión Colectiva de las Relaciones de Trabajo. Falta de materia Prima (Art 427, F. II)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "16",
+            "nombre": "Suspensión Colectiva de las Relaciones de Trabajo. Falta de fondos (Art 427, F. III)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "17",
+            "nombre": "Suspensión Colectiva de las Relaciones de Trabajo. Incosteabilidad temporal (Art 427, F. IV)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "18",
+            "nombre": "Suspensión Colectiva de las Relaciones de Trabajo. Falta de recursos comprometidos por el Gobierno (Art 427, F. II)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "19",
+            "nombre": "Terminación Colectiva de las Relaciones de Trabajo. Fuerza mayor, caso fortuito, incapacidad o muerte del patrón (Art 434, F. I)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "20",
+            "nombre": "Terminación Colectiva de las Relaciones de Trabajo. Incosteabilidad (Art 434, F. II)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "21",
+            "nombre": "Terminación Colectiva de las Relaciones de Trabajo. Agotamiento de la materia, industria extractiva (Art 434, F. III)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "22",
+            "nombre": "Terminación Colectiva de las Relaciones de Trabajo. Implementación de maquinaria o procedimientos de trabajo nuevos (Art 439)",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "23",
+            "nombre": "Solicitud de conciliación por firma de contrato colectivo",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "24",
+            "nombre": "Solicitud de conciliación por revisión de contrato colectivo",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "25",
+            "nombre": "Solicitud de conciliación por incumplimiento de contrato colectivo",
+            "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "26",
+            "nombre": "Solicitud de conciliación colectiva en general",
+            "tipo_objeto_solicitudes_id": "3"
         }
-
     ],
-    "numReg": 6
+    "numReg": 26
 }
