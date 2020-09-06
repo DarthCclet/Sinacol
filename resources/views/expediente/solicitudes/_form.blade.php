@@ -74,8 +74,8 @@
             <a href="#step-4">
 
                 <span class="">
-                    Excepci&oacute;n
-                    <small>Casos de excepci&oacute;n</small>
+                    {{-- Excepci&oacute;n
+                    <small>Casos de excepci&oacute;n</small> --}}
                 </span>
             </a>
         </li>
@@ -1911,7 +1911,6 @@
                     $(".step-6").show();
                     $('#wizard').smartWizard("stepState", [5], "show");
                     if(data.ratificada){
-                        $("#ratificada").prop("checked",true);
                         $("#btnRatificarSolicitud").hide();
                         $("#expediente_id").val(data.expediente.id);
                         $(".step-5").show();
@@ -2690,7 +2689,6 @@
             var solicitud = {};
             solicitud.id = $("#solicitud_id").val();
             solicitud.observaciones = $("#observaciones").val();
-            solicitud.ratificada = $("#ratificada").is(":checked");
             solicitud.solicita_excepcion = $("#solicita_excepcion").is(":checked");
             solicitud.fecha_ratificacion = dateFormat($("#fechaRatificacion").val(),3);
             solicitud.fecha_recepcion = dateFormat($("#fechaRecepcion").val(),3);

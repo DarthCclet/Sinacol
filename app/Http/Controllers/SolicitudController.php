@@ -522,7 +522,7 @@ class SolicitudController extends Controller {
         DB::beginTransaction();
         try {
             // Solicitud
-            $solicitud['user_id'] = 1;
+            $solicitud['user_id'] = Auth::user()->id;
             $solicitudUp = Solicitud::find($solicitud['id']);
             $exito = $solicitudUp->update($solicitud);
             if ($exito) {
