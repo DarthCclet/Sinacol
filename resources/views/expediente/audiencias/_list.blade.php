@@ -122,9 +122,9 @@
                                 // console.log(row[0]);
                                 var guia = "";
                                 if(row[7] == false){
-                                    guia = '<div style="display: inline-block;"><a href="'+ruta.replace('/audiencias/1/edit',"/guiaAudiencia/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-clipboard-list"></i></a></div>';
+                                    guia = '<div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="'+ruta.replace('/audiencias/1/edit',"/guiaAudiencia/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>';
                                 }
-                                return '<div style="display: inline-block;"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>'+guia;
+                                return '<div style="display: inline-block;" class="m-2"><a title="Detalle" href="'+ruta.replace('/1/',"/"+row[0]+"/")+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>'+guia;
                             }
                         // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a>&nbsp;<button class="btn btn-xs btn-danger btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
                     }

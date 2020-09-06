@@ -367,8 +367,8 @@
                                 </div>
                                 <div class="col-md-12 row">
                                     <div class="col-md-6">
-                                        <input class="form-control upper" id="puesto" placeholder="Puesto" type="text" value="">
-                                        <p class="help-block ">Puesto</p>
+                                        <input class="form-control upper" required id="puesto" placeholder="Puesto" type="text" value="">
+                                        <p class="help-block needed">Puesto</p>
                                     </div>
                                     <div class="col-md-6" >
                                         {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}

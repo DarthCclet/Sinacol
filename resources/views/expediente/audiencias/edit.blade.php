@@ -740,53 +740,58 @@
                     <div class="col-md-12 row">
                         <input type="hidden" id="dato_laboral_id">
                         <input type="hidden" id="resolucion_dato_laboral">
-                        <div class="col-md-12">
-                            <input class="form-control datoLaboral" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
+                        <div class="col-md-6">
+                            <input class="form-control upper" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
                             <p class="help-block">Nombre del Jefe directo</p>
                         </div>
-                        <div class="col-md-12 form-group row">
-                            <input type="hidden" id="term">
-                            <div class="col-md-12 ">
-                                <select name="giro_comercial_solicitante " placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control datoLaboral"></select>
-                            </div>
-                            <div class="col-md-12">
-                                <p class="help-block needed">Giro comercial</p>
-                            <label id="giro_solicitante"></label>
-                            </div>
+                        <div class="col-md-6">
+                            <input class="form-control upper" id="nombre_contrato" placeholder="Nombre de quien te contrato" type="text" value="">
+                            <p class="help-block">&iquest;Quien te contrato?</p>
                         </div>
-                        {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opción','style'=>'display:none;']);  !!}
+                        <div class="col-md-6">
+                            <input class="form-control upper" id="nombre_paga" placeholder="Nombre quien te paga" type="text" value="">
+                            <p class="help-block">&iquest;Quien te paga?</p>
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control upper" id="nombre_prestas_servicio" placeholder="Nombre de a quien le prestas tus servicios" type="text" value="">
+                            <p class="help-block">&iquest;A quien prestas el servicio?</p>
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
+                            <p class="help-block ">N&uacute;mero de seguro social</p>
+                        </div>
                         <div class="col-md-12 row">
-                            <div class="col-md-4">
-                                {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                            <div class="col-md-6">
+                                <input class="form-control upper" required id="puesto" placeholder="Puesto" type="text" value="">
+                                <p class="help-block needed">Puesto</p>
+                            </div>
+                            <div class="col-md-6" >
+                                {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                 {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Categoria/Puesto</p>
+                                <p class="help-block ">&iquest;En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoja del catálogo. Si no, deja vacío.</p>
                             </div>
-                            <div class="col-md-4">
-                                <input class="form-control numero datoLaboral" data-parsley-type='integer' id="nss" placeholder="No. IMSS"  type="text" value="">
-                                <p class="help-block ">No. IMSS</p>
-                            </div>
-                            <div class="col-md-4">
-                                <input class="form-control numero datoLaboral" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
+                            {{-- <div class="col-md-4">
+                                <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
                                 <p class="help-block">No. ISSSTE</p>
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="col-md-12 row">
                             <div class="col-md-4">
-                                <input class="form-control numero "datoLaboral required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="Remuneraci&oacute;n (pago)" type="text" value="">
-                                <p class="help-block needed">Remuneraci&oacute;n (pago)</p>
+                                <input class="form-control numero requiredLaboral" required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
+                                <p class="help-block needed">&iquest;Cu&aacute;nto te pagan?</p>
                             </div>
                             <div class="col-md-4">
-                                {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect datoLaboral']);  !!}
+                                {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboral']);  !!}
                                 {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Periodicidad</p>
+                                <p class="help-block needed">&iquest;Cada cuándo te pagan?</p>
                             </div>
                             <div class="col-md-4">
-                                <input class="form-control numero datoLaboral" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
+                                <input class="form-control numero requiredLaboral" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
                                 <p class="help-block needed">Horas semanales</p>
                             </div>
                         </div>
                         <div class="col-md-12 row">
-
+    
                             <div class="col-md-2">
                                 <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
                             </div>
@@ -795,11 +800,11 @@
                                 <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
                             </div>
                             <div class="col-md-4">
-                                <input class="form-control date datoLaboral" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
+                                <input class="form-control requiredLaboral" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
                                 <p class="help-block needed">Fecha de ingreso</p>
                             </div>
                             <div class="col-md-4" id="divFechaSalida">
-                                <input class="form-control date datoLaboral" id="fecha_salida" placeholder="Fecha salida" type="text" value="">
+                                <input class="form-control requiredLaboral" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
                                 <p class="help-block needed">Fecha salida</p>
                             </div>
                         </div>
@@ -1976,9 +1981,12 @@
                     data:{
                         id : $("#dato_laboral_id").val(),
                         nombre_jefe_directo : $("#nombre_jefe_directo").val(),
+                        nombre_prestas_servicio : $("#nombre_prestas_servicio").val(),
+                        nombre_paga : $("#nombre_paga").val(),
+                        nombre_contrato : $("#nombre_contrato").val(),
+                        puesto : $("#puesto").val(),
                         ocupacion_id : $("#ocupacion_id").val(),
                         nss : $("#nss").val(),
-                        no_issste : $("#no_issste").val(),
                         remuneracion : $("#remuneracion").val(),
                         periodicidad_id : $("#periodicidad_id").val(),
                         labora_actualmente : $("#labora_actualmente").is(":checked"),
@@ -1989,6 +1997,7 @@
                         giro_comercial_id : $("#giro_comercial_hidden").val(),
                         parte_id:$("#parte_id").val(),
                         resolucion:$("#resolucion_dato_laboral").val(),
+                        comida_dentro:0,
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
