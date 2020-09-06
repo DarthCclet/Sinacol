@@ -79,7 +79,7 @@
                 <h5><i class="fa fa-warning"></i> Solicitud de nueva fecha</h5>
                 <div class="row">
                     <div class="col-md-12">
-                        
+
                     El Solicitante de está audiencia ha solicitado su reprogramación, revizar el justificante y determinar si debe ser aprobada o negada<br>
                     </div>
                     <div class="col-md-12">
@@ -791,7 +791,7 @@
                             </div>
                         </div>
                         <div class="col-md-12 row">
-    
+
                             <div class="col-md-2">
                                 <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
                             </div>
@@ -1500,7 +1500,7 @@
                             listaContactos = data;
                             cargarContactos();
                         }else{
-                            swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                         }
                     }
                 });
@@ -1584,7 +1584,7 @@
                             listaContactos = data;
                             cargarContactos();
                         }else{
-                            swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                         }
                     }
                 });
@@ -1617,10 +1617,10 @@
                     },
                     success:function(data){
                         if(data != null && data != ""){
-                            swal({title: 'Exito',text: 'Se agrego el representante',icon: 'success'});
+                            swal({title: 'Éxito',text: 'Se agregó el representante',icon: 'success'});
                             $("#modal-representante").modal("hide");
                         }else{
-                            swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                         }
                     }
                 });
@@ -1667,7 +1667,7 @@
                 $("#detalle_instrumento").prev().css("color","red");
                 error = true;
             }
-            
+
             console.log(listaContactos.length);
             if(listaContactos.length == 0){
                 $("#contacto").prev().css("color","red");
@@ -1830,7 +1830,7 @@
                                     confirmVista(data.id);
                                 }else{
                                     swal({
-                                        title: 'Algo salio mal',
+                                        title: 'Algo salió mal',
                                         text: 'No se guardo el registro',
                                         icon: 'warning'
                                     });
@@ -1866,7 +1866,7 @@
         }
         function confirmVista(idAudiencia){
             swal({
-                title: 'Exito',
+                title: 'ÉXITO',
                 text: 'Se ha creado la nueva audiencia, ¿Qué deseas hacer?',
                 icon: 'success',
                 buttons: {
@@ -2002,10 +2002,10 @@
                     },
                     success:function(data){
                         if(data != null && data != ""){
-                            swal({title: 'Exito',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
+                            swal({title: 'ÉXITO',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
                             $("#modal-dato-laboral").modal("hide");
                         }else{
-                            swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                         }
                     },error:function(data){
                         console.log(data);
@@ -2114,7 +2114,7 @@
                                 location.reload();
                             }else{
                                 swal({
-                                    title: 'Algo salio mal',
+                                    title: 'Algo salió mal',
                                     text: 'No se guardo el registro',
                                     icon: 'warning'
                                 });
@@ -2127,7 +2127,7 @@
         $("#btnAprobarCancelacion").on("click",function(){
            $("#modal-reprogramacion").modal("show");
         });
-        
+
         function getEtapasAudiencia(){
             $.ajax({
                 url:'/api/etapa_resolucion_audiencia/audiencia/'+$("#audiencia_id").val(),

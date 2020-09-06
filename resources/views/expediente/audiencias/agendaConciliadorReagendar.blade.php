@@ -165,7 +165,7 @@
                                 window.location.reload();
                             }else{
                                 swal({
-                                    title: 'Algo salio mal',
+                                    title: 'Algo salió mal',
                                     text: 'No se registro la audiencia',
                                     icon: 'warning'
                                 });
@@ -173,14 +173,14 @@
                         },error: function(){
                             swal({
                                 title: 'Error',
-                                text: 'Algo salio mal al tratar de reagendar',
+                                text: 'Algo salió mal al tratar de reagendar',
                                 icon: 'warning'
                             });
                         }
                     });
                 }else{
                     swal({
-                        title: 'Algo salio mal',
+                        title: 'Algo salió mal',
                         text: 'Selecciona la sala dónde se realizará la audiencia',
                         icon: 'warning'
                     });

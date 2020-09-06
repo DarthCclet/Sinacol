@@ -80,7 +80,7 @@
                             window.location.href = "{{ route('salas.index')}}";
                         }else{
                             swal({
-                                title: 'Algo salio mal',
+                                title: 'Algo salió mal',
                                 text: 'No se guardo el registro',
                                 icon: 'warning'
                             });
@@ -89,7 +89,7 @@
                 });
             }else{
                 swal({
-                    title: 'Algo salio mal',
+                    title: 'Algo salió mal',
                     text: 'Llena los cambios requeridos',
                     icon: 'warning'
                 });

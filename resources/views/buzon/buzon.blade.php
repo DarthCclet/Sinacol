@@ -170,7 +170,7 @@
                     </div>
                     <div class="alert alert-muted">
                         Esta opción está habilitada para solicitar el reagendado de la audiencia por causa justificada, en conformidad con al Artículo 684-E fracción IX de la LFT.<br><br>
-                        
+
                         <strong>Nota!</strong> la solicitud de reagendar será validada por el conciliador y una vez aprobada se le avisará nueva fecha por este buzón
                     </div>
                     <div class="col-md-2">
@@ -372,7 +372,7 @@
                             $('#modal-domicilio').modal('hide');
                             domicilioObj2.limpiarDomicilios();
                             swal({
-                                title: 'Exito',
+                                title: 'Éxito',
                                 text: 'Se cambio el domicilio',
                                 icon: 'success'
                             });

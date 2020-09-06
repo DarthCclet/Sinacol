@@ -232,17 +232,17 @@
                                         <input class="form-control upper" id="idSolicitanteRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitante" type="text" value="">
                                         <p class="help-block">RFC del solicitante</p>
                                     </div>
-                                    
+
                                     <div class="col-md-4 sindicato" style="display: none;">
                                         <input class="form-control upper " id="registro_sindical" placeholder="Registro sindical" type="text" value="">
                                         <p class="help-block needed">Registro sindical</p>
                                     </div>
-                                    
+
                                     <div class="col-md-4 sindicato" style="display: none;">
                                         <input class="form-control upper" id="contrato_colectivo" placeholder="Contrato Colectivo" type="text" value="">
                                         <p class="help-block">Contrato colectivo</p>
                                     </div>
-                                    
+
                                     <div class="col-md-4 personaFisicaSolicitante">
                                         {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
@@ -613,7 +613,7 @@
                                         </div> --}}
                                     </div>
                                 </div>
-                                
+
                             </div>
                                 <!-- end seccion de domicilios citado -->
                             <hr style="margin-top:5%;">
@@ -3166,11 +3166,11 @@
     });
 
     $('#fecha_ingreso').datepicker().on('change', function (ev) {
-        var date2 = $('#fecha_ingreso').datepicker('getDate'); 
-        date2.setDate(date2.getDate()+1); 
+        var date2 = $('#fecha_ingreso').datepicker('getDate');
+        date2.setDate(date2.getDate()+1);
         $('#fecha_salida').datepicker("option", "minDate", date2);
     });
-    
+
 
     $(".date").datepicker({useCurrent: false,format:'dd/mm/yyyy'});
     $(".dateTime").datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm:ss'});
@@ -3264,7 +3264,7 @@
                 try{
                     if(data != null && data != ""){
                         $("#btnGuardar").hide();
-                        swal({title: 'Exito',text: 'Descarga tu acuse para presentarlo en la solicitud',icon: 'success'});
+                        swal({title: 'ÉXITO',text: 'Descarga tu acuse para presentarlo en la solicitud',icon: 'success'});
                         $("#btnAcuse").attr("href","/api/documentos/getFile/"+data[0].id)
                         $("#btnGetAcuse").show();
                     }
@@ -3657,7 +3657,7 @@
                         listaContactos = data;
                         cargarContactos();
                     }else{
-                        swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                     }
                 }
             });
@@ -3773,11 +3773,11 @@
                     if(data != null && data != ""){
                         $("#tieneRepresentante"+data.id).html("Correcto <i class='fa fa-check'></i> ");
                         $("#btnaddRep"+data.id).html("Ver Representante");
-                        swal({title: 'Exito',text: 'Se agrego el representante',icon: 'success'});
+                        swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
                         actualizarPartes();
                         $("#modal-representante").modal("hide");
                     }else{
-                        swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                     }
                 }
             });
@@ -3829,7 +3829,7 @@
                             listaContactos = data;
                             cargarContactos();
                         }else{
-                            swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                         }
                     }
                 });
@@ -3924,7 +3924,7 @@
                             }
                         });
                     }else{
-                        swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                     }
                 }
             });

@@ -50,7 +50,7 @@ class ServiciosCJFController extends Controller
                 'codigo_retorno' => 1,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
                 'folio_confirmacion' => sprintf("%06d", $folio->contador),
-                'mensaje' => 'EXITO'
+                'mensaje' => 'ÉXITO'
             ];
             return response()->json(array_merge($fechas, $acuse), 200);
         }catch (\Exception $e){
@@ -93,7 +93,7 @@ class ServiciosCJFController extends Controller
                 'codigo_retorno' => 1,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
                 'folio_confirmacion' => sprintf("%06d", $folio->contador),
-                'mensaje' => 'EXITO'
+                'mensaje' => 'ÉXITO'
             ];
             return response()->json(array_merge($resultado, $acuse), 200);
         }
@@ -137,7 +137,7 @@ class ServiciosCJFController extends Controller
                 'codigo_retorno' => 1,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
                 'folio_confirmacion' => sprintf("%06d", $folio->contador),
-                'mensaje' => 'EXITO'
+                'mensaje' => 'ÉXITO'
             ];
             return response()->json(array_merge($resultado, $acuse), 200);
         }
@@ -173,7 +173,7 @@ class ServiciosCJFController extends Controller
                 'codigo_retorno' => 1,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
                 'folio_confirmacion' => sprintf("%06d", $folio->contador),
-                'mensaje' => 'EXITO'
+                'mensaje' => 'ÉXITO'
             ];
             return response()->json(array_merge($solicitudes, $acuse), 200);
 
@@ -208,7 +208,7 @@ class ServiciosCJFController extends Controller
                 'codigo_retorno' => 1,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
                 'folio_confirmacion' => sprintf("%06d", $folio->contador),
-                'mensaje' => 'EXITO'
+                'mensaje' => 'ÉXITO'
             ];
             return response()->json(array_merge($solicitudes, $acuse), 200);
 
@@ -242,7 +242,7 @@ class ServiciosCJFController extends Controller
                 'codigo_retorno' => 1,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
                 'folio_confirmacion' => sprintf("%06d", $folio->contador),
-                'mensaje' => 'EXITO'
+                'mensaje' => 'ÉXITO'
             ];
             return response()->json(array_merge($solicitudes, $acuse), 200);
 //            return $this->sendResponse($resultado,'Resultados de busqueda del CURP: '.$curp);
@@ -271,7 +271,7 @@ class ServiciosCJFController extends Controller
                 'codigo_retorno' => 1,
                 'fecha_recepcion' => "/Date(".Carbon::now()->timestamp.Carbon::now()->milli. str_replace(":","",Carbon::now('America/Mexico_City')->format("P")).")/",
                 'folio_confirmacion' => sprintf("%06d", $folio->contador),
-                'mensaje' => 'EXITO'
+                'mensaje' => 'ÉXITO'
             ];
             return response()->json(array_merge($solicitud, $acuse), 200);
 //            return $this->sendResponse($resultado,'Resultados de busqueda del CURP: '.$curp);

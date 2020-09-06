@@ -397,7 +397,7 @@
                                 }
                             }else{
                                 swal({
-                                    title: 'Algo salio mal',
+                                    title: 'Algo salió mal',
                                     text: 'No se registro la audiencia',
                                     icon: 'warning'
                                 });
@@ -406,7 +406,7 @@
                     });
                 }else{
                     swal({
-                        title: 'Algo salio mal',
+                        title: 'Algo salió mal',
                         text: validacion.msg,
                         icon: 'warning'
                     });
