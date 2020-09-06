@@ -877,6 +877,7 @@ class AudienciaController extends Controller
             $parte->parte->tipoParte = $parte->parte->tipoParte;
             $partes[$key] = $parte->parte;
         }
+        $solicitud_id = $audiencia->expediente->solicitud->id;
         $audiencia->partes = $partes;
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
         $ocupaciones = $this->cacheModel('ocupaciones',Ocupacion::class);
@@ -891,7 +892,7 @@ class AudienciaController extends Controller
         $concepto_pago_reinstalacion = ConceptoPagoResolucion::whereIn('id',[8,9,10])->get();
         $clasificacion_archivo = ClasificacionArchivo::all();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
-        return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones','concepto_pago_resoluciones','concepto_pago_reinstalacion','motivos_archivo','clasificacion_archivos_Representante','clasificacion_archivo','terminacion_bilaterales'));
+        return view('expediente.audiencias.etapa_resolucion',compact('etapa_resolucion','audiencia','periodicidades','ocupaciones','jornadas','giros_comerciales','resoluciones','concepto_pago_resoluciones','concepto_pago_reinstalacion','motivos_archivo','clasificacion_archivos_Representante','clasificacion_archivo','terminacion_bilaterales','solicitud_id'));
     }
     public function resolucionUnica($id){
         $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
