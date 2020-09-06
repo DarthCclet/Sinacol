@@ -219,8 +219,8 @@ class ParteController extends Controller
             //'fecha_salida' => 'required|Date',
             'jornada_id' => 'required|Integer',
             'horas_semanales' => 'required',
-            'parte_id' => 'required|Integer',
-            'giro_comercial_id' => 'required|Integer',
+            'parte_id' => 'required|Integer'
+            // 'giro_comercial_id' => 'required|Integer',
         ]);
         if($request->resolucion == "true"){
             $datos_laborales = DatoLaboral::find($request->id);
@@ -240,6 +240,10 @@ class ParteController extends Controller
                 'parte_id' => $request->parte_id,
                 'giro_comercial_id' => $request->giro_comercial_id,
                 'resolucion' => true,
+                'puesto' => $request->puesto,
+                'nombre_contrato' => $request->nombre_contrato,
+                'nombre_paga' => $request->nombre_paga,
+                'nombre_prestas_servicio' => $request->nombre_prestas_servicio,
                 'horario_laboral' => $request->horario_laboral,
                 'horario_comida' => $request->horario_comida,
                 'comida_dentro' => $request->comida_dentro,
@@ -264,6 +268,10 @@ class ParteController extends Controller
                 'parte_id' => $request->parte_id,
                 'giro_comercial_id' => $request->giro_comercial_id,
                 'resolucion' => true,
+                'puesto' => $request->puesto,
+                'nombre_contrato' => $request->nombre_contrato,
+                'nombre_paga' => $request->nombre_paga,
+                'nombre_prestas_servicio' => $request->nombre_prestas_servicio,
                 'horario_laboral' => $request->horario_laboral,
                 'horario_comida' => $request->horario_comida,
                 'comida_dentro' => $request->comida_dentro,
