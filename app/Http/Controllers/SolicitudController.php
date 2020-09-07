@@ -820,11 +820,6 @@ class SolicitudController extends Controller {
                         AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
                     }
                     $expediente = Expediente::find($request->expediente_id);
-
-                    $partes = $solicitud->partes;
-                    foreach($partes as $parte){
-                        AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
-                    }
                     event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,4,4));
             }
             DB::commit();
