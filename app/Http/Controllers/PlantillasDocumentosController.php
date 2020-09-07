@@ -706,22 +706,27 @@ class PlantillasDocumentosController extends Controller
 
                         // $tablaConceptos .= '<h4>Propuesta Configurada </h4>';
                         $resolucion_conceptos = ResolucionParteConcepto::where('resolucion_partes_id',$resolucionParteId)->get();
+                        $tablaConceptosEConvenio = '';
                         $tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                        $tablaConceptosConvenio .= '<div style="page-break-before:always" >';
                         $tablaConceptosConvenio .= '<table class="tbl">';
                         $tablaConceptosConvenio .= '<tbody>';
                         $totalPercepciones = 0;
                         foreach ($resolucion_conceptos as $concepto ) {
                           $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
+                          //dd($concepto->id);
                           if($concepto->id != 9){
                             $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
                             $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.$concepto->monto.'</td></tr>';
                           }else{
-                            $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td>'.$concepto->otro.'</td></tr>';
+                            $tablaConceptosEConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td>'.$concepto->otro.'</td></tr>';
                           }
                         }
+                        $tablaConceptosConvenio .= $tablaConceptosEConvenio;
                         $tablaConceptosConvenio .= '<tr><td> Total de percepciones </td><td>     $'.$totalPercepciones.'</td></tr>';
                         $tablaConceptosConvenio .= '</tbody>';
                         $tablaConceptosConvenio .= '</table>';
+                        $tablaConceptosConvenio .= '</div>';
                         $datosResolucion['total_percepciones']= $totalPercepciones;
                         $datosResolucion['propuestas_conceptos']= $tablaConceptos;
                         $datosResolucion['propuesta_configurada']= $tablaConceptosConvenio;
