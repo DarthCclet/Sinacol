@@ -638,7 +638,7 @@ class AudienciaController extends Controller
                     ]);
                 }
                 //guardar conceptos de pago para Convenio
-                if($audiencia->resolucion_id == 1 && isset($resolucionParte) ){ //Hubo conciliacion
+                if($audiencia->resolucion_id == 1 && isset($resolucionParte) && $terminacion == 3 ){ //Hubo conciliacion
                 // if($audiencia->resolucion_id == 1 ){ //Hubo conciliacion
                     if(isset($listaConceptos)){
                         if(count($listaConceptos) > 0){
@@ -660,6 +660,7 @@ class AudienciaController extends Controller
                         }
                     }
                     if($terminacion == 3){
+                        //Se genera el convenio
                         event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
                     }
                 }
