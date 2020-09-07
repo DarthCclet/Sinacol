@@ -20,6 +20,7 @@ use App\Centro;
 use App\Expediente;
 use App\Audiencia;
 use App\AudienciaParte;
+use App\ClasificacionArchivo;
 use App\ConceptoPagoResolucion;
 use App\DatoLaboral;
 use App\Domicilio;
@@ -352,7 +353,7 @@ class PlantillasDocumentosController extends Controller
                       unset($columnDatosLaborales[$k]);
                     }
                   }
-                  // array_push($columnNames,'datos_laborales');
+                  array_push($columnDatosLaborales,'salario_mensual');
                   array_push($columnNames,['nombre'=>'datos_laborales', 'columns'=>$columnDatosLaborales]);
                   // $columnNames['datosLaborales'] = $columnDatosLaborales;
                 }
@@ -366,7 +367,7 @@ class PlantillasDocumentosController extends Controller
                   }
                 }
                 array_push($columnPersona,'nombre_completo'); //nombre completo representante legal
-
+                //domicilios partes
                 $columnDomicilio = Schema::getColumnListing('domicilios');
                 $exclude = ['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','hora_atencion_de','hora_atencion_a','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id'];
                 foreach ( $exclude as $exclu ){
@@ -375,6 +376,13 @@ class PlantillasDocumentosController extends Controller
                      unset($columnDomicilio[$k]);
                   }
                 }
+                //documentos de identificacion parte
+                $columnDocumento = [];
+                array_push($columnDocumento,'documento');
+                array_push($columnDocumento,'numero');
+                array_push($columnDocumento,'expedida_por');
+                array_push($columnNames,['nombre'=>'identificacion', 'columns'=>$columnDocumento]);
+
                 // foreach ($columnPersona as $k => $valPersona) {
                 //   array_push($columnNames,$valPersona);
                 // }
@@ -412,7 +420,7 @@ class PlantillasDocumentosController extends Controller
               }
               if($value->nombre =='Centro'){
                 $columnDomicilio = Schema::getColumnListing('domicilios');
-                $exclude = ['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','hora_atencion_de','hora_atencion_a','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id'];
+                $exclude = ['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id'];
                 foreach ( $exclude as $exclu ){
                   $k = array_search($exclu, $columnDomicilio);
                   if (false !== $k) {
@@ -444,15 +452,16 @@ class PlantillasDocumentosController extends Controller
         */
        public function imprimirPDF($id)
        {
-       $html = $this->renderDocumento($id);
-       $pdf = new Dompdf();
-      //  $pdf->set_option('defaultFont', 'Montserrat');
-       $pdf->loadHtml($html);
-       $pdf->setPaper('A4');
-       $pdf->render();
-       // return $pdf->stream('carta.pdf');
-       $pdf->stream("carta.pdf", array("Attachment" => false));
-       exit(0);
+        $html = $this->renderDocumento($id);
+        $pdf = new Dompdf();
+        //  $pdf->set_option('defaultFont', 'Montserrat');
+        $pdf->loadHtml($html);
+        $pdf->setPaper('A4');
+        $pdf->render();
+        // return $pdf->stream('carta.pdf');
+        //  return $pdf->stream('carta.pdf');
+        $pdf->stream("carta.pdf", array("Attachment" => false));
+        exit(0);
       //  return $pdf->download('constancia.pdf');
 
           // $html = $this->renderDocumento($id);
@@ -492,7 +501,7 @@ class PlantillasDocumentosController extends Controller
                     $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
-                    $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->where('solicitud_id',intval($idBase))->get();
+                    $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora')->where('solicitud_id',intval($idBase))->get();
                     $objeto = new JsonResponse($partes);
                     $obj = json_decode($objeto->content(),true);
                     $parte2 = [];
@@ -501,7 +510,20 @@ class PlantillasDocumentosController extends Controller
                     $countSolicitado = 0;
                     $datoLaboral="";
                       // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
-                    foreach ($obj as $parte ) {
+                    foreach ($obj as $key=>$parte ) {
+                      if( sizeof($parte['documentos']) > 0 ){
+                        foreach ($parte['documentos'] as $k => $docu) {
+                          if($docu['clasificacion_archivo']['tipo_archivo_id'] == 1){ //tipo identificacion
+                            $parte['identificacion_documento'] = ($docu['clasificacion_archivo']['nombre'] != null ) ? $docu['clasificacion_archivo']['nombre']: "--";
+                            $parte['identificacion_expedida_por'] = ($docu['clasificacion_archivo']['entidad_emisora']['nombre']!= null ) ? $docu['clasificacion_archivo']['entidad_emisora']['nombre']: "---";
+                          }
+                        }
+                      }else{
+                        $parte['identificacion_documento'] = "---";
+                        $parte['identificacion_expedida_por'] = "---";
+                      }
+                      
+                      $parte['datos_laborales'] = $datoLaboral;
                       $parteId = $parte['id'];
                       
                       $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
@@ -522,10 +544,12 @@ class PlantillasDocumentosController extends Controller
                         }
                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                         if($hayDatosLaborales >0){
+                          $salarioMensual = ($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30;
                           $objeto = new JsonResponse($datoLaborales);
                           $datoLaboral = json_decode($objeto->content(),true);
                           $datoLaboral = Arr::except($datoLaboral, ['id','updated_at','created_at','deleted_at']);
                           $parte['datos_laborales'] = $datoLaboral;
+                          $parte['datos_laborales_salario_mensual'] = $salarioMensual;
                         }
                         array_push($parte1, $parte);
                         $countSolicitante += 1;
@@ -609,11 +633,15 @@ class PlantillasDocumentosController extends Controller
                     $objeto = new JsonResponse($objeto);
                     $centro = json_decode($objeto->content(),true);
                     $centro = Arr::except($centro, ['id','updated_at','created_at','deleted_at']);
-                    
                     $dom_centro = new JsonResponse($dom_centro);
                     $dom_centro = json_decode($dom_centro->content(),true);
                     $centro['domicilio'] = Arr::except($dom_centro, ['id','updated_at','created_at','deleted_at','domiciliable_id','domiciliable_type']); 
-                    $centro['domicilio_completo'] = strtoupper($dom_centro['tipo_vialidad'].' '.$dom_centro['vialidad'].' No.'.$dom_centro['num_ext'].', '.$dom_centro['municipio'].', '.$dom_centro['estado']);
+                    $tipo_vialidad =  ($dom_centro['tipo_vialidad'] !== null)? $dom_centro['tipo_vialidad'] :"";
+                    $vialidad =  ($dom_centro['vialidad'] !== null)? $dom_centro['vialidad'] :"";
+                    $num_ext =  ($dom_centro['num_ext'] !== null)? "No." . $dom_centro['num_ext'] :"";
+                    $municipio =  ($dom_centro['municipio'] !== null)? $dom_centro['municipio'] :"";
+                    $estado =  ($dom_centro['estado'] !== null)? $dom_centro['estado'] :"";
+                    $centro['domicilio_completo'] = strtoupper($tipo_vialidad.' '.$vialidad.' '.$num_ext.', '.$municipio.', '.$estado);
                     $data = Arr::add( $data, 'centro', $centro );
                     // dd($data);
                   }elseif ($model == 'Resolucion') {
@@ -630,9 +658,8 @@ class PlantillasDocumentosController extends Controller
                         $datosResolucion['justificacion_propuesta']= $etapa['evidencia'];
                         $resolucion_partes = ResolucionPartes::where('audiencia_id',$audienciaId)->first();
                         $resolucionParteId = $resolucion_partes->id;
-
-                        $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
-                        $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
+                        // $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
+                        $remuneracionDiaria = $datoLaborales->remuneracion / $datoLaborales->periodicidad->dias;
                         $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears($datoLaborales->fecha_salida);
                         $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
                         $salarios = SalarioMinimo::get('salario_minimo');
@@ -781,12 +808,12 @@ class PlantillasDocumentosController extends Controller
                          $val = $val['nombre'];
                        }elseif ($k == 'persona') {
                          foreach ($val as $n =>$v) {
-                           $vars[strtolower($key.'_'.$n)] = $v;
+                           $vars[strtolower($key.'_'.$n)] = $v;//($v !== null)? $v :"-";
                           }
-                          $vars[strtolower($key.'_nombre_completo')] = $val['nombre'].' '.$val['primer_apellido'].' '.$val['segundo_apellido'];
+                          $vars[strtolower($key.'_nombre_completo')] = $val['nombre'].' '.$val['primer_apellido'].' '.(($val['segundo_apellido'] !="")?$val['segundo_apellido']: "");
                        }else{
                           foreach ($val as $n =>$v) {
-                            $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                            $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;// ($v !== null)? $v :"-";
                           }
                        }
                      }
@@ -796,7 +823,7 @@ class PlantillasDocumentosController extends Controller
                        $val = $this->formatoFecha($val);
                      }
                    }
-                   $vars[strtolower($key.'_'.$k)] = $val;
+                   $vars[strtolower($key.'_'.$k)] = $val;//($val !== null)? $val :"-";
                  }
                }else{//Si no es un array assoc (n solicitados, n solicitantes)
                  foreach ($dato as $data) {//sol[0]...
@@ -809,9 +836,9 @@ class PlantillasDocumentosController extends Controller
                       
                        if( !$isArrayAssoc ){ // with
                           if($k == 'domicilios'){
-                            $val = Arr::except($val[0],['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','hora_atencion_de','hora_atencion_a','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id']);
+                            $val = Arr::except($val[0],['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id']);
                             foreach ($val as $n =>$v) {
-                              $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = $v; //($v !== null)? $v :'-';
                             }
                           }else{
                             foreach ($val as $i => $v) {
@@ -829,17 +856,17 @@ class PlantillasDocumentosController extends Controller
                            $val = $val['nombre']; //catalogos
                           }elseif ($k == 'datos_laborales') {
                             foreach ($val as $n =>$v) {
-                              $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] =$v;// ($v !== null)? $v :"-";
                               if($n == "comida_dentro"){
                                 $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
                               }
                             }
                           }elseif ($k == 'nombre_completo') {
-                            $vars[strtolower($key.'_'.$k)] = $val;
+                            $vars[strtolower($key.'_'.$k)] =$val; //($val !== null)? $val :"-";
 
                           }elseif ($k == 'representante_legal') {
                             foreach ($val as $n =>$v) {
-                              $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] =$v; // ($v !== null)? $v :"-";//$v;
                             }
                           }
                        }
@@ -850,12 +877,12 @@ class PlantillasDocumentosController extends Controller
                        }
                      // }else{
                      }
-                     $vars[strtolower($key.'_'.$k)] = $val;
+                     $vars[strtolower($key.'_'.$k)] = $val;//($val !== null)? $val :"-";
                    }
                  }
                }
              }else{
-               $vars[strtolower('solicitud_'.$key)] = $dato;
+               $vars[strtolower('solicitud_'.$key)] =$dato;//($dato!=null)? $dato : "-";
              }
            }
            $vars[strtolower('fecha_actual')] = $this->formatoFecha(Carbon::now(),1);
