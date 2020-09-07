@@ -53,9 +53,6 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('solicitudes/documentos/{solicitud_id}','SolicitudController@getDocumentosSolicitud');
     Route::resource('expedientes','ExpedienteController');
     Route::resource('audiencias','AudienciaController');
-
-    Route::get('debug','AudienciaController@debug');
-
     Route::resource('audiencia','AudienciaController');
     Route::Post('audiencia/ConciliadoresDisponibles','AudienciaController@ConciliadoresDisponibles');
     Route::Post('audiencia/SalasDisponibles','AudienciaController@SalasDisponibles');

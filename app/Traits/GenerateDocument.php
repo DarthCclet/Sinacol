@@ -24,7 +24,6 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 trait GenerateDocument
@@ -35,9 +34,6 @@ trait GenerateDocument
      */
     public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null, $idConciliador)
     {
-
-        //Log::info("$idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null, $idConciliador");
-
 		$plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
             if($idAudiencia != ""){
@@ -45,16 +41,14 @@ trait GenerateDocument
                 $padre = Audiencia::find($idAudiencia);
                 $directorio = 'expedientes/' . $padre->expediente_id . '/audiencias/' . $idAudiencia;
                 $algo = Storage::makeDirectory($directorio, 0775, true);
-
+                
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
-
+                
 				$html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
-//echo $html;
                 $pdf = App::make('dompdf.wrapper');
                 $pdf->getDomPDF();
-return $html;
                 $pdf->loadHTML($html)->setPaper('A4');
-
+                
                 //al
 
                 //al
@@ -65,7 +59,7 @@ return $html;
                 $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
                 $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
                 $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
-
+                
                 $store = $pdf->save($fullPath);
                 $archivo->update([
                     "nombre" => str_replace($directorio . "/", '', $path),
@@ -86,16 +80,16 @@ return $html;
                   $directorio = 'solicitudes/' . $idSolicitud;
                 }
                 $algo = Storage::makeDirectory($directorio, 0775, true);
-
+                
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
-
+                
                 $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
                 $pdf = App::make('dompdf.wrapper');
                 $pdf->getDomPDF();
                 $pdf->loadHTML($html)->setPaper('A4');
-
+                
                 //al
-
+                
                 //al
                 //Creamos el registro
                 $archivo = $padre->documentos()->create(["descripcion" => "Documento de solicitud " . $tipoArchivo->nombre]);
@@ -104,7 +98,7 @@ return $html;
                 $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
                 $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
                 $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
-
+                
                 $store = $pdf->save($fullPath);
                 $archivo->update([
                     "nombre" => str_replace($directorio . "/", '', $path),
@@ -126,7 +120,7 @@ return $html;
 
     public function renderDocumento($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador)
     {
-
+        
         $vars = [];
         $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador);
         if($data!=null){
@@ -248,24 +242,21 @@ return $html;
                           }
                     }
                   .header { position: fixed; top: -150px;}
-                  .footer { position: fixed; bottom: -35px;}
-                  thead { display: table-header-group }
-                  tfoot { display: table-row-group }
-                  tr { page-break-inside: avoid }
+                  .footer { position: fixed; bottom: 35px;}
                   #contenedor-firma {height: 60px;}
                   </style>
                   </head>
                   <body>
                   ";
           $end = "</body></html>";
-
+ 
           // $config = PlantillaDocumento::orderBy('created_at', 'desc')->first();
           $config = PlantillaDocumento::find($idPlantilla);
           if (!$config) {
               $header = view('documentos._header_documentos_default');
               $body = view('documentos._body_documentos_default');
               $footer = view('documentos._footer_documentos_default');
-
+ 
               $header = '<div class="header">' . $header . '</div>';
               $body = '<div class="body">' . $body . '</div>';
               $footer = '<div class="footer">' . $footer . '</div>';
@@ -280,7 +271,7 @@ return $html;
     }
     private function getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador)
     {
-
+        
         try {
             $plantilla = PlantillaDocumento::find($idPlantilla);
             $tipo_plantilla = TipoDocumento::find($plantilla->tipo_documento_id);
@@ -322,7 +313,7 @@ return $html;
                       // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $parte ) {
                       $parteId = $parte['id'];
-
+                      
                       $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
                       $parte['datos_laborales'] = $datoLaboral;
                       if($parte['tipo_persona_id'] == 1){ //fisica
@@ -375,7 +366,7 @@ return $html;
                     $data = Arr::add( $data, 'total_solicitantes', $countSolicitante );
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                 }elseif ($model == 'Expediente') {
-
+                    
 
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;
@@ -407,7 +398,7 @@ return $html;
                         $audiencia = Arr::except($audiencia, ['id','updated_at','created_at','deleted_at']);
                         array_push($Audiencias,$audiencia);
                       }
-
+                    
                     $data = Arr::add( $data, 'audiencia', $Audiencias );
                     $salaAudiencia = SalaAudiencia::with('sala')->where('audiencia_id',$audienciaId)->get();
                     $objSala = new JsonResponse($salaAudiencia);
@@ -466,7 +457,7 @@ return $html;
                         }
                         $pagoVacaciones = $propVacaciones * $diasVacaciones * $remuneracionDiaria;
                         $salarioTopado = ($remuneracionDiaria > (2*$salarioMinimo) ? (2*$salarioMinimo) : $remuneracionDiaria);
-
+                        
                         //Propuesta de convenio al 100%
                         $prouestas = [];
                         array_push($prouestas,array("concepto_pago"=> 'Indemnización constitucional', "montoCompleta"=>round($remuneracionDiaria * 90,2), "montoAl50"=>round($remuneracionDiaria * 45,2) )); //Indemnizacion constitucional = gratificacion A
@@ -474,13 +465,13 @@ return $html;
                         array_push($prouestas,array("concepto_pago"=> 'Vacaciones', "montoCompleta"=>round($pagoVacaciones,2), "montoAl50"=>round($pagoVacaciones,2))); //Vacaciones = dias vacaciones
                         array_push($prouestas,array("concepto_pago"=> 'Prima vacacional', "montoCompleta"=>round($pagoVacaciones * 0.25,2), "montoAl50"=>round($pagoVacaciones * 0.25,2) )); //Prima Vacacional
                         array_push($prouestas,array("concepto_pago"=> 'Prima antigüedad', "montoCompleta"=>round($salarioTopado * $anios_antiguedad *12,2), "montoAl50"=>round($salarioTopado * $anios_antiguedad *6,2) )); //Prima antiguedad = gratificacion C
-
+                        
                         // $tablaConceptos = '<h4>Propuestas</h4>';
                         $tablaConceptos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $tablaConceptos .= '<table  class="tbl">';
                         $tablaConceptos .= '<thead><tr><th>Prestación</th><th>Propuesta completa</th><th>Propuesta 45 días</th></tr></thead>';
                         $tablaConceptos .= '<tbody >';
-
+                        
                         $total50 = 0;
                         $total100 = 0;
                         foreach ($prouestas as $concepto ) {
@@ -537,45 +528,45 @@ return $html;
     }
 
     function eliminar_acentos($cadena){
-
+		
 		//Reemplazamos la A y a
 		$cadena = str_replace(
 		array('Á', 'À', 'Â', 'Ä', 'á', 'à', 'ä', 'â', 'ª'),
 		array('A', 'A', 'A', 'A', 'a', 'a', 'a', 'a', 'a'),
 		$cadena
 		);
-
+ 
 		//Reemplazamos la E y e
 		$cadena = str_replace(
 		array('É', 'È', 'Ê', 'Ë', 'é', 'è', 'ë', 'ê'),
 		array('E', 'E', 'E', 'E', 'e', 'e', 'e', 'e'),
 		$cadena );
-
+ 
 		//Reemplazamos la I y i
 		$cadena = str_replace(
 		array('Í', 'Ì', 'Ï', 'Î', 'í', 'ì', 'ï', 'î'),
 		array('I', 'I', 'I', 'I', 'i', 'i', 'i', 'i'),
 		$cadena );
-
+ 
 		//Reemplazamos la O y o
 		$cadena = str_replace(
 		array('Ó', 'Ò', 'Ö', 'Ô', 'ó', 'ò', 'ö', 'ô'),
 		array('O', 'O', 'O', 'O', 'o', 'o', 'o', 'o'),
 		$cadena );
-
+ 
 		//Reemplazamos la U y u
 		$cadena = str_replace(
 		array('Ú', 'Ù', 'Û', 'Ü', 'ú', 'ù', 'ü', 'û'),
 		array('U', 'U', 'U', 'U', 'u', 'u', 'u', 'u'),
 		$cadena );
-
+ 
 		//Reemplazamos la N, n, C y c
 		$cadena = str_replace(
 		array('Ñ', 'ñ', 'Ç', 'ç'),
 		array('N', 'n', 'C', 'c'),
 		$cadena
 		);
-
+		
 		return $cadena;
 	}
     /*
