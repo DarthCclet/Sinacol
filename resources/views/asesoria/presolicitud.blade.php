@@ -16,7 +16,7 @@
                     <p class="help-block needed">&iquest;Cu&aacute;nto te pagan?</p>
                 </div>
                 <div class="col-md-4">
-                    {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect required']);  !!}
+                    {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Selecciona una opción','required', 'class' => 'form-control catSelect required']);  !!}
                     {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
                     <p class="help-block needed">&iquest;Cada cuándo te pagan?</p>
                 </div>
@@ -40,17 +40,16 @@
                 </div>
             </div>
             <div class="col-md-6" >
-                {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Selecciona una opción', 'class' => 'form-control catSelect']);  !!}
                 {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoja del catálogo. Si no, deje vacío.</p>
-            </div>
-            <div>
-                <a style="font-size: medium;" onclick="$('#modal-jornada').modal('show');"><i class="fa fa-question-circle"></i></a>
+                <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoge del catálogo. Si no, déjalo vacío.</p>
             </div>
         </div>
-        <div>
-            <button onclick="getDatosLaboralesParte()"  class="btn btn-primary DatosLaborales">Mostrar calculos</button>
+        <div class="col-md-12 row">
+            <div class="col-md-12 row">
             <button style="display: none; margin-top:2%;"  onclick="editarDatos()" class="btn btn-primary divPropuesta">Editar datos</button>
+            <button onclick="getDatosLaboralesParte()"  class="btn btn-primary DatosLaborales">Mostrar cálculos</button>
+            </div>
         </div>
     </div>
     <div  style="display: none; margin: 3% 15% 0 15%;" class="align-middle align-center divPropuesta">
@@ -89,34 +88,8 @@
         </div>
     </div>
 
-<!-- inicio Modal Domicilio-->
-
- <div class="modal" id="modal-jornada" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog ">
-        <div class="modal-content">
-
-            <div class="modal-body" >
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h5>Para determinar tu tipo de jornada, debes considerar las primeras 8 horas que laboras en un día.</h5>
-                <p style="font-size:large;">
-                    <ol>
-                        <li>Si estas 8 horas transcurren entre 6 am y 8 pm, es una jornada "DIURNA".</li>
-                        <li>Si estas primeras 8 horas incluyen 3 horas o menos dentro del horario 8 pm - 6 am, es una jornada "MIXTA"</li>
-                        <li>Si estas 8 horas incluyen 3.5 o más horas dentro del horario 8 pm - 6 am, es una jornada NOCTURNA. </li>
-                        <li>En caso de que tengas algunas jornadas diurnas y otras mixtas o nocturnas, debes poner una jornada "MIXTA".</li>
-                    </ol>
-                </p>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-primary btn-sm" class="close" data-dismiss="modal" aria-hidden="true" ><i class="fa fa-times"></i> Aceptar</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
     <a href="/asesoria/101010101010" class="btn btn-primary btn-lg m-10 float-right" type="button">Siguiente</a>
-<!-- Fin Modal de Domicilio-->
+
 
 @push('scripts')
 
