@@ -3027,7 +3027,7 @@
                         console.log(data);
                         swal({
                             title: 'Error',
-                            text: data.message,
+                            text: data.responseJSON.message,
                             icon: 'error'
                         });
                     }
