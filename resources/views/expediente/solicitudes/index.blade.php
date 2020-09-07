@@ -27,10 +27,10 @@
         </div>
         <div style="float: left;">
             <label class="col-md-12"> Filtros</label>
-            <button class="btn btn-primary pull-right" onclick="$('#estatus_solicitud_id').val(3).trigger('change');" >Terminada</button>
-            <button class="btn btn-primary pull-right" onclick="$('#estatus_solicitud_id').val(2).trigger('change');">Ratificados</button>
-            <button class="btn btn-primary pull-right" onclick="$('#estatus_solicitud_id').val(1).trigger('change');">Sin Ratificar</button>
-            <button class="btn btn-primary pull-right" onclick="$('#estatus_solicitud_id').val('').trigger('change');">Todas</button>
+            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(3).trigger('change');" >Terminadas</button>
+            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(2).trigger('change');">Ratificadas</button>
+            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(1).trigger('change');">Sin Ratificar</button>
+            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val('').trigger('change');">Todas</button>
         </div>
         <br>
         <br>
