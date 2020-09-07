@@ -2856,9 +2856,10 @@
                                             });
                                         }
                                     },error:function(data){
+                                        console.log(data);
                                         swal({
                                             title: 'Error',
-                                            text: ' Error al ratificar la solicitud',
+                                            text: data.responseJSON.message,
                                             icon: 'error'
                                         });
                                     }
