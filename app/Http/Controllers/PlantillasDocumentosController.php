@@ -687,6 +687,7 @@ class PlantillasDocumentosController extends Controller
                         
                         // $tablaConceptos = '<h4>Propuestas</h4>';
                         $tablaConceptos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                        $tablaConceptos .= '<div style="page-break-before:always" >';
                         $tablaConceptos .= '<table  class="tbl">';
                         $tablaConceptos .= '<thead><tr><th>Prestación</th><th>Propuesta completa</th><th>Propuesta 45 días</th></tr></thead>';
                         $tablaConceptos .= '<tbody >';
@@ -701,6 +702,7 @@ class PlantillasDocumentosController extends Controller
                         $tablaConceptos .= '<tr ><th class="tbl"> TOTAL </th><td class="amount"> $'.$total100.'</td><td class="amount"> $'.$total50.'</td> </tr>';
                         $tablaConceptos .= '</tbody>';
                         $tablaConceptos .= '</table>';
+                        $tablaConceptos .= '</div>';
 
                         // $tablaConceptos .= '<h4>Propuesta Configurada </h4>';
                         $resolucion_conceptos = ResolucionParteConcepto::where('resolucion_partes_id',$resolucionParteId)->get();
