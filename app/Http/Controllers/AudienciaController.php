@@ -890,7 +890,7 @@ class AudienciaController extends Controller
         $audiencia->solicitantes = $this->getSolicitantes($audiencia);
         $audiencia->solicitados = $this->getSolicitados($audiencia);
         $motivos_archivo = MotivoArchivado::all();
-        $concepto_pago_resoluciones = ConceptoPagoResolucion::where('id','<',9)->get();
+        $concepto_pago_resoluciones = ConceptoPagoResolucion::where('id','<=',9)->get();
         $concepto_pago_reinstalacion = ConceptoPagoResolucion::whereIn('id',[8,9,10])->get();
         $clasificacion_archivo = ClasificacionArchivo::all();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();

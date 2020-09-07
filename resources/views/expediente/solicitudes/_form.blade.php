@@ -129,7 +129,7 @@
                         </div>
                         <div class="col-md-4">
                             <input class="form-control date" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
-                            <p class="help-block needed">Fecha de Conflicto</p>
+                            <p class="help-block needed">Fecha de conflicto</p>
                         </div>
                         <div class="col-md-12 row">
                             <div class="col-md-6">
@@ -160,7 +160,7 @@
                                 <select name="giro_comercial_solicitante" placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control"></select>
                             </div>
                             <div class="col-md-12">
-                                <p class="help-block "><span class="needed">&iquest;Qué es la actividad principal de tu patrón?</span> <br> Ejemplos: comercio de productos al por menor, construcción, servicios médicos...</p>
+                                <p class="help-block "><span class="needed">&iquest;Cuál es la actividad principal de tu patrón?</span> <br> Ejemplos: comercio de productos al por menor, construcción, servicios médicos...</p>
                             <label id="giro_solicitante"></label>
                             </div>
                         </div>
@@ -218,7 +218,7 @@
                                     </div>
                                     <div class="col-md-12 personaMoralSolicitante">
                                         <input class="form-control upper" id="idNombreCSolicitante" placeholder="Raz&oacute;n social" type="text" value="">
-                                        <p class="help-block needed">Raz&oacute;n Social</p>
+                                        <p class="help-block needed">Raz&oacute;n social</p>
                                     </div>
                                     <div class="col-md-4 personaFisicaSolicitante">
                                         <input class="form-control dateBirth" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimiento del solicitante" type="text" value="">
@@ -273,7 +273,7 @@
                                     <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
                                         {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block needed">Lengua Indigena</p>
+                                        <p class="help-block needed">Lengua indígena</p>
                                     </div>
                                 </div>
                                 <div  class="col-md-12 pasoSolicitante" id="continuar1">
@@ -350,19 +350,19 @@
                                 <input type="hidden" id="dato_laboral_id">
                                 <div class="col-md-6">
                                     <input class="form-control upper" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
-                                    <p class="help-block">Nombre del Jefe directo</p>
+                                    <p class="help-block">Nombre del jefe directo</p>
                                 </div>
                                 <div class="col-md-6">
                                     <input class="form-control upper" id="nombre_contrato" placeholder="Nombre de quien te contrato" type="text" value="">
-                                    <p class="help-block">&iquest;Quien te contrato?</p>
+                                    <p class="help-block">&iquest;Quién te contrato?</p>
                                 </div>
                                 <div class="col-md-6">
                                     <input class="form-control upper" id="nombre_paga" placeholder="Nombre quien te paga" type="text" value="">
-                                    <p class="help-block">&iquest;Quien te paga?</p>
+                                    <p class="help-block">&iquest;Quién te paga?</p>
                                 </div>
                                 <div class="col-md-6">
                                     <input class="form-control upper" id="nombre_prestas_servicio" placeholder="Nombre de a quien le prestas tus servicios" type="text" value="">
-                                    <p class="help-block">&iquest;A quien prestas el servicio?</p>
+                                    <p class="help-block">&iquest;A quién prestas el servicio?</p>
                                 </div>
                                 <div class="col-md-6">
                                     <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
@@ -498,7 +498,7 @@
                                     </div>
                                     <div class="col-md-8 personaMoralSolicitado">
                                         <input class="form-control upper" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del citado" type="text" value="">
-                                        <p class="help-block needed">Raz&oacute;n Social</p>
+                                        <p class="help-block needed">Raz&oacute;n social</p>
                                     </div>
                                     <div class="col-md-4 personaFisicaSolicitadoNO">
                                         <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del citado" type="text" value="">
@@ -541,7 +541,7 @@
                                     <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
                                         {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block needed">Lengua Indigena</p>
+                                        <p class="help-block needed">Lengua indígena</p>
                                     </div>
                                 </div>
                                 <div class="col-md-12 pasoSolicitado" id="continuarSolicitado1">
@@ -643,11 +643,11 @@
                     <input type="hidden" id="tipo_solicitud_id" value="{{$tipo_solicitud_id}}">
                     <div class="col-md-4 showEdit" >
                         <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de ratificación" type="text" value="">
-                        <p class="help-block">Fecha de Ratificación</p>
+                        <p class="help-block">Fecha de ratificación</p>
                     </div>
                     <div class="col-md-4 showEdit">
                         <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
-                        <p class="help-block needed">Fecha de Recepción</p>
+                        <p class="help-block needed">Fecha de recepción</p>
                     </div>
                     <div class="col-md-4 estatusSolicitud">
                         {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
@@ -779,7 +779,7 @@
                 </div>
             </div>
             @else
-            <div> <h1> Audiencia disponible despues de Ratificaci&oacute;n </h1> </div>
+            <div> <h1> Audiencia disponible despues de ratificaci&oacute;n </h1> </div>
             @endif
 
         </div>
@@ -820,7 +820,7 @@
                                                 @endforeach
                                             </p>
                                         @elseif($audit["event"] == "Inserción")
-                                            <p>Se creo la solicitud</p>
+                                            <p>Se creó la solicitud</p>
                                         @endif
                                     @elseif($audit["elemento"] == 'Parte')
                                         @if($audit["event"] == "Modificación")
@@ -831,7 +831,7 @@
                                                 @endforeach
                                             </p>
                                         @elseif($audit["event"] == "Inserción")
-                                            <p>Se creo la parte {{$audit["extra"]}}</p>
+                                            <p>Se creó la parte {{$audit["extra"]}}</p>
                                         @endif
                                     @elseif($audit["elemento"] == 'Expediente')
                                         @if($audit["event"] == "Modificación")
@@ -853,7 +853,7 @@
                                                 @endforeach
                                             </p>
                                         @elseif($audit["event"] == "Inserción")
-                                            <p>Se creo la audiencia {{$audit["extra"]}}</p>
+                                            <p>Se creó la audiencia {{$audit["extra"]}}</p>
                                             <p>
                                                 @foreach($audit["cambios"] as $key => $value)
                                                     @if($key == "fecha_audiencia")
