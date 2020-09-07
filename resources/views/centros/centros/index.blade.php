@@ -393,7 +393,7 @@
                     success:function(data){
                         $("#modal-disponinbilidad").modal("hide");
                         swal({
-                            title: 'Exito',
+                            title: 'Éxito',
                             text: 'Se guardarón los datos de la disponibilidad',
                             icon: 'success'
                         });
@@ -401,7 +401,7 @@
                 });
             }else{
                 swal({
-                    title: 'Algo salio mal',
+                    title: 'Algo salió mal',
                     text: validar.errorMsg,
                     icon: 'warning'
                 });
@@ -505,7 +505,7 @@
                     success:function(data){
                         getCentroIncidencias($("#id").val());
                         swal({
-                            title: 'Exito',
+                            title: 'Éxito',
                             text: 'Se guardarón los datos de la disponibilidad',
                             icon: 'success'
                         });
@@ -513,7 +513,7 @@
                 });
             }else{
                 swal({
-                    title: 'Algo salio mal',
+                    title: 'Algo salió mal',
                     text: validacion.msgError,
                     icon: 'warning'
                 });
@@ -555,7 +555,7 @@
                         cambiarDivIncidencias(2);
                     }else{
                         swal({
-                            title: 'Algo salio mal',
+                            title: 'Algo salió mal',
                             text: 'No pudimos traer la información',
                             icon: 'warning'
                         });
@@ -599,7 +599,7 @@
                                 getCentroIncidencias($("#id").val());
                             }else{
                                 swal({
-                                    title: 'Algo salio mal',
+                                    title: 'Algo salió mal',
                                     text: 'No pudimos traer la información',
                                     icon: 'warning'
                                 });

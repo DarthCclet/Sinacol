@@ -31,7 +31,7 @@
                 </div>
                 <div class="modal-body text-center">
                     <button type="button" id="ir-orientacion" class="btn btn-lg btn-primary m-10 center-block" data-dismiss="modal">Seguir a la orientación</button>
-                    <button type="button" id="ir-solicitud" class="btn btn-lg btn-primary m-10">Ya he visto la orientación, llévame directamente a la solicitud de conciliación</button>
+                    <button type="button" id="ir-solicitud" class="btn btn-lg btn-primary m-10">Ya he visto la orientación, quiero ir directamente a la solicitud de conciliación</button>
                 </div>
             </div>
         </div>

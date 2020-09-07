@@ -215,7 +215,7 @@
                             success:function(data){
                         //         getCentroIncidencias($("#id").val());
                                 // swal({
-                        //             title: 'Exito',
+                        //             title: 'Éxito',
                         //             text: 'Se guardarón los datos de la disponibilidad',
                         //             icon: 'success'
                         //         });
@@ -235,7 +235,7 @@
                         //     success:function(data){
                         //         getCentroIncidencias($("#id").val());
                         //         swal({
-                        //             title: 'Exito',
+                        //             title: 'Éxito',
                         //             text: 'Se guardarón los datos de la disponibilidad',
                         //             icon: 'success'
                         //         });
@@ -243,7 +243,7 @@
                         // });
                     // }else{
                     //     swal({
-                    //         title: 'Algo salio mal',
+                    //         title: 'Algo salió mal',
                     //         text: validacion.msgError,
                     //         icon: 'warning'
                     //     });

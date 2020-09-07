@@ -140,7 +140,7 @@
                     success:function(data){
                         $("#modal-disponinbilidad").modal("hide");
                         swal({
-                            title: 'Exito',
+                            title: 'Éxito',
                             text: 'Se guardarón los datos de la disponibilidad',
                             icon: 'success'
                         });
@@ -148,7 +148,7 @@
                 });
             }else{
                 swal({
-                    title: 'Algo salio mal',
+                    title: 'Algo salió mal',
                     text: validar.errorMsg,
                     icon: 'warning'
                 });

@@ -130,7 +130,7 @@
                                         No es necesario que la parte trabajadora acuda con representante legal y si acudiera no se le reconocerá como tal; aunque podrá comparecer como acompañante.
                                     </p>
                                     <p>
-                                        <u><i>EL CONCILIADOR LEERÁ EL SIGUIENTE TEXTO, DIRIGIENDOSE AL TRABAJADOR</i></u> “La conciliación es personal. Aunque asista el trabajador con el apoyo de cualquier persona de su confianza, el trabajador mismo es quien decide lo que pide, lo que negocia y lo que acepta o no en este proceso.”. 
+                                        <u><i>EL CONCILIADOR LEERÁ EL SIGUIENTE TEXTO, DIRIGIENDOSE AL TRABAJADOR</i></u> “La conciliación es personal. Aunque asista el trabajador con el apoyo de cualquier persona de su confianza, el trabajador mismo es quien decide lo que pide, lo que negocia y lo que acepta o no en este proceso.”.
                                     </p>
                                     <div >
                                         {{-- <input type="hidden" /> --}}
@@ -146,7 +146,7 @@
                                         Lo dicho en la audiencia de conciliación es confidencial y no constituye prueba en ningún procedimiento jurisdiccional.
                                     </p>
                                     <p>
-                                        <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u> “La conciliación es confidencial. Lo que se dice y se habla en esta audiencia es confidencial, no puede afectar sus derechos, ni puede ser una prueba en cualquier juicio.”. 
+                                        <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u> “La conciliación es confidencial. Lo que se dice y se habla en esta audiencia es confidencial, no puede afectar sus derechos, ni puede ser una prueba en cualquier juicio.”.
                                     </p>
                                     <div >
                                         <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="paso2" name='paso2' onchange="if( $('#paso2').is(':checked')){ $('#divPaso3').show() }else{ $('#divPaso5').hide(); swal({title: 'Error',text: 'Es necesario validar la sección para continuar',icon: 'error'});}"/>
@@ -1219,10 +1219,10 @@
 
         // hide empty row text
         $('#fileupload').on('fileuploadsend', function (e, data) {
-            
+
             // if(){
             //     e.preventDefault();
-            // }    
+            // }
         })
         $('#fileupload').bind('fileuploadadd', function(e, data) {
             $('#fileupload [data-id="empty"]').hide();
@@ -1364,7 +1364,7 @@
             evidencia = ($('#switchAdicionales').is(':checked')) ? $("#evidencia"+etapa).val(): 'false';
         }else{
             evidencia = $("#evidencia"+etapa).val();
-        }        
+        }
         var respuesta = true;
         $.ajax({
             url:'/etapa_resolucion_audiencia',
@@ -1381,7 +1381,7 @@
             success:function(data){
                 try{
                     respuesta = true;
-                    
+
                     $(".showTime"+etapa).text(data.data.created_at);
                 }catch(error){
                 }
@@ -1423,7 +1423,7 @@
                 case 1:
                     cargarComparecientes();
                     break;
-                case 2://"checked":"" 
+                case 2://"checked":""
                     if(value.evidencia == "true"){
                         if(!$("#explico_acta").is(":checked")){
                             $("#explico_acta").click();
@@ -1432,8 +1432,8 @@
                             $("#paso"+i).click();
                         }
                     }
-                    
-                    // $('.btnPaso').hide(); 
+
+                    // $('.btnPaso').hide();
                     break;
                 case 6:
                 if(value.elementos_adicionales == "true"){
@@ -1446,17 +1446,17 @@
                     }
                     break;
                 default:
-                    
+
                     $("#evidencia"+pasoActual).data("wysihtml5").editor.setValue(value.evidencia);
                     break;
             }
-            
-                
+
+
             $("#icon"+pasoActual).css("background","lightgreen");
             // $("#contentStep"+pasoActual).hide();
             $("#step"+siguiente).show();
             lastTimeStamp = value.created_at;
-            
+
         });
     }
     $('.textarea').wysihtml5({locale: 'es-ES'});
@@ -1536,9 +1536,9 @@
                         }
                         }).then(function(isConfirm){
                             if(isConfirm){
-                            
+
                             }else{
-                                
+
                             }
                             window.location.href = "/audiencias";
                         });
@@ -1555,7 +1555,7 @@
                 },
                 error:function(data){
                     swal({
-                        title: 'Algo salio mal',
+                        title: 'Algo salió mal',
                         text: 'No se guardo el registro',
                         icon: 'warning'
                     });
@@ -1703,7 +1703,7 @@
                             uploadTemplate: function (o) {
                                 var rows = $();
                                 $.each(o.files, function (index, file) {
-                                    
+
                                     var html= '<tr class="template-upload fade show">'+
                                     '    <td>'+
                                     '        <span class="preview"></span>'+
@@ -1779,7 +1779,7 @@
                         }
                     });
                 }else{
-                    swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                    swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                 }
             }
         });
@@ -1850,7 +1850,7 @@
                         listaContactos = data;
                         cargarContactos();
                     }else{
-                        swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                     }
                 }
             });
@@ -1906,11 +1906,11 @@
                 },
                 success:function(data){
                     if(data != null && data != ""){
-                        swal({title: 'Exito',text: 'Se agrego el representante',icon: 'success'});
+                        swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
                         actualizarPartes();
                         $("#modal-representante").modal("hide");
                     }else{
-                        swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                     }
                 }
             });
@@ -1973,7 +1973,7 @@
             $('#divLaboralesExtras').hide();
         }
     });
-    
+
 
     // Funciones para Datos laborales(Etapa 1,6)
     function DatosLaborales(parte_id,extra=null){
@@ -2154,10 +2154,10 @@
                 },
                 success:function(data){
                     if(data != null && data != ""){
-                        swal({title: 'Exito',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
+                        swal({title: 'ÉXITO',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
                         $("#modal-dato-laboral").modal("hide");
                     }else{
-                        swal({title: 'Error',text: 'Algo salio mal',icon: 'warning'});
+                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                     }
                 },error:function(data){
                     // console.log(data);
@@ -2265,7 +2265,7 @@
             $("#dias").val("");
             $("#monto").val("");
         }
-        
+
         var radioRO = '';
         $(".radiosPropuestas").click(function(e){
             $('#btnConfig').show();
@@ -2278,7 +2278,7 @@
                     esReinstalacion = true;
                 }
                 var actual = $(this).val();
-                
+
                 nombrePropuesta = ($('#radioReinstalacion').is(':checked')) ? "Configurada" : "de Reinstalacion";
                 if(Object.keys(listaConfigConceptos).length > 0){
                     swal({
@@ -2410,7 +2410,7 @@
                     swal({title: 'Error',text: 'Es necesario capturar los datos laborales requeridos para el convenio',icon: 'error'});
                 }
             }else{
-                
+
                 swal({
                     title: '',
                     text: '¿Estas seguro que deseas terminar la audiencia?',
@@ -2455,7 +2455,7 @@
             });
         }
     }
-    
+
     function cargarModalRelaciones(){
         $("#modal-relaciones").modal("show");
     }
@@ -2524,7 +2524,7 @@
         });
     }
 
-    
+
         $(".conceptosPago").on("change",function(){
             if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
                 concepto = $("#concepto_pago_reinstalacion_id").val();
@@ -2738,7 +2738,7 @@
                         window.location = "/audiencias/"+data.id+"/edit"
                     }else{
                         swal({
-                            title: 'Algo salio mal',
+                            title: 'Algo salió mal',
                             text: 'No se guardo el registro',
                             icon: 'warning'
                         });
@@ -2771,7 +2771,7 @@
 
             setInterval(function () {
                 timer = 1;
-                timestamp = new Date(timestamp.getTime() + interval*1000); 
+                timestamp = new Date(timestamp.getTime() + interval*1000);
                 var dias = "";
                 if(days != ""){
                     dias = days.toString().split(".")[0]+ "dias "
