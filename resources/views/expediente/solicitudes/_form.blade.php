@@ -256,7 +256,7 @@
                                     <div class="col-md-4 personaFisicaSolicitante">
                                         {!! Form::select('entidad_nacimiento_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('entidad_nacimiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block needed">Estado de nacimiento</p>
+                                        <p id="labelEstadoNacimiento" class="help-block needed">Estado de nacimiento</p>
                                     </div>
                                 </div>
                                 <div class="col-md-12 row personaFisicaSolicitanteNO">
@@ -344,6 +344,9 @@
                                     <h4>Datos Laborales</h4>
                                     <hr class="red">
                                 </div>
+                                <p>
+                                    Los siguientes 4 campos, aunque no son obligatorios, son importantes para ayudarte a identificar el patr&oacute;n que debes citar a la conciliaci&oacute;n
+                                </p>
                                 <input type="hidden" id="dato_laboral_id">
                                 <div class="col-md-6">
                                     <input class="form-control upper" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
@@ -1941,62 +1944,71 @@
             }
         });
     }
-    /**
-        *Funcion para limpiar campos de solicitante
-        */
-        function limpiarSolicitante(){
-            $("#edit_key").val("");
-
-            $("#dato_laboral_id").val("");
-            $("#solicitante_id").val("");
-            $("#idNombreSolicitante").val("");
-            $("#idPrimerASolicitante").val("");
-            $("#idSegundoASolicitante").val("");
-            $("#idFechaNacimientoSolicitante").val("");
-            $("#idEdadSolicitante").val("");
-            $("#idSolicitanteCURP").val("");
-            $("#idNombreCSolicitante").val("");
-            $("#tipo_persona_fisica_solicitante").prop("checked", true);
-            $(".personaMoralSolicitante").hide();
-            $(".personaFisicaSolicitante").show();
-            $("#idSolicitanteRfc").val("");
-            $("#nombre_jefe_directo").val("");
-            $("#nombre_prestas_servicio").val("");
-            $("#nombre_paga").val("");
-            $("#nombre_contrato").val("");
-            $("#ocupacion_id").val("");
-            $("#puesto").val("");
-            $("#nss").val("");
-            $("#no_issste").val("");
-            $("#remuneracion").val("");
-            $("#periodicidad_id").val("");
-            $("#labora_actualmente").prop("checked", false);
-            $("#fecha_ingreso").val("");
-            $("#fecha_salida").val("");
-            $("#jornada_id").val("");
-            $("#horas_semanales").val("");
-            $("#genero_id_solicitante").val("");
-            $("#nacionalidad_id_solicitante").val("");
-            $("#entidad_nacimiento_id_solicitante").val("");
-            $("#lengua_indigena_id_solicitante").val("");
-            // $("#motivo_excepciones_id_solicitante").val("");
-            if($("#solicita_traductor_solicitante").is(":checked")){
-                $("#solicita_traductor_solicitante").trigger('click');
-            }
-            $("#agregarSolicitante").html('<i class="fa fa-plus-circle"></i> Agregar solicitante');
-            // getGironivel("",1,"girosNivel1solicitante");
-            $("#giro_comercial_solicitante").val("").trigger("change");
-            // $("#girosNivel1solicitante").trigger("change");
-            $("#giro_solicitante").html("");
-            $("input[name='tipo_persona_solicitante']").trigger("change")
-            arrayContactoSolicitantes = [];
-            formarTablaContacto(true);
-            $('.catSelect').trigger('change');
-            domicilioObj.limpiarDomicilios();
-            $('#step-1').parsley().reset();
-            $("#editandoSolicitante").html("");
-            $("#botonAgregarSolicitante").show();
+    $("#nacionalidad_id_solicitante").change(function(){
+        if($(this).val() == 1){
+            $("#entidad_nacimiento_id_solicitante").attr('required');
+            $("#labelEstadoNacimiento").addClass('labelEstadoNacimiento');
+        }else{
+            $("#entidad_nacimiento_id_solicitante").removeAttr('required');;
+            $("#labelEstadoNacimiento").removeClass('labelEstadoNacimiento');
         }
+    });
+    /**
+    *Funcion para limpiar campos de solicitante
+    */
+    function limpiarSolicitante(){
+        $("#edit_key").val("");
+
+        $("#dato_laboral_id").val("");
+        $("#solicitante_id").val("");
+        $("#idNombreSolicitante").val("");
+        $("#idPrimerASolicitante").val("");
+        $("#idSegundoASolicitante").val("");
+        $("#idFechaNacimientoSolicitante").val("");
+        $("#idEdadSolicitante").val("");
+        $("#idSolicitanteCURP").val("");
+        $("#idNombreCSolicitante").val("");
+        $("#tipo_persona_fisica_solicitante").prop("checked", true);
+        $(".personaMoralSolicitante").hide();
+        $(".personaFisicaSolicitante").show();
+        $("#idSolicitanteRfc").val("");
+        $("#nombre_jefe_directo").val("");
+        $("#nombre_prestas_servicio").val("");
+        $("#nombre_paga").val("");
+        $("#nombre_contrato").val("");
+        $("#ocupacion_id").val("");
+        $("#puesto").val("");
+        $("#nss").val("");
+        $("#no_issste").val("");
+        $("#remuneracion").val("");
+        $("#periodicidad_id").val("");
+        $("#labora_actualmente").prop("checked", false);
+        $("#fecha_ingreso").val("");
+        $("#fecha_salida").val("");
+        $("#jornada_id").val("");
+        $("#horas_semanales").val("");
+        $("#genero_id_solicitante").val("");
+        $("#nacionalidad_id_solicitante").val("");
+        $("#entidad_nacimiento_id_solicitante").val("");
+        $("#lengua_indigena_id_solicitante").val("");
+        // $("#motivo_excepciones_id_solicitante").val("");
+        if($("#solicita_traductor_solicitante").is(":checked")){
+            $("#solicita_traductor_solicitante").trigger('click');
+        }
+        $("#agregarSolicitante").html('<i class="fa fa-plus-circle"></i> Agregar solicitante');
+        // getGironivel("",1,"girosNivel1solicitante");
+        $("#giro_comercial_solicitante").val("").trigger("change");
+        // $("#girosNivel1solicitante").trigger("change");
+        $("#giro_solicitante").html("");
+        $("input[name='tipo_persona_solicitante']").trigger("change")
+        arrayContactoSolicitantes = [];
+        formarTablaContacto(true);
+        $('.catSelect').trigger('change');
+        domicilioObj.limpiarDomicilios();
+        $('#step-1').parsley().reset();
+        $("#editandoSolicitante").html("");
+        $("#botonAgregarSolicitante").show();
+    }
 
 
         /**

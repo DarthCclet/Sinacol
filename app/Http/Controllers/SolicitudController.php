@@ -200,8 +200,8 @@ class SolicitudController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-
-        if($request->tipo_solicitud_id == 1){
+        $solicitud = $request->input('solicitud');
+        if($solicitud["tipo_solicitud_id"] == 1){
             $request->validate([
                 'solicitud.fecha_conflicto' => 'required',
                 'solicitud.solicita_excepcion' => 'required',
@@ -213,10 +213,10 @@ class SolicitudController extends Controller {
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
                 'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
-                'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitantes.*.nacionalidad_id,2|required',
                 'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-                'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.dato_laboral' => 'required',
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
@@ -254,8 +254,6 @@ class SolicitudController extends Controller {
             ]); 
         }
 
-        $solicitud = $request->input('solicitud');
-
         DB::beginTransaction();
         $domiciliop ="";
         try {
@@ -273,6 +271,7 @@ class SolicitudController extends Controller {
             $folio = $ContadorController->getContador(1, 1);
             $solicitud['folio'] = $folio->contador;
             $solicitud['anio'] = $folio->anio;
+            $solicitud['ratificada'] = false;
             $solicitudSaved = Solicitud::create($solicitud);
 
             $objeto_solicitudes = $request->input('objeto_solicitudes');
