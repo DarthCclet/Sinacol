@@ -709,9 +709,13 @@ class PlantillasDocumentosController extends Controller
                         $tablaConceptosConvenio .= '<tbody>';
                         $totalPercepciones = 0;
                         foreach ($resolucion_conceptos as $concepto ) {
-                          $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
                           $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
-                          $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.$concepto->monto.'</td></tr>';
+                          if($concepto->id != 9){
+                            $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
+                            $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.$concepto->monto.'</td></tr>';
+                          }else{
+                            $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td>'.$concepto->otro.'</td></tr>';
+                          }
                         }
                         $tablaConceptosConvenio .= '<tr><td> Total de percepciones </td><td>     $'.$totalPercepciones.'</td></tr>';
                         $tablaConceptosConvenio .= '</tbody>';
