@@ -164,4 +164,12 @@ class Solicitud extends Model implements Auditable
     public function documentos(){
         return $this->morphMany(Documento::class,'documentable');
     }
+    /**
+     * Funcion para asociar con modelo Estado
+     * Utilizando belongsTo para relaciones 1 a 1
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function giroComercial(){
+        return $this->belongsTo('App\GiroComercial');
+    }
 }

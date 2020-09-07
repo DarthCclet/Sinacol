@@ -40,14 +40,6 @@ class DatoLaboral extends Model implements AuditableContract
  * Utilizando belongsTo para relaciones 1 a 1
  * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
  */
-public function giroComercial(){
-  return $this->belongsTo('App\GiroComercial');
-}
-/**
- * Funcion para asociar con modelo Estado
- * Utilizando belongsTo para relaciones 1 a 1
- * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
- */
 public function periodicidad(){
   return $this->belongsTo('App\Periodicidad');
 }

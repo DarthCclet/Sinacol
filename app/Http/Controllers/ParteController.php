@@ -220,7 +220,6 @@ class ParteController extends Controller
             'jornada_id' => 'required|Integer',
             'horas_semanales' => 'required',
             'parte_id' => 'required|Integer'
-            // 'giro_comercial_id' => 'required|Integer',
         ]);
         if($request->resolucion == "true"){
             $datos_laborales = DatoLaboral::find($request->id);
@@ -238,7 +237,6 @@ class ParteController extends Controller
                 'jornada_id' => $request->jornada_id,
                 'horas_semanales' => $request->horas_semanales,
                 'parte_id' => $request->parte_id,
-                'giro_comercial_id' => $request->giro_comercial_id,
                 'resolucion' => true,
                 'puesto' => $request->puesto,
                 'nombre_contrato' => $request->nombre_contrato,
@@ -266,7 +264,6 @@ class ParteController extends Controller
                 'jornada_id' => $request->jornada_id,
                 'horas_semanales' => $request->horas_semanales,
                 'parte_id' => $request->parte_id,
-                'giro_comercial_id' => $request->giro_comercial_id,
                 'resolucion' => true,
                 'puesto' => $request->puesto,
                 'nombre_contrato' => $request->nombre_contrato,
