@@ -1513,7 +1513,6 @@
                         dato_laboral.fecha_salida = dateFormat($("#fecha_salida").val());
                         dato_laboral.jornada_id = $("#jornada_id").val();
                         dato_laboral.horas_semanales = $("#horas_semanales").val();
-                        dato_laboral.giro_comercial_id = $("#giro_comercial_hidden").val();
                         dato_laboral.resolucion = false;
                         solicitante.dato_laboral = dato_laboral;
                     }
@@ -1901,6 +1900,8 @@
                     $("#fechaRatificacion").val(dateFormat(data.fecha_ratificacion,2));
                     $("#fechaRecepcion").val(dateFormat(data.fecha_recepcion,2));
                     $("#fechaConflicto").val(dateFormat(data.fecha_conflicto,4));
+                    $("#giro_comercial_hidden").val(data.giro_comercial_id)
+                    $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
                     // var excepcion = false;
                     // $.each(arraySolicitantes,function(key,value){
                     //     if(value.grupo_prioritario_id != null){
@@ -2416,8 +2417,6 @@
             $("#dato_laboral_id").val(arraySolicitantes[key].dato_laboral.id);
             $('#divDatoLaboralSolicitante').show();
             // $("#giro_comercial_solicitante").val(arraySolicitantes[key].dato_laboral.giro_comercial_id).trigger("change");
-            $("#giro_comercial_hidden").val(arraySolicitantes[key].dato_laboral.giro_comercial_id)
-            $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
             // getGiroEditar("solicitante");
             $("#nombre_jefe_directo").val(arraySolicitantes[key].dato_laboral.nombre_jefe_directo);
             $("#nombre_prestas_servicio").val(arraySolicitantes[key].dato_laboral.nombre_prestas_servicio);
@@ -2694,6 +2693,7 @@
             solicitud.fecha_recepcion = dateFormat($("#fechaRecepcion").val(),3);
             solicitud.fecha_conflicto = dateFormat($("#fechaConflicto").val());
             solicitud.tipo_solicitud_id = $("#tipo_solicitud_id").val();
+            solicitud.giro_comercial_id = $("#giro_comercial_hidden").val();
             return solicitud;
         }catch(error){
             console.log(error);

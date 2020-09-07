@@ -1995,7 +1995,6 @@
                         fecha_salida : dateFormat($("#fecha_salida").val()),
                         jornada_id : $("#jornada_id").val(),
                         horas_semanales : $("#horas_semanales").val(),
-                        giro_comercial_id : $("#giro_comercial_hidden").val(),
                         parte_id:$("#parte_id").val(),
                         resolucion:$("#resolucion_dato_laboral").val(),
                         comida_dentro:0,
@@ -2051,10 +2050,11 @@
                 dataType:"json",
                 success:function(data){
                     if(data != null && data != ""){
+                        $("#nombre_prestas_servicio").val(data.nombre_prestas_servicio),
+
+                        $("#nombre_paga").val(data.nombre_paga),
+                        $("#nombre_contrato").val(data.nombre_contrato),
                         $("#dato_laboral_id").val(data.id);
-                        // $("#giro_comercial_solicitante").val(data.giro_comercial_id).trigger("change");
-                        $("#giro_comercial_hidden").val(data.giro_comercial_id)
-                        $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
                         // getGiroEditar("solicitante");
                         $("#nombre_jefe_directo").val(data.nombre_jefe_directo);
                         $("#ocupacion_id").val(data.ocupacion_id);
@@ -2066,6 +2066,7 @@
                             $("#labora_actualmente").click();
                             $("#labora_actualmente").trigger("change");
                         }
+                        $("#puesto").val(data.labora_actualmente);
                         $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
                         $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
                         console.log(data.jornada_id);

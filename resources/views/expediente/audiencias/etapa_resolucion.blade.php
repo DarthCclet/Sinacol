@@ -714,8 +714,8 @@
                     </div>
                     <div class="col-md-12 row">
                         <div class="col-md-4">
-                            <input class="form-control datoLaboralExtra" id="dias_descanso" placeholder="n días, los cuales correspondían a dddd" type="text" value="">
-                            <p class="help-block needed">Indica número y días de descanso</p>
+                            <input class="form-control datoLaboralExtra" id="dias_descanso" placeholder="N d&iacute;as, los cuales correspond&iacute;an a dddd" type="text" value="">
+                            <p class="help-block needed">Indica número y días de descanso semanal</p>
                         </div>
                         <div class="col-md-4">
                             <input class="form-control numero datoLaboralExtra" required data-parsley-type='integer' id="dias_vacaciones" placeholder="Días de vacaciones por año" type="text" value="">
@@ -1172,10 +1172,10 @@
 
             var siguiente = pasoActual+1;
             $("#icon"+pasoActual).css("background","lightgreen");
+            $("#step"+siguiente).show();
             $('html,body').animate({
                 scrollTop: $("#contentStep"+siguiente).offset().top
             }, 'slow');
-            $("#step"+siguiente).show();
         }else{
             swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
         }
@@ -1985,9 +1985,6 @@
             success:function(data){
                 if(data != null && data != ""){
                     $("#dato_laboral_id").val(data.id);
-                    // $("#giro_comercial_solicitante").val(data.giro_comercial_id).trigger("change");
-                    $("#giro_comercial_hidden").val(data.giro_comercial_id)
-                    $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
                     // getGiroEditar("solicitante");
                     $("#nombre_jefe_directo").val(data.nombre_jefe_directo);
                     $("#ocupacion_id").val(data.ocupacion_id);
@@ -1999,6 +1996,10 @@
                         $("#labora_actualmente").click();
                         $("#labora_actualmente").trigger("change");
                     }
+                    $("#puesto").val(data.labora_actualmente);
+                    $("#nombre_prestas_servicio").val(data.nombre_prestas_servicio),
+                    $("#nombre_paga").val(data.nombre_paga),
+                    $("#nombre_contrato").val(data.nombre_contrato),
                     $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
                     $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
                     // console.log(data.jornada_id);
@@ -2141,7 +2142,6 @@
                     horas_semanales : $("#horas_semanales").val(),
                     parte_id:$("#parte_id").val(),
                     resolucion:$("#resolucion_dato_laboral").val(),
-                    giro_comercial_id:$("#giro_comercial_hidden").val(),
                     //datos laborales extra
                     horario_laboral:$("#horario_laboral").val(),
                     horario_comida:$("#horario_comida").val(),

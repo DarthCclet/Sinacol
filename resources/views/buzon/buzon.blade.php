@@ -239,9 +239,6 @@
                 success:function(data){
                     if(data != null && data != ""){
                         $("#dato_laboral_id").val(data.id);
-                        // $("#giro_comercial_solicitante").val(data.giro_comercial_id).trigger("change");
-                        $("#giro_comercial_hidden").val(data.giro_comercial_id)
-                        $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
                         // getGiroEditar("solicitante");
                         $("#nombre_jefe_directo").val(data.nombre_jefe_directo);
                         $("#ocupacion_id").val(data.ocupacion_id);
