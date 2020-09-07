@@ -819,12 +819,12 @@ class PlantillasDocumentosController extends Controller
                          $val = $val['nombre'];
                        }elseif ($k == 'persona') {
                          foreach ($val as $n =>$v) {
-                           $vars[strtolower($key.'_'.$n)] = $v;//($v !== null)? $v :"-";
+                           $vars[strtolower($key.'_'.$n)] = ($v !== null)? $v :"-";
                           }
                           $vars[strtolower($key.'_nombre_completo')] = $val['nombre'].' '.$val['primer_apellido'].' '.(($val['segundo_apellido'] !="")?$val['segundo_apellido']: "");
                        }else{
                           foreach ($val as $n =>$v) {
-                            $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;// ($v !== null)? $v :"-";
+                            $vars[strtolower($key.'_'.$k.'_'.$n)] =($v !== null)? $v :"-";
                           }
                        }
                      }
@@ -834,7 +834,7 @@ class PlantillasDocumentosController extends Controller
                        $val = $this->formatoFecha($val);
                      }
                    }
-                   $vars[strtolower($key.'_'.$k)] = $val;//($val !== null)? $val :"-";
+                   $vars[strtolower($key.'_'.$k)] = ($val !== null)? $val :"-";
                  }
                }else{//Si no es un array assoc (n solicitados, n solicitantes)
                  foreach ($dato as $data) {//sol[0]...
@@ -849,7 +849,7 @@ class PlantillasDocumentosController extends Controller
                           if($k == 'domicilios'){
                             $val = Arr::except($val[0],['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id']);
                             foreach ($val as $n =>$v) {
-                              $vars[strtolower($key.'_'.$k.'_'.$n)] = $v; //($v !== null)? $v :'-';
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v !== null)? $v :'-';
                             }
                           }else{
                             foreach ($val as $i => $v) {
@@ -867,17 +867,17 @@ class PlantillasDocumentosController extends Controller
                            $val = $val['nombre']; //catalogos
                           }elseif ($k == 'datos_laborales') {
                             foreach ($val as $n =>$v) {
-                              $vars[strtolower($key.'_'.$k.'_'.$n)] =$v;// ($v !== null)? $v :"-";
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v !== null)? $v :"-";
                               if($n == "comida_dentro"){
                                 $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
                               }
                             }
                           }elseif ($k == 'nombre_completo') {
-                            $vars[strtolower($key.'_'.$k)] =$val; //($val !== null)? $val :"-";
+                            $vars[strtolower($key.'_'.$k)] =($val !== null)? $val :"-";
 
                           }elseif ($k == 'representante_legal') {
                             foreach ($val as $n =>$v) {
-                              $vars[strtolower($key.'_'.$k.'_'.$n)] =$v; // ($v !== null)? $v :"-";//$v;
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v !== null)? $v :"-";//$v;
                             }
                           }
                        }
@@ -904,7 +904,7 @@ class PlantillasDocumentosController extends Controller
         $style = "<html xmlns=\"http://www.w3.org/1999/html\">
                  <head>
                  <style>
-                 @page { margin: 100px 50px 39px 60px;
+                 @page { margin-top: 80px; margin-bottom: 60px;
                       }
                  @media print {
                    table { border-collapse: collapse;
@@ -919,8 +919,8 @@ class PlantillasDocumentosController extends Controller
                             font-family: Montserrat, sans-serif; font-size: 10pt;
                           }
                    }
-                 .header { position: fixed; top: -90px;}
-                 .footer { position: fixed; bottom: 35px;}
+                 .header { position: fixed; top: -80px;}
+                 .footer { position: fixed; bottom: -60px;}
                  #contenedor-firma {height: 60px;}
                  </style>
                  </head>
