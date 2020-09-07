@@ -498,8 +498,8 @@
                         id:$("#id").val(),
                         incidencia_id:$("#incidencia_id").val(),
                         justificacion:$("#justificacion").val(),
-                        fecha_inicio:$("#fecha_inicio").val(),
-                        fecha_fin:$("#fecha_fin").val(),
+                        fecha_inicio:dateFormat($("#fecha_inicio").val()),
+                        fecha_fin:dateFormat($("#fecha_fin").val()),
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
