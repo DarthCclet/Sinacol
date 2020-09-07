@@ -1128,7 +1128,7 @@
         <div class="modal-content">
             <div class="modal-body">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h5>No capturo correo electronico, tome en cuenta que el correo electronico es muy importante para el seguimiento del proceso de conciliaci&oacute;n</h5>
+                <h5>No captur&oacute; correo electr&oacute;nico, tome en cuenta que el correo electr&oacute;nico es muy importante para el seguimiento del proceso de conciliaci&oacute;n</h5>
                 <div>
                     <label for="sin_correo">Seleccione si no tiene correo electr&oacute;nico</label>
                     <input type="checkbox" value="1" onchange="if($('#sin_correo').is(':checked')){ $('#btnContinuarCorreo').removeAttr('disabled'); }else{ $('#btnContinuarCorreo').attr('disabled', true);  }" data-render="switchery" data-theme="default" id="sin_correo" />
@@ -1343,7 +1343,7 @@
             </div>
             <div class="modal-body">
                 <div class="alert alert-muted">
-                    - Para ingresar al buzón electronico se debe registrar una dirección de correo, los siguientes solicitantes no registraron una cuenta, indica su correo o solicita un acceso del sistema
+                    - Para ingresar al buzón electr&oacute;nico se debe registrar una dirección de correo, los siguientes solicitantes no registraron una cuenta, indica su correo o solicita un acceso del sistema
                 </div>
                 <table class="table table-bordered table-striped table-hover" id="tableSolicitantesCorreo">
                     <thead>
