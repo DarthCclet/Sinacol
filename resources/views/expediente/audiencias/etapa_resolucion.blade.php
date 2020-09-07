@@ -621,6 +621,7 @@
                 <div class="col-md-12 row" id="datosBasicos">
                     <input type="hidden" id="dato_laboral_id">
                     <input type="hidden" id="resolucion_dato_laboral">
+                    <input type="hidden" id="giro_comercial_hidden">
                     <div class="col-md-6">
                         <input class="form-control upper" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
                         <p class="help-block">Nombre del Jefe directo</p>
