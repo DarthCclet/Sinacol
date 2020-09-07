@@ -2191,13 +2191,13 @@
 
             if(solicitante){
                 if(arrayContactoSolicitantes[key].id == ""){
-                    arrayContactoSolicitantes = arrayContactoSolicitantes.splice(key,1);
+                    arrayContactoSolicitantes.splice(key,1);
                 }else{
                     arrayContactoSolicitantes[key].activo = 0;
                 }
             }else{
                 if(arrayContactoSolicitados[key].id == ""){
-                    arrayContactoSolicitados = arrayContactoSolicitados.splice(key,1);
+                    arrayContactoSolicitados.splice(key,1);
                 }else{
                     arrayContactoSolicitados    [key].activo = 0;
                 }
@@ -2327,7 +2327,7 @@
     */
     function eliminarDomicilio(key){
         if(arrayDomiciliosSolicitado[key].id == ""){
-            arrayDomiciliosSolicitado = arrayDomiciliosSolicitado.splice(key,1);
+            arrayDomiciliosSolicitado.splice(key,1);
         }else{
             arrayDomiciliosSolicitado[key].activo = 0;
         }
@@ -2340,7 +2340,7 @@
     */
     function eliminarObjetoSol(key){
         if(arrayObjetoSolicitudes[key].id == ""){
-            arrayObjetoSolicitudes = arrayObjetoSolicitudes.splice(key,1);
+            arrayObjetoSolicitudes.splice(key,1);
         }else{
             arrayObjetoSolicitudes[key].activo = 0;
         }
