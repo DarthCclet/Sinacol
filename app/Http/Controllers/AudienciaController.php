@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Traits\GenerateDocument;
 use Illuminate\Http\Request;
 use App\Audiencia;
 use App\Conciliador;
@@ -22,6 +23,7 @@ use App\Expediente;
 use App\ResolucionPartes;
 use App\Resolucion;
 use App\MotivoArchivado;
+use Illuminate\Support\Facades\App;
 use Validator;
 use App\Filters\CatalogoFilter;
 use App\GiroComercial;
@@ -68,14 +70,14 @@ class AudienciaController extends Controller
         if ($this->request->get('all') ) {
             $audiencias = $audiencias->get();
         } else {
-            
+
             $length = $this->request->get('length');
             $start = $this->request->get('start');
             $limSup = " 23:59:59";
             $limInf = " 00:00:00";
             if($this->request->get('fechaAudiencia')){
                 $audiencias->where('fecha_audiencia',"=",$this->request->get('fechaAudiencia') )->orderBy("fecha_audiencia",'desc');
-                // $audiencias->where('fecha_audiencia',">",$this->request->get('fechaAudiencia') . $limInf);     
+                // $audiencias->where('fecha_audiencia',">",$this->request->get('fechaAudiencia') . $limInf);
             }
             if($this->request->get('NoAudiencia')){
                 $audiencias->where('numero_audiencia',$this->request->get('NoAudiencia'))->orderBy("fecha_audiencia",'desc');
@@ -101,7 +103,7 @@ class AudienciaController extends Controller
             }else{
                 $audiencias = $audiencias->paginate($this->request->get('per_page', 10));
             }
-            
+
         }
         // // Para cada objeto obtenido cargamos sus relaciones.
         $audiencias = tap($audiencias)->each(function ($audiencia) {
@@ -283,7 +285,7 @@ class AudienciaController extends Controller
         $audiencia = Audiencia::findOrFail($id)->delete();
         return 204;
     }
-    
+
     /**
      * Muestra el calendario de las audiencias a celebrar
      *
@@ -309,7 +311,7 @@ class AudienciaController extends Controller
         $fechaFin = $request->fechaFin;
         $fechaFinSola = date('Y-m-d',strtotime($request->fechaFin));
         $horaFin = date('H:i:s',strtotime($request->fechaFin));
-       
+
         $conciliadores = Conciliador::where("centro_id", auth()->user()->centro_id)->get();
         $conciliadoresResponse=[];
         foreach($conciliadores as $conciliador){
@@ -394,7 +396,7 @@ class AudienciaController extends Controller
                     }
                 }
             }
-            
+
             if($pasa){
                 $salasResponse[]=$sala;
             }
@@ -415,17 +417,17 @@ class AudienciaController extends Controller
             $multiple = true;
 
         }
-        
+
         //Obtenemos el contador
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
-        
+
         //Se crea el registro de la audiencia
         $audiencia = Audiencia::create([
             "expediente_id" => $request->expediente_id,
             "multiple" => $multiple,
             "fecha_audiencia" => $request->fecha_audiencia,
-            "hora_inicio" => $request->hora_inicio, 
+            "hora_inicio" => $request->hora_inicio,
             "hora_fin" => $request->hora_fin,
             "conciliador_id" =>  1,
             "numero_audiencia" => 1,
@@ -442,7 +444,7 @@ class AudienciaController extends Controller
             SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $value["sala"],"solicitante" => $value["resolucion"]]);
         }
         $audiencia->update(["conciliador_id" => $id_conciliador]);
-        
+
         // Guardamos todas las Partes en la audiencia
         $partes = $audiencia->expediente->solicitud->partes;
         foreach($partes as $parte){
@@ -556,19 +558,19 @@ class AudienciaController extends Controller
                 $etapaAudiencia = EtapaResolucionAudiencia::create([
                     "etapa_resolucion_id"=>6,
                     "audiencia_id"=>$audiencia->id,
-                    "evidencia"=>true 
+                    "evidencia"=>true
                 ]);
                 DB::commit();
             }
             return $audiencia;
         }catch(\Throwable $e){
-            
+
             DB::rollback();
             dd($e);
             return $this->sendError('Error al registrar los comparecientes', 'Error');
         }
     }
-    
+
     /**
      * Funcion para guardar las resoluciones individuales de las audiencias
      * @param Audiencia $audiencia
@@ -589,7 +591,7 @@ class AudienciaController extends Controller
                             // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
                             $bandera = false;
                         }else{
-                            
+
                             $bandera = false;
                             $terminacion = 4;
                         }
@@ -700,7 +702,7 @@ class AudienciaController extends Controller
         }
         return $partes;
     }
-    
+
     /**
      * Función para validar si se puede dar resolución a una audiencia
      * @param int $audiencia_id
@@ -719,14 +721,14 @@ class AudienciaController extends Controller
                     return ["pasa" => false];
                 }
             }
-            // Si siempre tiene representante 
+            // Si siempre tiene representante
             return ["pasa" => true];
         }else{
             // Si no hay personas Morales se puede guardar la resolución
             return ["pasa" => true];
         }
     }
-    
+
     /**
      * Funcion para obtener las partes involucradas en una audiencia de tipo solicitante
      * @param Audiencia $audiencia
@@ -741,7 +743,7 @@ class AudienciaController extends Controller
         }
         return $solicitantes;
     }
-    
+
     /**
      * Funcion para obtener las partes involucradas en una audiencia de tipo solicitado
      * @param Audiencia $audiencia
@@ -756,11 +758,11 @@ class AudienciaController extends Controller
         }
         return $solicitados;
     }
-    
+
     public function NuevaAudiencia(Request $request){
         ##Obtenemos la audiencia origen
         $audiencia = Audiencia::find($request->audiencia_id);
-        
+
         ## Validamos si la audiencia se calendariza o solo es para guardar una resolución distinta
         if($request->nuevaCalendarizacion == "S"){
             $fecha_audiencia = $request->fecha_audiencia;
@@ -785,7 +787,7 @@ class AudienciaController extends Controller
             "expediente_id" => $audiencia->expediente_id,
             "multiple" => $multiple,
             "fecha_audiencia" => $fecha_audiencia,
-            "hora_inicio" => $hora_inicio, 
+            "hora_inicio" => $hora_inicio,
             "hora_fin" => $hora_fin,
             "conciliador_id" =>  $audiencia->conciliador_id,
             "numero_audiencia" => 1,
@@ -812,7 +814,7 @@ class AudienciaController extends Controller
                 SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $sala->sala_id,"solicitante" => $sala->solicitante]);
             }
         }
-        
+
         ##Finalmente guardamos los datos de las partes recibidas
         $arregloPartesAgregadas = array();
         foreach($request->listaRelaciones as $relacion){
@@ -828,7 +830,7 @@ class AudienciaController extends Controller
                 $arregloPartesAgregadas[]=$relacion["parte_solicitante_id"];
                 AudienciaParte::create(["audiencia_id" => $audienciaN->id,"parte_id" => $relacion["parte_solicitante_id"],"tipo_notificacion_id" => $tipo_notificacion_id ]);
             }
-            ##Validamos que el solicitado no exista 
+            ##Validamos que el solicitado no exista
             $pasaSolicitado = true;
             foreach($arregloPartesAgregadas as $arreglo){
                 if($relacion["parte_solicitada_id"] == $arreglo){
@@ -852,11 +854,11 @@ class AudienciaController extends Controller
     public function AgendaConciliador(){
         return view('expediente.audiencias.agendaConciliador');
     }
-    
+
     public function GetAudienciaConciliador(){
 //        obtenemos los datos del conciliador
         $conciliador = auth()->user()->persona->conciliador;
-//        obtenemos las audiencias programadas a partir de el día de hoy        
+//        obtenemos las audiencias programadas a partir de el día de hoy
         $arrayEventos=[];
         if($conciliador != null){
             $audiencias = $conciliador->ConciliadorAudiencia;
@@ -927,7 +929,7 @@ class AudienciaController extends Controller
             $citados = false;
             $audiencia = Audiencia::find($this->request->audiencia_id);
             if(!$audiencia->finalizada){
-                
+
                 foreach($this->request->comparecientes as $compareciente){
                     $parte_compareciente = Parte::find($compareciente);
                     if($parte_compareciente->tipo_parte_id == 1){
@@ -942,12 +944,12 @@ class AudienciaController extends Controller
                             $citados = true;
                         }
                     }
-                
+
                     Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $this->request->audiencia_id,"presentado" => true]);
                 }
                 if(!$solicitantes){
                     //Archivado y se genera formato de acta de archivado por no comparecencia
-                
+
                     $audiencia->update(array("resolucion_id"=>4,"finalizada"=>true));
                     $solicitantes = $this->getSolicitantes($audiencia);
                     $solicitados = $this->getSolicitados($audiencia);
@@ -963,10 +965,10 @@ class AudienciaController extends Controller
                         }
                         // Se genera archivo de acta de archivado
                         event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1));
-                
+
                     }
                     if($solicitantes && !$citados){
-                        //Constancia de no conciliacion de todos los citados 
+                        //Constancia de no conciliacion de todos los citados
                         $audiencia->update(array("resolucion_id"=>3,"finalizada"=>true));
                         $solicitantes = $this->getSolicitantes($audiencia);
                         $solicitados = $this->getSolicitados($audiencia);
@@ -980,7 +982,7 @@ class AudienciaController extends Controller
                                 ]);
                                 //Se genera constancia de no conciliacion
                                 event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,17,1,$solicitante->parte_id,$solicitado->parte_id));
-                                
+
                                 // Se genera archivo de acta de multa
                                 event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,18,7,$solicitante->parte_id,$solicitado->parte_id));
                             }
@@ -1010,7 +1012,7 @@ class AudienciaController extends Controller
         }
         return $comparecientes;
     }
-    
+
     public function uploadJustificante(Request $request){
         DB::beginTransaction();
         try{
@@ -1046,9 +1048,9 @@ class AudienciaController extends Controller
             }
             return redirect()->back()->with('error', 'No se pudo solicitar la cancelación');
         }
-        
+
     }
-    
+
      /**
      * Función para almacenar catalogos (nombre,id) en cache
      *
@@ -1111,5 +1113,26 @@ class AudienciaController extends Controller
             }
         }
         return array("hora_inicio" => $horaIniciopiv, "hora_fin" =>$horaFinpiv);
+    }
+
+    use GenerateDocument;
+    public function debug()
+    {
+
+
+        $pdf = App::make('snappy.pdf.wrapper');
+
+
+        //$html = $this->generarConstancia(12, 12, 16,2, 23, 24, null);
+        $html = $this->generarConstancia(12, 12, 15,3, null, null, null);
+        $pdf->loadHTML($html);
+        return $pdf->inline();
+
+        return $html;
+        $pdf = App::make('dompdf.wrapper');
+        $pdf->loadHTML($html);
+        return $pdf->stream();
+
+
     }
 }
