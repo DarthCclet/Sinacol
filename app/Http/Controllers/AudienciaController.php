@@ -586,7 +586,7 @@ class AudienciaController extends Controller
                         if($solicitante->parte_id == $relacion["parte_solicitante_id"] && $solicitado->parte_id == $relacion["parte_solicitado_id"]){
                             $terminacion = 3;
                             // se genera convenio
-                            event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
+                            // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
                             $bandera = false;
                         }else{
                             
@@ -626,7 +626,6 @@ class AudienciaController extends Controller
                         }
                     }else if($audiencia->resolucion_id == 1){
                         $terminacion = 3;
-                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
                     }else if($audiencia->resolucion_id == 2){
                         $terminacion = 2;
                         // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
@@ -660,6 +659,9 @@ class AudienciaController extends Controller
                             }
                         }
                     }
+                    if($terminacion == 3){
+                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
+                    }
                 }
             }
         }
@@ -679,7 +681,6 @@ class AudienciaController extends Controller
         }
         return $documentos;
     }
-    
     /**
      * Funcion para obtener todas las personas fisicas
      * @param int $audiencia_id
