@@ -6,6 +6,7 @@ use App\Solicitud;
 use App\EstatusSolicitud;
 use App\ObjetoSolicitud;
 use App\Centro;
+use App\GiroComercial;
 use App\User;
 use Faker\Generator as Faker;
 
@@ -15,9 +16,8 @@ $factory->define(Solicitud::class, function (Faker $faker) {
   // estatus solicitud, objeto solicitud, centro,
   //  ya que se segura que existen registros al generar la migracion
   $estatus_solicitud = EstatusSolicitud::inRandomOrder()->first();
-
   $centro = Centro::inRandomOrder()->first();
-
+  $giro_comercial = GiroComercial::inRandomOrder()->first();
   // se crea el registro de Solicitud usando los datos obtenidos anteriormente
     return [
         'ratificada' => ($estatus_solicitud->id != 1) ? true : false,
@@ -28,6 +28,7 @@ $factory->define(Solicitud::class, function (Faker $faker) {
         },
         'folio' => $faker->randomNumber(3),
         'anio' => $faker->year(),
+        'giro_comercial_id' => $giro_comercial->id,
         'solicita_excepcion' => $faker->boolean(),
         'fecha_ratificacion' => ($estatus_solicitud->id != 1) ? $faker->dateTime : null,
         'fecha_recepcion' => $faker->dateTime,

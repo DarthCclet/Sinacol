@@ -5,7 +5,6 @@
 use App\Model;
 use Faker\Generator as Faker;
 use App\DatoLaboral;
-use App\GiroComercial;
 use App\Jornada;
 use App\Ocupacion;
 use App\Parte;
@@ -17,7 +16,6 @@ $factory->define(DatoLaboral::class, function (Faker $faker) {
   $ocupacion = Ocupacion::inRandomOrder()->first();
   $parte = Parte::inRandomOrder()->first();
   $periodicidad = Periodicidad::inRandomOrder()->first();
-  $giro_comercia = GiroComercial::inRandomOrder()->first();
     return [
       'parte_id' => function(){
         return factory(\App\Parte::class)->create()->id;
@@ -27,11 +25,11 @@ $factory->define(DatoLaboral::class, function (Faker $faker) {
       'nss'=> $faker->randomElement(['12341234123','99879879879','83473483743','39483478347']),
       'fecha_ingreso' => $faker->date,
       'fecha_salida' => $faker->date,
-      'giro_comercial_id' =>  $giro_comercia->id,
       'remuneracion' => $faker->randomFloat(2,1,1000),
       'periodicidad_id' => $periodicidad->id,
       'labora_actualmente' => $faker->boolean,
       'jornada_id' => $jornada->id,
+      'puesto' => $faker->randomElement(['MECANICO','DESARROLLADOR','OBRERO','ANALISTA DE PROYECTOS']),
       'horas_semanales' => $faker->randomNumber(2)
         //
     ];
