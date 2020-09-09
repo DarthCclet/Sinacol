@@ -69,27 +69,29 @@ class StringTemplate
         $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
         if (isset($vars['solicitado_tipo_notificacion'])){
           if($vars['solicitado_tipo_notificacion'] != null && $countTipoNotificacion >0){
-            switch ($vars['solicitado_tipo_notificacion']) {
-              case 1: // El solicitante entrega citatorio a solicitados
-                // texto de notificacion por solicitante
-                $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
-                $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
+            for ($i=0; $i <= $countTipoNotificacion; $i++) { 
+              switch ($vars['solicitado_tipo_notificacion']) {
+                case 1: // El solicitante entrega citatorio a solicitados
+                  // texto de notificacion por solicitante
+                  $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
+                  $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
 
-                $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-                $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                  $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+                  $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
 
-                $string = $htmlA . $sliceNotificacion . $htmlB;
-              break;
-              case 2: //El actuario del centro entrega citatorio a solicitados
-                // texto de notificacion por actuario
-                $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
-                $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                  $string = $htmlA . $sliceNotificacion . $htmlB;
+                break;
+                case 2: //El actuario del centro entrega citatorio a solicitados
+                  // texto de notificacion por actuario
+                  $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
+                  $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
 
-                $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-                $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                  $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+                  $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
 
-                $string = $htmlA . $sliceNotificacion . $htmlB;
-              break;
+                  $string = $htmlA . $sliceNotificacion . $htmlB;
+                break;
+              }
             }
           }
         }
@@ -110,11 +112,10 @@ class StringTemplate
                 $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
 
                 $string = $htmlA . $sliceSeparado . $htmlB;
-            //   // break;
+               // break;
             }
           }
         }
-
 
         $partes = ['solicitado','solicitante'];
         foreach ($partes as $key => $parteL) {
@@ -126,60 +127,63 @@ class StringTemplate
           // $countPersonaMoral = substr_count($string,'[SI_'.$parte.'_IPO_PERSONA_MORAL]');
           $countGenero = substr_count($string,'[SI_'.$parte.'_GENERO_MASCULINO]');
           // $countGeneroFem = substr_count($string,'[SI_'.$parte.'_IPO_PERSONA_MORAL]');
-
           if($vars[$parteL.'_genero_id'] != null && $countGenero >0){
-            switch ($vars[$parteL.'_genero_id']) {
-              case 2:
-                $count = substr_count($string, '[SI_'.$parte.'_GENERO_MASCULINO]');
-                if($count > 0){
-                  //Texto entre condiciones
-                  $slice = Str::after($string, '[SI_'.$parte.'_GENERO_MASCULINO]');
-                  $slice = Str::before($slice, '[SI');
+            for ($i=0; $i <= $countGenero; $i++) { 
+              switch ($vars[$parteL.'_genero_id']) {
+                case 2:
+                  $count = substr_count($string, '[SI_'.$parte.'_GENERO_MASCULINO]');
+                  if($count > 0){
+                    //Texto entre condiciones
+                    $slice = Str::after($string, '[SI_'.$parte.'_GENERO_MASCULINO]');
+                    $slice = Str::before($slice, '[SI');
 
-                  $htmlA = Str::before($string, '[SI_');
-                  $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_GENERO]');
+                    $htmlA = Str::before($string, '[SI_');
+                    $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_GENERO]');
 
-                  $string = $htmlA . $slice . $htmlB;
-                }
+                    $string = $htmlA . $slice . $htmlB;
+                  }
+                  break;
+                case 1:
+                  $count = substr_count($string, '[SI_'.$parte.'_GENERO_FEMENINO]');
+                  if($count > 0){
+                    $slice = Str::after($string, '[SI_'.$parte.'_GENERO_FEMENINO]');
+                    $slice = Str::before($slice, '[FIN_SI');
+
+                    $htmlA = Str::before($string, '[SI_'.$parte);
+                    $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_GENERO]');
+                    $string = $htmlA . $slice . $htmlB;
+                  }
                 break;
-              case 1:
-                $count = substr_count($string, '[SI_'.$parte.'_GENERO_FEMENINO]');
-                if($count > 0){
-                  $slice = Str::after($string, '[SI_'.$parte.'_GENERO_FEMENINO]');
-                  $slice = Str::before($slice, '[FIN_SI');
-
-                  $htmlA = Str::before($string, '[SI_'.$parte);
-                  $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_GENERO]');
-                  $string = $htmlA . $slice . $htmlB;
-                }
-              break;
+              }
             }
           }
 
           if($vars[$parteL.'_tipo_persona_id'] != null  && ($countPersona >0) ){
-            switch ($vars[$parteL.'_tipo_persona_id']) {
-              case 1: //fisica
-                $count = substr_count($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
-                if($count > 0){
-                  //Texto entre condiciones
-                  $sliceFisica = Str::after($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
-                  $sliceFisica = Str::before($sliceFisica, '[SI_');
-                  $htmlA = Str::before($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
-                  $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_TIPO_PERSONA]');
-                  $string = $htmlA . $sliceFisica . $htmlB;
-                }
-                break;
-              case 2: //moral
-                $count = substr_count($string, '[SI_'.$parte.'_TIPO_PERSONA_MORAL]');
-                if($count > 0){
-                  $sliceMoral = Str::after($string, '[SI_'.$parte.'_TIPO_PERSONA_MORAL]');
-                  $sliceMoral = Str::before($sliceMoral, '[FIN_SI');
+            for ($i=0; $i <= $countPersona; $i++) { 
+              switch ($vars[$parteL.'_tipo_persona_id']) {
+                case 1: //fisica
+                  $count = substr_count($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
+                  if($count > 0){
+                      //Texto entre condiciones
+                      $sliceFisica = Str::after($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
+                      $sliceFisica = Str::before($sliceFisica, '[SI_');
+                      $htmlA = Str::before($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
+                      $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_TIPO_PERSONA]');
+                      $string = $htmlA . $sliceFisica . $htmlB;
+                  }
+                  break;
+                case 2: //moral
+                  $count = substr_count($string, '[SI_'.$parte.'_TIPO_PERSONA_MORAL]');
+                  if($count > 0){
+                    $sliceMoral = Str::after($string, '[SI_'.$parte.'_TIPO_PERSONA_MORAL]');
+                    $sliceMoral = Str::before($sliceMoral, '[FIN_SI');
 
-                  $htmlA = Str::before($string, '[SI_');
-                  $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_TIPO_PERSONA]');
-                  $string = $htmlA . $sliceMoral . $htmlB;
-                }
-                break;
+                    $htmlA = Str::before($string, '[SI_');
+                    $htmlB = Str::after($string, '[FIN_SI_'.$parte.'_TIPO_PERSONA]');
+                    $string = $htmlA . $sliceMoral . $htmlB;
+                  }
+                  break;
+              }
             }
           }
         }
