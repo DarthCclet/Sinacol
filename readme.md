@@ -54,8 +54,6 @@ Agregar la ip de la máquina guest al archivo de configuración hosts de la máq
       C:\Windows\System32\drivers\etc\hosts.
       
       192.168.10.10  conciliacion.test
- 
-      
 
 ## Paquetes de terceros
 
@@ -65,5 +63,9 @@ Agregar la ip de la máquina guest al archivo de configuración hosts de la máq
 * Administración de permisos dinámicos [laravel-permission](https://github.com/spatie/laravel-permission)
 * Administración de menús dinámicos [laravel-menu](https://github.com/lavary/laravel-menu)
 * Oauth 2 Server con Passport. [laravel/passport](https://laravel.com/docs/6.x/passport)
+* wkhtmltopdf Necesario para la impresión mucho más apegda a la definición HTML
 
-//PAG
+Instalar fonts Montserrat en /usr/local/share/fonts y recrear el cache de fuentes con fc-cache
+
+wkhtmltopdf se espera en /usr/local/bin
+
