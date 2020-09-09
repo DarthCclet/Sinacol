@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "cfcrl/conciliacion",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "Sistema Nacional de Conciliación Laboral.",
     "keywords": [
         "framework",
         "laravel"

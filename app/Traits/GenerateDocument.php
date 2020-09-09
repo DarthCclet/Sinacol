@@ -257,7 +257,7 @@ trait GenerateDocument
     {
         $html = '';
         $config = PlantillaDocumento::find($id);
-        if($config){
+        if(!$config){
             $html .= view('documentos._header_documentos_default');
         }
         else{
@@ -278,7 +278,7 @@ trait GenerateDocument
     {
         $html = '';
         $config = PlantillaDocumento::find($id);
-        if($config){
+        if(!$config){
             $html .= view('documentos._footer_documentos_default');
         }
         else{
