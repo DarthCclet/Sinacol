@@ -687,6 +687,7 @@ class PlantillasDocumentosController extends Controller
                         
                         // $tablaConceptos = '<h4>Propuestas</h4>';
                         $tablaConceptos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                        $tablaConceptos .= '<div style="page-break-before:always" >';
                         $tablaConceptos .= '<table  class="tbl">';
                         $tablaConceptos .= '<thead><tr><th>Prestación</th><th>Propuesta completa</th><th>Propuesta 45 días</th></tr></thead>';
                         $tablaConceptos .= '<tbody >';
@@ -701,25 +702,31 @@ class PlantillasDocumentosController extends Controller
                         $tablaConceptos .= '<tr ><th class="tbl"> TOTAL </th><td class="amount"> $'.$total100.'</td><td class="amount"> $'.$total50.'</td> </tr>';
                         $tablaConceptos .= '</tbody>';
                         $tablaConceptos .= '</table>';
+                        $tablaConceptos .= '</div>';
 
                         // $tablaConceptos .= '<h4>Propuesta Configurada </h4>';
                         $resolucion_conceptos = ResolucionParteConcepto::where('resolucion_partes_id',$resolucionParteId)->get();
+                        $tablaConceptosEConvenio = '';
                         $tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                        $tablaConceptosConvenio .= '<div style="page-break-before:always" >';
                         $tablaConceptosConvenio .= '<table class="tbl">';
                         $tablaConceptosConvenio .= '<tbody>';
                         $totalPercepciones = 0;
                         foreach ($resolucion_conceptos as $concepto ) {
                           $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
+                          //dd($concepto->id);
                           if($concepto->id != 9){
                             $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
                             $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.$concepto->monto.'</td></tr>';
                           }else{
-                            $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td>'.$concepto->otro.'</td></tr>';
+                            $tablaConceptosEConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td>'.$concepto->otro.'</td></tr>';
                           }
                         }
+                        $tablaConceptosConvenio .= $tablaConceptosEConvenio;
                         $tablaConceptosConvenio .= '<tr><td> Total de percepciones </td><td>     $'.$totalPercepciones.'</td></tr>';
                         $tablaConceptosConvenio .= '</tbody>';
                         $tablaConceptosConvenio .= '</table>';
+                        $tablaConceptosConvenio .= '</div>';
                         $datosResolucion['total_percepciones']= $totalPercepciones;
                         $datosResolucion['propuestas_conceptos']= $tablaConceptos;
                         $datosResolucion['propuesta_configurada']= $tablaConceptosConvenio;
@@ -812,12 +819,12 @@ class PlantillasDocumentosController extends Controller
                          $val = $val['nombre'];
                        }elseif ($k == 'persona') {
                          foreach ($val as $n =>$v) {
-                           $vars[strtolower($key.'_'.$n)] = $v;//($v !== null)? $v :"-";
+                           $vars[strtolower($key.'_'.$n)] = ($v !== null)? $v :"-";
                           }
                           $vars[strtolower($key.'_nombre_completo')] = $val['nombre'].' '.$val['primer_apellido'].' '.(($val['segundo_apellido'] !="")?$val['segundo_apellido']: "");
                        }else{
                           foreach ($val as $n =>$v) {
-                            $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;// ($v !== null)? $v :"-";
+                            $vars[strtolower($key.'_'.$k.'_'.$n)] =($v !== null)? $v :"-";
                           }
                        }
                      }
@@ -827,7 +834,7 @@ class PlantillasDocumentosController extends Controller
                        $val = $this->formatoFecha($val);
                      }
                    }
-                   $vars[strtolower($key.'_'.$k)] = $val;//($val !== null)? $val :"-";
+                   $vars[strtolower($key.'_'.$k)] = ($val !== null)? $val :"-";
                  }
                }else{//Si no es un array assoc (n solicitados, n solicitantes)
                  foreach ($dato as $data) {//sol[0]...
@@ -842,7 +849,7 @@ class PlantillasDocumentosController extends Controller
                           if($k == 'domicilios'){
                             $val = Arr::except($val[0],['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id']);
                             foreach ($val as $n =>$v) {
-                              $vars[strtolower($key.'_'.$k.'_'.$n)] = $v; //($v !== null)? $v :'-';
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v !== null)? $v :'-';
                             }
                           }else{
                             foreach ($val as $i => $v) {
@@ -860,17 +867,17 @@ class PlantillasDocumentosController extends Controller
                            $val = $val['nombre']; //catalogos
                           }elseif ($k == 'datos_laborales') {
                             foreach ($val as $n =>$v) {
-                              $vars[strtolower($key.'_'.$k.'_'.$n)] =$v;// ($v !== null)? $v :"-";
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v !== null)? $v :"-";
                               if($n == "comida_dentro"){
                                 $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
                               }
                             }
                           }elseif ($k == 'nombre_completo') {
-                            $vars[strtolower($key.'_'.$k)] =$val; //($val !== null)? $val :"-";
+                            $vars[strtolower($key.'_'.$k)] =($val !== null)? $val :"-";
 
                           }elseif ($k == 'representante_legal') {
                             foreach ($val as $n =>$v) {
-                              $vars[strtolower($key.'_'.$k.'_'.$n)] =$v; // ($v !== null)? $v :"-";//$v;
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v !== null)? $v :"-";//$v;
                             }
                           }
                        }
@@ -897,7 +904,7 @@ class PlantillasDocumentosController extends Controller
         $style = "<html xmlns=\"http://www.w3.org/1999/html\">
                  <head>
                  <style>
-                 @page { margin: 100px 50px 39px 60px;
+                 @page { margin-top: 80px; margin-bottom: 60px;
                       }
                  @media print {
                    table { border-collapse: collapse;
@@ -912,8 +919,8 @@ class PlantillasDocumentosController extends Controller
                             font-family: Montserrat, sans-serif; font-size: 10pt;
                           }
                    }
-                 .header { position: fixed; top: -90px;}
-                 .footer { position: fixed; bottom: 35px;}
+                 .header { position: fixed; top: -80px;}
+                 .footer { position: fixed; bottom: -60px;}
                  #contenedor-firma {height: 60px;}
                  </style>
                  </head>

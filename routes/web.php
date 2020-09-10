@@ -15,6 +15,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('header/{id}', 'HeaderFooterTemplatesController@getHeader');
+Route::get('footer/{id}', 'HeaderFooterTemplatesController@getFooter');
+
 Route::get('/asesoria/{accion}', 'AsesoriaController@index');
 Route::get('/solicitudes/create-public','SolicitudController@create');
 Route::post('/solicitudes/store-public','SolicitudController@store');
@@ -61,6 +64,9 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
     Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
     Route::Post('audiencia/nuevaAudiencia','AudienciaController@NuevaAudiencia');
+
+    Route::get('debug','HeaderFooterTemplatesController@debug');
+
     Route::Get('audiencia/documentos/{audiencia_id}','AudienciaController@getDocumentosAudiencia');
     Route::Get('audiencia/fisicas/{id}','AudienciaController@GetPartesFisicas');
     Route::Get('audiencia/validar_partes/{id}','AudienciaController@validarPartes');
@@ -143,7 +149,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('tipos_contactos','TipoContactoController');
     Route::resource('tipos_contadores','TipoContadorController');
     Route::resource('tipos_discapacidades','TipoDiscapacidadController');
+
+
+
 });
+
+
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 
 Route::get('solicitud_buzon','BuzonController@SolicitudBuzon')->name('solicitud_buzon');

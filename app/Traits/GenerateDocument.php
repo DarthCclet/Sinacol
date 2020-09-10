@@ -41,17 +41,11 @@ trait GenerateDocument
                 $padre = Audiencia::find($idAudiencia);
                 $directorio = 'expedientes/' . $padre->expediente_id . '/audiencias/' . $idAudiencia;
                 $algo = Storage::makeDirectory($directorio, 0775, true);
-                
-                $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
-                
-				$html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
-                $pdf = App::make('dompdf.wrapper');
-                $pdf->getDomPDF();
-                $pdf->loadHTML($html)->setPaper('A4');
-                
-                //al
 
-                //al
+                $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
+
+				$html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
+
                 //Creamos el registro
                 $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre]);
                 $plantilla = PlantillaDocumento::find($plantilla->id);
@@ -59,8 +53,10 @@ trait GenerateDocument
                 $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
                 $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
                 $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
-                
-                $store = $pdf->save($fullPath);
+
+                //Hacemos el render del pdf y lo guardamos en $fullPath
+                $this->renderPDF($html, $plantilla->id, $fullPath);
+
                 $archivo->update([
                     "nombre" => str_replace($directorio . "/", '', $path),
                     "nombre_original" => str_replace($directorio . "/", '', $path), //str_replace($directorio, '',$path->getClientOriginalName()),
@@ -72,7 +68,8 @@ trait GenerateDocument
                     "firmado" => "false",
                     "clasificacion_archivo_id" => $tipoArchivo->id,
                 ]);
-            }else{
+            }
+            else{
                 $padre = Solicitud::find($idSolicitud);
                 if($padre->expediente != null){
                   $directorio = 'expedientes/' . $padre->expediente->id . '/solicitud/' . $idSolicitud;
@@ -80,17 +77,11 @@ trait GenerateDocument
                   $directorio = 'solicitudes/' . $idSolicitud;
                 }
                 $algo = Storage::makeDirectory($directorio, 0775, true);
-                
+
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
-                
+
                 $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
-                $pdf = App::make('dompdf.wrapper');
-                $pdf->getDomPDF();
-                $pdf->loadHTML($html)->setPaper('A4');
-                
-                //al
-                
-                //al
+
                 //Creamos el registro
                 $archivo = $padre->documentos()->create(["descripcion" => "Documento de solicitud " . $tipoArchivo->nombre]);
                 $plantilla = PlantillaDocumento::find($plantilla->id);
@@ -98,8 +89,10 @@ trait GenerateDocument
                 $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
                 $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
                 $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
-                
-                $store = $pdf->save($fullPath);
+
+                //Hacemos el render del pdf y lo guardamos en $fullPath
+                $this->renderPDF($html, $plantilla->id, $fullPath);
+
                 $archivo->update([
                     "nombre" => str_replace($directorio . "/", '', $path),
                     "nombre_original" => str_replace($directorio . "/", '', $path), //str_replace($directorio, '',$path->getClientOriginalName()),
@@ -113,14 +106,15 @@ trait GenerateDocument
                 ]);
             }
             return 'Product saved successfully';
-        }else{
+        }
+        else{
             return 'No existe plantilla';
         }
     }
 
     public function renderDocumento($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador)
     {
-        
+
         $vars = [];
         $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador);
         if($data!=null){
@@ -226,52 +220,78 @@ trait GenerateDocument
         $style = "<html xmlns=\"http://www.w3.org/1999/html\">
                   <head>
                   <style>
-                  @page { margin: 165px 50px 39px 60px;
-                        }
-                  @media print {
-                    table { border-collapse: collapse;
-                          width: 59.1193%;
-                          height: 122px;
-                          border-color: #e61f0b;
-                          border-style: solid;
-                          float: right; }
-                          tr:nth-child(even) {background-color: #f2f2f2;
-                          }
-                          p{
-                            font-family: Montserrat, sans-serif; font-size: 10pt;
-                          }
-                    }
-                  .header { position: fixed; top: -150px;}
-                  .footer { position: fixed; bottom: 35px;}
+                  thead { display: table-header-group }
+                  tfoot { display: table-row-group }
+                  tr { page-break-inside: avoid }
                   #contenedor-firma {height: 60px;}
+                  body {
+                        margin-left: 1cm;
+                        margin-right: 1cm;
+                  }
                   </style>
                   </head>
                   <body>
                   ";
           $end = "</body></html>";
- 
+
           // $config = PlantillaDocumento::orderBy('created_at', 'desc')->first();
           $config = PlantillaDocumento::find($idPlantilla);
           if (!$config) {
-              $header = view('documentos._header_documentos_default');
               $body = view('documentos._body_documentos_default');
-              $footer = view('documentos._footer_documentos_default');
- 
-              $header = '<div class="header">' . $header . '</div>';
               $body = '<div class="body">' . $body . '</div>';
-              $footer = '<div class="footer">' . $footer . '</div>';
           } else {
-              $header = '<div class="header">' . $config->plantilla_header . '</div>';
               $body = '<div class="body">' . $config->plantilla_body . '</div>';
-              $footer = '<div class="footer">' . $config->plantilla_footer . '</div>';
           }
-          $blade = $style . $header . $footer . $body . $end;
+          $blade = $style . $body . $end;
           $html = StringTemplate::renderPlantillaPlaceholders($blade, $vars);
           return $html;
     }
+
+    /**
+     * Dado un ID de plantilla obtiene el header del documento
+     * @param $id
+     * @return string
+     * @throws \Symfony\Component\Debug\Exception\FatalThrowableError
+     */
+    public function getHeader($id)
+    {
+        $html = '';
+        $config = PlantillaDocumento::find($id);
+        if(!$config){
+            $html .= view('documentos._header_documentos_default');
+        }
+        else{
+            $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> </head> <body>';
+            $html .= $config->plantilla_header;
+            $html .= "</body></html>";
+        }
+        return StringTemplate::renderPlantillaPlaceholders($html,[]);
+    }
+
+    /**
+     * Dado un ID de plantilla obtiene el footer del documento
+     * @param $id
+     * @return string
+     * @throws \Symfony\Component\Debug\Exception\FatalThrowableError
+     */
+    public function getFooter($id)
+    {
+        $html = '';
+        $config = PlantillaDocumento::find($id);
+        if(!$config){
+            $html .= view('documentos._footer_documentos_default');
+        }
+        else{
+            $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> </head> <body>';
+            $html .= $config->plantilla_footer;
+            $html .= "</body></html>";
+        }
+        return StringTemplate::renderPlantillaPlaceholders($html,[]);
+    }
+
     private function getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador)
     {
-        
+
         try {
             $plantilla = PlantillaDocumento::find($idPlantilla);
             $tipo_plantilla = TipoDocumento::find($plantilla->tipo_documento_id);
@@ -313,7 +333,7 @@ trait GenerateDocument
                       // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $parte ) {
                       $parteId = $parte['id'];
-                      
+
                       $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
                       $parte['datos_laborales'] = $datoLaboral;
                       if($parte['tipo_persona_id'] == 1){ //fisica
@@ -366,7 +386,7 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'total_solicitantes', $countSolicitante );
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                 }elseif ($model == 'Expediente') {
-                    
+
 
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;
@@ -398,7 +418,7 @@ trait GenerateDocument
                         $audiencia = Arr::except($audiencia, ['id','updated_at','created_at','deleted_at']);
                         array_push($Audiencias,$audiencia);
                       }
-                    
+
                     $data = Arr::add( $data, 'audiencia', $Audiencias );
                     $salaAudiencia = SalaAudiencia::with('sala')->where('audiencia_id',$audienciaId)->get();
                     $objSala = new JsonResponse($salaAudiencia);
@@ -457,7 +477,7 @@ trait GenerateDocument
                         }
                         $pagoVacaciones = $propVacaciones * $diasVacaciones * $remuneracionDiaria;
                         $salarioTopado = ($remuneracionDiaria > (2*$salarioMinimo) ? (2*$salarioMinimo) : $remuneracionDiaria);
-                        
+
                         //Propuesta de convenio al 100%
                         $prouestas = [];
                         array_push($prouestas,array("concepto_pago"=> 'Indemnización constitucional', "montoCompleta"=>round($remuneracionDiaria * 90,2), "montoAl50"=>round($remuneracionDiaria * 45,2) )); //Indemnizacion constitucional = gratificacion A
@@ -465,13 +485,13 @@ trait GenerateDocument
                         array_push($prouestas,array("concepto_pago"=> 'Vacaciones', "montoCompleta"=>round($pagoVacaciones,2), "montoAl50"=>round($pagoVacaciones,2))); //Vacaciones = dias vacaciones
                         array_push($prouestas,array("concepto_pago"=> 'Prima vacacional', "montoCompleta"=>round($pagoVacaciones * 0.25,2), "montoAl50"=>round($pagoVacaciones * 0.25,2) )); //Prima Vacacional
                         array_push($prouestas,array("concepto_pago"=> 'Prima antigüedad', "montoCompleta"=>round($salarioTopado * $anios_antiguedad *12,2), "montoAl50"=>round($salarioTopado * $anios_antiguedad *6,2) )); //Prima antiguedad = gratificacion C
-                        
+
                         // $tablaConceptos = '<h4>Propuestas</h4>';
                         $tablaConceptos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $tablaConceptos .= '<table  class="tbl">';
                         $tablaConceptos .= '<thead><tr><th>Prestación</th><th>Propuesta completa</th><th>Propuesta 45 días</th></tr></thead>';
                         $tablaConceptos .= '<tbody >';
-                        
+
                         $total50 = 0;
                         $total100 = 0;
                         foreach ($prouestas as $concepto ) {
@@ -528,45 +548,45 @@ trait GenerateDocument
     }
 
     function eliminar_acentos($cadena){
-		
+
 		//Reemplazamos la A y a
 		$cadena = str_replace(
 		array('Á', 'À', 'Â', 'Ä', 'á', 'à', 'ä', 'â', 'ª'),
 		array('A', 'A', 'A', 'A', 'a', 'a', 'a', 'a', 'a'),
 		$cadena
 		);
- 
+
 		//Reemplazamos la E y e
 		$cadena = str_replace(
 		array('É', 'È', 'Ê', 'Ë', 'é', 'è', 'ë', 'ê'),
 		array('E', 'E', 'E', 'E', 'e', 'e', 'e', 'e'),
 		$cadena );
- 
+
 		//Reemplazamos la I y i
 		$cadena = str_replace(
 		array('Í', 'Ì', 'Ï', 'Î', 'í', 'ì', 'ï', 'î'),
 		array('I', 'I', 'I', 'I', 'i', 'i', 'i', 'i'),
 		$cadena );
- 
+
 		//Reemplazamos la O y o
 		$cadena = str_replace(
 		array('Ó', 'Ò', 'Ö', 'Ô', 'ó', 'ò', 'ö', 'ô'),
 		array('O', 'O', 'O', 'O', 'o', 'o', 'o', 'o'),
 		$cadena );
- 
+
 		//Reemplazamos la U y u
 		$cadena = str_replace(
 		array('Ú', 'Ù', 'Û', 'Ü', 'ú', 'ù', 'ü', 'û'),
 		array('U', 'U', 'U', 'U', 'u', 'u', 'u', 'u'),
 		$cadena );
- 
+
 		//Reemplazamos la N, n, C y c
 		$cadena = str_replace(
 		array('Ñ', 'ñ', 'Ç', 'ç'),
 		array('N', 'n', 'C', 'c'),
 		$cadena
 		);
-		
+
 		return $cadena;
 	}
     /*
@@ -587,5 +607,28 @@ trait GenerateDocument
         $yy = $fecha[0];
         $ddmmyy = $dd . ' de ' . $monthNames[intval($mm) - 1] . ' de ' . $yy . ' ' . $hh;
         return $ddmmyy;
+    }
+
+    /**
+     * Genera el archivo PDF.
+     * @param $html string HTML fuente para generar el PDF
+     * @param $plantilla_id integer ID de la plantilla en la BD
+     * @param $path string Ruta del archivo a guardar. Si no existe entonces regresa el PDF inline para mostrar en browser
+     * @ToDo  Agregar opciones desde variable de ambiente como tamaño de página, margen, etc.
+     * @return mixed
+     */
+    public function renderPDF($html, $plantilla_id, $path=null){
+        $pdf = App::make('snappy.pdf.wrapper');
+        $pdf->loadHTML($html);
+        $pdf->setOption('page-size', 'Letter')
+            ->setOption('margin-top', '25mm')
+            ->setOption('margin-bottom', '11mm')
+            ->setOption('header-html', env('APP_URL').'/header/'.$plantilla_id)
+            ->setOption('footer-html', env('APP_URL').'/footer/'.$plantilla_id)
+        ;
+        if($path){
+            return $pdf->generateFromHtml($html, $path);
+        }
+        return $pdf->inline();
     }
 }

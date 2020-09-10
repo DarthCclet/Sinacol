@@ -1186,6 +1186,9 @@
                             <tbody>
                         </table>
                     </div>
+                    <div style="margin: 2%;">
+                        <a class="btn btn-primary btn-sm" style="float: right;" data-dismiss="modal" onclick="$('#modal-archivos').modal('show');" ><i class="fa fa-plus"></i> Agregar Documentos</a>
+                    </div>
                     <h5>Identificaciones</h5>
                     <hr class="red">
                     <table class="table table-striped table-bordered table-hover">
@@ -1198,12 +1201,60 @@
                         <tbody id="tbodyRatificacion">
                         <tbody>
                     </table>
+                    <h5>Notificaciones <small>Notificación de los citados</small></h5>
+                    <hr class="red">
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <td>Citado</td>
+                                <td>Dirección</td>
+                                <td>Mapa</td>
+                                <td>Tipo de notificación</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(isset($partes))
+                            @foreach($partes as $parte)
+                            <tr>
+                                @if($parte->tipo_parte_id == 2)
+                                    @if($parte->tipo_persona_id == 1)
+                                    <td>{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</td>
+                                    @else
+                                    <td>{{$parte->nombre_comercial}}</td>
+                                    @endif
+                                    <td>{{$parte->domicilios->vialidad}} {{$parte->domicilios->num_ext}}, {{$parte->domicilios->asentamiento}} {{$parte->domicilios->municipio}}, {{$parte->domicilios->estado}}</td>
+                                    <td>
+                                        <input type="hidden" id="parte_id{{$parte->id}}" class="hddParte_id" value="{{$parte->id}}">
+                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
+                                        <a href="https://maps.google.com/?q={{$parte->domicilios->latitud}},{{$parte->domicilios->longitud}}" target="_blank" class="btn btn-xs btn-primary"><i class="fa fa-map"></i></a>
+                                        @else
+                                        <legend>Sin datos</legend>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="aradioNotificacionA{{$parte->id}}" value="1" name="aradioNotificacion{{$parte->id}}" class="custom-control-input">
+                                            <label class="custom-control-label" for="aradioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio al citado(s)</label>
+                                        </div>
+                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="aradioNotificacionB{{$parte->id}}" value="2" name="aradioNotificacion{{$parte->id}}" class="custom-control-input">
+                                            <label class="custom-control-label" for="aradioNotificacionB{{$parte->id}}">B) Un notificador del centro entrega citatorio al citado(s)</label>
+                                        </div>
+                                        @else
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="aradioNotificacionB{{$parte->id}}" value="3" name="aradioNotificacion{{$parte->id}}" class="custom-control-input">
+                                            <label class="custom-control-label" for="aradioNotificacionB{{$parte->id}}">B) Agendar cita con el notificador para entrega de citatorio</label>
+                                        </div>
+                                        @endif
+                                    </td>
+                                @endif
+                            </tr>
+                            @endforeach
+                            @endif
+                        <tbody>
+                    </table>
                 </div>
-                <div style="margin: 2%;">
-                    <a class="btn btn-primary btn-sm" style="float: right;" data-dismiss="modal" onclick="$('#modal-archivos').modal('show');" ><i class="fa fa-plus"></i> Agregar Documentos</a>
-                </div>
-                <br>
-
             </div>
             <div class="modal-footer">
                 <div class="text-right">
@@ -2746,7 +2797,8 @@
     });
 
     $("#btnGuardarRatificar").on("click",function(){
-        if(ratifican){
+        var validarRatificacion = RatificacionValidar();
+        if(!validarRatificacion.error){
             $.ajax({
                 url:'/solicitud/correos/'+$("#solicitud_id").val(),
                 type:'GET',
@@ -2783,6 +2835,8 @@
                                     async:true,
                                     data:{
                                         id:$("#solicitud_id").val(),
+                                        listaNotificaciones:validarRatificacion.listaNotificaciones,
+                                        inmediata:false,
                                         _token:"{{ csrf_token() }}"
                                     },
                                     success:function(data){
@@ -2802,9 +2856,10 @@
                                             });
                                         }
                                     },error:function(data){
+                                        console.log(data);
                                         swal({
                                             title: 'Error',
-                                            text: ' Error al ratificar la solicitud',
+                                            text: data.responseJSON.message,
                                             icon: 'error'
                                         });
                                     }
@@ -2839,11 +2894,42 @@
         }else{
             swal({
                 title: 'Error',
-                text: 'Al menos un solicitante debe presentar documentos para ratificar',
+                text: validarRatificacion.msg,
                 icon: 'warning'
             });
         }
     });
+    function RatificacionValidar(){
+        var error = false;
+        var listaNotificaciones = [];
+        var msg = "";
+        if(!ratifican){
+            error = true;
+            msg = "Al menos un solicitante debe presentar documentos para ratificar";
+        }
+        $(".hddParte_id").each(function(element){
+            var parte_id = $(this).val();
+            if($("#aradioNotificacionA"+parte_id).is(":checked")){
+                listaNotificaciones.push({
+                    parte_id:parte_id,
+                    tipo_notificacion_id:1
+                });
+            }else if($("#aradioNotificacionB"+parte_id).is(":checked")){
+                listaNotificaciones.push({
+                    parte_id:parte_id,
+                    tipo_notificacion_id:2
+                });
+            }else{
+                msg = "Indica el tipo de notificación para los citados";
+                error = true;
+            }
+        });
+        var array = [];
+        array.error=error;
+        array.msg=msg;
+        array.listaNotificaciones=listaNotificaciones;
+        return array;
+    }
     $("#btnGuardarConvenio").on("click",function(){
         if(ratifican){
             $.ajax({
@@ -2941,7 +3027,7 @@
                         console.log(data);
                         swal({
                             title: 'Error',
-                            text: data.message,
+                            text: data.responseJSON.message,
                             icon: 'error'
                         });
                     }

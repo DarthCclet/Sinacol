@@ -44,6 +44,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Services\FechaAudienciaService;
 
 class SolicitudController extends Controller {
 
@@ -711,6 +712,10 @@ class SolicitudController extends Controller {
     }
 
     public function Ratificar(Request $request) {
+        if(!self::validarCentroAsignacion()){
+            return $this->sendError('No se ha configurado el centro', 'Error');
+            exit;
+        }
         DB::beginTransaction();
         try{
             $solicitud = Solicitud::find($request->id);
@@ -727,7 +732,7 @@ class SolicitudController extends Controller {
                     $parte->update();
                 }
             }
-            if($request->inmediata){
+            if($request->inmediata == "true"){
                 $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => true]);
                 // Obtenemos la sala virtual
                 $sala_id = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->get()[0]->id;
@@ -782,7 +787,40 @@ class SolicitudController extends Controller {
                 DB::commit();
                 return $audiencia;
             }else{
-                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
+                    $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
+
+                    $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), auth()->user()->centro);
+                    //Obtenemos el contador
+                    $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+                    //creamos el registro de la audiencia
+                    $audiencia = Audiencia::create([
+                        "expediente_id" => $expediente->id,
+                        "multiple" => false,
+                        "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
+                        "hora_inicio" => $datos_audiencia["hora_inicio"], 
+                        "hora_fin" => $datos_audiencia["hora_fin"],
+                        "conciliador_id" =>  $datos_audiencia["conciliador_id"],
+                        "numero_audiencia" => 1,
+                        "reprogramada" => false,
+                        "anio" => $folioAudiencia->anio,
+                        "folio" => $folioAudiencia->contador
+                    ]);
+                    // guardamos la sala y el consiliador a la audiencia
+                    ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $datos_audiencia["conciliador_id"],"solicitante" => true]);
+                    SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $datos_audiencia["sala_id"],"solicitante" => true]);
+                    // Guardamos todas las Partes en la audiencia
+                    $partes = $solicitud->partes;
+                    foreach($partes as $parte){
+                        $tipo_notificacion_id = null;
+                        foreach($request->listaNotificaciones as $notificaciones){
+                            if($notificaciones["parte_id"] == $parte->id){
+                                $tipo_notificacion_id = $notificaciones["tipo_notificacion_id"];
+                            }
+                        }
+                        AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
+                    }
+                    $expediente = Expediente::find($request->expediente_id);
+                    event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,4,4));
             }
             DB::commit();
             return $solicitud;
@@ -982,5 +1020,30 @@ class SolicitudController extends Controller {
             $password = str_replace(' ', '', $parte->rfc);
         }
         return ["correo" => strtolower($correo),"password" => strtolower($password)];
+    }
+    private static function validarCentroAsignacion() {
+        $pasa = false;
+        $pasaSala = false;
+        $pasaConciliador = false;
+        if(count(auth()->user()->centro->disponibilidades) > 0){
+            foreach(auth()->user()->centro->salas as $sala){
+                if(count($sala->disponibilidades) > 0){
+                    if(!$sala->virtual){
+                        $pasaSala = true;
+                    }
+                }
+            }
+            if($pasaSala){
+                foreach(auth()->user()->centro->conciliadores as $conciliador){
+                    if(count($conciliador->disponibilidades) > 0){
+                        $pasaConciliador = true;
+                    }
+                }
+            }
+        }
+        if($pasaSala && $pasaConciliador){
+            $pasa = true;
+        }
+        return $pasa;
     }
 }
