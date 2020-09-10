@@ -955,15 +955,15 @@ class AudienciaController extends Controller
                     foreach($solicitantes as $solicitante){
                         foreach($solicitados as $solicitado){
                             $resolucionParte = ResolucionPartes::create([
-                            "audiencia_id" => $audiencia->id,
-                            "parte_solicitante_id" => $solicitante->parte_id,
-                            "parte_solicitada_id" => $solicitado->parte_id,
-                            "terminacion_bilateral_id" => 1
+                                "audiencia_id" => $audiencia->id,
+                                "parte_solicitante_id" => $solicitante->parte_id,
+                                "parte_solicitada_id" => $solicitado->parte_id,
+                                "terminacion_bilateral_id" => 1
                             ]);
+                            event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,8,$solicitante->parte_id,$solicitado->parte_id));
                         }
                     }
                         // Se genera archivo de acta de archivado
-                    event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,8,1,$solicitante->parte_id));
                 
                 }
                 if($solicitantes && !$citados){
