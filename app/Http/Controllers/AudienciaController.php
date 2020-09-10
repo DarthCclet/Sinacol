@@ -993,12 +993,16 @@ class AudienciaController extends Controller
                         if($audienciaP->parte->tipo_parte == 1){
                             $comparecio = Compareciente::where('audiencia_id',$audiencia_id)->where('parte_id',$audienciaP->parte_id)->first();
                             if($comparecio == null){
-                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,8,1,$audienciaP->parte_id));
+                                $solicitados = $this->getSolicitados($audiencia);
+                                foreach ($solicitados as $key => $solicitado) {
+                                    event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,8,$audienciaP->parte_id,$solicitado->parte_id));
+                                }
                             }
                         }
                     }
                 }
             }
+            
             DB::commit();
             return $this->sendResponse($audiencia, 'SUCCESS');
         }catch(\Throwable $e){
