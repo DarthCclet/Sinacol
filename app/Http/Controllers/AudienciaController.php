@@ -988,9 +988,9 @@ class AudienciaController extends Controller
                     }
                 }
                 if($solicitantes){
-                    $audiencia_partes = AudienciaParte::where('audiencia_id',$audiencia_id);
+                    $audiencia_partes = AudienciaParte::where('audiencia_id',$audiencia_id)->get();
                     foreach ($audiencia_partes as $key => $audienciaP) {
-                        if($audienciaP->parte->tipo_parte == 1){
+                        if($audienciaP->parte->tipo_parte_id == 1){
                             $comparecio = Compareciente::where('audiencia_id',$audiencia_id)->where('parte_id',$audienciaP->parte_id)->first();
                             if($comparecio == null){
                                 $solicitados = $this->getSolicitados($audiencia);
@@ -1006,6 +1006,7 @@ class AudienciaController extends Controller
             DB::commit();
             return $this->sendResponse($audiencia, 'SUCCESS');
         }catch(\Throwable $e){
+            dd($e->getMessage());
             DB::rollback();
             return $this->sendError('Error al registrar los comparecientes'.$e->getMessage(), 'Error');
         }
