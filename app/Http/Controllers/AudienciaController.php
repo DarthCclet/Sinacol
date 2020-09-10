@@ -925,7 +925,8 @@ class AudienciaController extends Controller
         try{
             $solicitantes = false;
             $citados = false;
-            $audiencia = Audiencia::find($this->request->audiencia_id);
+            $audiencia_id = $this->request->audiencia_id;
+            $audiencia = Audiencia::find($audiencia_id);
             if(!$audiencia->finalizada){
                 
                 foreach($this->request->comparecientes as $compareciente){
@@ -954,38 +955,49 @@ class AudienciaController extends Controller
                     foreach($solicitantes as $solicitante){
                         foreach($solicitados as $solicitado){
                             $resolucionParte = ResolucionPartes::create([
+                            "audiencia_id" => $audiencia->id,
+                            "parte_solicitante_id" => $solicitante->parte_id,
+                            "parte_solicitada_id" => $solicitado->parte_id,
+                            "terminacion_bilateral_id" => 1
+                            ]);
+                        }
+                    }
+                        // Se genera archivo de acta de archivado
+                    event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,8,1,$solicitante->parte_id));
+                
+                }
+                if($solicitantes && !$citados){
+                    //Constancia de no conciliacion de todos los citados 
+                    $audiencia->update(array("resolucion_id"=>3,"finalizada"=>true));
+                    $solicitantes = $this->getSolicitantes($audiencia);
+                    $solicitados = $this->getSolicitados($audiencia);
+                    foreach($solicitantes as $solicitante){
+                        foreach($solicitados as $solicitado){
+                            $resolucionParte = ResolucionPartes::create([
                                 "audiencia_id" => $audiencia->id,
                                 "parte_solicitante_id" => $solicitante->parte_id,
                                 "parte_solicitada_id" => $solicitado->parte_id,
-                                "terminacion_bilateral_id" => 1
-                                ]);
-                            }
+                                "terminacion_bilateral_id" => 5
+                            ]);
+                            //Se genera constancia de no conciliacion
+                            event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,17,1,$solicitante->parte_id,$solicitado->parte_id));
+                            
+                            // Se genera archivo de acta de multa
+                            event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,18,7,$solicitante->parte_id,$solicitado->parte_id));
                         }
-                        // Se genera archivo de acta de archivado
-                        event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,1,1));
-                
                     }
-                    if($solicitantes && !$citados){
-                        //Constancia de no conciliacion de todos los citados 
-                        $audiencia->update(array("resolucion_id"=>3,"finalizada"=>true));
-                        $solicitantes = $this->getSolicitantes($audiencia);
-                        $solicitados = $this->getSolicitados($audiencia);
-                        foreach($solicitantes as $solicitante){
-                            foreach($solicitados as $solicitado){
-                                $resolucionParte = ResolucionPartes::create([
-                                    "audiencia_id" => $audiencia->id,
-                                    "parte_solicitante_id" => $solicitante->parte_id,
-                                    "parte_solicitada_id" => $solicitado->parte_id,
-                                    "terminacion_bilateral_id" => 5
-                                ]);
-                                //Se genera constancia de no conciliacion
-                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,17,1,$solicitante->parte_id,$solicitado->parte_id));
-                                
-                                // Se genera archivo de acta de multa
-                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,18,7,$solicitante->parte_id,$solicitado->parte_id));
+                }
+                if($solicitantes){
+                    $audiencia_partes = AudienciaParte::where('audiencia_id',$audiencia_id);
+                    foreach ($audiencia_partes as $key => $audienciaP) {
+                        if($audienciaP->parte->tipo_parte == 1){
+                            $comparecio = Compareciente::where('audiencia_id',$audiencia_id)->where('parte_id',$audienciaP->parte_id)->first();
+                            if($comparecio == null){
+                                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,8,1,$audienciaP->parte_id));
                             }
                         }
                     }
+                }
             }
             DB::commit();
             return $this->sendResponse($audiencia, 'SUCCESS');
