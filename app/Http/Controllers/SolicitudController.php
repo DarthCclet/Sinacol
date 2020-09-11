@@ -70,7 +70,7 @@ class SolicitudController extends Controller {
         $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
                 ->searchWith(Solicitud::class)
                 ->filter(false);
-        DB::enableQueryLog();
+
         // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
         if ($this->request->get('all')) {
@@ -147,7 +147,6 @@ class SolicitudController extends Controller {
             if ($this->request->get('all') || $this->request->get('paginate')) {
                 return $this->sendResponse($solicitud, 'SUCCESS');
             } else {
-                // dd(DB::getQueryLog());
                 $total = Solicitud::count();
                 $draw = $this->request->get('draw');
                 return $this->sendResponseDatatable($total, $total, $draw, $solicitud, null);
@@ -531,7 +530,6 @@ class SolicitudController extends Controller {
             'solicitados.*.tipo_parte_id' => 'required',
             'solicitados.*.tipo_persona_id' => 'required',
             'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
-            'solicitados.*.genero_id' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
             'solicitados.*.domicilios' => 'required',
         ]);
         $solicitud = $request->input('solicitud');
