@@ -244,7 +244,7 @@
                                     </div>
 
                                     <div class="col-md-4 personaFisicaSolicitante">
-                                        {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                        {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
                                         {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                         <p class="help-block needed">Género</p>
                                     </div>
@@ -344,26 +344,7 @@
                                     <h4>Datos Laborales</h4>
                                     <hr class="red">
                                 </div>
-                                <p>
-                                    Los siguientes 4 campos, aunque no son obligatorios, son importantes para ayudarte a identificar el patr&oacute;n que debes citar a la conciliaci&oacute;n
-                                </p>
                                 <input type="hidden" id="dato_laboral_id">
-                                <div class="col-md-6">
-                                    <input class="form-control upper" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
-                                    <p class="help-block">Nombre del jefe directo</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <input class="form-control upper" id="nombre_contrato" placeholder="Nombre de quien te contrato" type="text" value="">
-                                    <p class="help-block">&iquest;Quién te contrato?</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <input class="form-control upper" id="nombre_paga" placeholder="Nombre quien te paga" type="text" value="">
-                                    <p class="help-block">&iquest;Quién te paga?</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <input class="form-control upper" id="nombre_prestas_servicio" placeholder="Nombre de a quien le prestas tus servicios" type="text" value="">
-                                    <p class="help-block">&iquest;A quién prestas el servicio?</p>
-                                </div>
                                 <div class="col-md-6">
                                     <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
                                     <p class="help-block ">N&uacute;mero de seguro social</p>
@@ -457,8 +438,75 @@
                             <div id="editandoSolicitado"></div>
                         </div>
                         <div  id="divSolicitado">
-                            <div id="datosIdentificacionSolicitado" data-parsley-validate="true">
+                            <div id="divAyudaCitado" style="margin-top: 2%; margin-bottom: 2%;">
+                                <div>
+                                    <p>
+                                        Debes citar a tu patrón, la persona física (un individuo) o moral (una empresa) responsable de la relación de trabajo contigo. Para ayudarte a determinar a quién deberías citar, te hacemos las siguientes preguntas:
+                                        ¿Tienes un recibo o recibos de nómina oficiales (que contenga tu número de seguridad social)? 
+                                    </p>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="radio radio-css radio-inline">
+                                            <input name="recibo_oficial" type="radio" id="recibo_oficial_si" value="1"/>
+                                            <label for="recibo_oficial_si">S&Iacute;</label>
+                                        </div>
+                                        <div class="radio radio-css radio-inline">
+                                            <input name="recibo_oficial" type="radio" id="recibo_oficial_no" value="2"/>
+                                            <label for="recibo_oficial_no">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 2%; display:none;" id="divReciboOficial" >
+                                    <p>
+                                        El nombre de la persona o empresa que te paga en este recibo de nómina es más probablemente el patrón a quien debes de citar.
+                                    </p>
+                                </div>
+                                <div id="divReciboNomina" style=" display:none; margin-top:2%;">
+                                    <p>
+                                        ¿Tienes algún recibo de nómina o pago donde aparece el nombre de quién te paga tu sueldo?
+                                    </p>
+                                    <div >
+                                        <div class="row">
+                                            <div class="radio radio-css radio-inline">
+                                                <input name="recibo_pago" type="radio" id="recibo_pago_si" value="1"/>
+                                                <label for="recibo_pago_si">S&Iacute;</label>
+                                            </div>
+                                            <div class="radio radio-css radio-inline">
+                                                <input name="recibo_pago" type="radio" id="recibo_pago_no" value="2"/>
+                                                <label for="recibo_pago_no">No</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="divSiReciboNomina" style="margin-top: 2%; display:none;">
+                                        <p>
+                                            El nombre de la persona o empresa que te paga en este recibo de nómina o de pago es más probablemente el patrón a quien debes de citar.
+                                        </p>
+                                    </div>
+                                    <div id="divNoReciboNomina" style="margin-top: 2%; display:none;" >
+                                        <p>
+                                            En caso de no contar con ningún tipo de recibo de nómina o pago en el que aparece el nombre del patrón, para decidir a quién citar a la conciliación debes considerar las siguientes preguntas:
+                                        </p>                                            
+                                        <ul>
+                                            <li>¿Con qué persona o empresa firmaste tu contrato de trabajo?</li>
+                                            <li>¿Cómo se llama la persona o empresa que te paga tu sueldo?</li>
+                                            <li>¿De quién recibes tus órdenes de dónde, cómo y qué tareas de trabajo debes realizar?</li>
+                                        </ul>
+                                        <div>
+                                            <p>
+                                                A partir de tus respuestas a estas preguntas podrás determinar el nombre de la persona que debes citar para la conciliación. Nota lo siguiente: Si conoces el nombre de tu patrón, es preferible que solamente cites a quien realmente es tu patrón, para buscar una solución al conflicto con la persona o empresa correcta y no perder tiempo en arreglar tu conflicto por citar a diversas personas que no son responsables de tu relación de trabajo. Sin embargo, si tienes dudas respecto a quién es tu patrón, porque las respuestas a las preguntas anteriores son diferentes personas, podrás citar más de una persona o empresa a la conciliación.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
 
+                            </div>
+                            <div id="datosIdentificacionSolicitado" style="display: none;" data-parsley-validate="true">
+                                
+                                <div class="col-md-12 mt-4">
+                                    <h4>Datos de identificaci&oacute;n</h4>
+                                    <hr class="red">
+                                </div>
                                 <div style="margin-left:5%; margin-bottom:3%; ">
                                     <label>Tipo Persona</label>
                                     <input type="hidden" id="solicitado_id">
@@ -1459,6 +1507,7 @@
 <script>
     // Se declaran las variables globales
     var arraySolicitados = []; //Lista de citados
+    var objAyudaCitado = {recibo_oficial:"",recibo_pago:""}; //Lista de citados
     var arraySolicitantes = []; //Lista de solicitantes
     var arrayDomiciliosSolicitante = []; // Array de domicilios para el solicitante
     var arrayDomiciliosSolicitado = []; // Array de domicilios para el citado
@@ -1552,10 +1601,6 @@
                     if($("#tipo_solicitud_id").val() == "1"){
                         var dato_laboral = {};
                         dato_laboral.id = $("#dato_laboral_id").val();
-                        dato_laboral.nombre_jefe_directo = $("#nombre_jefe_directo").val();
-                        dato_laboral.nombre_prestas_servicio = $("#nombre_prestas_servicio").val();
-                        dato_laboral.nombre_paga = $("#nombre_paga").val();
-                        dato_laboral.nombre_contrato = $("#nombre_contrato").val();
                         dato_laboral.ocupacion_id = $("#ocupacion_id").val();
                         dato_laboral.puesto = $("#puesto").val();
                         dato_laboral.nss = $("#nss").val();
@@ -1918,7 +1963,7 @@
             data:{},
             success:function(data){
                 try{
-
+                    $("#datosIdentificacionSolicitado").show();
                     arraySolicitados = Object.values(data.solicitados);
                     formarTablaSolicitado();
                     arraySolicitantes = Object.values(data.solicitantes);
@@ -1940,7 +1985,18 @@
                     // arrayObjetoSolicitudes = data.objeto_solicitudes;
                     formarTablaObjetoSol();
                     $("#observaciones").val(data.observaciones);
-
+                    if(data.recibo_oficial == true){
+                        $("#recibo_oficial_no").attr("checked",true);
+                    }else{
+                        $("#recibo_oficial_no").attr("checked",true);
+                    }
+                    if(data.recibo_pago == true){
+                        $("#recibo_pago_si").attr("checked",true);
+                    }else{
+                        $("#recibo_pago_no").attr("checked",true);
+                    }
+                    $("input[name='recibo_oficial']").trigger("change");
+                    $("input[name='recibo_pago']").trigger("change");
                     if(data.solicita_excepcion){
                         $("#solicita_excepcion").prop("checked",true);
                     }
@@ -1996,12 +2052,12 @@
         });
     }
     $("#nacionalidad_id_solicitante").change(function(){
-        if($(this).val() == 1){
+        if($(this).val() == 1 || $(this).val() == "" ){
             $("#entidad_nacimiento_id_solicitante").attr('required');
-            $("#labelEstadoNacimiento").addClass('labelEstadoNacimiento');
+            $("#labelEstadoNacimiento").addClass('needed');
         }else{
             $("#entidad_nacimiento_id_solicitante").removeAttr('required');;
-            $("#labelEstadoNacimiento").removeClass('labelEstadoNacimiento');
+            $("#labelEstadoNacimiento").removeClass('needed');
         }
     });
     /**
@@ -2023,10 +2079,6 @@
         $(".personaMoralSolicitante").hide();
         $(".personaFisicaSolicitante").show();
         $("#idSolicitanteRfc").val("");
-        $("#nombre_jefe_directo").val("");
-        $("#nombre_prestas_servicio").val("");
-        $("#nombre_paga").val("");
-        $("#nombre_contrato").val("");
         $("#ocupacion_id").val("");
         $("#puesto").val("");
         $("#nss").val("");
@@ -2481,10 +2533,6 @@
             $('#divDatoLaboralSolicitante').show();
             // $("#giro_comercial_solicitante").val(arraySolicitantes[key].dato_laboral.giro_comercial_id).trigger("change");
             // getGiroEditar("solicitante");
-            $("#nombre_jefe_directo").val(arraySolicitantes[key].dato_laboral.nombre_jefe_directo);
-            $("#nombre_prestas_servicio").val(arraySolicitantes[key].dato_laboral.nombre_prestas_servicio);
-            $("#nombre_paga").val(arraySolicitantes[key].dato_laboral.nombre_paga);
-            $("#nombre_contrato").val(arraySolicitantes[key].dato_laboral.nombre_contrato);
             $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
             $("#puesto").val(arraySolicitantes[key].dato_laboral.puesto);
             $("#nss").val(arraySolicitantes[key].dato_laboral.nss);
@@ -2757,6 +2805,18 @@
             solicitud.fecha_conflicto = dateFormat($("#fechaConflicto").val());
             solicitud.tipo_solicitud_id = $("#tipo_solicitud_id").val();
             solicitud.giro_comercial_id = $("#giro_comercial_hidden").val();
+            if($("input[name='recibo_oficial']").val() == 1){
+                recibo_oficial = true;
+            }else{
+                recibo_oficial = false;
+            }
+            if($("input[name='recibo_pago']").val() == 1){
+                recibo_pago = true;
+            }else{
+                recibo_pago = false;
+            }
+            solicitud.recibo_oficial = recibo_oficial;
+            solicitud.recibo_pago = recibo_pago;
             return solicitud;
         }catch(error){
             console.log(error);
@@ -4027,6 +4087,31 @@
                 }
             });
         }
+        $("input[name='recibo_oficial']").change(function(){
+            if($(this).val() == 1){
+                $("#divReciboOficial").show()
+                $("#divReciboNomina").hide()
+                objAyudaCitado.recibo_oficial = true;
+                $("#datosIdentificacionSolicitado").show()
+            }else{
+                $("#divReciboOficial").hide()
+                $("#divReciboNomina").show()
+                objAyudaCitado.recibo_oficial = false;
+                $("#datosIdentificacionSolicitado").hide()
+            }
+        });
+        $("input[name='recibo_pago']").change(function(){
+            if($(this).val() == 1){
+                $("#divSiReciboNomina").show()
+                $("#divNoReciboNomina").hide()
+                objAyudaCitado.recibo_pago = true;
+            }else{
+                $("#divSiReciboNomina").hide()
+                $("#divNoReciboNomina").show()
+                objAyudaCitado.recibo_pago = false;
+            }
+            $("#datosIdentificacionSolicitado").show()
+        });
 
 
     $('[data-toggle="tooltip"]').tooltip();

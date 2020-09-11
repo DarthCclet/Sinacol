@@ -19,7 +19,6 @@
             "nacionalidad_id":"1",
             "entidad_nacimiento_id":"01",
             "datos_laborales":{
-                "nombre_jefe_directo":"jefe",
                 "ocupacion_id":"1",
                 "nss":"",
                 "no_issste":"",

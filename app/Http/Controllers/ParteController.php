@@ -208,7 +208,6 @@ class ParteController extends Controller
      */
     public function GuardarDatoLaboral(Request $request){
         $request->validate([
-            'nombre_jefe_directo' => 'required|String',
             //'ocupacion_id' => 'required|Integer',
             //'nss' => 'required|String',
             //'no_issste' => 'required|String',
@@ -225,7 +224,6 @@ class ParteController extends Controller
             $datos_laborales = DatoLaboral::find($request->id);
             
             $datos_laborales->update([
-                'nombre_jefe_directo' => $request->nombre_jefe_directo,
                 'ocupacion_id' => $request->ocupacion_id,
                 'nss' => $request->nss,
                 //'no_issste' => $request->no_issste,
@@ -239,9 +237,6 @@ class ParteController extends Controller
                 'parte_id' => $request->parte_id,
                 'resolucion' => true,
                 'puesto' => $request->puesto,
-                'nombre_contrato' => $request->nombre_contrato,
-                'nombre_paga' => $request->nombre_paga,
-                'nombre_prestas_servicio' => $request->nombre_prestas_servicio,
                 'horario_laboral' => $request->horario_laboral,
                 'horario_comida' => $request->horario_comida,
                 'comida_dentro' => $request->comida_dentro,
@@ -252,7 +247,6 @@ class ParteController extends Controller
             ]);
         }else{
             $datos_laborales = DatoLaboral::create([
-                'nombre_jefe_directo' => $request->nombre_jefe_directo,
                 'ocupacion_id' => $request->ocupacion_id,
                 'nss' => $request->nss,
                 //'no_issste' => $request->no_issste,
@@ -266,9 +260,6 @@ class ParteController extends Controller
                 'parte_id' => $request->parte_id,
                 'resolucion' => true,
                 'puesto' => $request->puesto,
-                'nombre_contrato' => $request->nombre_contrato,
-                'nombre_paga' => $request->nombre_paga,
-                'nombre_prestas_servicio' => $request->nombre_prestas_servicio,
                 'horario_laboral' => $request->horario_laboral,
                 'horario_comida' => $request->horario_comida,
                 'comida_dentro' => $request->comida_dentro,

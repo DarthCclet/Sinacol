@@ -33,6 +33,7 @@ use App\ResolucionParteConcepto;
 use App\TerminacionBilateral;
 use App\Traits\ValidateRange;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -943,7 +944,6 @@ class AudienciaController extends Controller
                             $citados = true;
                         }
                     }
-                
                     Compareciente::create(["parte_id" => $compareciente,"audiencia_id" => $this->request->audiencia_id,"presentado" => true]);
                 }
                 if(!$solicitantes){
@@ -969,8 +969,13 @@ class AudienciaController extends Controller
                 if($solicitantes && !$citados){
                     //Constancia de no conciliacion de todos los citados 
                     $audiencia->update(array("resolucion_id"=>3,"finalizada"=>true));
-                    $solicitantes = $this->getSolicitantes($audiencia);
                     $solicitados = $this->getSolicitados($audiencia);
+                    // $audiencia_partes = AudienciaParte::where('audiencia_id',$audiencia_id)->whereHas('parte', function (Builder $query) {
+                    //     $query->where('tipo_parte_id',2)->first();
+                    // });
+
+                    // if($audiencia_partes->tipo_notificacion_id != 1){
+                    $solicitantes = $this->getSolicitantes($audiencia);
                     foreach($solicitantes as $solicitante){
                         foreach($solicitados as $solicitado){
                             $resolucionParte = ResolucionPartes::create([
@@ -986,6 +991,9 @@ class AudienciaController extends Controller
                             event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,18,7,$solicitante->parte_id,$solicitado->parte_id));
                         }
                     }
+                    // }else{
+                    //     // Se manda a ejecutar la función de agenda de audiencia
+                    // }
                 }
                 if($solicitantes){
                     $audiencia_partes = AudienciaParte::where('audiencia_id',$audiencia_id)->get();

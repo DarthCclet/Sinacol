@@ -20,7 +20,6 @@ $factory->define(DatoLaboral::class, function (Faker $faker) {
       'parte_id' => function(){
         return factory(\App\Parte::class)->create()->id;
       },
-      'nombre_jefe_directo' => $faker->randomElement(['Luis Lopez','Juana Martinez','Eduardo Sanchez','Ana Juarez']),
       'ocupacion_id' =>$ocupacion->id,
       'nss'=> $faker->randomElement(['12341234123','99879879879','83473483743','39483478347']),
       'fecha_ingreso' => $faker->date,

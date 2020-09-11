@@ -45,6 +45,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FechaAudienciaService;
+use Illuminate\Database\Eloquent\Builder;
 
 class SolicitudController extends Controller {
 
@@ -69,7 +70,7 @@ class SolicitudController extends Controller {
         $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
                 ->searchWith(Solicitud::class)
                 ->filter(false);
-
+        DB::enableQueryLog();
         // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
         if ($this->request->get('all')) {
@@ -92,6 +93,22 @@ class SolicitudController extends Controller {
             }
             if ($this->request->get('folio')) {
                 $solicitud->where('folio', $this->request->get('folio'));
+            }
+            if ($this->request->get('curp')) {
+                $curp = $this->request->get('curp');
+                $solicitud = $solicitud->whereHas('partes', function (Builder $query) use ($curp){
+                    $query->where('curp', [$curp]);
+                });
+            }
+            if ($this->request->get('nombre')) {
+                $nombre = $this->request->get('nombre');
+                $nombre = trim($nombre);
+                $nombre = str_replace(' ','&',$nombre);
+                // dd($nombre);
+                $sql = " ";
+                $solicitud = $solicitud->whereHas('partes', function (Builder $query) use ($nombre,$sql){
+                    $query->where('tipo_parte_id',1)->whereRaw("to_tsvector('spanish', unaccent(trim(coalesce(nombre_comercial,' ')||' '||coalesce(nombre,' ')||' '||coalesce(primer_apellido,' ')||' '||coalesce(segundo_apellido,' ')))) @@ to_tsquery('spanish', unaccent(?))", [$nombre]);
+                });
             }
             if ($this->request->get('Expediente')) {
                 $expediente = Expediente::where('folio', $this->request->get('Expediente'))->first();
@@ -130,6 +147,7 @@ class SolicitudController extends Controller {
             if ($this->request->get('all') || $this->request->get('paginate')) {
                 return $this->sendResponse($solicitud, 'SUCCESS');
             } else {
+                // dd(DB::getQueryLog());
                 $total = Solicitud::count();
                 $draw = $this->request->get('draw');
                 return $this->sendResponseDatatable($total, $total, $draw, $solicitud, null);
@@ -215,7 +233,6 @@ class SolicitudController extends Controller {
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
                 'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
                 'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-                'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitantes.*.nacionalidad_id,2|required',
                 'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.dato_laboral' => 'required',
@@ -240,7 +257,6 @@ class SolicitudController extends Controller {
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
                 'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
-                'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',

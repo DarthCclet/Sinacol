@@ -622,22 +622,7 @@
                     <input type="hidden" id="dato_laboral_id">
                     <input type="hidden" id="resolucion_dato_laboral">
                     <input type="hidden" id="giro_comercial_hidden">
-                    <div class="col-md-6">
-                        <input class="form-control upper" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
-                        <p class="help-block">Nombre del Jefe directo</p>
-                    </div>
-                    <div class="col-md-6">
-                        <input class="form-control upper" id="nombre_contrato" placeholder="Nombre de quien te contrato" type="text" value="">
-                        <p class="help-block">&iquest;Quien te contrato?</p>
-                    </div>
-                    <div class="col-md-6">
-                        <input class="form-control upper" id="nombre_paga" placeholder="Nombre quien te paga" type="text" value="">
-                        <p class="help-block">&iquest;Quien te paga?</p>
-                    </div>
-                    <div class="col-md-6">
-                        <input class="form-control upper" id="nombre_prestas_servicio" placeholder="Nombre de a quien le prestas tus servicios" type="text" value="">
-                        <p class="help-block">&iquest;A quien prestas el servicio?</p>
-                    </div>
+                    
                     <div class="col-md-6">
                         <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
                         <p class="help-block ">N&uacute;mero de seguro social</p>
@@ -1986,7 +1971,6 @@
                 if(data != null && data != ""){
                     $("#dato_laboral_id").val(data.id);
                     // getGiroEditar("solicitante");
-                    $("#nombre_jefe_directo").val(data.nombre_jefe_directo);
                     $("#ocupacion_id").val(data.ocupacion_id);
                     $("#nss").val(data.nss);
                     //$("#no_issste").val(data.no_issste);
@@ -1997,9 +1981,6 @@
                         $("#labora_actualmente").trigger("change");
                     }
                     $("#puesto").val(data.labora_actualmente);
-                    $("#nombre_prestas_servicio").val(data.nombre_prestas_servicio),
-                    $("#nombre_paga").val(data.nombre_paga),
-                    $("#nombre_contrato").val(data.nombre_contrato),
                     $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
                     $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
                     // console.log(data.jornada_id);
@@ -2125,10 +2106,6 @@
                 dataType:"json",
                 data:{
                     id : $("#dato_laboral_id").val(),
-                    nombre_jefe_directo : $("#nombre_jefe_directo").val(),
-                    nombre_prestas_servicio : $("#nombre_prestas_servicio").val(),
-                    nombre_paga : $("#nombre_paga").val(),
-                    nombre_contrato : $("#nombre_contrato").val(),
                     ocupacion_id : $("#ocupacion_id").val(),
                     puesto : $("#puesto").val(),
                     nss : $("#nss").val(),

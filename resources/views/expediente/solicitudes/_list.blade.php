@@ -1,4 +1,5 @@
 
+
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
@@ -6,41 +7,6 @@
     </thead>
 
 </table>
-<div id="divFilters" class="col-md-12 row" >
-    <div class="col-md-4">
-        <input class="form-control filtros" id="folio" placeholder="Folio" type="text" value="">
-        <p class="help-block needed">Folio</p>
-    </div>
-    <div class="col-md-4">
-        <input class="form-control filtros" id="Expediente" placeholder="Folio del Expediente" type="text" value="">
-        <p class="help-block needed">Expediente</p>
-    </div>
-    <div class="col-md-4">
-        <input class="form-control filtros" id="anio" placeholder="A&ntilde;o" type="text" value="">
-        <p class="help-block needed">A&ntilde;o</p>
-    </div>
-    <div class="col-md-4">
-        <input class="form-control date filtros" id="fechaRatificacion" placeholder="Fecha de ratificacion" type="text" value="">
-        <p class="help-block needed">Fecha de ratificaci&oacute;n</p>
-    </div>
-    <div class="col-md-4">
-        <input class="form-control date filtros" id="fechaRecepcion" placeholder="Fecha de recepcion" type="text" value="">
-        <p class="help-block needed">Fecha de recepci&oacute;n</p>
-    </div>
-    <div class="col-md-4">
-        <input class="form-control date filtros" id="fechaConflicto" placeholder="Fecha de conflicto" type="text" value="">
-        <p class="help-block needed">Fecha de conflicto</p>
-    </div>
-    <div class="col-md-4">
-        {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , null, ['id'=>'estatus_solicitud_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect filtros']);  !!}
-        {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
-        <p class="help-block needed">Estatus de la solicitud</p>
-    </div>
-    <div class="col-md-4">
-        <button class="btn btn-danger" type="button" id="limpiarFiltros" > <i class="fa fa-eraser"></i> Limpiar filtros</button>
-    </div>
-
-</div>
   @push('scripts')
   <script>
       var estatus_solicitudes = [];
@@ -71,6 +37,8 @@
                         d.Expediente = $("#Expediente").val(),
                         d.anio = $("#anio").val(),
                         d.estatus_solicitud_id = $("#estatus_solicitud_id").val(),
+                        d.curp = $("#curp").val(),
+                        d.nombre = $("#nombre").val(),
                         d.IsDatatableScroll = true,
                         d.loadPartes = true
                         // d.objeto_solicitud_id = $("#objeto_solicitud_id").val()
