@@ -1,6 +1,6 @@
 @extends('layouts.default')
 
-@section('title', 'Calendar')
+@section('title', 'Calendario')
 
 @include('includes.component.datatables')
 @include('includes.component.pickers')
@@ -15,8 +15,8 @@
 @section('content')
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
-        <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
-        <li class="breadcrumb-item active">Calendar</li>
+        <li class="breadcrumb-item"><a href="javascript:;">Inicio</a></li>
+        <li class="breadcrumb-item active">Calendario</li>
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->
@@ -326,7 +326,7 @@
                             }else{
                                 swal({
                                     title: 'Algo salió mal',
-                                    text: 'No se registro la audiencia',
+                                    text: 'No se registró la audiencia',
                                     icon: 'warning'
                                 });
                             }
