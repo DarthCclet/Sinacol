@@ -1,6 +1,6 @@
 @extends('layouts.default')
 
-@section('title', 'Calendar')
+@section('title', 'Calendario')
 
 @include('includes.component.datatables')
 @include('includes.component.pickers')
@@ -32,9 +32,9 @@
 @section('content')
 <!-- begin breadcrumb -->
 <ol class="breadcrumb float-xl-right">
-    <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
+    <li class="breadcrumb-item"><a href="javascript:;">Inicio</a></li>
     <li class="breadcrumb-item"><a href="javascript:;">Audiencias</a></li>
-    <li class="breadcrumb-item active">Guia Audiencia</li>
+    <li class="breadcrumb-item active">Guía Audiencia</li>
 </ol>
 <!-- end breadcrumb -->
 <!-- begin page-header -->
@@ -146,7 +146,7 @@
                                         Lo dicho en la audiencia de conciliación es confidencial y no constituye prueba en ningún procedimiento jurisdiccional.
                                     </p>
                                     <p>
-                                        <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u> “La conciliación es confidencial. Lo que se dice y se habla en esta audiencia es confidencial, no puede afectar sus derechos, ni puede ser una prueba en cualquier juicio.”.
+                                        <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u>“La conciliación es confidencial. Lo que se dice y se habla en esta audiencia es confidencial, no puede afectar sus derechos, ni puede ser una prueba en cualquier juicio.”.
                                     </p>
                                     <div >
                                         <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="paso2" name='paso2' onchange="if( $('#paso2').is(':checked')){ $('#divPaso3').show() }else{ $('#divPaso5').hide(); swal({title: 'Error',text: 'Es necesario validar la sección para continuar',icon: 'error'});}"/>
@@ -157,10 +157,10 @@
                                     <b><h5>Paso 3: Los principios y derechos en el proceso de la conciliación</h5></b>
                                     <p>
                                         <i>Para el conciliador:</i>
-                                        Explicar las características de la conciliación y los derechos de las partes en ella. Recuerde que el proceso de conciliación se realiza en conformidad con los principios constitucionales de legalidad, imparcialidad, confiabilidad, eficacia, objetividad, profesionalismo, transparencia y publicidad.
+                                        Explicar las características de la conciliación y los derechos de las partes en ella. Recuerde que el proceso de conciliación se realiza en conformidad con los principios constitucionales de legalidad, imparcialidad, confiabilidad, eficacia, objetividad, profesionalismo, transparencia y publicidad. Es importante mencionar a las partes que es en algunas ocasiones el conciliador considera necesario hablar con cada una de las partes por separado durante el proceso de negociación. Se realizan estas consultas con cada una de las partes para coadyuvar con el proceso de conciliación, conforme a los principios antes mencionados de este procedimento. 
                                     </p>
                                     <p>
-                                        <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u> “La conciliación es un proceso ágil, objetivo, imparcial, transparente y eficaz. Cada una de las partes tendrá derecho de hablar y de ser escuchada, de plantear, de negociar y de responder. Es un proceso voluntario, no se obligará a nadie a un acuerdo que no quiere. Nos trataremos todos con respeto en esta audiencia”.
+                                        <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u> “La conciliación es un proceso ágil, objetivo, imparcial, transparente y eficaz. Cada una de las partes tendrá derecho de hablar y de ser escuchada, de plantear, de negociar y de responder. Es un proceso voluntario, no se obligará a nadie a un acuerdo que no quiere. Nos trataremos todos con respeto en esta audiencia. En algún momento de la audiencia es posible que para avanzar la conciliación se tenga que hablar por separado con cada una de las partes, lo que se realiza en algunos casos con el ánimo de arreglar el conflicto, siguiendo los mismos principios mencionados de la conciliación.”.
                                     </p>
                                     <div >
                                         <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="paso3" name='paso3' onchange="if( $('#paso3').is(':checked')){ $('#divPaso4').show() }else{ $('#divPaso5').hide(); swal({title: 'Error',text: 'Es necesario validar la sección para continuar',icon: 'error'});}"/>
@@ -203,7 +203,7 @@
                             @case(3)
                                 <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
                                 <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
-                                <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
+                                <p>Al terminar las partes sus primeras manifestaciones usted debe redactar en el espacio indicado un resumen de lo dicho. Las partes deben estar de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
                                 <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
                                 <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="nextStep({{$etapa->paso}})">Continuar </button>
@@ -215,9 +215,9 @@
                                     El sistema le muestra 2 opciones de propuestas de convenio:
                                     <ol>
                                         <li>El cálculo del 100% considerando indemnización, partes proporcionales de prestaciones y prima de antigüedad. </li>
-                                        <li>El mismo cálculo con 50% de la indemnización constitucional. </li><br>
+                                        <li>El mismo cálculo con 50% de la indemnización constitucional, 50% de la prima de antigüedad y el 100% de las partes proporcionales de vacaciones, prima vacacional y aguinaldo. </li><br>
                                     </ol>
-                                    Usted puede escoger una de estas alternativas o bien modificar las tablas. Lo que deja confirmado en el sistema será la propuesta de arreglo que se mostrará en el acta de audiencia.
+                                    Usted puede escoger una de estas alternativas precargadas, la alternativa de un convenio de reinstalación, o puede escoger una propuesta que configurará con base en las negociaciones entre las partes. Al escoger la propuesta OTRA, tendrá que indicar cada una de las prestaciones que se incluirá, y el número de días o monto de cada prestación. El sistema creará una tabla para mostrar el monto de cada prestación seleccionada y el total de la propuesta. La opción que usted selecciona será la propuesta de arreglo que se mostrará en el acta de audiencia.
                                 </p>
                                 @foreach($audiencia->solicitantes as $solicitante)
                                 {{-- <pre>{{$solicitante->parte->id}}</pre> --}}
@@ -309,7 +309,7 @@
                                 @endforeach
                                 </div>
                                 <br>
-                                <p> El conciliador debe incluir una explicación y motivación breve de la propuesta configurada que fue negociada con las partes. En caso de que el acuerdo entre las partes sea por menos de la propuesta de 45 días más prestaciones, es fundamental incluir una descripción de las circunstancias específicas que explican y justifican el convenio y la cuantía acordada.</p>
+                                <p> El conciliador debe incluir una explicación y motivación breve de la propuesta que fue negociada entre las partes, acreditando que en este cao no hubo renuncia de derechos.</p>
                                 <textarea class="form-control textarea" placeholder="Comentarios ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
                                 <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="nextStep({{$etapa->paso}})">Continuar </button>
@@ -317,7 +317,7 @@
                             @case(5)
                                 <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
                                 <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
-                                <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
+                                <p>Al terminar las partes sus segundas manifestaciones, usted debe redactar en el espacio indicado un resumen de lo dicho. Las partes deben estar de acuerdo con este resumen,  que se transcribirá por sistema en el acta de audiencia. </p>
                                 <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
                                 <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="nextStep({{$etapa->paso}})">Continuar </button>
@@ -328,7 +328,6 @@
                                     <li>Convenio.</li>
                                     <li>Agendar segunda audiencia.</li>
                                     <li>Constancia de no conciliación.</li>
-                                    <li>Las terminaciones ya están cargadas en el sistema, solamente es necesario indicar el modo de terminación de la audiencia y el resultado respecto a cada par de solicitante-citado para que el sistema coloque la terminación correcta al final del acta de audiencia.</li>
                                 </ul>
                                 <div class="col-md-offset-3 col-md-6 ">
                                     <div class="form-group">
@@ -374,7 +373,7 @@
                                 </div>
                                 <div class="col-md-12" style="margin-bottom: 5%">
                                     <div >
-                                        <span class="text-muted m-l-5 m-r-20" for='switchAdicionales'>Existen elementos adicionales para el cumplimiento de prestaciones o prestaciones adicionales.</span>
+                                        <span class="text-muted m-l-5 m-r-20" for='switchAdicionales'>Señalar en este espacio las fechas de pagos diferidos con el monto a pagar en cada fecha. Se permiten fechas diferidas hasta un mes natural a partir de la fecha de convenio.</span>
                                     </div>
                                     <div >
                                     <input type="checkbox" data-render="switchery" data-theme="default" id="switchAdicionales" name='elementosAdicionales' onchange=" if($('#switchAdicionales').is(':checked')){ $('#textAdicional').show();}else{$('#textAdicional').hide();}"/>
