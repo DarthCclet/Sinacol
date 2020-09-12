@@ -5,17 +5,17 @@
             <div class="col-sm-10">
                 {!! Form::text('fecha_audiencia', isset($audiencia) ? $audiencia->fecha_audiencia : null, ['class'=>'form-control', 'id'=>'fecha_audiencia', 'placeholder'=>'Centro', 'maxlength'=>'30', 'size'=>'10', 'autofocus'=>true,'disabled'=>'disabled']) !!}
                 {!! $errors->first('centro.nombre', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block">Fecha en la que se programo la audiencia</p>
+                <p class="help-block">Fecha en la que se programó la audiencia</p>
             </div>
         </div>
     </div>
     <div class="col-md-offset-3 col-md-4 ">
         <div class="form-group">
-            <label for="nombre" class="control-label">Hora inicio</label>
+            <label for="nombre" class="control-label">Hora de inicio</label>
             <div class="col-sm-10">
                 {!! Form::text('hora_inicio', isset($audiencia) ? $audiencia->hora_inicio : null, ['class'=>'form-control', 'id'=>'hora_inicio', 'placeholder'=>'Duración', 'maxlength'=>'30', 'size'=>'10', 'autofocus'=>true,'disabled'=>'disabled']) !!}
                 {!! $errors->first('centro.duracionAudiencia', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block">Hora inicio en la que se programo la audiencia</p>
+                <p class="help-block">Hora de inicio en la que se programó la audiencia</p>
             </div>
         </div>
     </div>
@@ -25,7 +25,7 @@
             <div class="col-sm-10">
                 {!! Form::text('hora_fin', isset($audiencia) ? $audiencia->hora_fin : null, ['class'=>'form-control', 'id'=>'hora_fin', 'placeholder'=>'Duración', 'maxlength'=>'30', 'size'=>'10', 'autofocus'=>true,'disabled'=>'disabled']) !!}
                 {!! $errors->first('centro.duracionAudiencia', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block">Hora fin en la que se programo la audiencia</p>
+                <p class="help-block">Hora de termino programada para la audiencia</p>
             </div>
         </div>
     </div>

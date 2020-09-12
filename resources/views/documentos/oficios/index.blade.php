@@ -8,7 +8,7 @@
 
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
-        <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
+        <li class="breadcrumb-item"><a href="javascript:;">Inicio</a></li>
         <li class="breadcrumb-item"><a href="javascript:;">Oficios Documentos</a></li>
     </ol>
     <div class="panel panel-default">
@@ -31,7 +31,7 @@
             e.preventDefault();
             swal({
                 title: '¿Está seguro?',
-                text: 'Al oprimir el botón de aceptar se eliminará el registro',
+                text: 'Al oprimir el botón de Aceptar se eliminará el registro',
                 icon: 'warning',
                 buttons: {
                     cancel: {

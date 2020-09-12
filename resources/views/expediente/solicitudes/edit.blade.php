@@ -10,7 +10,7 @@
 @section('content')
 <!-- begin breadcrumb -->
 <ol class="breadcrumb float-xl-right">
-  <li class="breadcrumb-item"><a href="">Home</a></li>
+  <li class="breadcrumb-item"><a href="">Inicio</a></li>
   <li class="breadcrumb-item"><a href="{!! route("solicitudes.index") !!}">Solicitudes</a></li>
   <li class="breadcrumb-item"><a href="javascript:;">Editar Solicitud</a></li>
 </ol>

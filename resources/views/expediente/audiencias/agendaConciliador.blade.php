@@ -1,6 +1,6 @@
 @extends('layouts.default')
 
-@section('title', 'Calendar')
+@section('title', 'Calendario')
 
 @include('includes.component.datatables')
 @include('includes.component.pickers')
@@ -15,7 +15,7 @@
 @section('content')
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
-        <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
+        <li class="breadcrumb-item"><a href="javascript:;">Inicio</a></li>
         <li class="breadcrumb-item active"><a href="{!! route("audiencias.index") !!}">Audiencia</a></li>
         <li class="breadcrumb-item active"><a href="javascript:;">Agenda</a></li>
 

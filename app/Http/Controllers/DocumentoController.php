@@ -141,7 +141,7 @@ class DocumentoController extends Controller
     {
         
        if(!isset($request->parte) || $request->parte[0] == null || !isset($request->tipo_documento_id) || $request->tipo_documento_id[0] == null){
-            return '{ "files": [ { "error": "No se capturo tipo de documento o parte solicitada", "name": "thumb2.jpg" } ] }';
+            return '{ "files": [ { "error": "No se capturó tipo de documento o parte solicitada", "name": "thumb2.jpg" } ] }';
        }
 
         $parte = Parte::find($request->parte[0]);
@@ -173,7 +173,7 @@ class DocumentoController extends Controller
                         "clasificacion_archivo_id" => $tipoArchivo->id ,
                     ]);
                 }
-                return '{ "files": [ { "success": "Docuemnto almacenado correctamente", "error":0, "name": "'.$tipoArchivo->nombre.'.pdf" } ] }';
+                return '{ "files": [ { "success": "Documento almacenado correctamente", "error":0, "name": "'.$tipoArchivo->nombre.'.pdf" } ] }';
             }else{
                 return '{ "files": [ { "error": "Ya existe un documento para este solicitante", "name": "" } ] }';
 
@@ -183,7 +183,7 @@ class DocumentoController extends Controller
 
             return '{ "files": [ { "error": "No se pudo guardar el archivo", "name": "thumb2.jpg" } ] }';
         }
-        return '{ "files": [ { "error": "No se capturo solicitud", "name": "thumb2.jpg" } ] }';
+        return '{ "files": [ { "error": "No se capturó solicitud", "name": "thumb2.jpg" } ] }';
     }
     public function postComparece(Request $request)
     {
@@ -220,7 +220,7 @@ class DocumentoController extends Controller
                         "clasificacion_archivo_id" => $tipoArchivo->id ,
                     ]);
                 }
-                return '{ "files": [ { "success": "Docuemnto almacenado correctamente", "error":0, "name": "'.$tipoArchivo->nombre.'.pdf" } ] }';
+                return '{ "files": [ { "success": "Documento almacenado correctamente", "error":0, "name": "'.$tipoArchivo->nombre.'.pdf" } ] }';
             }else{
                 return '{ "files": [ { "error": "Ya existe un documento para este solicitante", "name": "" } ] }';
 
@@ -230,7 +230,7 @@ class DocumentoController extends Controller
 
             return '{ "files": [ { "error": "No se pudo guardar el archivo", "name": "thumb2.jpg" } ] }';
         }
-        return '{ "files": [ { "error": "No se capturo solicitud", "name": "thumb2.jpg" } ] }';
+        return '{ "files": [ { "error": "No se capturó solicitud", "name": "thumb2.jpg" } ] }';
     }
     public function getFile($id){
         $documento = Documento::find($id);

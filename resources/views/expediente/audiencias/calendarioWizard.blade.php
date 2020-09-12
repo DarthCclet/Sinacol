@@ -17,7 +17,7 @@
             <div class="modal-body">
                 <div class="alert alert-muted">
                     - Selecciona el conciliador y la sala donde se celebrará la audiencia<br>
-                    - La fecha limite para notificar será 5 días habiles previo a la fecha de audiencia (<span id="lableFechaInicio"></span>>)
+                    - La fecha límite para notificar será 5 días hábiles previo a la fecha de audiencia (<span id="lableFechaInicio"></span>>)
                 </div>
                 <div id="divAsignarUno">
                     <div class="col-md-12 row">
@@ -139,17 +139,17 @@
                                     <td>
                                         <div class="custom-control custom-radio">
                                             <input type="radio" id="radioNotificacionA{{$parte->id}}" value="1" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio al citado(s)</label>
+                                            <label class="custom-control-label" for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega el citatorio al citado(s)</label>
                                         </div>
                                         @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
                                         <div class="custom-control custom-radio">
                                             <input type="radio" id="radioNotificacionB{{$parte->id}}" value="2" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Un notificador del centro entrega citatorio al citado(s)</label>
+                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Un notificador del centro entrega el citatorio al citado(s)</label>
                                         </div>
                                         @else
                                         <div class="custom-control custom-radio">
                                             <input type="radio" id="radioNotificacionB{{$parte->id}}" value="3" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Agendar cita con el notificador para entrega de citatorio</label>
+                                            <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Agendar cita con el notificador para entrega del citatorio</label>
                                         </div>
                                         @endif
                                     </td>
@@ -398,7 +398,7 @@
                             }else{
                                 swal({
                                     title: 'Algo salió mal',
-                                    text: 'No se registro la audiencia',
+                                    text: 'No se registró la audiencia',
                                     icon: 'warning'
                                 });
                             }

@@ -33,7 +33,7 @@
 
     <!-- begin breadcrumb -->
     <ol class="breadcrumb float-xl-right">
-        <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
+        <li class="breadcrumb-item"><a href="javascript:;">Inicio</a></li>
         <li class="breadcrumb-item active"><a href="{!! route("audiencias.index") !!}">Audiencia</a></li>
         <li class="breadcrumb-item active"><a href="javascript:;">Editar Audiencia</a></li>
 
@@ -80,7 +80,7 @@
                 <div class="row">
                     <div class="col-md-12">
 
-                    El Solicitante de está audiencia ha solicitado su reprogramación, revizar el justificante y determinar si debe ser aprobada o negada<br>
+                    El Solicitante de esta audiencia ha solicitado su reprogramación, revisar el justificante y determinar si debe ser aprobada o negada.<br>
                     </div>
                     <div class="col-md-12">
                     <div class="pull-right">
@@ -131,11 +131,11 @@
                                                     <table class="table table-striped table-bordered table-td-valign-middle" id="table">
                                                         <thead>
                                                             <tr>
-                                                                <th class="text-nowrap">Tipo Parte</th>
+                                                                <th class="text-nowrap">Tipo parte</th>
                                                                 <th class="text-nowrap">Nombre</th>
                                                                 <th class="text-nowrap">Primer apellido</th>
                                                                 <th class="text-nowrap">Segundo apellido</th>
-                                                                <th class="text-nowrap">Representante Legal</th>
+                                                                <th class="text-nowrap">Representante legal</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>

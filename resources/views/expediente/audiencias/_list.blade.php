@@ -25,7 +25,7 @@
     </div>
     <div class="col-md-4">
         <input class="form-control date filtros" id="fechaAudiencia" placeholder="Fecha de audiencia" type="text" value="">
-        <p class="help-block needed">Fecha de Audiencia</p>
+        <p class="help-block needed">Fecha de audiencia</p>
     </div>
     <div>
         <input type="hidden" class="filtros"  id="estatus_audiencia" value=""  />
