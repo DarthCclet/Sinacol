@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Audiencia;
 use Illuminate\Http\Request;
 use App\Parte;
 use App\Contacto;
 use App\TipoContacto;
 use App\AudienciaParte;
+use App\ClasificacionArchivo;
 use App\DatoLaboral;
 use App\Domicilio;
 use App\Filters\ParteFilter;
 use App\Solicitud;
+use Exception;
+use Illuminate\Support\Facades\Storage;
 use Validator;
 
 class ParteController extends Controller
@@ -180,6 +184,7 @@ class ParteController extends Controller
             foreach($representantes as $key => $representante){
                 foreach($representante->contactos as $key2 => $contactos){
                     $representantes[$key]->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
+                    $representantes[$key]->documentos;
                     
                 }
             }
@@ -275,6 +280,7 @@ class ParteController extends Controller
     
     
     function GuardarRepresentanteLegal(Request $request){
+        $exito = true;
         if($request->parte_id != "" && $request->parte_id != null){
             $parte = Parte::find($request->parte_id);
             $parte->update([
@@ -289,6 +295,51 @@ class ParteController extends Controller
                 "feha_instrumento" => $request->feha_instrumento,
                 "detalle_instrumento" => $request->detalle_instrumento
             ]);
+            // se actualiza doc
+            if(isset($request->fileIdentificacion)){
+                $parte = Parte::find($request->parte_id);
+                $audiencia = Audiencia::find($request->audiencia_id);
+                
+                try{
+                    if(count($parte->documentos) > 0){
+                        $parte->documentos[0]->delete();
+                    }
+                    if(count($parte->documentos) == 0){
+                        $existeDocumento = $parte->documentos;
+                        if($audiencia != null){
+                            $archivo = $request->fileIdentificacion;
+                            $audiencia_id = $audiencia->id;
+                            $clasificacion_archivo= $request->tipo_documento_id;
+                            $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia_id;
+                            Storage::makeDirectory($directorio);
+                            $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                            
+                            $path = $archivo->store($directorio);
+                            
+                            $documento = $parte->documentos()->create([
+                                "nombre" => str_replace($directorio."/", '',$path),
+                                "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                "descripcion" => $tipoArchivo->nombre,
+                                "ruta" => $path,
+                                "tipo_almacen" => "local",
+                                "uri" => $path,
+                                "longitud" => round(Storage::size($path) / 1024, 2),
+                                "firmado" => "false",
+                                "clasificacion_archivo_id" => $tipoArchivo->id ,
+                            ]);
+                            $exito = true;
+                        }else{
+                            $exito = false;
+                            
+                        }
+                    }
+                    
+                }catch(Exception $e){
+                    $exito = false;
+                }
+            }
+            // se actualiza doc
         }else{
             $parte_representada = Parte::find($request->parte_representada_id);
             $parte = Parte::create([
@@ -319,8 +370,50 @@ class ParteController extends Controller
             if(!isset($request->fuente_solicitud)){
                 AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
             }
+            // se agrega doc
+            $parte = Parte::find($request->parte_id);
+            $audiencia = Audiencia::find($request->audiencia_id);
+            
+            try{
+                if(count($parte->documentos) == 0){
+                    $existeDocumento = $parte->documentos;
+                    if($audiencia != null){
+                        $archivo = $request->fileIdentificacion;
+                        $audiencia_id = $audiencia->id;
+                        $clasificacion_archivo= $request->tipo_documento_id;
+                        $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia_id;
+                        Storage::makeDirectory($directorio);
+                        $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                        
+                        $path = $archivo->store($directorio);
+                        
+                        $documento = $parte->documentos()->create([
+                            "nombre" => str_replace($directorio."/", '',$path),
+                            "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                            // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                            "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
+                            "ruta" => $path,
+                            "tipo_almacen" => "local",
+                            "uri" => $path,
+                            "longitud" => round(Storage::size($path) / 1024, 2),
+                            "firmado" => "false",
+                            "clasificacion_archivo_id" => $tipoArchivo->id ,
+                        ]);
+                        $exito = true;
+                    }else{
+                        $exito = false;
+                        
+                    }
+                }
+                
+            }catch(Exception $e){
+                $exito = false;
+            }
+            // se actualiza doc
         }
-        return $parte;
+        if($exito){
+            return $parte;
+        }
     }
     
     public function AgregarContactoRepresentante(Request $request){

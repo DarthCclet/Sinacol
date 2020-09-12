@@ -948,7 +948,7 @@
                                 <dl class="m-b-0">
                                     <dt class="text-inverse">Nombre del documento:</dt>
                                     <dd class="name">{%=file.name%}</dd>
-                                    <dt class="text-inverse m-t-10">File Size:</dt>
+                                    <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>
                                     <dd class="size">Processing...</dd>
                                 </dl>
                             </div>
@@ -998,7 +998,7 @@
                             {% if (!i) { %}
                                 <button class="btn btn-default cancel width-100 p-r-20">
                                     <i class="fa fa-trash fa-fw text-muted"></i>
-                                    <span>Cancel</span>
+                                    <span>Cancelar</span>
                                 </button>
                             {% } %}
                         </td>
@@ -1033,7 +1033,7 @@
                                             <span>{%=file.name%}</span>
                                         {% } %}
                                     </dd>
-                                    <dt class="text-inverse m-t-10">File Size:</dt>
+                                    <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>
                                     <dd class="size">{%=o.formatFileSize(file.size)%}</dd>
                                 </dl>
                                 {% if (file.error) { %}
@@ -1056,7 +1056,7 @@
                             {% } else { %}
                                 <button class="btn btn-default cancel width-100 m-r-3 p-r-20">
                                     <i class="fa fa-trash pull-left fa-fw text-muted m-t-2"></i>
-                                    <span>Cancel</span>
+                                    <span>Cancelar</span>
                                 </button>
                             {% } %}
                         </td>
@@ -3454,7 +3454,7 @@
                     '            <dl class="m-b-0">'+
                     '                <dt class="text-inverse">Nombre del documento:</dt>'+
                     '                <dd class="name">'+file.name+'</dd>'+
-                    '                <dt class="text-inverse m-t-10">File Size:</dt>'+
+                    '                <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>'+
                     '                <dd class="size">Processing...</dd>'+
                     '            </dl>'+
                     '        </div>'+
@@ -3501,7 +3501,7 @@
                     '    <td nowrap>'+
                     '            <button class="btn btn-default cancel width-100 p-r-20">'+
                     '                <i class="fa fa-trash fa-fw text-muted"></i>'+
-                    '                <span>Cancel</span>'+
+                    '                <span>Cancelar</span>'+
                     '            </button>'+
                     '    </td>'+
                     '</tr>');
@@ -4017,7 +4017,7 @@
                                     '            <dl class="m-b-0">'+
                                     '                <dt class="text-inverse">Nombre del documento:</dt>'+
                                     '                <dd class="name">'+file.name+'</dd>'+
-                                    '                <dt class="text-inverse m-t-10">File Size:</dt>'+
+                                    '                <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>'+
                                     '                <dd class="size">Processing...</dd>'+
                                     '            </dl>'+
                                     '        </div>'+
@@ -4068,7 +4068,7 @@
                                     '    <td nowrap>'+
                                     '            <button class="btn btn-default cancel width-100 p-r-20">'+
                                     '                <i class="fa fa-trash fa-fw text-muted"></i>'+
-                                    '                <span>Cancel</span>'+
+                                    '                <span>Cancelar</span>'+
                                     '            </button>'+
                                     '    </td>'+
                                     '</tr>';

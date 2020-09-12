@@ -535,6 +535,28 @@
                             <option value="">-- Selecciona un género</option>
                         </select>
                     </div>
+                    <div class="col-md-12 row">
+                        <div class="col-md-6">
+                            Documento de identificaci&oacute;n
+                            <span class="btn btn-primary fileinput-button m-r-3">
+                                <i class="fa fa-fw fa-plus"></i>
+                                <span>Seleccionar identificaci&oacute;n</span>
+                                <input type="file" id="fileIdentificacion" name="files">
+                            </span>
+                            <p style="margin-top: 1%;" id="labelIdentifRepresentante"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="clasificacion_archivo_id_representante" class="control-label">Tipo de documento</label>
+                            <select class="form-control catSelect" required id="tipo_documento_id" name="tipo_documento_id">
+                                <option value="">Seleccione una opci&oacute;n</option>
+                                @if(isset($clasificacion_archivo))
+                                    @foreach($clasificacion_archivo as $clasificacion)
+                                        <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <hr>
                 <h5>Datos de comprobante como representante legal</h5>
@@ -1015,7 +1037,7 @@
                         <dl class="m-b-0">
                             <dt class="text-inverse">Nombre del documento:</dt>
                             <dd class="name">{%=file.name%}</dd>
-                            <dt class="text-inverse m-t-10">File Size:</dt>
+                            <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo::</dt>
                             <dd class="size">Processing...</dd>
                         </dl>
                     </div>
@@ -1063,7 +1085,7 @@
                     {% if (!i) { %}
                         <button class="btn btn-default cancel width-100 p-r-20">
                             <i class="fa fa-trash fa-fw text-muted"></i>
-                            <span>Cancel</span>
+                            <span>Canceal</span>
                         </button>
                     {% } %}
                 </td>
@@ -1096,7 +1118,7 @@
                                     <span>{%=file.name%}</span>
                                 {% } %}
                             </dd>
-                            <dt class="text-inverse m-t-10">File Size:</dt>
+                            <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo::</dt>
                             <dd class="size">{%=o.formatFileSize(file.size)%}</dd>
                         </dl>
                         {% if (file.error) { %}
@@ -1119,7 +1141,7 @@
                     {% } else { %}
                         <button class="btn btn-default cancel width-100 m-r-3 p-r-20">
                             <i class="fa fa-trash pull-left fa-fw text-muted m-t-2"></i>
-                            <span>Cancel</span>
+                            <span>Cancelar</span>
                         </button>
                     {% } %}
                 </td>
@@ -1473,7 +1495,7 @@
                                 closeModal: true
                             },
                             confirm: {
-                                text: 'Si',
+                                text: 'Sí',
                                 value: true,
                                 visible: true,
                                 className: 'btn btn-warning',
@@ -1654,6 +1676,13 @@
                     $("#detalle_instrumento").val(data.detalle_instrumento);
                     $("#parte_id").val(data.id);
                     listaContactos = data.contactos;
+                    if(data.documentos.length > 0){
+                        $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+data.documentos[0].descripcion);
+                        $("#tipo_documento_id").val(data.documentos[0].clasificacion_archivo_id).trigger('change');
+                    }else{
+                        $("#tipo_documento_id").val("").trigger("change");
+                        $("#labelIdentifRepresentante").html("");
+                    }
                 }else{
                     $("#curp").val("");
                     $("#nombre").val("");
@@ -1665,6 +1694,8 @@
                     $("#feha_instrumento").val("");
                     $("#detalle_instrumento").val("");
                     $("#parte_id").val("");
+                    $("#tipo_documento_id").val("").trigger("change");
+                    $("#labelIdentifRepresentante").html("");
                     listaContactos = [];
                 }
                 $("#tipo_contacto_id").val("").trigger("change");
@@ -1697,7 +1728,7 @@
                                     '            <dl class="m-b-0">'+
                                     '                <dt class="text-inverse">Nombre del documento:</dt>'+
                                     '                <dd class="name">'+file.name+'</dd>'+
-                                    '                <dt class="text-inverse m-t-10">File Size:</dt>'+
+                                    '                <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo::</dt>'+
                                     '                <dd class="size">Processing...</dd>'+
                                     '            </dl>'+
                                     '        </div>'+
@@ -1749,7 +1780,7 @@
                                     '    <td nowrap>'+
                                     '            <button class="btn btn-default cancel width-100 p-r-20">'+
                                     '                <i class="fa fa-trash fa-fw text-muted"></i>'+
-                                    '                <span>Cancel</span>'+
+                                    '                <span>Cancelar</span>'+
                                     '            </button>'+
                                     '    </td>'+
                                     '</tr>';
@@ -1865,29 +1896,54 @@
         $("#modal-propuesta-convenio").modal('hide')
         // formarTablaPropuestaConvenio();
     });
-
+    $("#fileIdentificacion").change(function(e){
+        $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+    });
     $("#btnGuardarRepresentante").on("click",function(){
         if(!validarRepresentante()){
+            
+            var formData = new FormData(); // Currently empty
+            if($("#fileIdentificacion").val() != ""){
+                formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
+            }
+            formData.append('nombre', $("#nombre").val());
+            formData.append('curp', $("#curp").val());
+            formData.append('primer_apellido', $("#primer_apellido").val());
+            formData.append('segundo_apellido', $("#segundo_apellido").val());
+            formData.append('fecha_nacimiento', dateFormat($("#fecha_nacimiento").val()));
+            formData.append('genero_id', $("#genero_id").val());
+            formData.append('clasificacion_archivo_id', $("#clasificacion_archivo_id_representante").val());
+            formData.append('feha_instrumento', dateFormat($("#feha_instrumento").val()));
+            formData.append('detalle_instrumento',$("#detalle_instrumento").val());
+            formData.append('parte_id', $("#parte_id").val());
+            formData.append('parte_representada_id', $("#parte_representada_id").val());
+            formData.append('audiencia_id', $("#audiencia_id").val());
+            formData.append('tipo_documento_id', $("#tipo_documento_id").val());
+            formData.append('listaContactos', JSON.stringify(listaContactos));
+            formData.append('_token', "{{ csrf_token() }}");
+            // {
+            //     curp:$("#curp").val(),
+            //     nombre:$("#nombre").val(),
+            //     primer_apellido:$("#primer_apellido").val(),
+            //     segundo_apellido:$("#segundo_apellido").val(),
+            //     fecha_nacimiento:dateFormat($("#fecha_nacimiento").val()),
+            //     genero_id:$("#genero_id").val(),
+            //     clasificacion_archivo_id:$("#clasificacion_archivo_id_representante").val(),
+            //     feha_instrumento:dateFormat($("#feha_instrumento").val()),
+            //     detalle_instrumento:$("#detalle_instrumento").val(),
+            //     parte_id:$("#parte_id").val(),
+            //     parte_representada_id:$("#parte_representada_id").val(),
+            //     audiencia_id:$("#audiencia_id").val(),
+            //     listaContactos:listaContactos,
+            //     _token:"{{ csrf_token() }}"
+            // }
             $.ajax({
                 url:"/partes/representante",
                 type:"POST",
                 dataType:"json",
-                data:{
-                    curp:$("#curp").val(),
-                    nombre:$("#nombre").val(),
-                    primer_apellido:$("#primer_apellido").val(),
-                    segundo_apellido:$("#segundo_apellido").val(),
-                    fecha_nacimiento:dateFormat($("#fecha_nacimiento").val()),
-                    genero_id:$("#genero_id").val(),
-                    clasificacion_archivo_id:$("#clasificacion_archivo_id_representante").val(),
-                    feha_instrumento:dateFormat($("#feha_instrumento").val()),
-                    detalle_instrumento:$("#detalle_instrumento").val(),
-                    parte_id:$("#parte_id").val(),
-                    parte_representada_id:$("#parte_representada_id").val(),
-                    audiencia_id:$("#audiencia_id").val(),
-                    listaContactos:listaContactos,
-                    _token:"{{ csrf_token() }}"
-                },
+                processData: false,
+                contentType: false,
+                data:formData,
                 success:function(data){
                     if(data != null && data != ""){
                         swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
@@ -1932,6 +1988,12 @@
         if($("#clasificacion_archivo_id_representante").val() == ""){
             $("#clasificacion_archivo_id_representante").prev().css("color","red");
             error = true;
+        }
+        if($("#fileIdentificacion").val() != ""){
+            if($("#tipo_documento_id").val() == "" ){
+                $("#tipo_documento_id").prev().css("color","red");
+                error = true;
+            }
         }
         if($("#feha_instrumento").val() == ""){
             $("#feha_instrumento").prev().css("color","red");
@@ -2270,7 +2332,7 @@
                                 closeModal: true
                             },
                             confirm: {
-                                text: 'Si',
+                                text: 'Sí',
                                 value: true,
                                 visible: true,
                                 className: 'btn btn-warning',
@@ -2359,7 +2421,7 @@
                                 closeModal: true
                             },
                             confirm: {
-                                text: 'Si',
+                                text: 'Sí',
                                 value: true,
                                 visible: true,
                                 className: 'btn btn-warning',
@@ -2401,7 +2463,7 @@
                             closeModal: true
                         },
                         confirm: {
-                            text: 'Si',
+                            text: 'Sí',
                             value: true,
                             visible: true,
                             className: 'btn btn-warning',
