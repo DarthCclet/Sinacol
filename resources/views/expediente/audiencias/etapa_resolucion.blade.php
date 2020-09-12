@@ -1671,7 +1671,7 @@
                     $("#segundo_apellido").val(data.segundo_apellido);
                     $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
                     $("#genero_id").val(data.genero_id).trigger("change");
-                    $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).change();
+                    $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).trigger('change');
                     $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
                     $("#detalle_instrumento").val(data.detalle_instrumento);
                     $("#parte_id").val(data.id);

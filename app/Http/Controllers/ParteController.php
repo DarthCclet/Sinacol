@@ -301,10 +301,12 @@ class ParteController extends Controller
                 $audiencia = Audiencia::find($request->audiencia_id);
                 
                 try{
+                    $deleted = false;
                     if(count($parte->documentos) > 0){
                         $parte->documentos[0]->delete();
+                        $deleted = true;
                     }
-                    if(count($parte->documentos) == 0){
+                    if(count($parte->documentos) == 0 || $deleted){
                         $existeDocumento = $parte->documentos;
                         if($audiencia != null){
                             $archivo = $request->fileIdentificacion;
