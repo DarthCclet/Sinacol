@@ -362,7 +362,8 @@ class ParteController extends Controller
                 "parte_representada_id" => $request->parte_representada_id,
                 "representante" => true
             ]);
-            foreach($request->listaContactos as $contacto){
+            $listaContactos = json_decode($request->listaContactos);
+            foreach($listaContactos as $contacto){
                 $parte->contactos()->create([
                     "contacto" => $contacto["contacto"],
                     "tipo_contacto_id" => $contacto["tipo_contacto_id"],
