@@ -66,7 +66,6 @@
             <div class="col-md-4">
                 <button class="btn btn-danger" type="button" id="limpiarFiltros" > <i class="fa fa-eraser"></i> Limpiar filtros</button>
             </div>
-        
         </div>
         <div>
             
@@ -74,7 +73,7 @@
         <div style="float: left;">
             <label class="col-md-12"> Filtros</label>
             <button class="btn btn-primary pull-right m-2" onclick="filtros()">Mas filtros</button>
-            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(3).trigger('change');" >Terminadas</button>
+            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(3).trigger('change');" >Concluidas</button>
             <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(2).trigger('change');">Ratificadas</button>
             <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(1).trigger('change');">Sin Ratificar</button>
             <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val('').trigger('change');">Todas</button>
