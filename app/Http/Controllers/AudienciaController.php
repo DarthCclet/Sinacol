@@ -84,12 +84,12 @@ class AudienciaController extends Controller
             if($this->request->get('estatus_audiencia')){
                 if($this->request->get('estatus_audiencia') == 2){
                     $audiencias->where('finalizada',true);
-                    $date = Carbon::now();
-                    $audiencias->where('fecha_audiencia',"<=",$date)->orderBy('fecha_audiencia','desc');
+                    // $date = Carbon::now();
+                    // $audiencias->where('fecha_audiencia',"<=",$date)->orderBy('fecha_audiencia','desc');
                 }else if($this->request->get('estatus_audiencia') == 1){
                     $audiencias->where('finalizada',false);
-                    $date = Carbon::now();
-                    $audiencias->where('fecha_audiencia',">=",$date)->orderBy('fecha_audiencia','asc');
+                    // $date = Carbon::now();
+                    // $audiencias->where('fecha_audiencia',">=",$date)->orderBy('fecha_audiencia','asc');
                 }
             }
             if($this->request->get('expediente_id') != ""){
