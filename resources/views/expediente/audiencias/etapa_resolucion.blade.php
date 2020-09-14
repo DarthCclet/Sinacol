@@ -1676,7 +1676,7 @@
                     $("#detalle_instrumento").val(data.detalle_instrumento);
                     $("#parte_id").val(data.id);
                     listaContactos = data.contactos;
-                    if(data.documentos.length > 0){
+                    if(data.documentos && data.documentos.length > 0){
                         $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+data.documentos[0].descripcion);
                         $("#tipo_documento_id").val(data.documentos[0].clasificacion_archivo_id).trigger('change');
                     }else{

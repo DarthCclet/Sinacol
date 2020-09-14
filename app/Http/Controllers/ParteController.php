@@ -14,6 +14,7 @@ use App\Domicilio;
 use App\Filters\ParteFilter;
 use App\Solicitud;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Validator;
 
@@ -280,6 +281,7 @@ class ParteController extends Controller
     
     
     function GuardarRepresentanteLegal(Request $request){
+        DB::beginTransaction();
         $exito = true;
         if($request->parte_id != "" && $request->parte_id != null){
             $parte = Parte::find($request->parte_id);
@@ -355,6 +357,7 @@ class ParteController extends Controller
                 "segundo_apellido" => $request->segundo_apellido,
                 "fecha_nacimiento" => $request->fecha_nacimiento,
                 "genero_id" => $request->genero_id,
+                "clasificacion_archivo_id" => $request->clasificacion_archivo_id,
                 "detalle_instrumento" => $request->detalle_instrumento,
                 "genero_id" => $request->genero_id,
                 "feha_instrumento" => $request->feha_instrumento,
@@ -365,18 +368,18 @@ class ParteController extends Controller
             $listaContactos = json_decode($request->listaContactos);
             foreach($listaContactos as $contacto){
                 $parte->contactos()->create([
-                    "contacto" => $contacto["contacto"],
-                    "tipo_contacto_id" => $contacto["tipo_contacto_id"],
+                    "contacto" => $contacto->contacto,
+                    "tipo_contacto_id" => $contacto->tipo_contacto_id,
                 ]);
             }
+            
             // Creamos la relacion en audiencias_partes
             if(!isset($request->fuente_solicitud)){
                 AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
             }
             // se agrega doc
-            $parte = Parte::find($request->parte_id);
+            // $parte = $parte_representada;
             $audiencia = Audiencia::find($request->audiencia_id);
-            
             try{
                 if(count($parte->documentos) == 0){
                     $existeDocumento = $parte->documentos;
@@ -394,7 +397,7 @@ class ParteController extends Controller
                             "nombre" => str_replace($directorio."/", '',$path),
                             "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                             // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                            "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
+                            "descripcion" => $tipoArchivo->nombre,
                             "ruta" => $path,
                             "tipo_almacen" => "local",
                             "uri" => $path,
@@ -411,11 +414,17 @@ class ParteController extends Controller
                 
             }catch(Exception $e){
                 $exito = false;
+                
             }
             // se actualiza doc
         }
         if($exito){
+            DB::commit();
             return $parte;
+        }else{
+            DB::rollback();
+            return $this->sendError('Error al guardar los correos', 'Error');
+
         }
     }
     
