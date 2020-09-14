@@ -2429,9 +2429,8 @@
     *@argument key posicion de array a eliminar
     */
     function eliminarSolicitante(key){
-        $("#paso1").click();
         if(arraySolicitantes[key].id == ""){
-            arraySolicitantes = arraySolicitantes.splice(key,1);
+            arraySolicitantes.splice(key,1);
         }else{
             arraySolicitantes[key].activo = 0;
         }
@@ -2468,7 +2467,6 @@
     * @argument key posicion de array a eliminar
     */
     function eliminarSolicitado(key){
-        alert(key);
         if(arraySolicitados[key].id == ""){
             arraySolicitados.splice(key,1);
         }else{
