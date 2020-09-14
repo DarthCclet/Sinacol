@@ -109,7 +109,7 @@
                         "render": function (data, type, row) {
                             var html = "";
                             if(row[7] == true){
-                                html = "Finalizada";
+                                html = "Concluida";
                             }else{
                                 html = "Pendiente";
                             }

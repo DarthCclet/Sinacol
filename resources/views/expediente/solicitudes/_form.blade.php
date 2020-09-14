@@ -717,7 +717,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div><h4>Solicitantes</h4></div>
+                        <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#paso1').click()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
                         <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                             <table class="table table-bordered" >
                                 <thead>
@@ -732,7 +732,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div><h4>Citados</h4></div>
+                        <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#paso2').click()"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
                         <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                             <table class="table table-bordered" >
                                 <thead>

@@ -44,7 +44,7 @@
     <hr class="red">
     <!-- end page-header -->
     <!-- begin panel -->
-    <a href="{!! route('audiencias.index') !!}" class="btn btn-primary btn-sm pull-right"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
+    {{-- <a href="{!! route('audiencias.index') !!}" class="btn btn-primary btn-sm pull-right"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a> --}}
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a href="#default-tab-1" data-toggle="tab" class="nav-link active">
@@ -127,8 +127,8 @@
                                         @switch($etapa->paso)
                                             @case(1)
                                                 <p>Comparecientes</p>
-                                                <div class="col-md-offset-3 col-md-12 ">
-                                                    <table class="table table-striped table-bordered table-td-valign-middle" id="table">
+                                                <div class=" col-md-12 ">
+                                                    <table style="font-size: small;" class="table table-striped table-bordered table-td-valign-middle table-responsive" id="table">
                                                         <thead>
                                                             <tr>
                                                                 <th class="text-nowrap">Tipo parte</th>

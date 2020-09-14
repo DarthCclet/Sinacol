@@ -72,8 +72,8 @@
                         @switch($etapa->paso)
                             @case(1)
                                 <p>Comparecientes</p>
-                                <div class="col-md-offset-3 col-md-12 ">
-                                    <table class="table table-striped table-bordered table-td-valign-middle">
+                                <div class="col-md-12 ">
+                                    <table style="font-size: small;" class="table table-striped table-bordered table-td-valign-middle table-responsive">
                                         <thead>
                                             <tr>
                                                 <th class="text-nowrap">Tipo Parte</th>

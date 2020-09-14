@@ -27,7 +27,7 @@
         <div style="float: left;">
             <label class="col-md-12"> Filtrar</label>
             <button class="btn btn-primary pull-right" onclick="$('#estatus_audiencia').val(1).trigger('change');" >Pendientes</button>
-            <button class="btn btn-primary pull-right" onclick="$('#estatus_audiencia').val(2).trigger('change');">Finalizadas</button>
+            <button class="btn btn-primary pull-right" onclick="$('#estatus_audiencia').val(2).trigger('change');">Concluidas</button>
         </div>
         <!-- end panel-heading -->
         <!-- begin panel-body -->
