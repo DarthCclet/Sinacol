@@ -73,13 +73,12 @@
                             @case(1)
                                 <p>Comparecientes</p>
                                 <div class="col-md-12 ">
-                                    <table style="font-size: small;" class="table table-striped table-bordered table-td-valign-middle table-responsive">
+                                    <table style="font-size: small;" class="table table-striped table-bordered table-td-valign-middle">
                                         <thead>
                                             <tr>
                                                 <th class="text-nowrap">Tipo Parte</th>
                                                 <th class="text-nowrap">Nombre de la parte</th>
-                                                <th class="text-nowrap" style="width: 10%;">Representante Legal</th>
-                                                <th class="text-nowrap" style="width: 10%;">Datos Laborales</th>
+                                                <th class="text-nowrap" >Accion</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -94,17 +93,15 @@
                                                     @endif
                                                     <td>
                                                         @if(($parte->tipo_persona_id == 2) || ($parte->tipo_parte_id == 2 && $parte->tipo_persona_id == 1))
-                                                        <div style="display: inline-block;">
-                                                            <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar">
+                                                        <div class="md-2" style="display: inline-block;">
+                                                            <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante Legal" data-toggle="tooltip" data-placement="top">
                                                                 <i class="fa fa-plus"></i>
                                                             </button>
                                                         </div>
                                                         @endif
-                                                    </td>
-                                                    <td>
                                                         @if($parte->tipo_parte_id == 1)
-                                                        <div style="display: inline-block;">
-                                                            <button onclick="DatosLaborales({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Datos Laborales">
+                                                        <div class="md-2" style="display: inline-block;">
+                                                            <button onclick="DatosLaborales({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Verificar Datos Laborales" data-toggle="tooltip" data-placement="top">
                                                                 <i class="fa fa-briefcase"></i>
                                                             </button>
                                                         </div>
@@ -2822,6 +2819,7 @@
     function formatNumberTimer(n){
         return n > 9 ? "" + n: "0" + n;
     }
+    $('[data-toggle="tooltip"]').tooltip();
 </script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush
