@@ -70,18 +70,10 @@
                 </span>
             </a>
         </li>
-        <li id="paso4" class="step-4">
-            <a href="#step-4">
-
-                <span class="">
-                    {{-- Excepci&oacute;n
-                    <small>Casos de excepci&oacute;n</small> --}}
-                </span>
-            </a>
-        </li>
+       
 
         <!-- El paso 5 Es para asignar Audiencias -->
-        <li class="step-5">
+        {{-- <li class="step-5">
             <a id="paso5" href="#step-5">
 
                 <span class="">
@@ -89,10 +81,10 @@
                     <small>Audiencias de conciliación</small>
                 </span>
             </a>
-        </li>
+        </li> --}}
 
         <!-- El paso 5 Es para asignar Audiencias -->
-        <li class="step-6">
+        {{-- <li class="step-6">
             <a id="paso6" href="#step-6">
 
                 <span class="">
@@ -100,9 +92,9 @@
                     <small>Historial de acciones</small>
                 </span>
             </a>
-        </li>
+        </li> --}}
         <!-- El paso 5 Es para asignar Audiencias -->
-        <li id="paso7" class="step-7">
+        {{-- <li id="paso7" class="step-7">
             <a href="#step-7">
 
                 <span class="">
@@ -110,7 +102,7 @@
                     <small>Documentos del expediente</small>
                 </span>
             </a>
-        </li>
+        </li> --}}
     </ul>
     <!-- end wizard-step -->
     <!-- begin wizard-content -->
@@ -421,6 +413,7 @@
                         </div>
                     </div>
                 </div>
+                <button class="btn btn-primary" style="float: right; margin-top: 2%;" type="button" onclick="$('#wizard').smartWizard('goToStep', 2);" > <i class="fa fa-arrow-right"></i> Continuar a solicitud</button>
                 <!-- end row -->
             </fieldset>
             <!-- end fieldset -->
@@ -674,7 +667,7 @@
                             </div>
 
                         </div>
-                        <button class="btn btn-primary" style="float: right; margin-top: 2%;" type="button" onclick="$('#paso3').click()" > <i class="fa fa-arrow-right"></i> Continuar a solicitud</button>
+                        <button class="btn btn-primary" style="float: right; margin-top: 2%;" type="button" onclick="$('#wizard').smartWizard('goToStep', 2);" > <i class="fa fa-arrow-right"></i> Continuar a solicitud</button>
                     </div>
                 </div>
                 <!-- end row -->
@@ -717,7 +710,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#paso1').click()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
+                        <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
                         <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                             <table class="table table-bordered" >
                                 <thead>
@@ -732,7 +725,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#paso2').click()"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
+                        <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1);"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
                         <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                             <table class="table table-bordered" >
                                 <thead>
@@ -775,7 +768,7 @@
         </div>
         <!-- end step-3 -->
         <!-- begin step-4 -->
-        <div id="step-4">
+        {{-- <div id="step-4">
             <div class="row">
                 @if (isset($audiencias))
                 <div id="divGruposPrioritarios" class="col-md-12" >
@@ -812,10 +805,10 @@
                 @endif
 
             </div>
-        </div>
+        </div> --}}
         <!-- end step-4 -->
         <!-- begin step-5 -->
-        <div id="step-5">
+        {{-- <div id="step-5">
             @if (isset($audiencias))
             <div class="row">
                 <div class="col-md-12">
@@ -830,10 +823,10 @@
             <div> <h1> Audiencia disponible despues de ratificaci&oacute;n </h1> </div>
             @endif
 
-        </div>
+        </div> --}}
         <!-- end step-5 -->
         <!-- begin step-6 -->
-        <div id="step-6">
+        {{-- <div id="step-6">
             <ul class="timeline">
                 @if(isset($audits))
                     @foreach($audits as $audit)
@@ -922,10 +915,10 @@
                     @endforeach
                 @endif
             </ul>
-        </div>
+        </div> --}}
         <!-- end step-6 -->
         <!-- begin step-7 -->
-        <div id="step-7">
+        {{-- <div id="step-7">
 
             <div class="text-right">
                 <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
@@ -1065,7 +1058,7 @@
                 @endif
             </script>
 
-        </div>
+        </div> --}}
         <!-- end step-7 -->
     </div>
     <!-- end wizard-content -->
@@ -1526,10 +1519,10 @@
             transitionEffect: 'fade',
             showStepURLhash: false,
             anchorSettings: {
-                anchorClickable: true, // Enable/Disable anchor navigation
-                enableAllAnchors: true, // Activates all anchors clickable all times
+                anchorClickable: false, // Enable/Disable anchor navigation
+                enableAllAnchors: false, // Activates all anchors clickable all times
                 markDoneStep: true, // add done css
-                enableAnchorOnDoneStep: true // Enable/Disable the done steps navigation
+                enableAnchorOnDoneStep: false // Enable/Disable the done steps navigation
             },
             lang: { next: 'Siguiente', previous: 'Anterior' }
         });
@@ -1539,18 +1532,18 @@
             $(".estatusSolicitud").show();
             $(".showEdit").show();
             var solicitud='{{ $solicitud->id ?? ""}}';
-            FormMultipleUpload.init();
-            Gallery.init();
+            // FormMultipleUpload.init();
+            // Gallery.init();
         }else{
             $(".showEdit").hide();
-            $(".step-4").hide();
-            $(".step-5").hide();
-            $(".step-6").hide();
-            $(".step-7").hide();
-            $('#wizard').smartWizard("stepState", [4], "hide");
-            $('#wizard').smartWizard("stepState", [5], "hide");
-            $('#wizard').smartWizard("stepState", [6], "hide");
-            $('#wizard').smartWizard("stepState", [7], "hide");
+            // $(".step-4").hide();
+            // $(".step-5").hide();
+            // $(".step-6").hide();
+            // $(".step-7").hide();
+            // $('#wizard').smartWizard("stepState", [4], "hide");
+            // $('#wizard').smartWizard("stepState", [5], "hide");
+            // $('#wizard').smartWizard("stepState", [6], "hide");
+            // $('#wizard').smartWizard("stepState", [7], "hide");
             $(".estatusSolicitud").hide();
         }
         $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
@@ -1666,12 +1659,9 @@
                         }
                     }).then(function(isConfirm){
                         if(isConfirm){
-                            $('#paso2').click();
+                            
+                            $('#wizard').smartWizard('goToStep', 1);
                         }else{
-                            divSolicitante
-                            $('html,body').animate({
-                                scrollTop: $("#divSolicitante").offset().top
-                            }, 'slow');
                         }
                     });
                 }else{
@@ -1760,12 +1750,9 @@
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
-                                $('#paso3').click();
+                                
+                                $('#wizard').smartWizard('goToStep', 2);
                             }else{
-                                divSolicitante
-                                $('html,body').animate({
-                                    scrollTop: $("#divSolicitado").offset().top
-                                }, 'slow');
                             }
                         });
                     }else{
@@ -1859,7 +1846,7 @@
             $("#solicitud_id").val(solicitud);
             $("#solicitud_id_modal").val(solicitud);
             $("#solicitud_id_excepcion").val(solicitud);
-            cargarDocumentos();
+            // cargarDocumentos();
             getSolicitudFromBD(solicitud);
         }else{
             if(localStorage.getItem("datos_laborales")){
@@ -2019,7 +2006,7 @@
                     //     }
                     // }) ;
                     // console.log(excepcion);
-                    $(".step-6").show();
+                    // $(".step-6").show();
                     $('#wizard').smartWizard("stepState", [5], "show");
                     if(data.ratificada){
                         $("#btnRatificarSolicitud").hide();
@@ -2483,7 +2470,7 @@
         $('#divContactoSolicitante').show();
         $('#divMapaSolicitante').show();
         $('#divBotonesSolicitante').show();
-        $("#paso1").click();
+        $('#wizard').smartWizard('goToStep', 0);
         $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Validar y Editar solicitante');
         $("#edit_key").val(key);
         $("#solicitante_id").val(arraySolicitantes[key].id);
@@ -2564,7 +2551,7 @@
         $('#divContactoSolicitado').show();
         $('#divMapaSolicitado').show();
         $('#divBotonesSolicitado').show();
-        $("#paso2").click();
+        $('#wizard').smartWizard('goToStep', 1);
         $("#agregarSolicitado").html('<i class="fa fa-edit"></i> Editar citado');
         $("#solicitado_key").val(key);
         $("#solicitado_id").val(arraySolicitados[key].id);
@@ -2824,7 +2811,7 @@
     // Funcion para ratificar solicitudes
     $("#btnRatificarSolicitud").on("click",function(){
         try{
-            cargarDocumentos();
+            // cargarDocumentos();
             var solicitanteMenor = arraySolicitantes.filter(x=>x.edad <= 16).filter(x=>x.edad != null);
             var solicitanteMoral = arraySolicitantes.filter(x=>x.tipo_persona_id == "2");
             if(solicitanteMenor.length > 0 || solicitanteMoral.length > 0){
@@ -3348,68 +3335,68 @@
         $("#btnCancelFiles").click();
         $("#modal-archivos").modal("show");
     });
-    function cargarDocumentos(){
-        $.ajax({
-            url:"/solicitudes/documentos/"+$("#solicitud_id").val(),
-            type:"GET",
-            dataType:"json",
-            async:true,
-            success:function(data){
-                try{
-                    if(data != null && data != ""){
-                        //Carga información en la ratificacion
-                        var html = "";
-                   $.each(data, function (key, value) {
-                       if(value.documentable_type == "App\\Parte"){
-                            // var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
-                            // if(parte != undefined){
-                                html += "<tr>";
-                                html += "<td>"+value.parte+"</td>";
-                                html += "<td>"+value.nombre_original + " "+ value.clasificacion_archivo_id+"</td>";
-                                html += "</tr>";
-                                ratifican = true;
-                            // }
-                       }
-                   });
-                    $("#tbodyRatificacion").html(html);
-                        // end carga ratificacion
-                        var table = "";
-                        var div = "";
-                        $.each(data, function(index,element){
-                            div += '<div class="image gallery-group-1">';
-                            div += '    <div class="image-inner" style="position: relative;">';
-                            if(element.tipo == 'pdf' || element.tipo == 'PDF'){
-                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
-                                div += '                <div class="img" align="center">';
-                                div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
-                                div += '                </div>';
-                                div += '            </a>';
-                            }else{
-                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
-                                div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
-                                div += '            </a>';
-                            }
-                            div += '            <p class="image-caption">';
-                            div += '                '+element.longitud+' kb';
-                            div += '            </p>';
-                            div += '    </div>';
-                            div += '    <div class="image-info">';
-                            div += '            <h5 class="title">'+element.nombre_original+'</h5>';
-                            div += '            <div class="desc">';
-                            div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
-                            div +=                  element.descripcion+'<br>';
-                            div += '            </div>';
-                            div += '    </div>';
-                            div += '</div>';
-                        });
-                        $("#gallery").html(div);
-                    }
-                }catch(error){
-                    console.log(error);
-                }
-            }
-        });
-    }
+    // function cargarDocumentos(){
+    //     $.ajax({
+    //         url:"/solicitudes/documentos/"+$("#solicitud_id").val(),
+    //         type:"GET",
+    //         dataType:"json",
+    //         async:true,
+    //         success:function(data){
+    //             try{
+    //                 if(data != null && data != ""){
+    //                     //Carga información en la ratificacion
+    //                     var html = "";
+    //                $.each(data, function (key, value) {
+    //                    if(value.documentable_type == "App\\Parte"){
+    //                         // var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
+    //                         // if(parte != undefined){
+    //                             html += "<tr>";
+    //                             html += "<td>"+value.parte+"</td>";
+    //                             html += "<td>"+value.nombre_original + " "+ value.clasificacion_archivo_id+"</td>";
+    //                             html += "</tr>";
+    //                             ratifican = true;
+    //                         // }
+    //                    }
+    //                });
+    //                 $("#tbodyRatificacion").html(html);
+    //                     // end carga ratificacion
+    //                     var table = "";
+    //                     var div = "";
+    //                     $.each(data, function(index,element){
+    //                         div += '<div class="image gallery-group-1">';
+    //                         div += '    <div class="image-inner" style="position: relative;">';
+    //                         if(element.tipo == 'pdf' || element.tipo == 'PDF'){
+    //                             div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
+    //                             div += '                <div class="img" align="center">';
+    //                             div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
+    //                             div += '                </div>';
+    //                             div += '            </a>';
+    //                         }else{
+    //                             div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
+    //                             div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
+    //                             div += '            </a>';
+    //                         }
+    //                         div += '            <p class="image-caption">';
+    //                         div += '                '+element.longitud+' kb';
+    //                         div += '            </p>';
+    //                         div += '    </div>';
+    //                         div += '    <div class="image-info">';
+    //                         div += '            <h5 class="title">'+element.nombre_original+'</h5>';
+    //                         div += '            <div class="desc">';
+    //                         div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
+    //                         div +=                  element.descripcion+'<br>';
+    //                         div += '            </div>';
+    //                         div += '    </div>';
+    //                         div += '</div>';
+    //                     });
+    //                     $("#gallery").html(div);
+    //                 }
+    //             }catch(error){
+    //                 console.log(error);
+    //             }
+    //         }
+    //     });
+    // }
     function getDocumentoAcuse(){
         $.ajax({
             url:"/solicitudes/documentos/"+$("#solicitud_id").val()+"/acuse",
@@ -3430,162 +3417,162 @@
             }
         });
     }
-    var handleJqueryFileUpload = function() {
-        // Initialize the jQuery File Upload widget:
-        $('#fileupload').fileupload({
-            autoUpload: false,
-            disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
-            maxFileSize: 5000000,
-            acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
-            stop: function(e,data){
-              cargarDocumentos();
-            //   $("#modal-archivos").modal("hide");
-            },uploadTemplate: function (o) {
-                var rows = $();
-                $.each(o.files, function (index, file) {
-                    var row = $('<tr class="template-upload fade show">'+
-                    '    <td>'+
-                    '        <span class="preview"></span>'+
-                    '    </td>'+
-                    '    <td>'+
-                    '        <div class="bg-light rounded p-10 mb-2">'+
-                    '            <dl class="m-b-0">'+
-                    '                <dt class="text-inverse">Nombre del documento:</dt>'+
-                    '                <dd class="name">'+file.name+'</dd>'+
-                    '                <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>'+
-                    '                <dd class="size">Processing...</dd>'+
-                    '            </dl>'+
-                    '        </div>'+
-                    '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
-                    '    </td>'+
-                    '    <td>'+
-                    '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
-                    '            <option value="">Seleccione una opci&oacute;n</option>'+
-                    '            @if(isset($clasificacion_archivo))'+
-                    '                @foreach($clasificacion_archivo as $clasificacion)'+
-                    '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
-                    '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
-                    '                    @endif'+
-                    '                @endforeach'+
-                    '            @endif'+
-                    '        </select>'+
-                    '    </td>'+
-                    '    <td>'+
-                    '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
-                    '            <option value="">Seleccione una opci&oacute;n</option>'+
-                    '            @if(isset($solicitud))'+
-                    '                @foreach($solicitud->partes as $parte)'+
-                    '                    @if(($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3) && $parte->tipo_persona_id == 1  )'+
-                    '                        <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>'+
-                    '                    @endif'+
-                    '                @endforeach'+
-                    '            @endif'+
-                    '        </select>'+
-                    '    </td>'+
-                    '    <td>'+
-                    '        <dl>'+
-                    '            <dt class="text-inverse m-t-3">Progress:</dt>'+
-                    '            <dd class="m-t-5">'+
-                    '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
-                    '            </dd>'+
-                    '        </dl>'+
-                    '    </td>'+
-                    '    <td nowrap>'+
-                    '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
-                    '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
-                    '                <span>Guardar</span>'+
-                    '            </button>'+
-                    '    </td>'+
-                    '    <td nowrap>'+
-                    '            <button class="btn btn-default cancel width-100 p-r-20">'+
-                    '                <i class="fa fa-trash fa-fw text-muted"></i>'+
-                    '                <span>Cancelar</span>'+
-                    '            </button>'+
-                    '    </td>'+
-                    '</tr>');
-                    if (file.error) {
-                        row.find('.error').text(file.error);
-                    }
-                    rows = rows.add(row);
-                });
-                return rows;
-            }
-            // Uncomment the following to send cross-domain cookies:
-            //xhrFields: {withCCOLOR_REDentials: true},
-        });
+    // var handleJqueryFileUpload = function() {
+    //     // Initialize the jQuery File Upload widget:
+    //     $('#fileupload').fileupload({
+    //         autoUpload: false,
+    //         disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
+    //         maxFileSize: 5000000,
+    //         acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
+    //         stop: function(e,data){
+    //           cargarDocumentos();
+    //         //   $("#modal-archivos").modal("hide");
+    //         },uploadTemplate: function (o) {
+    //             var rows = $();
+    //             $.each(o.files, function (index, file) {
+    //                 var row = $('<tr class="template-upload fade show">'+
+    //                 '    <td>'+
+    //                 '        <span class="preview"></span>'+
+    //                 '    </td>'+
+    //                 '    <td>'+
+    //                 '        <div class="bg-light rounded p-10 mb-2">'+
+    //                 '            <dl class="m-b-0">'+
+    //                 '                <dt class="text-inverse">Nombre del documento:</dt>'+
+    //                 '                <dd class="name">'+file.name+'</dd>'+
+    //                 '                <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>'+
+    //                 '                <dd class="size">Processing...</dd>'+
+    //                 '            </dl>'+
+    //                 '        </div>'+
+    //                 '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
+    //                 '    </td>'+
+    //                 '    <td>'+
+    //                 '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
+    //                 '            <option value="">Seleccione una opci&oacute;n</option>'+
+    //                 '            @if(isset($clasificacion_archivo))'+
+    //                 '                @foreach($clasificacion_archivo as $clasificacion)'+
+    //                 '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
+    //                 '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
+    //                 '                    @endif'+
+    //                 '                @endforeach'+
+    //                 '            @endif'+
+    //                 '        </select>'+
+    //                 '    </td>'+
+    //                 '    <td>'+
+    //                 '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
+    //                 '            <option value="">Seleccione una opci&oacute;n</option>'+
+    //                 '            @if(isset($solicitud))'+
+    //                 '                @foreach($solicitud->partes as $parte)'+
+    //                 '                    @if(($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3) && $parte->tipo_persona_id == 1  )'+
+    //                 '                        <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>'+
+    //                 '                    @endif'+
+    //                 '                @endforeach'+
+    //                 '            @endif'+
+    //                 '        </select>'+
+    //                 '    </td>'+
+    //                 '    <td>'+
+    //                 '        <dl>'+
+    //                 '            <dt class="text-inverse m-t-3">Progress:</dt>'+
+    //                 '            <dd class="m-t-5">'+
+    //                 '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
+    //                 '            </dd>'+
+    //                 '        </dl>'+
+    //                 '    </td>'+
+    //                 '    <td nowrap>'+
+    //                 '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
+    //                 '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
+    //                 '                <span>Guardar</span>'+
+    //                 '            </button>'+
+    //                 '    </td>'+
+    //                 '    <td nowrap>'+
+    //                 '            <button class="btn btn-default cancel width-100 p-r-20">'+
+    //                 '                <i class="fa fa-trash fa-fw text-muted"></i>'+
+    //                 '                <span>Cancelar</span>'+
+    //                 '            </button>'+
+    //                 '    </td>'+
+    //                 '</tr>');
+    //                 if (file.error) {
+    //                     row.find('.error').text(file.error);
+    //                 }
+    //                 rows = rows.add(row);
+    //             });
+    //             return rows;
+    //         }
+    //         // Uncomment the following to send cross-domain cookies:
+    //         //xhrFields: {withCCOLOR_REDentials: true},
+    //     });
 
-        // Enable iframe cross-domain access via COLOR_REDirect option:
-        $('#fileupload').fileupload(
-            'option',
-            'COLOR_REDirect',
-            window.location.href.replace(
-                    /\/[^\/]*$/,
-                    '/cors/result.html?%s'
-            )
-        );
+    //     // Enable iframe cross-domain access via COLOR_REDirect option:
+    //     $('#fileupload').fileupload(
+    //         'option',
+    //         'COLOR_REDirect',
+    //         window.location.href.replace(
+    //                 /\/[^\/]*$/,
+    //                 '/cors/result.html?%s'
+    //         )
+    //     );
 
-        // hide empty row text
-        $('#fileupload').on('fileuploadsend', function (e, data) {
+    //     // hide empty row text
+    //     $('#fileupload').on('fileuploadsend', function (e, data) {
 
-            // if(){
-            //     e.preventDefault();
-            // }
-        })
-        $('#fileupload').bind('fileuploadadd', function(e, data) {
-            $('#fileupload [data-id="empty"]').hide();
-            $(".catSelectFile").select2();
-        });
-        $('#fileupload').bind('fileuploaddone', function(e, data) {
-            // console.log("add");
-        });
+    //         // if(){
+    //         //     e.preventDefault();
+    //         // }
+    //     })
+    //     $('#fileupload').bind('fileuploadadd', function(e, data) {
+    //         $('#fileupload [data-id="empty"]').hide();
+    //         $(".catSelectFile").select2();
+    //     });
+    //     $('#fileupload').bind('fileuploaddone', function(e, data) {
+    //         // console.log("add");
+    //     });
 
-        // show empty row text
-        $('#fileupload').bind('fileuploadfail', function(e, data) {
-            var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
-            if (rowLeft === 0) {
-                    $('#fileupload [data-id="empty"]').show();
-            } else {
-                    $('#fileupload [data-id="empty"]').hide();
-            }
-        });
+    //     // show empty row text
+    //     $('#fileupload').bind('fileuploadfail', function(e, data) {
+    //         var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
+    //         if (rowLeft === 0) {
+    //                 $('#fileupload [data-id="empty"]').show();
+    //         } else {
+    //                 $('#fileupload [data-id="empty"]').hide();
+    //         }
+    //     });
 
-        // Upload server status check for browsers with CORS support:
-        if ($.support.cors) {
-                $.ajax({
-                        type: 'HEAD'
-                }).fail(function () {
-                        $('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
-                });
-        }
+    //     // Upload server status check for browsers with CORS support:
+    //     if ($.support.cors) {
+    //             $.ajax({
+    //                     type: 'HEAD'
+    //             }).fail(function () {
+    //                     $('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
+    //             });
+    //     }
 
-        // Load & display existing files:
-        $('#fileupload').addClass('fileupload-processing');
-        $.ajax({
-                // Uncomment the following to send cross-domain cookies:
-                //xhrFields: {withCCOLOR_REDentials: true},
-                url: $('#fileupload').fileupload('option', 'url'),
-                dataType: 'json',
-                context: $('#fileupload')[0]
-        }).always(function () {
-                $(this).removeClass('fileupload-processing');
-        }).done(function (result) {
-                $(this).fileupload('option', 'done')
-                .call(this, $.Event('done'), {result: result});
-        });
-    };
-    var handleIsotopesGallery = function() {
-        var container = $('#gallery');
-        $(window).on('resize', function() {
-            var dividerValue = calculateDivider();
-            var containerWidth = $(container).width();
-            var columnWidth = containerWidth / dividerValue;
-            $(container).isotope({
-                masonry: {
-                    columnWidth: columnWidth
-                }
-            });
-        });
-    };
+    //     // Load & display existing files:
+    //     $('#fileupload').addClass('fileupload-processing');
+    //     $.ajax({
+    //             // Uncomment the following to send cross-domain cookies:
+    //             //xhrFields: {withCCOLOR_REDentials: true},
+    //             url: $('#fileupload').fileupload('option', 'url'),
+    //             dataType: 'json',
+    //             context: $('#fileupload')[0]
+    //     }).always(function () {
+    //             $(this).removeClass('fileupload-processing');
+    //     }).done(function (result) {
+    //             $(this).fileupload('option', 'done')
+    //             .call(this, $.Event('done'), {result: result});
+    //     });
+    // };
+    // var handleIsotopesGallery = function() {
+    //     var container = $('#gallery');
+    //     $(window).on('resize', function() {
+    //         var dividerValue = calculateDivider();
+    //         var containerWidth = $(container).width();
+    //         var columnWidth = containerWidth / dividerValue;
+    //         $(container).isotope({
+    //             masonry: {
+    //                 columnWidth: columnWidth
+    //             }
+    //         });
+    //     });
+    // };
     function validarPalabras(e){
         var numeroPalabras = countPalabras(e);
         $("#numeroPalabras").html(numeroPalabras);
@@ -3681,36 +3668,36 @@
         }
         return dividerValue;
     }
-    var FormMultipleUpload = function () {
-        "use strict";
-        return {
-            //main function
-            init: function () {
-                handleJqueryFileUpload();
-            }
-        };
-    }();
-    var Gallery = function () {
-        "use strict";
-        return {
-            //main function
-            init: function () {
-                handleIsotopesGallery();
-            }
-        };
-    }();
-    $("#excepcionForm").submit(function(e){
-        var falta = false;
+    // var FormMultipleUpload = function () {
+    //     "use strict";
+    //     return {
+    //         //main function
+    //         init: function () {
+    //             handleJqueryFileUpload();
+    //         }
+    //     };
+    // }();
+    // var Gallery = function () {
+    //     "use strict";
+    //     return {
+    //         //main function
+    //         init: function () {
+    //             handleIsotopesGallery();
+    //         }
+    //     };
+    // }();
+    // $("#excepcionForm").submit(function(e){
+    //     var falta = false;
 
-        $(".fileGrupoVulnerable").each(function(e){
-            if($(this).val() == ""){
-                falta = true;
-            }
-        });
-        if($("#conciliador_excepcion_id").val() == "" && falta){
-            e.preventDefault();
-        }
-    });
+    //     $(".fileGrupoVulnerable").each(function(e){
+    //         if($(this).val() == ""){
+    //             falta = true;
+    //         }
+    //     });
+    //     if($("#conciliador_excepcion_id").val() == "" && falta){
+    //         e.preventDefault();
+    //     }
+    // });
     var listaContactos = [];
     function AgregarRepresentante(parte_id,tipoRepresentante){
         $.ajax({
