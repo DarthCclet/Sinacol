@@ -39,6 +39,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('centros/disponibilidad','CentroController@disponibilidad');
     Route::Post('centros/disponibilidades','CentroController@getDisponibilidades');
     Route::Post('centros/incidencias','CentroController@incidencia');
+    Route::get('/calendariocentro', 'CentroController@getAudienciasCalendario');
+    Route::get('/info_audiencia/{audiencia_id}', 'AudienciaController@getFullAudiencia');
+    Route::get('/calendariocentro', 'CentroController@getAudienciasCalendario');
     Route::resource('conciliadores','ConciliadorController');
     Route::post('conciliadores/disponibilidad','ConciliadorController@disponibilidad');
     Route::Post('conciliadores/disponibilidades','ConciliadorController@getDisponibilidades');
@@ -60,6 +63,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencia/ConciliadoresDisponibles','AudienciaController@ConciliadoresDisponibles');
     Route::Post('audiencia/SalasDisponibles','AudienciaController@SalasDisponibles');
     Route::Post('audiencia/calendarizar','AudienciaController@calendarizar');
+    Route::Post('audiencia/reagendar','AudienciaController@calendarizar');
     Route::Post('audiencia/getCalendario','AudienciaController@getCalendario');
     Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
     Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
@@ -149,12 +153,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('tipos_contactos','TipoContactoController');
     Route::resource('tipos_contadores','TipoContadorController');
     Route::resource('tipos_discapacidades','TipoDiscapacidadController');
-
-
-
 });
-
-
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 
 Route::get('solicitud_buzon','BuzonController@SolicitudBuzon')->name('solicitud_buzon');
