@@ -802,7 +802,6 @@ class SolicitudController extends Controller {
                 return $audiencia;
             }else{
                     $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
-                    dd((bool)$request->separados);
                     if((bool)$request->separados){
                         $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), auth()->user()->centro);
                         $multiple = true;
