@@ -1433,7 +1433,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Representante legal</h4>
+                <h4 class="modal-title">Correo para el buzon</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -1486,6 +1486,63 @@
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnRatificarInmediata"><i class="fa fa-arrow-right"></i> Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="modal-ratificacion-success" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Audiencia generada</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    <p>
+                        Se generó la audiencia con la siguiente información
+                    </p>
+                </div>
+                <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Folio: </strong><span id="spanFolio"></span><br>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Fecha de Audiencia: </strong><span id="spanFechaAudiencia"></span><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Hora de inicio: </strong><span id="spanHoraInicio"></span><br>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Hora de termino: </strong><span id="spanHoraFin"></span><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <table class="table table-striped table-hover" id="tableAudienciaSuccess">
+                        <thead>
+                            <tr>
+                                <th>Tipo de parte</th>
+                                <th>Conciliador</th>
+                                <th>Sala</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnFinalizarRatificacion"><i class="fa fa-check"></i> Finalizar</button>
                 </div>
             </div>
         </div>
@@ -2873,6 +2930,40 @@
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
+                                swal({
+                                    title: '¿Las partes concilian en la misma sala?',
+                                    text: 'Selecciona el tipo de conciliación que se llevará a cabo',
+                                    icon: 'warning',
+                                    buttons: {
+                                        cancel: {
+                                            text: 'cancelar',
+                                            value: null,
+                                            visible: true,
+                                            className: 'btn btn-default',
+                                            closeModal: true,
+                                        },
+                                        roll: {
+                                            text: "Separados",
+                                            value: 2,
+                                            className: 'btn btn-warning',
+                                            visible: true,
+                                            closeModal: true
+                                        },
+                                        confirm: {
+                                            text: 'Juntos',
+                                            value: 1,
+                                            visible: true,
+                                            className: 'btn btn-warning',
+                                            closeModal: true
+                                        }
+                                    }
+                                }).then(function(tipo){
+                                    if(tipo == 1 || tipo == 2){
+                                        if(tipo == 1){
+                                            var separados = false;
+                                        }else{
+                                            var separados = true;
+                                        }
                                 $.ajax({
                                     url:'/solicitud/ratificar',
                                     type:'POST',
@@ -2882,17 +2973,48 @@
                                         id:$("#solicitud_id").val(),
                                         listaNotificaciones:validarRatificacion.listaNotificaciones,
                                         inmediata:false,
+                                                separados:separados,
                                         _token:"{{ csrf_token() }}"
                                     },
                                     success:function(data){
+                                                console.log(data);
                                         if(data != null && data != ""){
+                                                    $("#spanFolio").text(data.folio+"/"+data.anio);
+                                                    $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia,4));
+                                                    $("#spanHoraInicio").text(data.hora_inicio);
+                                                    $("#spanHoraFin").text(data.hora_fin);
+                                                    var table="";
+                                                    if(data.multiple){
+                                                        $.each(data.conciliadores_audiencias,function(index,element){
+                                                            table +='<tr>';
+                                                            if(element.solicitante){
+                                                                table +='   <td>Solicitante(s)</td>';
+                                                            }else{
+                                                                table +='   <td>Citado(s)</td>';
+                                                            }
+                                                            table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                                                            $.each(data.salas_audiencias,function(index2,element2){
+                                                                if(element2.solicitante == element.solicitante){
+                                                                    table +='<td>'+element2.sala.sala+'</td>';
+                                                                }
+                                                            });
+                                                            table +='</tr>';
+                                                        });
+                                                    }else{
+                                                        table +='<tr>';
+                                                        table +='   <td>Solicitante(s) y citado(s)</td>';
+                                                        table +='   <td>'+data.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
+                                                        table +='   <td>'+data.salas_audiencias[0].sala.sala+'</td>';
+                                                        table +='</tr>';
+                                                    }
+                                                    $("#tableAudienciaSuccess tbody").html(table);
                                             $("#modalRatificacion").modal("hide");
+                                                    $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
                                             swal({
                                                 title: 'Correcto',
                                                 text: 'Solicitud ratificada correctamente',
                                                 icon: 'success'
                                             });
-                                            location.reload();
                                         }else{
                                             swal({
                                                 title: 'Error',
@@ -2909,6 +3031,8 @@
                                         });
                                     }
                                 });
+                            }
+                        });
                             }
                         });
                     }else{
@@ -2943,6 +3067,9 @@
                 icon: 'warning'
             });
         }
+    });
+    $("#btnFinalizarRatificacion").on("click",function(){
+        location.reload();
     });
     function RatificacionValidar(){
         var error = false;
