@@ -802,14 +802,21 @@ class SolicitudController extends Controller {
                 return $audiencia;
             }else{
                     $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
-
+                    dd((bool)$request->separados);
+                    if((bool)$request->separados){
+                        $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), auth()->user()->centro);
+                        $multiple = true;
+                    }else{
                     $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), auth()->user()->centro);
+                        $multiple = false;
+                    }
+//                    var_dump($datos_audiencia);
                     //Obtenemos el contador
                     $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                     //creamos el registro de la audiencia
                     $audiencia = Audiencia::create([
                         "expediente_id" => $expediente->id,
-                        "multiple" => false,
+                        "multiple" => $multiple,
                         "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
                         "hora_inicio" => $datos_audiencia["hora_inicio"], 
                         "hora_fin" => $datos_audiencia["hora_fin"],
@@ -822,6 +829,10 @@ class SolicitudController extends Controller {
                     // guardamos la sala y el consiliador a la audiencia
                     ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $datos_audiencia["conciliador_id"],"solicitante" => true]);
                     SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $datos_audiencia["sala_id"],"solicitante" => true]);
+                    if((bool)$request->separados){
+                        ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $datos_audiencia["conciliador2_id"],"solicitante" => false]);
+                        SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $datos_audiencia["sala2_id"],"solicitante" => false]);
+                    }
                     // Guardamos todas las Partes en la audiencia
                     $partes = $solicitud->partes;
                     foreach($partes as $parte){
@@ -837,7 +848,14 @@ class SolicitudController extends Controller {
                     event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,4,4));
             }
             DB::commit();
-            return $solicitud;
+            $salas = [];
+            foreach($audiencia->salasAudiencias as $sala){
+                $sala->sala;
+            }
+            foreach($audiencia->conciliadoresAudiencias as $conciliador){
+                $conciliador->conciliador->persona;
+            }
+            return $audiencia;
         }catch(\Throwable $e){
             DB::rollback();
             dd($e);
