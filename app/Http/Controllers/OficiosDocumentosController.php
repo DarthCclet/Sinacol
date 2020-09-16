@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Expediente;
 use App\Services\StringTemplate;
+use App\Traits\GenerateDocument;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use PhpParser\Node\Expr\Cast\Object_;
 
 class OficiosDocumentosController extends Controller
 {
+    use GenerateDocument;
     /**
      * Display a listing of the resource.
      *
@@ -100,26 +102,20 @@ class OficiosDocumentosController extends Controller
     public function imprimirPDF(Request $request)
     {
         $idExpediente =isset($request->id) ? $request->id :1;
-        // dd($idExpediente);
         // $idExpediente =1;
         $datos = $request->all();
         
         $html = $this->renderDocumento($datos,$idExpediente);
-        $pdf = new Dompdf();
-        $pdf->loadHtml($html);
-        $pdf->setPaper('A4');
-        $pdf->render();
-        
-        $pdf->stream("carta.pdf", array("Attachment" => false));
-        exit(0);
+        return $this->renderPDF($html,2); // plantilla 2 para header y footer
     }
+    
     private function renderDocumento(array $request,$id)
     {
         $expediente = Expediente::find($id);
         if($expediente != null){
             $vars = [];
             $vars['centro_nombre'] = $expediente->solicitud->centro->nombre;
-            $vars['centro_domicilio_estado'] = isset($expediente->solicitud->centro->domicilio->estado) ? $expediente->solicitud->centro : 'MEXICO';
+            $vars['centro_domicilio_estado'] = isset($expediente->solicitud->centro->domicilio->estado) ? $expediente->solicitud->centro->nombre : 'MEXICO';
             $vars['expediente_folio'] = $expediente->folio;
             $conciliador = $expediente->audiencia[0]->conciliador->persona;
             $vars['conciliador_nombre']= ($expediente->audiencia != null)  ? $conciliador->nombre.' '.$conciliador->primer_apellido : '';

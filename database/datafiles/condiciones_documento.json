@@ -33,6 +33,14 @@
                   {"catalogo":"Por_separado",
                     "val":[""]}
                     ]
+          },
+          {
+              "id": "4",
+              "nombre": "Solicitud",
+              "catalogos": [
+                  {"catalogo":"Ratificada",
+                    "val":[""]}
+                    ]
           }
 
       ]
