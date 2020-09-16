@@ -4,7 +4,7 @@
     <div class="">
     </div><br>
     <div class="row">
-        <input type="hidden" name='id' value='{{$id}}'>
+        <input type="hidden" name='id' value='{{(isset($id))?$id:''}}'>
         <div class="col-md-2"></div>
         <div class="col-md-8">
           <div id="oficio-header" name="oficio-header" class="sectionPlantilla" style="border:solid 1px lightgray;" contenteditable="true" >{!! isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header'] : "<br>" !!}</div>
@@ -29,9 +29,9 @@
             return {
                 auto_focus: 'plantilla-body',
                 selector: selector,
-                // language: 'es_MX',
+                language: 'es_MX',
                 width: "670",
-                // language_url: '/js/tinymce/languages/es_MX.js',
+                language_url: '/js/tinymce/languages/es_MX.js',
                 inline: true,
                 menubar: false,
                 toolbar_items_size: 'small',

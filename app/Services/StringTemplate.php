@@ -67,6 +67,8 @@ class StringTemplate
         $countSi = substr_count($string, '[FIN_SI');
         $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
         $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
+        $countSolicitudRatificada = substr_count($string,'[SI_SOLICITUD_RATIFICADA]');
+        
         if (isset($vars['solicitado_tipo_notificacion'])){
           if($vars['solicitado_tipo_notificacion'] != null && $countTipoNotificacion >0){
             for ($i=0; $i <= $countTipoNotificacion; $i++) { 
@@ -116,6 +118,27 @@ class StringTemplate
             }
           }
         }
+        if (isset($vars['solicitud_fecha_ratificacion'])){
+          if($vars['solicitud_fecha_ratificacion'] != null && $countSolicitudRatificada > 0){
+            // if($vars['audiencia_multiple'] == 'Si') { // Audiencia en salas diferentes
+                // texto de audiencia por separado
+                $sliceRatificada = Str::after($string, '[SI_SOLICITUD_RATIFICADA]');
+                $sliceRatificada = Str::before($sliceRatificada, '[FIN_SI_SOLICITUD_RATIFICADA]');
+                $htmlA = Str::before($string, '[SI_SOLICITUD_RATIFICADA');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_RATIFICADA]');
+
+                $string = $htmlA . $sliceRatificada . $htmlB;
+            // }else{//audiencia en misma sala
+            //     // texto de
+            //     $sliceSeparado = "";
+            //     $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
+            //     $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
+
+            //     $string = $htmlA . $sliceSeparado . $htmlB;
+            //    // break;
+            // }
+          }
+        }
 
         $partes = ['solicitado','solicitante'];
         foreach ($partes as $key => $parteL) {
@@ -127,7 +150,7 @@ class StringTemplate
           // $countPersonaMoral = substr_count($string,'[SI_'.$parte.'_IPO_PERSONA_MORAL]');
           $countGenero = substr_count($string,'[SI_'.$parte.'_GENERO_MASCULINO]');
           // $countGeneroFem = substr_count($string,'[SI_'.$parte.'_IPO_PERSONA_MORAL]');
-          if($vars[$parteL.'_genero_id'] != null && $countGenero >0){
+          if(isset($vars[$parteL.'_genero_id']) && $vars[$parteL.'_genero_id'] != null && $countGenero >0){
             for ($i=0; $i <= $countGenero; $i++) { 
               switch ($vars[$parteL.'_genero_id']) {
                 case 2:
@@ -158,7 +181,7 @@ class StringTemplate
             }
           }
 
-          if($vars[$parteL.'_tipo_persona_id'] != null  && ($countPersona >0) ){
+          if(isset($vars[$parteL.'_tipo_persona_id']) && $vars[$parteL.'_tipo_persona_id'] != null  && ($countPersona >0) ){
             for ($i=0; $i <= $countPersona; $i++) { 
               switch ($vars[$parteL.'_tipo_persona_id']) {
                 case 1: //fisica

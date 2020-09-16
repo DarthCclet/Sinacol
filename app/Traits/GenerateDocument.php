@@ -25,6 +25,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
+use NumberFormatter;
 
 trait GenerateDocument
 {
@@ -146,12 +147,16 @@ trait GenerateDocument
                             $vars[strtolower($key.'_'.$n)] = $v;
                           }
                           $vars[strtolower($key.'_nombre_completo')] = $val['nombre'].' '.$val['primer_apellido'].' '.$val['segundo_apellido'];
+                        }else{
+                          foreach ($val as $n =>$v) {
+                            $vars[strtolower($key.'_'.$k.'_'.$n)] =$v;//($v !== null)? $v :"-";
+                          }
                         }
                       }
                     }elseif(gettype($val)== 'string'){
                       $pos = strpos($k,'fecha');
                       if ($pos !== false){
-                        $val = $this->formatoFecha($val);
+                        $val = $this->formatoFecha($val,1);
                       }
                     }
                     $vars[strtolower($key.'_'.$k)] = $val;
@@ -257,14 +262,16 @@ trait GenerateDocument
     {
         $html = '';
         $config = PlantillaDocumento::find($id);
+        $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> </head> <body>';
         if(!$config){
             $html .= view('documentos._header_documentos_default');
         }
         else{
-            $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> </head> <body>';
+            // $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> </head> <body>';
             $html .= $config->plantilla_header;
-            $html .= "</body></html>";
+            // $html .= "</body></html>";
         }
+        $html .= "</body></html>";
         return StringTemplate::renderPlantillaPlaceholders($html,[]);
     }
 
@@ -278,14 +285,14 @@ trait GenerateDocument
     {
         $html = '';
         $config = PlantillaDocumento::find($id);
+        $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> </head> <body>';
         if(!$config){
             $html .= view('documentos._footer_documentos_default');
         }
         else{
-            $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> </head> <body>';
             $html .= $config->plantilla_footer;
-            $html .= "</body></html>";
-        }
+          }
+        $html .= "</body></html>";
         return StringTemplate::renderPlantillaPlaceholders($html,[]);
     }
 
@@ -299,9 +306,9 @@ trait GenerateDocument
             $path = base_path('database/datafiles');
             $jsonElementos = json_decode(file_get_contents($path . "/elemento_documentos.json"),true);
             $idBase = "";
-        $audienciaId = $idAudiencia;
+            $audienciaId = $idAudiencia;
             $data = [];
-        $solicitud = "";
+            $solicitud = "";
             foreach ($objetos as $objeto) {
               foreach ($jsonElementos['datos'] as $key=>$element) {
                 if($element['id']==$objeto){
@@ -316,13 +323,15 @@ trait GenerateDocument
                     $idBase = intval($obj['id']);
                     $centroId = intval($obj['centro_id']);
                     $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
+                    $obj['prescripcion'] = $this->calcularPrescripcion($solicitud->objeto_solicitudes, $solicitud->fecha_conflicto,$solicitud->fecha_ratificacion);
+                    $obj['fecha_maxima_ratificacion'] = $this->calcularFechaMaximaRatificacion($solicitud->fecha_recepcion,15);
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
-					if($idSolicitante != "" || $idSolicitado != ""){
-						$partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante, $idSolicitado])->get();
-					}else{
-						$partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->where('solicitud_id',intval($idBase))->get();
-					}
+                    if($idSolicitante != "" || $idSolicitado != ""){
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante, $idSolicitado])->get();
+                    }else{
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora')->where('solicitud_id',intval($idBase))->get();
+                    }
                     $objeto = new JsonResponse($partes);
                     $obj = json_decode($objeto->content(),true);
                     $parte2 = [];
@@ -332,6 +341,18 @@ trait GenerateDocument
                     $datoLaboral="";
                       // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $parte ) {
+                      if( sizeof($parte['documentos']) > 0 ){
+                        foreach ($parte['documentos'] as $k => $docu) {
+                          if($docu['clasificacion_archivo']['tipo_archivo_id'] == 1){ //tipo identificacion
+                            $parte['identificacion_documento'] = ($docu['clasificacion_archivo']['nombre'] != null ) ? $docu['clasificacion_archivo']['nombre']: "--";
+                            $parte['identificacion_expedida_por'] = ($docu['clasificacion_archivo']['entidad_emisora']['nombre']!= null ) ? $docu['clasificacion_archivo']['entidad_emisora']['nombre']: "---";
+                          }
+                        }
+                      }else{
+                        $parte['identificacion_documento'] = "---";
+                        $parte['identificacion_expedida_por'] = "---";
+                      }
+                      //$parte['datos_laborales'] = $datoLaboral;
                       $parteId = $parte['id'];
 
                       $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
@@ -352,10 +373,12 @@ trait GenerateDocument
                         }
                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                         if($hayDatosLaborales >0){
-                       $objeto = new JsonResponse($datoLaborales);
-                        $datoLaboral = json_decode($objeto->content(),true);
-                        $datoLaboral = Arr::except($datoLaboral, ['id','updated_at','created_at','deleted_at']);
-                        $parte['datos_laborales'] = $datoLaboral;
+                          $salarioMensual = ($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30;
+                          $objeto = new JsonResponse($datoLaborales);
+                          $datoLaboral = json_decode($objeto->content(),true);
+                          $datoLaboral = Arr::except($datoLaboral, ['id','updated_at','created_at','deleted_at']);
+                          $parte['datos_laborales'] = $datoLaboral;
+                          $parte['datos_laborales_salario_mensual'] = $salarioMensual;
                         }
                         array_push($parte1, $parte);
                         $countSolicitante += 1;
@@ -368,13 +391,13 @@ trait GenerateDocument
                           $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);
                           $representanteLegal['nombre_completo'] = $representanteLegal['nombre'].' '.$representanteLegal['primer_apellido'].' '.$representanteLegal['segundo_apellido'];
                           $parte['representante_legal'] = $representanteLegal;
-                          }
+                        }
                           //tipoNotificacion solicitado
-                          if($audienciaId!=""){
-                            $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('parte_id',$parteId)->get();
-                            // $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('tipo_notificacion_id','<>',null)->get();
-                            $parte['tipo_notificacion'] = $audienciaParte[0]->tipo_notificacion_id;
-                          }
+                        if($audienciaId!=""){
+                          $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('parte_id',$parteId)->get();
+                          // $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('tipo_notificacion_id','<>',null)->get();
+                          $parte['tipo_notificacion'] = $audienciaParte[0]->tipo_notificacion_id;
+                        }
                           // $data = Arr::add( $data, 'solicitado', $parte );
                         $countSolicitado += 1;
 
@@ -386,8 +409,6 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'total_solicitantes', $countSolicitante );
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                 }elseif ($model == 'Expediente') {
-
-
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;
                     $objeto = new JsonResponse($expediente);
@@ -406,18 +427,18 @@ trait GenerateDocument
 
                     // $objeto = $model_name::with('conciliador')->findOrFail(1);
                     $audiencias = $model_name::where('expediente_id',$expedienteId)->get();
-                      $conciliadorId = $audiencias[0]->conciliador_id;
+                    $conciliadorId = $audiencias[0]->conciliador_id;
                     $objeto = new JsonResponse($audiencias);
                     $audiencias = json_decode($objeto->content(),true);
                     $Audiencias = [];
                     foreach ($audiencias as $audiencia ) {
-                        if($audienciaId == ""){
-                          $audienciaId = $audiencia['id'];
-                        }
-                        $resolucionAudienciaId = $audiencia['resolucion_id'];
-                        $audiencia = Arr::except($audiencia, ['id','updated_at','created_at','deleted_at']);
-                        array_push($Audiencias,$audiencia);
+                      if($audienciaId == ""){
+                        $audienciaId = $audiencia['id'];
                       }
+                      $resolucionAudienciaId = $audiencia['resolucion_id'];
+                      $audiencia = Arr::except($audiencia, ['id','updated_at','created_at','deleted_at']);
+                      array_push($Audiencias,$audiencia);
+                    }
 
                     $data = Arr::add( $data, 'audiencia', $Audiencias );
                     $salaAudiencia = SalaAudiencia::with('sala')->where('audiencia_id',$audienciaId)->get();
@@ -439,10 +460,20 @@ trait GenerateDocument
                     $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
                     $data = Arr::add( $data, 'conciliador', $conciliador );
                   }elseif ($model == 'Centro') {
-                    $objeto = $model_name::find($centroId);
+                    $objeto = $model_name::with('domicilio')->find($centroId);
+                    $dom_centro = $objeto->domicilio;
                     $objeto = new JsonResponse($objeto);
                     $centro = json_decode($objeto->content(),true);
                     $centro = Arr::except($centro, ['id','updated_at','created_at','deleted_at']);
+                    $dom_centro = new JsonResponse($dom_centro);
+                    $dom_centro = json_decode($dom_centro->content(),true);
+                    $centro['domicilio'] = Arr::except($dom_centro, ['id','updated_at','created_at','deleted_at','domiciliable_id','domiciliable_type']); 
+                    $tipo_vialidad =  ($dom_centro['tipo_vialidad'] !== null)? $dom_centro['tipo_vialidad'] :"";
+                    $vialidad =  ($dom_centro['vialidad'] !== null)? $dom_centro['vialidad'] :"";
+                    $num_ext =  ($dom_centro['num_ext'] !== null)? "No." . $dom_centro['num_ext'] :"";
+                    $municipio =  ($dom_centro['municipio'] !== null)? $dom_centro['municipio'] :"";
+                    $estado =  ($dom_centro['estado'] !== null)? $dom_centro['estado'] :"";
+                    $centro['domicilio_completo'] = strtoupper($tipo_vialidad.' '.$vialidad.' '.$num_ext.', '.$municipio.', '.$estado);
                     $data = Arr::add( $data, 'centro', $centro );
                   }elseif ($model == 'Resolucion') {
                     $objetoResolucion = $model_name::find($resolucionAudienciaId);
@@ -459,8 +490,9 @@ trait GenerateDocument
                         $resolucion_partes = ResolucionPartes::where('audiencia_id',$audienciaId)->first();
                         $resolucionParteId = $resolucion_partes->id;
 
-                        $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
-                        $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
+                        // $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
+                        // $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
+                        $remuneracionDiaria = $datoLaborales->remuneracion / $datoLaborales->periodicidad->dias;
                         $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears($datoLaborales->fecha_salida);
                         $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
                         $salarios = SalarioMinimo::get('salario_minimo');
@@ -505,19 +537,29 @@ trait GenerateDocument
 
                         // $tablaConceptos .= '<h4>Propuesta Configurada </h4>';
                         $resolucion_conceptos = ResolucionParteConcepto::where('resolucion_partes_id',$resolucionParteId)->get();
+                        $tablaConceptosEConvenio = '';
                         $tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $tablaConceptosConvenio .= '<table class="tbl">';
                         $tablaConceptosConvenio .= '<tbody>';
                         $totalPercepciones = 0;
                         foreach ($resolucion_conceptos as $concepto ) {
-                          $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
                           $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
-                          $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.$concepto->monto.'</td></tr>';
+                          if($concepto->id != 9){
+                            $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
+                            $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.$concepto->monto.'</td></tr>';
+                          }else{
+                            $tablaConceptosEConvenio .= $concepto->otro;
+                          }
                         }
                         $tablaConceptosConvenio .= '<tr><td> Total de percepciones </td><td>     $'.$totalPercepciones.'</td></tr>';
                         $tablaConceptosConvenio .= '</tbody>';
                         $tablaConceptosConvenio .= '</table>';
+                        $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte <b>EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'</p>':'';
+                        $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
+                        $cantidadTextual = str_replace("uno","un",$cantidadTextual);
+                        $cantidadTextual = str_replace("coma","punto",$cantidadTextual);
                         $datosResolucion['total_percepciones']= $totalPercepciones;
+                        $datosResolucion['total_percepciones_letra']= $cantidadTextual;
                         $datosResolucion['propuestas_conceptos']= $tablaConceptos;
                         $datosResolucion['propuesta_configurada']= $tablaConceptosConvenio;
                       }else if($etapa['etapa_resolucion_id'] == 5){
@@ -545,6 +587,63 @@ trait GenerateDocument
           } catch (\Throwable $th) {
             return $data;
           }
+    }
+    /*
+    Calcular posible prescripcion de derechos 
+      */
+    private function calcularPrescripcion($objetoSolicitud,$fechaConflicto,$fechaRatificacion)
+    {
+      try {
+        $prescripcion = 'N/A';
+        foreach ($objetoSolicitud as $key => $objeto) {
+          if($objeto->tipo_objeto_solicitudes_id == 1){
+            $prescripcion = 'No';
+            if($objeto->id == 1 || $objeto->id == 4) {//Despido o derechos de preferencia
+                $meses = Carbon::parse($fechaConflicto)->diffInMonths($fechaRatificacion);
+                $prescripcion = ($meses > 2) ? 'Si' : $prescripcion;
+            }else if ($objeto->id == 2 || $objeto->id == 5 || $objeto->id == 6){//Pago prestaciones o derecho de antiguiedad o derecho de acenso
+                $anios = Carbon::parse($fechaConflicto)->floatDiffInYears($fechaRatificacion);
+                $prescripcion = ($anios > 1) ? 'Si': $prescripcion;
+            }else if($objeto->id == 3){//Resicion de relacion laboral
+                $meses = Carbon::parse($fechaConflicto)->diffInMonths($fechaRatificacion);
+                $prescripcion = ($meses > 1) ? 'Si': $prescripcion;
+            }
+          }
+        }
+        return $prescripcion;
+      } catch (\Throwable $th) {
+        return "";
+      }  
+    }
+    /*
+    Calcular la fecha m'axima para ratificar la solicitud (3 dias maximo)
+      */
+    private function calcularFechaMaximaRatificacion($fechaRecepcion,$centroId)
+    {
+      try {
+        $ndia=0;
+        $diasDisponibilidad = [];
+        $disponibilidad_centro = Disponibilidad::select('dia')->where('disponibilidad_type','App\\Centro')->where('disponibilidad_id',$centroId)->get();
+        foreach ($disponibilidad_centro as $disponibilidad) { //dias de disponibilidad del centro
+          array_push($diasDisponibilidad,$disponibilidad->dia);
+        }
+        while ($ndia <= 3) {
+          $fechaRecepcion = Carbon::parse($fechaRecepcion); 
+          if($ndia<3){ 
+            $fechaRecepcion = $fechaRecepcion->addDay();//sumar dia a fecha recepcion
+            $dayOfTheWeek = $fechaRecepcion->dayOfWeek; //dia de la semana de la fecha de recepcion
+          }
+          $k = array_search($dayOfTheWeek, $diasDisponibilidad);
+          if (false !== $k) { //si dia agregado es dia disponble en centro
+            $ndia+=1;
+          }
+        }
+        //Do,lu,ma,mi,ju,vi,sa
+        // 0,1,2,3,4,5,6 
+        return $fechaRecepcion->toDateTimeString();
+      } catch (\Throwable $th) {
+        return "";
+      }  
     }
 
     function eliminar_acentos($cadena){
