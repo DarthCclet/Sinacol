@@ -689,23 +689,35 @@ trait GenerateDocument
 		return $cadena;
 	}
     /*
-        Convertir fechas yyyy-mm-dd hh to dd de Monthname de yyyy
-         */
-    private function formatoFecha($fecha)
+    Convertir fechas yyyy-mm-dd hh to dd de Monthname de yyyy
+      */
+    private function formatoFecha($fecha,$tipo=null)
     {
-        $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noivembre", "Diciembre"];
-        $hh = "";
-        if (strpos($fecha, " ")) {
-            $date = explode(' ', $fecha);
-            $fecha = $date[0];
-            $hh = $date[1];
+      try {
+        $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noivembre", "Diciembre"];
+        $hh= "";
+        if(strpos($fecha, " ") ){
+          $date = explode(' ', $fecha);
+          $fecha = $date[0];
+          $hr = explode(':', $date[1]);
+          $hh = $hr[0].':'.$hr[1];
         }
         $fecha = explode('-', $fecha);
         $dd = $fecha[2];
         $mm = $fecha[1];
         $yy = $fecha[0];
-        $ddmmyy = $dd . ' de ' . $monthNames[intval($mm) - 1] . ' de ' . $yy . ' ' . $hh;
+        if($tipo == 1){ //fecha sin hr
+          $ddmmyy = $dd.' de '. $monthNames[intval($mm)-1]. ' de ' . $yy;
+        }else if($tipo == 2){ //hr
+          $ddmmyy = $hh;
+        }else{ //fecha y hora
+          $ddmmyy = $dd.' de '. $monthNames[intval($mm)-1]. ' de ' . $yy .' '. $hh;
+        }
+        // $ddmmyy = $dd.' de '. $monthNames[intval($mm)-1]. ' de ' . $yy .' '. $hh ;
         return $ddmmyy;
+      } catch (\Throwable $th) {
+        return "";
+      }  
     }
 
     /**
