@@ -1794,8 +1794,6 @@
                         $("#btnRatificarSolicitud").show();
                         $("#expediente_id").val("");
                     }
-                    cargarGeneros();
-                    cargarTipoContactos();
                 }catch(error){
                     console.log(error);
                 }
