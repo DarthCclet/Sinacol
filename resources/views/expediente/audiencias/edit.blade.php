@@ -338,15 +338,17 @@
             </div>
         </div>
         <div class="tab-pane fade row" id="default-tab-2">
-            <div class="col-md-12">
+            @if(isset($documentos))
+                @include('expediente.expediente.documentos',$documentos)
+            @endif
+            {{-- <div class="col-md-12">
                 <div class="text-right">
                     <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
                 </div>
-            </div><br>
-            <div class="col-md-12">
+            </div><br> --}}
+            {{-- <div class="col-md-12">
                 <div id="gallery" class="gallery row"></div>
-                <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
-            </div>
+            </div> --}}
 
             <!-- The template to display files available for upload -->
             <script id="template-upload" type="text/x-tmpl">

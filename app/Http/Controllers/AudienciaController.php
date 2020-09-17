@@ -176,6 +176,7 @@ class AudienciaController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function edit(Audiencia $audiencia) {
+        $doc= [];
         // obtenemos los conciliadores
         $partes = array();
         $conciliadores = array();
@@ -235,7 +236,42 @@ class AudienciaController extends Controller {
                 }
             }
         }
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "concepto_pago_resoluciones", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante"));
+
+        $partes = array();
+        $solicitud =$audiencia->expediente->solicitud;
+        $solicitudPartes = $solicitud->partes;
+        foreach($solicitudPartes as $key => $parte){
+            $documentos = $parte->documentos;
+            foreach ($documentos as $documento) {
+                $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                $documento->tipo = pathinfo($documento->ruta)['extension'];
+                $documento->parte = $parte->nombre. " ".$parte->primer_apellido." ".$parte->segundo_apellido;
+                $documento->tipo_doc = 2;
+                array_push($doc,$documento);
+            }
+        }
+        $documentos = $solicitud->documentos;
+        foreach ($documentos as $documento) {
+            $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+            $documento->tipo = pathinfo($documento->ruta)['extension'];
+            $documento->tipo_doc = 1;
+            array_push($doc,$documento);
+        }
+        foreach($solicitud->expediente->audiencia as $audienciaSol){
+            $documentos = $audienciaSol->documentos;
+            
+            foreach ($documentos as $documento) {
+                $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                $documento->tipo = pathinfo($documento->ruta)['extension'];
+                $documento->tipo_doc = 3;
+                $documento->audiencia = $audienciaSol->folio."/".$audienciaSol->anio;
+                $documento->audiencia_id = $audienciaSol->id;
+                array_push($doc,$documento);
+            }
+        }
+        $documentos = $doc;
+
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "concepto_pago_resoluciones", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos"));
     }
 
     /**

@@ -1915,6 +1915,7 @@
             formData.append('parte_id', $("#parte_id").val());
             formData.append('parte_representada_id', $("#parte_representada_id").val());
             formData.append('audiencia_id', $("#audiencia_id").val());
+            formData.append('solicitud_id', '{{$solicitud_id}}');
             formData.append('tipo_documento_id', $("#tipo_documento_id").val());
             formData.append('listaContactos', JSON.stringify(listaContactos));
             formData.append('_token', "{{ csrf_token() }}");

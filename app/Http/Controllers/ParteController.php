@@ -300,7 +300,7 @@ class ParteController extends Controller
             // se actualiza doc
             if(isset($request->fileIdentificacion)){
                 $parte = Parte::find($request->parte_id);
-                $audiencia = Audiencia::find($request->audiencia_id);
+                $solicitud = Solicitud::find($request->solicitud_id);
                 
                 try{
                     $deleted = false;
@@ -310,11 +310,11 @@ class ParteController extends Controller
                     }
                     if(count($parte->documentos) == 0 || $deleted){
                         $existeDocumento = $parte->documentos;
-                        if($audiencia != null){
+                        if($solicitud != null){
                             $archivo = $request->fileIdentificacion;
-                            $audiencia_id = $audiencia->id;
+                            $solicitud_id = $solicitud->id;
                             $clasificacion_archivo= $request->tipo_documento_id;
-                            $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia_id;
+                            $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                             Storage::makeDirectory($directorio);
                             $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                             
@@ -379,15 +379,15 @@ class ParteController extends Controller
             }
             // se agrega doc
             // $parte = $parte_representada;
-            $audiencia = Audiencia::find($request->audiencia_id);
+            $solicitud = Solicitud::find($request->solicitud_id);
             try{
                 if(count($parte->documentos) == 0){
                     $existeDocumento = $parte->documentos;
-                    if($audiencia != null){
+                    if($solicitud != null){
                         $archivo = $request->fileIdentificacion;
-                        $audiencia_id = $audiencia->id;
+                        $solicitud_id = $solicitud->id;
                         $clasificacion_archivo= $request->tipo_documento_id;
-                        $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia_id;
+                        $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                         Storage::makeDirectory($directorio);
                         $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                         

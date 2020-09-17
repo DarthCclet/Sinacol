@@ -1,10 +1,5 @@
-@extends('layouts.default', ['paceTop' => true])
 
-@section('title', 'expedientes')
-
-@include('includes.component.datatables')
-
-@section('content')
+{{-- @section('content') --}}
     <!-- begin page-header -->
     <h1 class="page-header">Documentos del expediente</h1>
     <!-- end page-header -->
@@ -33,7 +28,7 @@
                         @foreach ($documentos as $documento)
                         @if ($documento->tipo_doc == 1 || $documento->tipo_doc == 2 )    
                             <tr>
-                                <td>{{isset($documento->parte) ? $documento->parte."- ":""  }}{{$documento->clasificacionArchivo->nombre}} ({{$documento->tipo}})</td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->id}}" target="_blank">Descargar</a></td>
+                                <td><b>{{isset($documento->parte) ? $documento->parte."- ":""  }}</b>{{$documento->clasificacionArchivo->nombre}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->id}}" target="_blank">Descargar</a></td>
                             </tr>
                         @endif
                         @endforeach
@@ -52,7 +47,7 @@
                         @foreach ($documentos as $documento)
                             @if ($documento->tipo_doc == 3)    
                                 <tr>
-                                    <td>{{isset($documento->parte) ? "".$documento->parte."- ":""  }}{{$documento->clasificacionArchivo->nombre}} ({{$documento->tipo}}) </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->id}}" target="_blank">Descargar</a></td>
+                                    <td><b>{{isset($documento->audiencia_id) ? "".$documento->audiencia."- ":""  }}</b>{{$documento->clasificacionArchivo->nombre}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->id}}" target="_blank">Descargar</a></td>
                                 </tr>
                             @endif
                         @endforeach
@@ -62,12 +57,4 @@
         </div>
     </div>
 
-@endsection
-
-@push('scripts')
-    <script>
-        $(document).ready(function() {
-            $('#data-table-default').DataTable({responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
-        });
-    </script>
-@endpush
+{{-- @endsection --}}
