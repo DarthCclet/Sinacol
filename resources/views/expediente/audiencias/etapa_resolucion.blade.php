@@ -1997,10 +1997,6 @@
             $("#feha_instrumento").prev().css("color","red");
             error = true;
         }
-        if($("#detalle_instrumento").val() == ""){
-            $("#detalle_instrumento").prev().css("color","red");
-            error = true;
-        }
         // console.log(listaContactos.length);
         if(listaContactos.length == 0){
             $("#contacto").prev().css("color","red");
