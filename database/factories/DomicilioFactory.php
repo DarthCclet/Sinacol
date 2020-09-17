@@ -15,7 +15,7 @@ $factory->define(Domicilio::class, function (Faker $faker) {
     $tipo_asentamiento = TipoAsentamiento::inRandomOrder()->first();
     $tipo_vialidad = TipoVialidad::inRandomOrder()->first();
     $estado = Estado::inRandomOrder()->first();
-    $municipio = Municipio::whereRaw(DB::raw("lower(unaccent('{$estado->nombre}')) = lower(unaccent(estado))"))->get('municipio')->first();
+    $municipio = Municipio::whereRaw(DB::raw("lower('{$estado->nombre}') = lower(estado)"))->get('municipio')->first();
     //TODO: Extraer algún domiciliable cuando ya esté disponible algun modelo docmiciliable
     $domiciliable_id = 1;
     $domiciliable_type = 'App\User';

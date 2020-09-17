@@ -240,7 +240,7 @@
                     if(data != null && data != ""){
                         $("#dato_laboral_id").val(data.id);
                         // getGiroEditar("solicitante");
-                        $("#nombre_jefe_directo").val(data.nombre_jefe_directo);
+
                         $("#ocupacion_id").val(data.ocupacion_id);
                         $("#nss").val(data.nss);
                         $("#no_issste").val(data.no_issste);

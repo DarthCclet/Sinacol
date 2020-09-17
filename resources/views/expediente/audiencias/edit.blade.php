@@ -44,7 +44,7 @@
     <hr class="red">
     <!-- end page-header -->
     <!-- begin panel -->
-    <a href="{!! route('audiencias.index') !!}" class="btn btn-primary btn-sm pull-right"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
+    {{-- <a href="{!! route('audiencias.index') !!}" class="btn btn-primary btn-sm pull-right"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a> --}}
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a href="#default-tab-1" data-toggle="tab" class="nav-link active">
@@ -338,15 +338,17 @@
             </div>
         </div>
         <div class="tab-pane fade row" id="default-tab-2">
-            <div class="col-md-12">
+            @if(isset($documentos))
+                @include('expediente.expediente.documentos',$documentos)
+            @endif
+            {{-- <div class="col-md-12">
                 <div class="text-right">
                     <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
                 </div>
-            </div><br>
-            <div class="col-md-12">
+            </div><br> --}}
+            {{-- <div class="col-md-12">
                 <div id="gallery" class="gallery row"></div>
-                <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
-            </div>
+            </div> --}}
 
             <!-- The template to display files available for upload -->
             <script id="template-upload" type="text/x-tmpl">
@@ -741,22 +743,6 @@
                         <input type="hidden" id="dato_laboral_id">
                         <input type="hidden" id="resolucion_dato_laboral">
                         <input type="hidden" id="giro_comercial_hidden">
-                        <div class="col-md-6">
-                            <input class="form-control upper" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
-                            <p class="help-block">Nombre del Jefe directo</p>
-                        </div>
-                        <div class="col-md-6">
-                            <input class="form-control upper" id="nombre_contrato" placeholder="Nombre de quien te contrato" type="text" value="">
-                            <p class="help-block">&iquest;Quien te contrato?</p>
-                        </div>
-                        <div class="col-md-6">
-                            <input class="form-control upper" id="nombre_paga" placeholder="Nombre quien te paga" type="text" value="">
-                            <p class="help-block">&iquest;Quien te paga?</p>
-                        </div>
-                        <div class="col-md-6">
-                            <input class="form-control upper" id="nombre_prestas_servicio" placeholder="Nombre de a quien le prestas tus servicios" type="text" value="">
-                            <p class="help-block">&iquest;A quien prestas el servicio?</p>
-                        </div>
                         <div class="col-md-6">
                             <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
                             <p class="help-block ">N&uacute;mero de seguro social</p>
@@ -1981,10 +1967,6 @@
                     dataType:"json",
                     data:{
                         id : $("#dato_laboral_id").val(),
-                        nombre_jefe_directo : $("#nombre_jefe_directo").val(),
-                        nombre_prestas_servicio : $("#nombre_prestas_servicio").val(),
-                        nombre_paga : $("#nombre_paga").val(),
-                        nombre_contrato : $("#nombre_contrato").val(),
                         puesto : $("#puesto").val(),
                         ocupacion_id : $("#ocupacion_id").val(),
                         nss : $("#nss").val(),
@@ -2050,13 +2032,8 @@
                 dataType:"json",
                 success:function(data){
                     if(data != null && data != ""){
-                        $("#nombre_prestas_servicio").val(data.nombre_prestas_servicio),
-
-                        $("#nombre_paga").val(data.nombre_paga),
-                        $("#nombre_contrato").val(data.nombre_contrato),
                         $("#dato_laboral_id").val(data.id);
                         // getGiroEditar("solicitante");
-                        $("#nombre_jefe_directo").val(data.nombre_jefe_directo);
                         $("#ocupacion_id").val(data.ocupacion_id);
                         $("#nss").val(data.nss);
                         $("#no_issste").val(data.no_issste);
@@ -2208,5 +2185,6 @@
                 }
             });
         }
+        $('[data-toggle="tooltip"]').tooltip();
     </script>
 @endpush

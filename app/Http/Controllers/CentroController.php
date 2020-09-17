@@ -210,4 +210,7 @@ class CentroController extends Controller
         }
         return $respuesta;
     }
+    public function getAudienciasCalendario(){
+        return view("centros.centros.calendario_audiencias");
+    }
 }

@@ -1,4 +1,20 @@
+@include('includes.component.dropzone')
 
+ <style>
+    .ui-accordion-content{
+        height:100% !important;
+    }
+    .card-header{
+        border: 1px solid #B38E5D !important;
+        background: #B38E5D !important;
+        color: white !important;
+        font-size: 65% !important;
+        padding: 4px !important;
+        width: 100%;
+        text-align: left !important;
+    }
+
+</style>
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
@@ -6,41 +22,558 @@
     </thead>
 
 </table>
-<div id="divFilters" class="col-md-12 row" >
-    <div class="col-md-4">
-        <input class="form-control filtros" id="folio" placeholder="Folio" type="text" value="">
-        <p class="help-block needed">Folio</p>
+
+
+{{-- Div carga documento --}}
+<div id="docs" style="display: none;">
+
+    <div class="text-right">
+        <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
     </div>
-    <div class="col-md-4">
-        <input class="form-control filtros" id="Expediente" placeholder="Folio del Expediente" type="text" value="">
-        <p class="help-block needed">Expediente</p>
-    </div>
-    <div class="col-md-4">
-        <input class="form-control filtros" id="anio" placeholder="A&ntilde;o" type="text" value="">
-        <p class="help-block needed">A&ntilde;o</p>
-    </div>
-    <div class="col-md-4">
-        <input class="form-control date filtros" id="fechaRatificacion" placeholder="Fecha de ratificacion" type="text" value="">
-        <p class="help-block needed">Fecha de ratificaci&oacute;n</p>
-    </div>
-    <div class="col-md-4">
-        <input class="form-control date filtros" id="fechaRecepcion" placeholder="Fecha de recepcion" type="text" value="">
-        <p class="help-block needed">Fecha de recepci&oacute;n</p>
-    </div>
-    <div class="col-md-4">
-        <input class="form-control date filtros" id="fechaConflicto" placeholder="Fecha de conflicto" type="text" value="">
-        <p class="help-block needed">Fecha de conflicto</p>
-    </div>
-    <div class="col-md-4">
-        {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , null, ['id'=>'estatus_solicitud_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect filtros']);  !!}
-        {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
-        <p class="help-block needed">Estatus de la solicitud</p>
-    </div>
-    <div class="col-md-4">
-        <button class="btn btn-danger" type="button" id="limpiarFiltros" > <i class="fa fa-eraser"></i> Limpiar filtros</button>
+    <div class="col-md-12">
+        <div id="gallery" class="gallery row"></div>
+        <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
     </div>
 
+    <!-- The template to display files available for upload -->
+    <script id="template-upload" type="text/x-tmpl">
+        {% for (var i=0, file; file=o.files[i]; i++) { %}
+            <tr class="template-upload fade show">
+                <td>
+                    <span class="preview"></span>
+                </td>
+                <td>
+                    <div class="bg-light rounded p-10 mb-2">
+                        <dl class="m-b-0">
+                            <dt class="text-inverse">Nombre del documento:</dt>
+                            <dd class="name">{%=file.name%}</dd>
+                            <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>
+                            <dd class="size">Processing...</dd>
+                        </dl>
+                    </div>
+                    <strong class="error text-danger h-auto d-block text-left"></strong>
+                </td>
+                <td>
+                    <select class="form-control catSelectFile" name="tipo_documento_id[]">
+                        <option value="">Seleccione una opci&oacute;n</option>
+                        @if(isset($clasificacion_archivo))
+                            @foreach($clasificacion_archivo as $clasificacion)
+                                @if($clasificacion->tipo_archivo_id == 1)
+                                <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                @endif
+                            @endforeach
+                        @endif
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control catSelectFile parteClass" name="parte[]">
+                        <option value="">Seleccione una opci&oacute;n</option>
+                        {{-- @if(isset($solicitud))
+                            @foreach($solicitud->partes as $parte)
+                                @if(($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3) && $parte->tipo_persona_id == 1 )
+                                    <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>
+                                @endif
+                            @endforeach
+                        @endif --}}
+                    </select>
+                </td>
+                <td>
+                    <dl>
+                        <dt class="text-inverse m-t-3">Progreso:</dt>
+                        <dd class="m-t-5">
+                            <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>
+                        </dd>
+                    </dl>
+                </td>
+                <td nowrap>
+                    {% if (!i && !o.options.autoUpload) { %}
+                        <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>
+                            <i class="fa fa-upload fa-fw text-inverse"></i>
+                            <span>Guardar</span>
+                        </button>
+                    {% } %}
+                </td>
+                <td nowrap>
+                    {% if (!i) { %}
+                        <button class="btn btn-default cancel width-100 p-r-20">
+                            <i class="fa fa-trash fa-fw text-muted"></i>
+                            <span>Cancelar</span>
+                        </button>
+                    {% } %}
+                </td>
+            </tr>
+        {% } %}
+    </script>
+    <!-- The template to display files available for download -->
+    <script id="template-download" type="text/x-tmpl">
+        {% for (var i=0, file; file=o.files[i]; i++) { %}
+            <tr class="template-download fade show">
+                <td width="1%">
+                    <span class="preview">
+                        {% if (file.thumbnailUrl) { %}
+                            <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}" class="rounded"></a>
+                        {% } else { %}
+                            <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
+                                <i class="fa fa-file-image fa-lg text-muted"></i>
+                            </div>
+                        {% } %}
+                    </span>
+                </td>
+                <td>
+                    <div class="bg-light p-10 mb-2">
+                        <dl class="m-b-0">
+                            <dt class="text-inverse">Nombre del archivo:</dt>
+                            <dd class="name">
+                                {% if (file.url) { %}
+                                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                                {% } else { %}
+                                    <span>{%=file.name%}</span>
+                                {% } %}
+                            </dd>
+                            <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>
+                            <dd class="size">{%=o.formatFileSize(file.size)%}</dd>
+                        </dl>
+                        {% if (file.error) { %}
+                            <div><span class="label label-danger">ERROR</span> {%=file.error%}</div>
+                        {% } %}
+                        {% if (file.success) { %}
+                            <div><span class="label label-success">Correcto</span> {%=file.success%}</div>
+                        {% } %}
+                    </div>
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                    {% if (file.deleteUrl) { %}
+                        <button class="btn btn-danger delete width-100 m-r-3 p-r-20" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                            <i class="fa fa-trash pull-left fa-fw text-inverse m-t-2"></i>
+                            <span>Delete</span>
+                        </button>
+                        <input type="checkbox" name="delete" value="1" class="toggle">
+                    {% } else { %}
+                        <button class="btn btn-default cancel width-100 m-r-3 p-r-20">
+                            <i class="fa fa-trash pull-left fa-fw text-muted m-t-2"></i>
+                            <span>Cancelar</span>
+                        </button>
+                    {% } %}
+                </td>
+            </tr>
+        {% } %}
+    </script>
+
 </div>
+{{-- Div carga documento --}}
+
+{{-- Modal ratificacion --}}
+<!--inicio modal para representante legal-->
+<input type="hidden" id="solicitud_id" value="">
+<div class="modal" id="modalSolicitud" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Solicitud</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <hr class="red">
+                    <h2>Datos generales de la Solicitud</h2>
+                    <div id="divSolicitudMod">
+                    </div>
+                    <hr class="red">
+                    <h2>Solicitantes</h2>
+                    <div id="divSolicitantesMod">
+                    </div>
+                    <hr class="red">
+                    <h2>Citados</h2>
+                    <div id="divCitadosMod">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-primary" data-dismiss="modal" > Aceptar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="modalRatificacion" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Ratificaci&oacute;n</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <div id="divNeedRepresentante" style="display: none;">
+                        <h5>Representantes legales</h5>
+                        <hr class="red">
+                        <div class="alert alert-muted" style="display: none;" id="menorAlert" >
+                            <strong>Menor de edad:</strong> Detectamos que al menos un solicitante no es mayor de edad, para poder continuar con la solicitud es necesario agregar al representante legal del menor y la identificación oficial de dicho representante.
+                        </div>
+                        <input type="hidden" id="parte_id" />
+                        <input type="hidden" id="parte_representada_id">
+                        <table class="table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <td>Solicitante</td>
+                                    <td>Acci&oacute;n</td>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyRepresentante">
+                            <tbody>
+                        </table>
+                    </div>
+                    <div style="margin: 2%;">
+                        <a class="btn btn-primary btn-sm" style="float: right;" data-dismiss="modal" onclick="$('#modal-archivos').modal('show');" ><i class="fa fa-plus"></i> Agregar Documentos</a>
+                    </div>
+                    <h5>Identificaciones</h5>
+                    <hr class="red">
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <td>Solicitante</td>
+                                <td>Documento</td>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyRatificacion">
+                        <tbody>
+                    </table>
+                    <h5>Notificaciones <small>Notificación de los citados</small></h5>
+                    <hr class="red">
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <td>Tipo de notificación</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" id="aradioNotificacionA1" value="1" name="aradioNotificacion1" class="custom-control-input">
+                                        <label class="custom-control-label" for="aradioNotificacionA1">A) El solicitante entrega citatorio al citado(s)</label>
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" id="aradioNotificacionB1" value="2" name="aradioNotificacion1" class="custom-control-input">
+                                        <label class="custom-control-label" for="aradioNotificacionB1">B) Un notificador del centro entrega citatorio al citado(s)</label>
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" id="aradioNotificacionB1" value="3" name="aradioNotificacion1" class="custom-control-input">
+                                        <label class="custom-control-label" for="aradioNotificacionB1">B) Agendar cita con el notificador para entrega de citatorio</label>
+                                    </div>
+                                </td>
+                            </tr>
+                        <tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Ratificar</button>
+                    <button class="btn btn-success btn-sm m-l-5" id='btnGuardarConvenio'><i class="fa fa-save"></i> Ratificar con convenio</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="modal-representante" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Representante legal</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <h5>Datos del Representante legal</h5>
+                <div class="col-md-12 row">
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label for="curpRep" class="control-label">CURP</label>
+                            <input type="text" id="curpRep" maxlength="18" onblur="validaCURP(this.value);" class="form-control" placeholder="CURP del representante legal">
+                        </div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label for="nombreRep" class="control-label">Nombre</label>
+                            <input type="text" id="nombreRep" class="form-control" placeholder="Nombre del representante legal">
+                        </div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label for="primer_apellidoRep" class="control-label">Primer apellido</label>
+                            <input type="text" id="primer_apellidoRep" class="form-control" placeholder="Primer apellido del representante">
+                        </div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label for="segundo_apellidoRep" class="control-label">Segundo apellido</label>
+                            <input type="text" id="segundo_apellidoRep" class="form-control" placeholder="Segundo apellido representante">
+                        </div>
+                    </div>
+                    <div class="col-md-6 ">
+                        <div class="form-group">
+                            <label for="fecha_nacimientoRep" class="control-label">Fecha de nacimiento</label>
+                            <input type="text" id="fecha_nacimientoRep" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="genero_idRep" class="col-sm-6 control-label">Género</label>
+                        <select id="genero_idRep" class="form-control select-element">
+                            <option value="">-- Selecciona un género</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12 row">
+                        <div class="col-md-6">
+                            Documento de identificaci&oacute;n
+                            <span class="btn btn-primary fileinput-button m-r-3">
+                                <i class="fa fa-fw fa-plus"></i>
+                                <span>Seleccionar identificaci&oacute;n</span>
+                                <input type="file" id="fileIdentificacion" name="files">
+                            </span>
+                            <p style="margin-top: 1%;" id="labelIdentifRepresentante"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="clasificacion_archivo_id_representante" class="control-label">Tipo de documento</label>
+                            <select class="form-control catSelect" required id="tipo_documento_id" name="tipo_documento_id">
+                                <option value="">Seleccione una opci&oacute;n</option>
+                                @if(isset($clasificacion_archivo))
+                                    @foreach($clasificacion_archivo as $clasificacion)
+                                        <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <h5>Datos de comprobante como representante legal</h5>
+                <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="clasificacion_archivo_id_representante" class="control-label">Instrumento</label>
+                            <select id="clasificacion_archivo_id_representante" class="form-control select-element">
+                                <option value="">-- Selecciona un instrumento</option>
+                                @foreach($clasificacion_archivos_Representante as $clasificacion)
+                                <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
+                            <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="detalle_instrumento" class="control-label">Detalle del instrumento notarial</label>
+                            <textarea type="text" id="detalle_instrumento" class="form-control" placeholder=""></textarea>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <h5>Datos de contacto</h5>
+                <div class="col-md-12 row">
+                    <div class="col-md-5">
+                        <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
+                        <select id="tipo_contacto_id" class="form-control select-element">
+                            <option value="">-- Selecciona un género</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label for="contacto" class="control-label">Contacto</label>
+                            <input type="text" id="contacto" class="form-control" placeholder="Información de contacto">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary" type="button" id="btnAgregarContacto">
+                            <i class="fa fa-plus-circle"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <table class="table table-bordered" >
+                        <thead>
+                            <tr>
+                                <th style="width:80%;">Tipo</th>
+                                <th style="width:80%;">Contacto</th>
+                                <th style="width:20%; text-align: center;">Accion</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyContacto">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarRepresentante"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="modal-registro-correos" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Representante legal</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    - Para ingresar al buzón electr&oacute;nico se debe registrar una dirección de correo, los siguientes solicitantes no registraron una cuenta, indica su correo o solicita un acceso del sistema
+                </div>
+                <table class="table table-bordered table-striped table-hover" id="tableSolicitantesCorreo">
+                    <thead>
+                        <tr>
+                            <th>Solicitante</th>
+                            <th></th>
+                            <th>Correo electrónico</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarCorreos"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal" id="modal-visor" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="bodyArchivo">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal" id="modal-aviso-resolucion-inmediata" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Ratificación inmediata</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    <p>
+                        Usted está a punto de ratificar la solicitud para que se de resolución inmediatamente, las indicaciones para esta resolución son las siguientes.<br><br>
+                        <ul>
+                            <li>Debido a que no se requiere sala para realizar la audiencia, se asignará una sala virtual y el conciliador será asignado de acuerdo a la disponibilidad</li>
+                            <li>Debido a que ya hay un convenio entré las partes, la unica labor del conciliador será dar fe de lo acordado</li>
+                            <li>Se deberá acceder a la guia de audiencia donde se llenarán los datos requerido para extender la ratificación y el documento que de esta resulte</li>
+                            <li>Si desea continuar con el proceso de ratificación inmediata presione ratificar</li>
+                            <li>Si desea agendar una audiencia para conciliar, presione cancelar</li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnRatificarInmediata"><i class="fa fa-arrow-right"></i> Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Modal ratificacion --}}
+
+<!-- inicio Modal cargar archivos-->
+<div class="modal" id="modal-archivos" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Documentos de identificaci&oacute;n</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="fileupload" action="/api/documentos/solicitud" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="solicitud_id[]" id='solicitud_id_modal'/>
+                    <div class="row fileupload-buttonbar">
+                        <div class="col-xl-12">
+                                <span class="btn btn-primary fileinput-button m-r-3">
+                                        <i class="fa fa-fw fa-plus"></i>
+                                        <span>Agregar...</span>
+                                        <input type="file" name="files[]" multiple>
+                                </span>
+                                {{-- <button type="submit" class="btn btn-primary start m-r-3">
+                                        <i class="fa fa-fw fa-upload"></i>
+                                        <span>Cargar</span>
+                                </button> --}}
+                                <button type="reset" class="btn btn-default cancel m-r-3" id="btnCancelFiles">
+                                        <i class="fa fa-fw fa-ban"></i>
+                                        <span>Cancelar</span>
+                                </button>
+                                <!-- The global file processing state -->
+                                <span class="fileupload-process"></span>
+                        </div>
+                        <!-- The global progress state -->
+                        <div class="col-xl-5 fileupload-progress fade d-none d-xl-block">
+                                <!-- The global progress bar -->
+                                <div class="progress progress-striped active m-b-0">
+                                        <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                                </div>
+                                <!-- The extended global progress state -->
+                                <div class="progress-extended">&nbsp;</div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-condensed text-nowrap mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="10%">VISTA PREVIA</th>
+                                    <th>INFORMACION</th>
+                                    <th>TIPO DE DOCUMENTO</th>
+                                    <th>PARTE RELACIONADA</th>
+                                    <th>PROGRESO</th>
+                                    <th width="1%"></th>
+                                    <th width="1%"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="files">
+                                <tr data-id="empty">
+                                    <td colspan="5" class="text-center text-muted p-t-30 p-b-30">
+                                        <div class="m-b-10"><i class="fa fa-file fa-3x"></i></div>
+                                        <div>Sin documentos</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-primary btn-sm" data-dismiss="modal" onclick="continuarRatificacion()"><i class="fa fa-sign-out"></i> Continuar a ratificaci&oacute;n</a>
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-sign-out"></i> Cerrar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal de cargar archivos-->
+
   @push('scripts')
   <script>
       var estatus_solicitudes = [];
@@ -71,10 +604,12 @@
                         d.Expediente = $("#Expediente").val(),
                         d.anio = $("#anio").val(),
                         d.estatus_solicitud_id = $("#estatus_solicitud_id").val(),
+                        d.curp = $("#curp").val(),
+                        d.nombre = $("#nombre").val(),
                         d.IsDatatableScroll = true,
                         d.loadPartes = true
                         // d.objeto_solicitud_id = $("#objeto_solicitud_id").val()
-                    }
+                    },
                 },
                 "columnDefs": [
                     {"targets": [0], "visible": false},
@@ -188,7 +723,12 @@
                     {
                         "targets": -1,
                         "render": function (data, type, row) {
-                                return '<div style="display: inline-block;"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-3" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
+                                var buttons = '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-3" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
+                                buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="consultarSolicitud('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></button></div>';
+                                if(row[1] == 1){
+                                    buttons += '<div title="Ratificar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="continuarRatificacion('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></button></div>';
+                                }
+                                return buttons;
                             }
                         // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a>&nbsp;<button class="btn btn-xs btn-danger btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
                     }
@@ -265,6 +805,1186 @@
                 dt.ajax.reload(function(){}, true);
                 filtrado = true;
             });
+            $('[data-toggle="tooltip"]').tooltip();
        });
+
+    //    para ratificacion
+    
+    $(document).on('click', '[data-toggle="iframe"]',function(event){
+        event.preventDefault();
+        var pdf_link = $(this).attr('href');
+        var iframe = "";
+        iframe +='    <div id="Iframe-Cicis-Menu-To-Go" class="set-margin-cicis-menu-to-go set-padding-cicis-menu-to-go set-border-cicis-menu-to-go set-box-shadow-cicis-menu-to-go center-block-horiz">';
+        iframe +='        <div class="responsive-wrapper responsive-wrapper-padding-bottom-90pct" style="-webkit-overflow-scrolling: touch; overflow: auto;">';
+        iframe +='            <iframe src="'+pdf_link+'"></iframe>';
+        iframe +='        </div>';
+        iframe +='    </div>';
+
+        $("#bodyArchivo").html(iframe);
+        $("#modal-visor").modal("show");
+
+        return false;
+    });
+
+    // Funcion para ratificar solicitudes
+    function continuarRatificacion(solicitud_id = null){
+        if(solicitud_id == null){
+            var solicitud_id =$("#solicitud_id").val();
+        }else{
+            $("#solicitud_id").val(solicitud_id);
+        }
+        
+        getSolicitudFromBD(solicitud_id);
+        $("#solicitud_id_modal").val(solicitud_id);
+        actualizarPartes();
+        try{
+            cargarDocumentos();
+            var solicitanteMenor = arraySolicitantes.filter(x=>x.edad <= 16).filter(x=>x.edad != null);
+            var solicitanteMoral = arraySolicitantes.filter(x=>x.tipo_persona_id == "2");
+            if(solicitanteMenor.length > 0 || solicitanteMoral.length > 0){
+                $("#divNeedRepresentante").show();
+                var html = "";
+                console.log(solicitanteMenor);
+                $.each(solicitanteMenor,function(key,parte){
+                    html += "<tr>";
+                    html += "<td>"+parte.nombre + " " + parte.primer_apellido + " " + (parte.segundo_apellido|| "")+"</td>";
+                    html += "<td><button class='btn btn-primary' type='button' onclick='AgregarRepresentante("+parte.id+",1)' id='btnaddRep"+parte.id+"' > <i class='fa fa-plus-circle'></i> Agregar Representante</button> <span style='color:green; font-size:Large;' id='tieneRepresentante"+parte.id+"'></span></td>";
+                    html += "</tr>";
+                });
+                $.each(solicitanteMoral,function(key,parte){
+                    html += "<tr>";
+                    html += "<td>"+parte.nombre_comercial +"</td>";
+                    html += "<td><button class='btn btn-primary' type='button' onclick='AgregarRepresentante("+parte.id+",0)' id='btnaddRep"+parte.id+"' > <i class='fa fa-plus-circle'></i> Agregar Representante</button> <span style='color:green; font-size:Large;' id='tieneRepresentante"+parte.id+"'></span></td>";
+                    html += "</tr>";
+                });
+                $("#tbodyRepresentante").html(html);
+            }else{
+                    $("#divNeedRepresentante").hide();
+            }
+            $("#modalRatificacion").modal("show");
+//
+        }catch(error){
+            console.log(error);
+        }
+    }
+
+    $("#btnGuardarRatificar").on("click",function(){
+        var validarRatificacion = RatificacionValidar();
+        if(!validarRatificacion.error){
+            $.ajax({
+                url:'/solicitud/correos/'+$("#solicitud_id").val(),
+                type:'GET',
+                dataType:"json",
+                async:true,
+                success:function(data){
+                    if(data == null || data == ""){
+                        swal({
+                            title: '¿Estas seguro?',
+                            text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
+                            icon: 'warning',
+                            buttons: {
+                                cancel: {
+                                    text: 'Cancelar',
+                                    value: null,
+                                    visible: true,
+                                    className: 'btn btn-default',
+                                    closeModal: true,
+                                },
+                                confirm: {
+                                    text: 'Aceptar',
+                                    value: true,
+                                    visible: true,
+                                    className: 'btn btn-danger',
+                                    closeModal: true
+                                }
+                            }
+                        }).then(function(isConfirm){
+                            if(isConfirm){
+                                $.ajax({
+                                    url:'/solicitud/ratificar',
+                                    type:'POST',
+                                    dataType:"json",
+                                    async:true,
+                                    data:{
+                                        id:$("#solicitud_id").val(),
+                                        listaNotificaciones:validarRatificacion.listaNotificaciones,
+                                        inmediata:false,
+                                        _token:"{{ csrf_token() }}"
+                                    },
+                                    success:function(data){
+                                        if(data != null && data != ""){
+                                            $("#modalRatificacion").modal("hide");
+                                            swal({
+                                                title: 'Correcto',
+                                                text: 'Solicitud ratificada correctamente',
+                                                icon: 'success'
+                                            });
+                                            location.reload();
+                                        }else{
+                                            swal({
+                                                title: 'Error',
+                                                text: 'No se pudo ratificar',
+                                                icon: 'error'
+                                            });
+                                        }
+                                    },error:function(data){
+                                        console.log(data);
+                                        swal({
+                                            title: 'Error',
+                                            text: data.responseJSON.message,
+                                            icon: 'error'
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }else{
+                        var tableSolicitantes = '';
+                        $.each(data, function(index,element){
+                            tableSolicitantes +='<tr>';
+                            if(element.tipo_persona_id == 1){
+                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
+                            }else{
+                                tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
+                            }
+                            tableSolicitantes += '  <td>';
+                            tableSolicitantes += '      <div class="col-md-12">';
+                            tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
+                            tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
+                            tableSolicitantes += '      </div>';
+                            tableSolicitantes += '  </td>';
+                            tableSolicitantes += '  <td>';
+                            tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
+                            tableSolicitantes += '  </td>';
+                            tableSolicitantes +='</tr>';
+                        });
+                        $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
+                        $("#modal-registro-correos").modal("show");
+                    }
+                }
+            });
+        }else{
+            swal({
+                title: 'Error',
+                text: validarRatificacion.msg,
+                icon: 'warning'
+            });
+        }
+    });
+    function RatificacionValidar(){
+        var error = false;
+        var listaNotificaciones = [];
+        var msg = "";
+        if(!ratifican){
+            error = true;
+            msg = "Al menos un solicitante debe presentar documentos para ratificar";
+        }
+        // $(".hddParte_id").each(function(element){
+            // var parte_id = $(this).val();
+            if($("#aradioNotificacionA1").is(":checked")){
+                listaNotificaciones.push({
+                    tipo_notificacion_id:1
+                });
+            }else if($("#aradioNotificacionB1").is(":checked")){
+                listaNotificaciones.push({
+                    tipo_notificacion_id:2
+                });
+            }else{
+                msg = "Indica el tipo de notificación para los citados";
+                error = true;
+            }
+        // });
+        var array = [];
+        array.error=error;
+        array.msg=msg;
+        array.listaNotificaciones=listaNotificaciones;
+        return array;
+    }
+    $("#btnRatificarInmediata").on("click",function(){
+        swal({
+            title: '¿Estas seguro?',
+            text: 'Al oprimir aceptar se creará un expediente y podra relizar la resolución inmediatamente',
+            icon: 'warning',
+            buttons: {
+                cancel: {
+                    text: 'Cancelar',
+                    value: null,
+                    visible: true,
+                    className: 'btn btn-default',
+                    closeModal: true,
+                },
+                confirm: {
+                    text: 'Aceptar',
+                    value: true,
+                    visible: true,
+                    className: 'btn btn-danger',
+                    closeModal: true
+                }
+            }
+        }).then(function(isConfirm){
+            if(isConfirm){
+                $.ajax({
+                    url:'/solicitud/ratificar',
+                    type:'POST',
+                    dataType:"json",
+                    async:true,
+                    data:{
+                        id:$("#solicitud_id").val(),
+                        inmediata:true,
+                        _token:"{{ csrf_token() }}"
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            $("#modal-aviso-resolucion-inmediata").modal("hide");
+                            $("#modalRatificacion").modal("hide");
+                            swal({
+                                title: 'Correcto',
+                                text: 'Solicitud ratificada correctamente',
+                                icon: 'success'
+                            });
+                            window.location.href = "/guiaAudiencia/"+data.id;
+                        }else{
+                            swal({
+                                title: 'Error',
+                                text: 'No se pudo ratificar',
+                                icon: 'error'
+                            });
+                        }
+                    },error:function(data){
+                        console.log(data);
+                        swal({
+                            title: 'Error',
+                            text: data.responseJSON.message,
+                            icon: 'error'
+                        });
+                    }
+                });
+            }
+        });
+    });
+    $("#btnGuardarCorreos").on("click",function(){
+        var validacion = validarCorreos();
+        if(!validacion.error){
+            $.ajax({
+                url:'/solicitud/correos',
+                type:'POST',
+                dataType:"json",
+                async:true,
+                data:{
+                    _token:"{{ csrf_token() }}",
+                    listaCorreos:validacion.listaCorreos
+                },
+                success:function(data){
+                    $("#modal-registro-correos").modal("hide");
+                },error:function(error){
+                    swal({
+                        title: 'Error',
+                        text: 'Ocurrio un error al guardar los correos',
+                        icon: 'warning'
+                    });
+                }
+            });
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Si no se desea generar accesos, se deben proporcionar los correos',
+                icon: 'warning'
+            });
+        }
+    });
+      
+    function checkCorreo(id){
+        if(!$("#checkCorreo"+id).is(":checked")){
+            $("#correoValidar"+id).prop("disabled",false);
+        }else{
+            $("#correoValidar"+id).prop("disabled",true);
+        }
+    }
+    
+    function validarCorreos(){
+        var listaCorreos = [];
+        var error = false;
+        $.each($(".checkCorreo"),function(index,element){
+            var id = $(element).data('id');
+            $("#correoValidar"+id).css("border-color","");
+            if($(element).is(":checked")){
+                listaCorreos.push({
+                    crearAcceso:true,
+                    correo:"",
+                    parte_id:id
+                });
+            }else{
+                if($("#correoValidar"+id).val() != ""){
+                    listaCorreos.push({
+                        crearAcceso:false,
+                        correo:$("#correoValidar"+id).val(),
+                        parte_id:id
+                    });
+                }else{
+                    error = true;
+                    $("#correoValidar"+id).css("border-color","red");
+                }
+            }
+        });
+        var respuesta = new Array();
+        respuesta.error=error;
+        respuesta.listaCorreos=listaCorreos;
+        return respuesta;
+    }
+    function cargarDocumentos(){
+        $.ajax({
+            url:"/solicitudes/documentos/"+$("#solicitud_id").val(),
+            type:"GET",
+            dataType:"json",
+            async:true,
+            success:function(data){
+                try{
+                    if(data != null && data != ""){
+                        //Carga información en la ratificacion
+                        var html = "";
+                   $.each(data, function (key, value) {
+                       if(value.documentable_type == "App\\Parte"){
+                            // var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
+                            // if(parte != undefined){
+                                html += "<tr>";
+                                html += "<td>"+value.parte+"</td>";
+                                html += "<td>"+value.nombre_original + " "+ value.clasificacion_archivo_id+"</td>";
+                                html += "</tr>";
+                                ratifican = true;
+                            // }
+                       }
+                   });
+                    $("#tbodyRatificacion").html(html);
+                        // end carga ratificacion
+                        var table = "";
+                        var div = "";
+                        $.each(data, function(index,element){
+                            div += '<div class="image gallery-group-1">';
+                            div += '    <div class="image-inner" style="position: relative;">';
+                            if(element.tipo == 'pdf' || element.tipo == 'PDF'){
+                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
+                                div += '                <div class="img" align="center">';
+                                div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
+                                div += '                </div>';
+                                div += '            </a>';
+                            }else{
+                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
+                                div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
+                                div += '            </a>';
+                            }
+                            div += '            <p class="image-caption">';
+                            div += '                '+element.longitud+' kb';
+                            div += '            </p>';
+                            div += '    </div>';
+                            div += '    <div class="image-info">';
+                            div += '            <h5 class="title">'+element.nombre_original+'</h5>';
+                            div += '            <div class="desc">';
+                            div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
+                            div +=                  element.descripcion+'<br>';
+                            div += '            </div>';
+                            div += '    </div>';
+                            div += '</div>';
+                        });
+                        $("#gallery").html(div);
+                    }
+                }catch(error){
+                    console.log(error);
+                }
+            }
+        });
+    }
+    var handleJqueryFileUpload = function() {
+        // Initialize the jQuery File Upload widget:
+        $('#fileupload').fileupload({
+            autoUpload: false,
+            disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
+            maxFileSize: 5000000,
+            acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
+            stop: function(e,data){
+              cargarDocumentos();
+            //   $("#modal-archivos").modal("hide");
+            },uploadTemplate: function (o) {
+                var rows = $();
+                $.each(o.files, function (index, file) {
+                    var row = $('<tr class="template-upload fade show">'+
+                    '    <td>'+
+                    '        <span class="preview"></span>'+
+                    '    </td>'+
+                    '    <td>'+
+                    '        <div class="bg-light rounded p-10 mb-2">'+
+                    '            <dl class="m-b-0">'+
+                    '                <dt class="text-inverse">Nombre del documento:</dt>'+
+                    '                <dd class="name">'+file.name+'</dd>'+
+                    '                <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>'+
+                    '                <dd class="size">Processing...</dd>'+
+                    '            </dl>'+
+                    '        </div>'+
+                    '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
+                    '    </td>'+
+                    '    <td>'+
+                    '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
+                    '            <option value="">Seleccione una opci&oacute;n</option>'+
+                    '            @if(isset($clasificacion_archivo))'+
+                    '                @foreach($clasificacion_archivo as $clasificacion)'+
+                    '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
+                    '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
+                    '                    @endif'+
+                    '                @endforeach'+
+                    '            @endif'+
+                    '        </select>'+
+                    '    </td>'+
+                    '    <td>'+
+                    '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
+                    '            <option value="">Seleccione una opci&oacute;n</option>'+
+                    '        </select>'+
+                    '    </td>'+
+                    '    <td>'+
+                    '        <dl>'+
+                    '            <dt class="text-inverse m-t-3">Progreso:</dt>'+
+                    '            <dd class="m-t-5">'+
+                    '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
+                    '            </dd>'+
+                    '        </dl>'+
+                    '    </td>'+
+                    '    <td nowrap>'+
+                    '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
+                    '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
+                    '                <span>Guardar</span>'+
+                    '            </button>'+
+                    '    </td>'+
+                    '    <td nowrap>'+
+                    '            <button class="btn btn-default cancel width-100 p-r-20">'+
+                    '                <i class="fa fa-trash fa-fw text-muted"></i>'+
+                    '                <span>Cancelar</span>'+
+                    '            </button>'+
+                    '    </td>'+
+                    '</tr>');
+                    if (file.error) {
+                        row.find('.error').text(file.error);
+                    }
+                    rows = rows.add(row);
+                });
+                return rows;
+            }
+            // Uncomment the following to send cross-domain cookies:
+            //xhrFields: {withCCOLOR_REDentials: true},
+        });
+
+        // Enable iframe cross-domain access via COLOR_REDirect option:
+        $('#fileupload').fileupload(
+            'option',
+            'COLOR_REDirect',
+            window.location.href.replace(
+                    /\/[^\/]*$/,
+                    '/cors/result.html?%s'
+            )
+        );
+
+        // hide empty row text
+        $('#fileupload').on('fileuploadsend', function (e, data) {
+
+            // if(){
+            //     e.preventDefault();
+            // }
+        })
+        $('#fileupload').bind('fileuploadadd', function(e, data) {
+            $('#fileupload [data-id="empty"]').hide();
+            $(".catSelectFile").select2();
+        });
+        $('#fileupload').bind('fileuploaddone', function(e, data) {
+            // console.log("add");
+        });
+
+        // show empty row text
+        $('#fileupload').bind('fileuploadfail', function(e, data) {
+            var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
+            if (rowLeft === 0) {
+                    $('#fileupload [data-id="empty"]').show();
+            } else {
+                    $('#fileupload [data-id="empty"]').hide();
+            }
+        });
+
+        // Upload server status check for browsers with CORS support:
+        if ($.support.cors) {
+                $.ajax({
+                        type: 'HEAD'
+                }).fail(function () {
+                        $('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
+                });
+        }
+
+        // Load & display existing files:
+        $('#fileupload').addClass('fileupload-processing');
+        $.ajax({
+                // Uncomment the following to send cross-domain cookies:
+                //xhrFields: {withCCOLOR_REDentials: true},
+                url: $('#fileupload').fileupload('option', 'url'),
+                dataType: 'json',
+                context: $('#fileupload')[0]
+        }).always(function () {
+                $(this).removeClass('fileupload-processing');
+        }).done(function (result) {
+                $(this).fileupload('option', 'done')
+                .call(this, $.Event('done'), {result: result});
+        });
+    };
+    var handleIsotopesGallery = function() {
+        var container = $('#gallery');
+        $(window).on('resize', function() {
+            var dividerValue = calculateDivider();
+            var containerWidth = $(container).width();
+            var columnWidth = containerWidth / dividerValue;
+            $(container).isotope({
+                masonry: {
+                    columnWidth: columnWidth
+                }
+            });
+        });
+    };
+    var FormMultipleUpload = function () {
+        "use strict";
+        return {
+            //main function
+            init: function () {
+                handleJqueryFileUpload();
+            }
+        };
+    }();
+    var Gallery = function () {
+        "use strict";
+        return {
+            //main function
+            init: function () {
+                handleIsotopesGallery();
+            }
+        };
+    }();
+    $("#excepcionForm").submit(function(e){
+        var falta = false;
+
+        $(".fileGrupoVulnerable").each(function(e){
+            if($(this).val() == ""){
+                falta = true;
+            }
+        });
+        if($("#conciliador_excepcion_id").val() == "" && falta){
+            e.preventDefault();
+        }
+    });
+    var listaContactos = [];
+    function AgregarRepresentante(parte_id,tipoRepresentante){
+        $.ajax({
+            url:"/partes/representante/"+parte_id,
+            type:"GET",
+            dataType:"json",
+            success:function(data){
+                if(data != null && data != ""){
+                    data = data[0];
+                    $("#tieneRepresentante"+parte_id).html("<i class='fa fa-check'></i> ");
+                    $("#btnaddRep"+parte_id).html("Ver Representante");
+                    $("#curpRep").val(data.curp);
+                    $("#nombreRep").val(data.nombre);
+                    $("#primer_apellidoRep").val(data.primer_apellido);
+                    $("#segundo_apellidoRep").val((data.segundo_apellido|| ""));
+                    $("#fecha_nacimientoRep").val(dateFormat(data.fecha_nacimiento,4));
+                    $("#genero_idRep").val(data.genero_id).trigger("change");
+                    $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).trigger('change');
+                    $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
+                    $("#detalle_instrumento").val(data.detalle_instrumento);
+                    $("#parte_id").val(data.id);
+                    listaContactos = data.contactos;
+                    if(data.documentos && data.documentos.length > 0){
+                        $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+data.documentos[0].descripcion);
+                        $("#tipo_documento_id").val(data.documentos[0].clasificacion_archivo_id).trigger('change');
+                    }else{
+                        $("#tipo_documento_id").val("").trigger("change");
+                        $("#labelIdentifRepresentante").html("");
+                    }
+                }else{
+                    $("#curpRep").val("");
+                    $("#nombreRep").val("");
+                    $("#primer_apellidoRep").val("");
+                    $("#segundo_apellidoRep").val("");
+                    $("#fecha_nacimientoRep").val("");
+                    $("#genero_idRep").val("").trigger("change");
+                    $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                    $("#feha_instrumento").val("");
+                    $("#detalle_instrumento").val("");
+                    $("#parte_id").val("");
+                    $("#tipo_documento_id").val("").trigger("change");
+                    $("#labelIdentifRepresentante").html("");
+                    listaContactos = [];
+                }
+                $("#tipo_contacto_id").val("").trigger("change");
+                $("#contacto").val("");
+                $("#parte_representada_id").val(parte_id);
+                if(tipoRepresentante == 1){
+                    $("#menorAlert").show();
+                    $("#representanteMoral").hide();
+                }else{
+                    $("#menorAlert").hide();
+                    $("#representanteMoral").show();
+                }
+                cargarContactos();
+                $("#modal-representante").modal("show");
+            }
+        });
+    }
+    function cargarGeneros(){
+        $.ajax({
+            url:"/generos",
+            type:"GET",
+            dataType:"json",
+            success:function(data){
+                $("#genero_idRep").html("<option value=''>-- Selecciona un género</option>");
+                if(data.data.length > 0){
+                    $.each(data.data,function(index,element){
+                        $("#genero_idRep").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                    });
+                }
+                $("#genero_idRep").trigger("change");
+            }
+        });
+    }
+
+    function cargarTipoContactos(){
+        $.ajax({
+            url:"/tipos_contactos",
+            type:"GET",
+            dataType:"json",
+            success:function(data){
+                if(data.data.total > 0){
+                    $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                    $.each(data.data.data,function(index,element){
+                        $("#tipo_contacto_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                    });
+                }else{
+                    $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                }
+                $("#tipo_contacto_id").trigger("change");
+            }
+        });
+    }
+    $("#btnAgregarContacto").on("click",function(){
+        if($("#parte_id").val() != ""){
+            $.ajax({
+                url:"/partes/representante/contacto",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    tipo_contacto_id:$("#tipo_contacto_id").val(),
+                    contacto:$("#contacto").val(),
+                    parte_id:$("#parte_id").val(),
+                    _token:"{{ csrf_token() }}"
+                },
+                success:function(data){
+                    if(data != null && data != ""){
+                        listaContactos = data;
+                        cargarContactos();
+                    }else{
+                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                    }
+                }
+            });
+        }else{
+            listaContactos.push({
+                tipo_contacto_id:$("#tipo_contacto_id").val(),
+                contacto:$("#contacto").val(),
+                id:null,
+                tipo_contacto:{
+                    nombre:$("#tipo_contacto_id option:selected").text()
+                }
+            });
+        }
+        cargarContactos();
+    });
+    function validarRepresentante(){
+        var error=false;
+        $(".control-label").css("color","");
+        if($("#curpRep").val() == ""){
+            $("#curpRep").prev().css("color","red");
+            error = true;
+        }
+        if($("#nombreRep").val() == ""){
+            $("#nombreRep").prev().css("color","red");
+            error = true;
+        }
+        if($("#primer_apellidoRep").val() == ""){
+            $("#primer_apellidoRep").prev().css("color","red");
+            error = true;
+        }
+        if($("#fecha_nacimientoRep").val() == ""){
+            $("#fecha_nacimientoRep").prev().css("color","red");
+            error = true;
+        }
+        if($("#genero_idRep").val() == ""){
+            $("#genero_idRep").prev().css("color","red");
+            error = true;
+        }
+        if($("#clasificacion_archivo_id_representante").val() == ""){
+            $("#clasificacion_archivo_id_representante").prev().css("color","red");
+            error = true;
+        }
+        if($("#fileIdentificacion").val() != ""){
+            if($("#tipo_documento_id").val() == "" ){
+                $("#tipo_documento_id").prev().css("color","red");
+                error = true;
+            }
+        }
+        if($("#feha_instrumento").val() == ""){
+            $("#feha_instrumento").prev().css("color","red");
+            error = true;
+        }
+        // console.log(listaContactos.length);
+        if(listaContactos.length == 0){
+            $("#contacto").prev().css("color","red");
+            $("#tipo_contacto_id").prev().css("color","red");
+            error = true;
+            error = true;
+        }
+        return error;
+    }
+
+    function cargarContactos(){
+        var table = "";
+        $.each(listaContactos, function(index,element){
+            table +='<tr>';
+            table +='   <td>'+element.tipo_contacto.nombre+'</td>';
+            table +='   <td>'+element.contacto+'</td>';
+            table +='   <td style="text-align: center;">';
+            table +='       <a class="btn btn-xs btn-warning" onclick="eliminarContacto('+index+')">'
+            table +='           <i class="fa fa-trash" style="color:white;"></i>';
+            table +='       </a>';
+            table +='   </td>';
+            table +='<tr>';
+        });
+        $("#tbodyContacto").html(table);
+    }
+
+    $("#btnGuardarRepresentante").on("click",function(){
+        if(!validarRepresentante()){
+            
+            var formData = new FormData(); // Currently empty
+            if($("#fileIdentificacion").val() != ""){
+                formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
+            }
+            formData.append('fuente_solicitud',true);
+            formData.append('nombre', $("#nombreRep").val());
+            formData.append('curp', $("#curpRep").val());
+            formData.append('primer_apellido', $("#primer_apellidoRep").val());
+            formData.append('segundo_apellido', $("#segundo_apellidoRep").val());
+            formData.append('fecha_nacimiento', dateFormat($("#fecha_nacimientoRep").val()));
+            formData.append('genero_id', $("#genero_idRep").val());
+            formData.append('clasificacion_archivo_id', $("#clasificacion_archivo_id_representante").val());
+            formData.append('feha_instrumento', dateFormat($("#feha_instrumento").val()));
+            formData.append('detalle_instrumento',$("#detalle_instrumento").val());
+            formData.append('parte_id', $("#parte_id").val());
+            formData.append('parte_representada_id', $("#parte_representada_id").val());
+            formData.append('solicitud_id', $("#solicitud_id").val());
+            formData.append('tipo_documento_id', $("#tipo_documento_id").val());
+            formData.append('listaContactos', JSON.stringify(listaContactos));
+            formData.append('_token', "{{ csrf_token() }}");
+            // {
+            //     curp:$("#curp").val(),
+            //     nombre:$("#nombre").val(),
+            //     primer_apellido:$("#primer_apellido").val(),
+            //     segundo_apellido:$("#segundo_apellido").val(),
+            //     fecha_nacimiento:dateFormat($("#fecha_nacimiento").val()),
+            //     genero_id:$("#genero_id").val(),
+            //     clasificacion_archivo_id:$("#clasificacion_archivo_id_representante").val(),
+            //     feha_instrumento:dateFormat($("#feha_instrumento").val()),
+            //     detalle_instrumento:$("#detalle_instrumento").val(),
+            //     parte_id:$("#parte_id").val(),
+            //     parte_representada_id:$("#parte_representada_id").val(),
+            //     audiencia_id:$("#audiencia_id").val(),
+            //     listaContactos:listaContactos,
+            //     _token:"{{ csrf_token() }}"
+            // }
+            $.ajax({
+                url:"/partes/representante",
+                type:"POST",
+                dataType:"json",
+                processData: false,
+                contentType: false,
+                data:formData,
+                success:function(data){
+                    if(data != null && data != ""){
+                        swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
+                        actualizarPartes();
+                        cargarDocumentos();
+                        $("#modal-representante").modal("hide");
+                    }else{
+                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                    }
+                }
+            });
+        }else{
+            swal({title: 'Error',text: 'Llena todos los campos',icon: 'warning'});
+        }
+    });
+    function actualizarPartes(){
+            $.ajax({
+                url:"/partes/getComboDocumentos/"+$("#solicitud_id").val(),
+                type:"GET",
+                dataType:"json",
+                success:function(data){
+                    if(data != null && data != ""){
+                        var html="";
+                        $('#fileupload').fileupload({
+                            uploadTemplate: function (o) {
+                                var rows = $();
+                                $.each(o.files, function (index, file) {
+                                    var html= '<tr class="template-upload fade show">'+
+                                    '    <td>'+
+                                    '        <span class="preview"></span>'+
+                                    '    </td>'+
+                                    '    <td>'+
+                                    '        <div class="bg-light rounded p-10 mb-2">'+
+                                    '            <dl class="m-b-0">'+
+                                    '                <dt class="text-inverse">Nombre del documento:</dt>'+
+                                    '                <dd class="name">'+file.name+'</dd>'+
+                                    '                <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>'+
+                                    '                <dd class="size">Processing...</dd>'+
+                                    '            </dl>'+
+                                    '        </div>'+
+                                    '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
+                                    '    </td>'+
+                                    '    <td>'+
+                                    '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
+                                    '            <option value="">Seleccione una opci&oacute;n</option>'+
+                                    '            @if(isset($clasificacion_archivo))'+
+                                    '                @foreach($clasificacion_archivo as $clasificacion)'+
+                                    '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
+                                    '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
+                                    '                    @endif'+
+                                    '                @endforeach'+
+                                    '            @endif'+
+                                    '        </select>'+
+                                    '    </td>'+
+                                    '    <td>'+
+                                    '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
+                                    '            <option value="">Seleccione una opci&oacute;n</option>';
+                                    $.each(data, function(index,element){
+                                        if(element.tipo_persona_id == 1 && element.tipo_parte_id == 1 ){
+                                            html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</option>';
+                                        }
+                                        // else{
+                                        //     html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                                        //     // html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                                        // }
+                                    });
+                                    html +=' </select>'+
+                                    '    </td>'+
+                                    '    <td>'+
+                                    '        <dl>'+
+                                    '            <dt class="text-inverse m-t-3">Progreso:</dt>'+
+                                    '            <dd class="m-t-5">'+
+                                    '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
+                                    '            </dd>'+
+                                    '        </dl>'+
+                                    '    </td>'+
+                                    '    <td nowrap>'+
+                                    '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
+                                    '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
+                                    '                <span>Guardar</span>'+
+                                    '            </button>'+
+                                    '    </td>'+
+                                    '    <td nowrap>'+
+                                    '            <button class="btn btn-default cancel width-100 p-r-20">'+
+                                    '                <i class="fa fa-trash fa-fw text-muted"></i>'+
+                                    '                <span>Cancelar</span>'+
+                                    '            </button>'+
+                                    '    </td>'+
+                                    '</tr>';
+                                    var row = $(html);
+                                    if (file.error) {
+                                        row.find('.error').text(file.error);
+                                    }
+                                    rows = rows.add(row);
+                                });
+                                return rows;
+                            }
+                        });
+                    }else{
+                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                    }
+                }
+            });
+        }
+        $("#btnGuardarConvenio").on("click",function(){
+        if(ratifican){
+            $.ajax({
+                url:'/solicitud/correos/'+$("#solicitud_id").val(),
+                type:'GET',
+                dataType:"json",
+                async:true,
+                success:function(data){
+                    if(data == null || data == ""){
+                        $("#modal-aviso-resolucion-inmediata").modal("show");
+                    }else{
+                        var tableSolicitantes = '';
+                        $.each(data, function(index,element){
+                            tableSolicitantes +='<tr>';
+                            if(element.tipo_persona_id == 1){
+                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
+                            }else{
+                                tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
+                            }
+                            tableSolicitantes += '  <td>';
+                            tableSolicitantes += '      <div class="col-md-12">';
+                            tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
+                            tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
+                            tableSolicitantes += '      </div>';
+                            tableSolicitantes += '  </td>';
+                            tableSolicitantes += '  <td>';
+                            tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
+                            tableSolicitantes += '  </td>';
+                            tableSolicitantes +='</tr>';
+                        });
+                        $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
+                        $("#modal-registro-correos").modal("show");
+                    }
+                }
+            });
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Al menos un solicitante debe presentar documentos para ratificar',
+                icon: 'warning'
+            });
+        }
+    });
+    /**
+    *  Aqui comienzan las funciones para carga de documentos de la solicitud
+    */
+    $("#btnAgregarArchivo").on("click",function(){
+        $("#btnCancelFiles").click();
+        $("#modal-archivos").modal("show");
+    });
+    var arraySolicitados = []; //Lista de citados
+    var arraySolicitantes = []; //Lista de solicitantes
+    var arrayDomiciliosSolicitante = []; // Array de domicilios para el solicitante
+    var arrayDomiciliosSolicitado = []; // Array de domicilios para el citado
+    var arrayObjetoSolicitudes = []; // Array de objeto_solicitude para el citado
+    var solicitudObj = {}; // Array de objeto_solicitude para el citado
+    var ratifican = false;; // Array de solicitante excepción
+
+    function getSolicitudFromBD(solicitud){
+        arraySolicitados = []; //Lista de citados
+        arraySolicitantes = []; //Lista de solicitantes
+        arrayDomiciliosSolicitante = []; // Array de domicilios para el solicitante
+        arrayDomiciliosSolicitado = []; // Array de domicilios para el citado
+        arrayObjetoSolicitudes = []; // Array de objeto_solicitude para el citado
+        solicitudObj = {}; // Array de objeto_solicitude para el citado
+        ratifican = false;; // Array de solicitante excepción
+        $.ajax({
+            url:'/solicitudes/'+solicitud,
+            type:"GET",
+            dataType:"json",
+            async:false,
+            data:{},
+            success:function(data){
+                try{
+                    $("#datosIdentificacionSolicitado").show();
+                    arraySolicitados = Object.values(data.solicitados);
+                    // formarTablaSolicitado();
+                    arraySolicitantes = Object.values(data.solicitantes);
+                    $.each(arraySolicitantes ,function(key,value){
+                        if($.isArray(arraySolicitantes[key].dato_laboral)){
+                            arraySolicitantes[key].dato_laboral = arraySolicitantes[key].dato_laboral[0];
+                        }
+                    })
+                    // formarTablaSolicitante();
+
+                    $.each(data.objeto_solicitudes, function (key, value) {
+                        var objeto_solicitud = {};
+                        objeto_solicitud.id = value.id;
+                        objeto_solicitud.objeto_solicitud_id = value.pivot.objeto_solicitud_id.toString();
+                        objeto_solicitud.nombre = value.nombre;
+                        objeto_solicitud.activo = 1;
+                        arrayObjetoSolicitudes.push(objeto_solicitud);
+                    });
+                    // arrayObjetoSolicitudes = data.objeto_solicitudes;
+                    // formarTablaObjetoSol();
+                    solicitudObj.ratificada = data.ratificada;
+                    solicitudObj.fecha_ratificacion = dateFormat(data.fecha_ratificacion,2);
+                    solicitudObj.fecha_recepcion = dateFormat(data.fecha_recepcion,2);
+                    solicitudObj.fecha_conflicto = dateFormat(data.fecha_conflicto,4);
+                    solicitudObj.giro_comercial_id = data.giro_comercial_id;
+                    solicitudObj.giro_comercial = data.giroComercial.nombre;
+                    
+                    cargarGeneros();
+                    cargarTipoContactos();
+                }catch(error){
+                    console.log(error);
+                }
+            }
+        });
+    }
+    function consultarSolicitud(solicitud_id){
+        $("#divSolicitudMod").html("");
+        $("#divSolicitantesMod").html("");
+        $("#divCitadosMod").html("");
+        getSolicitudFromBD(solicitud_id);
+        $("#solicitud_id").val(solicitud_id);
+        $("#solicitud_id_modal").val(solicitud_id);
+        $("#modalSolicitud").modal('show');
+        
+        var htmlSolicitud = formatoSolicitud();
+        var htmlSolicitantes = formarSolicitantes();
+        var htmlCitados = formarCitados();
+        $("#divSolicitudMod").html(htmlSolicitud);
+        $("#divSolicitantesMod").html(htmlSolicitantes);
+        $("#divCitadosMod").html(htmlCitados);
+    }
+
+    function formatoSolicitud(){
+        var html = "";
+        html += "<div class='col-md-10 offset-1'>";
+            html += "<div class='col-md-12 row'>";
+                if(solicitudObj.ratificada == true){
+                    html += "<div class='col-md-6'>";
+                        html += "<b>Fecha de ratificaci&oacute;n:</b> "+solicitudObj.fecha_ratificacion+ "<br>";
+                    html += "</div>";
+                }
+                html += "<div class='col-md-6'>";
+                    html += "<b>Fecha de recepci&oacute;n:</b> "+solicitudObj.fecha_recepcion+ "<br>";
+                html += "</div>";
+                html += "<div class='col-md-6'>";
+                    html += "<b>Fecha de conflicto:</b> "+solicitudObj.fecha_conflicto+ "<br>";
+                html += "</div>";
+                html += "<div class='col-md-12'>";
+                    html += "<b>Giro comercial</b><br> "+solicitudObj.giro_comercial+ "<br>";
+                html += "</div>";
+                html += "<div class='col-md-12'>";
+                    html += "<b>Objetos de la solicitud</b>";
+                    html += "<ul>";
+                    $.each(arrayObjetoSolicitudes, function (key, value) {
+                        html += "<li>"+value.nombre+"</li>";
+                    });
+                    html += "</ul>";
+                html += "</div>";
+            html += "</div>";
+        html += "</div>";
+        
+        return html;
+    }
+    function formarSolicitantes(){
+        var html = "";
+        html += '<div class="accordion col-md-10 offset-1" id="accordionExample">';
+        $.each(arraySolicitantes,function(key, value){
+            html+='<div class="card">';
+                html+='<div class="card-header" id="headingOne">';
+                    html+='<h2 class="mb-0">';
+                        html+='<button id="collSol'+value.id+'" class="btn btn-link card-header " i type="button" data-toggle="collapse" data-target="#collapseSol'+value.id+'" aria-expanded="true" aria-controls="collapseOne"  >';
+                        if(value.tipo_persona_id == 1){
+                            html+=' '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "");
+                        }else{
+                            html+=' '+value.nombre_comercial;
+                        }
+                        html+='</button>';
+                    html+='</h2>';
+                html+='</div>';
+
+                html+='<div id="collapseSol'+value.id+'" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">';
+                    html+='<div class="card-body">';
+                        html+='<div >';
+                            html+='<div>';
+                                if(value.curp){
+                                    html+='<div>';
+                                        html+='<label><b>CURP:</b>'+value.curp+'</label>';
+                                    html+='</div>';
+                                }
+                                if(value.rfc){
+                                    html+='<div>';
+                                        html+='<label><b>RFC:</b>'+value.rfc+'</label>';
+                                    html+='</div>';
+                                }
+                                html+='<div>';
+                                    html+="<b>Direccion:</b><br> &nbsp;&nbsp;&nbsp;&nbsp;"+value.domicilios[0].tipo_vialidad+" "+value.domicilios[0].vialidad+", "+value.domicilios[0].asentamiento+", "+value.domicilios[0].municipio+", "+value.domicilios[0].estado.toUpperCase();
+                                html+='</div>';
+                                html+='<div>';
+                                    html+='<label><b>Contactos:</b></label>';
+                                    html+='<ul>';
+                                    $.each(value.contactos,function(indice, contacto){
+                                        html+="<li>"+contacto.contacto+"</li>";
+                                    });
+                                    html+='</ul>';
+                                html+='</div>';
+                                html+='<div class="col-md-12 row">';
+                                    html+='<label class="col-md-12"><b>Datos Laborales</b></label><br>';
+                                    html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Puesto:</b>'+value.dato_laboral.puesto+'</label><br>';
+                                    html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;N&uacute;mero de seguro social:</b>'+value.dato_laboral.nss+'</label><br>';
+                                    html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Ingreso:</b>'+dateFormat(value.dato_laboral.fecha_ingreso,4)+'</label><br>';
+                                    if(!value.dato_laboral.labora_actualmente){
+                                        html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Salida:</b>'+dateFormat(value.dato_laboral.fecha_salida,4)+'</label><br>';
+                                    }
+                                html+='</div>';
+                            html+='</div>';
+                        html+='</div>';
+                    html+='</div>';
+                html+='</div>';
+            html+='</div>';
+        });
+        html += '</div>';
+        return html;
+    }
+
+    function formarCitados(){
+        var html = "";
+        html += '<div class="accordion col-md-10 offset-1" id="accordionCitados">';
+        $.each(arraySolicitados,function(key, value){
+            html+='<div class="card">';
+                html+='<div class="card-header" id="headingTwo">';
+                    html+='<h2 class="mb-0">';
+                        html+='<button id="collCit'+value.id+'" class="btn btn-link card-header " i type="button" data-toggle="collapse" data-target="#collapseCit'+value.id+'" aria-expanded="true" aria-controls="collapseOne"  >';
+                        if(value.tipo_persona_id == 1){
+                            html+=' '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "");
+                        }else{
+                            html+=' '+value.nombre_comercial;
+                        }
+                        html+='</button>';
+                    html+='</h2>';
+                html+='</div>';
+
+                html+='<div id="collapseCit'+value.id+'" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionCitados">';
+                    html+='<div class="card-body">';
+                        html+='<div >';
+                            html+='<div>';
+                                if(value.curp){
+                                    html+='<div>';
+                                        html+='<label><b>CURP:</b>'+value.curp+'</label>';
+                                    html+='</div>';
+                                }
+                                if(value.rfc){
+                                    html+='<div>';
+                                        html+='<label><b>RFC:</b>'+value.rfc+'</label>';
+                                    html+='</div>';
+                                }
+                                html+='<div>';
+                                    html+="<b>Direccion:</b><br> &nbsp;&nbsp;&nbsp;&nbsp;"+value.domicilios[0].tipo_vialidad+" "+value.domicilios[0].vialidad+", "+value.domicilios[0].asentamiento+", "+value.domicilios[0].municipio+", "+value.domicilios[0].estado.toUpperCase();
+                                html+='</div>';
+                                html+='<div>';
+                                    html+='<label><b>Contactos:</b></label>';
+                                    html+='<ul>';
+                                    $.each(value.contactos,function(indice, contacto){
+                                        html+="<li>"+contacto.contacto+"</li>";
+                                    });
+                                    html+='</ul>';
+                                html+='</div>';
+                            html+='</div>';
+                        html+='</div>';
+                    html+='</div>';
+                html+='</div>';
+            html+='</div>';
+        });
+        html += '</div>';
+        return html;
+    }
+    $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
+    $("#fileIdentificacion").change(function(e){
+        $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+    });
   </script>
   @endpush

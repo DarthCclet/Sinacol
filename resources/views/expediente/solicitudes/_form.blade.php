@@ -40,538 +40,292 @@
 @else
     <input type="hidden" id="externo" value="1">
 @endif
-<div id="wizard" class="col-md-12" >
-    <!-- begin wizard-step -->
-    <ul class="wizard-steps">
-        <li>
-            <a id="paso1" href="#step-1">
-
-                <span class="">
-                    Solicitante
-                    <small>Información del solicitante</small>
-                </span>
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a href="#default-tab-1" data-toggle="tab" class="nav-link active">
+            <span class="d-sm-none">Sol</span>
+            <span class="d-sm-block d-none">Solicitud</span>
+        </a>
+    </li>
+    @if (isset($audiencias))
+        <li class="nav-item">
+            <a href="#default-tab-2" data-toggle="tab" class="nav-link">
+                <span class="d-sm-none">Aud</span>
+                <span class="d-sm-block d-none">Audiencia</span>
             </a>
         </li>
-        <li>
-            <a id="paso2" href="#step-2">
-
-                <span class="">
-                    Citado
-                    <small>Información del citado</small>
-                </span>
+    @endif
+    @if(isset($documentos))
+        <li class="nav-item">
+            <a href="#default-tab-3" data-toggle="tab" class="nav-link">
+                <span class="d-sm-none">Doc</span>
+                <span class="d-sm-block d-none">Documentos</span>
             </a>
         </li>
-        <li >
-            <a id="paso3" href="#step-3">
+    @endif
+</ul>
+<div class="tab-content" style="background: #f2f3f4 !important;">
+<div class="tab-pane fade active show" id="default-tab-1">
+    <div id="wizard" class="col-md-12" >
+        <!-- begin wizard-step -->
+        <ul class="wizard-steps">
+            <li>
+                <a id="paso1" href="#step-1">
+                    <span class="">
+                        Solicitante
+                        <small>Información del solicitante</small>
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a id="paso2" href="#step-2">
+                    <span class="">
+                        Citado
+                        <small>Información del citado</small>
+                    </span>
+                </a>
+            </li>
+            <li >
+                <a id="paso3" href="#step-3">
+                    <span class="">
+                        Solicitud
+                        <small>Información de la solicitud</small>
+                    </span>
+                </a>
+            </li>
+        
 
-                <span class="">
-                    Solicitud
-                    <small>Información de la solicitud</small>
-                </span>
-            </a>
-        </li>
-        <li id="paso4" class="step-4">
-            <a href="#step-4">
+            <!-- El paso 5 Es para asignar Audiencias -->
+            {{-- <li class="step-5">
+                <a id="paso5" href="#step-5">
 
-                <span class="">
-                    {{-- Excepci&oacute;n
-                    <small>Casos de excepci&oacute;n</small> --}}
-                </span>
-            </a>
-        </li>
+                    <span class="">
+                        Audiencias
+                        <small>Audiencias de conciliación</small>
+                    </span>
+                </a>
+            </li> --}}
 
-        <!-- El paso 5 Es para asignar Audiencias -->
-        <li class="step-5">
-            <a id="paso5" href="#step-5">
+            <!-- El paso 5 Es para asignar Audiencias -->
+            {{-- <li class="step-6">
+                <a id="paso6" href="#step-6">
 
-                <span class="">
-                    Audiencias
-                    <small>Audiencias de conciliación</small>
-                </span>
-            </a>
-        </li>
+                    <span class="">
+                        Historial
+                        <small>Historial de acciones</small>
+                    </span>
+                </a>
+            </li> --}}
+            <!-- El paso 5 Es para asignar Audiencias -->
+            {{-- <li id="paso7" class="step-7">
+                <a href="#step-7">
 
-        <!-- El paso 5 Es para asignar Audiencias -->
-        <li class="step-6">
-            <a id="paso6" href="#step-6">
+                    <span class="">
+                        Documentos
+                        <small>Documentos del expediente</small>
+                    </span>
+                </a>
+            </li> --}}
+        </ul>
+        <!-- end wizard-step -->
+        <!-- begin wizard-content -->
+        <div>
+            <!-- begin step-1 -->
+            <div id="step-1" data-parsley-validate="true">
+                <!-- begin fieldset -->
+                <fieldset>
+                    <!-- begin row -->
+                    <div class="row" id="form">
+                        <div class="col-xl-10 offset-xl-1">
 
-                <span class="">
-                    Historial
-                    <small>Historial de acciones</small>
-                </span>
-            </a>
-        </li>
-        <!-- El paso 5 Es para asignar Audiencias -->
-        <li id="paso7" class="step-7">
-            <a href="#step-7">
-
-                <span class="">
-                    Documentos
-                    <small>Documentos del expediente</small>
-                </span>
-            </a>
-        </li>
-    </ul>
-    <!-- end wizard-step -->
-    <!-- begin wizard-content -->
-    <div>
-        <!-- begin step-1 -->
-        <div id="step-1" data-parsley-validate="true">
-            <!-- begin fieldset -->
-            <fieldset>
-                <!-- begin row -->
-                <div class="row" id="form">
-                    <div class="col-xl-10 offset-xl-1">
-
-                        <div class="col-md-12 mt-4">
-                            <h2>Datos generales de la solicitud</h2>
-                            <hr class="red">
-                        </div>
-                        <div class="col-md-4">
-                            <input class="form-control date" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
-                            <p class="help-block needed">Fecha de conflicto</p>
-                        </div>
-                        <div class="col-md-12 row">
-                            <div class="col-md-6">
-                                {!! Form::select('objeto_solicitud_id', isset($objeto_solicitudes) ? $objeto_solicitudes : [] , null, ['id'=>'objeto_solicitud_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                {!! $errors->first('objeto_solicitud_id', '<span class=text-danger>:message</span>') !!}
-                                <p class="help-block needed">Objeto de la solicitud</p>
+                            <div class="col-md-12 mt-4">
+                                <h2>Datos generales de la solicitud</h2>
+                                <hr class="red">
                             </div>
-                            <div class="col-md-6">
-                                <button class="btn btn-primary" type="button" onclick="agregarObjetoSol()" id="btnObjetoSol" > <i class="fa fa-plus-circle"></i> Agregar Objeto</button>
+                            <div class="col-md-4">
+                                <input class="form-control date" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
+                                <p class="help-block needed">Fecha de conflicto</p>
                             </div>
-                        </div>
-
-                        <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                            <table class="table table-bordered" >
-                                <thead>
-                                    <tr>
-                                        <th>Objeto</th>
-                                        <th>Acci&oacute;n</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbodyObjetoSol">
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="col-md-12 form-group row">
-                            <input type="hidden" id="term">
-                            <div class="col-md-12 " title="Escribe la actividad y escoge de la opciones que se despliegan" data-toggle="tooltip" data-placement="top" >
-                                <select name="giro_comercial_solicitante" placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control"></select>
-                            </div>
-                            <div class="col-md-12">
-                                <p class="help-block "><span class="needed">&iquest;Cuál es la actividad principal de tu patrón?</span> <br> Ejemplos: comercio de productos al por menor, construcción, servicios médicos...</p>
-                            <label id="giro_solicitante"></label>
-                            </div>
-                        </div>
-                        {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opción','style'=>'display:none;']);  !!}
-
-                    </div>
-                    <div class="col-xl-10 offset-xl-1">
-                        <div>
-                            <center><h1>Solicitante <span id="labelTipoSolicitante"></span></h1></center>
-                            <div id="editandoSolicitante"></div>
-                        </div>
-                        <div id="divSolicitante">
-                            <div id="datosIdentificacionSolicitante" data-parsley-validate="true">
-                                <div class="col-md-12 mt-4">
-                                    <h4>Datos de identificaci&oacute;n</h4>
-                                    <hr class="red">
+                            <div class="col-md-12 row">
+                                <div class="col-md-6">
+                                    {!! Form::select('objeto_solicitud_id', isset($objeto_solicitudes) ? $objeto_solicitudes : [] , null, ['id'=>'objeto_solicitud_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                    {!! $errors->first('objeto_solicitud_id', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block needed">Objeto de la solicitud</p>
                                 </div>
-                                <div style="margin-left:5%; margin-bottom:3%; " id="divTipoPersona">
-                                    <input type="hidden" id="solicitante_id">
-                                    <input type="hidden" id="edit_key">
-                                    <label>Tipo Persona</label>
-                                    <div class="row">
-                                        <div class="radio radio-css radio-inline">
-                                            <input checked="checked" name="tipo_persona_solicitante" type="radio" id="tipo_persona_fisica_solicitante" value="1"/>
-                                            <label for="tipo_persona_fisica_solicitante">Física</label>
+                                <div class="col-md-6">
+                                    <button class="btn btn-primary" type="button" onclick="agregarObjetoSol()" id="btnObjetoSol" > <i class="fa fa-plus-circle"></i> Agregar Objeto</button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                                <table class="table table-bordered" >
+                                    <thead>
+                                        <tr>
+                                            <th>Objeto</th>
+                                            <th>Acci&oacute;n</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyObjetoSol">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-12 form-group row">
+                                <input type="hidden" id="term">
+                                <div class="col-md-12 " title="Escribe la actividad y escoge de la opciones que se despliegan" data-toggle="tooltip" data-placement="top" >
+                                    <select name="giro_comercial_solicitante" placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control"></select>
+                                </div>
+                                <div class="col-md-12">
+                                    <p class="help-block "><span class="needed">&iquest;Cuál es la actividad principal de tu patrón?</span> <br> Ejemplos: comercio de productos al por menor, construcción, servicios médicos...</p>
+                                <label id="giro_solicitante"></label>
+                                </div>
+                            </div>
+                            {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opción','style'=>'display:none;']);  !!}
+
+                        </div>
+                        <div class="col-xl-10 offset-xl-1">
+                            <div>
+                                <center><h1>Solicitante <span id="labelTipoSolicitante"></span></h1></center>
+                                <div id="editandoSolicitante"></div>
+                            </div>
+                            <div id="divSolicitante">
+                                <div id="datosIdentificacionSolicitante" data-parsley-validate="true">
+                                    <div class="col-md-12 mt-4">
+                                        <h4>Datos de identificaci&oacute;n</h4>
+                                        <hr class="red">
+                                    </div>
+                                    <div style="margin-left:5%; margin-bottom:3%; " id="divTipoPersona">
+                                        <input type="hidden" id="solicitante_id">
+                                        <input type="hidden" id="edit_key">
+                                        <label>Tipo Persona</label>
+                                        <div class="row">
+                                            <div class="radio radio-css radio-inline">
+                                                <input checked="checked" name="tipo_persona_solicitante" type="radio" id="tipo_persona_fisica_solicitante" value="1"/>
+                                                <label for="tipo_persona_fisica_solicitante">Física</label>
+                                            </div>
+                                            <div class="radio radio-css radio-inline">
+                                                <input name="tipo_persona_solicitante" type="radio" id="tipo_persona_moral_solicitante" value="2"/>
+                                                <label for="tipo_persona_moral_solicitante">Moral</label>
+                                            </div>
                                         </div>
-                                        <div class="radio radio-css radio-inline">
-                                            <input name="tipo_persona_solicitante" type="radio" id="tipo_persona_moral_solicitante" value="2"/>
-                                            <label for="tipo_persona_moral_solicitante">Moral</label>
+                                    </div>
+                                    <div class="col-md-8 personaFisicaSolicitante">
+                                        <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" type="text" value="">
+                                        <p class="help-block needed">CURP del solicitante</p>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-4" style="display:none;">
+                                            <input class="form-control" id="idsolicitante" type="text" value="253">
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-8 personaFisicaSolicitante">
-                                    <input class="form-control upper" id="idSolicitanteCURP" placeholder="CURP del solicitante" maxlength="18" onblur="validaCURP(this.value);" type="text" value="">
-                                    <p class="help-block needed">CURP del solicitante</p>
-                                </div>
-                                <div class="col-md-12 row">
-                                    <div class="col-md-4" style="display:none;">
-                                        <input class="form-control" id="idsolicitante" type="text" value="253">
+                                    <div class="col-md-12 row">
+                                        <input class="form-control" id="idsolicitante" type="hidden" value="253">
+                                        <div class="col-md-4 personaFisicaSolicitante">
+                                            <input class="form-control upper" id="idNombreSolicitante" required placeholder="Nombre del solicitante" type="text" value="">
+                                            <p class="help-block needed">Nombre del solicitante</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitante">
+                                            <input class="form-control upper" id="idPrimerASolicitante" required placeholder="Primer apellido del solicitante" type="text" value="">
+                                            <p class="help-block needed">Primer apellido</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitanteNO">
+                                            <input class="form-control upper" id="idSegundoASolicitante" placeholder="Segundo apellido del solicitante" type="text" value="">
+                                            <p class="help-block">Segundo apellido</p>
+                                        </div>
+                                        <div class="col-md-12 personaMoralSolicitante">
+                                            <input class="form-control upper" id="idNombreCSolicitante" placeholder="Raz&oacute;n social" type="text" value="">
+                                            <p class="help-block needed">Raz&oacute;n social</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitante">
+                                            <input class="form-control dateBirth" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimiento del solicitante" type="text" value="">
+                                            <p class="help-block needed">Fecha de nacimiento</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitante">
+                                            <input class="form-control numero" disabled required data-parsley-type='integer' id="idEdadSolicitante" placeholder="Edad del solicitante" type="text" value="">
+                                            <p class="help-block needed">Edad del solicitante</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input class="form-control upper" id="idSolicitanteRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitante" type="text" value="">
+                                            <p class="help-block">RFC del solicitante</p>
+                                        </div>
+
+                                        <div class="col-md-4 sindicato" style="display: none;">
+                                            <input class="form-control upper " id="registro_sindical" placeholder="Registro sindical" type="text" value="">
+                                            <p class="help-block needed">Registro sindical</p>
+                                        </div>
+
+                                        <div class="col-md-4 sindicato" style="display: none;">
+                                            <input class="form-control upper" id="contrato_colectivo" placeholder="Contrato Colectivo" type="text" value="">
+                                            <p class="help-block">Contrato colectivo</p>
+                                        </div>
+
+                                        <div class="col-md-4 personaFisicaSolicitante">
+                                            {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block needed">Género</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitante">
+                                            {!! Form::select('nacionalidad_id_solicitante', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('nacionalidad_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block needed">Nacionalidad</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitante">
+                                            {!! Form::select('entidad_nacimiento_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('entidad_nacimiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                            <p id="labelEstadoNacimiento" class="help-block needed">Estado de nacimiento</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row personaFisicaSolicitanteNO">
+                                        <div class="col-md-4">
+                                            <div >
+                                                <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
+                                            </div>
+                                            <div >
+                                                <input type="hidden" />
+                                                <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitante" name='solicita_traductor_solicitante'/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
+                                            {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block needed">Lengua indígena</p>
+                                        </div>
+                                    </div>
+                                    <div  class="col-md-12 pasoSolicitante" id="continuar1">
+                                        <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(1)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
                                     </div>
                                 </div>
-                                <div class="col-md-12 row">
-                                    <input class="form-control" id="idsolicitante" type="hidden" value="253">
-                                    <div class="col-md-4 personaFisicaSolicitante">
-                                        <input class="form-control upper" id="idNombreSolicitante" required placeholder="Nombre del solicitante" type="text" value="">
-                                        <p class="help-block needed">Nombre del solicitante</p>
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitante">
-                                        <input class="form-control upper" id="idPrimerASolicitante" required placeholder="Primer apellido del solicitante" type="text" value="">
-                                        <p class="help-block needed">Primer apellido</p>
-                                    </div>
+                                {{-- <div class="col-md-12 row">
                                     <div class="col-md-4 personaFisicaSolicitanteNO">
-                                        <input class="form-control upper" id="idSegundoASolicitante" placeholder="Segundo apellido del solicitante" type="text" value="">
-                                        <p class="help-block">Segundo apellido</p>
+                                        {!! Form::select('motivo_excepciones_id_solicitante', isset($motivo_excepciones) ? $motivo_excepciones : [] , null, ['id'=>'motivo_excepciones_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('motivo_excepciones_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block needed">Motivo de excepcion</p>
                                     </div>
-                                    <div class="col-md-12 personaMoralSolicitante">
-                                        <input class="form-control upper" id="idNombreCSolicitante" placeholder="Raz&oacute;n social" type="text" value="">
-                                        <p class="help-block needed">Raz&oacute;n social</p>
+                                    <div class="col-md-4 personaFisicaSolicitanteNO" id="divGrupoPrioritario" style="display: none;">
+                                        {!! Form::select('grupo_prioritario_id_solicitante', isset($grupo_prioritario) ? $grupo_prioritario : [] , null, ['id'=>'grupo_prioritario_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('grupo_prioritario_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block needed">Grupo Vulnerable</p>
                                     </div>
-                                    <div class="col-md-4 personaFisicaSolicitante">
-                                        <input class="form-control dateBirth" required id="idFechaNacimientoSolicitante" placeholder="Fecha de nacimiento del solicitante" type="text" value="">
-                                        <p class="help-block needed">Fecha de nacimiento</p>
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitante">
-                                        <input class="form-control numero" disabled required data-parsley-type='integer' id="idEdadSolicitante" placeholder="Edad del solicitante" type="text" value="">
-                                        <p class="help-block needed">Edad del solicitante</p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input class="form-control upper" id="idSolicitanteRfc" onblur="validaRFC(this.value);" placeholder="RFC del solicitante" type="text" value="">
-                                        <p class="help-block">RFC del solicitante</p>
-                                    </div>
-
-                                    <div class="col-md-4 sindicato" style="display: none;">
-                                        <input class="form-control upper " id="registro_sindical" placeholder="Registro sindical" type="text" value="">
-                                        <p class="help-block needed">Registro sindical</p>
-                                    </div>
-
-                                    <div class="col-md-4 sindicato" style="display: none;">
-                                        <input class="form-control upper" id="contrato_colectivo" placeholder="Contrato Colectivo" type="text" value="">
-                                        <p class="help-block">Contrato colectivo</p>
-                                    </div>
-
-                                    <div class="col-md-4 personaFisicaSolicitante">
-                                        {!! Form::select('genero_id_solicitante', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('genero_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block needed">Género</p>
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitante">
-                                        {!! Form::select('nacionalidad_id_solicitante', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('nacionalidad_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block needed">Nacionalidad</p>
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitante">
-                                        {!! Form::select('entidad_nacimiento_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('entidad_nacimiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                        <p id="labelEstadoNacimiento" class="help-block needed">Estado de nacimiento</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 row personaFisicaSolicitanteNO">
-                                    <div class="col-md-4">
-                                        <div >
-                                            <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
-                                        </div>
-                                        <div >
-                                            <input type="hidden" />
-                                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitante" name='solicita_traductor_solicitante'/>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
-                                        {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block needed">Lengua indígena</p>
-                                    </div>
-                                </div>
-                                <div  class="col-md-12 pasoSolicitante" id="continuar1">
-                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(1)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
-                                </div>
-                            </div>
-                            {{-- <div class="col-md-12 row">
-                                <div class="col-md-4 personaFisicaSolicitanteNO">
-                                    {!! Form::select('motivo_excepciones_id_solicitante', isset($motivo_excepciones) ? $motivo_excepciones : [] , null, ['id'=>'motivo_excepciones_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('motivo_excepciones_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Motivo de excepcion</p>
-                                </div>
-                                <div class="col-md-4 personaFisicaSolicitanteNO" id="divGrupoPrioritario" style="display: none;">
-                                    {!! Form::select('grupo_prioritario_id_solicitante', isset($grupo_prioritario) ? $grupo_prioritario : [] , null, ['id'=>'grupo_prioritario_id_solicitante','placeholder' => 'Seleccione una opcion', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('grupo_prioritario_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Grupo Vulnerable</p>
-                                </div>
-                            </div> --}}
-                            {{-- Seccion de contactos solicitantes --}}
-                            <div id="divContactoSolicitante" data-parsley-validate="true" style="display:none" class="col-md-12 row">
-                                <div class="col-md-12 mt-4">
-                                    <h4>Contacto</h4>
-                                    <hr class="red">
-                                </div>
-                                <input type="hidden" id="contacto_id_solicitante">
-                                <div class="col-md-4">
-                                    {!! Form::select('tipo_contacto_id_solicitante', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('tipo_contacto_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Tipo de contacto</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class="form-control" id="contacto_solicitante" placeholder="Contacto"  type="text" value="">
-                                    <p class="help-block needed">Contacto</p>
-                                </div>
-                                <div class="col-md-4">
-                                <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitante();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
-                                </div>
-                                <div class="col-md-10 offset-md-1" >
-                                    <table class="table table-bordered" >
-                                        <thead>
-                                            <tr>
-                                                <th style="width:80%;">Tipo</th>
-                                                <th style="width:80%;">Contacto</th>
-                                                <th style="width:20%; text-align: center;">Acci&oacute;n</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="tbodyContactoSolicitante">
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div  class="col-md-12 pasoSolicitante" id="continuar2">
-                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(2)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
-                                </div>
-                            </div>
-                            {{-- end seccion de contactos citados --}}
-                            <!-- seccion de domicilios solicitante -->
-                            <div id="divMapaSolicitante" data-parsley-validate="true" style="display:none">
-                                @include('includes.component.map',['identificador' => 'solicitante','needsMaps'=>"false", 'instancia' => '1'])
-                                <div class="col-md-12 pasoSolicitante"id="continuar3">
-                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(3)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
-                                </div>
-                            </div>
-
-                            <!-- end seccion de domicilios solicitante -->
-                            <!-- Seccion de Datos laborales -->
-                            <div id="divDatoLaboralSolicitante" style="display: none;"  class="col-md-12 row">
-                                <div class="col-md-12 mt-4">
-                                    <h4>Datos Laborales</h4>
-                                    <hr class="red">
-                                </div>
-                                <p>
-                                    Los siguientes 4 campos, aunque no son obligatorios, son importantes para ayudarte a identificar el patr&oacute;n que debes citar a la conciliaci&oacute;n
-                                </p>
-                                <input type="hidden" id="dato_laboral_id">
-                                <div class="col-md-6">
-                                    <input class="form-control upper" id="nombre_jefe_directo" placeholder="Nombre del jefe directo" type="text" value="">
-                                    <p class="help-block">Nombre del jefe directo</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <input class="form-control upper" id="nombre_contrato" placeholder="Nombre de quien te contrato" type="text" value="">
-                                    <p class="help-block">&iquest;Quién te contrato?</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <input class="form-control upper" id="nombre_paga" placeholder="Nombre quien te paga" type="text" value="">
-                                    <p class="help-block">&iquest;Quién te paga?</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <input class="form-control upper" id="nombre_prestas_servicio" placeholder="Nombre de a quien le prestas tus servicios" type="text" value="">
-                                    <p class="help-block">&iquest;A quién prestas el servicio?</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
-                                    <p class="help-block ">N&uacute;mero de seguro social</p>
-                                </div>
-                                <div class="col-md-12 row">
-                                    <div class="col-md-6">
-                                        <input class="form-control upper" required id="puesto" placeholder="Puesto" type="text" value="">
-                                        <p class="help-block needed">Puesto</p>
-                                    </div>
-                                    <div class="col-md-6" >
-                                        {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block ">&iquest;En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoja del catálogo. Si no, deja vacío.</p>
-                                    </div>
-                                    {{-- <div class="col-md-4">
-                                        <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
-                                        <p class="help-block">No. ISSSTE</p>
-                                    </div> --}}
-                                </div>
-                                <div class="col-md-12 row">
-                                    <div class="col-md-4">
-                                        <input class="form-control numero requiredLaboral" required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
-                                        <p class="help-block needed">&iquest;Cu&aacute;nto te pagan?</p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboral']);  !!}
-                                        {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block needed">&iquest;Cada cuándo te pagan?</p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input class="form-control numero requiredLaboral" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
-                                        <p class="help-block needed">Horas semanales</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 row">
-
-                                    <div class="col-md-2">
-                                        <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <input type="hidden" />
-                                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input class="form-control requiredLaboral" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
-                                        <p class="help-block needed">Fecha de ingreso</p>
-                                    </div>
-                                    <div class="col-md-4" id="divFechaSalida">
-                                        <input class="form-control requiredLaboral" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
-                                        <p class="help-block needed">Fecha salida</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    {{-- <select id="jornada_id" required="" class="form-control catSelect" name="jornada_id" data-select2-id="jornada_id" tabindex="-1" aria-hidden="true">
-                                        <option selected="selected" value="" data-select2-id="19">Seleccione una opción</option>
-                                        @foreach($jornadas as $jornada)
-                                            <option value="{{$jornada->id}}" > {{$jornada->nombre}} </option>
-                                        @endforeach
-                                    </select> --}}
-                                    {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboral']);  !!}
-                                    {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Jornada</p>
-                                </div>
-                                <div>
-                                    <a style="font-size: medium;" onclick="$('#modal-jornada').modal('show');"><i class="fa fa-question-circle"></i></a>
-                                </div>
-                            </div>
-                            <!-- end Seccion de Datos laborales -->
-                            <hr style="margin-top:5%;">
-                            <div id="divBotonesSolicitante" style="display:none">
-                                <button class="btn btn-danger" type="button" onclick="limpiarSolicitante()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
-                                <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Validar y agregar solicitante</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- end row -->
-            </fieldset>
-            <!-- end fieldset -->
-        </div>
-        <!-- end step-1 -->
-        <!-- begin step-2 -->
-        <div id="step-2" data-parsley-validate="true">
-            <!-- begin fieldset -->
-            <fieldset>
-                <!-- begin row -->
-                <div class="row">
-                    <div class="col-xl-10 offset-xl-1">
-                        <div>
-                            <center><h1>Citado</h1></center>
-                            <div id="editandoSolicitado"></div>
-                        </div>
-                        <div  id="divSolicitado">
-                            <div id="datosIdentificacionSolicitado" data-parsley-validate="true">
-
-                                <div style="margin-left:5%; margin-bottom:3%; ">
-                                    <label>Tipo Persona</label>
-                                    <input type="hidden" id="solicitado_id">
-                                    <input type="hidden" id="solicitado_key">
-                                    <div class="row">
-                                        <div class="radio radio-css radio-inline">
-                                            <input checked="checked" name="tipo_persona_solicitado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
-                                            <label for="tipo_persona_fisica_solicitado">Física</label>
-                                        </div>
-                                        <div class="radio radio-css radio-inline">
-                                            <input name="tipo_persona_solicitado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
-                                            <label for="tipo_persona_moral_solicitado">Moral</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-8 personaFisicaSolicitadoNO">
-                                    <input class="form-control upper" id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del citado" type="text" value="">
-                                    <p class="help-block">CURP del citado</p>
-                                </div>
-                                <div class="col-md-12 row">
-                                    <div class="col-md-4" style="display:none;">
-                                        <input class="form-control" id="idsolicitado" type="text" value="253">
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitado">
-                                        <input class="form-control upper" required id="idNombreSolicitado" placeholder="Nombre del citado" type="text" value="">
-                                        <p class="help-block needed">Nombre del citado</p>
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitado">
-                                        <input class="form-control upper" required id="idPrimerASolicitado" placeholder="Primer apellido del citado" type="text" value="">
-
-                                        <p class="help-block needed">Primer apellido</p>
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitadoNO">
-                                        <input class="form-control upper" id="idSegundoASolicitado" placeholder="Segundo apellido del citado" type="text" value="">
-
-                                        <p class="help-block">Segundo apellido</p>
-                                    </div>
-                                    <div class="col-md-8 personaMoralSolicitado">
-                                        <input class="form-control upper" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del citado" type="text" value="">
-                                        <p class="help-block needed">Raz&oacute;n social</p>
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitadoNO">
-                                        <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del citado" type="text" value="">
-                                        <p class="help-block">Fecha de nacimiento</p>
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitadoNO">
-                                        <input class="form-control numero" disabled id="idEdadSolicitado" placeholder="Edad del citado" type="text" value="">
-                                        <p class="help-block">Edad del citado</p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input class="form-control upper" id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del citado" type="text" value="">
-                                        <p class="help-block">RFC del citado</p>
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitadoNO">
-                                        {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block">Género</p>
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitadoNO">
-                                        {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('nacionalidad_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block">Nacionalidad</p>
-                                    </div>
-                                    <div class="col-md-4 personaFisicaSolicitadoNO">
-                                        {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block">Estado de nacimiento</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 row personaFisicaSolicitadoNO">
-                                    <div class="col-md-4">
-                                        <div  >
-                                            <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
-                                        </div>
-                                        <div >
-                                            <input type="hidden" />
-                                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitado" name='solicita_traductor_solicitado'/>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
-                                        {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block needed">Lengua indígena</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 pasoSolicitado" id="continuarSolicitado1">
-                                    <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(1)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
-                                </div>
-                            </div>
-                            {{-- Seccion de contactos solicitados --}}
-                            <div id="divContactoSolicitado" data-parsley-validate="true" style="display:none;">
-                                <div  class="col-md-12 row">
+                                </div> --}}
+                                {{-- Seccion de contactos solicitantes --}}
+                                <div id="divContactoSolicitante" data-parsley-validate="true" style="display:none" class="col-md-12 row">
                                     <div class="col-md-12 mt-4">
                                         <h4>Contacto</h4>
                                         <hr class="red">
                                     </div>
-                                    <input type="hidden" id="contacto_id_solicitado">
-                                    <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona citada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
-                                    <div class="col-md-12 row">
-                                        <div class="col-md-4">
-                                            {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                            {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                            <p class="help-block needed">Tipo de contacto</p>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <input class="form-control text-lowercase" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
-                                            <p class="help-block needed">Contacto</p>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitado();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
-                                        </div>
+                                    <input type="hidden" id="contacto_id_solicitante">
+                                    <div class="col-md-4">
+                                        {!! Form::select('tipo_contacto_id_solicitante', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('tipo_contacto_id_solicitante', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block needed">Tipo de contacto</p>
                                     </div>
-                                </div>
+                                    <div class="col-md-4">
+                                        <input class="form-control" id="contacto_solicitante" placeholder="Contacto"  type="text" value="">
+                                        <p class="help-block needed">Contacto</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                    <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitante();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                                    </div>
                                     <div class="col-md-10 offset-md-1" >
                                         <table class="table table-bordered" >
                                             <thead>
@@ -581,452 +335,793 @@
                                                     <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                                 </tr>
                                             </thead>
-                                            <tbody id="tbodyContactoSolicitado">
+                                            <tbody id="tbodyContactoSolicitante">
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="col-md-12 pasoSolicitado" id="continuarSolicitado2">
-                                        <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(2)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
+                                    <div  class="col-md-12 pasoSolicitante" id="continuar2">
+                                        <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(2)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
                                     </div>
-                            </div>
-                            {{-- end seccion de contactos solicitados --}}
-                            <!-- seccion de domicilios citado -->
-                            <div id="divMapaSolicitado" data-parsley-validate="true" style="display: none;">
-                                <div  class="col-md-12 row">
-                                    <div class="row">
-                                        <h4>Domicilio(s)</h4>
-                                        <hr class="red">
-                                        {{-- <a style="margin-left:1%;" onclick="$('#modal-domicilio').modal('show');"> <i style="font-size:large; color:#49b6d6;" class="fa fa-plus-circle"></i> Oprima + para llenar los datos del domicilio y visualizar el mapa</a> --}}
+                                </div>
+                                {{-- end seccion de contactos citados --}}
+                                <!-- seccion de domicilios solicitante -->
+                                <div id="divMapaSolicitante" data-parsley-validate="true" style="display:none">
+                                    @include('includes.component.map',['identificador' => 'solicitante','needsMaps'=>"false", 'instancia' => '1'])
+                                    <div class="col-md-12 pasoSolicitante"id="continuar3">
+                                        <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(3)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
                                     </div>
-                                    @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"true", 'instancia' => 2])
-                                    <div style="margin-top: 2%;" class="col-md-12">
+                                </div>
 
-                                        {{-- <button class="btn btn-primary btn-sm m-l-5" onclick="agregarDomicilio()"><i class="fa fa-save"></i> Guardar Domicilio</button> --}}
-                                        {{-- <div class="col-md-10 offset-md-1" >
+                                <!-- end seccion de domicilios solicitante -->
+                                <!-- Seccion de Datos laborales -->
+                                <div id="divDatoLaboralSolicitante" style="display: none;"  class="col-md-12 row">
+                                    <div class="col-md-12 mt-4">
+                                        <h4>Datos Laborales</h4>
+                                        <hr class="red">
+                                    </div>
+                                    <input type="hidden" id="dato_laboral_id">
+                                    <div class="col-md-6">
+                                        <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
+                                        <p class="help-block ">N&uacute;mero de seguro social</p>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-6">
+                                            <input class="form-control upper" required id="puesto" placeholder="Puesto" type="text" value="">
+                                            <p class="help-block needed">Puesto</p>
+                                        </div>
+                                        <div class="col-md-6" >
+                                            {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block ">&iquest;En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoja del catálogo. Si no, deja vacío.</p>
+                                        </div>
+                                        {{-- <div class="col-md-4">
+                                            <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
+                                            <p class="help-block">No. ISSSTE</p>
+                                        </div> --}}
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-4">
+                                            <input class="form-control numero requiredLaboral" required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
+                                            <p class="help-block needed">&iquest;Cu&aacute;nto te pagan?</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            {!! Form::select('periodicidad_id', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboral']);  !!}
+                                            {!! $errors->first('periodicidad_id', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block needed">&iquest;Cada cuándo te pagan?</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input class="form-control numero requiredLaboral" required data-parsley-type='integer' id="horas_semanales" placeholder="Horas semanales" type="text" value="">
+                                            <p class="help-block needed">Horas semanales</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row">
+
+                                        <div class="col-md-2">
+                                            <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="hidden" />
+                                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmente" name='labora_actualmente'/>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input class="form-control requiredLaboral" required id="fecha_ingreso" placeholder="Fecha de ingreso" type="text" value="">
+                                            <p class="help-block needed">Fecha de ingreso</p>
+                                        </div>
+                                        <div class="col-md-4" id="divFechaSalida">
+                                            <input class="form-control requiredLaboral" required id="fecha_salida" placeholder="Fecha salida" type="text" value="">
+                                            <p class="help-block needed">Fecha salida</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{-- <select id="jornada_id" required="" class="form-control catSelect" name="jornada_id" data-select2-id="jornada_id" tabindex="-1" aria-hidden="true">
+                                            <option selected="selected" value="" data-select2-id="19">Seleccione una opción</option>
+                                            @foreach($jornadas as $jornada)
+                                                <option value="{{$jornada->id}}" > {{$jornada->nombre}} </option>
+                                            @endforeach
+                                        </select> --}}
+                                        {!! Form::select('jornada_id', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboral']);  !!}
+                                        {!! $errors->first('jornada_id', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block needed">Jornada</p>
+                                    </div>
+                                    <div>
+                                        <a style="font-size: medium;" onclick="$('#modal-jornada').modal('show');"><i class="fa fa-question-circle"></i></a>
+                                    </div>
+                                </div>
+                                <!-- end Seccion de Datos laborales -->
+                                <hr style="margin-top:5%;">
+                                <div id="divBotonesSolicitante" style="display:none">
+                                    <button class="btn btn-danger" type="button" onclick="limpiarSolicitante()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
+                                    <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Validar y agregar solicitante</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="float: right; margin-top: 2%;" type="button" onclick="$('#wizard').smartWizard('goToStep', 2);" > <i class="fa fa-arrow-right"></i> Continuar a solicitud</button>
+                    <!-- end row -->
+                </fieldset>
+                <!-- end fieldset -->
+            </div>
+            <!-- end step-1 -->
+            <!-- begin step-2 -->
+            <div id="step-2" data-parsley-validate="true">
+                <!-- begin fieldset -->
+                <fieldset>
+                    <!-- begin row -->
+                    <div class="row">
+                        <div class="col-xl-10 offset-xl-1">
+                            <div>
+                                <center><h1>Citado</h1></center>
+                                <div id="editandoSolicitado"></div>
+                            </div>
+                            <div  id="divSolicitado">
+                                <div id="divAyudaCitado" style="margin-top: 2%; margin-bottom: 2%;">
+                                    <div>
+                                        <p>
+                                            Debes citar a tu patrón, la persona física (un individuo) o moral (una empresa) responsable de la relación de trabajo contigo. Para ayudarte a determinar a quién deberías citar, te hacemos las siguientes preguntas:<br>
+                                            ¿Tienes un recibo o recibos de nómina oficiales (que contenga tu número de seguridad social)? 
+                                        </p>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="radio radio-css radio-inline">
+                                                <input name="recibo_oficial" type="radio" id="recibo_oficial_si" value="1"/>
+                                                <label for="recibo_oficial_si">S&Iacute;</label>
+                                            </div>
+                                            <div class="radio radio-css radio-inline">
+                                                <input name="recibo_oficial" type="radio" id="recibo_oficial_no" value="2"/>
+                                                <label for="recibo_oficial_no">No</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top: 2%; display:none;" id="divReciboOficial" >
+                                        <p>
+                                            El nombre de la persona o empresa que te paga en este recibo de nómina es más probablemente el patrón a quien debes de citar.
+                                        </p>
+                                    </div>
+                                    <div id="divReciboNomina" style=" display:none; margin-top:2%;">
+                                        <p>
+                                            ¿Tienes algún recibo de nómina o pago donde aparece el nombre de quién te paga tu sueldo?
+                                        </p>
+                                        <div >
+                                            <div class="row col-md-12">
+                                                <div class="radio radio-css radio-inline">
+                                                    <input name="recibo_pago" type="radio" id="recibo_pago_si" value="1"/>
+                                                    <label for="recibo_pago_si">S&Iacute;</label>
+                                                </div>
+                                                <div class="radio radio-css radio-inline">
+                                                    <input name="recibo_pago" type="radio" id="recibo_pago_no" value="2"/>
+                                                    <label for="recibo_pago_no">No</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="divSiReciboNomina" style="margin-top: 2%; display:none;">
+                                            <p>
+                                                El nombre de la persona o empresa que te paga en este recibo de nómina o de pago es más probablemente el patrón a quien debes de citar.
+                                            </p>
+                                        </div>
+                                        <div id="divNoReciboNomina" style="margin-top: 2%; display:none;" >
+                                            <p>
+                                                En caso de no contar con ningún tipo de recibo de nómina o pago en el que aparece el nombre del patrón, para decidir a quién citar a la conciliación debes considerar las siguientes preguntas:
+                                            </p>                                            
+                                            <ul>
+                                                <li>¿Con qué persona o empresa firmaste tu contrato de trabajo?</li>
+                                                <li>¿Cómo se llama la persona o empresa que te paga tu sueldo?</li>
+                                                <li>¿De quién recibes tus órdenes de dónde, cómo y qué tareas de trabajo debes realizar?</li>
+                                            </ul>
+                                            <div>
+                                                <p>
+                                                    A partir de tus respuestas a estas preguntas podrás determinar el nombre de la persona que debes citar para la conciliación. Nota lo siguiente: Si conoces el nombre de tu patrón, es preferible que solamente cites a quien realmente es tu patrón, para buscar una solución al conflicto con la persona o empresa correcta y no perder tiempo en arreglar tu conflicto por citar a diversas personas que no son responsables de tu relación de trabajo. Sin embargo, si tienes dudas respecto a quién es tu patrón, porque las respuestas a las preguntas anteriores son diferentes personas, podrás citar a más de una persona o empresa a la conciliación.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div id="datosIdentificacionSolicitado" style="display: none;" data-parsley-validate="true">
+                                    
+                                    <div class="col-md-12 mt-4">
+                                        <h4>Datos de identificaci&oacute;n</h4>
+                                        <hr class="red">
+                                    </div>
+                                    <div style="margin-left:5%; margin-bottom:3%; ">
+                                        <label>Tipo Persona</label>
+                                        <input type="hidden" id="solicitado_id">
+                                        <input type="hidden" id="solicitado_key">
+                                        <div class="row">
+                                            <div class="radio radio-css radio-inline">
+                                                <input checked="checked" name="tipo_persona_solicitado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
+                                                <label for="tipo_persona_fisica_solicitado">Física</label>
+                                            </div>
+                                            <div class="radio radio-css radio-inline">
+                                                <input name="tipo_persona_solicitado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
+                                                <label for="tipo_persona_moral_solicitado">Moral</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 personaFisicaSolicitadoNO">
+                                        <input class="form-control upper" id="idSolicitadoCURP" maxlength="18" onblur="validaCURP(this.value);" placeholder="CURP del citado" type="text" value="">
+                                        <p class="help-block">CURP del citado</p>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-4" style="display:none;">
+                                            <input class="form-control" id="idsolicitado" type="text" value="253">
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitado">
+                                            <input class="form-control upper" required id="idNombreSolicitado" placeholder="Nombre del citado" type="text" value="">
+                                            <p class="help-block needed">Nombre del citado</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitado">
+                                            <input class="form-control upper" required id="idPrimerASolicitado" placeholder="Primer apellido del citado" type="text" value="">
+
+                                            <p class="help-block needed">Primer apellido</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitadoNO">
+                                            <input class="form-control upper" id="idSegundoASolicitado" placeholder="Segundo apellido del citado" type="text" value="">
+
+                                            <p class="help-block">Segundo apellido</p>
+                                        </div>
+                                        <div class="col-md-8 personaMoralSolicitado">
+                                            <input class="form-control upper" id="idNombreCSolicitado" required placeholder="Raz&oacute;n social del citado" type="text" value="">
+                                            <p class="help-block needed">Raz&oacute;n social</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitadoNO">
+                                            <input class="form-control dateBirth" id="idFechaNacimientoSolicitado" placeholder="Fecha de nacimiento del citado" type="text" value="">
+                                            <p class="help-block">Fecha de nacimiento</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitadoNO">
+                                            <input class="form-control numero" disabled id="idEdadSolicitado" placeholder="Edad del citado" type="text" value="">
+                                            <p class="help-block">Edad del citado</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input class="form-control upper" id="idSolicitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del citado" type="text" value="">
+                                            <p class="help-block">RFC del citado</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitadoNO">
+                                            {!! Form::select('genero_id_solicitado', isset($generos) ? $generos : [] , null, ['id'=>'genero_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('genero_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block">Género</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitadoNO">
+                                            {!! Form::select('nacionalidad_id_solicitado', isset($nacionalidades) ? $nacionalidades : [] , null, ['id'=>'nacionalidad_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('nacionalidad_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block">Nacionalidad</p>
+                                        </div>
+                                        <div class="col-md-4 personaFisicaSolicitadoNO">
+                                            {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block">Estado de nacimiento</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row personaFisicaSolicitadoNO">
+                                        <div class="col-md-4">
+                                            <div  >
+                                                <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
+                                            </div>
+                                            <div >
+                                                <input type="hidden" />
+                                                <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitado" name='solicita_traductor_solicitado'/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
+                                            {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block needed">Lengua indígena</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 pasoSolicitado" id="continuarSolicitado1">
+                                        <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(1)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
+                                    </div>
+                                </div>
+                                {{-- Seccion de contactos solicitados --}}
+                                <div id="divContactoSolicitado" data-parsley-validate="true" style="display:none;">
+                                    <div  class="col-md-12 row">
+                                        <div class="col-md-12 mt-4">
+                                            <h4>Contacto</h4>
+                                            <hr class="red">
+                                        </div>
+                                        <input type="hidden" id="contacto_id_solicitado">
+                                        <div class="alert alert-warning p-10">En caso de contar con datos de contacto de la persona citada, es muy importante llenar esta informaci&oacute;n para facilitar la conciliaci&oacute;n efectiva</div>
+                                        <div class="col-md-12 row">
+                                            <div class="col-md-4">
+                                                {!! Form::select('tipo_contacto_id_solicitado', isset($tipo_contacto) ? $tipo_contacto : [] , null, ['id'=>'tipo_contacto_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                                {!! $errors->first('tipo_contacto_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                                <p class="help-block needed">Tipo de contacto</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input class="form-control text-lowercase" id="contacto_solicitado" placeholder="Contacto"  type="text" value="">
+                                                <p class="help-block needed">Contacto</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <button class="btn btn-primary" type="button" onclick="agregarContactoSolicitado();" > <i class="fa fa-plus-circle"></i> Agregar Contacto</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                        <div class="col-md-10 offset-md-1" >
                                             <table class="table table-bordered" >
                                                 <thead>
                                                     <tr>
-                                                        <th style="width:80%;">Domicilio</th>
+                                                        <th style="width:80%;">Tipo</th>
+                                                        <th style="width:80%;">Contacto</th>
                                                         <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="tbodyDomicilioSolicitado">
+                                                <tbody id="tbodyContactoSolicitado">
                                                 </tbody>
                                             </table>
-                                        </div> --}}
+                                        </div>
+                                        <div class="col-md-12 pasoSolicitado" id="continuarSolicitado2">
+                                            <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(2)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
+                                        </div>
+                                </div>
+                                {{-- end seccion de contactos solicitados --}}
+                                <!-- seccion de domicilios citado -->
+                                <div id="divMapaSolicitado" data-parsley-validate="true" style="display: none;">
+                                    <div  class="col-md-12 row">
+                                        <div class="row">
+                                            <h4>Domicilio(s)</h4>
+                                            <hr class="red">
+                                            {{-- <a style="margin-left:1%;" onclick="$('#modal-domicilio').modal('show');"> <i style="font-size:large; color:#49b6d6;" class="fa fa-plus-circle"></i> Oprima + para llenar los datos del domicilio y visualizar el mapa</a> --}}
+                                        </div>
+                                        @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"true", 'instancia' => 2])
+                                        <div style="margin-top: 2%;" class="col-md-12">
+
+                                            {{-- <button class="btn btn-primary btn-sm m-l-5" onclick="agregarDomicilio()"><i class="fa fa-save"></i> Guardar Domicilio</button> --}}
+                                            {{-- <div class="col-md-10 offset-md-1" >
+                                                <table class="table table-bordered" >
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:80%;">Domicilio</th>
+                                                            <th style="width:20%; text-align: center;">Acci&oacute;n</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbodyDomicilioSolicitado">
+                                                    </tbody>
+                                                </table>
+                                            </div> --}}
+                                        </div>
                                     </div>
+
+                                </div>
+                                    <!-- end seccion de domicilios citado -->
+                                <hr style="margin-top:5%;">
+                                <div id="divBotonesSolicitado" style="display: none;">
+                                    <button class="btn btn-danger" type="button" onclick="limpiarSolicitado()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
+                                    <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Validar y Agregar citado</button>
                                 </div>
 
                             </div>
-                                <!-- end seccion de domicilios citado -->
-                            <hr style="margin-top:5%;">
-                            <div id="divBotonesSolicitado" style="display: none;">
-                                <button class="btn btn-danger" type="button" onclick="limpiarSolicitado()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
-                                <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Validar y Agregar citado</button>
-                            </div>
-
-                        </div>
-                        <button class="btn btn-primary" style="float: right; margin-top: 2%;" type="button" onclick="$('#paso3').click()" > <i class="fa fa-arrow-right"></i> Continuar a solicitud</button>
-                    </div>
-                </div>
-                <!-- end row -->
-            </fieldset>
-            <!-- end fieldset -->
-        </div>
-        <!-- begin step-3 -->
-        <div id="step-3" data-parsley-validate="true">
-            <div class="row">
-                <div class="col-xl-10 offset-xl-1">
-                    <center>  <h1>Solicitud</h1></center>
-                <div class="col-md-12 row">
-                    <input type="hidden" id="solicitud_id">
-                    <input type="hidden" id="tipo_solicitud_id" value="{{$tipo_solicitud_id}}">
-                    <div class="col-md-4 showEdit" >
-                        <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de ratificación" type="text" value="">
-                        <p class="help-block">Fecha de ratificación</p>
-                    </div>
-                    <div class="col-md-4 showEdit">
-                        <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
-                        <p class="help-block needed">Fecha de recepción</p>
-                    </div>
-                    <div class="col-md-4 estatusSolicitud">
-                        {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                        {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
-                        <p class="help-block needed">Estatus de la solicitud</p>
-                    </div>
-                    <div class="col-md-12">
-
-                        <div><h4>Objeto de la solicitud</h4></div>
-                        <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                            <table class="table table-bordered" >
-                                <thead>
-                                    <tr>
-                                        <th>Objeto</th>
-                                        <th>Acci&oacute;n</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbodyObjetoSolRevision">
-                                </tbody>
-                            </table>
-                        </div>
-                        <div><h4>Solicitantes</h4></div>
-                        <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                            <table class="table table-bordered" >
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Curp</th>
-                                        <th>RFC</th>
-                                        <th>Acci&oacute;n</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbodySolicitanteRevision">
-                                </tbody>
-                            </table>
-                        </div>
-                        <div><h4>Citados</h4></div>
-                        <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                            <table class="table table-bordered" >
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Curp</th>
-                                        <th>RFC</th>
-                                        <th style="width:15%; text-align: center;">Acci&oacute;n</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbodySolicitadoRevision">
-                                </tbody>
-                            </table>
+                            <button class="btn btn-primary" style="float: right; margin-top: 2%;" type="button" onclick="$('#wizard').smartWizard('goToStep', 2);" > <i class="fa fa-arrow-right"></i> Continuar a solicitud</button>
                         </div>
                     </div>
-
-                    <br>
-                    <br>
-                    <div class="col-md-12 form-group">
-                        <textarea rows="4" class="form-control" id="observaciones" onkeyup="validarPalabras(this)"></textarea>
-                        <p class="help-block">Descripci&oacute;n de los hechos motivo de la solicitud (<label id="numeroPalabras">0</label> de 200 palabras)</p>
-                        <input type="hidden" id="countObservaciones" />
-                    </div>
-                </div>
+                    <!-- end row -->
+                </fieldset>
+                <!-- end fieldset -->
             </div>
+            <!-- begin step-3 -->
+            <div id="step-3" data-parsley-validate="true">
+                <div class="row">
+                    <div class="col-xl-10 offset-xl-1">
+                        <center>  <h1>Solicitud</h1></center>
+                    <div class="col-md-12 row">
+                        <input type="hidden" id="solicitud_id">
+                        <input type="hidden" id="tipo_solicitud_id" value="{{$tipo_solicitud_id}}">
+                        <div class="col-md-4 showEdit" >
+                            <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de ratificación" type="text" value="">
+                            <p class="help-block">Fecha de ratificación</p>
+                        </div>
+                        <div class="col-md-4 showEdit">
+                            <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
+                            <p class="help-block needed">Fecha de recepción</p>
+                        </div>
+                        <div class="col-md-4 estatusSolicitud">
+                            {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                            {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
+                            <p class="help-block needed">Estatus de la solicitud</p>
+                        </div>
+                        <div class="col-md-12">
+                            <h4>Giro Comercial</h4>
+                            <h5 id="giro_solicitanteSol"></h4>
+                        </div>
+                        <div class="col-md-12">
 
-            @if(isset($solicitud->estatus_solicitud_id) && $solicitud->estatus_solicitud_id == 1)
-                <div class="form-group">
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnRatificarSolicitud"><i class="fa fa-check"></i> Ratificar Solicitud</button>
-                </div>
-            @endif
-            <div class="col-md-12" id="btnGuardar">
-                <button style="float: right;" class="btn btn-primary pull-right btn-lg m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save" ></i> Guardar</button>
-            </div>
-            <div class="col-md-12" id="btnGetAcuse" style="display: none;">
-                <a id="btnAcuse" href="/api/documentos/getFile/" style="padding: 1% 2% 1% 2%; font-size: large;" class="btn btn-primary pull-right btn-lg m-l-5" target="_blank"><i class="fa fa-file" ></i> Descargar Acuse</a>
-            </div>
-
-        </div>
-        </div>
-        <!-- end step-3 -->
-        <!-- begin step-4 -->
-        <div id="step-4">
-            <div class="row">
-                @if (isset($audiencias))
-                <div id="divGruposPrioritarios" class="col-md-12" >
-                    <div class="col-md-12" style="text-align: center;">
-                        <h1 >Excepci&oacute;n a la conciliaci&oacute;n</h1>
-                    </div>
-                    <div class="col-md-12" style="margin-top: 2%;">
-                        <div class="solicitudTerminada">
-                            <form action="/solicitud/excepcion" id="excepcionForm" method="POST" enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" name="solicitud_id_excepcion" id="solicitud_id_excepcion">
-                                <div class="col-md-5">
-                                    {!! Form::select('conciliador_excepcion_id', isset($conciliadores) ? $conciliadores : [] , null, ['id'=>'conciliador_excepcion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                    {!! $errors->first('conciliador_excepcion_id', '<span class=text-danger>:message</span>') !!}
-                                    <p class="help-block needed">Conciliador</p>
-                                </div>
-                                <table class="table ">
+                            <div><h4>Objeto de la solicitud</h4></div>
+                            <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                                <table class="table table-bordered" >
                                     <thead>
                                         <tr>
-                                            <th>Solicitante</th>
-                                            <th>Grupo Vulnerable</th>
+                                            <th>Objeto</th>
                                             <th>Acci&oacute;n</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tbodyGruposPrioritarios">
-
+                                    <tbody id="tbodyObjetoSolRevision">
                                     </tbody>
                                 </table>
-                                <button class="btn btn-primary " >Excepci&oacute;n de Audiencia</button>
-                            </form>
+                            </div>
+                            <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
+                            <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
+                            <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                                <table class="table table-bordered" >
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Curp</th>
+                                            <th>RFC</th>
+                                            <th>Acci&oacute;n</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodySolicitanteRevision">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1);"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
+                            <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                                <table class="table table-bordered" >
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Curp</th>
+                                            <th>RFC</th>
+                                            <th style="width:15%; text-align: center;">Acci&oacute;n</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodySolicitadoRevision">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <br>
+                        <br>
+                        <div class="col-md-12 form-group">
+                            <textarea rows="4" class="form-control" id="observaciones" onkeyup="validarPalabras(this)"></textarea>
+                            <p class="help-block">Descripci&oacute;n de los hechos motivo de la solicitud (<label id="numeroPalabras">0</label> de 200 palabras)</p>
+                            <input type="hidden" id="countObservaciones" />
                         </div>
                     </div>
                 </div>
-                @endif
+
+                {{-- @if(isset($solicitud->estatus_solicitud_id) && $solicitud->estatus_solicitud_id == 1)
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnRatificarSolicitud"><i class="fa fa-check"></i> Ratificar Solicitud</button>
+                    </div>
+                @endif --}}
+                <div class="col-md-12" id="btnGuardar">
+                    <button style="float: right;" class="btn btn-primary pull-right btn-lg m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save" ></i> Guardar</button>
+                </div>
+                <div class="col-md-12" id="btnGetAcuse" style="display: none;">
+                    <a id="btnAcuse" href="/api/documentos/getFile/" style="padding: 1% 2% 1% 2%; font-size: large;" class="btn btn-primary pull-right btn-lg m-l-5" target="_blank"><i class="fa fa-file" ></i> Descargar Acuse</a>
+                </div>
 
             </div>
-        </div>
-        <!-- end step-4 -->
-        <!-- begin step-5 -->
-        <div id="step-5">
-            @if (isset($audiencias))
-            <div class="row">
-                <div class="col-md-12">
-                    @if(Count($audiencias) > 0)
-                        @include('expediente.audiencias._list',$audiencias)
-                    @else
-                        @include('expediente.audiencias.calendarioWizard',$partes)
-                    @endif
-                </div>
             </div>
+            <!-- end step-3 -->
+            <!-- begin step-4 -->
+            {{-- <div id="step-4">
+                <div class="row">
+                    @if (isset($audiencias))
+                    <div id="divGruposPrioritarios" class="col-md-12" >
+                        <div class="col-md-12" style="text-align: center;">
+                            <h1 >Excepci&oacute;n a la conciliaci&oacute;n</h1>
+                        </div>
+                        <div class="col-md-12" style="margin-top: 2%;">
+                            <div class="solicitudTerminada">
+                                <form action="/solicitud/excepcion" id="excepcionForm" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="solicitud_id_excepcion" id="solicitud_id_excepcion">
+                                    <div class="col-md-5">
+                                        {!! Form::select('conciliador_excepcion_id', isset($conciliadores) ? $conciliadores : [] , null, ['id'=>'conciliador_excepcion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                        {!! $errors->first('conciliador_excepcion_id', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block needed">Conciliador</p>
+                                    </div>
+                                    <table class="table ">
+                                        <thead>
+                                            <tr>
+                                                <th>Solicitante</th>
+                                                <th>Grupo Vulnerable</th>
+                                                <th>Acci&oacute;n</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyGruposPrioritarios">
+
+                                        </tbody>
+                                    </table>
+                                    <button class="btn btn-primary " >Excepci&oacute;n de Audiencia</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                </div>
+            </div> --}}
+            <!-- end step-4 -->
+            <!-- begin step-5 -->
+            {{-- <div id="step-5">
+                @if (isset($audiencias))
+                <div class="row">
+                    <div class="col-md-12">
+                        @if(Count($audiencias) > 0)
+                            @include('expediente.audiencias._list',$audiencias)
+                        @else
+                            @include('expediente.audiencias.calendarioWizard',$partes)
+                        @endif
+                    </div>
+                </div>
+                @else
+                <div> <h1> Audiencia disponible despues de ratificaci&oacute;n </h1> </div>
+                @endif
+
+            </div> --}}
+            <!-- end step-5 -->
+            <!-- begin step-6 -->
+            {{-- <div id="step-6">
+                <ul class="timeline">
+                    @if(isset($audits))
+                        @foreach($audits as $audit)
+                            <li>
+                                <!-- begin timeline-time -->
+                                <div class="timeline-time">
+                                    <span >{{\Carbon\Carbon::parse($audit["created_at"])->diffForHumans()}}</span>
+                                    <!--<span >04:20</span>-->
+                                </div>
+                                <!-- end timeline-time -->
+                                <!-- begin timeline-icon -->
+                                <div class="timeline-icon">
+                                    <a href="javascript:;">&nbsp;</a>
+                                </div>
+                                <!-- end timeline-icon -->
+                                <!-- begin timeline-body -->
+                                <div class="timeline-body">
+                                    <div class="timeline-header">
+                                        <span class="userimage"><i class="fa fa-user fa-x3"></i></span>
+                                        <span class="username">
+                                            <a href="javascript:;">{{$audit["user"]}}</a>
+                                            <small></small>
+                                        </span>
+                                    </div>
+                                    <div class="timeline-content">
+                                        @if($audit["elemento"] == 'Solicitud')
+                                            @if($audit["event"] == "Modificación")
+                                                <p>Se realizaron los siguientes cambios a la solicitud</p>
+                                                <p>
+                                                    @foreach($audit["cambios"] as $key => $value)
+                                                        {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
+                                                    @endforeach
+                                                </p>
+                                            @elseif($audit["event"] == "Inserción")
+                                                <p>Se creó la solicitud</p>
+                                            @endif
+                                        @elseif($audit["elemento"] == 'Parte')
+                                            @if($audit["event"] == "Modificación")
+                                                <p>Se realizaron los siguientes cambios a {{$audit["extra"]}}</p>
+                                                <p>
+                                                    @foreach($audit["cambios"] as $key => $value)
+                                                        {{$key}} cambio de valor de <b>{{isset($value["old"]) ? $value["old"]:""}}</b> a {{isset($value["new"])?$value["new"]:""}}<br>
+                                                    @endforeach
+                                                </p>
+                                            @elseif($audit["event"] == "Inserción")
+                                                <p>Se creó la parte {{$audit["extra"]}}</p>
+                                            @endif
+                                        @elseif($audit["elemento"] == 'Expediente')
+                                            @if($audit["event"] == "Modificación")
+                                                <p>Se realizaron los siguientes cambios al expediente {{$audit["extra"]}}</p>
+                                                <p>
+                                                    @foreach($audit["cambios"] as $key => $value)
+                                                        {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
+                                                    @endforeach
+                                                </p>
+                                            @elseif($audit["event"] == "Inserción")
+                                                <p>Se ratificó la solicitud y se creo el expediente {{$audit["extra"]}}</p>
+                                            @endif
+                                        @elseif($audit["elemento"] == 'Audiencia')
+                                            @if($audit["event"] == "Modificación")
+                                                <p>Se realizaron los siguientes cambios a la audiencia {{$audit["extra"]}}</p>
+                                                <p>
+                                                    @foreach($audit["cambios"] as $key => $value)
+                                                        {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
+                                                    @endforeach
+                                                </p>
+                                            @elseif($audit["event"] == "Inserción")
+                                                <p>Se creó la audiencia {{$audit["extra"]}}</p>
+                                                <p>
+                                                    @foreach($audit["cambios"] as $key => $value)
+                                                        @if($key == "fecha_audiencia")
+                                                            Fecha: {{\Carbon\Carbon::parse($value["new"])->isoFormat('LL')}}<br>
+                                                        @elseif($key == "hora_inicio")
+                                                            Hora de inicio: {{\Carbon\Carbon::parse($value["new"])->format('h:i:s')}}<br>
+                                                        @elseif($key == "hora_fin")
+                                                            Hora de termino: {{\Carbon\Carbon::parse($value["new"])->format('h:i:s')}}<br>
+                                                        @endif
+                                                    @endforeach
+                                                </p>
+                                            @endif
+                                        @endif
+                                    </div>
+                                </div>
+                                <!-- end timeline-body -->
+                            </li>
+                        @endforeach
+                    @endif
+                </ul>
+            </div> --}}
+            <!-- end step-6 -->
+            <!-- begin step-7 -->
+            {{-- <div id="step-7">
+
+                <div class="text-right">
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
+                </div>
+                <div class="col-md-12">
+                    <div id="gallery" class="gallery row"></div>
+                    <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
+                </div>
+
+                <!-- The template to display files available for upload -->
+                <script id="template-upload" type="text/x-tmpl">
+                    @if(isset($solicitud))
+                    {% for (var i=0, file; file=o.files[i]; i++) { %}
+                        <tr class="template-upload fade show">
+                            <td>
+                                <span class="preview"></span>
+                            </td>
+                            <td>
+                                <div class="bg-light rounded p-10 mb-2">
+                                    <dl class="m-b-0">
+                                        <dt class="text-inverse">Nombre del documento:</dt>
+                                        <dd class="name">{%=file.name%}</dd>
+                                        <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>
+                                        <dd class="size">Processing...</dd>
+                                    </dl>
+                                </div>
+                                <strong class="error text-danger h-auto d-block text-left"></strong>
+                            </td>
+                            <td>
+                                <select class="form-control catSelectFile" name="tipo_documento_id[]">
+                                    <option value="">Seleccione una opci&oacute;n</option>
+                                    @if(isset($clasificacion_archivo))
+                                        @foreach($clasificacion_archivo as $clasificacion)
+                                            @if($clasificacion->tipo_archivo_id == 1)
+                                            <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control catSelectFile parteClass" name="parte[]">
+                                    <option value="">Seleccione una opci&oacute;n</option>
+                                    @if(isset($solicitud))
+                                        @foreach($solicitud->partes as $parte)
+                                            @if(($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3) && $parte->tipo_persona_id == 1 )
+                                                <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </td>
+                            <td>
+                                <dl>
+                                    <dt class="text-inverse m-t-3">Progress:</dt>
+                                    <dd class="m-t-5">
+                                        <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>
+                                    </dd>
+                                </dl>
+                            </td>
+                            <td nowrap>
+                                {% if (!i && !o.options.autoUpload) { %}
+                                    <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>
+                                        <i class="fa fa-upload fa-fw text-inverse"></i>
+                                        <span>Guardar</span>
+                                    </button>
+                                {% } %}
+                            </td>
+                            <td nowrap>
+                                {% if (!i) { %}
+                                    <button class="btn btn-default cancel width-100 p-r-20">
+                                        <i class="fa fa-trash fa-fw text-muted"></i>
+                                        <span>Cancelar</span>
+                                    </button>
+                                {% } %}
+                            </td>
+                        </tr>
+                    {% } %}
+                    @endif
+                </script>
+                <!-- The template to display files available for download -->
+                <script id="template-download" type="text/x-tmpl">
+                    @if(isset($solicitud))
+                    {% for (var i=0, file; file=o.files[i]; i++) { %}
+                        <tr class="template-download fade show">
+                            <td width="1%">
+                                <span class="preview">
+                                    {% if (file.thumbnailUrl) { %}
+                                        <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}" class="rounded"></a>
+                                    {% } else { %}
+                                        <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
+                                            <i class="fa fa-file-image fa-lg text-muted"></i>
+                                        </div>
+                                    {% } %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="bg-light p-10 mb-2">
+                                    <dl class="m-b-0">
+                                        <dt class="text-inverse">Nombre del archivo:</dt>
+                                        <dd class="name">
+                                            {% if (file.url) { %}
+                                                <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                                            {% } else { %}
+                                                <span>{%=file.name%}</span>
+                                            {% } %}
+                                        </dd>
+                                        <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>
+                                        <dd class="size">{%=o.formatFileSize(file.size)%}</dd>
+                                    </dl>
+                                    {% if (file.error) { %}
+                                        <div><span class="label label-danger">ERROR</span> {%=file.error%}</div>
+                                    {% } %}
+                                    {% if (file.success) { %}
+                                        <div><span class="label label-success">Correcto</span> {%=file.success%}</div>
+                                    {% } %}
+                                </div>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                {% if (file.deleteUrl) { %}
+                                    <button class="btn btn-danger delete width-100 m-r-3 p-r-20" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                                        <i class="fa fa-trash pull-left fa-fw text-inverse m-t-2"></i>
+                                        <span>Delete</span>
+                                    </button>
+                                    <input type="checkbox" name="delete" value="1" class="toggle">
+                                {% } else { %}
+                                    <button class="btn btn-default cancel width-100 m-r-3 p-r-20">
+                                        <i class="fa fa-trash pull-left fa-fw text-muted m-t-2"></i>
+                                        <span>Cancelar</span>
+                                    </button>
+                                {% } %}
+                            </td>
+                        </tr>
+                    {% } %}
+                    @endif
+                </script>
+
+            </div> --}}
+            <!-- end step-7 -->
+        </div>
+        <!-- end wizard-content -->
+    </div>
+</div>
+<div class="tab-pane fade row"  id="default-tab-2">
+    <div class="content">
+        @if (isset($audiencias))
+                
+            @if(Count($audiencias) > 0)
+                <div class="panel panel-default">
+                    <div class="col-md-12">
+                        <div class="panel-body">
+                        @include('expediente.audiencias._list',$audiencias)
+                        </div>
+                    </div>
+                </div>
+            @else
+                @include('expediente.audiencias.calendarioWizard',$partes)
+            @endif
             @else
             <div> <h1> Audiencia disponible despues de ratificaci&oacute;n </h1> </div>
-            @endif
-
-        </div>
-        <!-- end step-5 -->
-        <!-- begin step-6 -->
-        <div id="step-6">
-            <ul class="timeline">
-                @if(isset($audits))
-                    @foreach($audits as $audit)
-                        <li>
-                            <!-- begin timeline-time -->
-                            <div class="timeline-time">
-                                <span >{{\Carbon\Carbon::parse($audit["created_at"])->diffForHumans()}}</span>
-                                <!--<span >04:20</span>-->
-                            </div>
-                            <!-- end timeline-time -->
-                            <!-- begin timeline-icon -->
-                            <div class="timeline-icon">
-                                <a href="javascript:;">&nbsp;</a>
-                            </div>
-                            <!-- end timeline-icon -->
-                            <!-- begin timeline-body -->
-                            <div class="timeline-body">
-                                <div class="timeline-header">
-                                    <span class="userimage"><i class="fa fa-user fa-x3"></i></span>
-                                    <span class="username">
-                                        <a href="javascript:;">{{$audit["user"]}}</a>
-                                        <small></small>
-                                    </span>
-                                </div>
-                                <div class="timeline-content">
-                                    @if($audit["elemento"] == 'Solicitud')
-                                        @if($audit["event"] == "Modificación")
-                                            <p>Se realizaron los siguientes cambios a la solicitud</p>
-                                            <p>
-                                                @foreach($audit["cambios"] as $key => $value)
-                                                    {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
-                                                @endforeach
-                                            </p>
-                                        @elseif($audit["event"] == "Inserción")
-                                            <p>Se creó la solicitud</p>
-                                        @endif
-                                    @elseif($audit["elemento"] == 'Parte')
-                                        @if($audit["event"] == "Modificación")
-                                            <p>Se realizaron los siguientes cambios a {{$audit["extra"]}}</p>
-                                            <p>
-                                                @foreach($audit["cambios"] as $key => $value)
-                                                    {{$key}} cambio de valor de <b>{{isset($value["old"]) ? $value["old"]:""}}</b> a {{isset($value["new"])?$value["new"]:""}}<br>
-                                                @endforeach
-                                            </p>
-                                        @elseif($audit["event"] == "Inserción")
-                                            <p>Se creó la parte {{$audit["extra"]}}</p>
-                                        @endif
-                                    @elseif($audit["elemento"] == 'Expediente')
-                                        @if($audit["event"] == "Modificación")
-                                            <p>Se realizaron los siguientes cambios al expediente {{$audit["extra"]}}</p>
-                                            <p>
-                                                @foreach($audit["cambios"] as $key => $value)
-                                                    {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
-                                                @endforeach
-                                            </p>
-                                        @elseif($audit["event"] == "Inserción")
-                                            <p>Se ratificó la solicitud y se creo el expediente {{$audit["extra"]}}</p>
-                                        @endif
-                                    @elseif($audit["elemento"] == 'Audiencia')
-                                        @if($audit["event"] == "Modificación")
-                                            <p>Se realizaron los siguientes cambios a la audiencia {{$audit["extra"]}}</p>
-                                            <p>
-                                                @foreach($audit["cambios"] as $key => $value)
-                                                    {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
-                                                @endforeach
-                                            </p>
-                                        @elseif($audit["event"] == "Inserción")
-                                            <p>Se creó la audiencia {{$audit["extra"]}}</p>
-                                            <p>
-                                                @foreach($audit["cambios"] as $key => $value)
-                                                    @if($key == "fecha_audiencia")
-                                                        Fecha: {{\Carbon\Carbon::parse($value["new"])->isoFormat('LL')}}<br>
-                                                    @elseif($key == "hora_inicio")
-                                                        Hora de inicio: {{\Carbon\Carbon::parse($value["new"])->format('h:i:s')}}<br>
-                                                    @elseif($key == "hora_fin")
-                                                        Hora de termino: {{\Carbon\Carbon::parse($value["new"])->format('h:i:s')}}<br>
-                                                    @endif
-                                                @endforeach
-                                            </p>
-                                        @endif
-                                    @endif
-                                </div>
-                            </div>
-                            <!-- end timeline-body -->
-                        </li>
-                    @endforeach
-                @endif
-            </ul>
-        </div>
-        <!-- end step-6 -->
-        <!-- begin step-7 -->
-        <div id="step-7">
-
-            <div class="text-right">
-                <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
-            </div>
-            <div class="col-md-12">
-                <div id="gallery" class="gallery row"></div>
-                <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
-            </div>
-
-            <!-- The template to display files available for upload -->
-            <script id="template-upload" type="text/x-tmpl">
-                @if(isset($solicitud))
-                {% for (var i=0, file; file=o.files[i]; i++) { %}
-                    <tr class="template-upload fade show">
-                        <td>
-                            <span class="preview"></span>
-                        </td>
-                        <td>
-                            <div class="bg-light rounded p-10 mb-2">
-                                <dl class="m-b-0">
-                                    <dt class="text-inverse">Nombre del documento:</dt>
-                                    <dd class="name">{%=file.name%}</dd>
-                                    <dt class="text-inverse m-t-10">File Size:</dt>
-                                    <dd class="size">Processing...</dd>
-                                </dl>
-                            </div>
-                            <strong class="error text-danger h-auto d-block text-left"></strong>
-                        </td>
-                        <td>
-                            <select class="form-control catSelectFile" name="tipo_documento_id[]">
-                                <option value="">Seleccione una opci&oacute;n</option>
-                                @if(isset($clasificacion_archivo))
-                                    @foreach($clasificacion_archivo as $clasificacion)
-                                        @if($clasificacion->tipo_archivo_id == 1)
-                                        <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </select>
-                        </td>
-                        <td>
-                            <select class="form-control catSelectFile parteClass" name="parte[]">
-                                <option value="">Seleccione una opci&oacute;n</option>
-                                @if(isset($solicitud))
-                                    @foreach($solicitud->partes as $parte)
-                                        @if(($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3) && $parte->tipo_persona_id == 1 )
-                                            <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </select>
-                        </td>
-                        <td>
-                            <dl>
-                                <dt class="text-inverse m-t-3">Progress:</dt>
-                                <dd class="m-t-5">
-                                    <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>
-                                </dd>
-                            </dl>
-                        </td>
-                        <td nowrap>
-                            {% if (!i && !o.options.autoUpload) { %}
-                                <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>
-                                    <i class="fa fa-upload fa-fw text-inverse"></i>
-                                    <span>Guardar</span>
-                                </button>
-                            {% } %}
-                        </td>
-                        <td nowrap>
-                            {% if (!i) { %}
-                                <button class="btn btn-default cancel width-100 p-r-20">
-                                    <i class="fa fa-trash fa-fw text-muted"></i>
-                                    <span>Cancel</span>
-                                </button>
-                            {% } %}
-                        </td>
-                    </tr>
-                {% } %}
-                @endif
-            </script>
-            <!-- The template to display files available for download -->
-            <script id="template-download" type="text/x-tmpl">
-                @if(isset($solicitud))
-                {% for (var i=0, file; file=o.files[i]; i++) { %}
-                    <tr class="template-download fade show">
-                        <td width="1%">
-                            <span class="preview">
-                                {% if (file.thumbnailUrl) { %}
-                                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}" class="rounded"></a>
-                                {% } else { %}
-                                    <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
-                                        <i class="fa fa-file-image fa-lg text-muted"></i>
-                                    </div>
-                                {% } %}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="bg-light p-10 mb-2">
-                                <dl class="m-b-0">
-                                    <dt class="text-inverse">Nombre del archivo:</dt>
-                                    <dd class="name">
-                                        {% if (file.url) { %}
-                                            <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
-                                        {% } else { %}
-                                            <span>{%=file.name%}</span>
-                                        {% } %}
-                                    </dd>
-                                    <dt class="text-inverse m-t-10">File Size:</dt>
-                                    <dd class="size">{%=o.formatFileSize(file.size)%}</dd>
-                                </dl>
-                                {% if (file.error) { %}
-                                    <div><span class="label label-danger">ERROR</span> {%=file.error%}</div>
-                                {% } %}
-                                {% if (file.success) { %}
-                                    <div><span class="label label-success">Correcto</span> {%=file.success%}</div>
-                                {% } %}
-                            </div>
-                        </td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            {% if (file.deleteUrl) { %}
-                                <button class="btn btn-danger delete width-100 m-r-3 p-r-20" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
-                                    <i class="fa fa-trash pull-left fa-fw text-inverse m-t-2"></i>
-                                    <span>Delete</span>
-                                </button>
-                                <input type="checkbox" name="delete" value="1" class="toggle">
-                            {% } else { %}
-                                <button class="btn btn-default cancel width-100 m-r-3 p-r-20">
-                                    <i class="fa fa-trash pull-left fa-fw text-muted m-t-2"></i>
-                                    <span>Cancel</span>
-                                </button>
-                            {% } %}
-                        </td>
-                    </tr>
-                {% } %}
-                @endif
-            </script>
-
-        </div>
-        <!-- end step-7 -->
+        @endif
     </div>
-    <!-- end wizard-content -->
+</div>
+<div class="tab-pane fade row" id="default-tab-3">
+    @if(isset($documentos))
+        @include('expediente.expediente.documentos',$documentos)
+    @endif
 </div>
 <!-- end wizard -->
 
 <!-- inicio Modal Domicilio-->
 
- <div class="modal" id="modal-jornada" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+<div class="modal" id="modal-jornada" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog ">
         <div class="modal-content">
 
@@ -1051,80 +1146,35 @@
     </div>
 </div>
 <!-- Fin Modal de Domicilio-->
-<!-- inicio Modal cargar archivos-->
-<div class="modal" id="modal-archivos" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-xl">
+
+<!-- inicio Modal Alerta Giro-->
+
+<div class="modal" id="modal-giro" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Documentos de identificaci&oacute;n</h4>
+                <h2 class="modal-title">Advertencia<i class="fa fa-warning"></i></h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
-            <div class="modal-body">
-                <form id="fileupload" action="/api/documentos/solicitud" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="solicitud_id[]" id='solicitud_id_modal'/>
-                    <div class="row fileupload-buttonbar">
-                        <div class="col-xl-12">
-                                <span class="btn btn-primary fileinput-button m-r-3">
-                                        <i class="fa fa-fw fa-plus"></i>
-                                        <span>Agregar...</span>
-                                        <input type="file" name="files[]" multiple>
-                                </span>
-                                {{-- <button type="submit" class="btn btn-primary start m-r-3">
-                                        <i class="fa fa-fw fa-upload"></i>
-                                        <span>Cargar</span>
-                                </button> --}}
-                                <button type="reset" class="btn btn-default cancel m-r-3" id="btnCancelFiles">
-                                        <i class="fa fa-fw fa-ban"></i>
-                                        <span>Cancelar</span>
-                                </button>
-                                <!-- The global file processing state -->
-                                <span class="fileupload-process"></span>
-                        </div>
-                        <!-- The global progress state -->
-                        <div class="col-xl-5 fileupload-progress fade d-none d-xl-block">
-                                <!-- The global progress bar -->
-                                <div class="progress progress-striped active m-b-0">
-                                        <div class="progress-bar progress-bar-success" style="width:0%;"></div>
-                                </div>
-                                <!-- The extended global progress state -->
-                                <div class="progress-extended">&nbsp;</div>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-condensed text-nowrap mb-0">
-                            <thead>
-                                <tr>
-                                    <th width="10%">VISTA PREVIA</th>
-                                    <th>INFORMACION</th>
-                                    <th>TIPO DE DOCUMENTO</th>
-                                    <th>PARTE RELACIONADA</th>
-                                    <th>PROGRESO</th>
-                                    <th width="1%"></th>
-                                    <th width="1%"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="files">
-                                <tr data-id="empty">
-                                    <td colspan="5" class="text-center text-muted p-t-30 p-b-30">
-                                        <div class="m-b-10"><i class="fa fa-file fa-3x"></i></div>
-                                        <div>Sin documentos</div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </form>
+            <div class="modal-body" >
+                
+                <p style="font-size:large;">
+                    El sistema indica que la actividad principal del patrón es de competencia local, no federal.
+                </p>
+                <p style="font-size:large;">
+                    Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibildiad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de ratificación su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
+                </p>
             </div>
             <div class="modal-footer">
                 <div class="text-right">
-                    <a class="btn btn-primary btn-sm" data-dismiss="modal" onclick="continuarRatificacion()"><i class="fa fa-sign-out"></i> Continuar a ratificaci&oacute;n</a>
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-sign-out"></i> Cerrar</a>
+                    <a class="btn btn-primary btn-sm" class="close" data-dismiss="modal" aria-hidden="true" ><i class="fa fa-times"></i> Aceptar</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<!-- Fin Modal de cargar archivos-->
+<!-- Fin Modal de Alerta Giro-->
+
 {{-- Modal confirma falta de correo --}}
 <div class="modal" id="modal_valida_correo" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog ">
@@ -1146,310 +1196,64 @@
         </div>
     </div>
 </div>
-{{-- Modal confirma falta de correo --}}
-
-<div class="modal" id="modal-visor" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div id="bodyArchivo">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
- <div class="modal" id="modalRatificacion" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
+<div class="modal" id="modal-ratificacion-success" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Ratificaci&oacute;n</h2>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12">
-                    <div id="divNeedRepresentante" style="display: none;">
-                        <h5>Representantes legales</h5>
-                        <hr class="red">
-                        <div class="alert alert-muted" style="display: none;" id="menorAlert" >
-                            <strong>Menor de edad:</strong> Detectamos que al menos un solicitante no es mayor de edad, para poder continuar con la solicitud es necesario agregar al representante legal del menor y la identificación oficial de dicho representante.
-                        </div>
-                        <input type="hidden" id="parte_id" />
-                        <input type="hidden" id="parte_representada_id">
-                        <table class="table table-striped table-bordered table-hover">
-                            <thead>
-                                <tr>
-                                    <td>Solicitante</td>
-                                    <td>Acci&oacute;n</td>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyRepresentante">
-                            <tbody>
-                        </table>
-                    </div>
-                    <div style="margin: 2%;">
-                        <a class="btn btn-primary btn-sm" style="float: right;" data-dismiss="modal" onclick="$('#modal-archivos').modal('show');" ><i class="fa fa-plus"></i> Agregar Documentos</a>
-                    </div>
-                    <h5>Identificaciones</h5>
-                    <hr class="red">
-                    <table class="table table-striped table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <td>Solicitante</td>
-                                <td>Documento</td>
-                            </tr>
-                        </thead>
-                        <tbody id="tbodyRatificacion">
-                        <tbody>
-                    </table>
-                    <h5>Notificaciones <small>Notificación de los citados</small></h5>
-                    <hr class="red">
-                    <table class="table table-striped table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <td>Citado</td>
-                                <td>Dirección</td>
-                                <td>Mapa</td>
-                                <td>Tipo de notificación</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if(isset($partes))
-                            @foreach($partes as $parte)
-                            <tr>
-                                @if($parte->tipo_parte_id == 2)
-                                    @if($parte->tipo_persona_id == 1)
-                                    <td>{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</td>
-                                    @else
-                                    <td>{{$parte->nombre_comercial}}</td>
-                                    @endif
-                                    <td>{{$parte->domicilios->vialidad}} {{$parte->domicilios->num_ext}}, {{$parte->domicilios->asentamiento}} {{$parte->domicilios->municipio}}, {{$parte->domicilios->estado}}</td>
-                                    <td>
-                                        <input type="hidden" id="parte_id{{$parte->id}}" class="hddParte_id" value="{{$parte->id}}">
-                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
-                                        <a href="https://maps.google.com/?q={{$parte->domicilios->latitud}},{{$parte->domicilios->longitud}}" target="_blank" class="btn btn-xs btn-primary"><i class="fa fa-map"></i></a>
-                                        @else
-                                        <legend>Sin datos</legend>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="aradioNotificacionA{{$parte->id}}" value="1" name="aradioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="aradioNotificacionA{{$parte->id}}">A) El solicitante entrega citatorio al citado(s)</label>
-                                        </div>
-                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="aradioNotificacionB{{$parte->id}}" value="2" name="aradioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="aradioNotificacionB{{$parte->id}}">B) Un notificador del centro entrega citatorio al citado(s)</label>
-                                        </div>
-                                        @else
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="aradioNotificacionB{{$parte->id}}" value="3" name="aradioNotificacion{{$parte->id}}" class="custom-control-input">
-                                            <label class="custom-control-label" for="aradioNotificacionB{{$parte->id}}">B) Agendar cita con el notificador para entrega de citatorio</label>
-                                        </div>
-                                        @endif
-                                    </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                            @endif
-                        <tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Ratificar</button>
-                    <button class="btn btn-success btn-sm m-l-5" id='btnGuardarConvenio'><i class="fa fa-save"></i> Ratificar con convenio</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!--inicio modal para representante legal-->
-<div class="modal" id="modal-representante" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Representante legal</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <h5>Datos del Representante legal</h5>
-                <div class="col-md-12 row">
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="curp" class="control-label">CURP</label>
-                            <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control upper" placeholder="CURP del representante legal">
-                        </div>
-                    </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="nombre" class="control-label">Nombre</label>
-                            <input type="text" id="nombre" class="form-control" placeholder="Nombre del representante legal">
-                        </div>
-                    </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="primer_apellido" class="control-label">Primer apellido</label>
-                            <input type="text" id="primer_apellido" class="form-control" placeholder="Primer apellido del representante">
-                        </div>
-                    </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="segundo_apellido" class="control-label">Segundo apellido</label>
-                            <input type="text" id="segundo_apellido" class="form-control" placeholder="Segundo apellido representante">
-                        </div>
-                    </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="fecha_nacimiento" class="control-label">Fecha de nacimiento</label>
-                            <input type="text" id="fecha_nacimiento" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="genero_id" class="col-sm-6 control-label">Género</label>
-                        <select id="genero_id" class="form-control select-element">
-                            <option value="">-- Selecciona un género</option>
-                        </select>
-                    </div>
-                </div>
-                <hr>
-                <div id="representanteMoral" style="display: none;">
-
-                    <h5>Datos de comprobante como representante legal</h5>
-                    <div class="col-md-12 row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="clasificacion_archivo_id_representante" class="control-label">Instrumento</label>
-                                <select id="clasificacion_archivo_id_representante" class="form-control select-element">
-                                    <option value="">-- Selecciona un instrumento</option>
-                                    @foreach($clasificacion_archivos_Representante as $clasificacion)
-                                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
-                                <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="detalle_instrumento" class="control-label">Detalle del instrumento notarial</label>
-                                <textarea type="text" id="detalle_instrumento" class="form-control" placeholder=""></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                </div>
-                <h5>Datos de contacto</h5>
-                <div class="col-md-12 row">
-                    <div class="col-md-5">
-                        <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
-                        <select id="tipo_contacto_id" class="form-control select-element">
-                            <option value="">-- Selecciona un tipo de contacto</option>
-                        </select>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label for="contacto" class="control-label">Contacto</label>
-                            <input type="text" id="contacto" class="form-control" placeholder="Información de contacto">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-primary" type="button" id="btnAgregarContacto">
-                            <i class="fa fa-plus-circle"></i> Agregar
-                        </button>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <table class="table table-bordered" >
-                        <thead>
-                            <tr>
-                                <th style="width:80%;">Tipo</th>
-                                <th style="width:80%;">Contacto</th>
-                                <th style="width:20%; text-align: center;">Acci&oacute;n</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbodyContacto">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarRepresentante"><i class="fa fa-save"></i> Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal" id="modal-registro-correos" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Representante legal</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-muted">
-                    - Para ingresar al buzón electr&oacute;nico se debe registrar una dirección de correo, los siguientes solicitantes no registraron una cuenta, indica su correo o solicita un acceso del sistema
-                </div>
-                <table class="table table-bordered table-striped table-hover" id="tableSolicitantesCorreo">
-                    <thead>
-                        <tr>
-                            <th>Solicitante</th>
-                            <th></th>
-                            <th>Correo electrónico</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarCorreos"><i class="fa fa-save"></i> Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="modal-aviso-resolucion-inmediata" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Ratificación inmediata</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Audiencia generada</h4>
             </div>
             <div class="modal-body">
                 <div class="alert alert-muted">
                     <p>
-                        Usted está a punto de ratificar la solicitud para que se de resolución inmediatamente, las indicaciones para esta resolución son las siguientes.<br><br>
-                        <ul>
-                            <li>Debido a que no se requiere sala para realizar la audiencia, se asignará una sala virtual y el conciliador será asignado de acuerdo a la disponibilidad</li>
-                            <li>Debido a que ya hay un convenio entré las partes, la unica labor del conciliador será dar fe de lo acordado</li>
-                            <li>Se deberá acceder a la guia de audiencia donde se llenarán los datos requerido para extender la ratificación y el documento que de esta resulte</li>
-                            <li>Si desea continuar con el proceso de ratificación inmediata presione ratificar</li>
-                            <li>Si desea agendar una audiencia para conciliar, presione cancelar</li>
-                        </ul>
+                        Se generó la audiencia con la siguiente información
                     </p>
+                </div>
+                <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Folio: </strong><span id="spanFolio"></span><br>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Fecha de Audiencia: </strong><span id="spanFechaAudiencia"></span><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Hora de inicio: </strong><span id="spanHoraInicio"></span><br>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Hora de termino: </strong><span id="spanHoraFin"></span><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <table class="table table-striped table-hover" id="tableAudienciaSuccess">
+                        <thead>
+                            <tr>
+                                <th>Tipo de parte</th>
+                                <th>Conciliador</th>
+                                <th>Sala</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnRatificarInmediata"><i class="fa fa-arrow-right"></i> Continuar</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnFinalizarRatificacion"><i class="fa fa-check"></i> Finalizar</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <!--Fin de modal de representante legal-->
 <input type="hidden" id="expediente_id">
@@ -1459,13 +1263,14 @@
 <script>
     // Se declaran las variables globales
     var arraySolicitados = []; //Lista de citados
+    var objAyudaCitado = {recibo_oficial:"",recibo_pago:""}; //Lista de citados
     var arraySolicitantes = []; //Lista de solicitantes
     var arrayDomiciliosSolicitante = []; // Array de domicilios para el solicitante
     var arrayDomiciliosSolicitado = []; // Array de domicilios para el citado
     var arrayObjetoSolicitudes = []; // Array de objeto_solicitude para el citado
     var arrayContactoSolicitantes = []; // Array de objeto_solicitude para el citado
     var arrayContactoSolicitados = []; // Array de objeto_solicitude para el citado
-    var arraySolicitanteExcepcion = {}; // Array de solicitante excepción
+    // var arraySolicitanteExcepcion = {}; // Array de solicitante excepción
     var ratifican = false;; // Array de solicitante excepción
     var listaContactos=[];
 
@@ -1477,10 +1282,10 @@
             transitionEffect: 'fade',
             showStepURLhash: false,
             anchorSettings: {
-                anchorClickable: true, // Enable/Disable anchor navigation
-                enableAllAnchors: true, // Activates all anchors clickable all times
+                anchorClickable: false, // Enable/Disable anchor navigation
+                enableAllAnchors: false, // Activates all anchors clickable all times
                 markDoneStep: true, // add done css
-                enableAnchorOnDoneStep: true // Enable/Disable the done steps navigation
+                enableAnchorOnDoneStep: false // Enable/Disable the done steps navigation
             },
             lang: { next: 'Siguiente', previous: 'Anterior' }
         });
@@ -1490,18 +1295,18 @@
             $(".estatusSolicitud").show();
             $(".showEdit").show();
             var solicitud='{{ $solicitud->id ?? ""}}';
-            FormMultipleUpload.init();
-            Gallery.init();
+            // FormMultipleUpload.init();
+            // Gallery.init();
         }else{
             $(".showEdit").hide();
-            $(".step-4").hide();
-            $(".step-5").hide();
-            $(".step-6").hide();
-            $(".step-7").hide();
-            $('#wizard').smartWizard("stepState", [4], "hide");
-            $('#wizard').smartWizard("stepState", [5], "hide");
-            $('#wizard').smartWizard("stepState", [6], "hide");
-            $('#wizard').smartWizard("stepState", [7], "hide");
+            // $(".step-4").hide();
+            // $(".step-5").hide();
+            // $(".step-6").hide();
+            // $(".step-7").hide();
+            // $('#wizard').smartWizard("stepState", [4], "hide");
+            // $('#wizard').smartWizard("stepState", [5], "hide");
+            // $('#wizard').smartWizard("stepState", [6], "hide");
+            // $('#wizard').smartWizard("stepState", [7], "hide");
             $(".estatusSolicitud").hide();
         }
         $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
@@ -1552,10 +1357,6 @@
                     if($("#tipo_solicitud_id").val() == "1"){
                         var dato_laboral = {};
                         dato_laboral.id = $("#dato_laboral_id").val();
-                        dato_laboral.nombre_jefe_directo = $("#nombre_jefe_directo").val();
-                        dato_laboral.nombre_prestas_servicio = $("#nombre_prestas_servicio").val();
-                        dato_laboral.nombre_paga = $("#nombre_paga").val();
-                        dato_laboral.nombre_contrato = $("#nombre_contrato").val();
                         dato_laboral.ocupacion_id = $("#ocupacion_id").val();
                         dato_laboral.puesto = $("#puesto").val();
                         dato_laboral.nss = $("#nss").val();
@@ -1621,12 +1422,9 @@
                         }
                     }).then(function(isConfirm){
                         if(isConfirm){
-                            $('#paso2').click();
+                            
+                            $('#wizard').smartWizard('goToStep', 1);
                         }else{
-                            divSolicitante
-                            $('html,body').animate({
-                                scrollTop: $("#divSolicitante").offset().top
-                            }, 'slow');
                         }
                     });
                 }else{
@@ -1715,12 +1513,9 @@
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
-                                $('#paso3').click();
+                                
+                                $('#wizard').smartWizard('goToStep', 2);
                             }else{
-                                divSolicitante
-                                $('html,body').animate({
-                                    scrollTop: $("#divSolicitado").offset().top
-                                }, 'slow');
                             }
                         });
                     }else{
@@ -1814,7 +1609,7 @@
             $("#solicitud_id").val(solicitud);
             $("#solicitud_id_modal").val(solicitud);
             $("#solicitud_id_excepcion").val(solicitud);
-            cargarDocumentos();
+            // cargarDocumentos();
             getSolicitudFromBD(solicitud);
         }else{
             if(localStorage.getItem("datos_laborales")){
@@ -1846,43 +1641,43 @@
             $("#labelTipoSolicitante").text("Trabajador")
         }
     });
-    function exepcionConciliacion(){
-        var formData = new FormData();
+    // function exepcionConciliacion(){
+    //     var formData = new FormData();
 
-        $.ajax({
-            url:'/solicitud/excepcion',
-            type:'POST',
-            dataType:"json",
-            contentType: false,
-            processData: false,
-            data:{
-                arraySolicitanteExcepcion:arraySolicitanteExcepcion,
-                _token:$("input[name=_token]").val()
+    //     $.ajax({
+    //         url:'/solicitud/excepcion',
+    //         type:'POST',
+    //         dataType:"json",
+    //         contentType: false,
+    //         processData: false,
+    //         data:{
+    //             arraySolicitanteExcepcion:arraySolicitanteExcepcion,
+    //             _token:$("input[name=_token]").val()
 
-            },
-            success:function(data){
-                if(data.success){
-                    swal({
-                        title: 'Correcto',
-                        text: 'Solicitud guardada correctamente',
-                        icon: 'success',
+    //         },
+    //         success:function(data){
+    //             if(data.success){
+    //                 swal({
+    //                     title: 'Correcto',
+    //                     text: 'Solicitud guardada correctamente',
+    //                     icon: 'success',
 
-                    });
-                    setTimeout('', 5000);
-                    location.href='{{ route('solicitudes.index')  }}'
-                }else{
+    //                 });
+    //                 setTimeout('', 5000);
+    //                 location.href='{{ route('solicitudes.index')  }}'
+    //             }else{
 
-                }
+    //             }
 
-            },error:function(data){
-                swal({
-                    title: 'Error',
-                    text: ' Error al guardar excepción',
-                    icon: 'error'
-                });
-            }
-        });
-    }
+    //         },error:function(data){
+    //             swal({
+    //                 title: 'Error',
+    //                 text: ' Error al guardar excepción',
+    //                 icon: 'error'
+    //             });
+    //         }
+    //     });
+    // }
 
     function fortarTablaGrupoPrioritario(){
         var html = "";
@@ -1898,16 +1693,16 @@
         //         html += "</tr>";
         //     }
         // });
-        $("#tbodyGruposPrioritarios").html(html);
-        $(".fileGrupoVulnerable").change(function(e){
-            var id = $(this).attr("idsolicitante");
-            $("#fileName"+id).html(e.target.files[0].name);
-            var solicitanteExcepcion = {};
-            solicitanteExcepcion.file = e.target.files[0];
-            solicitanteExcepcion.id = $(this).attr("idsolicitante");
-            solicitanteExcepcion.conciliador_id = $("#conciliador_excepcion_id").val();
-            arraySolicitanteExcepcion[$(this).attr("idsolicitante")] = solicitanteExcepcion;
-        });
+        // $("#tbodyGruposPrioritarios").html(html);
+        // $(".fileGrupoVulnerable").change(function(e){
+        //     var id = $(this).attr("idsolicitante");
+        //     $("#fileName"+id).html(e.target.files[0].name);
+        //     var solicitanteExcepcion = {};
+        //     solicitanteExcepcion.file = e.target.files[0];
+        //     solicitanteExcepcion.id = $(this).attr("idsolicitante");
+        //     solicitanteExcepcion.conciliador_id = $("#conciliador_excepcion_id").val();
+        //     arraySolicitanteExcepcion[$(this).attr("idsolicitante")] = solicitanteExcepcion;
+        // });
     }
     function getSolicitudFromBD(solicitud){
         $.ajax({
@@ -1918,7 +1713,7 @@
             data:{},
             success:function(data){
                 try{
-
+                    $("#datosIdentificacionSolicitado").show();
                     arraySolicitados = Object.values(data.solicitados);
                     formarTablaSolicitado();
                     arraySolicitantes = Object.values(data.solicitantes);
@@ -1940,7 +1735,18 @@
                     // arrayObjetoSolicitudes = data.objeto_solicitudes;
                     formarTablaObjetoSol();
                     $("#observaciones").val(data.observaciones);
-
+                    if(data.recibo_oficial == true){
+                        $("#recibo_oficial_no").attr("checked",true);
+                    }else{
+                        $("#recibo_oficial_no").attr("checked",true);
+                    }
+                    if(data.recibo_pago == true){
+                        $("#recibo_pago_si").attr("checked",true);
+                    }else{
+                        $("#recibo_pago_no").attr("checked",true);
+                    }
+                    $("input[name='recibo_oficial']").trigger("change");
+                    $("input[name='recibo_pago']").trigger("change");
                     if(data.solicita_excepcion){
                         $("#solicita_excepcion").prop("checked",true);
                     }
@@ -1956,6 +1762,7 @@
                     $("#fechaConflicto").val(dateFormat(data.fecha_conflicto,4));
                     $("#giro_comercial_hidden").val(data.giro_comercial_id)
                     $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
+                    $("#giro_solicitanteSol").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
                     // var excepcion = false;
                     // $.each(arraySolicitantes,function(key,value){
                     //     if(value.grupo_prioritario_id != null){
@@ -1963,7 +1770,7 @@
                     //     }
                     // }) ;
                     // console.log(excepcion);
-                    $(".step-6").show();
+                    // $(".step-6").show();
                     $('#wizard').smartWizard("stepState", [5], "show");
                     if(data.ratificada){
                         $("#btnRatificarSolicitud").hide();
@@ -1987,8 +1794,6 @@
                         $("#btnRatificarSolicitud").show();
                         $("#expediente_id").val("");
                     }
-                    cargarGeneros();
-                    cargarTipoContactos();
                 }catch(error){
                     console.log(error);
                 }
@@ -1996,12 +1801,12 @@
         });
     }
     $("#nacionalidad_id_solicitante").change(function(){
-        if($(this).val() == 1){
+        if($(this).val() == 1 || $(this).val() == "" ){
             $("#entidad_nacimiento_id_solicitante").attr('required');
-            $("#labelEstadoNacimiento").addClass('labelEstadoNacimiento');
+            $("#labelEstadoNacimiento").addClass('needed');
         }else{
             $("#entidad_nacimiento_id_solicitante").removeAttr('required');;
-            $("#labelEstadoNacimiento").removeClass('labelEstadoNacimiento');
+            $("#labelEstadoNacimiento").removeClass('needed');
         }
     });
     /**
@@ -2023,10 +1828,6 @@
         $(".personaMoralSolicitante").hide();
         $(".personaFisicaSolicitante").show();
         $("#idSolicitanteRfc").val("");
-        $("#nombre_jefe_directo").val("");
-        $("#nombre_prestas_servicio").val("");
-        $("#nombre_paga").val("");
-        $("#nombre_contrato").val("");
         $("#ocupacion_id").val("");
         $("#puesto").val("");
         $("#nss").val("");
@@ -2051,6 +1852,7 @@
         $("#giro_comercial_solicitante").val("").trigger("change");
         // $("#girosNivel1solicitante").trigger("change");
         $("#giro_solicitante").html("");
+        $("#giro_solicitanteSol").html("");
         $("input[name='tipo_persona_solicitante']").trigger("change")
         arrayContactoSolicitantes = [];
         formarTablaContacto(true);
@@ -2377,9 +2179,8 @@
     *@argument key posicion de array a eliminar
     */
     function eliminarSolicitante(key){
-        $("#paso1").click();
         if(arraySolicitantes[key].id == ""){
-            arraySolicitantes = arraySolicitantes.splice(key,1);
+            arraySolicitantes.splice(key,1);
         }else{
             arraySolicitantes[key].activo = 0;
         }
@@ -2416,7 +2217,6 @@
     * @argument key posicion de array a eliminar
     */
     function eliminarSolicitado(key){
-        alert(key);
         if(arraySolicitados[key].id == ""){
             arraySolicitados.splice(key,1);
         }else{
@@ -2433,7 +2233,7 @@
         $('#divContactoSolicitante').show();
         $('#divMapaSolicitante').show();
         $('#divBotonesSolicitante').show();
-        $("#paso1").click();
+        $('#wizard').smartWizard('goToStep', 0);
         $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Validar y Editar solicitante');
         $("#edit_key").val(key);
         $("#solicitante_id").val(arraySolicitantes[key].id);
@@ -2481,10 +2281,6 @@
             $('#divDatoLaboralSolicitante').show();
             // $("#giro_comercial_solicitante").val(arraySolicitantes[key].dato_laboral.giro_comercial_id).trigger("change");
             // getGiroEditar("solicitante");
-            $("#nombre_jefe_directo").val(arraySolicitantes[key].dato_laboral.nombre_jefe_directo);
-            $("#nombre_prestas_servicio").val(arraySolicitantes[key].dato_laboral.nombre_prestas_servicio);
-            $("#nombre_paga").val(arraySolicitantes[key].dato_laboral.nombre_paga);
-            $("#nombre_contrato").val(arraySolicitantes[key].dato_laboral.nombre_contrato);
             $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
             $("#puesto").val(arraySolicitantes[key].dato_laboral.puesto);
             $("#nss").val(arraySolicitantes[key].dato_laboral.nss);
@@ -2518,7 +2314,7 @@
         $('#divContactoSolicitado').show();
         $('#divMapaSolicitado').show();
         $('#divBotonesSolicitado').show();
-        $("#paso2").click();
+        $('#wizard').smartWizard('goToStep', 1);
         $("#agregarSolicitado").html('<i class="fa fa-edit"></i> Editar citado');
         $("#solicitado_key").val(key);
         $("#solicitado_id").val(arraySolicitados[key].id);
@@ -2757,354 +2553,25 @@
             solicitud.fecha_conflicto = dateFormat($("#fechaConflicto").val());
             solicitud.tipo_solicitud_id = $("#tipo_solicitud_id").val();
             solicitud.giro_comercial_id = $("#giro_comercial_hidden").val();
+            if($("input[name='recibo_oficial']").val() == 1){
+                recibo_oficial = true;
+            }else{
+                recibo_oficial = false;
+            }
+            if($("input[name='recibo_pago']").val() == 1){
+                recibo_pago = true;
+            }else{
+                recibo_pago = false;
+            }
+            solicitud.recibo_oficial = recibo_oficial;
+            solicitud.recibo_pago = recibo_pago;
             return solicitud;
         }catch(error){
             console.log(error);
         }
     }
 
-    // Funcion para ratificar solicitudes
-    $("#btnRatificarSolicitud").on("click",function(){
-        try{
-            cargarDocumentos();
-            var solicitanteMenor = arraySolicitantes.filter(x=>x.edad <= 16).filter(x=>x.edad != null);
-            var solicitanteMoral = arraySolicitantes.filter(x=>x.tipo_persona_id == "2");
-            if(solicitanteMenor.length > 0 || solicitanteMoral.length > 0){
-                $("#divNeedRepresentante").show();
-                var html = "";
-                console.log(solicitanteMenor);
-                $.each(solicitanteMenor,function(key,parte){
-                    html += "<tr>";
-                    html += "<td>"+parte.nombre + " " + parte.primer_apellido + " " + (parte.segundo_apellido|| "")+"</td>";
-                    html += "<td><button class='btn btn-primary' type='button' onclick='AgregarRepresentante("+parte.id+",1)' id='btnaddRep"+parte.id+"' > <i class='fa fa-plus-circle'></i> Agregar Representante</button> <span style='color:green; font-size:Large;' id='tieneRepresentante"+parte.id+"'></span></td>";
-                    html += "</tr>";
-                });
-                $.each(solicitanteMoral,function(key,parte){
-                    html += "<tr>";
-                    html += "<td>"+parte.nombre_comercial +"</td>";
-                    html += "<td><button class='btn btn-primary' type='button' onclick='AgregarRepresentante("+parte.id+",0)' id='btnaddRep"+parte.id+"' > <i class='fa fa-plus-circle'></i> Agregar Representante</button> <span style='color:green; font-size:Large;' id='tieneRepresentante"+parte.id+"'></span></td>";
-                    html += "</tr>";
-                });
-                $("#tbodyRepresentante").html(html);
-            }else{
-                    $("#divNeedRepresentante").hide();
-            }
-            $("#modalRatificacion").modal("show");
-//
-        }catch(error){
-            console.log(error);
-        }
-    });
-
-    $("#btnGuardarRatificar").on("click",function(){
-        var validarRatificacion = RatificacionValidar();
-        if(!validarRatificacion.error){
-            $.ajax({
-                url:'/solicitud/correos/'+$("#solicitud_id").val(),
-                type:'GET',
-                dataType:"json",
-                async:true,
-                success:function(data){
-                    if(data == null || data == ""){
-                        swal({
-                            title: '¿Estas seguro?',
-                            text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
-                            icon: 'warning',
-                            buttons: {
-                                cancel: {
-                                    text: 'Cancelar',
-                                    value: null,
-                                    visible: true,
-                                    className: 'btn btn-default',
-                                    closeModal: true,
-                                },
-                                confirm: {
-                                    text: 'Aceptar',
-                                    value: true,
-                                    visible: true,
-                                    className: 'btn btn-danger',
-                                    closeModal: true
-                                }
-                            }
-                        }).then(function(isConfirm){
-                            if(isConfirm){
-                                $.ajax({
-                                    url:'/solicitud/ratificar',
-                                    type:'POST',
-                                    dataType:"json",
-                                    async:true,
-                                    data:{
-                                        id:$("#solicitud_id").val(),
-                                        listaNotificaciones:validarRatificacion.listaNotificaciones,
-                                        inmediata:false,
-                                        _token:"{{ csrf_token() }}"
-                                    },
-                                    success:function(data){
-                                        if(data != null && data != ""){
-                                            $("#modalRatificacion").modal("hide");
-                                            swal({
-                                                title: 'Correcto',
-                                                text: 'Solicitud ratificada correctamente',
-                                                icon: 'success'
-                                            });
-                                            location.reload();
-                                        }else{
-                                            swal({
-                                                title: 'Error',
-                                                text: 'No se pudo ratificar',
-                                                icon: 'error'
-                                            });
-                                        }
-                                    },error:function(data){
-                                        console.log(data);
-                                        swal({
-                                            title: 'Error',
-                                            text: data.responseJSON.message,
-                                            icon: 'error'
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    }else{
-                        var tableSolicitantes = '';
-                        $.each(data, function(index,element){
-                            tableSolicitantes +='<tr>';
-                            if(element.tipo_persona_id == 1){
-                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
-                            }else{
-                                tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
-                            }
-                            tableSolicitantes += '  <td>';
-                            tableSolicitantes += '      <div class="col-md-12">';
-                            tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
-                            tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
-                            tableSolicitantes += '      </div>';
-                            tableSolicitantes += '  </td>';
-                            tableSolicitantes += '  <td>';
-                            tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
-                            tableSolicitantes += '  </td>';
-                            tableSolicitantes +='</tr>';
-                        });
-                        $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
-                        $("#modal-registro-correos").modal("show");
-                    }
-                }
-            });
-        }else{
-            swal({
-                title: 'Error',
-                text: validarRatificacion.msg,
-                icon: 'warning'
-            });
-        }
-    });
-    function RatificacionValidar(){
-        var error = false;
-        var listaNotificaciones = [];
-        var msg = "";
-        if(!ratifican){
-            error = true;
-            msg = "Al menos un solicitante debe presentar documentos para ratificar";
-        }
-        $(".hddParte_id").each(function(element){
-            var parte_id = $(this).val();
-            if($("#aradioNotificacionA"+parte_id).is(":checked")){
-                listaNotificaciones.push({
-                    parte_id:parte_id,
-                    tipo_notificacion_id:1
-                });
-            }else if($("#aradioNotificacionB"+parte_id).is(":checked")){
-                listaNotificaciones.push({
-                    parte_id:parte_id,
-                    tipo_notificacion_id:2
-                });
-            }else{
-                msg = "Indica el tipo de notificación para los citados";
-                error = true;
-            }
-        });
-        var array = [];
-        array.error=error;
-        array.msg=msg;
-        array.listaNotificaciones=listaNotificaciones;
-        return array;
-    }
-    $("#btnGuardarConvenio").on("click",function(){
-        if(ratifican){
-            $.ajax({
-                url:'/solicitud/correos/'+$("#solicitud_id").val(),
-                type:'GET',
-                dataType:"json",
-                async:true,
-                success:function(data){
-                    if(data == null || data == ""){
-                        $("#modal-aviso-resolucion-inmediata").modal("show");
-                    }else{
-                        var tableSolicitantes = '';
-                        $.each(data, function(index,element){
-                            tableSolicitantes +='<tr>';
-                            if(element.tipo_persona_id == 1){
-                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
-                            }else{
-                                tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
-                            }
-                            tableSolicitantes += '  <td>';
-                            tableSolicitantes += '      <div class="col-md-12">';
-                            tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
-                            tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
-                            tableSolicitantes += '      </div>';
-                            tableSolicitantes += '  </td>';
-                            tableSolicitantes += '  <td>';
-                            tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
-                            tableSolicitantes += '  </td>';
-                            tableSolicitantes +='</tr>';
-                        });
-                        $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
-                        $("#modal-registro-correos").modal("show");
-                    }
-                }
-            });
-        }else{
-            swal({
-                title: 'Error',
-                text: 'Al menos un solicitante debe presentar documentos para ratificar',
-                icon: 'warning'
-            });
-        }
-    });
-    $("#btnRatificarInmediata").on("click",function(){
-        swal({
-            title: '¿Estas seguro?',
-            text: 'Al oprimir aceptar se creará un expediente y podra relizar la resolución inmediatamente',
-            icon: 'warning',
-            buttons: {
-                cancel: {
-                    text: 'Cancelar',
-                    value: null,
-                    visible: true,
-                    className: 'btn btn-default',
-                    closeModal: true,
-                },
-                confirm: {
-                    text: 'Aceptar',
-                    value: true,
-                    visible: true,
-                    className: 'btn btn-danger',
-                    closeModal: true
-                }
-            }
-        }).then(function(isConfirm){
-            if(isConfirm){
-                $.ajax({
-                    url:'/solicitud/ratificar',
-                    type:'POST',
-                    dataType:"json",
-                    async:true,
-                    data:{
-                        id:$("#solicitud_id").val(),
-                        inmediata:true,
-                        _token:"{{ csrf_token() }}"
-                    },
-                    success:function(data){
-                        if(data != null && data != ""){
-                            $("#modal-aviso-resolucion-inmediata").modal("hide");
-                            $("#modalRatificacion").modal("hide");
-                            swal({
-                                title: 'Correcto',
-                                text: 'Solicitud ratificada correctamente',
-                                icon: 'success'
-                            });
-                            window.location.href = "/guiaAudiencia/"+data.id;
-                        }else{
-                            swal({
-                                title: 'Error',
-                                text: 'No se pudo ratificar',
-                                icon: 'error'
-                            });
-                        }
-                    },error:function(data){
-                        console.log(data);
-                        swal({
-                            title: 'Error',
-                            text: data.responseJSON.message,
-                            icon: 'error'
-                        });
-                    }
-                });
-            }
-        });
-    });
-    function continuarRatificacion(){
-        $("#modalRatificacion").modal('show');
-    }
-    function checkCorreo(id){
-        if(!$("#checkCorreo"+id).is(":checked")){
-            $("#correoValidar"+id).prop("disabled",false);
-        }else{
-            $("#correoValidar"+id).prop("disabled",true);
-        }
-    }
-    $("#btnGuardarCorreos").on("click",function(){
-        var validacion = validarCorreos();
-        if(!validacion.error){
-            $.ajax({
-                url:'/solicitud/correos',
-                type:'POST',
-                dataType:"json",
-                async:true,
-                data:{
-                    _token:"{{ csrf_token() }}",
-                    listaCorreos:validacion.listaCorreos
-                },
-                success:function(data){
-                    $("#modal-registro-correos").modal("hide");
-                },error:function(error){
-                    swal({
-                        title: 'Error',
-                        text: 'Ocurrio un error al guardar los correos',
-                        icon: 'warning'
-                    });
-                }
-            });
-        }else{
-            swal({
-                title: 'Error',
-                text: 'Si no se desea generar accesos, se deben proporcionar los correos',
-                icon: 'warning'
-            });
-        }
-    });
-    function validarCorreos(){
-        var listaCorreos = [];
-        var error = false;
-        $.each($(".checkCorreo"),function(index,element){
-            var id = $(element).data('id');
-            $("#correoValidar"+id).css("border-color","");
-            if($(element).is(":checked")){
-                listaCorreos.push({
-                    crearAcceso:true,
-                    correo:"",
-                    parte_id:id
-                });
-            }else{
-                if($("#correoValidar"+id).val() != ""){
-                    listaCorreos.push({
-                        crearAcceso:false,
-                        correo:$("#correoValidar"+id).val(),
-                        parte_id:id
-                    });
-                }else{
-                    error = true;
-                    $("#correoValidar"+id).css("border-color","red");
-                }
-            }
-        });
-        var respuesta = new Array();
-        respuesta.error=error;
-        respuesta.listaCorreos=listaCorreos;
-        return respuesta;
-    }
+   
 
     //funcion para obtener informacion de la excepcion
     function getExcepcion(){
@@ -3137,6 +2604,7 @@
                         var html = '';
                         html += '<table>';
                         var ancestors = node.ancestors.reverse();
+                        
                         html += '<tr><th colspan="2"><h5>* '+highlightText(node.nombre)+'</h5><th></tr>';
                         $.each(ancestors, function (index, ancestor) {
                             if(ancestor.id != 1){
@@ -3166,6 +2634,10 @@
             return data.html;
         },templateSelection: function(data) {
             if(data.id != ""){
+                if(data.ambito_id == 1){
+                    $("#modal-giro").modal("show");
+                }
+                
                 return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
             }
             return data.text;
@@ -3178,6 +2650,7 @@
 
     $("#giro_comercial_solicitante").change(function(){
         $("#giro_comercial_hidden").val($(this).val());
+
     });
 
 
@@ -3283,75 +2756,7 @@
     });
 
 
-/**
-*  Aqui comienzan las funciones para carga de documentos de la solicitud
-*/
-    $("#btnAgregarArchivo").on("click",function(){
-        $("#btnCancelFiles").click();
-        $("#modal-archivos").modal("show");
-    });
-    function cargarDocumentos(){
-        $.ajax({
-            url:"/solicitudes/documentos/"+$("#solicitud_id").val(),
-            type:"GET",
-            dataType:"json",
-            async:true,
-            success:function(data){
-                try{
-                    if(data != null && data != ""){
-                        //Carga información en la ratificacion
-                        var html = "";
-                   $.each(data, function (key, value) {
-                       if(value.documentable_type == "App\\Parte"){
-                            // var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
-                            // if(parte != undefined){
-                                html += "<tr>";
-                                html += "<td>"+value.parte+"</td>";
-                                html += "<td>"+value.nombre_original + " "+ value.clasificacion_archivo_id+"</td>";
-                                html += "</tr>";
-                                ratifican = true;
-                            // }
-                       }
-                   });
-                    $("#tbodyRatificacion").html(html);
-                        // end carga ratificacion
-                        var table = "";
-                        var div = "";
-                        $.each(data, function(index,element){
-                            div += '<div class="image gallery-group-1">';
-                            div += '    <div class="image-inner" style="position: relative;">';
-                            if(element.tipo == 'pdf' || element.tipo == 'PDF'){
-                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
-                                div += '                <div class="img" align="center">';
-                                div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
-                                div += '                </div>';
-                                div += '            </a>';
-                            }else{
-                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
-                                div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
-                                div += '            </a>';
-                            }
-                            div += '            <p class="image-caption">';
-                            div += '                '+element.longitud+' kb';
-                            div += '            </p>';
-                            div += '    </div>';
-                            div += '    <div class="image-info">';
-                            div += '            <h5 class="title">'+element.nombre_original+'</h5>';
-                            div += '            <div class="desc">';
-                            div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
-                            div +=                  element.descripcion+'<br>';
-                            div += '            </div>';
-                            div += '    </div>';
-                            div += '</div>';
-                        });
-                        $("#gallery").html(div);
-                    }
-                }catch(error){
-                    console.log(error);
-                }
-            }
-        });
-    }
+
     function getDocumentoAcuse(){
         $.ajax({
             url:"/solicitudes/documentos/"+$("#solicitud_id").val()+"/acuse",
@@ -3372,162 +2777,7 @@
             }
         });
     }
-    var handleJqueryFileUpload = function() {
-        // Initialize the jQuery File Upload widget:
-        $('#fileupload').fileupload({
-            autoUpload: false,
-            disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
-            maxFileSize: 5000000,
-            acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
-            stop: function(e,data){
-              cargarDocumentos();
-            //   $("#modal-archivos").modal("hide");
-            },uploadTemplate: function (o) {
-                var rows = $();
-                $.each(o.files, function (index, file) {
-                    var row = $('<tr class="template-upload fade show">'+
-                    '    <td>'+
-                    '        <span class="preview"></span>'+
-                    '    </td>'+
-                    '    <td>'+
-                    '        <div class="bg-light rounded p-10 mb-2">'+
-                    '            <dl class="m-b-0">'+
-                    '                <dt class="text-inverse">Nombre del documento:</dt>'+
-                    '                <dd class="name">'+file.name+'</dd>'+
-                    '                <dt class="text-inverse m-t-10">File Size:</dt>'+
-                    '                <dd class="size">Processing...</dd>'+
-                    '            </dl>'+
-                    '        </div>'+
-                    '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
-                    '    </td>'+
-                    '    <td>'+
-                    '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
-                    '            <option value="">Seleccione una opci&oacute;n</option>'+
-                    '            @if(isset($clasificacion_archivo))'+
-                    '                @foreach($clasificacion_archivo as $clasificacion)'+
-                    '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
-                    '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
-                    '                    @endif'+
-                    '                @endforeach'+
-                    '            @endif'+
-                    '        </select>'+
-                    '    </td>'+
-                    '    <td>'+
-                    '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
-                    '            <option value="">Seleccione una opci&oacute;n</option>'+
-                    '            @if(isset($solicitud))'+
-                    '                @foreach($solicitud->partes as $parte)'+
-                    '                    @if(($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3) && $parte->tipo_persona_id == 1  )'+
-                    '                        <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>'+
-                    '                    @endif'+
-                    '                @endforeach'+
-                    '            @endif'+
-                    '        </select>'+
-                    '    </td>'+
-                    '    <td>'+
-                    '        <dl>'+
-                    '            <dt class="text-inverse m-t-3">Progress:</dt>'+
-                    '            <dd class="m-t-5">'+
-                    '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
-                    '            </dd>'+
-                    '        </dl>'+
-                    '    </td>'+
-                    '    <td nowrap>'+
-                    '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
-                    '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
-                    '                <span>Guardar</span>'+
-                    '            </button>'+
-                    '    </td>'+
-                    '    <td nowrap>'+
-                    '            <button class="btn btn-default cancel width-100 p-r-20">'+
-                    '                <i class="fa fa-trash fa-fw text-muted"></i>'+
-                    '                <span>Cancel</span>'+
-                    '            </button>'+
-                    '    </td>'+
-                    '</tr>');
-                    if (file.error) {
-                        row.find('.error').text(file.error);
-                    }
-                    rows = rows.add(row);
-                });
-                return rows;
-            }
-            // Uncomment the following to send cross-domain cookies:
-            //xhrFields: {withCCOLOR_REDentials: true},
-        });
-
-        // Enable iframe cross-domain access via COLOR_REDirect option:
-        $('#fileupload').fileupload(
-            'option',
-            'COLOR_REDirect',
-            window.location.href.replace(
-                    /\/[^\/]*$/,
-                    '/cors/result.html?%s'
-            )
-        );
-
-        // hide empty row text
-        $('#fileupload').on('fileuploadsend', function (e, data) {
-
-            // if(){
-            //     e.preventDefault();
-            // }
-        })
-        $('#fileupload').bind('fileuploadadd', function(e, data) {
-            $('#fileupload [data-id="empty"]').hide();
-            $(".catSelectFile").select2();
-        });
-        $('#fileupload').bind('fileuploaddone', function(e, data) {
-            // console.log("add");
-        });
-
-        // show empty row text
-        $('#fileupload').bind('fileuploadfail', function(e, data) {
-            var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
-            if (rowLeft === 0) {
-                    $('#fileupload [data-id="empty"]').show();
-            } else {
-                    $('#fileupload [data-id="empty"]').hide();
-            }
-        });
-
-        // Upload server status check for browsers with CORS support:
-        if ($.support.cors) {
-                $.ajax({
-                        type: 'HEAD'
-                }).fail(function () {
-                        $('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
-                });
-        }
-
-        // Load & display existing files:
-        $('#fileupload').addClass('fileupload-processing');
-        $.ajax({
-                // Uncomment the following to send cross-domain cookies:
-                //xhrFields: {withCCOLOR_REDentials: true},
-                url: $('#fileupload').fileupload('option', 'url'),
-                dataType: 'json',
-                context: $('#fileupload')[0]
-        }).always(function () {
-                $(this).removeClass('fileupload-processing');
-        }).done(function (result) {
-                $(this).fileupload('option', 'done')
-                .call(this, $.Event('done'), {result: result});
-        });
-    };
-    var handleIsotopesGallery = function() {
-        var container = $('#gallery');
-        $(window).on('resize', function() {
-            var dividerValue = calculateDivider();
-            var containerWidth = $(container).width();
-            var columnWidth = containerWidth / dividerValue;
-            $(container).isotope({
-                masonry: {
-                    columnWidth: columnWidth
-                }
-            });
-        });
-    };
+    
     function validarPalabras(e){
         var numeroPalabras = countPalabras(e);
         $("#numeroPalabras").html(numeroPalabras);
@@ -3623,267 +2873,8 @@
         }
         return dividerValue;
     }
-    var FormMultipleUpload = function () {
-        "use strict";
-        return {
-            //main function
-            init: function () {
-                handleJqueryFileUpload();
-            }
-        };
-    }();
-    var Gallery = function () {
-        "use strict";
-        return {
-            //main function
-            init: function () {
-                handleIsotopesGallery();
-            }
-        };
-    }();
-    $("#excepcionForm").submit(function(e){
-        var falta = false;
-
-        $(".fileGrupoVulnerable").each(function(e){
-            if($(this).val() == ""){
-                falta = true;
-            }
-        });
-        if($("#conciliador_excepcion_id").val() == "" && falta){
-            e.preventDefault();
-        }
-    });
-    var listaContactos = [];
-    function AgregarRepresentante(parte_id,tipoRepresentante){
-        $.ajax({
-            url:"/partes/representante/"+parte_id,
-            type:"GET",
-            dataType:"json",
-            success:function(data){
-                if(data != null && data != ""){
-                    data = data[0];
-                    $("#tieneRepresentante"+parte_id).html("<i class='fa fa-check'></i> ");
-                    $("#btnaddRep"+parte_id).html("Ver Representante");
-                    $("#curp").val(data.curp);
-                    $("#nombre").val(data.nombre);
-                    $("#primer_apellido").val(data.primer_apellido);
-                    $("#segundo_apellido").val((data.segundo_apellido|| ""));
-                    $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
-                    $("#genero_id").val(data.genero_id).trigger("change");
-                    $("#clasificacion_archivo_id").val(data.clasificacion_archivo_id).change();
-                    $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
-                    $("#detalle_instrumento").val(data.detalle_instrumento);
-                    $("#parte_id").val(data.id);
-                    listaContactos = data.contactos;
-                }else{
-                    $("#curp").val("");
-                    $("#nombre").val("");
-                    $("#primer_apellido").val("");
-                    $("#segundo_apellido").val("");
-                    $("#fecha_nacimiento").val("");
-                    $("#genero_id").val("").trigger("change");
-                    $("#clasificacion_archivo_id").val("").change();
-                    $("#feha_instrumento").val("");
-                    $("#detalle_instrumento").val("");
-                    $("#parte_id").val("");
-                    listaContactos = [];
-                }
-                $("#tipo_contacto_id").val("").trigger("change");
-                $("#contacto").val("");
-                $("#parte_representada_id").val(parte_id);
-                if(tipoRepresentante == 1){
-                    $("#menorAlert").show();
-                    $("#representanteMoral").hide();
-                }else{
-                    $("#menorAlert").hide();
-                    $("#representanteMoral").show();
-                }
-                cargarContactos();
-                $("#modal-representante").modal("show");
-            }
-        });
-    }
-    function cargarGeneros(){
-        $.ajax({
-            url:"/generos",
-            type:"GET",
-            dataType:"json",
-            success:function(data){
-                $("#genero_id").html("<option value=''>-- Selecciona un género</option>");
-                if(data.data.length > 0){
-                    $.each(data.data,function(index,element){
-                        $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
-                    });
-                }
-                $("#genero_id").trigger("change");
-            }
-        });
-    }
-
-    function cargarTipoContactos(){
-        $.ajax({
-            url:"/tipos_contactos",
-            type:"GET",
-            dataType:"json",
-            success:function(data){
-                if(data.data.total > 0){
-                    $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
-                    $.each(data.data.data,function(index,element){
-                        $("#tipo_contacto_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
-                    });
-                }else{
-                    $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
-                }
-                $("#tipo_contacto_id").trigger("change");
-            }
-        });
-    }
-    $("#btnAgregarContacto").on("click",function(){
-        if($("#parte_id").val() != ""){
-            $.ajax({
-                url:"/partes/representante/contacto",
-                type:"POST",
-                dataType:"json",
-                data:{
-                    tipo_contacto_id:$("#tipo_contacto_id").val(),
-                    contacto:$("#contacto").val(),
-                    parte_id:$("#parte_id").val(),
-                    _token:"{{ csrf_token() }}"
-                },
-                success:function(data){
-                    if(data != null && data != ""){
-                        listaContactos = data;
-                        cargarContactos();
-                    }else{
-                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
-                    }
-                }
-            });
-        }else{
-            listaContactos.push({
-                tipo_contacto_id:$("#tipo_contacto_id").val(),
-                contacto:$("#contacto").val(),
-                id:null,
-                tipo_contacto:{
-                    nombre:$("#tipo_contacto_id option:selected").text()
-                }
-            });
-        }
-        cargarContactos();
-    });
-    function validarRepresentante(){
-        var error=false;
-        $(".control-label").css("color","");
-        if($("#curp").val() == ""){
-            $("#curp").prev().css("color","red");
-            error = true;
-        }
-        if($("#nombre").val() == ""){
-            $("#nombre").prev().css("color","red");
-            error = true;
-        }
-        if($("#primer_apellido").val() == ""){
-            $("#primer_apellido").prev().css("color","red");
-            error = true;
-        }
-        if($("#segundo_apellido").val() == ""){
-            $("#segundo_apellido").prev().css("color","red");
-            error = true;
-        }
-        if($("#fecha_nacimiento").val() == ""){
-            $("#fecha_nacimiento").prev().css("color","red");
-            error = true;
-        }
-        if($("#genero_id").val() == ""){
-            $("#genero_id").prev().css("color","red");
-            error = true;
-        }
-        if($("#instrumento").val() == ""){
-            $("#instrumento").prev().css("color","red");
-            error = true;
-        }
-        // if($("#feha_instrumento").val() == ""){
-        //     $("#feha_instrumento").prev().css("color","red");
-        //     error = true;
-        // }
-        if($("#numero_notaria").val() == ""){
-            $("#numero_notaria").prev().css("color","red");
-            error = true;
-        }
-        if($("#nombre_notario").val() == ""){
-            $("#nombre_notario").prev().css("color","red");
-            error = true;
-        }
-        if($("#localidad_notaria").val() == ""){
-            $("#localidad_notaria").prev().css("color","red");
-            error = true;
-        }
-        if(listaContactos.length == 0){
-            $("#contacto").prev().css("color","red");
-            $("#tipo_contacto_id").prev().css("color","red");
-            error = true;
-            error = true;
-        }
-        return error;
-    }
-
-    function cargarContactos(){
-        var table = "";
-        $.each(listaContactos, function(index,element){
-            table +='<tr>';
-            table +='   <td>'+element.tipo_contacto.nombre+'</td>';
-            table +='   <td>'+element.contacto+'</td>';
-            table +='   <td style="text-align: center;">';
-            table +='       <a class="btn btn-xs btn-warning" onclick="eliminarContacto('+index+')">'
-            table +='           <i class="fa fa-trash" style="color:white;"></i>';
-            table +='       </a>';
-            table +='   </td>';
-            table +='<tr>';
-        });
-        $("#tbodyContacto").html(table);
-    }
-
-    $("#btnGuardarRepresentante").on("click",function(){
-        if(!validarRepresentante()){
-            $.ajax({
-                url:"/partes/representante",
-                type:"POST",
-                dataType:"json",
-                data:{
-                    clasificacion_archivo_id:$("#clasificacion_archivo_id").val(),
-                    detalle_instrumento:$("#detalle_instrumento").val(),
-                    parte_representada_id:$("#parte_representada_id").val(),
-                    curp:$("#curp").val(),
-                    nombre:$("#nombre").val(),
-                    primer_apellido:$("#primer_apellido").val(),
-                    segundo_apellido:$("#segundo_apellido").val(),
-                    fecha_nacimiento:dateFormat($("#fecha_nacimiento").val()),
-                    genero_id:$("#genero_id").val(),
-                    instrumento:$("#instrumento").val(),
-                    feha_instrumento:dateFormat($("#feha_instrumento").val()),
-                    parte_id:$("#parte_id").val(),
-                    parte_representada_id:$("#parte_representada_id").val(),
-                    listaContactos:listaContactos,
-                    fuente_solicitud:true,
-                    _token:"{{ csrf_token() }}"
-                },
-                success:function(data){
-                    if(data != null && data != ""){
-                        $("#tieneRepresentante"+data.id).html("Correcto <i class='fa fa-check'></i> ");
-                        $("#btnaddRep"+data.id).html("Ver Representante");
-                        swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
-                        actualizarPartes();
-                        $("#modal-representante").modal("hide");
-                    }else{
-                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
-                    }
-                }
-            });
-        }else{
-            swal({title: 'Error',text: 'Llena todos los campos',icon: 'warning'});
-        }
-    });
-
+    
+    
     $(document).on('click', '[data-toggle="lightbox"]', function(event) {
         event.preventDefault();
         $(this).ekkoLightbox({
@@ -3896,21 +2887,7 @@
             }
         });
     });
-    $(document).on('click', '[data-toggle="iframe"]',function(event){
-        event.preventDefault();
-        var pdf_link = $(this).attr('href');
-        var iframe = "";
-        iframe +='    <div id="Iframe-Cicis-Menu-To-Go" class="set-margin-cicis-menu-to-go set-padding-cicis-menu-to-go set-border-cicis-menu-to-go set-box-shadow-cicis-menu-to-go center-block-horiz">';
-        iframe +='        <div class="responsive-wrapper responsive-wrapper-padding-bottom-90pct" style="-webkit-overflow-scrolling: touch; overflow: auto;">';
-        iframe +='            <iframe src="'+pdf_link+'"></iframe>';
-        iframe +='        </div>';
-        iframe +='    </div>';
-
-        $("#bodyArchivo").html(iframe);
-        $("#modal-visor").modal("show");
-
-        return false;
-    });
+    
     function eliminarContacto(indice){
             if(listaContactos[indice].id != null){
                 $.ajax({
@@ -3936,97 +2913,32 @@
                 cargarContactos();
             }
         }
-        function actualizarPartes(){
-            $.ajax({
-                url:"/partes/getComboDocumentos/{{isset($solicitud->id) ? $solicitud->id: '' }}",
-                type:"GET",
-                dataType:"json",
-                success:function(data){
-                    if(data != null && data != ""){
-                        var html="";
-                        $('#fileupload').fileupload({
-                            uploadTemplate: function (o) {
-                                var rows = $();
-                                $.each(o.files, function (index, file) {
-                                    var html= '<tr class="template-upload fade show">'+
-                                    '    <td>'+
-                                    '        <span class="preview"></span>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <div class="bg-light rounded p-10 mb-2">'+
-                                    '            <dl class="m-b-0">'+
-                                    '                <dt class="text-inverse">Nombre del documento:</dt>'+
-                                    '                <dd class="name">'+file.name+'</dd>'+
-                                    '                <dt class="text-inverse m-t-10">File Size:</dt>'+
-                                    '                <dd class="size">Processing...</dd>'+
-                                    '            </dl>'+
-                                    '        </div>'+
-                                    '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
-                                    '            <option value="">Seleccione una opci&oacute;n</option>'+
-                                    '            @if(isset($clasificacion_archivo))'+
-                                    '                @foreach($clasificacion_archivo as $clasificacion)'+
-                                    '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
-                                    '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
-                                    '                    @endif'+
-                                    '                @endforeach'+
-                                    '            @endif'+
-                                    '        </select>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
-                                    '            <option value="">Seleccione una opci&oacute;n</option>'+
-                                    '            @if(isset($solicitud))';
-                                    $.each(data, function(index,element){
-                                        if(element.tipo_persona_id == 1){
-                                            html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</option>';
-                                        }
-                                        // else{
-                                        //     html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
-                                        //     // html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
-                                        // }
-                                    });
-                                    html +='    @endif'+
-                                    '        </select>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <dl>'+
-                                    '            <dt class="text-inverse m-t-3">Progress:</dt>'+
-                                    '            <dd class="m-t-5">'+
-                                    '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
-                                    '            </dd>'+
-                                    '        </dl>'+
-                                    '    </td>'+
-                                    '    <td nowrap>'+
-                                    '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
-                                    '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
-                                    '                <span>Guardar</span>'+
-                                    '            </button>'+
-                                    '    </td>'+
-                                    '    <td nowrap>'+
-                                    '            <button class="btn btn-default cancel width-100 p-r-20">'+
-                                    '                <i class="fa fa-trash fa-fw text-muted"></i>'+
-                                    '                <span>Cancel</span>'+
-                                    '            </button>'+
-                                    '    </td>'+
-                                    '</tr>';
-                                    var row = $(html);
-                                    if (file.error) {
-                                        row.find('.error').text(file.error);
-                                    }
-                                    rows = rows.add(row);
-                                });
-                                return rows;
-                            }
-                        });
-                    }else{
-                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
-                    }
-                }
-            });
-        }
+        
+        $("input[name='recibo_oficial']").change(function(){
+            if($(this).val() == 1){
+                $("#divReciboOficial").show()
+                $("#divReciboNomina").hide()
+                objAyudaCitado.recibo_oficial = true;
+                $("#datosIdentificacionSolicitado").show()
+            }else{
+                $("#divReciboOficial").hide()
+                $("#divReciboNomina").show()
+                objAyudaCitado.recibo_oficial = false;
+                $("#datosIdentificacionSolicitado").hide()
+            }
+        });
+        $("input[name='recibo_pago']").change(function(){
+            if($(this).val() == 1){
+                $("#divSiReciboNomina").show()
+                $("#divNoReciboNomina").hide()
+                objAyudaCitado.recibo_pago = true;
+            }else{
+                $("#divSiReciboNomina").hide()
+                $("#divNoReciboNomina").show()
+                objAyudaCitado.recibo_pago = false;
+            }
+            $("#datosIdentificacionSolicitado").show()
+        });
 
 
     $('[data-toggle="tooltip"]').tooltip();

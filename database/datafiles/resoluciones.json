@@ -2,20 +2,16 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "Hubo conciliacion"
+            "nombre": "Hubo convenio"
         },
         {
             "id": "2",
-            "nombre": "No hubo conciliación, pero se desea realizar una nueva"
+            "nombre": "No hubo convenio, pero se desea realizar una nueva audiencia"
         },
         {
             "id": "3",
-            "nombre": "No hubo conciliación"
-        },
-        {
-            "id": "4",
-            "nombre": "Archivado"
+            "nombre": "No hubo convenio"
         }
     ],
-    "numReg": 2
+    "numReg": 3
 }

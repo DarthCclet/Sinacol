@@ -303,20 +303,12 @@ class RegistroSolicitudExterna
             throw new ParametroNoValidoException("TLos actores deben incluir su información laboral.", 1020);
             return null;
         }else{
-            if(!isset($datos_laborales->nombre_jefe_directo) || !trim($datos_laborales->nombre_jefe_directo)){
-                throw new ParametroNoValidoException("El jefe directo es obligatorio para los datos laborales.", 1021);
-                return null;
-            }
             if(!isset($datos_laborales->ocupacion_id) || !trim($datos_laborales->ocupacion_id)){
                 throw new ParametroNoValidoException("La ocupación es obligatoria para los datos laborales.", 1021);
                 return null;
             }
             if(!isset($datos_laborales->percepcion_mensual_neta) || !trim($datos_laborales->percepcion_mensual_neta)){
                 throw new ParametroNoValidoException("La percepción mensual neta es obligatoria para los datos laborales.", 1021);
-                return null;
-            }
-            if(!isset($datos_laborales->giro_comercial_id) || !trim($datos_laborales->giro_comercial_id)){
-                throw new ParametroNoValidoException("El giro comercia es obligatoria para los datos laborales.", 1021);
                 return null;
             }
             if(!isset($datos_laborales->percepcion_mensual_bruta) || !trim($datos_laborales->percepcion_mensual_bruta)){

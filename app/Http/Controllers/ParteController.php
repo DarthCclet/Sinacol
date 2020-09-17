@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Audiencia;
 use Illuminate\Http\Request;
 use App\Parte;
 use App\Contacto;
 use App\TipoContacto;
 use App\AudienciaParte;
+use App\ClasificacionArchivo;
 use App\DatoLaboral;
 use App\Domicilio;
 use App\Filters\ParteFilter;
 use App\Solicitud;
+use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Validator;
 
 class ParteController extends Controller
@@ -180,6 +185,7 @@ class ParteController extends Controller
             foreach($representantes as $key => $representante){
                 foreach($representante->contactos as $key2 => $contactos){
                     $representantes[$key]->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
+                    $representantes[$key]->documentos;
                     
                 }
             }
@@ -208,7 +214,6 @@ class ParteController extends Controller
      */
     public function GuardarDatoLaboral(Request $request){
         $request->validate([
-            'nombre_jefe_directo' => 'required|String',
             //'ocupacion_id' => 'required|Integer',
             //'nss' => 'required|String',
             //'no_issste' => 'required|String',
@@ -225,7 +230,6 @@ class ParteController extends Controller
             $datos_laborales = DatoLaboral::find($request->id);
             
             $datos_laborales->update([
-                'nombre_jefe_directo' => $request->nombre_jefe_directo,
                 'ocupacion_id' => $request->ocupacion_id,
                 'nss' => $request->nss,
                 //'no_issste' => $request->no_issste,
@@ -239,9 +243,6 @@ class ParteController extends Controller
                 'parte_id' => $request->parte_id,
                 'resolucion' => true,
                 'puesto' => $request->puesto,
-                'nombre_contrato' => $request->nombre_contrato,
-                'nombre_paga' => $request->nombre_paga,
-                'nombre_prestas_servicio' => $request->nombre_prestas_servicio,
                 'horario_laboral' => $request->horario_laboral,
                 'horario_comida' => $request->horario_comida,
                 'comida_dentro' => $request->comida_dentro,
@@ -252,7 +253,6 @@ class ParteController extends Controller
             ]);
         }else{
             $datos_laborales = DatoLaboral::create([
-                'nombre_jefe_directo' => $request->nombre_jefe_directo,
                 'ocupacion_id' => $request->ocupacion_id,
                 'nss' => $request->nss,
                 //'no_issste' => $request->no_issste,
@@ -266,9 +266,6 @@ class ParteController extends Controller
                 'parte_id' => $request->parte_id,
                 'resolucion' => true,
                 'puesto' => $request->puesto,
-                'nombre_contrato' => $request->nombre_contrato,
-                'nombre_paga' => $request->nombre_paga,
-                'nombre_prestas_servicio' => $request->nombre_prestas_servicio,
                 'horario_laboral' => $request->horario_laboral,
                 'horario_comida' => $request->horario_comida,
                 'comida_dentro' => $request->comida_dentro,
@@ -284,6 +281,8 @@ class ParteController extends Controller
     
     
     function GuardarRepresentanteLegal(Request $request){
+        DB::beginTransaction();
+        $exito = true;
         if($request->parte_id != "" && $request->parte_id != null){
             $parte = Parte::find($request->parte_id);
             $parte->update([
@@ -298,6 +297,53 @@ class ParteController extends Controller
                 "feha_instrumento" => $request->feha_instrumento,
                 "detalle_instrumento" => $request->detalle_instrumento
             ]);
+            // se actualiza doc
+            if(isset($request->fileIdentificacion)){
+                $parte = Parte::find($request->parte_id);
+                $solicitud = Solicitud::find($request->solicitud_id);
+                
+                try{
+                    $deleted = false;
+                    if(count($parte->documentos) > 0){
+                        $parte->documentos[0]->delete();
+                        $deleted = true;
+                    }
+                    if(count($parte->documentos) == 0 || $deleted){
+                        $existeDocumento = $parte->documentos;
+                        if($solicitud != null){
+                            $archivo = $request->fileIdentificacion;
+                            $solicitud_id = $solicitud->id;
+                            $clasificacion_archivo= $request->tipo_documento_id;
+                            $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                            Storage::makeDirectory($directorio);
+                            $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                            
+                            $path = $archivo->store($directorio);
+                            
+                            $documento = $parte->documentos()->create([
+                                "nombre" => str_replace($directorio."/", '',$path),
+                                "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                "descripcion" => $tipoArchivo->nombre,
+                                "ruta" => $path,
+                                "tipo_almacen" => "local",
+                                "uri" => $path,
+                                "longitud" => round(Storage::size($path) / 1024, 2),
+                                "firmado" => "false",
+                                "clasificacion_archivo_id" => $tipoArchivo->id ,
+                            ]);
+                            $exito = true;
+                        }else{
+                            $exito = false;
+                            
+                        }
+                    }
+                    
+                }catch(Exception $e){
+                    $exito = false;
+                }
+            }
+            // se actualiza doc
         }else{
             $parte_representada = Parte::find($request->parte_representada_id);
             $parte = Parte::create([
@@ -311,6 +357,7 @@ class ParteController extends Controller
                 "segundo_apellido" => $request->segundo_apellido,
                 "fecha_nacimiento" => $request->fecha_nacimiento,
                 "genero_id" => $request->genero_id,
+                "clasificacion_archivo_id" => $request->clasificacion_archivo_id,
                 "detalle_instrumento" => $request->detalle_instrumento,
                 "genero_id" => $request->genero_id,
                 "feha_instrumento" => $request->feha_instrumento,
@@ -318,18 +365,67 @@ class ParteController extends Controller
                 "parte_representada_id" => $request->parte_representada_id,
                 "representante" => true
             ]);
-            foreach($request->listaContactos as $contacto){
+            $listaContactos = json_decode($request->listaContactos);
+            foreach($listaContactos as $contacto){
                 $parte->contactos()->create([
-                    "contacto" => $contacto["contacto"],
-                    "tipo_contacto_id" => $contacto["tipo_contacto_id"],
+                    "contacto" => $contacto->contacto,
+                    "tipo_contacto_id" => $contacto->tipo_contacto_id,
                 ]);
             }
+            
             // Creamos la relacion en audiencias_partes
             if(!isset($request->fuente_solicitud)){
                 AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
             }
+            // se agrega doc
+            // $parte = $parte_representada;
+            $solicitud = Solicitud::find($request->solicitud_id);
+            try{
+                if(count($parte->documentos) == 0){
+                    $existeDocumento = $parte->documentos;
+                    if($solicitud != null){
+                        $archivo = $request->fileIdentificacion;
+                        $solicitud_id = $solicitud->id;
+                        $clasificacion_archivo= $request->tipo_documento_id;
+                        $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                        Storage::makeDirectory($directorio);
+                        $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                        
+                        $path = $archivo->store($directorio);
+                        
+                        $documento = $parte->documentos()->create([
+                            "nombre" => str_replace($directorio."/", '',$path),
+                            "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                            // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                            "descripcion" => $tipoArchivo->nombre,
+                            "ruta" => $path,
+                            "tipo_almacen" => "local",
+                            "uri" => $path,
+                            "longitud" => round(Storage::size($path) / 1024, 2),
+                            "firmado" => "false",
+                            "clasificacion_archivo_id" => $tipoArchivo->id ,
+                        ]);
+                        $exito = true;
+                    }else{
+                        $exito = false;
+                        
+                    }
+                }
+                
+            }catch(Exception $e){
+                $exito = false;
+                
+            }
+            // se actualiza doc
         }
-        return $parte;
+        if($exito){
+            DB::commit();
+            return $parte;
+        }else{
+            DB::rollback();
+            return $this->sendError('Error al guardar los correos', 'Error');
+
+        }
     }
     
     public function AgregarContactoRepresentante(Request $request){
