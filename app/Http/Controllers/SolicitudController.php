@@ -40,6 +40,7 @@ use App\Sala;
 use App\SalaAudiencia;
 use App\ConciliadorAudiencia;
 use App\AudienciaParte;
+use App\Documento;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -152,7 +153,9 @@ class SolicitudController extends Controller {
                 return $this->sendResponseDatatable($total, $total, $draw, $solicitud, null);
             }
         }
-        return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes'));
+        $clasificacion_archivo = ClasificacionArchivo::all();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes','clasificacion_archivos_Representante','clasificacion_archivo'));
     }
 
     /**
@@ -438,6 +441,7 @@ class SolicitudController extends Controller {
         $solicitud["solicitados"] = $solicitados;
         $solicitud["solicitantes"] = $solicitantes;
         $solicitud->expediente = $solicitud->expediente;
+        $solicitud->giroComercial = $solicitud->giroComercial;
         return $solicitud;
     }
 
@@ -448,6 +452,7 @@ class SolicitudController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function edit($id) {
+        $doc= [];
         $solicitud = Solicitud::find($id);
         $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
         if (count($expediente) > 0) {
@@ -461,6 +466,14 @@ class SolicitudController extends Controller {
             $parte->domicilios = $parte->domicilios()->first();
 //            dd($parte);
             $partes[$key] = $parte;
+            $documentos = $parte->documentos;
+            foreach ($documentos as $documento) {
+                $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                $documento->tipo = pathinfo($documento->ruta)['extension'];
+                $documento->parte = $parte->nombre. " ".$parte->primer_apellido." ".$parte->segundo_apellido;
+                $documento->tipo_doc = 2;
+                array_push($doc,$documento);
+            }
         }
         
         $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ?$solicitud->tipo_solicitud_id : 1;
@@ -496,7 +509,34 @@ class SolicitudController extends Controller {
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
         // dd($conciliador);
         // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante'));
+
+        // consulta de documentos
+        
+        
+        $documentos = $solicitud->documentos;
+        foreach ($documentos as $documento) {
+            $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+            $documento->tipo = pathinfo($documento->ruta)['extension'];
+            $documento->tipo_doc = 1;
+            array_push($doc,$documento);
+        }
+        if($solicitud->expediente && $solicitud->expediente->audiencia){
+            foreach($solicitud->expediente->audiencia as $audiencia){
+                $documentos = $audiencia->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                    $documento->tipo = pathinfo($documento->ruta)['extension'];
+                    $documento->tipo_doc = 3;
+                    $documento->audiencia = $audiencia->folio."/".$audiencia->anio;
+                    $documento->audiencia_id = $audiencia->id;
+                    array_push($doc,$documento);
+                }
+            }
+        }
+
+        $documentos = $doc;
+        //termina consulta de documentos
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante','documentos'));
     }
 
     /**
@@ -797,7 +837,7 @@ class SolicitudController extends Controller {
                 foreach($partes as $parte){
                     AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
                 }
-                event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,4,4));
+                event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4));
                 DB::commit();
                 return $audiencia;
             }else{
@@ -836,15 +876,16 @@ class SolicitudController extends Controller {
                     $partes = $solicitud->partes;
                     foreach($partes as $parte){
                         $tipo_notificacion_id = null;
-                        foreach($request->listaNotificaciones as $notificaciones){
-                            if($notificaciones["parte_id"] == $parte->id){
-                                $tipo_notificacion_id = $notificaciones["tipo_notificacion_id"];
-                            }
-                        }
+                        // foreach($request->listaNotificaciones[0] as $notificaciones){
+                        $notificaciones=$request->listaNotificaciones[0];
+                            // if($notificaciones["parte_id"] == $parte->id){
+                        $tipo_notificacion_id = $notificaciones["tipo_notificacion_id"];
+                            // }
+                        // }
                         AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
                     }
                     $expediente = Expediente::find($request->expediente_id);
-                    event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,4,4));
+                    event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4));
             }
             DB::commit();
             $salas = [];
@@ -854,6 +895,11 @@ class SolicitudController extends Controller {
             foreach($audiencia->conciliadoresAudiencias as $conciliador){
                 $conciliador->conciliador->persona;
             }
+            $acuse = Documento::where('documentable_type','App\Solicitud')->where('documentable_id',$solicitud->id)->where('clasificacion_archivo_id',40)->first();
+            if($acuse != null){
+                $acuse->delete();
+            }
+            event(new GenerateDocumentResolution("",$solicitud->id,40,6));
             return $audiencia;
         }catch(\Throwable $e){
             DB::rollback();

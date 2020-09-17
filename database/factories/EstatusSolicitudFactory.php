@@ -7,6 +7,6 @@ use Faker\Generator as Faker;
 
 $factory->define(EstatusSolicitud::class, function (Faker $faker) {
     return [
-        'nombre' => $faker->randomElement(["Sin Ratificar","Ratificada","Terminada"])
+        'nombre' => $faker->randomElement(["Sin Ratificar","Ratificada","Concluida"])
     ];
 });
