@@ -442,6 +442,7 @@ class SolicitudController extends Controller {
         $solicitud["solicitantes"] = $solicitantes;
         $solicitud->expediente = $solicitud->expediente;
         $solicitud->giroComercial = $solicitud->giroComercial;
+        $solicitud->giroComercial->ambito;
         return $solicitud;
     }
 
@@ -836,8 +837,10 @@ class SolicitudController extends Controller {
                 $partes = $solicitud->partes;
                 foreach($partes as $parte){
                     AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
+                    if($parte->tipo_parte_id == 2){
+                        event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
+                    }
                 }
-                event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4));
                 DB::commit();
                 return $audiencia;
             }else{
@@ -883,9 +886,12 @@ class SolicitudController extends Controller {
                             // }
                         // }
                         AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
+                        if($parte->tipo_parte_id == 2){
+                            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
+                        }
                     }
                     $expediente = Expediente::find($request->expediente_id);
-                    event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4));
+                    
             }
             DB::commit();
             $salas = [];
