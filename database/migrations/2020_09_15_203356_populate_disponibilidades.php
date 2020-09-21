@@ -44,7 +44,7 @@ class PopulateDisponibilidades extends Migration
 //            creamos tres usuarios
             //Creamos al usuario orientador
             $persona1 = factory(App\Persona::class)->states('orientador')->create();
-            $mail = "orientador.".mb_strtolower(str_replace(" ","",$centro->nombre))."@centrolaboral.gob.mx";
+            $mail = "orientador.".mb_strtolower(str_replace(" ","",$centro->abreviatura))."@centrolaboral.gob.mx";
             
             DB::table('users')->insert(
                 [
@@ -65,7 +65,7 @@ class PopulateDisponibilidades extends Migration
             $user1->assignRole($rolOrientador->name);
             //Creamos al usuario personal conciliador
             $persona2 = factory(App\Persona::class)->states('personal_conciliador')->create();
-            $mailPersonal = "personal.conciliador.".mb_strtolower(str_replace(" ","",$centro->nombre))."@centrolaboral.gob.mx";
+            $mailPersonal = "personal.conciliador.".mb_strtolower(str_replace(" ","",$centro->abreviatura))."@centrolaboral.gob.mx";
             DB::table('users')->insert(
                 [
                     'name' => 'personal_conciliador',
@@ -90,7 +90,7 @@ class PopulateDisponibilidades extends Migration
             self::agregarDisponibilidad($conciliadorPersonal);
             //Creamos al usuario personal conciliador
             $persona3 = factory(App\Persona::class)->states('supervisor_conciliacion')->create();
-            $mailSupervisor = "supervisor.conciliacion.".mb_strtolower(str_replace(" ","",$centro->nombre))."@centrolaboral.gob.mx";
+            $mailSupervisor = "supervisor.conciliacion.".mb_strtolower(str_replace(" ","",$centro->abreviatura))."@centrolaboral.gob.mx";
             DB::table('users')->insert(
                 [
                     'name' => 'supervisor_conciliacion',
