@@ -442,7 +442,9 @@ class SolicitudController extends Controller {
         $solicitud["solicitantes"] = $solicitantes;
         $solicitud->expediente = $solicitud->expediente;
         $solicitud->giroComercial = $solicitud->giroComercial;
-        $solicitud->giroComercial->ambito;
+        if($solicitud->giroComercial){
+            $solicitud->giroComercial->ambito;
+        }
         return $solicitud;
     }
 
@@ -844,54 +846,60 @@ class SolicitudController extends Controller {
                 DB::commit();
                 return $audiencia;
             }else{
-                    $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
-                    if((bool)$request->separados){
-                        $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), auth()->user()->centro);
-                        $multiple = true;
-                    }else{
-                    $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), auth()->user()->centro);
-                        $multiple = false;
-                    }
+                if((int)$request->tipo_notificacion_id == 1){
+                    $diasHabilesMin = 5;
+                    $diasHabilesMax = 8;
+                }else{
+                    $diasHabilesMin = 15;
+                    $diasHabilesMax = 18;
+                }
+                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
+                if($request->separados == "true"){
+                    $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                    $multiple = true;
+                }else{
+                    $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                    $multiple = false;
+                }
 //                    var_dump($datos_audiencia);
-                    //Obtenemos el contador
-                    $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
-                    //creamos el registro de la audiencia
-                    $audiencia = Audiencia::create([
-                        "expediente_id" => $expediente->id,
-                        "multiple" => $multiple,
-                        "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
-                        "hora_inicio" => $datos_audiencia["hora_inicio"], 
-                        "hora_fin" => $datos_audiencia["hora_fin"],
-                        "conciliador_id" =>  $datos_audiencia["conciliador_id"],
-                        "numero_audiencia" => 1,
-                        "reprogramada" => false,
-                        "anio" => $folioAudiencia->anio,
-                        "folio" => $folioAudiencia->contador
-                    ]);
+                //Obtenemos el contador
+                $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+                //creamos el registro de la audiencia
+                $audiencia = Audiencia::create([
+                    "expediente_id" => $expediente->id,
+                    "multiple" => $multiple,
+                    "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
+                    "hora_inicio" => $datos_audiencia["hora_inicio"], 
+                    "hora_fin" => $datos_audiencia["hora_fin"],
+                    "conciliador_id" =>  $datos_audiencia["conciliador_id"],
+                    "numero_audiencia" => 1,
+                    "reprogramada" => false,
+                    "anio" => $folioAudiencia->anio,
+                    "folio" => $folioAudiencia->contador,
+                    "encontro_audiencia" => $datos_audiencia["encontro_audiencia"]
+                ]);
+                if($datos_audiencia["encontro_audiencia"]){
                     // guardamos la sala y el consiliador a la audiencia
                     ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $datos_audiencia["conciliador_id"],"solicitante" => true]);
                     SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $datos_audiencia["sala_id"],"solicitante" => true]);
-                    if((bool)$request->separados){
+                    if($request->separados == "true"){
                         ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $datos_audiencia["conciliador2_id"],"solicitante" => false]);
                         SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $datos_audiencia["sala2_id"],"solicitante" => false]);
                     }
-                    // Guardamos todas las Partes en la audiencia
-                    $partes = $solicitud->partes;
-                    foreach($partes as $parte){
-                        $tipo_notificacion_id = null;
-                        // foreach($request->listaNotificaciones[0] as $notificaciones){
-                        $notificaciones=$request->listaNotificaciones[0];
-                            // if($notificaciones["parte_id"] == $parte->id){
-                        $tipo_notificacion_id = $notificaciones["tipo_notificacion_id"];
-                            // }
-                        // }
-                        AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
-                        if($parte->tipo_parte_id == 2){
-                            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
-                        }
+                }
+                // Guardamos todas las Partes en la audiencia
+                $partes = $solicitud->partes;
+                foreach($partes as $parte){
+                    $tipo_notificacion_id = null;
+                    if($parte->tipo_parte_id != 1){
+                        $tipo_notificacion_id = $this->request->tipo_notificacion_id;
                     }
-                    $expediente = Expediente::find($request->expediente_id);
-                    
+                    AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
+                    if($parte->tipo_parte_id == 2){
+                        event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
+                    }
+                }
+                $expediente = Expediente::find($request->expediente_id);
             }
             DB::commit();
             $salas = [];
@@ -972,9 +980,11 @@ class SolicitudController extends Controller {
         $solicitud = Solicitud::find($solicitud_id);
         $documentos = $solicitud->documentos;
         foreach ($documentos as $documento) {
+            if($documento->ruta != ""){
             $documento->clasificacionArchivo = $documento->clasificacionArchivo;
             $documento->tipo = pathinfo($documento->ruta)['extension'];
             array_push($doc,$documento);
+        }
         }
         $partes = Parte::where('solicitud_id',$solicitud_id)->get();
         foreach($partes as $parte){

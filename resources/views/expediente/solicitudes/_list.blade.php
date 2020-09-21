@@ -261,8 +261,8 @@
                                         <label class="custom-control-label" for="aradioNotificacionB1">B) Un notificador del centro entrega citatorio al citado(s)</label>
                                     </div>
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" id="aradioNotificacionB1" value="3" name="aradioNotificacion1" class="custom-control-input">
-                                        <label class="custom-control-label" for="aradioNotificacionB1">B) Agendar cita con el notificador para entrega de citatorio</label>
+                                        <input type="radio" id="aradioNotificacionB2" value="3" name="aradioNotificacion1" class="custom-control-input">
+                                        <label class="custom-control-label" for="aradioNotificacionB2">B) Agendar cita con el notificador para entrega de citatorio</label>
                                     </div>
                                 </td>
                             </tr>
@@ -323,7 +323,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="genero_idRep" class="col-sm-6 control-label">Género</label>
-                        <select id="genero_idRep" class="form-control select-element">
+                        <select id="genero_idRep" class="form-control catSelect select-element">
                             <option value="">-- Selecciona un género</option>
                         </select>
                     </div>
@@ -356,7 +356,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="clasificacion_archivo_id_representante" class="control-label">Instrumento</label>
-                            <select id="clasificacion_archivo_id_representante" class="form-control select-element">
+                            <select id="clasificacion_archivo_id_representante" class="form-control catSelect select-element">
                                 <option value="">-- Selecciona un instrumento</option>
                                 @foreach($clasificacion_archivos_Representante as $clasificacion)
                                 <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
@@ -382,7 +382,7 @@
                 <div class="col-md-12 row">
                     <div class="col-md-5">
                         <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
-                        <select id="tipo_contacto_id" class="form-control select-element">
+                        <select id="tipo_contacto_id" class="form-control catSelect select-element">
                             <option value="">-- Selecciona un género</option>
                         </select>
                     </div>
@@ -573,7 +573,64 @@
     </div>
 </div>
 <!-- Fin Modal de cargar archivos-->
-
+<div class="modal" id="modal-ratificacion-success" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Audiencia generada</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    <p>
+                        Se generó la audiencia con la siguiente información
+                    </p>
+                </div>
+                <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Folio: </strong><span id="spanFolio"></span><br>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Fecha de Audiencia: </strong><span id="spanFechaAudiencia"></span><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Hora de inicio: </strong><span id="spanHoraInicio"></span><br>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Hora de termino: </strong><span id="spanHoraFin"></span><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <table class="table table-striped table-hover" id="tableAudienciaSuccess">
+                        <thead>
+                            <tr>
+                                <th>Tipo de parte</th>
+                                <th>Conciliador</th>
+                                <th>Sala</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnFinalizarRatificacion"><i class="fa fa-check"></i> Finalizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hddSolicitud_id">
   @push('scripts')
   <script>
       var estatus_solicitudes = [];
@@ -806,6 +863,8 @@
                 filtrado = true;
             });
             $('[data-toggle="tooltip"]').tooltip();
+            cargarGeneros();
+            cargarTipoContactos();
        });
 
     //    para ratificacion
@@ -900,39 +959,106 @@
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
-                                $.ajax({
-                                    url:'/solicitud/ratificar',
-                                    type:'POST',
-                                    dataType:"json",
-                                    async:true,
-                                    data:{
-                                        id:$("#solicitud_id").val(),
-                                        listaNotificaciones:validarRatificacion.listaNotificaciones,
-                                        inmediata:false,
-                                        _token:"{{ csrf_token() }}"
-                                    },
-                                    success:function(data){
-                                        if(data != null && data != ""){
-                                            $("#modalRatificacion").modal("hide");
-                                            swal({
-                                                title: 'Correcto',
-                                                text: 'Solicitud ratificada correctamente',
-                                                icon: 'success'
-                                            });
-                                            location.reload();
-                                        }else{
-                                            swal({
-                                                title: 'Error',
-                                                text: 'No se pudo ratificar',
-                                                icon: 'error'
-                                            });
+                                swal({
+                                    title: '¿Las partes concilian en la misma sala?',
+                                    text: 'Selecciona el tipo de conciliación que se llevará a cabo',
+                                    icon: 'warning',
+                                    buttons: {
+                                        cancel: {
+                                            text: 'cancelar',
+                                            value: null,
+                                            visible: true,
+                                            className: 'btn btn-default',
+                                            closeModal: true,
+                                        },
+                                        roll: {
+                                            text: "Separados",
+                                            value: 2,
+                                            className: 'btn btn-warning',
+                                            visible: true,
+                                            closeModal: true
+                                        },
+                                        confirm: {
+                                            text: 'Juntos',
+                                            value: 1,
+                                            visible: true,
+                                            className: 'btn btn-warning',
+                                            closeModal: true
                                         }
-                                    },error:function(data){
-                                        console.log(data);
-                                        swal({
-                                            title: 'Error',
-                                            text: data.responseJSON.message,
-                                            icon: 'error'
+                                    }
+                                }).then(function(tipo){
+                                    if(tipo == 1 || tipo == 2){
+                                        if(tipo == 1){
+                                            var separados = false;
+                                        }else{
+                                            var separados = true;
+                                        }
+                                        $.ajax({
+                                            url:'/solicitud/ratificar',
+                                            type:'POST',
+                                            dataType:"json",
+                                            async:true,
+                                            data:{
+                                                id:$("#solicitud_id").val(),
+                                                tipo_notificacion_id:validarRatificacion.tipo_notificacion_id,
+                                                inmediata:false,
+                                                separados:separados,
+                                                _token:"{{ csrf_token() }}"
+                                            },
+                                            success:function(data){
+                                                console.log(data);
+                                                if(data != null && data != ""){
+                                                    $("#spanFolio").text(data.folio+"/"+data.anio);
+                                                    $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia,4));
+                                                    $("#spanHoraInicio").text(data.hora_inicio);
+                                                    $("#spanHoraFin").text(data.hora_fin);
+                                                    var table="";
+                                                    if(data.multiple){
+                                                        $.each(data.conciliadores_audiencias,function(index,element){
+                                                            table +='<tr>';
+                                                            if(element.solicitante){
+                                                                table +='   <td>Solicitante(s)</td>';
+                                                            }else{
+                                                                table +='   <td>Citado(s)</td>';
+                                                            }
+                                                            table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                                                            $.each(data.salas_audiencias,function(index2,element2){
+                                                                if(element2.solicitante == element.solicitante){
+                                                                    table +='<td>'+element2.sala.sala+'</td>';
+                                                                }
+                                                            });
+                                                            table +='</tr>';
+                                                        });
+                                                    }else{
+                                                        table +='<tr>';
+                                                        table +='   <td>Solicitante(s) y citado(s)</td>';
+                                                        table +='   <td>'+data.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
+                                                        table +='   <td>'+data.salas_audiencias[0].sala.sala+'</td>';
+                                                        table +='</tr>';
+                                                    }
+                                                    $("#tableAudienciaSuccess tbody").html(table);
+                                                    $("#modalRatificacion").modal("hide");
+                                                    $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                                                    swal({
+                                                        title: 'Correcto',
+                                                        text: 'Solicitud ratificada correctamente',
+                                                        icon: 'success'
+                                                    });
+                                                }else{
+                                                    swal({
+                                                        title: 'Error',
+                                                        text: 'No se pudo ratificar',
+                                                        icon: 'error'
+                                                    });
+                                                }
+                                            },error:function(data){
+                                                console.log(data);
+                                                swal({
+                                                    title: 'Error',
+                                                    text: data.responseJSON.message,
+                                                    icon: 'error'
+                                                });
+                                            }
                                         });
                                     }
                                 });
@@ -979,25 +1105,21 @@
             error = true;
             msg = "Al menos un solicitante debe presentar documentos para ratificar";
         }
-        // $(".hddParte_id").each(function(element){
-            // var parte_id = $(this).val();
-            if($("#aradioNotificacionA1").is(":checked")){
-                listaNotificaciones.push({
-                    tipo_notificacion_id:1
-                });
-            }else if($("#aradioNotificacionB1").is(":checked")){
-                listaNotificaciones.push({
-                    tipo_notificacion_id:2
-                });
-            }else{
-                msg = "Indica el tipo de notificación para los citados";
-                error = true;
-            }
-        // });
+        if($("#aradioNotificacionA1").is(":checked")){
+            var tipo_notificacion_id=1;
+        }else if($("#aradioNotificacionB1").is(":checked")){
+            var tipo_notificacion_id=2;
+        }else if($("#aradioNotificacionB2").is(":checked")){
+           var tipo_notificacion_id=3;
+        }else{
+            var tipo_notificacion_id = null;
+            msg = "Indica el tipo de notificación para los citados";
+            error = true;
+        }
         var array = [];
         array.error=error;
         array.msg=msg;
-        array.listaNotificaciones=listaNotificaciones;
+        array.tipo_notificacion_id=tipo_notificacion_id;
         return array;
     }
     $("#btnRatificarInmediata").on("click",function(){
@@ -1963,7 +2085,7 @@
                                     html+='</div>';
                                 }
                                 html+='<div>';
-                                    html+="<b>Direccion:</b><br> &nbsp;&nbsp;&nbsp;&nbsp;"+value.domicilios[0].tipo_vialidad+" "+value.domicilios[0].vialidad+", "+value.domicilios[0].asentamiento+", "+value.domicilios[0].municipio+", "+value.domicilios[0].estado.toUpperCase();
+                                html+="<b>Direccion:</b><br> &nbsp;&nbsp;&nbsp;&nbsp;"+value.domicilios[0].tipo_vialidad+" "+value.domicilios[0].vialidad+", "+value.domicilios[0].asentamiento+", "+value.domicilios[0].municipio+", "+value.domicilios[0].estado.toUpperCase();
                                 html+='</div>';
                                 html+='<div>';
                                     html+='<label><b>Contactos:</b></label>';
@@ -1985,6 +2107,9 @@
     $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
     $("#fileIdentificacion").change(function(e){
         $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+    });
+    $("#btnFinalizarRatificacion").on("click",function(){
+        location.href = "solicitudes/consulta/"+$("#solicitud_id").val();
     });
   </script>
   @endpush
