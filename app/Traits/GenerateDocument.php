@@ -7,6 +7,7 @@ use App\AudienciaParte;
 use App\ClasificacionArchivo;
 use App\ConceptoPagoResolucion;
 use App\DatoLaboral;
+use App\Disponibilidad;
 use App\EtapaResolucionAudiencia;
 use App\Expediente;
 use App\Parte;
@@ -175,6 +176,18 @@ trait GenerateDocument
                           foreach ($val as $n =>$v) {
                             $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
                           }
+                        }else if($k =='contactos'){
+                          foreach ($val as $n =>$v) {
+                            // dd($data);
+                            $v = Arr::except($v,['id','updated_at','created_at','deleted_at','contactable_type','contactable_id']);
+                            $vars[strtolower($key.'_'.$k.'_'.$v['tipo_contacto']['nombre'])] = ($v['contacto'] !== null)? $v['contacto'] :'-';
+                            if($v['tipo_contacto_id'] == 3 && $data['correo_buzon'] == null){
+                              // dd($data['correo_buzon']);
+                              $vars[$key.'_correo_buzon'] = $v['contacto'];
+                              $vars[$key.'_password_buzon'] = '';
+                              // $data['correo_buzon'] = $v['contacto'];
+                            }
+                          }
                         }else{
                           foreach ($val as $i => $v) {
                             if( isset($v['nombre'] ) ){
@@ -328,9 +341,9 @@ trait GenerateDocument
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
                     if($idSolicitante != "" || $idSolicitado != ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante, $idSolicitado])->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante, $idSolicitado])->get();
                     }else{
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora')->where('solicitud_id',intval($idBase))->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->get();
                     }
                     $objeto = new JsonResponse($partes);
                     $obj = json_decode($objeto->content(),true);
@@ -338,6 +351,8 @@ trait GenerateDocument
                     $parte1 = [];
                     $countSolicitante = 0;
                     $countSolicitado = 0;
+                    $nombresSolicitantes = [];
+                    $nombresSolicitados = [];
                     $datoLaboral="";
                       // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $parte ) {
@@ -381,6 +396,7 @@ trait GenerateDocument
                           $parte['datos_laborales_salario_mensual'] = $salarioMensual;
                         }
                         array_push($parte1, $parte);
+                        array_push($nombresSolicitantes, $parte['nombre_completo'] );
                         $countSolicitante += 1;
                       }elseif ($parte['tipo_parte_id'] == 2 ) {//Solicitado
                         //representante legal solicitado
@@ -400,7 +416,7 @@ trait GenerateDocument
                         }
                           // $data = Arr::add( $data, 'solicitado', $parte );
                         $countSolicitado += 1;
-
+                        array_push($nombresSolicitados, $parte['nombre_completo'] );
                         array_push($parte2, $parte);
                       }
                     }
@@ -408,6 +424,8 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'solicitado', $parte2 );
                     $data = Arr::add( $data, 'total_solicitantes', $countSolicitante );
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
+                    $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
+                    $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
                 }elseif ($model == 'Expediente') {
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;
