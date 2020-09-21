@@ -555,7 +555,7 @@ class AudienciaController extends Controller {
      * @return array
      */
     public function getTodasAudiencias() {
-        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->get();
+        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->get();
         $audiencias = [];
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
@@ -572,6 +572,19 @@ class AudienciaController extends Controller {
             array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->folio . "/" . $audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->id));
         }
         return $arrayEventos;
+    }
+    public function getAudienciasSinFecha(){
+        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->get();
+        $audiencias = [];
+        foreach ($solicitudes as $solicitud) {
+            $audienciasSolicitud = $solicitud->expediente->audiencia;
+            foreach ($audienciasSolicitud as $audiencia) {
+                if (!$audiencia->encontro_audiencia) {
+                    array_push($audiencias, $audiencia);
+                }
+            }
+        }
+        return $audiencias;
     }
 
     /**
