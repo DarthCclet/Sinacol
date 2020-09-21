@@ -1,21 +1,7 @@
 @include('includes.component.dropzone')
-
- <style>
-    .ui-accordion-content{
-        height:100% !important;
-    }
-    .card-header{
-        border: 1px solid #B38E5D !important;
-        background: #B38E5D !important;
-        color: white !important;
-        font-size: 65% !important;
-        padding: 4px !important;
-        width: 100%;
-        text-align: left !important;
-    }
-
-</style>
+ 
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
+<input type="hidden" id="rutaConsulta" value="{!! route("solicitudes.consulta",'-rutaConsulta') !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
       <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Año</th><th>Fecha de ratificación</th><th>Fecha de recepción</th><th>Fecha de conflicto</th><th>Partes</th><th>Expediente</th><th>Días para expiraci&oacute;n</th><th>Acción</th></tr>
@@ -167,37 +153,7 @@
 {{-- Modal ratificacion --}}
 <!--inicio modal para representante legal-->
 <input type="hidden" id="solicitud_id" value="">
-<div class="modal" id="modalSolicitud" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Solicitud</h2>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12">
-                    <hr class="red">
-                    <h2>Datos generales de la Solicitud</h2>
-                    <div id="divSolicitudMod">
-                    </div>
-                    <hr class="red">
-                    <h2>Solicitantes</h2>
-                    <div id="divSolicitantesMod">
-                    </div>
-                    <hr class="red">
-                    <h2>Citados</h2>
-                    <div id="divCitadosMod">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-primary" data-dismiss="modal" > Aceptar</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<
 <div class="modal" id="modalRatificacion" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -641,6 +597,7 @@
         var filtrado=false;
         $(document).ready(function() {
             var ruta = $("#ruta").val();
+            var rutaConsulta = $("#rutaConsulta").val();
             var dt = $('#tabla-detalle').DataTable({
                 "deferRender": true,
                 "ajax": {
@@ -781,7 +738,7 @@
                         "targets": -1,
                         "render": function (data, type, row) {
                                 var buttons = '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-3" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
-                                buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="consultarSolicitud('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></button></div>';
+                                buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+rutaConsulta.replace('/-rutaConsulta',"/"+row[0])+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>';
                                 if(row[1] == 1){
                                     buttons += '<div title="Ratificar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="continuarRatificacion('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></button></div>';
                                 }
@@ -1961,149 +1918,7 @@
         $("#divCitadosMod").html(htmlCitados);
     }
 
-    function formatoSolicitud(){
-        var html = "";
-        html += "<div class='col-md-10 offset-1'>";
-            html += "<div class='col-md-12 row'>";
-                if(solicitudObj.ratificada == true){
-                    html += "<div class='col-md-6'>";
-                        html += "<b>Fecha de ratificaci&oacute;n:</b> "+solicitudObj.fecha_ratificacion+ "<br>";
-                    html += "</div>";
-                }
-                html += "<div class='col-md-6'>";
-                    html += "<b>Fecha de recepci&oacute;n:</b> "+solicitudObj.fecha_recepcion+ "<br>";
-                html += "</div>";
-                html += "<div class='col-md-6'>";
-                    html += "<b>Fecha de conflicto:</b> "+solicitudObj.fecha_conflicto+ "<br>";
-                html += "</div>";
-                html += "<div class='col-md-12'>";
-                    html += "<b>Giro comercial</b><br> "+solicitudObj.giro_comercial+ "<br>";
-                html += "</div>";
-                html += "<div class='col-md-12'>";
-                    html += "<b>Objetos de la solicitud</b>";
-                    html += "<ul>";
-                    $.each(arrayObjetoSolicitudes, function (key, value) {
-                        html += "<li>"+value.nombre+"</li>";
-                    });
-                    html += "</ul>";
-                html += "</div>";
-            html += "</div>";
-        html += "</div>";
-        
-        return html;
-    }
-    function formarSolicitantes(){
-        var html = "";
-        html += '<div class="accordion col-md-10 offset-1" id="accordionExample">';
-        $.each(arraySolicitantes,function(key, value){
-            html+='<div class="card">';
-                html+='<div class="card-header" id="headingOne">';
-                    html+='<h2 class="mb-0">';
-                        html+='<button id="collSol'+value.id+'" class="btn btn-link card-header " i type="button" data-toggle="collapse" data-target="#collapseSol'+value.id+'" aria-expanded="true" aria-controls="collapseOne"  >';
-                        if(value.tipo_persona_id == 1){
-                            html+=' '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "");
-                        }else{
-                            html+=' '+value.nombre_comercial;
-                        }
-                        html+='</button>';
-                    html+='</h2>';
-                html+='</div>';
-
-                html+='<div id="collapseSol'+value.id+'" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">';
-                    html+='<div class="card-body">';
-                        html+='<div >';
-                            html+='<div>';
-                                if(value.curp){
-                                    html+='<div>';
-                                        html+='<label><b>CURP:</b>'+value.curp+'</label>';
-                                    html+='</div>';
-                                }
-                                if(value.rfc){
-                                    html+='<div>';
-                                        html+='<label><b>RFC:</b>'+value.rfc+'</label>';
-                                    html+='</div>';
-                                }
-                                html+='<div>';
-                                    html+="<b>Direccion:</b><br> &nbsp;&nbsp;&nbsp;&nbsp;"+value.domicilios[0].tipo_vialidad+" "+value.domicilios[0].vialidad+", "+value.domicilios[0].asentamiento+", "+value.domicilios[0].municipio+", "+value.domicilios[0].estado.toUpperCase();
-                                html+='</div>';
-                                html+='<div>';
-                                    html+='<label><b>Contactos:</b></label>';
-                                    html+='<ul>';
-                                    $.each(value.contactos,function(indice, contacto){
-                                        html+="<li>"+contacto.contacto+"</li>";
-                                    });
-                                    html+='</ul>';
-                                html+='</div>';
-                                html+='<div class="col-md-12 row">';
-                                    html+='<label class="col-md-12"><b>Datos Laborales</b></label><br>';
-                                    html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Puesto:</b>'+value.dato_laboral.puesto+'</label><br>';
-                                    html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;N&uacute;mero de seguro social:</b>'+value.dato_laboral.nss+'</label><br>';
-                                    html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Ingreso:</b>'+dateFormat(value.dato_laboral.fecha_ingreso,4)+'</label><br>';
-                                    if(!value.dato_laboral.labora_actualmente){
-                                        html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Salida:</b>'+dateFormat(value.dato_laboral.fecha_salida,4)+'</label><br>';
-                                    }
-                                html+='</div>';
-                            html+='</div>';
-                        html+='</div>';
-                    html+='</div>';
-                html+='</div>';
-            html+='</div>';
-        });
-        html += '</div>';
-        return html;
-    }
-
-    function formarCitados(){
-        var html = "";
-        html += '<div class="accordion col-md-10 offset-1" id="accordionCitados">';
-        $.each(arraySolicitados,function(key, value){
-            html+='<div class="card">';
-                html+='<div class="card-header" id="headingTwo">';
-                    html+='<h2 class="mb-0">';
-                        html+='<button id="collCit'+value.id+'" class="btn btn-link card-header " i type="button" data-toggle="collapse" data-target="#collapseCit'+value.id+'" aria-expanded="true" aria-controls="collapseOne"  >';
-                        if(value.tipo_persona_id == 1){
-                            html+=' '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "");
-                        }else{
-                            html+=' '+value.nombre_comercial;
-                        }
-                        html+='</button>';
-                    html+='</h2>';
-                html+='</div>';
-
-                html+='<div id="collapseCit'+value.id+'" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionCitados">';
-                    html+='<div class="card-body">';
-                        html+='<div >';
-                            html+='<div>';
-                                if(value.curp){
-                                    html+='<div>';
-                                        html+='<label><b>CURP:</b>'+value.curp+'</label>';
-                                    html+='</div>';
-                                }
-                                if(value.rfc){
-                                    html+='<div>';
-                                        html+='<label><b>RFC:</b>'+value.rfc+'</label>';
-                                    html+='</div>';
-                                }
-                                html+='<div>';
-                                html+="<b>Direccion:</b><br> &nbsp;&nbsp;&nbsp;&nbsp;"+value.domicilios[0].tipo_vialidad+" "+value.domicilios[0].vialidad+", "+value.domicilios[0].asentamiento+", "+value.domicilios[0].municipio+", "+value.domicilios[0].estado.toUpperCase();
-                                html+='</div>';
-                                html+='<div>';
-                                    html+='<label><b>Contactos:</b></label>';
-                                    html+='<ul>';
-                                    $.each(value.contactos,function(indice, contacto){
-                                        html+="<li>"+contacto.contacto+"</li>";
-                                    });
-                                    html+='</ul>';
-                                html+='</div>';
-                            html+='</div>';
-                        html+='</div>';
-                    html+='</div>';
-                html+='</div>';
-            html+='</div>';
-        });
-        html += '</div>';
-        return html;
-    }
+    
     $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
     $("#fileIdentificacion").change(function(e){
         $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");

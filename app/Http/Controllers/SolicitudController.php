@@ -469,6 +469,98 @@ class SolicitudController extends Controller {
             $parte->domicilios = $parte->domicilios()->first();
 //            dd($parte);
             $partes[$key] = $parte;
+        }
+        
+        $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ?$solicitud->tipo_solicitud_id : 1;
+        if($tipo_solicitud_id == 1){
+            $tipo_objeto_solicitudes_id = 1;
+        }else if($tipo_solicitud_id == 2){
+            $tipo_objeto_solicitudes_id = 2;
+        }else{
+            $tipo_objeto_solicitudes_id = 3;
+
+        }
+        $objeto_solicitudes = array_pluck(ObjetoSolicitud::where('tipo_objeto_solicitudes_id',$tipo_objeto_solicitudes_id)->get(),'nombre','id');
+        $estatus_solicitudes = $this->cacheModel('estatus_solicitudes', EstatusSolicitud::class);
+        $giros_comerciales = $this->cacheModel('giros_comerciales', GiroComercial::class);
+        $tipos_vialidades = $this->cacheModel('tipos_vialidades', TipoVialidad::class);
+        $tipos_asentamientos = $this->cacheModel('tipos_asentamientos', TipoAsentamiento::class);
+        $estados = $this->cacheModel('estados', Estado::class);
+        $jornadas = $this->cacheModel('jornadas', Jornada::class);
+        $generos = $this->cacheModel('generos', Genero::class);
+        $nacionalidades = $this->cacheModel('nacionalidades', Nacionalidad::class);
+        $ocupaciones = $this->cacheModel('ocupaciones', Ocupacion::class);
+        $grupo_prioritario = $this->cacheModel('grupo_prioritario', GrupoPrioritario::class);
+        $lengua_indigena = $this->cacheModel('lengua_indigena', LenguaIndigena::class);
+        $tipo_contacto = $this->cacheModel('tipo_contacto', TipoContacto::class);
+        $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
+        $audits = $this->getAcciones($solicitud, $solicitud->partes, $audiencias,$expediente);
+        $municipios = array_pluck(Municipio::all(),'municipio','id');
+        $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
+        $clasificacion_archivo = ClasificacionArchivo::all();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        
+        // dd(Conciliador::all()->persona->full_name());
+        $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
+        // dd($conciliador);
+        // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
+
+        // consulta de documentos
+        
+        
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante'));
+    }
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  Solicitud  $solicitud
+     * @return \Illuminate\Http\Response
+     */
+    public function consulta($id) {
+        $doc= [];
+        
+        //Consulta de solicitud con relaciones
+        $solicitud = Solicitud::find($id);
+        $parte = Parte::all()->where('solicitud_id', $solicitud->id);
+
+        $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
+
+        $solicitantes = $partes->where('tipo_parte_id', 1);
+
+        foreach ($solicitantes as $key => $value) {
+            $value->dato_laboral;
+            $value->domicilios;
+            $value->contactos;
+            $solicitantes[$key]["activo"] = 1;
+        }
+        $solicitados = $partes->where('tipo_parte_id', 2);
+        foreach ($solicitados as $key => $value) {
+            $value->domicilios;
+            $value->contactos;
+            $solicitados[$key]["activo"] = 1;
+        }
+        $solicitud->objeto_solicitudes;
+        $solicitud["solicitados"] = $solicitados;
+        $solicitud["solicitantes"] = $solicitantes;
+        $solicitud->expediente = $solicitud->expediente;
+        $solicitud->giroComercial = $solicitud->giroComercial;
+        if($solicitud->giroComercial){
+            $solicitud->giroComercial->ambito;
+        }
+        //Consulta de solicitud con relaciones
+
+        $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
+        if (count($expediente) > 0) {
+            $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->get();
+        } else {
+            $audiencias = array();
+        }
+        $partes = array();
+        foreach($solicitud->partes as $key => $parte){
+            $parte->tipoParte = $parte->tipoParte;
+            $parte->domicilios = $parte->domicilios()->first();
+//            dd($parte);
+            $partes[$key] = $parte;
             $documentos = $parte->documentos;
             foreach ($documentos as $documento) {
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
@@ -539,7 +631,7 @@ class SolicitudController extends Controller {
 
         $documentos = $doc;
         //termina consulta de documentos
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante','documentos'));
+        return view('expediente.solicitudes.consultar', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante','documentos'));
     }
 
     /**
@@ -577,7 +669,7 @@ class SolicitudController extends Controller {
         ]);
         $solicitud = $request->input('solicitud');
         DB::beginTransaction();
-        try {
+        // try {
             // Solicitud
             $solicitud['user_id'] = Auth::user()->id;
             $solicitudUp = Solicitud::find($solicitud['id']);
@@ -743,14 +835,14 @@ class SolicitudController extends Controller {
                 $solicitudSaved->loadDataFromRequest();
             });
             DB::commit();
-        } catch (\Throwable $e) {
-            DB::rollback();
-            if ($this->request->wantsJson()) {
+        // } catch (\Throwable $e) {
+        //     DB::rollback();
+        //     if ($this->request->wantsJson()) {
 
-                return $this->sendError('Error'.$e->getMessage());
-            }
-            return redirect('solicitudes')->with('error', 'Error al crear la solicitud');
-        }
+        //         return $this->sendError('Error'.$e->getMessage());
+        //     }
+        //     return redirect('solicitudes')->with('error', 'Error al crear la solicitud');
+        // }
         if ($this->request->wantsJson()) {
             return $this->sendResponse($solicitudSaved, 'SUCCESS');
         }

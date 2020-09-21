@@ -40,30 +40,6 @@
 @else
     <input type="hidden" id="externo" value="1">
 @endif
-<ul class="nav nav-tabs">
-    <li class="nav-item">
-        <a href="#default-tab-1" data-toggle="tab" class="nav-link active">
-            <span class="d-sm-none">Sol</span>
-            <span class="d-sm-block d-none">Solicitud</span>
-        </a>
-    </li>
-    @if (isset($audiencias))
-        <li class="nav-item">
-            <a href="#default-tab-2" data-toggle="tab" class="nav-link">
-                <span class="d-sm-none">Aud</span>
-                <span class="d-sm-block d-none">Audiencia</span>
-            </a>
-        </li>
-    @endif
-    @if(isset($documentos))
-        <li class="nav-item">
-            <a href="#default-tab-3" data-toggle="tab" class="nav-link">
-                <span class="d-sm-none">Doc</span>
-                <span class="d-sm-block d-none">Documentos</span>
-            </a>
-        </li>
-    @endif
-</ul>
 <div class="tab-content" style="background: #f2f3f4 !important;">
 <div class="tab-pane fade active show" id="default-tab-1">
     <div id="wizard" class="col-md-12" >
@@ -372,7 +348,7 @@
                                         <div class="col-md-6" >
                                             {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                             {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                                            <p class="help-block ">&iquest;En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoja del catálogo. Si no, deja vacío.</p>
+                                            <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoge del catálogo. Si no, d&eacute;jalo vac&iacute;o.</p>
                                         </div>
                                         {{-- <div class="col-md-4">
                                             <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
@@ -1092,31 +1068,7 @@
         <!-- end wizard-content -->
     </div>
 </div>
-<div class="tab-pane fade row"  id="default-tab-2">
-    <div class="content">
-        @if (isset($audiencias))
-                
-            @if(Count($audiencias) > 0)
-                <div class="panel panel-default">
-                    <div class="col-md-12">
-                        <div class="panel-body">
-                        @include('expediente.audiencias._list',$audiencias)
-                        </div>
-                    </div>
-                </div>
-            @else
-                @include('expediente.audiencias.calendarioWizard',$partes)
-            @endif
-            @else
-            <div> <h1> Audiencia disponible despues de ratificaci&oacute;n </h1> </div>
-        @endif
-    </div>
-</div>
-<div class="tab-pane fade row" id="default-tab-3">
-    @if(isset($documentos))
-        @include('expediente.expediente.documentos',$documentos)
-    @endif
-</div>
+
 <!-- end wizard -->
 
 <!-- inicio Modal Domicilio-->

@@ -52,6 +52,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('disponibilidad','DisponibilidadController');
     Route::resource('incidencia','IncidenciaController');
     Route::resource('solicitudes','SolicitudController');
+    Route::get('solicitudes/consulta/{id}','SolicitudController@consulta')->name('solicitudes.consulta');
     Route::POST('solicitud/ratificar','SolicitudController@Ratificar');
     Route::POST('solicitud/excepcion','SolicitudController@ExcepcionConciliacion');
     Route::Get('solicitud/correos/{solicitud_id}','SolicitudController@validarCorreos');
@@ -78,7 +79,8 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('audiencia/comparecientes/{audiencia_id}','AudienciaController@getComparecientes');
     Route::Get('audiencia/negarCancelacion/{audiencia_id}','AudienciaController@negarCancelacion');
     Route::Get('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
-    Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia');
+    Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');;
+    // Route::get('resolucionUnica/{id}','AudienciaController@resolucionUnica');
     Route::get('calendario','AudienciaController@calendario');
     Route::get('getAudienciaConciliador','AudienciaController@GetAudienciaConciliador');
     Route::get('agendaConciliador','AudienciaController@AgendaConciliador');

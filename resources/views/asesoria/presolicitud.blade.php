@@ -42,7 +42,7 @@
             <div class="col-md-6" >
                 {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Selecciona una opción', 'class' => 'form-control catSelect']);  !!}
                 {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoge del catálogo. Si no, déjalo vacío.</p>
+                <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoge del catálogo. Si no, d&eacute;jalo vac&iacute;o.</p>
             </div>
         </div>
         <div class="col-md-12 row">
