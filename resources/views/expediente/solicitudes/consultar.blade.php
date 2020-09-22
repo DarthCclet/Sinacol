@@ -525,7 +525,9 @@
                                 html+='<div class="col-md-12 row">';
                                     html+='<label class="col-md-12"><b>Datos Laborales</b></label><br>';
                                     html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Puesto:</b>'+value.dato_laboral.puesto+'</label><br>';
-                                    html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;N&uacute;mero de seguro social:</b>'+value.dato_laboral.nss+'</label><br>';
+                                    if(value.dato_laboral.nss){
+                                        html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;N&uacute;mero de seguro social:</b>'+(value.dato_laboral.nss|| "")+'</label><br>';
+                                    }
                                     html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Ingreso:</b>'+dateFormat(value.dato_laboral.fecha_ingreso,4)+'</label><br>';
                                     if(!value.dato_laboral.labora_actualmente){
                                         html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Salida:</b>'+dateFormat(value.dato_laboral.fecha_salida,4)+'</label><br>';

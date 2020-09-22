@@ -45,30 +45,35 @@
     <div id="wizard" class="col-md-12" >
         <!-- begin wizard-step -->
         <ul class="wizard-steps">
-            <li>
+            <li >
                 <a id="paso1" href="#step-1">
-                    <span class="">
-                        Solicitante
-                        <small>Información del solicitante</small>
+                    <span style="font-size:large;" class="">
+                        Solicitud
                     </span>
                 </a>
             </li>
             <li>
                 <a id="paso2" href="#step-2">
-                    <span class="">
-                        Citado
-                        <small>Información del citado</small>
+                    <span style="font-size:large;" class="">
+                        Solicitante
                     </span>
                 </a>
             </li>
-            <li >
+            <li>
                 <a id="paso3" href="#step-3">
-                    <span class="">
-                        Solicitud
-                        <small>Información de la solicitud</small>
+                    <span style="font-size:large;" class="">
+                        Citado
                     </span>
                 </a>
             </li>
+            <li>
+                <a id="paso4" href="#step-4">
+                    <span style="font-size:large;" class="">
+                        Revisi&oacute;n
+                    </span>
+                </a>
+            </li>
+            
         
 
             <!-- El paso 5 Es para asignar Audiencias -->
@@ -106,6 +111,7 @@
         <!-- end wizard-step -->
         <!-- begin wizard-content -->
         <div>
+
             <!-- begin step-1 -->
             <div id="step-1" data-parsley-validate="true">
                 <!-- begin fieldset -->
@@ -158,7 +164,25 @@
                             {!! Form::select('giro_comercial_hidden', isset($giros_comerciales) ? $giros_comerciales : [] , null, ['id'=>'giro_comercial_hidden','placeholder' => 'Seleccione una opción','style'=>'display:none;']);  !!}
 
                         </div>
+                    </div>
+                    <button class="btn btn-primary" style="float: right; margin-top: 2%;" type="button" onclick="validarSolicitud()" > <i class="fa fa-arrow-right"></i> Validar y Continuar</button>
+                    
+                    <!-- end row -->
+                </fieldset>
+                <!-- end fieldset -->
+            </div>
+            <!-- end step-1 -->
+            <!-- begin step-2 -->
+            <div id="step-2" data-parsley-validate="true">
+                <!-- begin fieldset -->
+                <fieldset>
+                    <!-- begin row -->
+                    <div class="row" id="form">
+
                         <div class="col-xl-10 offset-xl-1">
+                            <div id="divCancelarSolicitante" style="display: none;">
+                                <button style="float: right;" class="btn btn-primary" onclick="$('#wizard').smartWizard('goToStep', 3);limpiarSolicitante();" type="button" > Cancelar agregar solicitante <i class="fa fa-times"></i></button>
+                            </div>
                             <div>
                                 <center><h1>Solicitante <span id="labelTipoSolicitante"></span></h1></center>
                                 <div id="editandoSolicitante"></div>
@@ -256,7 +280,6 @@
                                                 <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
                                             </div>
                                             <div >
-                                                <input type="hidden" />
                                                 <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitante" name='solicita_traductor_solicitante'/>
                                             </div>
                                         </div>
@@ -412,19 +435,22 @@
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-primary" style="float: right; margin-top: 2%;" type="button" onclick="$('#wizard').smartWizard('goToStep', 2);" > <i class="fa fa-arrow-right"></i> Continuar a solicitud</button>
+                    
                     <!-- end row -->
                 </fieldset>
                 <!-- end fieldset -->
             </div>
-            <!-- end step-1 -->
-            <!-- begin step-2 -->
-            <div id="step-2" data-parsley-validate="true">
+            <!-- end step-2 -->
+            <!-- begin step-3 -->
+            <div id="step-3" data-parsley-validate="true">
                 <!-- begin fieldset -->
                 <fieldset>
                     <!-- begin row -->
                     <div class="row">
                         <div class="col-xl-10 offset-xl-1">
+                            <div id="divCancelarCitado" style="display: none;">
+                                <button style="float: right;" class="btn btn-primary" onclick="$('#wizard').smartWizard('goToStep', 3);limpiarSolicitado();" type="button" > Cancelar agregar citado <i class="fa fa-times"></i></button>
+                            </div>
                             <div>
                                 <center><h1>Citado</h1></center>
                                 <div id="editandoSolicitado"></div>
@@ -574,7 +600,6 @@
                                                 <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
                                             </div>
                                             <div >
-                                                <input type="hidden" />
                                                 <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitado" name='solicita_traductor_solicitado'/>
                                             </div>
                                         </div>
@@ -666,15 +691,14 @@
                                 </div>
 
                             </div>
-                            <button class="btn btn-primary" style="float: right; margin-top: 2%;" type="button" onclick="$('#wizard').smartWizard('goToStep', 2);" > <i class="fa fa-arrow-right"></i> Continuar a solicitud</button>
                         </div>
                     </div>
                     <!-- end row -->
                 </fieldset>
                 <!-- end fieldset -->
             </div>
-            <!-- begin step-3 -->
-            <div id="step-3" data-parsley-validate="true">
+            <!-- begin step-4 -->
+            <div id="step-4" data-parsley-validate="true">
                 <div class="row">
                     <div class="col-xl-10 offset-xl-1">
                         <center>  <h1>Solicitud</h1></center>
@@ -714,7 +738,7 @@
                                 </table>
                             </div>
                             <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
-                            <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
+                            <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
                             <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                                 <table class="table table-bordered" >
                                     <thead>
@@ -729,7 +753,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1);"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
+                            <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
                             <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                                 <table class="table table-bordered" >
                                     <thead>
@@ -761,309 +785,15 @@
                         <button class="btn btn-primary btn-sm m-l-5" id="btnRatificarSolicitud"><i class="fa fa-check"></i> Ratificar Solicitud</button>
                     </div>
                 @endif --}}
-                <div class="col-md-12" id="btnGuardar">
-                    <button style="float: right;" class="btn btn-primary pull-right btn-lg m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save" ></i> Guardar</button>
-                </div>
-                <div class="col-md-12" id="btnGetAcuse" style="display: none;">
-                    <a id="btnAcuse" href="/api/documentos/getFile/" style="padding: 1% 2% 1% 2%; font-size: large;" class="btn btn-primary pull-right btn-lg m-l-5" target="_blank"><i class="fa fa-file" ></i> Descargar Acuse</a>
-                </div>
-
-            </div>
-            </div>
-            <!-- end step-3 -->
-            <!-- begin step-4 -->
-            {{-- <div id="step-4">
-                <div class="row">
-                    @if (isset($audiencias))
-                    <div id="divGruposPrioritarios" class="col-md-12" >
-                        <div class="col-md-12" style="text-align: center;">
-                            <h1 >Excepci&oacute;n a la conciliaci&oacute;n</h1>
-                        </div>
-                        <div class="col-md-12" style="margin-top: 2%;">
-                            <div class="solicitudTerminada">
-                                <form action="/solicitud/excepcion" id="excepcionForm" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    <input type="hidden" name="solicitud_id_excepcion" id="solicitud_id_excepcion">
-                                    <div class="col-md-5">
-                                        {!! Form::select('conciliador_excepcion_id', isset($conciliadores) ? $conciliadores : [] , null, ['id'=>'conciliador_excepcion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                        {!! $errors->first('conciliador_excepcion_id', '<span class=text-danger>:message</span>') !!}
-                                        <p class="help-block needed">Conciliador</p>
-                                    </div>
-                                    <table class="table ">
-                                        <thead>
-                                            <tr>
-                                                <th>Solicitante</th>
-                                                <th>Grupo Vulnerable</th>
-                                                <th>Acci&oacute;n</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="tbodyGruposPrioritarios">
-
-                                        </tbody>
-                                    </table>
-                                    <button class="btn btn-primary " >Excepci&oacute;n de Audiencia</button>
-                                </form>
-                            </div>
-                        </div>
+                    <div class="col-md-12" id="btnGuardar">
+                        <button style="float: right;" class="btn btn-primary pull-right btn-lg m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save" ></i> Guardar</button>
                     </div>
-                    @endif
-
-                </div>
-            </div> --}}
-            <!-- end step-4 -->
-            <!-- begin step-5 -->
-            {{-- <div id="step-5">
-                @if (isset($audiencias))
-                <div class="row">
-                    <div class="col-md-12">
-                        @if(Count($audiencias) > 0)
-                            @include('expediente.audiencias._list',$audiencias)
-                        @else
-                            @include('expediente.audiencias.calendarioWizard',$partes)
-                        @endif
+                    <div class="col-md-12" id="btnGetAcuse" style="display: none;">
+                        <a id="btnAcuse" href="/api/documentos/getFile/" style="padding: 1% 2% 1% 2%; font-size: large;" class="btn btn-primary pull-right btn-lg m-l-5" target="_blank"><i class="fa fa-file" ></i> Descargar Acuse</a>
                     </div>
+
                 </div>
-                @else
-                <div> <h1> Audiencia disponible despues de ratificaci&oacute;n </h1> </div>
-                @endif
-
-            </div> --}}
-            <!-- end step-5 -->
-            <!-- begin step-6 -->
-            {{-- <div id="step-6">
-                <ul class="timeline">
-                    @if(isset($audits))
-                        @foreach($audits as $audit)
-                            <li>
-                                <!-- begin timeline-time -->
-                                <div class="timeline-time">
-                                    <span >{{\Carbon\Carbon::parse($audit["created_at"])->diffForHumans()}}</span>
-                                    <!--<span >04:20</span>-->
-                                </div>
-                                <!-- end timeline-time -->
-                                <!-- begin timeline-icon -->
-                                <div class="timeline-icon">
-                                    <a href="javascript:;">&nbsp;</a>
-                                </div>
-                                <!-- end timeline-icon -->
-                                <!-- begin timeline-body -->
-                                <div class="timeline-body">
-                                    <div class="timeline-header">
-                                        <span class="userimage"><i class="fa fa-user fa-x3"></i></span>
-                                        <span class="username">
-                                            <a href="javascript:;">{{$audit["user"]}}</a>
-                                            <small></small>
-                                        </span>
-                                    </div>
-                                    <div class="timeline-content">
-                                        @if($audit["elemento"] == 'Solicitud')
-                                            @if($audit["event"] == "Modificación")
-                                                <p>Se realizaron los siguientes cambios a la solicitud</p>
-                                                <p>
-                                                    @foreach($audit["cambios"] as $key => $value)
-                                                        {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
-                                                    @endforeach
-                                                </p>
-                                            @elseif($audit["event"] == "Inserción")
-                                                <p>Se creó la solicitud</p>
-                                            @endif
-                                        @elseif($audit["elemento"] == 'Parte')
-                                            @if($audit["event"] == "Modificación")
-                                                <p>Se realizaron los siguientes cambios a {{$audit["extra"]}}</p>
-                                                <p>
-                                                    @foreach($audit["cambios"] as $key => $value)
-                                                        {{$key}} cambio de valor de <b>{{isset($value["old"]) ? $value["old"]:""}}</b> a {{isset($value["new"])?$value["new"]:""}}<br>
-                                                    @endforeach
-                                                </p>
-                                            @elseif($audit["event"] == "Inserción")
-                                                <p>Se creó la parte {{$audit["extra"]}}</p>
-                                            @endif
-                                        @elseif($audit["elemento"] == 'Expediente')
-                                            @if($audit["event"] == "Modificación")
-                                                <p>Se realizaron los siguientes cambios al expediente {{$audit["extra"]}}</p>
-                                                <p>
-                                                    @foreach($audit["cambios"] as $key => $value)
-                                                        {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
-                                                    @endforeach
-                                                </p>
-                                            @elseif($audit["event"] == "Inserción")
-                                                <p>Se ratificó la solicitud y se creo el expediente {{$audit["extra"]}}</p>
-                                            @endif
-                                        @elseif($audit["elemento"] == 'Audiencia')
-                                            @if($audit["event"] == "Modificación")
-                                                <p>Se realizaron los siguientes cambios a la audiencia {{$audit["extra"]}}</p>
-                                                <p>
-                                                    @foreach($audit["cambios"] as $key => $value)
-                                                        {{$key}} cambio de valor de {{$value["old"]}} a {{$value["new"]}}<br>
-                                                    @endforeach
-                                                </p>
-                                            @elseif($audit["event"] == "Inserción")
-                                                <p>Se creó la audiencia {{$audit["extra"]}}</p>
-                                                <p>
-                                                    @foreach($audit["cambios"] as $key => $value)
-                                                        @if($key == "fecha_audiencia")
-                                                            Fecha: {{\Carbon\Carbon::parse($value["new"])->isoFormat('LL')}}<br>
-                                                        @elseif($key == "hora_inicio")
-                                                            Hora de inicio: {{\Carbon\Carbon::parse($value["new"])->format('h:i:s')}}<br>
-                                                        @elseif($key == "hora_fin")
-                                                            Hora de termino: {{\Carbon\Carbon::parse($value["new"])->format('h:i:s')}}<br>
-                                                        @endif
-                                                    @endforeach
-                                                </p>
-                                            @endif
-                                        @endif
-                                    </div>
-                                </div>
-                                <!-- end timeline-body -->
-                            </li>
-                        @endforeach
-                    @endif
-                </ul>
-            </div> --}}
-            <!-- end step-6 -->
-            <!-- begin step-7 -->
-            {{-- <div id="step-7">
-
-                <div class="text-right">
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
-                </div>
-                <div class="col-md-12">
-                    <div id="gallery" class="gallery row"></div>
-                    <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
-                </div>
-
-                <!-- The template to display files available for upload -->
-                <script id="template-upload" type="text/x-tmpl">
-                    @if(isset($solicitud))
-                    {% for (var i=0, file; file=o.files[i]; i++) { %}
-                        <tr class="template-upload fade show">
-                            <td>
-                                <span class="preview"></span>
-                            </td>
-                            <td>
-                                <div class="bg-light rounded p-10 mb-2">
-                                    <dl class="m-b-0">
-                                        <dt class="text-inverse">Nombre del documento:</dt>
-                                        <dd class="name">{%=file.name%}</dd>
-                                        <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>
-                                        <dd class="size">Processing...</dd>
-                                    </dl>
-                                </div>
-                                <strong class="error text-danger h-auto d-block text-left"></strong>
-                            </td>
-                            <td>
-                                <select class="form-control catSelectFile" name="tipo_documento_id[]">
-                                    <option value="">Seleccione una opci&oacute;n</option>
-                                    @if(isset($clasificacion_archivo))
-                                        @foreach($clasificacion_archivo as $clasificacion)
-                                            @if($clasificacion->tipo_archivo_id == 1)
-                                            <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                </select>
-                            </td>
-                            <td>
-                                <select class="form-control catSelectFile parteClass" name="parte[]">
-                                    <option value="">Seleccione una opci&oacute;n</option>
-                                    @if(isset($solicitud))
-                                        @foreach($solicitud->partes as $parte)
-                                            @if(($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 3) && $parte->tipo_persona_id == 1 )
-                                                <option value="{{$parte->id}}">{{$parte->nombre_comercial}}{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</option>
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                </select>
-                            </td>
-                            <td>
-                                <dl>
-                                    <dt class="text-inverse m-t-3">Progress:</dt>
-                                    <dd class="m-t-5">
-                                        <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>
-                                    </dd>
-                                </dl>
-                            </td>
-                            <td nowrap>
-                                {% if (!i && !o.options.autoUpload) { %}
-                                    <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>
-                                        <i class="fa fa-upload fa-fw text-inverse"></i>
-                                        <span>Guardar</span>
-                                    </button>
-                                {% } %}
-                            </td>
-                            <td nowrap>
-                                {% if (!i) { %}
-                                    <button class="btn btn-default cancel width-100 p-r-20">
-                                        <i class="fa fa-trash fa-fw text-muted"></i>
-                                        <span>Cancelar</span>
-                                    </button>
-                                {% } %}
-                            </td>
-                        </tr>
-                    {% } %}
-                    @endif
-                </script>
-                <!-- The template to display files available for download -->
-                <script id="template-download" type="text/x-tmpl">
-                    @if(isset($solicitud))
-                    {% for (var i=0, file; file=o.files[i]; i++) { %}
-                        <tr class="template-download fade show">
-                            <td width="1%">
-                                <span class="preview">
-                                    {% if (file.thumbnailUrl) { %}
-                                        <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}" class="rounded"></a>
-                                    {% } else { %}
-                                        <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
-                                            <i class="fa fa-file-image fa-lg text-muted"></i>
-                                        </div>
-                                    {% } %}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="bg-light p-10 mb-2">
-                                    <dl class="m-b-0">
-                                        <dt class="text-inverse">Nombre del archivo:</dt>
-                                        <dd class="name">
-                                            {% if (file.url) { %}
-                                                <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
-                                            {% } else { %}
-                                                <span>{%=file.name%}</span>
-                                            {% } %}
-                                        </dd>
-                                        <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>
-                                        <dd class="size">{%=o.formatFileSize(file.size)%}</dd>
-                                    </dl>
-                                    {% if (file.error) { %}
-                                        <div><span class="label label-danger">ERROR</span> {%=file.error%}</div>
-                                    {% } %}
-                                    {% if (file.success) { %}
-                                        <div><span class="label label-success">Correcto</span> {%=file.success%}</div>
-                                    {% } %}
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                {% if (file.deleteUrl) { %}
-                                    <button class="btn btn-danger delete width-100 m-r-3 p-r-20" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
-                                        <i class="fa fa-trash pull-left fa-fw text-inverse m-t-2"></i>
-                                        <span>Delete</span>
-                                    </button>
-                                    <input type="checkbox" name="delete" value="1" class="toggle">
-                                {% } else { %}
-                                    <button class="btn btn-default cancel width-100 m-r-3 p-r-20">
-                                        <i class="fa fa-trash pull-left fa-fw text-muted m-t-2"></i>
-                                        <span>Cancelar</span>
-                                    </button>
-                                {% } %}
-                            </td>
-                        </tr>
-                    {% } %}
-                    @endif
-                </script>
-
-            </div> --}}
-            <!-- end step-7 -->
+            </div>
         </div>
         <!-- end wizard-content -->
     </div>
@@ -1224,6 +954,9 @@
     var arrayContactoSolicitados = []; // Array de objeto_solicitude para el citado
     // var arraySolicitanteExcepcion = {}; // Array de solicitante excepción
     var ratifican = false;; // Array de solicitante excepción
+    var editSolicitud = false; //Lista de citados
+    var editCitado = false; //Lista de citados
+    var editSolicitante = false; //Lista de citados
     var listaContactos=[];
 
     $(document).ready(function() {
@@ -1247,18 +980,13 @@
             $(".estatusSolicitud").show();
             $(".showEdit").show();
             var solicitud='{{ $solicitud->id ?? ""}}';
+            editSolicitud = true; 
+            editCitado = true; 
+            editSolicitante = true;
             // FormMultipleUpload.init();
             // Gallery.init();
         }else{
             $(".showEdit").hide();
-            // $(".step-4").hide();
-            // $(".step-5").hide();
-            // $(".step-6").hide();
-            // $(".step-7").hide();
-            // $('#wizard').smartWizard("stepState", [4], "hide");
-            // $('#wizard').smartWizard("stepState", [5], "hide");
-            // $('#wizard').smartWizard("stepState", [6], "hide");
-            // $('#wizard').smartWizard("stepState", [7], "hide");
             $(".estatusSolicitud").hide();
         }
         $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
@@ -1275,7 +1003,7 @@
             try{
                 //Informacion de solicitante
                 var key = $("#edit_key").val();
-                if($('#step-1').parsley().validate()){
+                if($('#step-2').parsley().validate()){
 
                     var solicitante = {};
                     solicitante.id = $("#solicitante_id").val();
@@ -1352,8 +1080,14 @@
                     $('#divDatoLaboralSolicitante').hide();
                     $('#divBotonesSolicitante').hide();
                     $(".pasoSolicitante").show();
+                    $("#divCancelarCitado").hide();
+                    if(editCitado){
+                        var btnText = "Continuar a Revisión";
+                    }else{
+                        var btnText = "Capturar Citado(s)";
+                    }
                     swal({
-                        title: '¿Quieres seguir capturando solicitante(s) o proceder a capturar citado(s)?',
+                        title: '¿Quieres seguir capturando solicitante(s) o proceder a '+btnText+'?',
                         text: '',
                         icon: '',
                         buttons: {
@@ -1365,7 +1099,7 @@
                                 closeModal: true,
                             },
                             confirm: {
-                                text: 'Capturar Citado(s)',
+                                text: btnText,
                                 value: true,
                                 visible: true,
                                 className: 'btn btn-primary',
@@ -1374,11 +1108,16 @@
                         }
                     }).then(function(isConfirm){
                         if(isConfirm){
-                            
-                            $('#wizard').smartWizard('goToStep', 1);
+                            if(!editCitado){
+                                editCitado = true;
+                                $('#wizard').smartWizard('goToStep', 2);
+                            }else{
+                                $('#wizard').smartWizard('goToStep', 3);
+                            }
                         }else{
                         }
                     });
+
                 }else{
                     swal({
                         title: 'Error',
@@ -1397,7 +1136,7 @@
         */
         $("#agregarSolicitado").click(function(){
             try{
-                if($('#step-2').parsley().validate()  ){
+                if($('#step-3').parsley().validate()  ){
                     agregarDomicilio();
                     if(arrayDomiciliosSolicitado.length > 0 ){
 
@@ -1443,6 +1182,7 @@
                         $('#divBotonesSolicitado').hide();
                         $("#tipo_persona_fisica_solicitado").click().trigger('change');
                         $(".pasoSolicitado").show();
+                        $("#divCancelarSolicitante").hide();
                         swal({
                             title: '¿Quieres seguir capturando citados?',
                             text: '',
@@ -1465,8 +1205,12 @@
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
-                                
-                                $('#wizard').smartWizard('goToStep', 2);
+                                if(!editCitado){
+                                    editCitado = true;
+                                    $('#wizard').smartWizard('goToStep', 3);
+                                }else{
+                                    $('#wizard').smartWizard('goToStep', 3);
+                                }
                             }else{
                             }
                         });
@@ -1563,6 +1307,9 @@
             $("#solicitud_id_excepcion").val(solicitud);
             // cargarDocumentos();
             getSolicitudFromBD(solicitud);
+            editSolicitud = true; 
+            editCitado = true; 
+            editSolicitante = true;
         }else{
             if(localStorage.getItem("datos_laborales")){
                 var datos_laborales_storage = localStorage.getItem("datos_laborales");
@@ -1723,26 +1470,12 @@
                     // }) ;
                     // console.log(excepcion);
                     // $(".step-6").show();
-                    $('#wizard').smartWizard("stepState", [5], "show");
                     if(data.ratificada){
                         $("#btnRatificarSolicitud").hide();
                         $("#expediente_id").val(data.expediente.id);
-                        $(".step-5").show();
-                        $('#wizard').smartWizard("stepState", [4], "show");
                         expedientee = true;
                         expediente_id = data.expediente.id;
-                        // if(excepcion){
-                        //     $(".step-4").show();
-                        //     $('#wizard').smartWizard("stepState", [3], "show");
-                        // }else{
-                        $(".step-4").hide();
-                        $('#wizard').smartWizard("stepState", [3], "hide");
-                        // }
                     }else{
-                        $('#wizard').smartWizard("stepState", [3], "hide");
-                        $('#wizard').smartWizard("stepState", [4], "hide");
-                        $(".step-5").hide();
-                        $(".step-4").hide();
                         $("#btnRatificarSolicitud").show();
                         $("#expediente_id").val("");
                     }
@@ -1800,19 +1533,15 @@
             $("#solicita_traductor_solicitante").trigger('click');
         }
         $("#agregarSolicitante").html('<i class="fa fa-plus-circle"></i> Agregar solicitante');
-        // getGironivel("",1,"girosNivel1solicitante");
-        $("#giro_comercial_solicitante").val("").trigger("change");
-        // $("#girosNivel1solicitante").trigger("change");
-        $("#giro_solicitante").html("");
-        $("#giro_solicitanteSol").html("");
         $("input[name='tipo_persona_solicitante']").trigger("change")
         arrayContactoSolicitantes = [];
         formarTablaContacto(true);
         $('.catSelect').trigger('change');
         domicilioObj.limpiarDomicilios();
-        $('#step-1').parsley().reset();
+        $('#step-2').parsley().reset();
         $("#editandoSolicitante").html("");
         $("#botonAgregarSolicitante").show();
+        $('#divCancelarSolicitante').hide()
     }
 
 
@@ -1849,9 +1578,10 @@
             formarTablaContacto();
             $('.catSelect').trigger('change');
             domicilioObj2.limpiarDomicilios();
-            $('#step-2').parsley().reset();
+            $('#step-3').parsley().reset();
             $("#editandoSolicitado").html("");
             $("#botonAgregarSolicitado").show();
+            $('#divCancelarCitado').hide()
         }
 
     function agregarContactoSolicitante(){
@@ -2186,7 +1916,7 @@
         $('#divContactoSolicitante').show();
         $('#divMapaSolicitante').show();
         $('#divBotonesSolicitante').show();
-        $('#wizard').smartWizard('goToStep', 0);
+        $('#wizard').smartWizard('goToStep', 1);
         $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Validar y Editar solicitante');
         $("#edit_key").val(key);
         $("#solicitante_id").val(arraySolicitantes[key].id);
@@ -2217,7 +1947,6 @@
             $(".personaMoralSolicitante").hide();
             $(".personaFisicaSolicitante").show();
         }else{
-            alert();
             $("#editandoSolicitante").html("<center><h3>Editando a "+ arraySolicitantes[key].nombre_comercial+ "</h3></center>");
             $(".personaMoralSolicitante").show();
             $(".personaFisicaSolicitante").hide();
@@ -2232,7 +1961,6 @@
             }
             $("#dato_laboral_id").val(arraySolicitantes[key].dato_laboral.id);
             $('#divDatoLaboralSolicitante').show();
-            // $("#giro_comercial_solicitante").val(arraySolicitantes[key].dato_laboral.giro_comercial_id).trigger("change");
             // getGiroEditar("solicitante");
             $("#ocupacion_id").val(arraySolicitantes[key].dato_laboral.ocupacion_id);
             $("#puesto").val(arraySolicitantes[key].dato_laboral.puesto);
@@ -2267,7 +1995,7 @@
         $('#divContactoSolicitado').show();
         $('#divMapaSolicitado').show();
         $('#divBotonesSolicitado').show();
-        $('#wizard').smartWizard('goToStep', 1);
+        $('#wizard').smartWizard('goToStep', 2);
         $("#agregarSolicitado").html('<i class="fa fa-edit"></i> Editar citado');
         $("#solicitado_key").val(key);
         $("#solicitado_id").val(arraySolicitados[key].id);
@@ -2410,7 +2138,7 @@
             //funcion para obtener informacion de la excepcion
             var excepcion = getExcepcion();
             //Se llama api para guardar solicitud
-            if($('#step-3').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 ){
+            if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 ){
 
                 var upd = "";
                 if($("#solicitud_id").val() == ""){
@@ -2592,7 +2320,8 @@
                 if(data.ambito_id != 1){
                     $("#modal-giro").modal("show");
                 }
-                
+                $("#giro_solicitanteSol").html("<b> *"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre);
+                $("#giro_comercial_hidden").val(data.id);
                 return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
             }
             return data.text;
@@ -2822,6 +2551,19 @@
             dividerValue = 3;
         }
         return dividerValue;
+    }
+
+    function validarSolicitud() {
+        if($('#fechaConflicto').val() != '' && $('#giro_comercial_hidden').val() != '' && arrayObjetoSolicitudes.length > 0){
+            if(!editSolicitud){
+                editSolicitud = true;
+                $('#wizard').smartWizard('goToStep', 1);
+            }else{
+                $('#wizard').smartWizard('goToStep', 3);
+            }
+        }else{
+            swal({title: 'Error',text: 'Es necesario llenar todos los campos para continuar',icon: 'error',});º
+        }
     }
     
     

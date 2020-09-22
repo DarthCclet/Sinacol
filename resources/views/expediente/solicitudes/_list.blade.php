@@ -737,7 +737,7 @@
                     {
                         "targets": -1,
                         "render": function (data, type, row) {
-                                var buttons = '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-3" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
+                                var buttons = '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-4" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
                                 buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+rutaConsulta.replace('/-rutaConsulta',"/"+row[0])+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>';
                                 if(row[1] == 1){
                                     buttons += '<div title="Ratificar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="continuarRatificacion('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></button></div>';
