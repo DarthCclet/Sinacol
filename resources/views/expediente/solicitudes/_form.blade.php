@@ -788,9 +788,6 @@
                     <div class="col-md-12" id="btnGuardar">
                         <button style="float: right;" class="btn btn-primary pull-right btn-lg m-l-5" onclick="guardarSolicitud()"><i class="fa fa-save" ></i> Guardar</button>
                     </div>
-                    <div class="col-md-12" id="btnGetAcuse" style="display: none;">
-                        <a id="btnAcuse" href="/api/documentos/getFile/" style="padding: 1% 2% 1% 2%; font-size: large;" class="btn btn-primary pull-right btn-lg m-l-5" target="_blank"><i class="fa fa-file" ></i> Descargar Acuse</a>
-                    </div>
 
                 </div>
             </div>
@@ -823,6 +820,43 @@
                 <div class="text-right">
                     <a class="btn btn-primary btn-sm" class="close" data-dismiss="modal" aria-hidden="true" ><i class="fa fa-times"></i> Aceptar</a>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal de Domicilio-->
+
+<!-- inicio Modal Domicilio-->
+
+<div class="modal" id="modal-acuse" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+
+            <div class="modal-body" >
+                <div class="col-md-12">
+                    <div style="width: 100%; text-align:center;">
+                        <h1>Solicitud guardada correctamente</h1>
+                    </div>
+                    <div style="width: 100%; text-align:center;">
+                        <h1 style="color: green; font-size: 4rem !important;"><i class="far fa-check-circle"></i></h1>
+                    </div>
+                </div>
+                <br>
+                <p>Descarga tu acuse para presentarlo en la ratificaci&oacute;n</p>
+                <br>
+                <div>
+                    <div class="col-md-10 offset-1" id="btnGetAcuse" style="display: none;">
+                        <a id="btnAcuse" href="/api/documentos/getFile/" style="text-align:left; font-size: large; width:100%;" class="btn btn-primary pull-right btn-lg m-l-5" target="_blank"><i style="float: left;margin-left: 5%;margin-top: 2%;" class="fa fa-file" ></i> Descargar Acuse</a>
+                    </div>
+                    <div class="col-md-10 offset-1">
+                        <a id="btnAcuse" href="/" style=" text-align:left; font-size: large; width:100%;" class="btn btn-primary pull-right btn-lg m-l-5" ><i style="float: left;margin-left: 5%;margin-top: 2%;" class="fa fa-sign-out-alt"></i> Finalizar</a>
+                    </div>
+                    <div class="col-md-10 offset-1">
+                        <a id="btnAcuse" onclick="window.location.reload();" style="text-align:left; font-size: large; width:100%;" class="btn btn-primary pull-right btn-lg m-l-5" > <i style="float: left;margin-left: 5%;margin-top: 2%;" class="fa fa-redo-alt"></i> Capturar nueva solicitud</a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
             </div>
         </div>
     </div>
@@ -2168,12 +2202,12 @@
                     },
                     success:function(data){
                         if(data.success){
-                            swal({
-                                title: 'Correcto',
-                                text: 'Solicitud guardada correctamente',
-                                icon: 'success',
+                            // swal({
+                            //     title: 'Correcto',
+                            //     text: 'Solicitud guardada correctamente',
+                            //     icon: 'success',
 
-                            });
+                            // });
                             // setTimeout('', 5000);
                             // location.href='{{ route('solicitudes.index')  }}'
                             $("#solicitud_id").val(data.data.id);
@@ -2446,7 +2480,11 @@
                 try{
                     if(data != null && data != ""){
                         $("#btnGuardar").hide();
-                        swal({title: 'ÉXITO',text: 'Descarga tu acuse para presentarlo en la solicitud',icon: 'success'});
+                        if(){
+                            $("#modal-acuse").modal("show");
+                        }else{
+                            swal({title: 'ÉXITO',text: 'Solicitud Guardada correctamente',icon: 'success'});
+                        }
                         $("#btnAcuse").attr("href","/api/documentos/getFile/"+data[0].id)
                         $("#btnGetAcuse").show();
                     }
