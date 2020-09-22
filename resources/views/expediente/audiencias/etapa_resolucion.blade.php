@@ -2035,7 +2035,7 @@
                         $("#labora_actualmente").click();
                         $("#labora_actualmente").trigger("change");
                     }
-                    $("#puesto").val(data.labora_actualmente);
+                    $("#puesto").val(data.puesto);
                     $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
                     $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
                     // console.log(data.jornada_id);

@@ -81,12 +81,14 @@
         </a>
     </li>
     @if (isset($audiencias))
+        @if (count($audiencias) > 0)
         <li class="nav-item">
-            <a href="#default-tab-2" data-toggle="tab" class="nav-link">
-                <span class="d-sm-none">Aud</span>
-                <span class="d-sm-block d-none">Audiencia</span>
-            </a>
-        </li>
+                <a href="#default-tab-2" data-toggle="tab" class="nav-link">
+                    <span class="d-sm-none">Aud</span>
+                    <span class="d-sm-block d-none">Audiencia</span>
+                </a>
+            </li>
+        @endif
     @endif
     @if(isset($documentos))
         <li class="nav-item">

@@ -153,7 +153,7 @@
 {{-- Modal ratificacion --}}
 <!--inicio modal para representante legal-->
 <input type="hidden" id="solicitud_id" value="">
-<
+
 <div class="modal" id="modalRatificacion" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
