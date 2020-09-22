@@ -22,9 +22,9 @@ class UpdateDateToObjetoSolicitudesTable extends Migration
             foreach ($json->datos as $objeto){
                 $tipoDoc = ObjetoSolicitud::find($objeto->id);
                 if($tipoDoc != null){
-                    $tipoDoc->update(['nombre'=>$objeto->nombre,
-                    'tipo_objeto_solicitudes_id' => $objeto->tipo_objeto_solicitudes_id
-                    ]);
+                    $tipoDoc->tipo_objeto_solicitudes_id = $objeto->tipo_objeto_solicitudes_id;
+                    $tipoDoc->nombre = $objeto->nombre;
+                    $tipoDoc->save();
                 }else{
                     DB::table('objeto_solicitudes')->insert(
                         [

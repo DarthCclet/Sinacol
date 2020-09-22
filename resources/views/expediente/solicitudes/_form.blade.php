@@ -128,9 +128,9 @@
                                     {!! $errors->first('objeto_solicitud_id', '<span class=text-danger>:message</span>') !!}
                                     <p class="help-block needed">Objeto de la solicitud</p>
                                 </div>
-                                <div class="col-md-6">
+                                {{-- <div class="col-md-6">
                                     <button class="btn btn-primary" type="button" onclick="agregarObjetoSol()" id="btnObjetoSol" > <i class="fa fa-plus-circle"></i> Agregar Objeto</button>
-                                </div>
+                                </div> --}}
                             </div>
 
                             <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
@@ -2048,6 +2048,7 @@
         $("#objeto_solicitud_id").val("");
         $("#tbodyObjetoSol").html(html);
         $("#tbodyObjetoSolRevision").html(html);
+        $("#objeto_solicitud_id").val("").trigger("change");
     }
     /**
     * Funcion para generar tabla a partir de array de solicitantes
@@ -2370,9 +2371,10 @@
     /**
     * Funcion para agregar Domicilio de solicitante y solicitado
     */
-    function agregarObjetoSol(){
-        var objeto = $("#objeto_solicitud_id").val();
-        $("#objeto_solicitud_id").val("").trigger("change");
+    // function agregarObjetoSol(){
+        $("#objeto_solicitud_id").change(function(){
+        var objeto = $(this).val();
+            
         if(objeto != ""){
             registrado = false;
             $.each(arrayObjetoSolicitudes,function(index,value){
@@ -2395,7 +2397,8 @@
                 formarTablaObjetoSol();
             }
         }
-    }
+
+    });
 
     /**
     * Funcion para guardar solicitud
@@ -2585,8 +2588,8 @@
             if(data.loading) return 'Buscando...';
             return data.html;
         },templateSelection: function(data) {
-            if(data.id != ""){
-                if(data.ambito_id == 1){
+            if(data && data.id != "" ){
+                if(data.ambito_id != 1){
                     $("#modal-giro").modal("show");
                 }
                 
@@ -2598,11 +2601,6 @@
         minimumInputLength:4,
         allowClear: true,
         language: "es"
-    });
-
-    $("#giro_comercial_solicitante").change(function(){
-        $("#giro_comercial_hidden").val($(this).val());
-
     });
 
 
