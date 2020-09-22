@@ -2480,7 +2480,7 @@
                 try{
                     if(data != null && data != ""){
                         $("#btnGuardar").hide();
-                        if(){
+                        if(!edit){
                             $("#modal-acuse").modal("show");
                         }else{
                             swal({title: 'ÉXITO',text: 'Solicitud Guardada correctamente',icon: 'success'});
