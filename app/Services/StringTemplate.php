@@ -71,7 +71,7 @@ class StringTemplate
         
         if (isset($vars['solicitado_tipo_notificacion'])){
           if($vars['solicitado_tipo_notificacion'] != null && $countTipoNotificacion >0){
-            for ($i=0; $i <= $countTipoNotificacion; $i++) { 
+            for ($i=0; $i < $countTipoNotificacion; $i++) { 
               switch ($vars['solicitado_tipo_notificacion']) {
                 case 1: // El solicitante entrega citatorio a solicitados
                   // texto de notificacion por solicitante
@@ -151,7 +151,7 @@ class StringTemplate
           $countGenero = substr_count($string,'[SI_'.$parte.'_GENERO_MASCULINO]');
           // $countGeneroFem = substr_count($string,'[SI_'.$parte.'_IPO_PERSONA_MORAL]');
           if(isset($vars[$parteL.'_genero_id']) && $vars[$parteL.'_genero_id'] != null && $countGenero >0){
-            for ($i=0; $i <= $countGenero; $i++) { 
+            for ($i=0; $i < $countGenero; $i++) { 
               switch ($vars[$parteL.'_genero_id']) {
                 case 2:
                   $count = substr_count($string, '[SI_'.$parte.'_GENERO_MASCULINO]');
@@ -182,7 +182,7 @@ class StringTemplate
           }
 
           if(isset($vars[$parteL.'_tipo_persona_id']) && $vars[$parteL.'_tipo_persona_id'] != null  && ($countPersona >0) ){
-            for ($i=0; $i <= $countPersona; $i++) { 
+            for ($i=0; $i < $countPersona; $i++) { 
               switch ($vars[$parteL.'_tipo_persona_id']) {
                 case 1: //fisica
                   $count = substr_count($string, '[SI_'.$parte.'_TIPO_PERSONA_FISICA]');
