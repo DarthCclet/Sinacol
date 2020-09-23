@@ -21,10 +21,10 @@ class AddDataToClasificacionArchivosTable extends Migration
         foreach ($json->datos as $clasificacion_archivo){
             $clasific = ClasificacionArchivo::find($clasificacion_archivo->id);
             if($clasific != null){
-                $clasific->update(['nombre'=>$clasificacion_archivo->nombre,
-                                'tipo_archivo_id' => $clasificacion_archivo->tipo_archivo_id,
-                                'entidad_emisora_id' => $clasificacion_archivo->entidad_emisora_id
-                ]);
+                $clasific->nombre = $clasificacion_archivo->nombre;
+                $clasific->tipo_archivo_id = $clasificacion_archivo->tipo_archivo_id;
+                $clasific->entidad_emisora_id = $clasificacion_archivo->entidad_emisora_id;
+                $clasific->save();
             }else{
                 DB::table('clasificacion_archivos')->insert(
                     [

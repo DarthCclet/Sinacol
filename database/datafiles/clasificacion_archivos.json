@@ -240,8 +240,32 @@
             "nombre": "Acuse de solicitud",
             "tipo_archivo_id":4,
             "entidad_emisora_id":null
+        },
+        {
+            "id": "41",
+            "nombre": "Acta de archivado por no comparecencia",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "42",
+            "nombre": "Acta de archivado por no comparecencia con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "43",
+            "nombre": "Convenio de reinstalación",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "44",
+            "nombre": "Convenio de reinstalación con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
         }
     ],
 
-    "numReg": 40
+    "numReg": 44
 }
