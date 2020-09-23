@@ -846,13 +846,15 @@
                 <br>
                 <div>
                     <div class="col-md-10 offset-1" id="btnGetAcuse" style="display: none;">
-                        <a id="btnAcuse" href="/api/documentos/getFile/" style="text-align:left; font-size: large; width:100%; margin: 2px;" class="btn btn-primary pull-right btn-lg m-l-5" target="_blank"><i style="float: left;margin-left: 5%;margin-top: 2%;" class="fa fa-file" ></i> Descargar Acuse</a>
+                        <a id="btnAcuse" href="/api/documentos/getFile/" style="text-align:left; font-size: large; width:100%; margin: 2px;" onclick="$('#divBtnFinalizarAcuse').show();" class="btn btn-primary pull-right btn-lg m-l-5" target="_blank"><i style="float: left;margin-left: 5%;margin-top: 2%;" class="fa fa-file" ></i> Descargar Acuse</a>
                     </div>
-                    <div class="col-md-10 offset-1">
-                        <a id="btnAcuse" href="/" style=" text-align:left; font-size: large; width:100%; margin: 2px;" class="btn btn-primary pull-right btn-lg m-l-5" ><i style="float: left;margin-left: 5%;margin-top: 2%;" class="fa fa-sign-out-alt"></i> Finalizar</a>
-                    </div>
-                    <div class="col-md-10 offset-1">
-                        <a id="btnAcuse" onclick="window.location.reload();" style="text-align:left; font-size: large; width:100%; margin: 2px;" class="btn btn-primary pull-right btn-lg m-l-5" > <i style="float: left;margin-left: 5%;margin-top: 2%;" class="fa fa-redo-alt"></i> Capturar nueva solicitud</a>
+                    <div style="display: none;" id="divBtnFinalizarAcuse">
+                        <div class="col-md-10 offset-1">
+                            <a id="btnAcuse" href="/" style=" text-align:left; font-size: large; width:100%; margin: 2px;" class="btn btn-primary pull-right btn-lg m-l-5" ><i style="float: left;margin-left: 5%;margin-top: 2%;" class="fa fa-sign-out-alt"></i> Finalizar</a>
+                        </div>
+                        <div class="col-md-10 offset-1">
+                            <a id="btnAcuse" onclick="window.location.reload();" style="text-align:left; font-size: large; width:100%; margin: 2px;" class="btn btn-primary pull-right btn-lg m-l-5" > <i style="float: left;margin-left: 5%;margin-top: 2%;" class="fa fa-redo-alt"></i> Capturar nueva solicitud</a>
+                        </div>
                     </div>
                 </div>
             </div>
