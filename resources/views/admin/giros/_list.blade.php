@@ -163,20 +163,20 @@
     function highlightText(string){
         return string.replace($("#term").val().trim(),'<span class="highlighted">'+$("#term").val().trim()+"</span>");
     }
-//    $("#filterGiros").on("change",function(){
-//        if($("#filterGiros").val() != null){
-//            $("#lista-ccostos").treetable("reveal",$("#filterGiros").val());
-//            $("#lista-ccostos").treetable("node",$("#filterGiros").val());
-//            $("tr").removeClass('droppedEl');
-//            var droppedEl = $("tr[data-tt-id="+$("#filterGiros").val()+"]");
-//            $('html,body').animate({
-//                scrollTop: droppedEl.offset().top - 200
-//            }, 'slow');
-//            droppedEl.addClass('droppedEl');
-//        }else{
-//            $("tr").removeClass('droppedEl');
-//        }
-//    });
+    $("#filterGiros").on("change",function(){
+        if($("#filterGiros").val() != null){
+            $("#lista-ccostos").treetable("reveal",$("#filterGiros").val());
+            $("#lista-ccostos").treetable("node",$("#filterGiros").val());
+            $("tr").removeClass('droppedEl');
+            var droppedEl = $("tr[data-tt-id="+$("#filterGiros").val()+"]");
+            $('html,body').animate({
+                scrollTop: droppedEl.offset().top - 200
+            }, 'slow');
+            droppedEl.addClass('droppedEl');
+        }else{
+            $("tr").removeClass('droppedEl');
+        }
+    });
 
 //    function getGironivel(id,nivel,select){
 //        var tieneHijos = false;
