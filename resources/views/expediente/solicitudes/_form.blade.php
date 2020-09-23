@@ -151,6 +151,15 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <div class="col-md-12">
+                                <label > Fitro de giros por nivel</label>
+                                <select id="girosNivel" class="form-control select-element">
+                                    <option value="">- Seleccionar un giro</option>
+                                    @foreach($giros as $cc)
+                                    <option value="{{$cc->id}}">{{$cc->codigo}} - {{$cc->nombre}}</option>
+                                    @endforeach
+                                </select>
+                            </div><br>
                             <div class="col-md-12 form-group row">
                                 <input type="hidden" id="term">
                                 <div class="col-md-12 " title="Escribe la actividad y escoge de la opciones que se despliegan" data-toggle="tooltip" data-placement="top" >
@@ -2313,6 +2322,7 @@
                 $("#term").val(params.term);
                 var data = {
                     nombre: params.term,
+                    parent_id: $("#girosNivel").val(),
                     _token:"{{ csrf_token() }}"
                 }
                 return data;
