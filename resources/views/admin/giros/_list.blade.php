@@ -1,32 +1,20 @@
 
 
+<div class="col-md-12">
+    <label > Fitro de giros por nivel</label>
+    <select id="girosNivel" class="form-control giroNivel">
+        @foreach($giros as $cc)
+        @if($cc->parent_id == 1)
+        <option value="{{$cc->id}}">{{$cc->codigo}} - {{$cc->nombre}}</option>
+        @endif
+        @endforeach
+    </select>
+</div>
 <div class="col-md-12 ">
     <label> Filtro de giros por texto</label>
     <select name="filterGiros" placeholder="Seleccione" id="filterGiros" class="form-control"></select>
-</div>
-<div class="col-md-12" style="margin-top:1%">
-    <label > Fitro de giros por nivel</label>
-    <div class="col-md-12 ">
-        <div class="col-md-12">
-            <div class="form-group">
-                    <select id="girosNivel1" nextLevel="2" class="form-control giroNivel">
-                    </select>
-            </div>
-        </div>
-        <div class="col-md-12" id="divNivel2" style="display:none">
-            <div class="form-group">
-                    <select id="girosNivel2" nextLevel="3" class="form-control giroNivel">
-                    </select>
-            </div>
-        </div>
-        <div class="col-md-12" id="divNivel3" style="display:none">
-            <div class="form-group">
-                    <select id="girosNivel3" nextLevel="" class="form-control giroNivel">
-                    </select>
-            </div>
-        </div>
-    </div>
-</div>
+</div><br>
+<div class="col-md-12 ">
 <input type="hidden" id="term">
 <table id="lista-ccostos" class="table table-hover table-bordered">
     <thead>
@@ -62,6 +50,7 @@
     </tbody>
 
 </table>
+</div>
 
 <style>
     .spanAmbito{
@@ -123,6 +112,7 @@
                 $("#term").val(params.term);
                 var data = {
                     nombre: params.term,
+                    parent_id: $("#girosNivel").val(),
                     _token:"{{ csrf_token() }}"
                 }
                 return data;
@@ -173,84 +163,85 @@
     function highlightText(string){
         return string.replace($("#term").val().trim(),'<span class="highlighted">'+$("#term").val().trim()+"</span>");
     }
-    $("#filterGiros").on("change",function(){
-        if($("#filterGiros").val() != null){
-            $("#lista-ccostos").treetable("reveal",$("#filterGiros").val());
-            $("#lista-ccostos").treetable("node",$("#filterGiros").val());
-            $("tr").removeClass('droppedEl');
-            var droppedEl = $("tr[data-tt-id="+$("#filterGiros").val()+"]");
-            $('html,body').animate({
-                scrollTop: droppedEl.offset().top - 200
-            }, 'slow');
-            droppedEl.addClass('droppedEl');
-        }else{
-            $("tr").removeClass('droppedEl');
-        }
-    });
+//    $("#filterGiros").on("change",function(){
+//        if($("#filterGiros").val() != null){
+//            $("#lista-ccostos").treetable("reveal",$("#filterGiros").val());
+//            $("#lista-ccostos").treetable("node",$("#filterGiros").val());
+//            $("tr").removeClass('droppedEl');
+//            var droppedEl = $("tr[data-tt-id="+$("#filterGiros").val()+"]");
+//            $('html,body').animate({
+//                scrollTop: droppedEl.offset().top - 200
+//            }, 'slow');
+//            droppedEl.addClass('droppedEl');
+//        }else{
+//            $("tr").removeClass('droppedEl');
+//        }
+//    });
 
-    function getGironivel(id,nivel,select){
-        var tieneHijos = false;
-        $.ajax({
-            url:"/api/giros_comerciales/getGirosComercialesByNivelId",
-            type:"POST",
-            dataType:"json",
-            async:false,
-            data:{
-                id:id,
-                nivel:nivel,
-                muestraCodigo: true
-            },
-            success:function(json){
-                console.log(json.data != "");
-                if(json != null && json.data != ""){
-                    $("#"+select).html("<option value=''>Selecciona una opción</option>");
-                    $.each(json.data,function(index,element){
-                        $("#"+select).append("<option value='"+element.id+"'>"+element.codigo+"|&nbsp;&nbsp;"+element.nombre+"</option>");
-                    });
-                    tieneHijos = true;
-                }else{
-                    $("#"+select).html("<option value=''>No hay opciones a mostrar</option>");
-                }
-
-            }
-        });
-        return tieneHijos;
-    }
-    $(".giroNivel").select2({
-        placeholder:"Seleccione una opción",
-        language: "es"
-    });
-    $(".giroNivel").on("change",function(){
-        if($(this).attr("id") == "girosNivel1"){
-            $("#divNivel2").hide();
-            $("#divNivel3").hide();
-            $('#divNivel2 option').remove();
-            $('#divNivel3 option').remove();
-        }
-        var tieneHijos = false;
-        if($(this).attr("nextLevel") != ""){
-            tieneHijos = getGironivel($(this).val(),$(this).attr("nextLevel"),"girosNivel"+$(this).attr("nextLevel"));
-        }
-        if(!tieneHijos){
-            $("#divNivel"+$(this).attr("nextLevel")).hide();
-            if($(this).val() != null){
-                $("#lista-ccostos").treetable("reveal",$(this).val());
-                $("#lista-ccostos").treetable("node",$(this).val());
-                $("tr").removeClass('droppedEl');
-                var droppedEl = $("tr[data-tt-id="+$(this).val()+"]");
-                $('html,body').animate({
-                    scrollTop: droppedEl.offset().top - 200
-                }, 'slow');
-                droppedEl.addClass('droppedEl');
-            }else{
-                $("tr").removeClass('droppedEl');
-            }
-        }else{
-            $("#divNivel"+$(this).attr("nextLevel")).show();
-        }
-    });
+//    function getGironivel(id,nivel,select){
+//        var tieneHijos = false;
+//        $.ajax({
+//            url:"/api/giros_comerciales/getGirosComercialesByNivelId",
+//            type:"POST",
+//            dataType:"json",
+//            async:false,
+//            data:{
+//                id:id,
+//                nivel:nivel,
+//                muestraCodigo: true
+//            },
+//            success:function(json){
+//                console.log(json.data != "");
+//                if(json != null && json.data != ""){
+//                    $("#"+select).html("<option value=''>Selecciona una opción</option>");
+//                    $.each(json.data,function(index,element){
+//                        $("#"+select).append("<option value='"+element.id+"'>"+element.codigo+"|&nbsp;&nbsp;"+element.nombre+"</option>");
+//                    });
+//                    tieneHijos = true;
+//                }else{
+//                    $("#"+select).html("<option value=''>No hay opciones a mostrar</option>");
+//                }
+//
+//            }
+//        });
+//        return tieneHijos;
+//    }
+    
+//    $(".giroNivel").on("change",function(){
+//        if($(this).attr("id") == "girosNivel1"){
+//            $("#divNivel2").hide();
+//            $("#divNivel3").hide();
+//            $('#divNivel2 option').remove();
+//            $('#divNivel3 option').remove();
+//        }
+//        var tieneHijos = false;
+//        if($(this).attr("nextLevel") != ""){
+//            tieneHijos = getGironivel($(this).val(),$(this).attr("nextLevel"),"girosNivel"+$(this).attr("nextLevel"));
+//        }
+//        if(!tieneHijos){
+//            $("#divNivel"+$(this).attr("nextLevel")).hide();
+//            if($(this).val() != null){
+//                $("#lista-ccostos").treetable("reveal",$(this).val());
+//                $("#lista-ccostos").treetable("node",$(this).val());
+//                $("tr").removeClass('droppedEl');
+//                var droppedEl = $("tr[data-tt-id="+$(this).val()+"]");
+//                $('html,body').animate({
+//                    scrollTop: droppedEl.offset().top - 200
+//                }, 'slow');
+//                droppedEl.addClass('droppedEl');
+//            }else{
+//                $("tr").removeClass('droppedEl');
+//            }
+//        }else{
+//            $("#divNivel"+$(this).attr("nextLevel")).show();
+//        }
+//    });
     $(document).ready(function() {
-        getGironivel("",1,"girosNivel1");
+        $(".giroNivel").select2({
+            placeholder:"Seleccione una opción",
+            language: "es"
+        });
+//        getGironivel("",1,"girosNivel1");
     });
 
 </script>
