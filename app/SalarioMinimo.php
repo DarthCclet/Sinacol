@@ -10,5 +10,6 @@ class SalarioMinimo extends Model
     use SoftDeletes;
     protected $table = 'salarios_minimos';
     public $incrementing = false;
-    protected $guarded = ['updated_at','created_at']; 
+    protected $guarded = ['id','created_at','updated_at'];
+    
 }
