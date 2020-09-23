@@ -131,9 +131,16 @@ class GiroComercialController extends Controller
      */
     public function filtrarGirosComerciales()
     {
-        $giroComercial = (new CatalogoFilter(GiroComercial::query(), $this->request))
-            ->searchWith(GiroComercial::class)
-            ->filter(false);
+        if($this->request->get('parent_id') != null && $this->request->get('parent_id') != ""){
+            $parent_id = $this->request->get('parent_id');
+            $ancestro = GiroComercial::find($parent_id);
+            $giroComercial = $ancestro->descendants();
+        }else{
+            $giroComercial = (new CatalogoFilter(GiroComercial::query(), $this->request))
+                ->searchWith(GiroComercial::class)
+                ->filter(false);
+        }
+//        dd($giroComercial->get());
         $nombre = $this->request->get('nombre');
 
         // $giros_comerciales = GiroComercial::find(1)->descendants;
