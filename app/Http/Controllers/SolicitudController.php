@@ -191,11 +191,12 @@ class SolicitudController extends Controller {
         $motivo_excepcion = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         
         $clasificacion_archivo = ClasificacionArchivo::all();
+        $giros = GiroComercial::where("parent_id",1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
         //$municipios = array_pluck(Municipio::all(),'municipio','id');
         $municipios=[];
-        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepcion','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante'));
+        return view('expediente.solicitudes.create', compact('objeto_solicitudes','estatus_solicitudes','tipos_vialidades','tipos_asentamientos','estados','jornadas','generos','nacionalidades','giros_comerciales','ocupaciones','lengua_indigena','tipo_contacto','periodicidades','municipios','grupos_prioritarios','motivo_excepcion','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante','giros'));
     }
     /**
      * Función para almacenar catalogos (nombre,id) en cache
