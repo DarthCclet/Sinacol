@@ -131,10 +131,10 @@ trait GenerateDocument
                       $val = ($val == false)? 'No' : 'Si';
                     }elseif(gettype($val)== 'array'){
                       $isArrayAssoc = Arr::isAssoc($val);
-                      if( !$isArrayAssoc ){
+                      if( !$isArrayAssoc ){//objeto_solicitudes
+                        $names =[];
                         foreach ($val as $i => $v) {
                           if( isset($v['nombre'] ) ){
-                            $names =[];
                             array_push($names,$v['nombre']);
                             // array_push($names,$v['nombre']);
                           }
@@ -377,6 +377,16 @@ trait GenerateDocument
                       }else{//moral
                         $parte['nombre_completo'] = $parte['nombre_comercial'];
                       }
+                      //domicilio de partes, excepto representante
+                      if($parte['tipo_parte_id'] != 3 ){
+                        $dom_parte = $parte['domicilios'][0];
+                        $tipo_vialidad =  ($dom_parte['tipo_vialidad'] !== null)? $dom_parte['tipo_vialidad'] :"";
+                        $vialidad =  ($dom_parte['vialidad'] !== null)? $dom_parte['vialidad'] :"";
+                        $num_ext =  ($dom_parte['num_ext'] !== null)? "No." . $dom_parte['num_ext'] :"";
+                        $municipio =  ($dom_parte['municipio'] !== null)? $dom_parte['municipio'] :"";
+                        $estado =  ($dom_parte['estado'] !== null)? $dom_parte['estado'] :"";
+                        $parte['domicilios_completo'] = mb_strtoupper($tipo_vialidad.' '.$vialidad.' '.$num_ext.', '.$municipio.', '.$estado);
+                      }
                       if($parte['tipo_parte_id'] == 1 ){//Solicitante
                         //datos laborales del solicitante
                         $datoLaborales = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
@@ -389,23 +399,38 @@ trait GenerateDocument
                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                         if($hayDatosLaborales >0){
                           $salarioMensual = ($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30;
+                          $salarioMensualTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$salarioMensual);
+                          $salarioMensualTextual = str_replace("uno","un",$salarioMensualTextual);
+                          $salarioMensualTextual = str_replace("coma","punto",$salarioMensualTextual);
                           $objeto = new JsonResponse($datoLaborales);
                           $datoLaboral = json_decode($objeto->content(),true);
                           $datoLaboral = Arr::except($datoLaboral, ['id','updated_at','created_at','deleted_at']);
                           $parte['datos_laborales'] = $datoLaboral;
                           $parte['datos_laborales_salario_mensual'] = $salarioMensual;
+                          $parte['datos_laborales_salario_mensual_letra'] = $salarioMensualTextual;
                         }
                         array_push($parte1, $parte);
                         array_push($nombresSolicitantes, $parte['nombre_completo'] );
                         $countSolicitante += 1;
                       }elseif ($parte['tipo_parte_id'] == 2 ) {//Solicitado
                         //representante legal solicitado
-                        $representanteLegal = Parte::where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
+                        $representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
                         if(count($representanteLegal) > 0){
                           $objeto = new JsonResponse($representanteLegal);
                           $representanteLegal = json_decode($objeto->content(),true);
                           $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);
                           $representanteLegal['nombre_completo'] = $representanteLegal['nombre'].' '.$representanteLegal['primer_apellido'].' '.$representanteLegal['segundo_apellido'];
+                          if( sizeof($representanteLegal['documentos']) > 0 ){
+                            foreach ($representanteLegal['documentos'] as $k => $docu) {
+                              if($docu['clasificacion_archivo']['tipo_archivo_id'] == 1){ //tipo identificacion
+                                $representanteLegal['identificacion_documento'] = ($docu['clasificacion_archivo']['nombre'] != null ) ? $docu['clasificacion_archivo']['nombre']: "--";
+                                $representanteLegal['identificacion_expedida_por'] = ($docu['clasificacion_archivo']['entidad_emisora']['nombre']!= null ) ? $docu['clasificacion_archivo']['entidad_emisora']['nombre']: "---";
+                              }
+                            }
+                          }else{
+                            $representanteLegal['identificacion_documento'] = "---";
+                            $representanteLegal['identificacion_expedida_por'] = "---";
+                          }
                           $parte['representante_legal'] = $representanteLegal;
                         }
                           //tipoNotificacion solicitado
@@ -464,8 +489,8 @@ trait GenerateDocument
                     $salaAudiencia = json_decode($objSala->content(),true);
                     $salas = [];
                     foreach ($salaAudiencia as $sala ) {
-                      $sala = Arr::except($sala, ['id','updated_at','created_at','deleted_at']);
                       $sala['nombre'] = $sala['sala']['sala'];
+                      $sala = Arr::except($sala, ['id','updated_at','created_at','deleted_at','sala']);
                       array_push($salas,$sala);
                     }
                     $data = Arr::add( $data, 'sala', $salas );
@@ -478,8 +503,9 @@ trait GenerateDocument
                     $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
                     $data = Arr::add( $data, 'conciliador', $conciliador );
                   }elseif ($model == 'Centro') {
-                    $objeto = $model_name::with('domicilio')->find($centroId);
+                    $objeto = $model_name::with('domicilio','disponibilidades')->find($centroId);
                     $dom_centro = $objeto->domicilio;
+                    $disponibilidad_centro = $objeto->disponibilidades;
                     $objeto = new JsonResponse($objeto);
                     $centro = json_decode($objeto->content(),true);
                     $centro = Arr::except($centro, ['id','updated_at','created_at','deleted_at']);
@@ -491,7 +517,12 @@ trait GenerateDocument
                     $num_ext =  ($dom_centro['num_ext'] !== null)? "No." . $dom_centro['num_ext'] :"";
                     $municipio =  ($dom_centro['municipio'] !== null)? $dom_centro['municipio'] :"";
                     $estado =  ($dom_centro['estado'] !== null)? $dom_centro['estado'] :"";
-                    $centro['domicilio_completo'] = strtoupper($tipo_vialidad.' '.$vialidad.' '.$num_ext.', '.$municipio.', '.$estado);
+                    $centro['domicilio_completo'] = mb_strtoupper($tipo_vialidad.' '.$vialidad.' '.$num_ext.', '.$municipio.', '.$estado);
+                    //Disponibilidad del centro horarios y dias
+                    $disponibilidad_centro = new JsonResponse($disponibilidad_centro);
+                    $disponibilidad_centro = json_decode($disponibilidad_centro->content(),true);
+                    $centro['hora_inicio']= $this->formatoFecha($disponibilidad_centro[0]['hora_inicio'],3);
+                    $centro['hora_fin']= $this->formatoFecha($disponibilidad_centro[0]['hora_fin'],3);
                     $data = Arr::add( $data, 'centro', $centro );
                   }elseif ($model == 'Resolucion') {
                     $objetoResolucion = $model_name::find($resolucionAudienciaId);
@@ -712,26 +743,33 @@ trait GenerateDocument
     private function formatoFecha($fecha,$tipo=null)
     {
       try {
-        $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noivembre", "Diciembre"];
-        $hh= "";
-        if(strpos($fecha, " ") ){
-          $date = explode(' ', $fecha);
-          $fecha = $date[0];
-          $hr = explode(':', $date[1]);
+        if($tipo!=3){ //no es hora
+          $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noivembre", "Diciembre"];
+          $hh= "";
+          if(strpos($fecha, " ") ){
+            $date = explode(' ', $fecha);
+            $fecha = $date[0];
+            $hr = explode(':', $date[1]);
+            $hh = $hr[0].':'.$hr[1];
+          }
+          $fecha = explode('-', $fecha);
+          $dd = $fecha[2];
+          $mm = $fecha[1];
+          $yy = $fecha[0];
+          if($tipo == 1){ //fecha sin hr
+            $ddmmyy = $dd.' de '. $monthNames[intval($mm)-1]. ' de ' . $yy;
+          }else if($tipo == 2){ //hr
+            $ddmmyy = $hh;
+          }else{ //fecha y hora
+            $ddmmyy = $dd.' de '. $monthNames[intval($mm)-1]. ' de ' . $yy .' '. $hh;
+          }
+          // $ddmmyy = $dd.' de '. $monthNames[intval($mm)-1]. ' de ' . $yy .' '. $hh ;
+          // return $ddmmyy;
+        }else{//recibe HH:mm:ss: devuelve hh:mm hr
+          $hr = explode(':', $fecha);
           $hh = $hr[0].':'.$hr[1];
-        }
-        $fecha = explode('-', $fecha);
-        $dd = $fecha[2];
-        $mm = $fecha[1];
-        $yy = $fecha[0];
-        if($tipo == 1){ //fecha sin hr
-          $ddmmyy = $dd.' de '. $monthNames[intval($mm)-1]. ' de ' . $yy;
-        }else if($tipo == 2){ //hr
           $ddmmyy = $hh;
-        }else{ //fecha y hora
-          $ddmmyy = $dd.' de '. $monthNames[intval($mm)-1]. ' de ' . $yy .' '. $hh;
         }
-        // $ddmmyy = $dd.' de '. $monthNames[intval($mm)-1]. ' de ' . $yy .' '. $hh ;
         return $ddmmyy;
       } catch (\Throwable $th) {
         return "";
