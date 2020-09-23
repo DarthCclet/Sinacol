@@ -1025,7 +1025,7 @@ class AudienciaController extends Controller {
                                         "parte_solicitada_id" => $solicitado->parte_id,
                                         "terminacion_bilateral_id" => 1
                             ]);
-                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 1, 8, $solicitante->parte_id, $solicitado->parte_id));
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $solicitante->parte_id, $solicitado->parte_id));
                         }
                     }
                     // Se genera archivo de acta de archivado
@@ -1070,7 +1070,7 @@ class AudienciaController extends Controller {
                             if ($comparecio == null) {
                                 $solicitados = $this->getSolicitados($audiencia);
                                 foreach ($solicitados as $key => $solicitado) {
-                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 1, 8, $audienciaP->parte_id, $solicitado->parte_id));
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $audienciaP->parte_id, $solicitado->parte_id));
                                 }
                             }
                         }
