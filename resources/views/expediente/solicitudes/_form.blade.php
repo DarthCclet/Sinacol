@@ -73,8 +73,8 @@
                     </span>
                 </a>
             </li>
-            
-        
+
+
 
             <!-- El paso 5 Es para asignar Audiencias -->
             {{-- <li class="step-5">
@@ -166,7 +166,7 @@
                         </div>
                     </div>
                     <button class="btn btn-primary" style="float: right; margin-top: 2%;" type="button" onclick="validarSolicitud()" > <i class="fa fa-arrow-right"></i> Validar y Continuar</button>
-                    
+
                     <!-- end row -->
                 </fieldset>
                 <!-- end fieldset -->
@@ -435,7 +435,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- end row -->
                 </fieldset>
                 <!-- end fieldset -->
@@ -460,7 +460,7 @@
                                     <div>
                                         <p>
                                             Debes citar a tu patrón, la persona física (un individuo) o moral (una empresa) responsable de la relación de trabajo contigo. Para ayudarte a determinar a quién deberías citar, te hacemos las siguientes preguntas:<br>
-                                            ¿Tienes un recibo o recibos de nómina oficiales (que contenga tu número de seguridad social)? 
+                                            ¿Tienes un recibo o recibos de nómina oficiales (que contenga tu número de seguridad social)?
                                         </p>
                                     </div>
                                     <div class="col-md-12">
@@ -504,7 +504,7 @@
                                         <div id="divNoReciboNomina" style="margin-top: 2%; display:none;" >
                                             <p>
                                                 En caso de no contar con ningún tipo de recibo de nómina o pago en el que aparece el nombre del patrón, para decidir a quién citar a la conciliación debes considerar las siguientes preguntas:
-                                            </p>                                            
+                                            </p>
                                             <ul>
                                                 <li>¿Con qué persona o empresa firmaste tu contrato de trabajo?</li>
                                                 <li>¿Cómo se llama la persona o empresa que te paga tu sueldo?</li>
@@ -520,7 +520,7 @@
 
                                 </div>
                                 <div id="datosIdentificacionSolicitado" style="display: none;" data-parsley-validate="true">
-                                    
+
                                     <div class="col-md-12 mt-4">
                                         <h4>Datos de identificaci&oacute;n</h4>
                                         <hr class="red">
@@ -842,7 +842,7 @@
                     </div>
                 </div>
                 <br>
-                <p>Descarga tu acuse para presentarlo en la ratificaci&oacute;n</p>
+                <div class="alert alert-warning"><h4>Descarga tu acuse para presentarlo al realizar la ratificación</h4></div>
                 <br>
                 <div>
                     <div class="col-md-10 offset-1" id="btnGetAcuse" style="display: none;">
@@ -873,7 +873,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body" >
-                
+
                 <p style="font-size:large;">
                     El sistema indica que la actividad principal del patrón es de competencia local, no federal.
                 </p>
@@ -1014,8 +1014,8 @@
             $(".estatusSolicitud").show();
             $(".showEdit").show();
             var solicitud='{{ $solicitud->id ?? ""}}';
-            editSolicitud = true; 
-            editCitado = true; 
+            editSolicitud = true;
+            editCitado = true;
             editSolicitante = true;
             // FormMultipleUpload.init();
             // Gallery.init();
@@ -1341,8 +1341,8 @@
             $("#solicitud_id_excepcion").val(solicitud);
             // cargarDocumentos();
             getSolicitudFromBD(solicitud);
-            editSolicitud = true; 
-            editCitado = true; 
+            editSolicitud = true;
+            editCitado = true;
             editSolicitante = true;
         }else{
             if(localStorage.getItem("datos_laborales")){
@@ -2136,7 +2136,7 @@
     // function agregarObjetoSol(){
         $("#objeto_solicitud_id").change(function(){
         var objeto = $(this).val();
-            
+
         if(objeto != ""){
             registrado = false;
             $.each(arrayObjetoSolicitudes,function(index,value){
@@ -2288,7 +2288,7 @@
         }
     }
 
-   
+
 
     //funcion para obtener informacion de la excepcion
     function getExcepcion(){
@@ -2321,7 +2321,7 @@
                         var html = '';
                         html += '<table>';
                         var ancestors = node.ancestors.reverse();
-                        
+
                         html += '<tr><th colspan="2"><h5>* '+highlightText(node.nombre)+'</h5><th></tr>';
                         $.each(ancestors, function (index, ancestor) {
                             if(ancestor.id != 1){
@@ -2494,7 +2494,7 @@
             }
         });
     }
-    
+
     function validarPalabras(e){
         var numeroPalabras = countPalabras(e);
         $("#numeroPalabras").html(numeroPalabras);
@@ -2603,8 +2603,8 @@
             swal({title: 'Error',text: 'Es necesario llenar todos los campos para continuar',icon: 'error',});º
         }
     }
-    
-    
+
+
     $(document).on('click', '[data-toggle="lightbox"]', function(event) {
         event.preventDefault();
         $(this).ekkoLightbox({
@@ -2617,7 +2617,7 @@
             }
         });
     });
-    
+
     function eliminarContacto(indice){
             if(listaContactos[indice].id != null){
                 $.ajax({
@@ -2643,7 +2643,7 @@
                 cargarContactos();
             }
         }
-        
+
         $("input[name='recibo_oficial']").change(function(){
             if($(this).val() == 1){
                 $("#divReciboOficial").show()
