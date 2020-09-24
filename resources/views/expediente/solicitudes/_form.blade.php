@@ -152,7 +152,7 @@
                                 </table>
                             </div>
                             <div class="col-md-12">
-                                <label > Fitro de giros por nivel</label>
+                                <label>Giro del negocio o empresa</label>
                                 <select id="girosNivel" class="form-control select-element">
                                     <option value="">- Seleccionar un giro</option>
                                     @foreach($giros as $cc)
