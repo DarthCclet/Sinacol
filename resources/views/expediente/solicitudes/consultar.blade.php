@@ -140,14 +140,26 @@
                         @foreach($audiencias as $audiencia)
                             <tr class="odd gradeX">
                                 <td width="1%" class="f-s-600 text-inverse">{{$audiencia->folio}}/{{$audiencia->anio}}</td>
-                                <td>{{$audiencia->fecha_audiencia}}</td>
-                                <td>{{$audiencia->hora_inicio}} - {{$audiencia->hora_fin}}</td>
-                                <td>{{$audiencia->conciliador_id}}</td>
-                                <td>{{$audiencia->finalizada}}</td>
+                                <td>{{date('d/m/Y', strtotime($audiencia->fecha_audiencia))}}</td>
+                                <td>{{\Carbon\Carbon::createFromFormat('H:i:s',$audiencia->hora_inicio)->format('h:i')}} - {{\Carbon\Carbon::createFromFormat('H:i:s',$audiencia->hora_fin)->format('h:i')}}</td>
+                                
+                                @if($audiencia->conciliador->persona->tipo_persona_id == 1)
+                                    <td>{{$audiencia->conciliador->persona->nombre}} {{$audiencia->conciliador->persona->primer_apellido}} {{$audiencia->conciliador->persona->segundo_apellido}}</td>
+                                @else
+                                    <td>{{isset($audiencia->conciliador->persona->nombre_comercial)}}</td>
+                                @endif
+
+                                <td>{{$audiencia->finalizada ? "Concluida":"Pendiente"}}</td>
                                 <td class="all">
                                     <div style="display: inline-block;">
-                                        <div style="display: inline-block;" class="m-2"><a title="Detalle" href="{!! route("audiencias.edit",$audiencia->id) !!}" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>
-                                        <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaAudiencia",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
+                                        @if($audiencia->etapas_resolucion_audiencia_count > 0)
+                                            <div style="display: inline-block;" class="m-2"><a title="Detalle" href="{!! route("audiencias.edit",$audiencia->id) !!}" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>
+                                        @endif
+                                        @if($solicitud->tipo_solicitud_id == 1)
+                                            <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaAudiencia",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
+                                        @else
+                                            <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("resolucionColectiva",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -354,8 +366,10 @@
                     arraySolicitados = Object.values(data.solicitados);
                     arraySolicitantes = Object.values(data.solicitantes);
                     $.each(arraySolicitantes ,function(key,value){
-                        if($.isArray(arraySolicitantes[key].dato_laboral)){
-                            arraySolicitantes[key].dato_laboral = arraySolicitantes[key].dato_laboral[0];
+                        if(arraySolicitantes[key].dato_laboral){
+                            if($.isArray(arraySolicitantes[key].dato_laboral)){
+                                arraySolicitantes[key].dato_laboral = arraySolicitantes[key].dato_laboral[0];
+                            }
                         }
                     })
 
@@ -524,17 +538,20 @@
                                     });
                                     html+='</ul>';
                                 html+='</div>';
-                                html+='<div class="col-md-12 row">';
-                                    html+='<label class="col-md-12"><b>Datos Laborales</b></label><br>';
-                                    html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Puesto:</b>'+value.dato_laboral.puesto+'</label><br>';
-                                    if(value.dato_laboral.nss){
-                                        html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;N&uacute;mero de seguro social:</b>'+(value.dato_laboral.nss|| "")+'</label><br>';
-                                    }
-                                    html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Ingreso:</b>'+dateFormat(value.dato_laboral.fecha_ingreso,4)+'</label><br>';
-                                    if(!value.dato_laboral.labora_actualmente){
-                                        html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Salida:</b>'+dateFormat(value.dato_laboral.fecha_salida,4)+'</label><br>';
-                                    }
-                                html+='</div>';
+                                if(value.dato_laboral){
+
+                                    html+='<div class="col-md-12 row">';
+                                        html+='<label class="col-md-12"><b>Datos Laborales</b></label><br>';
+                                        html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Puesto:</b>'+value.dato_laboral.puesto+'</label><br>';
+                                        if(value.dato_laboral.nss){
+                                            html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;N&uacute;mero de seguro social:</b>'+(value.dato_laboral.nss|| "")+'</label><br>';
+                                        }
+                                        html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Ingreso:</b>'+dateFormat(value.dato_laboral.fecha_ingreso,4)+'</label><br>';
+                                        if(!value.dato_laboral.labora_actualmente){
+                                            html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Salida:</b>'+dateFormat(value.dato_laboral.fecha_salida,4)+'</label><br>';
+                                        }s
+                                    html+='</div>';
+                                }
                             html+='</div>';
                         html+='</div>';
                     html+='</div>';

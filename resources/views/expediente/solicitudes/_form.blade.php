@@ -374,7 +374,7 @@
                                     </div>
                                     <div class="col-md-12 row">
                                         <div class="col-md-6">
-                                            <input class="form-control upper" required id="puesto" placeholder="Puesto" type="text" value="">
+                                            <input class="form-control upper requiredLaboral" required id="puesto" placeholder="Puesto" type="text" value="">
                                             <p class="help-block needed">Puesto</p>
                                         </div>
                                         <div class="col-md-6" >
