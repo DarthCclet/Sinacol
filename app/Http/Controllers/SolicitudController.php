@@ -191,7 +191,7 @@ class SolicitudController extends Controller {
         $motivo_excepcion = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         
         $clasificacion_archivo = ClasificacionArchivo::all();
-        $giros = GiroComercial::where("parent_id",1)->get();
+        $giros = GiroComercial::where("parent_id",1)->orderBy('nombre')->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
         //$municipios = array_pluck(Municipio::all(),'municipio','id');
@@ -503,7 +503,7 @@ class SolicitudController extends Controller {
         
         // dd(Conciliador::all()->persona->full_name());
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
-        $giros = GiroComercial::where("parent_id",1)->get();
+        $giros = GiroComercial::where("parent_id",1)->orderBy('nombre')->get();
         // dd($conciliador);
         // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
 
