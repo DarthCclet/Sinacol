@@ -225,12 +225,16 @@
                         <tbody>
                     </table>
                 </div>
+                <div class="col-md-12">
+                    <p id="notificaAmbito" style="color: darkred; font-weight:bold; display:none; text-align:right;"></p>
+                </div>
             </div>
             <div class="modal-footer">
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Ratificar</button>
-                    <button class="btn btn-success btn-sm m-l-5" id='btnGuardarConvenio'><i class="fa fa-save"></i> Ratificar con convenio</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnRatificarIncompetencia'><i class="fa fa-save"></i> Ratificar con incompetencia</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarConvenio'><i class="fa fa-save"></i> Ratificar con convenio</button>
                 </div>
             </div>
         </div>
@@ -853,6 +857,19 @@
         getSolicitudFromBD(solicitud_id);
         $("#solicitud_id_modal").val(solicitud_id);
         actualizarPartes();
+        if(solicitudObj.ambito_id != 1){ //No es ambito Federal
+            $('#btnGuardarRatificar').hide();
+            $('#btnGuardarConvenio').hide();
+            $('#btnRatificarIncompetencia').show();
+            $('#notificaAmbito').show();
+            let ambito =(solicitudObj.ambito_nombre !== undefined)? 'ATENCIÓN! La actividad principal del patrón registrada es de competencia '+ solicitudObj.ambito_nombre : "" ;
+            $('#notificaAmbito').html(ambito);
+        }else{
+            $('#btnGuardarRatificar').show();
+            $('#btnGuardarConvenio').show();
+            $('#btnRatificarIncompetencia').hide();
+            $('#notificaAmbito').hide();
+        }
         try{
             cargarDocumentos();
             var solicitanteMenor = arraySolicitantes.filter(x=>x.edad <= 16).filter(x=>x.edad != null);
@@ -883,6 +900,155 @@
             console.log(error);
         }
     }
+
+    $("#btnRatificarIncompetencia").on("click",function(){
+        if(ratifican){
+            $.ajax({
+                url:'/solicitud/correos/'+$("#solicitud_id").val(),
+                type:'GET',
+                dataType:"json",
+                async:true,
+                success:function(data){
+                    if(data == null || data == ""){
+                        swal({
+                            title: '¿Estás seguro?',
+                            text: 'Al oprimir aceptar se emitirá la constancia de incompetencia correspondiente, de lo contrario oprime cancelar y actualiza la actividad en la soliciud.',
+                            icon: 'warning',
+                            buttons: {
+                                cancel: {
+                                    text: 'Cancelar',
+                                    value: null,
+                                    visible: true,
+                                    className: 'btn btn-default',
+                                    closeModal: true,
+                                },
+                                confirm: {
+                                    text: 'Aceptar',
+                                    value: true,
+                                    visible: true,
+                                    className: 'btn btn-danger',
+                                    closeModal: true
+                                }
+                            }
+                        }).then(function(isConfirm){
+                            if(isConfirm){
+                                $.ajax({
+                                    url:'/solicitud/ratificarIncompetencia',
+                                    type:'POST',
+                                    dataType:"json",
+                                    async:true,
+                                    data:{
+                                        id:$("#solicitud_id").val(),
+                                        _token:"{{ csrf_token() }}"
+                                    },
+                                    success:function(data){
+                                        if(data != null && data != ""){
+                                            $("#modalRatificacion").modal("hide");
+                                            swal({
+                                                title: 'Correcto',
+                                                text: 'Solicitud ratificada correctamente',
+                                                icon: 'success'
+                                            });
+                                            location.reload();
+                                        }else{
+                                            swal({
+                                                title: 'Error',
+                                                text: 'No se pudo ratificar',
+                                                icon: 'error'
+                                            });
+                                        }
+                                    },error:function(data){
+                                        console.log(data);
+                                        swal({
+                                            title: 'Error',
+                                            text: data.responseJSON.message,
+                                            icon: 'error'
+                                        });
+                                    }
+                                });
+                            }
+                        });
+
+                    }else{
+                        var tableSolicitantes = '';
+                        $.each(data, function(index,element){
+                            tableSolicitantes +='<tr>';
+                            if(element.tipo_persona_id == 1){
+                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
+                            }else{
+                                tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
+                            }
+                            tableSolicitantes += '  <td>';
+                            tableSolicitantes += '      <div class="col-md-12">';
+                            tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
+                            tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
+                            tableSolicitantes += '      </div>';
+                            tableSolicitantes += '  </td>';
+                            tableSolicitantes += '  <td>';
+                            tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
+                            tableSolicitantes += '  </td>';
+                            tableSolicitantes +='</tr>';
+                        });
+                        $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
+                        $("#modal-registro-correos").modal("show");
+                    }
+                }
+            });
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Al menos un solicitante debe presentar documentos para ratificar',
+                icon: 'warning'
+            });
+        }
+    });
+
+    /**
+    *  ratificar solicitud con incompetencia y generar constancia de incompetencia y buzon
+    */
+    // $("#btnRatificarIncompetencia").on("click",function(){
+    //     if(ratifican){
+    //         $.ajax({
+    //             url:'/solicitud/correos/'+$("#solicitud_id").val(),
+    //             type:'GET',
+    //             dataType:"json",
+    //             async:true,
+    //             success:function(data){
+    //                 if(data == null || data == ""){
+    //                     $("#modal-aviso-resolucion-inmediata").modal("show");
+    //                 }else{
+    //                     var tableSolicitantes = '';
+    //                     $.each(data, function(index,element){
+    //                         tableSolicitantes +='<tr>';
+    //                         if(element.tipo_persona_id == 1){
+    //                             tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
+    //                         }else{
+    //                             tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
+    //                         }
+    //                         tableSolicitantes += '  <td>';
+    //                         tableSolicitantes += '      <div class="col-md-12">';
+    //                         tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
+    //                         tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
+    //                         tableSolicitantes += '      </div>';
+    //                         tableSolicitantes += '  </td>';
+    //                         tableSolicitantes += '  <td>';
+    //                         tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
+    //                         tableSolicitantes += '  </td>';
+    //                         tableSolicitantes +='</tr>';
+    //                     });
+    //                     $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
+    //                     $("#modal-registro-correos").modal("show");
+    //                 }
+    //             }
+    //         });
+    //     }else{
+    //         swal({
+    //             title: 'Error',
+    //             text: 'Al menos un solicitante debe presentar documentos para ratificar',
+    //             icon: 'warning'
+    //         });
+    //     }
+    // });
 
     $("#btnGuardarRatificar").on("click",function(){
         var validarRatificacion = RatificacionValidar();
@@ -1218,9 +1384,10 @@
             async:true,
             success:function(data){
                 try{
+                    var html = "";
+                    $("#tbodyRatificacion").html("");
                     if(data != null && data != ""){
                         //Carga información en la ratificacion
-                        var html = "";
                    $.each(data, function (key, value) {
                        if(value.documentable_type == "App\\Parte"){
                             // var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
@@ -1801,7 +1968,7 @@
                 success:function(data){
                     if(data == null || data == ""){
                         $("#modal-aviso-resolucion-inmediata").modal("show");
-                    }else{
+                    }else{ //si parte no proporciono correo
                         var tableSolicitantes = '';
                         $.each(data, function(index,element){
                             tableSolicitantes +='<tr>';
@@ -1892,6 +2059,8 @@
                     solicitudObj.fecha_conflicto = dateFormat(data.fecha_conflicto,4);
                     solicitudObj.giro_comercial_id = data.giro_comercial_id;
                     solicitudObj.giro_comercial = data.giroComercial.nombre;
+                    solicitudObj.ambito_id = data.giroComercial.ambito_id;
+                    solicitudObj.ambito_nombre = data.giroComercial.ambito.nombre;
                     
                     cargarGeneros();
                     cargarTipoContactos();

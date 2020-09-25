@@ -862,6 +862,91 @@ class SolicitudController extends Controller {
         return response()->json(null, 204);
     }
 
+    public function ratificarIncompetencia(Request $request) {
+        DB::beginTransaction();
+        try{
+            $solicitud = Solicitud::find($request->id);
+            $ContadorController = new ContadorController();
+            //Obtenemos el contador
+            $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
+            $edo_folio = $solicitud->centro->abreviatura;
+            $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
+            //Creamos el expediente de la solicitud
+            $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
+            //ratificacion de las partes
+            foreach ($solicitud->partes as $key => $parte) {
+                if(count($parte->documentos) == 0){
+                    $parte->ratifico = true;
+                    $parte->update();
+                }
+            }
+            $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
+            
+            // Obtenemos la sala virtual
+            $sala_id = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->get()[0]->id;
+            //obtenemos al conciliador disponible
+            $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
+            $conciliadoresDisponibles = array();
+            foreach($conciliadores as $conciliador){
+                $conciliadorDisponible = false;
+                foreach($conciliador->rolesConciliador as $roles){
+                    if($roles->rol_atencion_id == 2){
+                        $conciliadorDisponible = true;
+                    }
+                }
+                if($conciliadorDisponible){
+                    $conciliadoresDisponibles[]=$conciliador;
+                }
+            }
+            $conciliador_id = null;
+            if(count($conciliadoresDisponibles) > 0){
+                $conciliador = $this->array_random_assoc($conciliadoresDisponibles);
+            }else{
+                return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
+            }
+            
+            // Registramos la audiencia
+            //Obtenemos el contador
+            $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+            //creamos el registro de la audiencia
+            $audiencia = Audiencia::create([
+                "expediente_id" => $expediente->id,
+                "multiple" => false,
+                "fecha_audiencia" => now()->format('Y-m-d'),
+                "hora_inicio" => now()->format('H:i:s'), 
+                "hora_fin" => \Carbon\Carbon::now()->addHours(1)->format('H:i:s'),
+                "conciliador_id" =>  $conciliador[0]->id,
+                "numero_audiencia" => 1,
+                "reprogramada" => false,
+                "anio" => $folioAudiencia->anio,
+                "folio" => $folioAudiencia->contador
+            ]);
+            
+            // guardamos la sala y el conciliador a la audiencia
+            ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador[0]->id,"solicitante" => true]);
+            SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
+            // Guardamos todas las Partes en la audiencia
+            $partes = $solicitud->partes;
+            foreach($partes as $parte){
+                AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
+                if($parte->tipo_parte_id == 1){
+                    //generar constancia de incompetencia por solicitante
+                    event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,13,15,$parte->id,null));
+                    // event(new GenerateDocumentResolution(18,2,79,15,3));
+                }
+            }
+        DB::commit();
+        return $solicitud;
+
+        }catch(\Throwable $e){
+            DB::rollback();
+            // dd($e);
+            if ($this->request->wantsJson()) {
+                return $this->sendError('Error al ratificar la solicitud', 'Error');
+            }
+            return redirect('solicitudes')->with('error', 'Error al ratificar la solicitud');
+        }
+    }
     public function Ratificar(Request $request) {
         if(!self::validarCentroAsignacion()){
             return $this->sendError('No se ha configurado el centro', 'Error');
@@ -926,7 +1011,7 @@ class SolicitudController extends Controller {
                     "folio" => $folioAudiencia->contador
                 ]);
                 
-                // guardamos la sala y el consiliador a la audiencia
+                // guardamos la sala y el conciliador a la audiencia
                 ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador[0]->id,"solicitante" => true]);
                 SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
                 // Guardamos todas las Partes en la audiencia
@@ -1011,7 +1096,7 @@ class SolicitudController extends Controller {
             return $audiencia;
         }catch(\Throwable $e){
             DB::rollback();
-            dd($e);
+            // dd($e);
             if ($this->request->wantsJson()) {
                 return $this->sendError('Error al ratificar la solicitud', 'Error');
             }
@@ -1160,11 +1245,11 @@ class SolicitudController extends Controller {
             if($parte->tipo_parte_id == 1){
                 $pasa = false;
                 foreach($parte->contactos as $contacto){
-                    if($contacto->tipo_contacto_id == 3){
+                    if($contacto->tipo_contacto_id == 3){ //si tiene email
                         $pasa = true;
                     }
                 }
-                if(!$pasa){
+                if(!$pasa){//devuelve partes sin email
                     if($parte->correo_buzon == null || $parte->correo_buzon == ""){
                         $array[] = $parte;
                     }
