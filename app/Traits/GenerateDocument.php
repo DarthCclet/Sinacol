@@ -116,7 +116,6 @@ trait GenerateDocument
 
     public function renderDocumento($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador)
     {
-
         $vars = [];
         $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador);
         if($data!=null){
@@ -182,10 +181,8 @@ trait GenerateDocument
                             $v = Arr::except($v,['id','updated_at','created_at','deleted_at','contactable_type','contactable_id']);
                             $vars[strtolower($key.'_'.$k.'_'.$v['tipo_contacto']['nombre'])] = ($v['contacto'] !== null)? $v['contacto'] :'-';
                             if($v['tipo_contacto_id'] == 3 && $data['correo_buzon'] == null){
-                              // dd($data['correo_buzon']);
                               $vars[$key.'_correo_buzon'] = $v['contacto'];
                               $vars[$key.'_password_buzon'] = '';
-                              // $data['correo_buzon'] = $v['contacto'];
                             }
                           }
                         }else{
@@ -311,8 +308,7 @@ trait GenerateDocument
 
     private function getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador)
     {
-
-        try {
+      try {
             $plantilla = PlantillaDocumento::find($idPlantilla);
             $tipo_plantilla = TipoDocumento::find($plantilla->tipo_documento_id);
             $objetos = explode (",", $tipo_plantilla->objetos);
@@ -340,8 +336,12 @@ trait GenerateDocument
                     $obj['fecha_maxima_ratificacion'] = $this->calcularFechaMaximaRatificacion($solicitud->fecha_recepcion,15);
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
-                    if($idSolicitante != "" || $idSolicitado != ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante, $idSolicitado])->get();
+                    if($idSolicitante != "" && $idSolicitado != ""){
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
+                    }else if($idSolicitante != "" && $idSolicitado == ""){
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitante,2])->get();
+                    }else if($idSolicitante == "" && $idSolicitado != ""){
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
                     }else{
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->get();
                     }
