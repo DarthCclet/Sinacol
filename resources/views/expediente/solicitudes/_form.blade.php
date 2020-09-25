@@ -156,11 +156,11 @@
                                 <select id="girosNivel" class="form-control select-element">
                                     <option value="">- Seleccionar un giro</option>
                                     @foreach($giros as $cc)
-                                    <option value="{{$cc->id}}">{{$cc->codigo}} - {{$cc->nombre}}</option>
+                                    <option value="{{$cc->id}}">{{$cc->nombre}}</option>
                                     @endforeach
                                 </select>
                             </div><br>
-                            <div class="col-md-12 form-group row">
+                            <div class="col-md-12 form-group row" id="divGiro" style="display:none;">
                                 <input type="hidden" id="term">
                                 <div class="col-md-12 " title="Escribe la actividad y escoge de la opciones que se despliegan" data-toggle="tooltip" data-placement="top" >
                                     <select name="giro_comercial_solicitante" placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control"></select>
@@ -374,7 +374,7 @@
                                     </div>
                                     <div class="col-md-12 row">
                                         <div class="col-md-6">
-                                            <input class="form-control upper" required id="puesto" placeholder="Puesto" type="text" value="">
+                                            <input class="form-control upper requiredLaboral" required id="puesto" placeholder="Puesto" type="text" value="">
                                             <p class="help-block needed">Puesto</p>
                                         </div>
                                         <div class="col-md-6" >
@@ -1505,8 +1505,8 @@
                     $("#fechaRecepcion").val(dateFormat(data.fecha_recepcion,2));
                     $("#fechaConflicto").val(dateFormat(data.fecha_conflicto,4));
                     $("#giro_comercial_hidden").val(data.giro_comercial_id)
-                    $("#giro_solicitante").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
-                    $("#giro_solicitanteSol").html("<b> *"+$("#giro_comercial_hidden :selected").text() + "</b>");
+                    $("#giro_solicitante").html("<b>"+$("#giro_comercial_hidden :selected").text() + "</b>");
+                    $("#giro_solicitanteSol").html("<b>"+$("#giro_comercial_hidden :selected").text() + "</b>");
                     // var excepcion = false;
                     // $.each(arraySolicitantes,function(key,value){
                     //     if(value.grupo_prioritario_id != null){
@@ -2334,15 +2334,15 @@
                         html += '<table>';
                         var ancestors = node.ancestors.reverse();
 
-                        html += '<tr><th colspan="2"><h5>* '+highlightText(node.nombre)+'</h5><th></tr>';
+                        html += '<tr><th><h5> '+highlightText(node.nombre)+'</h5><th></tr>';
                         $.each(ancestors, function (index, ancestor) {
                             if(ancestor.id != 1){
                                 var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(index);
-                                html += '<tr><td ><b>'+ancestor.codigo+'</b></td>'+' <td style="border-left:1px solid;">'+tab+highlightText(ancestor.nombre)+'</td></tr>';
+                                html += '<tr><td style="border-left:1px solid;">'+tab+highlightText(ancestor.nombre)+'</td></tr>';
                             }
                         });
                         var tab = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(node.ancestors.length);
-                        html += '<tr><td><b>'+node.codigo+'</b></td>'+'<td style="border-left:1px solid;"> '+ tab+highlightText(node.nombre)+'</td></tr>';
+                        html += '<tr><td style="border-left:1px solid;"> '+ tab+highlightText(node.nombre)+'</td></tr>';
                         html += '</table>';
                         json.data[key].html = html;
                     });
@@ -2366,9 +2366,9 @@
                 if(data.ambito_id != 1){
                     $("#modal-giro").modal("show");
                 }
-                $("#giro_solicitanteSol").html("<b> *"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre);
+                $("#giro_solicitanteSol").html(data.nombre);
                 $("#giro_comercial_hidden").val(data.id);
-                return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
+                return data.nombre;
             }
             return data.text;
         },
@@ -2681,6 +2681,14 @@
             }
             $("#datosIdentificacionSolicitado").show()
         });
+    $("#girosNivel").on("change",function(){
+        if($(this).val() != ""){
+            $("#divGiro").show();
+        }else{
+            $("#divGiro").hide();
+        }
+        $("#giro_comercial_solicitante").val("").change();
+    });
 
 
     $('[data-toggle="tooltip"]').tooltip();

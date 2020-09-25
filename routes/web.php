@@ -54,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('solicitudes','SolicitudController');
     Route::get('solicitudes/consulta/{id}','SolicitudController@consulta')->name('solicitudes.consulta');
     Route::POST('solicitud/ratificar','SolicitudController@Ratificar');
+    Route::POST('solicitud/ratificarIncompetencia','SolicitudController@ratificarIncompetencia');
     Route::POST('solicitud/excepcion','SolicitudController@ExcepcionConciliacion');
     Route::Get('solicitud/correos/{solicitud_id}','SolicitudController@validarCorreos');
     Route::POST('solicitud/correos','SolicitudController@cargarCorreos');
