@@ -46,10 +46,12 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FechaAudienciaService;
+use App\Traits\GenerateDocument;
 use Illuminate\Database\Eloquent\Builder;
 
 class SolicitudController extends Controller {
 
+    use GenerateDocument;
     /**
      * Instancia del request
      * @var Request
@@ -383,8 +385,9 @@ class SolicitudController extends Controller {
             $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
                 $solicitudSaved->loadDataFromRequest();
             });
+            // event(new GenerateDocumentResolution("",$solicitudSaved->id,40,6));
+            $this->generarConstancia("",$solicitudSaved->id,40,6);
             DB::commit();
-            event(new GenerateDocumentResolution("",$solicitudSaved->id,40,6));
         } catch (\Throwable $e) {
             DB::rollback();
             if ($this->request->wantsJson()) {
@@ -553,7 +556,7 @@ class SolicitudController extends Controller {
 
         $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
         if (count($expediente) > 0) {
-            $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->get();
+            $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->withCount('etapasResolucionAudiencia')->get();
         } else {
             $audiencias = array();
         }
@@ -644,34 +647,59 @@ class SolicitudController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Solicitud $solicitud) {
-        $request->validate([
-            'solicitud.fecha_conflicto' => 'required',
-            'solicitud.solicita_excepcion' => 'required',
-            'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.rfc' => ['nullable', new RFC],
-            'solicitantes.*.tipo_parte_id' => 'required',
-            'solicitantes.*.tipo_persona_id' => 'required',
-            'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
-            'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
-            'solicitantes.*.entidad_nacimiento_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-            'solicitantes.*.dato_laboral' => 'required',
-            'solicitantes.*.domicilios' => 'required',
-            'solicitantes.*.contactos' => 'required',
-            'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-            'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-            'solicitados.*.rfc' => ['nullable', new RFC],
-            'solicitados.*.tipo_parte_id' => 'required',
-            'solicitados.*.tipo_persona_id' => 'required',
-            'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
-            'solicitados.*.domicilios' => 'required',
-        ]);
+        if($solicitud["tipo_solicitud_id"] == 1){
+            $request->validate([
+                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.solicita_excepcion' => 'required',
+                'solicitud.tipo_solicitud_id' => 'required',
+                'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
+                'solicitantes.*.tipo_parte_id' => 'required',
+                'solicitantes.*.tipo_persona_id' => 'required',
+                'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
+                'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
+                'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.dato_laboral' => 'required',
+                'solicitantes.*.domicilios' => 'required',
+                'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
+                'solicitados.*.tipo_parte_id' => 'required',
+                'solicitados.*.tipo_persona_id' => 'required',
+                'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
+                'solicitados.*.domicilios' => 'required'
+            ]);
+        }else{
+            $request->validate([
+                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.solicita_excepcion' => 'required',
+                'solicitud.tipo_solicitud_id' => 'required',
+                'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
+                'solicitantes.*.tipo_parte_id' => 'required',
+                'solicitantes.*.tipo_persona_id' => 'required',
+                'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
+                'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.domicilios' => 'required',
+                'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
+                'solicitados.*.tipo_parte_id' => 'required',
+                'solicitados.*.tipo_persona_id' => 'required',
+                'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
+                'solicitados.*.domicilios' => 'required'
+            ]); 
+        }
         $solicitud = $request->input('solicitud');
         DB::beginTransaction();
-        // try {
+        try {
             // Solicitud
             $solicitud['user_id'] = Auth::user()->id;
             $solicitudUp = Solicitud::find($solicitud['id']);
@@ -697,9 +725,11 @@ class SolicitudController extends Controller {
                 $value['solicitud_id'] = $solicitudSaved['id'];
                 if ($value['activo'] == "1") {
                     unset($value['activo']);
-                    $dato_laboral = $value['dato_laboral'];
+                    if(isset($value['dato_laboral'])){
+                        $dato_laboral = $value['dato_laboral'];
 
-                    unset($value['dato_laboral']);
+                        unset($value['dato_laboral']);
+                    }
                     if (isset($value["domicilios"])) {
                         $domicilio = $value["domicilios"][0];
                         unset($value['domicilios']);
@@ -711,7 +741,9 @@ class SolicitudController extends Controller {
 
 
                     if (!isset($value["id"]) || $value["id"] == "") {
-                        $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+                        if(isset($dato_laboral)){   
+                            $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+                        }
                         // foreach ($domicilios as $key => $domicilio) {
 
                         unset($domicilio['activo']);
@@ -726,11 +758,13 @@ class SolicitudController extends Controller {
                         $parteSaved = Parte::find($value['id']);
                         $parteUpdated = $parteSaved->update($value);
                         $parteSaved = Parte::find($value['id']);
-                        if (isset($dato_laboral["id"]) && $dato_laboral["id"] != "") {
-                            $dato_laboralUp = DatoLaboral::find($dato_laboral["id"]);
-                            $dato_laboralUp->update($dato_laboral);
-                        } else {
-                            $dato_laboral = ($parteSaved->dato_laboral()->create($dato_laboral));
+                        if(isset($dato_laboral)){   
+                            if (isset($dato_laboral["id"]) && $dato_laboral["id"] != "") {
+                                $dato_laboralUp = DatoLaboral::find($dato_laboral["id"]);
+                                $dato_laboralUp->update($dato_laboral);
+                            } else {
+                                $dato_laboral = ($parteSaved->dato_laboral()->create($dato_laboral));
+                            }
                         }
                         unset($domicilio['activo']);
                         if (isset($domicilio["id"]) && $domicilio["id"] != "") {
@@ -837,14 +871,14 @@ class SolicitudController extends Controller {
                 $solicitudSaved->loadDataFromRequest();
             });
             DB::commit();
-        // } catch (\Throwable $e) {
-        //     DB::rollback();
-        //     if ($this->request->wantsJson()) {
+        } catch (\Throwable $e) {
+            DB::rollback();
+            if ($this->request->wantsJson()) {
 
-        //         return $this->sendError('Error'.$e->getMessage());
-        //     }
-        //     return redirect('solicitudes')->with('error', 'Error al crear la solicitud');
-        // }
+                return $this->sendError('Error'.$e->getMessage());
+            }
+            return redirect('solicitudes')->with('error', 'Error al crear la solicitud');
+        }
         if ($this->request->wantsJson()) {
             return $this->sendResponse($solicitudSaved, 'SUCCESS');
         }
@@ -1080,7 +1114,7 @@ class SolicitudController extends Controller {
                 }
                 $expediente = Expediente::find($request->expediente_id);
             }
-            DB::commit();
+            
             $salas = [];
             foreach($audiencia->salasAudiencias as $sala){
                 $sala->sala;
@@ -1092,6 +1126,7 @@ class SolicitudController extends Controller {
             if($acuse != null){
                 $acuse->delete();
             }
+            DB::commit();
             event(new GenerateDocumentResolution("",$solicitud->id,40,6));
             return $audiencia;
         }catch(\Throwable $e){

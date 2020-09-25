@@ -128,6 +128,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('giros','GiroComercialController');
     Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
+    Route::Post('giros_comerciales/cambiar_padre','GiroComercialController@CambiarPadre');
+    Route::Post('giros_comerciales/cambiar_ambito','GiroComercialController@CambiarAmbito');
     Route::resource('documento','DocumentoController');
 
     Route::resource('permisos','PermissionController');

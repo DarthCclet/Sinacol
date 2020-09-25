@@ -79,7 +79,7 @@
                     $("#lista-ccostos").treetable("move", moverId, aId);
 
 //                    var url = $('#action-mover').val();
-                    var url = "api/giros_comerciales/cambiar_padre";
+                    var url = "giros_comerciales/cambiar_padre";
                     var token = $('meta[name="csrf-token"]').attr('content');
                     var datos = {mover_id: moverId, a_id: aId, _token: token};
                     console.log(datos);
@@ -155,12 +155,13 @@
             var id = $(this).data("id");
             var ambito_id = $(this).data("ambito_id");
             $.ajax({
-                url:"/api/giros_comerciales/cambiar_ambito",
+                url:"/giros_comerciales/cambiar_ambito",
                 type:"POST",
                 dataType:"json",
                 data:{
                     id:id,
-                    ambito_id:ambito_id
+                    ambito_id:ambito_id,
+                    _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
                     $.each(data, function(index,element){
@@ -175,7 +176,7 @@
             //pero si requieren hacer búsquedas (2020-05-21)
             //return;
 
-            var url="api/giros_comerciales/"+id;
+            var url="giros/"+id;
             $.get(url).done(function(res){
                 if(res != null){
                     $("#nombre").val(res.nombre);
@@ -193,11 +194,12 @@
         $("#btnGuardarGiro").on("click",function(){
             if($("#nombre").val() != ""){
                 $.ajax({
-                    url:"/api/giros_comerciales/"+$("#id").val(),
+                    url:"/giros/"+$("#id").val(),
                     type:"PUT",
                     dataType:"json",
                     data:{
-                        nombre:$("#nombre").val()
+                        nombre:$("#nombre").val(),
+                        _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
                         if(data != "" && data != null){
