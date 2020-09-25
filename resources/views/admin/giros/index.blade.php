@@ -150,8 +150,8 @@
         });
         //TODO: modificar para hacer funcional, se agrega para que no puedan modificar los ayudantes de Joyce
         //pero si requieren hacer búsquedas (2020-05-21)
-        //$(".spanAmbito").on("click",function(){
-        $(".spanAmbito-disabled").on("click",function(){
+        //$(".spanAmbito-disabled").on("click",function(){
+        $(".spanAmbito").on("click",function(){
             var id = $(this).data("id");
             var ambito_id = $(this).data("ambito_id");
             $.ajax({
