@@ -931,7 +931,7 @@ class SolicitudController extends Controller {
                 AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
                 if($parte->tipo_parte_id == 1){
                     //generar constancia de incompetencia por solicitante
-                    event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,13,15,$parte->id,null));
+                    event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,13,10,$parte->id,null));
                     // event(new GenerateDocumentResolution(18,2,79,15,3));
                 }
             }
