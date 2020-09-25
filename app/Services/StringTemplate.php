@@ -99,44 +99,40 @@ class StringTemplate
         }
         if (isset($vars['audiencia_multiple'])){
           if($vars['audiencia_multiple'] != null && $countAudienciaSeparada > 0){
-            if($vars['audiencia_multiple'] == 'Si') { // Audiencia en salas diferentes
-                // texto de audiencia por separado
-                $sliceSeparado = Str::after($string, '[SI_AUDIENCIA_POR_SEPARADO]');
-                $sliceSeparado = Str::before($sliceSeparado, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
-                $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
-                $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
+            for ($i=0; $i < $countAudienciaSeparada; $i++) { 
+              if($vars['audiencia_multiple'] == 'Si') { // Audiencia en salas diferentes
+                  // texto de audiencia por separado
+                  $sliceSeparado = Str::after($string, '[SI_AUDIENCIA_POR_SEPARADO]');
+                  $sliceSeparado = Str::before($sliceSeparado, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
+                  $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
+                  $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
 
-                $string = $htmlA . $sliceSeparado . $htmlB;
-            }else{//audiencia en misma sala
-                // texto de
-                $sliceSeparado = "";
-                $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
-                $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
+                  $string = $htmlA . $sliceSeparado . $htmlB;
+              }else{//audiencia en misma sala
+                  // texto de
+                  $sliceSeparado = "";
+                  $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
+                  $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
 
-                $string = $htmlA . $sliceSeparado . $htmlB;
-               // break;
+                  $string = $htmlA . $sliceSeparado . $htmlB;
+                // break;
+              }
             }
           }
         }
-        if (isset($vars['solicitud_fecha_ratificacion'])){
-          if($vars['solicitud_fecha_ratificacion'] != null && $countSolicitudRatificada > 0){
-            // if($vars['audiencia_multiple'] == 'Si') { // Audiencia en salas diferentes
-                // texto de audiencia por separado
+        if (isset($vars['solicitud_estatus_solicitud_id'])&& $countSolicitudRatificada > 0){
+          for ($i=0; $i < $countSolicitudRatificada; $i++) { 
+            $htmlA = Str::before($string, '[SI_SOLICITUD_RATIFICADA');
+            $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_RATIFICADA]');
+            if($vars['solicitud_estatus_solicitud_id'] != 1 ){ //solicitud ratificada o termindada
+                // texto de datos de acceso a buzon
                 $sliceRatificada = Str::after($string, '[SI_SOLICITUD_RATIFICADA]');
                 $sliceRatificada = Str::before($sliceRatificada, '[FIN_SI_SOLICITUD_RATIFICADA]');
-                $htmlA = Str::before($string, '[SI_SOLICITUD_RATIFICADA');
-                $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_RATIFICADA]');
 
                 $string = $htmlA . $sliceRatificada . $htmlB;
-            // }else{//audiencia en misma sala
-            //     // texto de
-            //     $sliceSeparado = "";
-            //     $htmlA = Str::before($string, '[SI_AUDIENCIA_POR_SEPARADO');
-            //     $htmlB = Str::after($string, '[FIN_SI_AUDIENCIA_POR_SEPARADO]');
-
-            //     $string = $htmlA . $sliceSeparado . $htmlB;
-            //    // break;
-            // }
+              }else{//solicitud no ratificada
+                $string = $htmlA . $htmlB;
+            }
           }
         }
 
