@@ -14,7 +14,7 @@ class RefactorDocuments extends Command
      *
      * @var string
      */
-    protected $signature = 'refactorDocuments {audiencia_id?} {solicitante_id?} {solicitado_id?}';
+    protected $signature = 'refactorDocuments {solicitud_id?}';
 
     /**
      * The console command description.
@@ -41,32 +41,31 @@ class RefactorDocuments extends Command
     public function handle()
     {
         
-        $audiencia_id = $this->argument('audiencia_id');
-        $solicitante_id = $this->argument('solicitante_id');
-        $solicitado_id = $this->argument('solicitado_id');
-        if($audiencia_id != ""){
-            $audiencias= Audiencia::where("id",$audiencia_id)->get();
-        }else{
-            $audiencias= Audiencia::all();
-        }
-        foreach($audiencias as $key => $audiencia)
-        {
-            $documentos = $audiencia->documentos->where('clasificacion_archivo_id',3);
-            if(count($documentos) > 0){
-                foreach($documentos as $key => $documento){
-                    $documento->delete();
-                }
-            }
-            $resoluciones = ResolucionPartes::where('audiencia_id',$audiencia->id)->get();
-            foreach($resoluciones as $key => $resolucion){
+        $solicitud_id = $this->argument('solicitud_id');
+        
+        // if($audiencia_id != ""){
+        //     $audiencias= Audiencia::where("id",$audiencia_id)->get();
+        // }else{
+        //     $audiencias= Audiencia::all();
+        // }
+        // foreach($audiencias as $key => $audiencia)
+        // {
+            // $documentos = $audiencia->documentos->where('clasificacion_archivo_id',3);
+            // if(count($documentos) > 0){
+            //     foreach($documentos as $key => $documento){
+            //         $documento->delete();
+            //     }
+            // }
+            // $resoluciones = ResolucionPartes::where('audiencia_id',$audiencia->id)->get();
+            // foreach($resoluciones as $key => $resolucion){
                 
-                if($resolucion->resolucion_id == 3){
-                    event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud_id,3,1,$resolucion->parte_solicitante_id,$resolucion->parte_solicitada_id));
+            //     if($resolucion->resolucion_id == 3){
+                    event(new GenerateDocumentResolution("",$solicitud_id,40,6));
                     
-                }else if($resolucion->resolucion_id == 1){
-                    event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud_id,3,2,$resolucion->parte_solicitante_id,$resolucion->parte_solicitada_id));
-                }
-            }
-        }
+            //     }else if($resolucion->resolucion_id == 1){
+            //         event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud_id,3,2,$resolucion->parte_solicitante_id,$resolucion->parte_solicitada_id));
+            //     }
+            // }
+        // }
     }
 }
