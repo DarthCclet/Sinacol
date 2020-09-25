@@ -73,7 +73,7 @@
 
                     //TODO: eliminar return para hacer funcional, se agrega para que no puedan modificar los ayudantes de Joyce
                     //pero si requieren hacer búsquedas (2020-05-21)
-                    return ;
+                    //return ;
 
                     console.log("Se movio el nodo %d al padre: %d", moverId, aId);
                     $("#lista-ccostos").treetable("move", moverId, aId);
@@ -173,7 +173,7 @@
         function CargarGiro(id){
             //TODO: eliminar return para hacer funcional, se agrega para que no puedan modificar los ayudantes de Joyce
             //pero si requieren hacer búsquedas (2020-05-21)
-            return;
+            //return;
 
             var url="api/giros_comerciales/"+id;
             $.get(url).done(function(res){
