@@ -1629,7 +1629,7 @@
                     table +='   <td>'+element.tipo_parte.nombre+'</td>';
                     table +='   <td>'+element.nombre+'</td>';
                     table +='   <td>'+element.primer_apellido+'</td>';
-                    table +='   <td>'+element.segundo_apellido+'</td>';
+                    table +='   <td>'+(element.segundo_apellido || "")+'</td>';
                     if(element.documentos.length >= 1){
                         table +='   <td>';
                         table +='       <div class="col-md-2">';

@@ -152,13 +152,13 @@
                                 <td>{{$audiencia->finalizada ? "Concluida":"Pendiente"}}</td>
                                 <td class="all">
                                     <div style="display: inline-block;">
-                                        {{-- @if($audiencia->etapas_resolucion_audiencia_count > 0) --}}
+                                        @if($audiencia->etapas_resolucion_audiencia_count > 0)
                                             <div style="display: inline-block;" class="m-2"><a title="Detalle" href="{!! route("audiencias.edit",$audiencia->id) !!}" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>
-                                        {{-- @endif --}}
+                                        @endif
                                         @if($solicitud->tipo_solicitud_id == 1)
                                             <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaAudiencia",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
                                         @else
-                                            {{-- <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("resolucionColectiva",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div> --}}
+                                            <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("resolucionColectiva",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
                                         @endif
                                     </div>
                                 </td>
