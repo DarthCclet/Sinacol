@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 use Kalnoy\Nestedset\NodeTrait;
-use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
 
+/**
+ * @property mixed parent_id
+ */
 class GiroComercial extends Model implements AuditableContract
 {
     use SoftDeletes;
@@ -211,4 +214,69 @@ class GiroComercial extends Model implements AuditableContract
     public function ambito(){
       return $this->belongsTo('App\Ambito');
     }
+
+    public static function CambiarAmbito($id, $ambito_id){
+        $giro = GiroComercial::find($id);
+        $giro->ambito_id = $ambito_id;
+        $giro->save();
+
+        $arreglo []= ["id" => $giro->id , "ambito_id" => $giro->ambito_id,"nombre" => $giro->ambito->nombre];
+        $arreglo = self::CambiarAmbitoChildrens($giro,$arreglo);
+        $arreglo = self::CambiarAmbitoParents($giro, $arreglo);
+        return $arreglo;
+    }
+
+    public static function CambiarAmbitoParents(GiroComercial $giro, $arreglo){
+        #validamos si tiene padre
+        if($giro->parent_id != "" && $giro->parent_id != null){
+            # obtenemos el padre
+            $padre = GiroComercial::find($giro->parent_id);
+            #obtenemos a todos los hijos
+            $hijos = GiroComercial::where("parent_id",$padre->id)->get();
+            #declaramos bandera para validar a los hijos
+            #Si un hijo es diferente al nuevo ambito del giro, automaticamente cambia a mixto
+            #Si todas son iguales colocamos el nuevo ambito tambien al padre
+            $bandera = true;
+
+            #Recorremos los hijos
+            foreach($hijos as $hijo){
+                if($hijo->ambito_id != $giro->ambito_id){
+                    $bandera=false;
+                }
+            }
+            if($bandera){
+                $padre->ambito_id = $giro->ambito_id;
+                $padre->save();
+                //dump($padre);
+            }else{
+                $padre->ambito_id = 3;
+                $padre->save();
+                //dump($padre);
+            }
+            #Agregamos el padre al arreglo de la respuesta
+            $arreglo []= ["id" => $padre->id , "ambito_id" => $padre->ambito_id,"nombre" => $padre->ambito->nombre];
+            #Llamamos a la misma función para verificar que no tenga padre el padre y si lo tiene modificarlo
+            $arreglo = self::CambiarAmbitoParents($padre,$arreglo);
+            return $arreglo;
+        }else{
+            return $arreglo;
+        }
+    }
+    private static function CambiarAmbitoChildrens($giro,$arreglo){
+        //buscamos los hijos
+        $hijos = GiroComercial::where("parent_id",$giro->id)->get();
+        // Recorremos los hijos
+        foreach($hijos as $hijo){
+            #Modificamos el ambito del hijo
+            $hijo->ambito_id = $giro->ambito_id;
+            $hijo->save();
+            #Agregamos el hijo al arreglo de la respuesta
+            $arreglo []= ["id" => $hijo->id , "ambito_id" => $hijo->ambito_id,"nombre" => $hijo->ambito->nombre];
+            #Llamamos a la misma función para verificar que no tenga hijos el giro y si los tiene modificarlos
+            $arreglo = self::CambiarAmbitoChildrens($hijo,$arreglo);
+        }
+        return $arreglo;
+    }
+
+
 }
