@@ -152,21 +152,26 @@
                                 </table>
                             </div>
                             <div class="col-md-12">
-                                <label>Giro del negocio o empresa</label>
+                                <label>Actividad principal del patrón</label>
+                                <div title="Escoge de la lista de ramas industriales principales." data-toggle="tooltip" data-placement="top">
+                                    <p class="help-block "><span class="needed">Paso 1. Rama industrial</span></p>
                                 <select id="girosNivel" class="form-control select-element">
-                                    <option value="">- Seleccionar un giro</option>
+                                    <option value="">- Selecciona una rama industrial</option>
                                     @foreach($giros as $cc)
                                     <option value="{{$cc->id}}">{{$cc->nombre}}</option>
                                     @endforeach
                                 </select>
+
+                                </div>
                             </div><br>
                             <div class="col-md-12 form-group row" id="divGiro" style="display:none;">
                                 <input type="hidden" id="term">
-                                <div class="col-md-12 " title="Escribe la actividad y escoge de la opciones que se despliegan" data-toggle="tooltip" data-placement="top" >
-                                    <select name="giro_comercial_solicitante" placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control"></select>
+                                <div class="col-md-12 " title="Teclea palabras claves que describen la actividad económica de tu patrón, y escoge de la lista disponible de actividades" data-toggle="tooltip" data-placement="top" >
+                                    <p class="help-block "><span class="needed">Paso 2: Actividad económica del patrón</span></p>
+                                    <select name="giro_comercial_solicitante" placeholder="Paso 2. Actividad económica del patrón" id="giro_comercial_solicitante" class="form-control"></select>
                                 </div>
                                 <div class="col-md-12">
-                                    <p class="help-block "><span class="needed">&iquest;Cuál es la actividad principal de tu patrón?</span> <br> Ejemplos: comercio de productos al por menor, construcción, servicios médicos...</p>
+
                                 <label id="giro_solicitante"></label>
                                 </div>
                             </div>
@@ -2697,11 +2702,11 @@
 
     $('[data-toggle="tooltip"]').tooltip();
 
-    history.pushState(null, document.title, location.href); 
-    history.back(); 
-    history.forward(); 
-    window.onpopstate = function () { 
-        history.go(1); 
+    history.pushState(null, document.title, location.href);
+    history.back();
+    history.forward();
+    window.onpopstate = function () {
+        history.go(1);
     };
 </script>
 
