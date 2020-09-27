@@ -119,7 +119,7 @@
                     <!-- begin row -->
                     <div class="row" id="form">
                         <div class="col-xl-10 offset-xl-1">
-
+                            <h1>Solicitud de <span id="labelTipoSolicitud"></span></h1>
                             <div class="col-md-12 mt-4">
                                 <h2>Datos generales de la solicitud</h2>
                                 <hr class="red">
@@ -439,7 +439,7 @@
                                 <hr style="margin-top:5%;">
                                 <div id="divBotonesSolicitante" style="display:none">
                                     <button class="btn btn-danger" type="button" onclick="limpiarSolicitante()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
-                                    <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Validar y agregar solicitante</button>
+                                    <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitante" > <i class="fa fa-plus-circle"></i> Validar o agregar solicitante</button>
                                 </div>
                             </div>
                         </div>
@@ -696,7 +696,7 @@
                                 <hr style="margin-top:5%;">
                                 <div id="divBotonesSolicitado" style="display: none;">
                                     <button class="btn btn-danger" type="button" onclick="limpiarSolicitado()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
-                                    <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Validar y Agregar citado</button>
+                                    <button class="btn btn-primary" style="float: right;" type="button" id="agregarSolicitado" > <i class="fa fa-plus-circle"></i> Validar o Agregar citado</button>
                                 </div>
 
                             </div>
@@ -1373,16 +1373,20 @@
         // getGironivel("",1,"girosNivel1solicitante");
         if($("#tipo_solicitud_id").val() == 4){
             $("#labelTipoSolicitante").text("Sindicato")
+            $("#labelTipoSolicitud").text("Sindicato")
             $("#divTipoPersona").hide();
             $("#tipo_persona_moral_solicitante").prop("checked", true).trigger('change');
             $(".sindicato").show();
             $("#registro_sindical").attr("required",true);
         }else if($("#tipo_solicitud_id").val() == 3){
             $("#labelTipoSolicitante").text("Patrón (colectiva)")
+            $("#labelTipoSolicitud").text("Patrón (colectiva)")
         }else if($("#tipo_solicitud_id").val() == 2){
             $("#labelTipoSolicitante").text("Patrón (individual)")
+            $("#labelTipoSolicitud").text("Patrón (individual)")
         }else if($("#tipo_solicitud_id").val() == 1){
             $("#labelTipoSolicitante").text("Trabajador")
+            $("#labelTipoSolicitud").text("Trabajador")
         }
     });
     // function exepcionConciliacion(){
@@ -1962,7 +1966,7 @@
         $('#divMapaSolicitante').show();
         $('#divBotonesSolicitante').show();
         $('#wizard').smartWizard('goToStep', 1);
-        $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Validar y Editar solicitante');
+        $("#agregarSolicitante").html('<i class="fa fa-edit"></i> Validar o Editar solicitante');
         $("#edit_key").val(key);
         $("#solicitante_id").val(arraySolicitantes[key].id);
         if(arraySolicitantes[key].tipo_persona_id == 1){
@@ -2692,6 +2696,13 @@
 
 
     $('[data-toggle="tooltip"]').tooltip();
+
+    history.pushState(null, document.title, location.href); 
+    history.back(); 
+    history.forward(); 
+    window.onpopstate = function () { 
+        history.go(1); 
+    };
 </script>
 
 

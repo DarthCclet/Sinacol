@@ -46,12 +46,10 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FechaAudienciaService;
-use App\Traits\GenerateDocument;
 use Illuminate\Database\Eloquent\Builder;
 
 class SolicitudController extends Controller {
 
-    use GenerateDocument;
     /**
      * Instancia del request
      * @var Request
@@ -385,9 +383,8 @@ class SolicitudController extends Controller {
             $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
                 $solicitudSaved->loadDataFromRequest();
             });
-            // event(new GenerateDocumentResolution("",$solicitudSaved->id,40,6));
-            $this->generarConstancia("",$solicitudSaved->id,40,6);
             DB::commit();
+            event(new GenerateDocumentResolution("",$solicitudSaved->id,40,6));
         } catch (\Throwable $e) {
             DB::rollback();
             if ($this->request->wantsJson()) {

@@ -249,127 +249,131 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <h5>Datos del Representante legal</h5>
-                <div class="col-md-12 row">
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="curpRep" class="control-label">CURP</label>
-                            <input type="text" id="curpRep" maxlength="18" onblur="validaCURP(this.value);" class="form-control" placeholder="CURP del representante legal">
+                <div style="overflow:scroll">
+
+                
+                    <h5>Datos del Representante legal</h5>
+                    <div class="col-md-12 row">
+                        <div class="col-md-6 ">
+                            <div class="form-group">
+                                <label for="curpRep" class="control-label">CURP</label>
+                                <input type="text" id="curpRep" maxlength="18" onblur="validaCURP(this.value);" class="form-control" placeholder="CURP del representante legal">
+                            </div>
+                        </div>
+                        <div class="col-md-6 ">
+                            <div class="form-group">
+                                <label for="nombreRep" class="control-label">Nombre</label>
+                                <input type="text" id="nombreRep" class="form-control" placeholder="Nombre del representante legal">
+                            </div>
+                        </div>
+                        <div class="col-md-6 ">
+                            <div class="form-group">
+                                <label for="primer_apellidoRep" class="control-label">Primer apellido</label>
+                                <input type="text" id="primer_apellidoRep" class="form-control" placeholder="Primer apellido del representante">
+                            </div>
+                        </div>
+                        <div class="col-md-6 ">
+                            <div class="form-group">
+                                <label for="segundo_apellidoRep" class="control-label">Segundo apellido</label>
+                                <input type="text" id="segundo_apellidoRep" class="form-control" placeholder="Segundo apellido representante">
+                            </div>
+                        </div>
+                        <div class="col-md-6 ">
+                            <div class="form-group">
+                                <label for="fecha_nacimientoRep" class="control-label">Fecha de nacimiento</label>
+                                <input type="text" id="fecha_nacimientoRep" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="genero_idRep" class="col-sm-6 control-label">Género</label>
+                            <select id="genero_idRep" class="form-control catSelect select-element">
+                                <option value="">-- Selecciona un género</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 row">
+                            <div class="col-md-6">
+                                Documento de identificaci&oacute;n
+                                <span class="btn btn-primary fileinput-button m-r-3">
+                                    <i class="fa fa-fw fa-plus"></i>
+                                    <span>Seleccionar identificaci&oacute;n</span>
+                                    <input type="file" id="fileIdentificacion" name="files">
+                                </span>
+                                <p style="margin-top: 1%;" id="labelIdentifRepresentante"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="clasificacion_archivo_id_representante" class="control-label">Tipo de documento</label>
+                                <select class="form-control catSelect" required id="tipo_documento_id" name="tipo_documento_id">
+                                    <option value="">Seleccione una opci&oacute;n</option>
+                                    @if(isset($clasificacion_archivo))
+                                        @foreach($clasificacion_archivo as $clasificacion)
+                                            <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="nombreRep" class="control-label">Nombre</label>
-                            <input type="text" id="nombreRep" class="form-control" placeholder="Nombre del representante legal">
-                        </div>
-                    </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="primer_apellidoRep" class="control-label">Primer apellido</label>
-                            <input type="text" id="primer_apellidoRep" class="form-control" placeholder="Primer apellido del representante">
-                        </div>
-                    </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="segundo_apellidoRep" class="control-label">Segundo apellido</label>
-                            <input type="text" id="segundo_apellidoRep" class="form-control" placeholder="Segundo apellido representante">
-                        </div>
-                    </div>
-                    <div class="col-md-6 ">
-                        <div class="form-group">
-                            <label for="fecha_nacimientoRep" class="control-label">Fecha de nacimiento</label>
-                            <input type="text" id="fecha_nacimientoRep" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="genero_idRep" class="col-sm-6 control-label">Género</label>
-                        <select id="genero_idRep" class="form-control catSelect select-element">
-                            <option value="">-- Selecciona un género</option>
-                        </select>
-                    </div>
+                    <hr>
+                    <h5>Datos de comprobante como representante legal</h5>
                     <div class="col-md-12 row">
                         <div class="col-md-6">
-                            Documento de identificaci&oacute;n
-                            <span class="btn btn-primary fileinput-button m-r-3">
-                                <i class="fa fa-fw fa-plus"></i>
-                                <span>Seleccionar identificaci&oacute;n</span>
-                                <input type="file" id="fileIdentificacion" name="files">
-                            </span>
-                            <p style="margin-top: 1%;" id="labelIdentifRepresentante"></p>
+                            <div class="form-group">
+                                <label for="clasificacion_archivo_id_representante" class="control-label">Instrumento</label>
+                                <select id="clasificacion_archivo_id_representante" class="form-control catSelect select-element">
+                                    <option value="">-- Selecciona un instrumento</option>
+                                    @foreach($clasificacion_archivos_Representante as $clasificacion)
+                                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <label for="clasificacion_archivo_id_representante" class="control-label">Tipo de documento</label>
-                            <select class="form-control catSelect" required id="tipo_documento_id" name="tipo_documento_id">
-                                <option value="">Seleccione una opci&oacute;n</option>
-                                @if(isset($clasificacion_archivo))
-                                    @foreach($clasificacion_archivo as $clasificacion)
-                                        <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
-                                    @endforeach
-                                @endif
-                            </select>
+                            <div class="form-group">
+                                <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
+                                <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="detalle_instrumento" class="control-label">Detalle del instrumento notarial</label>
+                                <textarea type="text" id="detalle_instrumento" class="form-control" placeholder=""></textarea>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <hr>
-                <h5>Datos de comprobante como representante legal</h5>
-                <div class="col-md-12 row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="clasificacion_archivo_id_representante" class="control-label">Instrumento</label>
-                            <select id="clasificacion_archivo_id_representante" class="form-control catSelect select-element">
-                                <option value="">-- Selecciona un instrumento</option>
-                                @foreach($clasificacion_archivos_Representante as $clasificacion)
-                                <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
-                                @endforeach
+                    <hr>
+                    <h5>Datos de contacto</h5>
+                    <div class="col-md-12 row">
+                        <div class="col-md-5">
+                            <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
+                            <select id="tipo_contacto_id" class="form-control catSelect select-element">
+                                <option value="">-- Selecciona un género</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
-                            <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label for="contacto" class="control-label">Contacto</label>
+                                <input type="text" id="contacto" class="form-control" placeholder="Información de contacto">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary" type="button" id="btnAgregarContacto">
+                                <i class="fa fa-plus-circle"></i> Agregar
+                            </button>
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="detalle_instrumento" class="control-label">Detalle del instrumento notarial</label>
-                            <textarea type="text" id="detalle_instrumento" class="form-control" placeholder=""></textarea>
-                        </div>
+                        <table class="table table-bordered" >
+                            <thead>
+                                <tr>
+                                    <th style="width:80%;">Tipo</th>
+                                    <th style="width:80%;">Contacto</th>
+                                    <th style="width:20%; text-align: center;">Accion</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyContacto">
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-                <hr>
-                <h5>Datos de contacto</h5>
-                <div class="col-md-12 row">
-                    <div class="col-md-5">
-                        <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
-                        <select id="tipo_contacto_id" class="form-control catSelect select-element">
-                            <option value="">-- Selecciona un género</option>
-                        </select>
-                    </div>
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label for="contacto" class="control-label">Contacto</label>
-                            <input type="text" id="contacto" class="form-control" placeholder="Información de contacto">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-primary" type="button" id="btnAgregarContacto">
-                            <i class="fa fa-plus-circle"></i> Agregar
-                        </button>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <table class="table table-bordered" >
-                        <thead>
-                            <tr>
-                                <th style="width:80%;">Tipo</th>
-                                <th style="width:80%;">Contacto</th>
-                                <th style="width:20%; text-align: center;">Accion</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbodyContacto">
-                        </tbody>
-                    </table>
                 </div>
             </div>
             <div class="modal-footer">

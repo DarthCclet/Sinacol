@@ -80,8 +80,9 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('audiencia/comparecientes/{audiencia_id}','AudienciaController@getComparecientes');
     Route::Get('audiencia/negarCancelacion/{audiencia_id}','AudienciaController@negarCancelacion');
     Route::Get('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
-    Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');;
-    // Route::get('resolucionUnica/{id}','AudienciaController@resolucionUnica');
+    Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');
+    Route::get('resolucionColectiva/{id}','AudienciaController@resolucionColectiva')->name('resolucionColectiva');
+    Route::Post('audiencia/guardarAudienciaColectiva','AudienciaController@guardarAudienciaColectiva');
     Route::get('calendario','AudienciaController@calendario');
     Route::get('getAudienciaConciliador','AudienciaController@GetAudienciaConciliador');
     Route::get('agendaConciliador','AudienciaController@AgendaConciliador');
