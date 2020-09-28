@@ -22,6 +22,7 @@ use App\Expediente;
 use App\ResolucionPartes;
 use App\Resolucion;
 use App\MotivoArchivado;
+use Illuminate\Support\Facades\Log;
 use Validator;
 use App\Filters\CatalogoFilter;
 use App\GiroComercial;
@@ -80,7 +81,7 @@ class AudienciaController extends Controller {
             $limInf = " 00:00:00";
             if ($this->request->get('fechaAudiencia')) {
                 $audiencias->where('fecha_audiencia', "=", $this->request->get('fechaAudiencia'))->orderBy("fecha_audiencia", 'desc');
-                // $audiencias->where('fecha_audiencia',">",$this->request->get('fechaAudiencia') . $limInf);     
+                // $audiencias->where('fecha_audiencia',">",$this->request->get('fechaAudiencia') . $limInf);
             }
             if ($this->request->get('NoAudiencia')) {
                 $audiencias->where('numero_audiencia', $this->request->get('NoAudiencia'))->orderBy("fecha_audiencia", 'desc');
@@ -262,7 +263,7 @@ class AudienciaController extends Controller {
         }
         foreach($solicitud->expediente->audiencia as $audienciaSol){
             $documentos = $audienciaSol->documentos;
-            
+
             foreach ($documentos as $documento) {
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                 $documento->tipo = pathinfo($documento->ruta)['extension'];
@@ -685,7 +686,7 @@ class AudienciaController extends Controller {
                                 array_push($arrayMultado,$solicitado->parte_id);
                             }
                             // Se genera multa
-                            
+
                         }
                     } else if ($audiencia->resolucion_id == 1) {
                         $terminacion = 3;
@@ -784,7 +785,7 @@ class AudienciaController extends Controller {
                     return ["pasa" => false];
                 }
             }
-            // Si siempre tiene representante 
+            // Si siempre tiene representante
             return ["pasa" => true];
         } else {
             // Si no hay personas Morales se puede guardar la resolución
@@ -893,7 +894,7 @@ class AudienciaController extends Controller {
                 $arregloPartesAgregadas[] = $relacion["parte_solicitante_id"];
                 AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $relacion["parte_solicitante_id"], "tipo_notificacion_id" => $tipo_notificacion_id]);
             }
-            ##Validamos que el solicitado no exista 
+            ##Validamos que el solicitado no exista
             $pasaSolicitado = true;
             foreach ($arregloPartesAgregadas as $arreglo) {
                 if ($relacion["parte_solicitada_id"] == $arreglo) {
@@ -922,7 +923,7 @@ class AudienciaController extends Controller {
     public function GetAudienciaConciliador() {
 //        obtenemos los datos del conciliador
         $conciliador = auth()->user()->persona->conciliador;
-//        obtenemos las audiencias programadas a partir de el día de hoy        
+//        obtenemos las audiencias programadas a partir de el día de hoy
         $arrayEventos = [];
         if ($conciliador != null) {
             $audiencias = $conciliador->ConciliadorAudiencia;
@@ -988,9 +989,9 @@ class AudienciaController extends Controller {
     public function guardarAudienciaColectiva(Request $request) {
         //Creamos el registro
         DB::beginTransaction();
-        try{        
+        try{
             $idAudiencia = $request->audiencia_id;
-            
+
             $audiencia = Audiencia::find($idAudiencia);
             $solicitud = $audiencia->expediente->solicitud;
             if($request->resolucion_id != ""){
@@ -1083,9 +1084,9 @@ class AudienciaController extends Controller {
         $audiencia = Audiencia::find($idAudiencia);
         $tipoArchivo = ClasificacionArchivo::find($tipo_archivo_id);
         $archivo = $audiencia->documentos()->create(["descripcion" => "".$tipoArchivo->nombre ]);
-        
+
         $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $idAudiencia;
-        
+
         $nombreArchivo = $tipoArchivo->nombre;
         $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
         $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
@@ -1232,7 +1233,7 @@ class AudienciaController extends Controller {
                             "expediente_id" => $audiencia->expediente_id,
                             "multiple" => $audiencia->multiple,
                             "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
-                            "hora_inicio" => $datos_audiencia["hora_inicio"], 
+                            "hora_inicio" => $datos_audiencia["hora_inicio"],
                             "hora_fin" => $datos_audiencia["hora_fin"],
                             "conciliador_id" =>  $datos_audiencia["conciliador_id"],
                             "numero_audiencia" => 2,
@@ -1261,7 +1262,7 @@ class AudienciaController extends Controller {
                                 event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud_id,14,4,null,$parte->parte_id));
                             }
                         }
-                        
+
                         event(new GenerateDocumentResolution("",$audienciaN->expediente->solicitud_id,40,6));
                         foreach($audienciaN->salasAudiencias as $sala){
                             $sala->sala;
@@ -1295,7 +1296,7 @@ class AudienciaController extends Controller {
                         /*
                          * Aquí aplica el caso cuando solo acudieron algunos se los citados y no todos
                          * Se deberá regresar un mensaje para que el citado indique si desea continuar con la audiencia
-                         * 
+                         *
                          */
                         $response = array("tipo" => 5,"response" => null);
                     }
@@ -1305,6 +1306,7 @@ class AudienciaController extends Controller {
             DB::commit();
             return $this->sendResponse($response, 'SUCCESS');
         } catch (\Throwable $e) {
+            Log::error($e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Error al registrar los comparecientes' . $e->getMessage(), 'Error');
         }
@@ -1335,7 +1337,7 @@ class AudienciaController extends Controller {
                 "expediente_id" => $audiencia->expediente_id,
                 "multiple" => $audiencia->multiple,
                 "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
-                "hora_inicio" => $datos_audiencia["hora_inicio"], 
+                "hora_inicio" => $datos_audiencia["hora_inicio"],
                 "hora_fin" => $datos_audiencia["hora_fin"],
                 "conciliador_id" =>  $datos_audiencia["conciliador_id"],
                 "numero_audiencia" => 2,
@@ -1392,7 +1394,7 @@ class AudienciaController extends Controller {
             $parteRep = [];
             if ($compareciente->parte->tipo_parte_id == 3 && $compareciente->parte->parte_representada_id != null) {
                 $parteRep = Parte::find($compareciente->parte->parte_representada_id);
-                
+
                 if($parteRep->tipo_parte_id == 1){
                     $solicitantes = true;
                 }else{
