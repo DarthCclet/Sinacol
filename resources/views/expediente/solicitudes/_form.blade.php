@@ -152,7 +152,7 @@
                                 </table>
                             </div>
                             <div class="col-md-12">
-                                <label>Giro del negocio o empresa</label>
+                                <label>Rama industrial del negocio</label>
                                 <select id="girosNivel" class="form-control select-element">
                                     <option value="">- Seleccionar un giro</option>
                                     @foreach($giros as $cc)
@@ -166,7 +166,13 @@
                                     <select name="giro_comercial_solicitante" placeholder="Seleccione" id="giro_comercial_solicitante" class="form-control"></select>
                                 </div>
                                 <div class="col-md-12">
-                                    <p class="help-block "><span class="needed">&iquest;Cuál es la actividad principal de tu patrón?</span> <br> Ejemplos: comercio de productos al por menor, construcción, servicios médicos...</p>
+                                    @if($tipo_solicitud_id == 1)
+                                        <p class="help-block "><span class="needed">&iquest;Cuál es la actividad principal de tu patrón?</span> <br> Ejemplos: comercio de productos al por menor, construcción, servicios médicos...</p>
+                                    @elseif($tipo_solicitud_id == 4)
+                                        <p class="help-block "><span class="needed">&iquest;Cuál es la actividad principal del patrón?</span> <br> Ejemplos: comercio de productos al por menor, construcción, servicios médicos...</p>
+                                    @else
+                                        <p class="help-block "><span class="needed">&iquest;Cuál es tu actividad principal?</span> <br> Ejemplos: comercio de productos al por menor, construcción, servicios médicos...</p>
+                                    @endif
                                 <label id="giro_solicitante"></label>
                                 </div>
                             </div>
@@ -465,6 +471,7 @@
                                 <div id="editandoSolicitado"></div>
                             </div>
                             <div  id="divSolicitado">
+                               @if($tipo_solicitud_id == 1) 
                                 <div id="divAyudaCitado" style="margin-top: 2%; margin-bottom: 2%;">
                                     <div>
                                         <p>
@@ -528,7 +535,10 @@
                                     </div>
 
                                 </div>
-                                <div id="datosIdentificacionSolicitado" style="display: none;" data-parsley-validate="true">
+                                @else
+                                    <input type="hidden" id="recibo_oficial_si" name="recibo_oficial_si" value="1">
+                                @endif
+                                <div id="datosIdentificacionSolicitado" style="display: {{$tipo_solicitud_id ==1 ? 'none' : 'block'}};" data-parsley-validate="true">
 
                                     <div class="col-md-12 mt-4">
                                         <h4>Datos de identificaci&oacute;n</h4>
@@ -603,21 +613,23 @@
                                             <p class="help-block">Estado de nacimiento</p>
                                         </div>
                                     </div>
-                                    <div class="col-md-12 row personaFisicaSolicitadoNO">
-                                        <div class="col-md-4">
-                                            <div  >
-                                                <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
+                                    @if($tipo_solicitud_id == 1 || $tipo_solicitud_id == 2)
+                                        <div class="col-md-12 row personaFisicaSolicitadoNO">
+                                            <div class="col-md-4">
+                                                <div  >
+                                                    <span class="text-muted m-l-5 m-r-20" for='switch1'>Solicita traductor</span>
+                                                </div>
+                                                <div >
+                                                    <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitado" name='solicita_traductor_solicitado'/>
+                                                </div>
                                             </div>
-                                            <div >
-                                                <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="solicita_traductor_solicitado" name='solicita_traductor_solicitado'/>
+                                            <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
+                                                {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                                {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
+                                                <p class="help-block needed">Lengua indígena</p>
                                             </div>
                                         </div>
-                                        <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
-                                            {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                                            {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                            <p class="help-block needed">Lengua indígena</p>
-                                        </div>
-                                    </div>
+                                    @endif
                                     <div class="col-md-12 pasoSolicitado" id="continuarSolicitado1">
                                         <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(1)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
                                     </div>
