@@ -1220,10 +1220,10 @@ class AudienciaController extends Controller {
                         $diasHabilesMax = 18;
                         // validamos si se debe asignar solo una sala o dos y buscamos la disponibilidad
                         if($audiencia->multiple){
-                            $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                            $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
                             $multiple = true;
                         }else{
-                            $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                            $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
                             $multiple = false;
                         }
                         //Obtenemos el contador
@@ -1326,10 +1326,10 @@ class AudienciaController extends Controller {
             $audiencia = Audiencia::find($this->request->audiencia_id);
             // validamos si se debe asignar solo una sala o dos y buscamos la disponibilidad
             if($audiencia->multiple){
-                $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
                 $multiple = true;
             }else{
-                $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
                 $multiple = false;
             }
             //Obtenemos el contador
