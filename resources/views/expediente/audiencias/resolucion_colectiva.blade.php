@@ -105,8 +105,17 @@
         <div class="row" style="margin-top: 5%;">
             <div class="col-md-1"></div>
             <div class="col-md-10">
+                <table style="width: 100%; border-collapse: collapse; margin-left: auto; margin-right: auto;" border="0">
+                    <tbody>
+                    <tr>
+                    <td class="celda-logo" style="width: 35.1477%;"><img src="/assets/img/logo/LOGO_cfcrl.png" height="70" /></td>
+                    <td class="celda-centro" style="width: 13.3335%;">&nbsp;</td>
+                    <td class="celda-derecha" style="width: 51.5187%; text-align: center;">&nbsp;</td>
+                    </tr>
+                    </tbody>
+                </table>
                 <div class="header_document">
-                   {{isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" }}
+                   {!!isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" !!}
                 </div>
                 <div id="audiencia_body" name="audiencia_body" class="sectionPlantilla" style="border:solid 2px lightgray; max-height:400px; height:400px; overflow: scroll;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
             </div>
@@ -126,6 +135,15 @@
         <div class="row" style="margin-top: 5%;">
             <div class="col-md-1"></div>
             <div class="col-md-10">
+                <table style="width: 100%; border-collapse: collapse; margin-left: auto; margin-right: auto;" border="0">
+                    <tbody>
+                    <tr>
+                    <td class="celda-logo" style="width: 35.1477%;"><img src="/assets/img/logo/LOGO_cfcrl.png" height="70" /></td>
+                    <td class="celda-centro" style="width: 13.3335%;">&nbsp;</td>
+                    <td class="celda-derecha" style="width: 51.5187%; text-align: center;">&nbsp;</td>
+                    </tr>
+                    </tbody>
+                </table>
                 <div class="header_document">
                     {{isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" }}
                 </div>
@@ -140,6 +158,15 @@
         <div class="row" style="margin-top: 5%;">
             <div class="col-md-1"></div>
             <div class="col-md-10">
+                <table style="width: 100%; border-collapse: collapse; margin-left: auto; margin-right: auto;" border="0">
+                    <tbody>
+                    <tr>
+                    <td class="celda-logo" style="width: 35.1477%;"><img src="/assets/img/logo/LOGO_cfcrl.png" height="70" /></td>
+                    <td class="celda-centro" style="width: 13.3335%;">&nbsp;</td>
+                    <td class="celda-derecha" style="width: 51.5187%; text-align: center;">&nbsp;</td>
+                    </tr>
+                    </tbody>
+                </table>
                 <div class="header_document">
                     {{isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" }}
                  </div>

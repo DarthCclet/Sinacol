@@ -970,11 +970,10 @@ class AudienciaController extends Controller {
         }
         $audiencia->partes = $partes;
         $solicitud = $audiencia->expediente->solicitud;
-        $folio = $audiencia->expediente->solicitud->folio;
         $audiencia->solicitantes = $this->getSolicitantes($audiencia);
         $audiencia->solicitados = $this->getSolicitados($audiencia);
         // dd($solicitud->folio);
-        $plantilla['plantilla_header'] = view('documentos._header_documentos_colectivo_default',compact('folio'));
+        $plantilla['plantilla_header'] = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
         $plantilla['plantilla_body'] = "";
         $plantilla['plantilla_footer'] = "";
         $resoluciones = $this->cacheModel('resoluciones', Resolucion::class);
@@ -994,7 +993,7 @@ class AudienciaController extends Controller {
             $solicitud = $audiencia->expediente->solicitud;
             if($request->resolucion_id != ""){
                 $html = $request['audiencia_body'];
-                $htmlHeader = view('documentos._header_documentos_colectivo_default',$solicitud);
+                $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
                 $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,1);
                 $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true));
 
@@ -1045,7 +1044,7 @@ class AudienciaController extends Controller {
                             if ($terminacion == 3) {
                                 //Se genera el convenio
                                 $html = $request['convenio_body'];
-                                $htmlHeader = view('documentos._header_documentos_colectivo_default',$solicitud);
+                                $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
                                 $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,2);
                             }
                         }
@@ -1053,7 +1052,7 @@ class AudienciaController extends Controller {
                 }
             }else{
                 $html = $request['no_comparece_body'];
-                $htmlHeader = view('documentos._header_documentos_colectivo_default',$solicitud);
+                $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
                 $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,3);
                 $audiencia->update(array("resolucion_id" => 3, "finalizada" => true));
                 $solicitantes = $this->getSolicitantes($audiencia);
@@ -1384,12 +1383,13 @@ class AudienciaController extends Controller {
         return $pdf->inline();
     }
     public function renderPDFCustom($html, $htmlHeader, $path=null){
+        $html=$htmlHeader.$html;
         $pdf = App::make('snappy.pdf.wrapper');
         $pdf->loadHTML($html);
         $pdf->setOption('page-size', 'Letter')
             ->setOption('margin-top', '25mm')
             ->setOption('margin-bottom', '11mm')
-            ->setOption('header-html', $htmlHeader)
+            ->setOption('header-html', env('APP_URL').'/header/'."1")
             ->setOption('footer-html', env('APP_URL').'/footer/'."1")
         ;
         if($path){
