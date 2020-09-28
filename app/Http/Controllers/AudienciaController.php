@@ -1115,6 +1115,7 @@ class AudienciaController extends Controller {
             $citadosArray = array();
             $audiencia_id = $this->request->audiencia_id;
             $audiencia = Audiencia::find($audiencia_id);
+            $response = array("tipo" => 6,"response" => null);
             if (!$audiencia->finalizada) {
                 $totalCitados = 0;
                 foreach($audiencia->audienciaParte as $parte){

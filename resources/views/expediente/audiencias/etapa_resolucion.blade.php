@@ -1692,6 +1692,12 @@
                                 }
                             }
                         });
+                    }else if(data.data.tipo == 5){
+                        swal({
+                            title: 'Error',
+                            text: 'Esta audiencia ya fue finalizada',
+                            icon: 'error'
+                        });
                     }
                 },
                 error:function(data){
