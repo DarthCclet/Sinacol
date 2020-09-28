@@ -1692,11 +1692,23 @@
                                 }
                             }
                         });
-                    }else if(data.data.tipo == 5){
+                    }else if(data.data.tipo == 6){
                         swal({
                             title: 'Error',
                             text: 'Esta audiencia ya fue finalizada',
-                            icon: 'error'
+                            icon: 'error',
+                            buttons: {
+                                confirm: {
+                                    text: 'Aceptar',
+                                    value: true,
+                                    visible: true,
+                                    className: 'btn btn-warning',
+                                    closeModal: true
+                            }
+                            }
+                        }).then(function(isConfirm){
+                            window.location.href = "/audiencias";
+                            $("#btnFinalizarRatificacion").click();
                         });
                     }
                 },
