@@ -1307,7 +1307,9 @@ class AudienciaController extends Controller {
             DB::commit();
             return $this->sendResponse($response, 'SUCCESS');
         } catch (\Throwable $e) {
-            Log::error($e->getTraceAsString());
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Error al registrar los comparecientes' . $e->getMessage(), 'Error');
         }
