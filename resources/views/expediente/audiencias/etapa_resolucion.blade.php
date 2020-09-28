@@ -1148,6 +1148,63 @@
     </script>
 </div>
 <!-- Fin Modal de cargar archivos-->
+<div class="modal" id="modal-ratificacion-success" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Audiencia generada</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    <p>
+                        Debido a que no se presento uno o varios citados se generó una nueva audiencia con la siguiente información
+                    </p>
+                </div>
+                <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Folio: </strong><span id="spanFolio"></span><br>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Fecha de Audiencia: </strong><span id="spanFechaAudiencia"></span><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Hora de inicio: </strong><span id="spanHoraInicio"></span><br>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Hora de termino: </strong><span id="spanHoraFin"></span><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <table class="table table-striped table-hover" id="tableAudienciaSuccess">
+                        <thead>
+                            <tr>
+                                <th>Tipo de parte</th>
+                                <th>Conciliador</th>
+                                <th>Sala</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnFinalizarRatificacion"><i class="fa fa-check"></i> Finalizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <input type="hidden" id="parte_id">
 <input type="hidden" id="parte_representada_id">
 @endsection
@@ -1523,11 +1580,11 @@
                 },
                 success:function(data){
                     $("#modal-comparecientes").modal("hide");
-                    if(data.data.finalizada == true){
+                    if(data.data.tipo == 1){
                         swal({
                         title: 'Éxito',
-                        text: 'La audiencia fue finalizada',
-                        icon: 'warning',
+                            text: 'Se ha archivado la audiencia por falta de solicitantes',
+                            icon: 'success',
                         buttons: {
                             confirm: {
                                 text: 'Aceptar',
@@ -1538,14 +1595,58 @@
                             }
                         }
                         }).then(function(isConfirm){
-                            if(isConfirm){
-
-                            }else{
-
+                            window.location.href = "/audiencias/"+data.data.response.id+"/edit";
+                        });
+                    }else if(data.data.tipo == 2){
+                        swal({
+                            title: 'Éxito',
+                            text: 'Se ha finalizado la audiencia, se generaron las actas de no conciliación y las actas de multa para los citados que no acudieron',
+                            icon: 'success',
+                            buttons: {
+                                confirm: {
+                                    text: 'Aceptar',
+                                    value: true,
+                                    visible: true,
+                                    className: 'btn btn-warning',
+                                    closeModal: true
                             }
+                            }
+                        }).then(function(isConfirm){
                             window.location.href = "/audiencias";
                         });
+                    }else if(data.data.tipo == 3){
+                        $("#spanFolio").text(data.data.response.folio+"/"+data.data.response.anio);
+                        $("#spanFechaAudiencia").text(dateFormat(data.data.response.fecha_audiencia,4));
+                        $("#spanHoraInicio").text(data.data.response.hora_inicio);
+                        $("#spanHoraFin").text(data.data.response.hora_fin);
+                        var table="";
+                        if(data.data.response.multiple){
+                            $.each(data.data.response.conciliadores_audiencias,function(index,element){
+                                table +='<tr>';
+                                if(element.solicitante){
+                                    table +='   <td>Solicitante(s)</td>';
                     }else{
+                                    table +='   <td>Citado(s)</td>';
+                                }
+                                table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                                $.each(data.data.response.salas_audiencias,function(index2,element2){
+                                    if(element2.solicitante == element.solicitante){
+                                        table +='<td>'+element2.sala.sala+'</td>';
+                                    }
+                                });
+                                table +='</tr>';
+                            });
+                        }else{
+                            table +='<tr>';
+                            table +='   <td>Solicitante(s) y citado(s)</td>';
+                            table +='   <td>'+data.data.response.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
+                            table +='   <td>'+data.data.response.salas_audiencias[0].sala.sala+'</td>';
+                            table +='</tr>';
+                        }
+                        $("#tableAudienciaSuccess tbody").html(table);
+                        $("#modalRatificacion").modal("hide");
+                        $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                    }else if(data.data.tipo == 4){
                         swal({
                             title: 'Éxito',
                             text: 'Se han registrado los comparecientes',
@@ -1554,6 +1655,43 @@
                         cargarComparecientes();
                         startTimer();
                         nextStep(1);
+                    }else if(data.data.tipo == 5){
+                        swal({
+                            title: '¿Qué deseas hacer?',
+                            text: 'Detectamos que no todos los citados comparecieron, ¿Deseas continuar con el proceso de audiencia?, de indicar que no, se generará una nueva audiencia',
+                            icon: 'info',
+                            buttons: {
+                                cancel: {
+                                    text: 'Cancelar',
+                                    value: null,
+                                    visible: true,
+                                    className: 'btn btn-default',
+                                    closeModal: true,
+                                },roll: {
+                                    text: "No",
+                                    value: 2,
+                                    className: 'btn btn-warning',
+                                    visible: true,
+                                    closeModal: true
+                                },confirm: {
+                                    text: 'Si',
+                                    value: 1,
+                                    visible: true,
+                                    className: 'btn btn-danger',
+                                    closeModal: true
+                    }
+                            }
+                        }).then(function(tipo){
+                            if(tipo != null){
+                                if(tipo == 1){
+                                    cargarComparecientes();
+                                    startTimer();
+                                    nextStep(1);
+                                }else if(tipo == 2){
+                                    SolicitarNuevaAudiencia();
+                                }
+                            }
+                        });
                     }
                 },
                 error:function(data){
@@ -1567,6 +1705,50 @@
             });
         }
     });
+    function SolicitarNuevaAudiencia(){
+        $.ajax({
+            url:"/audiencias/solicitar_nueva",
+            type:"POST",
+            dataType:"json",
+            data:{
+                audiencia_id:"{{ $audiencia->id }}",
+                _token:"{{ csrf_token() }}"
+            },
+            success:function(data){
+                $("#spanFolio").text(data.data.response.folio+"/"+data.data.response.anio);
+                $("#spanFechaAudiencia").text(dateFormat(data.data.response.fecha_audiencia,4));
+                $("#spanHoraInicio").text(data.data.response.hora_inicio);
+                $("#spanHoraFin").text(data.data.response.hora_fin);
+                var table="";
+                if(data.data.response.multiple){
+                    $.each(data.data.response.conciliadores_audiencias,function(index,element){
+                        table +='<tr>';
+                        if(element.solicitante){
+                            table +='   <td>Solicitante(s)</td>';
+                        }else{
+                            table +='   <td>Citado(s)</td>';
+                        }
+                        table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                        $.each(data.data.response.salas_audiencias,function(index2,element2){
+                            if(element2.solicitante == element.solicitante){
+                                table +='<td>'+element2.sala.sala+'</td>';
+                            }
+                        });
+                        table +='</tr>';
+                    });
+                }else{
+                    table +='<tr>';
+                    table +='   <td>Solicitante(s) y citado(s)</td>';
+                    table +='   <td>'+data.data.response.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
+                    table +='   <td>'+data.data.response.salas_audiencias[0].sala.sala+'</td>';
+                    table +='</tr>';
+                }
+                $("#tableAudienciaSuccess tbody").html(table);
+                $("#modalRatificacion").modal("hide");
+                $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+            }
+        });
+    }
     function cargarComparecientes(){
         $.ajax({
             url:"/audiencia/comparecientes/{{ $audiencia->id }}",
@@ -2817,6 +2999,9 @@
         return n > 9 ? "" + n: "0" + n;
     }
     $('[data-toggle="tooltip"]').tooltip();
+    $("#btnFinalizarRatificacion").on("click",function(){
+        location.href = "/solicitudes/consulta/{{$solicitud_id}}";
+    });
 </script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush

@@ -11,6 +11,7 @@ use App\Incidencia;
 use App\Filters\CatalogoFilter;
 use App\TipoAsentamiento;
 use App\TipoVialidad; 
+use App\Audiencia;
 use Illuminate\Support\Facades\Cache;
 
 class CentroController extends Controller
@@ -211,6 +212,7 @@ class CentroController extends Controller
         return $respuesta;
     }
     public function getAudienciasCalendario(){
-        return view("centros.centros.calendario_audiencias");
+        $audiencias = Audiencia::where("encontro_audiencia",false)->get();
+        return view("centros.centros.calendario_audiencias", compact('audiencias'));
     }
 }

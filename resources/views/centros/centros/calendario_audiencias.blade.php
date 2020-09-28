@@ -14,6 +14,13 @@
 <h1 class="h2">Audiencias <small>Calendario del centro</small></h1>
 <hr class="red">
 <div class="panel panel-default">
+    <div class="panel-header">
+        <div class="row col-md-12">
+            <button class="btn btn-primary btn-sm m-l-5" class="pull-right" id="btnNoAudiencia">
+                <i class="fa fa-times"></i> No calendarizadas <span class="badge" style="background-color: #B38E5D;">4</span>
+            </button>
+        </div>
+    </div>
     <div class="panel-body">
         <div class="row">
             <div class="col-md-12">
@@ -79,6 +86,63 @@
                 <div class="text-right">
                     <button class="btn btn-primary btn-sm m-l-5" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-arrow-down"></i> Cerrar</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnFinalizarRatificacion"><i class="fa fa-calendar"></i> Reprogramar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="modal-audiencias" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Audiencias no agendadas</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    Las siguientes audiencias no pudieron encontrar disponibilidad en el plazo de asignación automatica
+                </div>
+                <div class="col-md-12">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Folio</th>
+                                <th>Solicitante(s)</th>
+                                <th>Citado(s)</th>
+                                <th>Asignar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($audiencias as $audiencia)
+                            <tr>
+                                <td>{{$audiencia->folio}}/{{$audiencia->anio}}</td>
+                                <td>
+                                @foreach($audiencia->audienciaParte as $partes)
+                                    @if($parte->parte->tipo_parte_id == 1)
+                                        @if($parte->parte->tipo_persona_id == 1)
+                                        -{{$parte->parte->nombre}} {{$parte->parte->primer_apellido}} {{$parte->parte->segundo_apellido}}<br>
+                                        @elseif($parte->parte->tipo_persona_id == 2)
+                                        -{{$parte->parte->nombre_comercial}}<br>
+                                        @endif
+                                    @endif
+                                @endforeach
+                                </td>
+                                <td>
+                                @foreach($audiencia->audienciaParte as $partes)
+                                    @if($parte->parte->tipo_parte_id == 2)
+                                        @if($parte->parte->tipo_persona_id == 1)
+                                        -{{$parte->parte->nombre}} {{$parte->parte->primer_apellido}} {{$parte->parte->segundo_apellido}}<br>
+                                        @elseif($parte->parte->tipo_persona_id == 2)
+                                        -{{$parte->parte->nombre_comercial}}<br>
+                                        @endif
+                                    @endif
+                                @endforeach
+                                </td>
+                                <td>{{$audiencia->folio}}/{{$audiencia->anio}}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -219,6 +283,9 @@
             }
             $("#btnFinalizarRatificacion").on("click",function(){
                 $("#calendarioReagendar").show();
+            });
+            $("#btnNoAudiencia").on("click",function(){
+                $("#modal-audiencias").modal("show");
             });
         </script>
 @endpush
