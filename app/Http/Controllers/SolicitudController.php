@@ -1316,11 +1316,11 @@ class SolicitudController extends Controller {
         }
     }
     private function construirCorreo(Parte $parte){
-        if($parte->tipo_persona == 1){
-            $correo = str_replace(' ', '', $parte->nombre).".".str_replace(' ', '', $parte->primer_apellido).".".$parte->id."@centro.gob.mx";
+        if($parte->tipo_persona_id == 1){
+            $correo = str_replace(' ', '', $parte->nombre).".".str_replace(' ', '', $parte->primer_apellido).".".$parte->id."@mibuzonlaboral.gob.mx";
             $password = str_replace(' ', '', $parte->curp);
         }else{
-            $correo = str_replace(' ', '', $parte->nombre_comercial).".".$parte->id."@centro.gob.mx";
+            $correo = str_replace(' ', '', $parte->nombre_comercial).".".$parte->id."@mibuzonlaboral.gob.mx";
             $password = str_replace(' ', '', $parte->rfc);
         }
         return ["correo" => strtolower($correo),"password" => strtolower($password)];

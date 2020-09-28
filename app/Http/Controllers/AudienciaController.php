@@ -32,6 +32,7 @@ use App\Solicitud;
 use App\ClasificacionArchivo;
 use App\ResolucionParteConcepto;
 use App\TerminacionBilateral;
+use App\Documento;
 use App\Traits\ValidateRange;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,6 +40,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Services\FechaAudienciaService;
 
 class AudienciaController extends Controller {
 
@@ -1110,85 +1112,178 @@ class AudienciaController extends Controller {
         try {
             $solicitantes = false;
             $citados = false;
+            $citadosArray = array();
             $audiencia_id = $this->request->audiencia_id;
             $audiencia = Audiencia::find($audiencia_id);
+            if (!$audiencia->finalizada) {
+                $totalCitados = 0;
+                foreach($audiencia->audienciaParte as $parte){
+                    if($parte->parte->tipo_parte_id == 2){
+                        $totalCitados++;
+                    }
+                }
+                $totalCitadosComparecen = 0;
             foreach ($this->request->comparecientes as $compareciente) {
                 $parte_compareciente = Parte::find($compareciente);
                 if ($parte_compareciente->tipo_parte_id == 1) {
                     $solicitantes = true;
                 } else if ($parte_compareciente->tipo_parte_id == 2) {
                     $citados = true;
+                        $citadosArray[]=$parte_compareciente;
+                        if($parte_compareciente->tipo_persona_id == 1){
+                            $totalCitadosComparecen++;
+                        }
                 } else if ($parte_compareciente->tipo_parte_id == 3) {
                     $parte_representada = Parte::find($parte_compareciente->parte_representada_id);
                     if ($parte_representada->tipo_parte_id == 1) {
                         $solicitantes = true;
                     } else if ($parte_representada->tipo_parte_id == 2) {
                         $citados = true;
+                            $totalCitadosComparecen++;
                     }
                 }
                 Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $this->request->audiencia_id, "presentado" => true]);
             }
-            if (!$audiencia->finalizada) {
-                
                 if (!$solicitantes) {
+                    // Aqui aplica el caso 1 donde no comparece el solicitante y se finaliza la solicitud por no comparecencia
                     //Archivado y se genera formato de acta de archivado por no comparecencia
-                    if($audiencia->expediente->solicitud->tipo_solicitud_id == 1){
 
-                        $audiencia->update(array("resolucion_id" => 4, "finalizada" => true));
-                        $solicitantes = $this->getSolicitantes($audiencia);
-                        $solicitados = $this->getSolicitados($audiencia);
-                        foreach ($solicitantes as $solicitante) {
-                            foreach ($solicitados as $solicitado) {
-                                $resolucionParte = ResolucionPartes::create([
-                                    "audiencia_id" => $audiencia->id,
-                                    "parte_solicitante_id" => $solicitante->parte_id,
-                                    "parte_solicitada_id" => $solicitado->parte_id,
-                                    "terminacion_bilateral_id" => 1
-                                ]);
-                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $solicitante->parte_id, $solicitado->parte_id));
-                            }
-                        }
-                            // Se genera archivo de acta de archivado
-                    }
-                }
-                if ($solicitantes && !$citados) {
-                    //Constancia de no conciliacion de todos los citados 
-                    $audiencia->update(array("resolucion_id" => 3, "finalizada" => true));
+                    $audiencia->update(array("resolucion_id" => 4, "finalizada" => true));
+                    $solicitantesA = $this->getSolicitantes($audiencia);
                     $solicitados = $this->getSolicitados($audiencia);
-                    // $audiencia_partes = AudienciaParte::where('audiencia_id',$audiencia_id)->whereHas('parte', function (Builder $query) {
-                    //     $query->where('tipo_parte_id',2)->first();
-                    // });
-                    // if($audiencia_partes->tipo_notificacion_id != 1){
-                    $solicitantes = $this->getSolicitantes($audiencia);
-                    $arrayMultado = [];
-                    foreach ($solicitantes as $solicitante) {
+                    foreach ($solicitantesA as $solicitante) {
                         foreach ($solicitados as $solicitado) {
                             $resolucionParte = ResolucionPartes::create([
-                                        "audiencia_id" => $audiencia->id,
-                                        "parte_solicitante_id" => $solicitante->parte_id,
-                                        "parte_solicitada_id" => $solicitado->parte_id,
-                                        "terminacion_bilateral_id" => 5
+                                "audiencia_id" => $audiencia->id,
+                                "parte_solicitante_id" => $solicitante->parte_id,
+                                "parte_solicitada_id" => $solicitado->parte_id,
+                                "terminacion_bilateral_id" => 1
                             ]);
-                            //Se genera constancia de no conciliacion
-                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
-                            
-                            if(array_search($solicitado->parte_id,$arrayMultado) === false && $audiencia->expediente->solicitud->tipo_solicitud_id == 1){
-                                // Se genera archivo de acta de multa
-                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
-                                array_push($arrayMultado,$solicitado->parte_id);
-                            }
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $solicitante->parte_id, $solicitado->parte_id));
                         }
                     }
-                    // }else{
-                    //     // Se manda a ejecutar la función de agenda de audiencia
-                    // }
+                    $solicitud = Solicitud::find($audiencia->expediente->solicitud_id);
+                    $solicitud->update(["estatus_solicitud_id" => 3]);
+                            // Se genera archivo de acta de archivado
+                    $response = array("tipo" => 1,"response" => $audiencia);
+//                    DB::rollBack();
+//                    dd($solicitantes);
+                    }
+                if ($solicitantes && !$citados) {
+                    $audiencia->update(array("resolucion_id" => 3, "finalizada" => true));
+                    $solicitados = $this->getSolicitados($audiencia);
+                    $tipo_notificacion = 1;
+                    foreach($audiencia->audienciaParte as $parte){
+                        if($parte->parte->tipo_parte_id == 2){
+                            $tipo_notificacion = $parte->tipo_notificacion_id;
+                        }
+                    }
+                    if($tipo_notificacion != 1){
+                        /*
+                         * Aqui se cumple el caso 3 dónde no acudieron las partes citadas con notificador
+                         * Se gernerarán tres cosas
+                         * - Constancia de no conciliación para cada parte
+                         * - Acta de multa para todos los citados
+                         * - Orden de notificación de multa(Pendiente)
+                         */
+                        $solicitantesPartes = $this->getSolicitantes($audiencia);
+                        $arrayMultado = [];
+                        foreach ($solicitantesPartes as $solicitante) {
+                            foreach ($solicitados as $solicitado) {
+                                $resolucionParte = ResolucionPartes::create([
+                                            "audiencia_id" => $audiencia->id,
+                                            "parte_solicitante_id" => $solicitante->parte_id,
+                                            "parte_solicitada_id" => $solicitado->parte_id,
+                                            "terminacion_bilateral_id" => 5
+                                ]);
+                                //Se genera constancia de no conciliacion
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
+
+                                    if(array_search($solicitado->parte_id,$arrayMultado) === false){
+                                    // Se genera archivo de acta de multa
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
+                                    array_push($arrayMultado,$solicitado->parte_id);
+                                }
+                            }
+                        }
+                        $response = array("tipo" => 2,"response" => $audiencia);
+                    }else{
+                        /*
+                         * Aqui se cumple el caso 2 dónde no acudieron las partes citadas con solicitante
+                         * Se generará una nueva audiencia entre 15 y 18 días hábiles
+                         * Se generará una cita con notificador para entregar los nuevos citatorios
+                         * Se generará una nuevo acuse
+                         */
+                        // buscamos disponibilidad en los proximos 15 a 18 días
+                        $diasHabilesMin = 15;
+                        $diasHabilesMax = 18;
+                        // validamos si se debe asignar solo una sala o dos y buscamos la disponibilidad
+                        if($audiencia->multiple){
+                            $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                            $multiple = true;
+                        }else{
+                            $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                            $multiple = false;
+                        }
+                        //Obtenemos el contador
+                        $ContadorController = new ContadorController();
+                        $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+                        //creamos el registro de la audiencia
+                        $audienciaN = Audiencia::create([
+                            "expediente_id" => $audiencia->expediente_id,
+                            "multiple" => $audiencia->multiple,
+                            "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
+                            "hora_inicio" => $datos_audiencia["hora_inicio"], 
+                            "hora_fin" => $datos_audiencia["hora_fin"],
+                            "conciliador_id" =>  $datos_audiencia["conciliador_id"],
+                            "numero_audiencia" => 2,
+                            "reprogramada" => false,
+                            "anio" => $folioAudiencia->anio,
+                            "folio" => $folioAudiencia->contador,
+                            "encontro_audiencia" => $datos_audiencia["encontro_audiencia"]
+                        ]);
+                        if($datos_audiencia["encontro_audiencia"]){
+                            // guardamos la sala y el consiliador a la audiencia
+                            ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $datos_audiencia["conciliador_id"],"solicitante" => true]);
+                            SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $datos_audiencia["sala_id"],"solicitante" => true]);
+                            if($audienciaN->multiple){
+                                ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $datos_audiencia["conciliador2_id"],"solicitante" => false]);
+                                SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $datos_audiencia["sala2_id"],"solicitante" => false]);
+                            }
+                        }
+                        // Guardamos todas las Partes en la audiencia
+                        $acuse = Documento::where('documentable_type','App\Solicitud')->where('documentable_id',$audienciaN->expediente->solicitud_id)->where('clasificacion_archivo_id',40)->first();
+                        if($acuse != null){
+                            $acuse->delete();
+                        }
+                        foreach($audiencia->audienciaParte as $parte){
+                            AudienciaParte::create(["audiencia_id" => $audienciaN->id,"parte_id" => $parte->parte_id,"tipo_notificacion_id" => 3]);
+                            if($parte->parte->tipo_parte_id == 2){
+                                event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud_id,14,4,null,$parte->parte_id));
+                            }
+                        }
+                        
+                        event(new GenerateDocumentResolution("",$audienciaN->expediente->solicitud_id,40,6));
+                        foreach($audienciaN->salasAudiencias as $sala){
+                            $sala->sala;
+                        }
+                        foreach($audienciaN->conciliadoresAudiencias as $conciliador){
+                            $conciliador->conciliador->persona;
+                        }
+                        $response = array("tipo" => 3,"response" => $audienciaN);
+                    }
                 }
-                if ($solicitantes ) {
+                if ($solicitantes && $citados) {
+                    if($totalCitadosComparecen >= $totalCitados){
+                        /*
+                         * Aquí aplica el caso en el que todos acuden a la audiencia y se debe celebrar sin ningun problema
+                         * En esta sección permite que siga el flujo de manera normal
+                         */
                     $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
                     foreach ($audiencia_partes as $key => $audienciaP) {
                         if ($audienciaP->parte->tipo_parte_id == 1) {
                             $comparecio = Compareciente::where('audiencia_id', $audiencia_id)->where('parte_id', $audienciaP->parte_id)->first();
-                            if ($comparecio == null && $audiencia->expediente->solicitud->tipo_solicitud_id == 1) {
+                                if ($comparecio == null) {
                                 $solicitados = $this->getSolicitados($audiencia);
                                 foreach ($solicitados as $key => $solicitado) {
                                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $audienciaP->parte_id, $solicitado->parte_id));
@@ -1196,16 +1291,94 @@ class AudienciaController extends Controller {
                             }
                         }
                     }
+                        $response = array("tipo" => 4,"response" => $audiencia);
+                    }else{
+                        /*
+                         * Aquí aplica el caso cuando solo acudieron algunos se los citados y no todos
+                         * Se deberá regresar un mensaje para que el citado indique si desea continuar con la audiencia
+                         * 
+                         */
+                        $response = array("tipo" => 5,"response" => null);
+                    }
                 }
             }
 
-            $audiencia->comparece_solicitantes = $solicitantes;
-            $audiencia->comparece_citados = $citados;
             DB::commit();
-            return $this->sendResponse($audiencia, 'SUCCESS');
+            return $this->sendResponse($response, 'SUCCESS');
         } catch (\Throwable $e) {
             DB::rollback();
             return $this->sendError('Error al registrar los comparecientes' . $e->getMessage(), 'Error');
+        }
+    }
+    public function SolicitarNueva(){
+        /*
+         * Esta funcion es para generar una nueva audiencia si el solicitante así lo desea
+         */
+        // buscamos disponibilidad en los proximos 15 a 18 días
+        DB::beginTransaction();
+        try{
+            $diasHabilesMin = 15;
+            $diasHabilesMax = 18;
+            $audiencia = Audiencia::find($this->request->audiencia_id);
+            // validamos si se debe asignar solo una sala o dos y buscamos la disponibilidad
+            if($audiencia->multiple){
+                $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                $multiple = true;
+            }else{
+                $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                $multiple = false;
+            }
+            //Obtenemos el contador
+            $ContadorController = new ContadorController();
+            $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+            //creamos el registro de la audiencia
+            $audienciaN = Audiencia::create([
+                "expediente_id" => $audiencia->expediente_id,
+                "multiple" => $audiencia->multiple,
+                "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
+                "hora_inicio" => $datos_audiencia["hora_inicio"], 
+                "hora_fin" => $datos_audiencia["hora_fin"],
+                "conciliador_id" =>  $datos_audiencia["conciliador_id"],
+                "numero_audiencia" => 2,
+                "reprogramada" => false,
+                "anio" => $folioAudiencia->anio,
+                "folio" => $folioAudiencia->contador,
+                "encontro_audiencia" => $datos_audiencia["encontro_audiencia"]
+            ]);
+            if($datos_audiencia["encontro_audiencia"]){
+                // guardamos la sala y el consiliador a la audiencia
+                ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $datos_audiencia["conciliador_id"],"solicitante" => true]);
+                SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $datos_audiencia["sala_id"],"solicitante" => true]);
+                if($audienciaN->multiple){
+                    ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $datos_audiencia["conciliador2_id"],"solicitante" => false]);
+                    SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $datos_audiencia["sala2_id"],"solicitante" => false]);
+                }
+            }
+            // Guardamos todas las Partes en la audiencia
+            $acuse = Documento::where('documentable_type','App\Solicitud')->where('documentable_id',$audienciaN->expediente->solicitud_id)->where('clasificacion_archivo_id',40)->first();
+            if($acuse != null){
+                $acuse->delete();
+            }
+            foreach($audiencia->audienciaParte as $parte){
+                AudienciaParte::create(["audiencia_id" => $audienciaN->id,"parte_id" => $parte->parte_id,"tipo_notificacion_id" => 3]);
+                if($parte->parte->tipo_parte_id == 2){
+                    event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud_id,14,4,null,$parte->parte_id));
+                }
+            }
+
+            event(new GenerateDocumentResolution("",$audienciaN->expediente->solicitud_id,40,6));
+            foreach($audienciaN->salasAudiencias as $sala){
+                $sala->sala;
+            }
+            foreach($audienciaN->conciliadoresAudiencias as $conciliador){
+                $conciliador->conciliador->persona;
+            }
+            $response = array("tipo" => 3,"response" => $audienciaN);
+            DB::commit();
+            return $this->sendResponse($response, 'SUCCESS');
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return $this->sendError('Error al crear la nueva audiencia' . $e->getMessage(), 'Error');
         }
     }
 
