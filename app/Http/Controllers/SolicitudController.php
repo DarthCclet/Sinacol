@@ -283,6 +283,7 @@ class SolicitudController extends Controller {
             if(!isset($solicitud['tipo_solicitud_id'])){
                 $solicitud['tipo_solicitud_id'] = 1;
             }
+            $tipo_solicitud_id = $solicitud['tipo_solicitud_id'];
             $date = new \DateTime();
             $solicitud['fecha_recepcion'] = $date->format('Y-m-d H:i:s');
             $solicitud['centro_id'] = $this->getCentroId();
@@ -331,6 +332,10 @@ class SolicitudController extends Controller {
                 // foreach ($domicilios as $key => $domicilio) {
                 unset($domicilio['activo']);
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                if($key == 0 && ($tipo_solicitud_id == 2 ||$tipo_solicitud_id == 3 )){
+                    $domiciliop = $domicilio["estado_id"];
+                    $centro = $this->getCentroId($domicilio["estado_id"]);
+                }
                 // }
                 if (count($contactos) > 0) {
                     foreach ($contactos as $key => $contacto) {
@@ -350,7 +355,7 @@ class SolicitudController extends Controller {
                 if (isset($value["domicilios"])) {
                     $domicilios = $value["domicilios"];
                     unset($value['domicilios']);
-                    if($key == 0){
+                    if($key == 0 && ($tipo_solicitud_id == 1 ||$tipo_solicitud_id == 4 )){
                         $domiciliop = $domicilios[0]["estado_id"];
                         $centro = $this->getCentroId($domicilios[0]["estado_id"]);
                     }
