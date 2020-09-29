@@ -37,7 +37,7 @@ trait GenerateDocument
      */
     public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null, $idConciliador = null)
     {
-		$plantilla = PlantillaDocumento::find($plantilla_id);
+    $plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
             if($idAudiencia != ""){
 

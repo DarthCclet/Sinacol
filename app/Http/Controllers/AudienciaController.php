@@ -728,16 +728,13 @@ class AudienciaController extends Controller {
                     if (isset($listaFechasPago)) { //se registran pagos diferidos
                         if (count($listaFechasPago) > 0) {
                             foreach ($listaFechasPago as $key => $fechaPago) {
-                                if ($key == $solicitante->parte_id) {
-                                    foreach ($fechaPago as $k => $fecha) {
-                                        ResolucionPagoDiferido::create([
-                                            "resolucion_partes_id" => $resolucionParte->id,
-                                            "monto" => $fecha["monto"],
-                                            "fecha_pago" => $fecha["fecha_pago"],
-                                            "pagado" => false
-                                        ]);
-                                    }
-                                }
+                                
+                                ResolucionPagoDiferido::create([
+                                    "monto" => $fechaPago["monto_pago"],
+                                    "resolucion_parte_id" => $resolucionParte->id,
+                                    "fecha_pago" => Carbon::createFromFormat('d/m/Y',$fechaPago["fecha_pago"])->format('Y-m-d'),
+                                    "pagado" => false
+                                ]);
                             }
                         }
                     }
