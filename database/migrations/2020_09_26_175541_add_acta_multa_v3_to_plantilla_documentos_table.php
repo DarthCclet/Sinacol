@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class AddActaMultaV2ToPlantillaDocumentosTable extends Migration
+class AddActaMultaV3ToPlantillaDocumentosTable extends Migration
 {
     /**
      * Run the migrations.
