@@ -97,8 +97,9 @@
                         "targets": [4],
                         "render": function (data, type, row) {
                             var html = "";
-                            if(row[8] != null){
-                                html = ""+row[8].persona.nombre + " "+ row[8].persona.primer_apellido + " " + (row[8].persona.segundo_apellido|| "");
+
+                            if(row[9] != null){
+                                html = ""+row[9].persona.nombre + " "+ row[9].persona.primer_apellido + " " + (row[9].persona.segundo_apellido|| "");
 
                             }
                             return  html;
@@ -122,7 +123,12 @@
                                 // console.log(row[0]);
                                 var guia = "";
                                 if(row[7] == false){
-                                    guia = '<div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="'+ruta.replace('/audiencias/1/edit',"/guiaAudiencia/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>';
+                                    if(row[10].solicitud.tipo_solicitud_id == 1){
+                                        guia = '<div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="'+ruta.replace('/audiencias/1/edit',"/guiaAudiencia/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>';
+                                    }else{
+                                        guia = '<div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="'+ruta.replace('/audiencias/1/edit',"/resolucionColectiva/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>';
+                                        
+                                    }
                                 }
                                 return '<div style="display: inline-block;" class="m-2"><a title="Detalle" href="'+ruta.replace('/1/',"/"+row[0]+"/")+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>'+guia;
                             }
