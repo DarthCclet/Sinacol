@@ -28,9 +28,15 @@
         text-align: right;
     }
 
+    .upper{
+        text-transform: uppercase;
+    }
+    .needed:after {
+        color:darkred;
+        content: " (*)";
+    }
 </style>
 @endpush
-    
 
 @section('content')
 <!-- begin breadcrumb -->
@@ -145,9 +151,9 @@
                     </tbody>
                 </table>
                 <div class="header_document">
-                    {{isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" }}
+                    {!!isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" !!}
                 </div>
-                <div id="convenio_body" name="convenio_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:400px; height:400px; overflow: scroll;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
+                <div id="convenio_body" name="convenio_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:400px; height:400px; overflow: scroll;" contenteditable="true"></div>
             </div>
             <div class="col-md-2"></div>
         </div> 
@@ -168,7 +174,7 @@
                     </tbody>
                 </table>
                 <div class="header_document">
-                    {{isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" }}
+                    {!!isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" !!}
                  </div>
                 <div id="no_comparece_body" name="no_comparece_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:400px; height:400px; overflow: scroll;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
             </div>
@@ -440,43 +446,43 @@
                 <div class="col-md-12 row">
                     <div class="col-md-6 ">
                         <div class="form-group">
-                            <label for="curp" class="control-label">CURP</label>
-                            <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control" placeholder="CURP del representante legal">
+                            <label for="curp" class="control-label needed">CURP</label>
+                            <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control upper" placeholder="CURP del representante legal">
                         </div>
                     </div>
                     <div class="col-md-6 ">
                         <div class="form-group">
-                            <label for="nombre" class="control-label">Nombre</label>
-                            <input type="text" id="nombre" class="form-control" placeholder="Nombre del representante legal">
+                            <label for="nombre" class="control-label needed">Nombre</label>
+                            <input type="text" id="nombre" class="form-control upper" placeholder="Nombre del representante legal">
                         </div>
                     </div>
                     <div class="col-md-6 ">
                         <div class="form-group">
-                            <label for="primer_apellido" class="control-label">Primer apellido</label>
-                            <input type="text" id="primer_apellido" class="form-control" placeholder="Primer apellido del representante">
+                            <label for="primer_apellido" class="control-label needed">Primer apellido</label>
+                            <input type="text" id="primer_apellido" class="form-control upper" placeholder="Primer apellido del representante">
                         </div>
                     </div>
                     <div class="col-md-6 ">
                         <div class="form-group">
                             <label for="segundo_apellido" class="control-label">Segundo apellido</label>
-                            <input type="text" id="segundo_apellido" class="form-control" placeholder="Segundo apellido representante">
+                            <input type="text" id="segundo_apellido" class="form-control upper" placeholder="Segundo apellido representante">
                         </div>
                     </div>
                     <div class="col-md-6 ">
                         <div class="form-group">
-                            <label for="fecha_nacimiento" class="control-label">Fecha de nacimiento</label>
+                            <label for="fecha_nacimiento" class="control-label needed">Fecha de nacimiento</label>
                             <input type="text" id="fecha_nacimiento" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label for="genero_id" class="col-sm-6 control-label">Género</label>
+                        <label for="genero_id" class="col-sm-6 control-label needed">Género</label>
                         <select id="genero_id" class="form-control select-element">
                             <option value="">-- Selecciona un género</option>
                         </select>
                     </div>
                     <div class="col-md-12 row">
                         <div class="col-md-6">
-                            Documento de identificaci&oacute;n
+                            <label class=" needed">Documento de identificaci&oacute;n</label> 
                             <span class="btn btn-primary fileinput-button m-r-3">
                                 <i class="fa fa-fw fa-plus"></i>
                                 <span>Seleccionar identificaci&oacute;n</span>
@@ -485,7 +491,7 @@
                             <p style="margin-top: 1%;" id="labelIdentifRepresentante"></p>
                         </div>
                         <div class="col-md-6">
-                            <label for="clasificacion_archivo_id_representante" class="control-label">Tipo de documento</label>
+                            <label for="clasificacion_archivo_id_representante" class="control-label  needed">Tipo de documento</label>
                             <select class="form-control catSelect" required id="tipo_documento_id" name="tipo_documento_id">
                                 <option value="">Seleccione una opci&oacute;n</option>
                                 @if(isset($clasificacion_archivo))
@@ -502,7 +508,7 @@
                 <div class="col-md-12 row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="clasificacion_archivo_id_representante" class="control-label">Instrumento</label>
+                            <label for="clasificacion_archivo_id_representante" class="control-label needed">Instrumento</label>
                             <select id="clasificacion_archivo_id_representante" class="form-control select-element">
                                 <option value="">-- Selecciona un instrumento</option>
                                 @foreach($clasificacion_archivos_Representante as $clasificacion)
@@ -513,9 +519,18 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
+                            <label for="feha_instrumento" class="control-label needed">Fecha de instrumento</label>
                             <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
                         </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class=" needed">Documento de Instrumento</label> 
+                        <span class="btn btn-primary fileinput-button m-r-3">
+                            <i class="fa fa-fw fa-plus"></i>
+                            <span>Seleccionar instrumento</span>
+                            <input type="file" id="fileInstrumento" name="files">
+                        </span>
+                        <p style="margin-top: 1%;" id="labelInstrumentoRepresentante"></p>
                     </div>
                     <div class="col-md-12">
                         <div class="form-group">
@@ -525,7 +540,7 @@
                     </div>
                 </div>
                 <hr>
-                <h5>Datos de contacto</h5>
+                <h5 class=" needed">Datos de contacto</h5>
                 <div class="col-md-12 row">
                     <div class="col-md-5">
                         <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
@@ -797,6 +812,7 @@
 @push('scripts')
 <script src='/js/tinymce/tinymce.min.js'></script>
 <script>
+    var listaContactos = [];
     var noComparece = false;
     $("#resolucion_id").change(function(){
         if($(this).val() == 1){
@@ -943,16 +959,6 @@
                             icon: 'success'
                         });
                         cargarComparecientes();
-                        if(!data.data.comparece_solicitantes || !data.data.comparece_citados){
-                            if(!data.data.comparece_solicitantes){
-                                $("#divNoComparece").show();
-                                noComparece = true;
-                            }else{
-                                window.location = "/audiencias/{{ $audiencia->id }}/edit";
-                            }
-                        }else{
-                            $("#divAudiencia").show();
-                        }
                     }
                 },
                 error:function(data){
@@ -1095,11 +1101,21 @@
                     $("#parte_id").val(data.id);
                     listaContactos = data.contactos;
                     if(data.documentos && data.documentos.length > 0){
-                        $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+data.documentos[0].descripcion);
-                        $("#tipo_documento_id").val(data.documentos[0].clasificacion_archivo_id).trigger('change');
+                        $.each(data.documentos,function(index,doc){
+                            if(doc.tipo_archivo == 1){
+                                $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                            }else{
+                                $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
+                            }
+                        });
+                        
                     }else{
                         $("#tipo_documento_id").val("").trigger("change");
                         $("#labelIdentifRepresentante").html("");
+                        $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                        $("#labelInstrumentoRepresentante").html("");
                     }
                 }else{
                     $("#curp").val("");
@@ -1267,37 +1283,71 @@
         });
     }
     $("#btnAgregarContacto").on("click",function(){
-        if($("#parte_id").val() != ""){
-            $.ajax({
-                url:"/partes/representante/contacto",
-                type:"POST",
-                dataType:"json",
-                data:{
+        if($("#contacto").val() != "" && $("#tipo_contacto_id").val() != ""){
+            var contactoVal = $("#contacto").val();
+            if($("#tipo_contacto_id").val() == 3){
+                if(!validateEmail(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El correo no tiene la estructura correcta',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+
+            }else{
+                if(!/^[0-9]{10}$/.test(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El contacto debe tener 10 digitos de tipo numero',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+            }
+            if($("#parte_id").val() != ""){
+                $.ajax({
+                    url:"/partes/representante/contacto",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        tipo_contacto_id:$("#tipo_contacto_id").val(),
+                        contacto:$("#contacto").val(),
+                        parte_id:$("#parte_id").val(),
+                        _token:"{{ csrf_token() }}"
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            listaContactos = data;
+                            cargarContactos();
+                        }else{
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        }
+                    }
+                });
+            }else{
+                listaContactos.push({
                     tipo_contacto_id:$("#tipo_contacto_id").val(),
                     contacto:$("#contacto").val(),
-                    parte_id:$("#parte_id").val(),
-                    _token:"{{ csrf_token() }}"
-                },
-                success:function(data){
-                    if(data != null && data != ""){
-                        listaContactos = data;
-                        cargarContactos();
-                    }else{
-                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                    id:null,
+                    tipo_contacto:{
+                        nombre:$("#tipo_contacto_id option:selected").text()
                     }
-                }
-            });
+                });
+            }
+            cargarContactos();
+            $("#contacto").val("");
+            $("#tipo_contacto_id").val("").trigger("change");
         }else{
-            listaContactos.push({
-                tipo_contacto_id:$("#tipo_contacto_id").val(),
-                contacto:$("#contacto").val(),
-                id:null,
-                tipo_contacto:{
-                    nombre:$("#tipo_contacto_id option:selected").text()
-                }
+            swal({
+                title: 'Error',
+                text: 'Los campos Tipo de contacto y Contacto son obligatorios',
+                icon: 'error',
+
             });
         }
-        cargarContactos();
     });
 
     $("#btnAgregarArchivo").on("click",function(){
@@ -1308,12 +1358,18 @@
     $("#fileIdentificacion").change(function(e){
         $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
     });
+    $("#fileInstrumento").change(function(e){
+        $("#labelInstrumentoRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+    });
     $("#btnGuardarRepresentante").on("click",function(){
         if(!validarRepresentante()){
             
             var formData = new FormData(); // Currently empty
             if($("#fileIdentificacion").val() != ""){
                 formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
+            }
+            if($("#fileInstrumento").val() != ""){
+                formData.append('fileInstrumento', $("#fileInstrumento")[0].files[0]);
             }
             formData.append('nombre', $("#nombre").val());
             formData.append('curp', $("#curp").val());
@@ -1398,6 +1454,12 @@
         if($("#fileIdentificacion").val() != ""){
             if($("#tipo_documento_id").val() == "" ){
                 $("#tipo_documento_id").prev().css("color","red");
+                error = true;
+            }
+        }
+        if($("#fileInstrumento").val() != ""){
+            if($("#clasificacion_archivo_id_representante").val() == "" ){
+                $("#clasificacion_archivo_id_representante").prev().css("color","red");
                 error = true;
             }
         }
@@ -1610,7 +1672,10 @@
             swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
         }
     });
-
+    $('.upper').on('keyup', function () {
+        var valor = $(this).val();
+        $(this).val(valor.toUpperCase());
+    });
     $(".tipo_documento,.select-element,.catSelect").select2();
     $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
     cargarGeneros();

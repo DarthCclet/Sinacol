@@ -268,45 +268,74 @@
                 }
             });
         }
-        function AgregarRepresentante(parte_id){
-            $.ajax({
-                url:"/partes/representante/"+parte_id,
-                type:"GET",
-                dataType:"json",
-                success:function(data){
-                    if(data != null && data != ""){
-                        data = data[0];
-                        $("#curp").val(data.curp);
-                        $("#nombre").val(data.nombre);
-                        $("#primer_apellido").val(data.primer_apellido);
-                        $("#segundo_apellido").val((data.segundo_apellido || ""));
-                        $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
-                        $("#genero_id").val(data.genero_id).trigger("change");
-                        $("#instrumento").val(data.instrumento);
-                        $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
-                        $("#numero_notaria").val(data.numero_notaria);
-                        $("#nombre_notario").val(data.nombre_notario);
-                        $("#localidad_notaria").val(data.localidad_notaria);
-                        $("#parte_id").val(data.id);
-                        var table = "";
-                        $.each(data.contactos, function(index,element){
-                            table +='<tr>';
-                            table +='   <td>'+element.tipo_contacto.nombre+'</td>';
-                            table +='   <td>'+element.contacto+'</td>';
-                            table +='<tr>';
+        function AgregarRepresentante(parte_id,tipoRepresentante){
+        $.ajax({
+            url:"/partes/representante/"+parte_id,
+            type:"GET",
+            dataType:"json",
+            success:function(data){
+                if(data != null && data != ""){
+                    data = data[0];
+                    $("#tieneRepresentante"+parte_id).html("<i class='fa fa-check'></i> ");
+                    $("#btnaddRep"+parte_id).html("Ver Representante");
+                    $("#curpRep").val(data.curp);
+                    $("#nombreRep").val(data.nombre);
+                    $("#primer_apellidoRep").val(data.primer_apellido);
+                    $("#segundo_apellidoRep").val((data.segundo_apellido|| ""));
+                    $("#fecha_nacimientoRep").val(dateFormat(data.fecha_nacimiento,4));
+                    $("#genero_idRep").val(data.genero_id).trigger("change");
+                    $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).trigger('change');
+                    $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
+                    $("#detalle_instrumento").val(data.detalle_instrumento);
+                    $("#parte_id").val(data.id);
+                    listaContactos = data.contactos;
+                    if(data.documentos && data.documentos.length > 0){
+                        $.each(data.documentos,function(index,doc){
+                            if(doc.tipo_archivo == 1){
+                                $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                            }else{
+                                $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
+                            }
                         });
-                        $("#tbodyContacto").html(table);
-                        $("#modal-representante").modal("show");
+                        
                     }else{
-                        swal({
-                            title: 'Aviso',
-                            text: 'No hay representante legal',
-                            icon: 'info'
-                        });
+                        $("#tipo_documento_id").val("").trigger("change");
+                        $("#labelIdentifRepresentante").html("");
+                        $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                        $("#labelInstrumentoRepresentante").html("");
                     }
+                }else{
+                    $("#curpRep").val("");
+                    $("#nombreRep").val("");
+                    $("#primer_apellidoRep").val("");
+                    $("#segundo_apellidoRep").val("");
+                    $("#fecha_nacimientoRep").val("");
+                    $("#genero_idRep").val("").trigger("change");
+                    $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                    $("#feha_instrumento").val("");
+                    $("#detalle_instrumento").val("");
+                    $("#parte_id").val("");
+                    $("#tipo_documento_id").val("").trigger("change");
+                    $("#labelIdentifRepresentante").html("");
+                    listaContactos = [];
                 }
-            });
-        }
+                $("#tipo_contacto_id").val("").trigger("change");
+                $("#contacto").val("");
+                $("#parte_representada_id").val(parte_id);
+                if(tipoRepresentante == 1){
+                    $("#menorAlert").show();
+                    $("#representanteMoral").hide();
+                }else{
+                    $("#menorAlert").hide();
+                    $("#representanteMoral").show();
+                }
+                cargarContactos();
+                $("#modal-representante").modal("show");
+            }
+        });
+    }
         function cargarDocumentos(audiencia_id){
             $.ajax({
                 url:"/audiencia/documentos/"+audiencia_id,
