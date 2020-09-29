@@ -2235,10 +2235,6 @@
             $("#primer_apellido").prev().css("color","red");
             error = true;
         }
-        if($("#segundo_apellido").val() == ""){
-            $("#segundo_apellido").prev().css("color","red");
-            error = true;
-        }
         if($("#fecha_nacimiento").val() == ""){
             $("#fecha_nacimiento").prev().css("color","red");
             error = true;
