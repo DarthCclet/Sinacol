@@ -41,7 +41,15 @@
                   {"catalogo":"Ratificada",
                     "val":[""]}
                     ]
-          }
+          },
+          {
+            "id": "4",
+            "nombre": "Resolucion",
+            "catalogos": [
+                {"catalogo":"Pago",
+                  "val":["diferido","no_diferido"]}
+                  ]
+        }
 
       ]
     },

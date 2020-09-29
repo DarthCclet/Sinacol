@@ -28,6 +28,14 @@
             text-align: right;
         }
 
+        .upper{
+            text-transform: uppercase;
+        }
+        .needed:after {
+            color:darkred;
+            content: " (*)";
+        }
+
     </style>
 @section('content')
 
@@ -612,7 +620,7 @@
     </div>
     <!-- Fin Modal de ver archivos PDF-->
     <!-- Inicio Modal de representante legal-->
-    <div class="modal" id="modal-representante" aria-hidden="true" style="display:none;">
+    <div class="modal" id="modal-representante" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -624,39 +632,61 @@
                     <div class="col-md-12 row">
                         <div class="col-md-6 ">
                             <div class="form-group">
-                                <label for="curp" class="control-label">CURP</label>
-                                <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control" placeholder="CURP del representante legal">
+                                <label for="curp" class="control-label needed">CURP</label>
+                                <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control upper" placeholder="CURP del representante legal">
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group">
-                                <label for="nombre" class="control-label">Nombre</label>
-                                <input type="text" id="nombre" class="form-control" placeholder="Nombre del representante legal">
+                                <label for="nombre" class="control-label needed">Nombre</label>
+                                <input type="text" id="nombre" class="form-control upper" placeholder="Nombre del representante legal">
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group">
-                                <label for="primer_apellido" class="control-label">Primer apellido</label>
-                                <input type="text" id="primer_apellido" class="form-control" placeholder="Primer apellido del representante">
+                                <label for="primer_apellido" class="control-label needed">Primer apellido</label>
+                                <input type="text" id="primer_apellido" class="form-control upper" placeholder="Primer apellido del representante">
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="segundo_apellido" class="control-label">Segundo apellido</label>
-                                <input type="text" id="segundo_apellido" class="form-control" placeholder="Segundo apellido representante">
+                                <input type="text" id="segundo_apellido" class="form-control upper" placeholder="Segundo apellido representante">
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group">
-                                <label for="fecha_nacimiento" class="control-label">Fecha de nacimiento</label>
+                                <label for="fecha_nacimiento" class="control-label needed">Fecha de nacimiento</label>
                                 <input type="text" id="fecha_nacimiento" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label for="genero_id" class="col-sm-6 control-label">Género</label>
+                            <label for="genero_id" class="col-sm-6 control-label needed">Género</label>
                             <select id="genero_id" class="form-control select-element">
                                 <option value="">-- Selecciona un género</option>
                             </select>
+                        </div>
+                        <div class="col-md-12 row">
+                            <div class="col-md-6">
+                                <label class=" needed">Documento de identificaci&oacute;n</label>
+                                <span class="btn btn-primary fileinput-button m-r-3">
+                                    <i class="fa fa-fw fa-plus"></i>
+                                    <span>Seleccionar identificaci&oacute;n</span>
+                                    <input type="file" id="fileIdentificacion" name="files">
+                                </span>
+                                <p style="margin-top: 1%;" id="labelIdentifRepresentante"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="clasificacion_archivo_id_representante" class="control-label needed">Tipo de documento</label>
+                                <select class="form-control catSelect" required id="tipo_documento_id" name="tipo_documento_id">
+                                    <option value="">Seleccione una opci&oacute;n</option>
+                                    @if(isset($clasificacion_archivo))
+                                        @foreach($clasificacion_archivo as $clasificacion)
+                                            <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <hr>
@@ -664,9 +694,9 @@
                     <div class="col-md-12 row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="clasificacion_archivo_id" class="control-label">Instrumento</label>
-                                <select id="clasificacion_archivo_id" class="form-control select-element">
-                                    <option value="">-- Selecciona un género</option>
+                                <label for="clasificacion_archivo_id_representante" class="control-label needed">Instrumento</label>
+                                <select id="clasificacion_archivo_id_representante" class="form-control select-element">
+                                    <option value="">-- Selecciona un instrumento</option>
                                     @foreach($clasificacion_archivos_Representante as $clasificacion)
                                     <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                     @endforeach
@@ -675,9 +705,18 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
+                                <label for="feha_instrumento" class="control-label needed">Fecha de instrumento</label>
                                 <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
                             </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class=" needed">Documento de Instrumento</label> 
+                            <span class="btn btn-primary fileinput-button m-r-3">
+                                <i class="fa fa-fw fa-plus"></i>
+                                <span>Seleccionar instrumento</span>
+                                <input type="file" id="fileInstrumento" name="files">
+                            </span>
+                            <p style="margin-top: 1%;" id="labelInstrumentoRepresentante"></p>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
@@ -687,7 +726,7 @@
                         </div>
                     </div>
                     <hr>
-                    <h5>Datos de contacto</h5>
+                    <h5 class=" needed">Datos de contacto</h5>
                     <div class="col-md-12 row">
                         <div class="col-md-5">
                             <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
@@ -1471,6 +1510,30 @@
             $("#tbodyContacto").html(table);
         }
         $("#btnAgregarContacto").on("click",function(){
+        if($("#contacto").val() != "" && $("#tipo_contacto_id").val() != ""){
+            var contactoVal = $("#contacto").val();
+            if($("#tipo_contacto_id").val() == 3){
+                if(!validateEmail(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El correo no tiene la estructura correcta',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+
+            }else{
+                if(!/^[0-9]{10}$/.test(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El contacto debe tener 10 digitos de tipo numero',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+            }
             if($("#parte_id").val() != ""){
                 $.ajax({
                     url:"/partes/representante/contacto",
@@ -1502,7 +1565,17 @@
                 });
             }
             cargarContactos();
-        });
+            $("#contacto").val("");
+            $("#tipo_contacto_id").val("").trigger("change");
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Los campos Tipo de contacto y Contacto son obligatorios',
+                icon: 'error',
+
+            });
+        }
+    });
         $("#btnAgregarConcepto").on("click",function(){
             if(($("#otro").val() != "" || ($("#dias").val() != "" && $("#monto").val() != "")) && $("#concepto_pago_resoluciones_id").val() != "" ){
 
@@ -1582,29 +1655,57 @@
         }
         $("#btnGuardarRepresentante").on("click",function(){
             if(!validarRepresentante()){
+                
+                var formData = new FormData(); // Currently empty
+                if($("#fileIdentificacion").val() != ""){
+                    formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
+                }
+                if($("#fileInstrumento").val() != ""){
+                    formData.append('fileInstrumento', $("#fileInstrumento")[0].files[0]);
+                }
+                formData.append('nombre', $("#nombre").val());
+                formData.append('curp', $("#curp").val());
+                formData.append('primer_apellido', $("#primer_apellido").val());
+                formData.append('segundo_apellido', $("#segundo_apellido").val());
+                formData.append('fecha_nacimiento', dateFormat($("#fecha_nacimiento").val()));
+                formData.append('genero_id', $("#genero_id").val());
+                formData.append('clasificacion_archivo_id', $("#clasificacion_archivo_id_representante").val());
+                formData.append('feha_instrumento', dateFormat($("#feha_instrumento").val()));
+                formData.append('detalle_instrumento',$("#detalle_instrumento").val());
+                formData.append('parte_id', $("#parte_id").val());
+                formData.append('parte_representada_id', $("#parte_representada_id").val());
+                formData.append('audiencia_id', $("#audiencia_id").val());
+                formData.append('solicitud_id', '{{$solicitud_id}}');
+                formData.append('tipo_documento_id', $("#tipo_documento_id").val());
+                formData.append('listaContactos', JSON.stringify(listaContactos));
+                formData.append('_token', "{{ csrf_token() }}");
+                // {
+                //     curp:$("#curp").val(),
+                //     nombre:$("#nombre").val(),
+                //     primer_apellido:$("#primer_apellido").val(),
+                //     segundo_apellido:$("#segundo_apellido").val(),
+                //     fecha_nacimiento:dateFormat($("#fecha_nacimiento").val()),
+                //     genero_id:$("#genero_id").val(),
+                //     clasificacion_archivo_id:$("#clasificacion_archivo_id_representante").val(),
+                //     feha_instrumento:dateFormat($("#feha_instrumento").val()),
+                //     detalle_instrumento:$("#detalle_instrumento").val(),
+                //     parte_id:$("#parte_id").val(),
+                //     parte_representada_id:$("#parte_representada_id").val(),
+                //     audiencia_id:$("#audiencia_id").val(),
+                //     listaContactos:listaContactos,
+                //     _token:"{{ csrf_token() }}"
+                // }
                 $.ajax({
                     url:"/partes/representante",
                     type:"POST",
                     dataType:"json",
-                    data:{
-                        curp:$("#curp").val(),
-                        nombre:$("#nombre").val(),
-                        primer_apellido:$("#primer_apellido").val(),
-                        segundo_apellido:$("#segundo_apellido").val(),
-                        fecha_nacimiento:dateFormat($("#fecha_nacimiento").val()),
-                        genero_id:$("#genero_id").val(),
-                        clasificacion_archivo_id:$("#clasificacion_archivo_id").val(),
-                        feha_instrumento:dateFormat($("#feha_instrumento").val()),
-                        detalle_instrumento:$("#detalle_instrumento").val(),
-                        parte_id:$("#parte_id").val(),
-                        parte_representada_id:$("#parte_representada_id").val(),
-                        audiencia_id:$("#audiencia_id").val(),
-                        listaContactos:listaContactos,
-                        _token:"{{ csrf_token() }}"
-                    },
+                    processData: false,
+                    contentType: false,
+                    data:formData,
                     success:function(data){
                         if(data != null && data != ""){
-                            swal({title: 'Éxito',text: 'Se agregó el representante',icon: 'success'});
+                            swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
+                            actualizarPartes();
                             $("#modal-representante").modal("hide");
                         }else{
                             swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
@@ -2185,6 +2286,10 @@
                 }
             });
         }
+        $('.upper').on('keyup', function () {
+            var valor = $(this).val();
+            $(this).val(valor.toUpperCase());
+        });
         $('[data-toggle="tooltip"]').tooltip();
     </script>
 @endpush

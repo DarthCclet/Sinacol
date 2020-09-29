@@ -27,7 +27,13 @@
         .amount{
             text-align: right;
         }
-
+        .upper{
+            text-transform: uppercase;
+        }
+        .needed:after {
+            color:darkred;
+            content: " (*)";
+        }
     </style>
 @section('content')
 <!-- begin breadcrumb -->
@@ -370,15 +376,39 @@
                                 </div>
                                 <div class="col-md-12" style="margin-bottom: 5%">
                                     <div >
-                                        <span class="text-muted m-l-5 m-r-20" for='switchAdicionales'>Señalar en este espacio las fechas de pagos diferidos con el monto a pagar en cada fecha. Se permiten fechas diferidas hasta un mes natural a partir de la fecha de convenio.</span>
+                                    <input type="checkbox" data-render="switchery" data-theme="default" id="switchAdicionales" name='elementosAdicionales' onchange=" if($('#switchAdicionales').is(':checked')){ $('#modal-pago-diferido').modal('show'); $('#textAdicional').show(); $('#pagosDiferidos').show(); }else{$('#textAdicional').hide(); $('#pagosDiferidos').hide();}"/>
                                     </div>
                                     <div >
-                                    <input type="checkbox" data-render="switchery" data-theme="default" id="switchAdicionales" name='elementosAdicionales' onchange=" if($('#switchAdicionales').is(':checked')){ $('#textAdicional').show();}else{$('#textAdicional').hide();}"/>
+                                        <span class="text-muted m-l-5 m-r-20" for='switchAdicionales'>Señalar en este espacio las fechas de pagos diferidos con el monto a pagar en cada fecha. Se permiten fechas diferidas hasta un mes natural a partir de la fecha de convenio.</span>
+                                        {{-- $('#textAdicional').show();  --}}
                                     </div>
                                 </div>
                                 <div id="textAdicional" style="display:none">
                                     <textarea class="form-control textarea" placeholder="Describir..." type="text" id="evidencia{{$etapa->paso}}">
                                     </textarea>
+                                </div>
+                                <div id="pagosDiferidos" style="display:none">
+                                    <div class="col-md-12" id="divPagosAcordados" >
+                                        <input type="hidden" id="totalPagosDiferidos">
+                                        <div class="form-group col-md-2 offset-10" id="btnConfigPagos">
+                                            <a onclick="$('#modal-pago-diferido').modal('show');" class="btn btn-primary">Configurar</a>
+                                        </div>
+                                        <br>
+                                        <div class="col-md-8 offset-md-2">
+                                            <table class="table table-bordered" >
+                                                <thead>
+                                                    <tr>
+                                                        <th>Fecha de pago</th>
+                                                        <th>Monto</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbodyFechaPagoPrincipal">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <hr>
+                                    </div>
                                 </div>
                                 <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="finalizar({{$etapa->paso}})">Finalizar </button>
                             @break
@@ -473,6 +503,7 @@
                         </div>
                         <hr>
                     </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <div class="text-right">
@@ -482,7 +513,6 @@
             </div>
         </div>
     </div>
-</div>
 </div>
 <!--Fin de modal propuesta convenio-->
 <!--inicio modal para representante legal-->
@@ -498,43 +528,43 @@
                 <div class="col-md-12 row">
                     <div class="col-md-6 ">
                         <div class="form-group">
-                            <label for="curp" class="control-label">CURP</label>
-                            <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control" placeholder="CURP del representante legal">
+                            <label for="curp" class="control-label needed">CURP</label>
+                            <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control upper" placeholder="CURP del representante legal">
                         </div>
                     </div>
                     <div class="col-md-6 ">
                         <div class="form-group">
-                            <label for="nombre" class="control-label">Nombre</label>
-                            <input type="text" id="nombre" class="form-control" placeholder="Nombre del representante legal">
+                            <label for="nombre" class="control-label needed">Nombre</label>
+                            <input type="text" id="nombre" class="form-control upper" placeholder="Nombre del representante legal">
                         </div>
                     </div>
                     <div class="col-md-6 ">
                         <div class="form-group">
-                            <label for="primer_apellido" class="control-label">Primer apellido</label>
-                            <input type="text" id="primer_apellido" class="form-control" placeholder="Primer apellido del representante">
+                            <label for="primer_apellido" class="control-label needed">Primer apellido</label>
+                            <input type="text" id="primer_apellido" class="form-control upper" placeholder="Primer apellido del representante">
                         </div>
                     </div>
                     <div class="col-md-6 ">
                         <div class="form-group">
                             <label for="segundo_apellido" class="control-label">Segundo apellido</label>
-                            <input type="text" id="segundo_apellido" class="form-control" placeholder="Segundo apellido representante">
+                            <input type="text" id="segundo_apellido" class="form-control upper" placeholder="Segundo apellido representante">
                         </div>
                     </div>
                     <div class="col-md-6 ">
                         <div class="form-group">
-                            <label for="fecha_nacimiento" class="control-label">Fecha de nacimiento</label>
+                            <label for="fecha_nacimiento" class="control-label needed">Fecha de nacimiento</label>
                             <input type="text" id="fecha_nacimiento" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label for="genero_id" class="col-sm-6 control-label">Género</label>
+                        <label for="genero_id" class="col-sm-6 control-label needed">Género</label>
                         <select id="genero_id" class="form-control select-element">
                             <option value="">-- Selecciona un género</option>
                         </select>
                     </div>
                     <div class="col-md-12 row">
                         <div class="col-md-6">
-                            Documento de identificaci&oacute;n
+                            <label class=" needed">Documento de identificaci&oacute;n</label>
                             <span class="btn btn-primary fileinput-button m-r-3">
                                 <i class="fa fa-fw fa-plus"></i>
                                 <span>Seleccionar identificaci&oacute;n</span>
@@ -543,7 +573,7 @@
                             <p style="margin-top: 1%;" id="labelIdentifRepresentante"></p>
                         </div>
                         <div class="col-md-6">
-                            <label for="clasificacion_archivo_id_representante" class="control-label">Tipo de documento</label>
+                            <label for="clasificacion_archivo_id_representante" class="control-label needed">Tipo de documento</label>
                             <select class="form-control catSelect" required id="tipo_documento_id" name="tipo_documento_id">
                                 <option value="">Seleccione una opci&oacute;n</option>
                                 @if(isset($clasificacion_archivo))
@@ -560,7 +590,7 @@
                 <div class="col-md-12 row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="clasificacion_archivo_id_representante" class="control-label">Instrumento</label>
+                            <label for="clasificacion_archivo_id_representante" class="control-label needed">Instrumento</label>
                             <select id="clasificacion_archivo_id_representante" class="form-control select-element">
                                 <option value="">-- Selecciona un instrumento</option>
                                 @foreach($clasificacion_archivos_Representante as $clasificacion)
@@ -571,9 +601,18 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="feha_instrumento" class="control-label">Fecha de instrumento</label>
+                            <label for="feha_instrumento" class="control-label needed">Fecha de instrumento</label>
                             <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
                         </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class=" needed">Documento de Instrumento</label> 
+                        <span class="btn btn-primary fileinput-button m-r-3">
+                            <i class="fa fa-fw fa-plus"></i>
+                            <span>Seleccionar instrumento</span>
+                            <input type="file" id="fileInstrumento" name="files">
+                        </span>
+                        <p style="margin-top: 1%;" id="labelInstrumentoRepresentante"></p>
                     </div>
                     <div class="col-md-12">
                         <div class="form-group">
@@ -583,7 +622,7 @@
                     </div>
                 </div>
                 <hr>
-                <h5>Datos de contacto</h5>
+                <h5 class=" needed">Datos de contacto</h5>
                 <div class="col-md-12 row">
                     <div class="col-md-5">
                         <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
@@ -782,7 +821,7 @@
         </div>
     </div>
 </div>
- <div class="modal" id="modal-relaciones" style="display:none;">
+<div class="modal" id="modal-relaciones" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -1205,6 +1244,66 @@
         </div>
     </div>
 </div>
+
+<!--Inicio modal para fechas de pagos diferidos convenio-->
+<div class="modal" id="modal-pago-diferido" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Pagos diferidos</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 row">
+                    <div class="col-md-12" id="divPagosDiferidos" >
+                        <h5>Fechas para pagos diferidos</h5>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="dias" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control fecha" />
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="monto" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="monto_pago" placeholder="Monto a pagar" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-center">
+                                <button class="btn btn-warning text-white btn-sm" id='btnAgregarFechaPago'><i class="fa fa-plus"></i> Agregar Fecha</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="col-md-8 offset-md-2">
+                            <table class="table table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Monto</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyFechaPago">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarFechasPago"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin de modal propuesta convenio-->
+
 <input type="hidden" id="parte_id">
 <input type="hidden" id="parte_representada_id">
 @endsection
@@ -1213,6 +1312,7 @@
     var listaContactos = [];
     var listaPropuestas={};
     var listaConfigConceptos= {};
+    var listaConfigFechas= [];
     var listaResolucionesIndividuales = [];
     var lastTimeStamp = "";
     $(document).ready(function(){
@@ -1612,7 +1712,7 @@
                             }
                             }
                         }).then(function(isConfirm){
-                            window.location.href = "/audiencias";
+                            $("#btnFinalizarRatificacion").click();
                         });
                     }else if(data.data.tipo == 3){
                         $("#spanFolio").text(data.data.response.folio+"/"+data.data.response.anio);
@@ -1707,7 +1807,6 @@
                             }
                             }
                         }).then(function(isConfirm){
-                            window.location.href = "/audiencias";
                             $("#btnFinalizarRatificacion").click();
                         });
                     }
@@ -1874,11 +1973,21 @@
                     $("#parte_id").val(data.id);
                     listaContactos = data.contactos;
                     if(data.documentos && data.documentos.length > 0){
-                        $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+data.documentos[0].descripcion);
-                        $("#tipo_documento_id").val(data.documentos[0].clasificacion_archivo_id).trigger('change');
+                        $.each(data.documentos,function(index,doc){
+                            if(doc.tipo_archivo == 1){
+                                $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                            }else{
+                                $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
+                            }
+                        });
+                        
                     }else{
                         $("#tipo_documento_id").val("").trigger("change");
                         $("#labelIdentifRepresentante").html("");
+                        $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                        $("#labelInstrumentoRepresentante").html("");
                     }
                 }else{
                     $("#curp").val("");
@@ -2046,37 +2155,71 @@
         });
     }
     $("#btnAgregarContacto").on("click",function(){
-        if($("#parte_id").val() != ""){
-            $.ajax({
-                url:"/partes/representante/contacto",
-                type:"POST",
-                dataType:"json",
-                data:{
+        if($("#contacto").val() != "" && $("#tipo_contacto_id").val() != ""){
+            var contactoVal = $("#contacto").val();
+            if($("#tipo_contacto_id").val() == 3){
+                if(!validateEmail(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El correo no tiene la estructura correcta',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+
+            }else{
+                if(!/^[0-9]{10}$/.test(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El contacto debe tener 10 digitos de tipo numero',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+            }
+            if($("#parte_id").val() != ""){
+                $.ajax({
+                    url:"/partes/representante/contacto",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        tipo_contacto_id:$("#tipo_contacto_id").val(),
+                        contacto:$("#contacto").val(),
+                        parte_id:$("#parte_id").val(),
+                        _token:"{{ csrf_token() }}"
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            listaContactos = data;
+                            cargarContactos();
+                        }else{
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        }
+                    }
+                });
+            }else{
+                listaContactos.push({
                     tipo_contacto_id:$("#tipo_contacto_id").val(),
                     contacto:$("#contacto").val(),
-                    parte_id:$("#parte_id").val(),
-                    _token:"{{ csrf_token() }}"
-                },
-                success:function(data){
-                    if(data != null && data != ""){
-                        listaContactos = data;
-                        cargarContactos();
-                    }else{
-                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                    id:null,
+                    tipo_contacto:{
+                        nombre:$("#tipo_contacto_id option:selected").text()
                     }
-                }
-            });
+                });
+            }
+            cargarContactos();
+            $("#contacto").val("");
+            $("#tipo_contacto_id").val("").trigger("change");
         }else{
-            listaContactos.push({
-                tipo_contacto_id:$("#tipo_contacto_id").val(),
-                contacto:$("#contacto").val(),
-                id:null,
-                tipo_contacto:{
-                    nombre:$("#tipo_contacto_id option:selected").text()
-                }
+            swal({
+                title: 'Error',
+                text: 'Los campos Tipo de contacto y Contacto son obligatorios',
+                icon: 'error',
+
             });
         }
-        cargarContactos();
     });
     $("#btnGuardarPropuestaConvenio").on("click",function(){
         var objeto_propuesta = {};
@@ -2096,12 +2239,18 @@
     $("#fileIdentificacion").change(function(e){
         $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
     });
+    $("#fileInstrumento").change(function(e){
+        $("#labelInstrumentoRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+    });
     $("#btnGuardarRepresentante").on("click",function(){
         if(!validarRepresentante()){
             
             var formData = new FormData(); // Currently empty
             if($("#fileIdentificacion").val() != ""){
                 formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
+            }
+            if($("#fileInstrumento").val() != ""){
+                formData.append('fileInstrumento', $("#fileInstrumento")[0].files[0]);
             }
             formData.append('nombre', $("#nombre").val());
             formData.append('curp', $("#curp").val());
@@ -2171,10 +2320,6 @@
             $("#primer_apellido").prev().css("color","red");
             error = true;
         }
-        if($("#segundo_apellido").val() == ""){
-            $("#segundo_apellido").prev().css("color","red");
-            error = true;
-        }
         if($("#fecha_nacimiento").val() == ""){
             $("#fecha_nacimiento").prev().css("color","red");
             error = true;
@@ -2190,6 +2335,12 @@
         if($("#fileIdentificacion").val() != ""){
             if($("#tipo_documento_id").val() == "" ){
                 $("#tipo_documento_id").prev().css("color","red");
+                error = true;
+            }
+        }
+        if($("#fileInstrumento").val() != ""){
+            if($("#clasificacion_archivo_id_representante").val() == "" ){
+                $("#clasificacion_archivo_id_representante").prev().css("color","red");
                 error = true;
             }
         }
@@ -2325,6 +2476,47 @@
     $("#giro_comercial_solicitante").change(function(){
         $("#giro_comercial_hidden").val($(this).val());
     });
+
+    function validarPagos(){
+        let listaPropuestaConceptos = {};
+        totalConceptosPago = 0;
+        error =false;
+        $('.collapseSolicitante').each(function() {
+            // let idSolicitante =$("#idSolicitante").val();
+            idSol=$(this).attr('idSolicitante');
+            if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                    listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
+                }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
+                    listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
+                }else{
+                    listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
+                }
+                //total pagos diferidos
+                $.each(listaPropuestaConceptos, function (key, propuestaSolicitante) {
+                    $.each(listaPropuestaConceptos, function (key, propuestaConcepto) {
+                        $.each(propuestaConcepto, function (key, concepto) {
+                            totalConceptosPago += concepto.monto;
+                        });
+                    });
+                });
+                let totalConceptos = totalConceptosPago.toFixed(2);
+                let totalDiferidos = parseFloat($("#totalPagosDiferidos").val()).toFixed(2);
+                console.log(totalDiferidos);
+                console.log(totalConceptos);
+                if(totalConceptos == totalDiferidos ){
+
+                }else{
+                    error =true;
+                    swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
+                }
+            }else{
+                error =true;
+                swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
+            }
+        });
+        return error;
+    }
 
     function validarDatosLaborales(tipo=null){
         var error=false;
@@ -2594,13 +2786,18 @@
      * Aqui inician las funciones para administrar el paso 6
      *
      */
+    //  function finalizar(pasoActual){
+    //     $("#btnGuardarResolucionMuchas").click();
+    //  }
      function finalizar(pasoActual){
     // $("#btnFinalizar").on("click",function(){
         var resolucion = $("#resolucion_id").val();
         if(resolucion != "" ){
             if(resolucion == 1){
                 errorDatosConvenio = validarDatosLaborales(1);
-                if(!errorDatosConvenio){
+                errorPagos = validarPagos();
+                if(!errorDatosConvenio && !errorPagos){
+                    
                     swal({
                         title: 'Se convino con todos los citados?',
                         text: '',
@@ -2638,8 +2835,6 @@
                             cargarModalRelaciones();
                         }
                     });
-                }else{
-                    swal({title: 'Error',text: 'Es necesario capturar los datos laborales requeridos para el convenio',icon: 'error'});
                 }
             }else{
 
@@ -2756,93 +2951,173 @@
         });
     }
 
-
-        $(".conceptosPago").on("change",function(){
-            if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
-                concepto = $("#concepto_pago_reinstalacion_id").val();
-            }else{
-                concepto = $("#concepto_pago_resoluciones_id").val();
-            }
-        // $("#concepto_pago_resoluciones_id").on("change",function(){
-            // $('#remuneracionDiaria').val(130);
-            // $('#antiguedad').val(3.2);
-            // $('#salarioMinimo').val(123.22);
-            // concepto = $("#concepto_pago_resoluciones_id").val();
-            pagoDia = $('#remuneracionDiaria').val();
-            antiguedad = $('#antiguedad').val();
-            salarioMinimo = $('#salarioMinimo').val();
-            tiempoVencido = $('#tiempoVencido').val();
-
-            $('#monto').val('');
-            $('#dias').val('');
-            $('#otro').val('');
-            switch (concepto) {
-                case '7': // Prima topada por antiguedad
-                    $('#monto').attr('disabled',true);
-                    $('#dias').attr('disabled',true);
-                    $('#otro').attr('disabled',true);
-                    if(antiguedad > 0){
-                        if(pagoDia <= (2*salarioMinimo)){
-                            monto = antiguedad * 12 * pagoDia;
-                        }else{
-                            monto = antiguedad * 12 * (2*salarioMinimo);
-                        }
-                    }
-                    monto = monto.toFixed(2);
-                    $('#monto').val(monto);
-                    break;
-                case '8':    //Gratificacion D
-                    $('#monto').removeAttr('disabled');
-                    $('#dias').attr('disabled',true);
-                    $('#otro').attr('disabled',true);
-                    break;
-                case '9':    //Gratificacion E
-                    $('#monto').attr('disabled',true);
-                    $('#dias').attr('disabled',true);
-                    $('#otro').removeAttr('disabled');
-                    break;
-                case '10':    //Salarios vencidos
-                    monto = (tiempoVencido * pagoDia).toFixed(2);
-                    $('#monto').val(monto);
-                    $('#monto').attr('disabled',true);
-                    $('#dias').attr('disabled',true);
-                    $('#otro').attr('disabled',true);
-                    break;
-                default: //Dias de sueldo, Dias de vacaciones
-                    $('#monto').attr('disabled',true);
-                    $('#otro').attr('disabled',true);
-                    $('#dias').removeAttr('disabled');
-                    break;
-            }
-        });
-
-        $("#dias").on("change",function(){
+    $(".conceptosPago").on("change",function(){
+        if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
+            concepto = $("#concepto_pago_reinstalacion_id").val();
+        }else{
             concepto = $("#concepto_pago_resoluciones_id").val();
-            dias = $('#dias').val();
-            pagoDia = $('#remuneracionDiaria').val();
-            antiguedad = $('#antiguedad').val();
-            salarioMinimo = $('#salarioMinimo').val();
-            switch (concepto) {
-                case '4': //Dias de aguinaldo
-                    if(dias <15){
-                        swal({title: 'Error',text: 'El numero de dias para aguinaldo debe ser mayor o igual a 15',icon: 'warning'});
+        }
+    // $("#concepto_pago_resoluciones_id").on("change",function(){
+        // $('#remuneracionDiaria').val(130);
+        // $('#antiguedad').val(3.2);
+        // $('#salarioMinimo').val(123.22);
+        // concepto = $("#concepto_pago_resoluciones_id").val();
+        pagoDia = $('#remuneracionDiaria').val();
+        antiguedad = $('#antiguedad').val();
+        salarioMinimo = $('#salarioMinimo').val();
+        tiempoVencido = $('#tiempoVencido').val();
+
+        $('#monto').val('');
+        $('#dias').val('');
+        $('#otro').val('');
+        switch (concepto) {
+            case '7': // Prima topada por antiguedad
+                $('#monto').attr('disabled',true);
+                $('#dias').attr('disabled',true);
+                $('#otro').attr('disabled',true);
+                if(antiguedad > 0){
+                    if(pagoDia <= (2*salarioMinimo)){
+                        monto = antiguedad * 12 * pagoDia;
                     }else{
-                        monto = dias * pagoDia;
+                        monto = antiguedad * 12 * (2*salarioMinimo);
                     }
-                    break;
-                case '7': // Prima topada por antiguedad
+                }
+                monto = monto.toFixed(2);
+                $('#monto').val(monto);
+                break;
+            case '8':    //Gratificacion D
+                $('#monto').removeAttr('disabled');
+                $('#dias').attr('disabled',true);
+                $('#otro').attr('disabled',true);
+                break;
+            case '9':    //Gratificacion E
+                $('#monto').attr('disabled',true);
+                $('#dias').attr('disabled',true);
+                $('#otro').removeAttr('disabled');
+                break;
+            case '10':    //Salarios vencidos
+                monto = (tiempoVencido * pagoDia).toFixed(2);
+                $('#monto').val(monto);
+                $('#monto').attr('disabled',true);
+                $('#dias').attr('disabled',true);
+                $('#otro').attr('disabled',true);
+                break;
+            default: //Dias de sueldo, Dias de vacaciones
+                $('#monto').attr('disabled',true);
+                $('#otro').attr('disabled',true);
+                $('#dias').removeAttr('disabled');
+                break;
+        }
+    });
 
-                    break;
-                case '8': //Gratificación D otro
-                    break;
-                default: //Dias de sueldo, Dias de vacaciones
-
+    $("#dias").on("change",function(){
+        concepto = $("#concepto_pago_resoluciones_id").val();
+        dias = $('#dias').val();
+        pagoDia = $('#remuneracionDiaria').val();
+        antiguedad = $('#antiguedad').val();
+        salarioMinimo = $('#salarioMinimo').val();
+        switch (concepto) {
+            case '4': //Dias de aguinaldo
+                if(dias <15){
+                    swal({title: 'Error',text: 'El numero de dias para aguinaldo debe ser mayor o igual a 15',icon: 'warning'});
+                }else{
                     monto = dias * pagoDia;
-                    break;
+                }
+                break;
+            case '7': // Prima topada por antiguedad
+
+                break;
+            case '8': //Gratificación D otro
+                break;
+            default: //Dias de sueldo, Dias de vacaciones
+
+                monto = dias * pagoDia;
+                break;
+        }
+        monto = (monto >0 )? monto.toFixed(2) : "";
+        $('#monto').val(monto);
+    });
+
+    $("#btnAgregarFechaPago").on("click",function(){
+        console.log(listaConfigFechas);
+        if(listaConfigFechas.length < 5){  
+            var hoy = new Date();
+            var unMes = hoy.setMonth(hoy.getMonth() + 1);
+            let fechaP = $("#fecha_pago").val().split("/");
+            var fpago = new Date(fechaP[1]+'/'+fechaP[0]+'/'+fechaP[2]);
+            
+            if(fpago <= unMes){
+                let idSolicitante =$("#idSolicitante").val();
+                if( $("#fecha_pago").val() != "" && $("#monto_pago").val() != ""){
+                    let existe = false;
+                    $.each(listaConfigFechas,function(index,fecha){
+                        if(fecha.fecha_pago == $("#fecha_pago").val() ){
+                            existe= true;
+                        }
+                    });
+                    if(existe){
+                        swal({title: 'Error',text: 'La fecha de pago ya se encuentra registrada',icon: 'warning'});
+                    }else{
+                        if(listaConfigFechas == undefined ){
+                            listaConfigFechas = [];
+                        }
+                        listaConfigFechas.push({
+                            //idSolicitante:$("#idSolicitante").val(),
+                            fecha_pago:$("#fecha_pago").val(),
+                            monto_pago:$("#monto_pago").val(),
+                        });
+                        $("#fecha_pago").val('');
+                        $("#monto_pago").val('');
+                        cargarTablaFechasPago(listaConfigFechas);
+                    }
+                }else{
+                    swal({title: 'Error',text: 'Debe ingresar fecha y monto de pago',icon: 'warning'});
+                }
+            }else{
+                swal({title: 'Error',text: 'La fecha de pago no puede exceder un mes',icon: 'warning'});
             }
-            monto = (monto >0 )? monto.toFixed(2) : "";
-            $('#monto').val(monto);
+        }else{
+            swal({title: 'Error',text: 'El número máximo de pagos permitidos es cinco.' ,icon: 'warning'});
+        }
+    });
+
+    function cargarTablaFechasPago(listaConfigFechas){
+        let table = '';
+        let idSolicitante = '';
+        let totalPagoFechas = 0;
+
+        console.log(listaConfigFechas);
+        $.each(listaConfigFechas,function(index,fechaPago){
+            
+            idSolicitante = fechaPago.idSolicitante;
+            table +='<tr>';
+                table +='<td>'+fechaPago.fecha_pago+'</td>';
+                table +='<td>'+fechaPago.monto_pago+'</td>';
+                table +='<td>';
+                table +='<button onclick="eliminarFechaPago('+idSolicitante+','+index+')" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago" style="display:none;">';
+                    table +='<i class="fa fa-eye"></i>';
+                table +='</button>';
+                table +='<button onclick="eliminarFechaPago('+idSolicitante+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
+                    table +='<i class="fa fa-trash"></i>';
+                table +='</button>';
+                table +='</td>';
+            table +='</tr>';
+            totalPagoFechas+=parseFloat(fechaPago.monto_pago);
         });
+        
+        $("#totalPagosDiferidos").val(totalPagoFechas);
+        $("#tbodyFechaPago").html(table);
+        $("#tbodyFechaPagoPrincipal").html(table);
+    }
+    function eliminarFechaPago(idSolicitante,indice){
+        listaConfigFechas.splice(indice,1);
+        cargarTablaFechasPago(listaConfigFechas);
+    }
+
+    $("#btnGuardarFechasPago").on("click",function(){
+        $(".btnConfirmarPago").show();
+        $("#modal-pago-diferido").modal('hide');
+    });
 
     $("#btnAgregarResolucion").on("click",function(){
         if(validarResolucionIndividual()){
@@ -2932,6 +3207,7 @@
     }
     $("#btnGuardarResolucionMuchas").on("click",function(){
         let listaPropuestaConceptos = {};
+        totalConceptosPago = 0;
         error =false;
         $('.collapseSolicitante').each(function() {
             // let idSolicitante =$("#idSolicitante").val();
@@ -2949,7 +3225,7 @@
                 swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
             }
         });
-        console.log(listaPropuestaConceptos);
+        
         if(!error){
             $.ajax({
                 url:"/audiencia/resolucion",
@@ -2963,6 +3239,7 @@
                     timeline:true,
                     listaRelacion:listaResolucionesIndividuales,
                     listaConceptos:listaPropuestaConceptos,
+                    listaFechasPago:listaConfigFechas,
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
@@ -3016,6 +3293,10 @@
     function formatNumberTimer(n){
         return n > 9 ? "" + n: "0" + n;
     }
+    $('.upper').on('keyup', function () {
+        var valor = $(this).val();
+        $(this).val(valor.toUpperCase());
+    });
     $('[data-toggle="tooltip"]').tooltip();
     $("#btnFinalizarRatificacion").on("click",function(){
         location.href = "/solicitudes/consulta/{{$solicitud_id}}";

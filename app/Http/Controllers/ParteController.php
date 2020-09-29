@@ -185,7 +185,10 @@ class ParteController extends Controller
             foreach($representantes as $key => $representante){
                 foreach($representante->contactos as $key2 => $contactos){
                     $representantes[$key]->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
-                    $representantes[$key]->documentos;
+                    $documentos = $representantes[$key]->documentos;
+                    foreach ($documentos as $key => $documento) {
+                        $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
+                    }
                     
                 }
             }
@@ -304,16 +307,77 @@ class ParteController extends Controller
                 
                 try{
                     $deleted = false;
-                    if(count($parte->documentos) > 0){
+                    $documentos = $parte->documentos;
+                    foreach($documentos as $documento ){
+                        if($documento->clasificacionArchivo->tipo_archivo_id == 1){
+                            $existe = true;
+                        }
+                    }
+                    if($existe){
                         $parte->documentos[0]->delete();
                         $deleted = true;
                     }
-                    if(count($parte->documentos) == 0 || $deleted){
+                    if(!$existe || $deleted){
                         $existeDocumento = $parte->documentos;
                         if($solicitud != null){
                             $archivo = $request->fileIdentificacion;
                             $solicitud_id = $solicitud->id;
                             $clasificacion_archivo= $request->tipo_documento_id;
+                            $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                            Storage::makeDirectory($directorio);
+                            $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                            
+                            $path = $archivo->store($directorio);
+                            
+                            $documento = $parte->documentos()->create([
+                                "nombre" => str_replace($directorio."/", '',$path),
+                                "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                "descripcion" => $tipoArchivo->nombre,
+                                "ruta" => $path,
+                                "tipo_almacen" => "local",
+                                "uri" => $path,
+                                "longitud" => round(Storage::size($path) / 1024, 2),
+                                "firmado" => "false",
+                                "clasificacion_archivo_id" => $tipoArchivo->id ,
+                            ]);
+                            $exito = true;
+                        }else{
+                            $exito = false;
+                            
+                        }
+                    }
+                    
+                }catch(Exception $e){
+                    $exito = false;
+                }
+            }
+            if(isset($request->fileInstrumento)){
+                
+                $parte = Parte::find($request->parte_id);
+                $solicitud = Solicitud::find($request->solicitud_id);
+                
+                try{
+                    $deleted = false;
+                    $documentos = $parte->documentos;
+                    $existeInst = false;
+                    foreach($documentos as $documento ){
+                        if($documento->clasificacionArchivo->tipo_archivo_id == 9){
+                            $existeInst = true;
+                        }
+                    }
+                    
+                    if($existeInst){
+                        
+                        $parte->documentos[0]->delete();
+                        $deleted = true;
+                    }
+                    if(!$existeInst || $deleted){
+                        $existeDocumento = $parte->documentos;
+                        if($solicitud != null){
+                            $archivo = $request->fileInstrumento;
+                            $solicitud_id = $solicitud->id;
+                            $clasificacion_archivo= $request->clasificacion_archivo_id;
                             $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                             Storage::makeDirectory($directorio);
                             $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
@@ -404,6 +468,30 @@ class ParteController extends Controller
                             "longitud" => round(Storage::size($path) / 1024, 2),
                             "firmado" => "false",
                             "clasificacion_archivo_id" => $tipoArchivo->id ,
+                        ]);
+
+                        // Se agregan instruccion
+
+                        $archivoInst = $request->fileInstrumento;
+                        $solicitud_id = $solicitud->id;
+                        $clasificacion_archivoInst= $request->clasificacion_archivo_id;
+                        $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                        Storage::makeDirectory($directorio);
+                        $tipoArchivoInst = ClasificacionArchivo::find($clasificacion_archivoInst);
+                        
+                        $pathInst = $archivoInst->store($directorio);
+                        
+                        $documento = $parte->documentos()->create([
+                            "nombre" => str_replace($directorio."/", '',$path),
+                            "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                            // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                            "descripcion" => $tipoArchivoInst->nombre,
+                            "ruta" => $pathInst,
+                            "tipo_almacen" => "local",
+                            "uri" => $pathInst,
+                            "longitud" => round(Storage::size($pathInst) / 1024, 2),
+                            "firmado" => "false",
+                            "clasificacion_archivo_id" => $tipoArchivoInst->id ,
                         ]);
                         $exito = true;
                     }else{

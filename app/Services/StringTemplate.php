@@ -59,7 +59,6 @@ class StringTemplate
      * @return string
      */
     public static function sustituyePlaceholdersConditionals($string, $vars){
-
       if(Str::contains($string, '[REPETIR')) {
         $countRepetir = substr_count($string, '[FIN_REPETIR');
       }
@@ -68,6 +67,33 @@ class StringTemplate
         $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
         $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
         $countSolicitudRatificada = substr_count($string,'[SI_SOLICITUD_RATIFICADA]');
+        $countPagosDiferidos = substr_count($string,'[SI_RESOLUCION_PAGO_DIFERIDO]');
+        
+        if (isset($vars['resolucion_total_diferidos'])){
+          if($vars['resolucion_total_diferidos'] >0 && $countPagosDiferidos >0){
+            for ($i=0; $i < $countPagosDiferidos; $i++) { 
+              if($vars['resolucion_total_diferidos'] > 0) { // Hay pagos diferidos
+                // texto de pagos diferidos
+                $sliceSeparado = Str::after($string, '[SI_RESOLUCION_PAGO_DIFERIDO]');
+                $sliceSeparado = Str::before($sliceSeparado, '[SI_RESOLUCION_PAGO_NO_DIFERIDO]');
+                $htmlA = Str::before($string, '[SI_RESOLUCION_');
+                $htmlB = Str::after($string, '[FIN_SI_RESOLUCION_PAGO]');
+
+                $string = $htmlA . $sliceSeparado . $htmlB;
+
+              }else{//Sin pagos diferidos
+                  $sliceNotificacion = Str::after($string, '[SI_RESOLUCION_PAGO_NO_DIFERIDO]');
+                  $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_RESOLUCION_PAGO]');
+
+                  $htmlA = Str::before($string, '[SI_RESOLUCION_PAGO_DIFERIDO');
+                  $htmlB = Str::after($string, '[FIN_SI_RESOLUCION_PAGO]');
+
+                  $string = $htmlA . $sliceNotificacion . $htmlB;
+                // break;
+              }
+            }
+          }
+        }
         
         if (isset($vars['solicitado_tipo_notificacion'])){
           if($vars['solicitado_tipo_notificacion'] != null && $countTipoNotificacion >0){

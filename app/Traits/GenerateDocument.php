@@ -13,6 +13,7 @@ use App\Expediente;
 use App\Parte;
 use App\Periodicidad;
 use App\PlantillaDocumento;
+use App\ResolucionPagoDiferido;
 use App\ResolucionParteConcepto;
 use App\ResolucionPartes;
 use App\SalaAudiencia;
@@ -36,7 +37,7 @@ trait GenerateDocument
      */
     public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null, $idConciliador = null)
     {
-		$plantilla = PlantillaDocumento::find($plantilla_id);
+    $plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
             if($idAudiencia != ""){
 
@@ -46,7 +47,7 @@ trait GenerateDocument
 
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
 
-				$html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
+				        $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
 
                 //Creamos el registro
                 $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre]);
@@ -209,14 +210,14 @@ trait GenerateDocument
 
                            }elseif ($k == 'representante_legal') {
                              foreach ($val as $n =>$v) {
-                               $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                               $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v!="") ? $v:'';
                              }
                            }
                         }
                       }elseif(gettype($val)== 'string'){
                         $pos = strpos($k,'fecha');
                         if ($pos !== false){
-                          $val = $this->formatoFecha($val);
+                          $val = $this->formatoFecha($val,1);
                         }
                       // }else{
                       }
@@ -527,17 +528,18 @@ trait GenerateDocument
                   }elseif ($model == 'Resolucion') {
                     $objetoResolucion = $model_name::find($resolucionAudienciaId);
                     $datosResolucion=[];
-                    $etapas_resolucion = EtapaResolucionAudiencia::where('audiencia_id',$audienciaId)->whereIn('etapa_resolucion_id',[3,4,5])->get();
+                    $etapas_resolucion = EtapaResolucionAudiencia::where('audiencia_id',$audienciaId)->whereIn('etapa_resolucion_id',[3,4,5,6])->get();
+                    
                     $objeto = new JsonResponse($etapas_resolucion);
                     $etapas_resolucion = json_decode($objeto->content(),true);
                     $datosResolucion['resolucion']= $objetoResolucion->nombre;
+                    $resolucion_partes = ResolucionPartes::where('audiencia_id',$audienciaId)->first();
+                    $resolucionParteId = $resolucion_partes->id;
                     foreach ($etapas_resolucion as $asd => $etapa ) {
                       if($etapa['etapa_resolucion_id'] == 3){
                         $datosResolucion['primera_manifestacion']= $etapa['evidencia'];
                       }else if($etapa['etapa_resolucion_id'] == 4){
                         $datosResolucion['justificacion_propuesta']= $etapa['evidencia'];
-                        $resolucion_partes = ResolucionPartes::where('audiencia_id',$audienciaId)->first();
-                        $resolucionParteId = $resolucion_partes->id;
 
                         // $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
                         // $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
@@ -585,6 +587,7 @@ trait GenerateDocument
                         $tablaConceptos .= '</table>';
 
                         // $tablaConceptos .= '<h4>Propuesta Configurada </h4>';
+                        //Conceptos resolucion
                         $resolucion_conceptos = ResolucionParteConcepto::where('resolucion_partes_id',$resolucionParteId)->get();
                         $tablaConceptosEConvenio = '';
                         $tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
@@ -597,13 +600,14 @@ trait GenerateDocument
                             $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
                             $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.$concepto->monto.'</td></tr>';
                           }else{
-                            $tablaConceptosEConvenio .= $concepto->otro;
+                            $tablaConceptosEConvenio .= $concepto->otro.' ';
                           }
                         }
                         $tablaConceptosConvenio .= '<tr><td> Total de percepciones </td><td>     $'.$totalPercepciones.'</td></tr>';
                         $tablaConceptosConvenio .= '</tbody>';
                         $tablaConceptosConvenio .= '</table>';
                         $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte <b>EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'</p>':'';
+
                         $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
                         $cantidadTextual = str_replace("uno","un",$cantidadTextual);
                         $cantidadTextual = str_replace("coma","punto",$cantidadTextual);
@@ -613,6 +617,24 @@ trait GenerateDocument
                         $datosResolucion['propuesta_configurada']= $tablaConceptosConvenio;
                       }else if($etapa['etapa_resolucion_id'] == 5){
                         $datosResolucion['segunda_manifestacion']= $etapa['evidencia'];
+                      }else if($etapa['etapa_resolucion_id'] == 6){
+                        $datosResolucion['descripcion_pagos']= $etapa['evidencia'];
+                        //Fechas pago resolucion
+                        $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                        $tablaPagosDiferidos .= '<table class="tbl">';
+                        $tablaPagosDiferidos .= '<tbody>';
+                        $resolucion_pagos = ResolucionPagoDiferido::where('resolucion_parte_id',$resolucionParteId)->get();
+                        
+                        $totalPagosDiferidos=0;
+                        foreach ($resolucion_pagos as $pago ) {
+                            $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:m:s',$pago->fecha_pago)->format('d/m/Y').' </td><td style="text-align:right;">     $'.$pago->monto.'</td></tr>';
+                            $totalPagosDiferidos +=1;
+                        }
+                        $tablaPagosDiferidos .= '</tbody>';
+                        $tablaPagosDiferidos .= '</table>';
+
+                        $datosResolucion['total_diferidos']= $totalPagosDiferidos;
+                        $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                       }
                     }
                     $datosResolucion['primera_manifestacion'] = (isset($datosResolucion['primera_manifestacion']))? $datosResolucion['primera_manifestacion'] :"";
@@ -620,6 +642,8 @@ trait GenerateDocument
                     $datosResolucion['total_percepciones'] = (isset($datosResolucion['total_percepciones']))? $datosResolucion['total_percepciones'] :"";
                     $datosResolucion['propuestas_conceptos'] = (isset($datosResolucion['propuestas_conceptos']))? $datosResolucion['propuestas_conceptos'] :"";
                     $datosResolucion['propuesta_configurada'] = (isset($datosResolucion['propuesta_configurada']))? $datosResolucion['propuesta_configurada'] :"";
+                    $datosResolucion['pagos_diferidos'] = (isset($datosResolucion['pagos_diferidos']))? $datosResolucion['pagos_diferidos'] :"";
+                    $datosResolucion['total_diferidos'] = (isset($datosResolucion['total_diferidos']))? $datosResolucion['total_diferidos'] :"";
                     $data = Arr::add( $data, $model, $datosResolucion );
                   }else{
                     $objeto = $model_name::first();

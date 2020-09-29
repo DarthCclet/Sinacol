@@ -31,6 +31,7 @@ use App\Ocupacion;
 use App\Periodicidad;
 use App\Solicitud;
 use App\ClasificacionArchivo;
+use App\ResolucionPagoDiferido;
 use App\ResolucionParteConcepto;
 use App\TerminacionBilateral;
 use App\Documento;
@@ -243,6 +244,7 @@ class AudienciaController extends Controller {
 
         $partes = array();
         $solicitud =$audiencia->expediente->solicitud;
+        $solicitud_id = $solicitud->id;
         $solicitudPartes = $solicitud->partes;
         foreach($solicitudPartes as $key => $parte){
             $documentos = $parte->documentos;
@@ -275,7 +277,7 @@ class AudienciaController extends Controller {
         }
         $documentos = $doc;
 
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "concepto_pago_resoluciones", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos"));
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "concepto_pago_resoluciones", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id'));
     }
 
     /**
@@ -610,7 +612,7 @@ class AudienciaController extends Controller {
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
                     }
                 }
-                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos);
+                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago );
                 $etapaAudiencia = EtapaResolucionAudiencia::create([
                             "etapa_resolucion_id" => 6,
                             "audiencia_id" => $audiencia->id,
@@ -632,7 +634,7 @@ class AudienciaController extends Controller {
      * @param Audiencia $audiencia
      * @param type $arrayRelaciones
      */
-    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array()) {
+    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array(), $listaFechasPago = array()) {
         $partes = $audiencia->audienciaParte;
         $solicitantes = $this->getSolicitantes($audiencia);
         $solicitados = $this->getSolicitados($audiencia);
@@ -723,6 +725,20 @@ class AudienciaController extends Controller {
                             }
                         }
                     }
+                    if (isset($listaFechasPago)) { //se registran pagos diferidos
+                        if (count($listaFechasPago) > 0) {
+                            foreach ($listaFechasPago as $key => $fechaPago) {
+                                
+                                ResolucionPagoDiferido::create([
+                                    "monto" => $fechaPago["monto_pago"],
+                                    "resolucion_parte_id" => $resolucionParte->id,
+                                    "fecha_pago" => Carbon::createFromFormat('d/m/Y',$fechaPago["fecha_pago"])->format('Y-m-d'),
+                                    "pagado" => false
+                                ]);
+                            }
+                        }
+                    }
+
                     if ($terminacion == 3) {
                         //Se genera el convenio
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id, $solicitado->parte_id));
@@ -997,7 +1013,7 @@ class AudienciaController extends Controller {
             if($request->resolucion_id != ""){
                 $html = $request['audiencia_body'];
                 $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
-                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,1);
+                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,15);
                 $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true));
 
                 $solicitantes = $this->getSolicitantes($audiencia);
@@ -1048,7 +1064,7 @@ class AudienciaController extends Controller {
                                 //Se genera el convenio
                                 $html = $request['convenio_body'];
                                 $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
-                                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,2);
+                                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,16);
                             }
                         }
                     }
@@ -1056,7 +1072,7 @@ class AudienciaController extends Controller {
             }else{
                 $html = $request['no_comparece_body'];
                 $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
-                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,3);
+                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,41);
                 $audiencia->update(array("resolucion_id" => 3, "finalizada" => true));
                 $solicitantes = $this->getSolicitantes($audiencia);
                 $solicitados = $this->getSolicitados($audiencia);

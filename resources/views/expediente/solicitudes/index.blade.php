@@ -22,7 +22,7 @@
         <!-- begin panel-heading -->
         <div class="">
             <div class="panel-heading-btn">
-                <button class="btn btn-primary pull-right" onclick="location.href='{{ route('solicitudes.create')  }}'" > <i class="fa fa-plus-circle"></i> Nueva solicitud</button>
+                <button class="btn btn-primary pull-right" onclick="nuevaSolicitud()" > <i class="fa fa-plus-circle"></i> Nueva solicitud</button>
             </div>
         </div>
         <div id="divFilters" class="col-md-12 row" style="display: none">
@@ -86,7 +86,38 @@
             @include('expediente.solicitudes._list')
         </div>
     </div>
-
+    <div class="modal" id="modal-crear-solicitud" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Crear nueva Solicitud</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <h4>Selecciona el tipo de solicitud que deseas capturar</h4>
+                    <div class="col-md-12">
+                        <div class="col-md-8 offset-2" style="margin:1%;">
+                            <a class="btn btn-primary btn-lg col-md-12 " onclick="capturarSolicitud(1)" data-dismiss="modal" ><i class="fa fa-plus"></i> Solicitud individual</a>
+                        </div>
+                        <div class="col-md-8 offset-2" style="margin:1%;">
+                            <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(2)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal individual</a>
+                        </div>
+                        <div class="col-md-8 offset-2" style="margin:1%;">
+                            <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(3)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal colectiva</a>
+                        </div>
+                        <div class="col-md-8 offset-2" style="margin:1%;">
+                            <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(4)" data-dismiss="modal" ><i class="fa fa-plus"></i> Sindicato</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -136,6 +167,14 @@
         });
         function filtros(){
             $("#divFilters").toggle();
+        }
+
+        function nuevaSolicitud(){
+            $("#modal-crear-solicitud").modal('show');
+        }
+
+        function capturarSolicitud(id){
+            location.href='{{ route('solicitudes.create')  }}?solicitud='+id;
         }
     </script>
 @endpush
