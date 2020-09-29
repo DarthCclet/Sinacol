@@ -1612,7 +1612,7 @@
                             }
                             }
                         }).then(function(isConfirm){
-                            window.location.href = "/audiencias";
+                            $("#btnFinalizarRatificacion").click();
                         });
                     }else if(data.data.tipo == 3){
                         $("#spanFolio").text(data.data.response.folio+"/"+data.data.response.anio);
@@ -1707,7 +1707,6 @@
                             }
                             }
                         }).then(function(isConfirm){
-                            window.location.href = "/audiencias";
                             $("#btnFinalizarRatificacion").click();
                         });
                     }
