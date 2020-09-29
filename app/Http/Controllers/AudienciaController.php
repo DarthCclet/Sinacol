@@ -243,6 +243,7 @@ class AudienciaController extends Controller {
 
         $partes = array();
         $solicitud =$audiencia->expediente->solicitud;
+        $solicitud_id = $solicitud->id;
         $solicitudPartes = $solicitud->partes;
         foreach($solicitudPartes as $key => $parte){
             $documentos = $parte->documentos;
@@ -275,7 +276,7 @@ class AudienciaController extends Controller {
         }
         $documentos = $doc;
 
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "concepto_pago_resoluciones", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos"));
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "concepto_pago_resoluciones", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id'));
     }
 
     /**
@@ -997,7 +998,7 @@ class AudienciaController extends Controller {
             if($request->resolucion_id != ""){
                 $html = $request['audiencia_body'];
                 $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
-                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,1);
+                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,15);
                 $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true));
 
                 $solicitantes = $this->getSolicitantes($audiencia);
@@ -1048,7 +1049,7 @@ class AudienciaController extends Controller {
                                 //Se genera el convenio
                                 $html = $request['convenio_body'];
                                 $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
-                                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,2);
+                                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,16);
                             }
                         }
                     }
@@ -1056,7 +1057,7 @@ class AudienciaController extends Controller {
             }else{
                 $html = $request['no_comparece_body'];
                 $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
-                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,3);
+                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,41);
                 $audiencia->update(array("resolucion_id" => 3, "finalizada" => true));
                 $solicitantes = $this->getSolicitantes($audiencia);
                 $solicitados = $this->getSolicitados($audiencia);
