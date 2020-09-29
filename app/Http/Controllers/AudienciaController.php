@@ -103,7 +103,8 @@ class AudienciaController extends Controller {
             }
             if ($this->request->get('IsDatatableScroll')) {
                 $audiencias = $audiencias->with('conciliador.persona');
-                $audiencias = $audiencias->orderBy("fecha_audiencia", 'desc')->take($length)->skip($start)->get(['id', 'folio', 'anio', 'fecha_audiencia', 'hora_inicio', 'hora_fin', 'conciliador_id', 'finalizada']);
+                $audiencias = $audiencias->with('expediente.solicitud');
+                $audiencias = $audiencias->orderBy("fecha_audiencia", 'desc')->take($length)->skip($start)->get(['id', 'folio', 'anio', 'fecha_audiencia', 'hora_inicio', 'hora_fin', 'conciliador_id', 'finalizada','expediente_id']);
                 // $audiencias = $audiencias->select(['id','conciliador','numero_audiencia','fecha_audiencia','hora_inicio','hora_fin'])->orderBy("fecha_audiencia",'desc')->take($length)->skip($start)->get();
             } else {
                 $audiencias = $audiencias->paginate($this->request->get('per_page', 10));
@@ -1176,7 +1177,9 @@ class AudienciaController extends Controller {
                                 "parte_solicitada_id" => $solicitado->parte_id,
                                 "terminacion_bilateral_id" => 1
                             ]);
-                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $solicitante->parte_id, $solicitado->parte_id));
+                            if($audiencia->expediente->solicitud->tipo_solicitud_id == 1){
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $solicitante->parte_id, $solicitado->parte_id));
+                            }
                         }
                     }
                     $solicitud = Solicitud::find($audiencia->expediente->solicitud_id);
@@ -1216,7 +1219,7 @@ class AudienciaController extends Controller {
                                 //Se genera constancia de no conciliacion
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
 
-                                    if(array_search($solicitado->parte_id,$arrayMultado) === false){
+                                    if(array_search($solicitado->parte_id,$arrayMultado) === false && $audiencia->expediente->solicitud->tipo_solicitud_id == 1){
                                     // Se genera archivo de acta de multa
                                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
                                     array_push($arrayMultado,$solicitado->parte_id);
@@ -1300,7 +1303,7 @@ class AudienciaController extends Controller {
                     foreach ($audiencia_partes as $key => $audienciaP) {
                         if ($audienciaP->parte->tipo_parte_id == 1) {
                             $comparecio = Compareciente::where('audiencia_id', $audiencia_id)->where('parte_id', $audienciaP->parte_id)->first();
-                                if ($comparecio == null) {
+                                if ($comparecio == null && $audiencia->expediente->solicitud->tipo_solicitud_id == 1) {
                                 $solicitados = $this->getSolicitados($audiencia);
                                 foreach ($solicitados as $key => $solicitado) {
                                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $audienciaP->parte_id, $solicitado->parte_id));
