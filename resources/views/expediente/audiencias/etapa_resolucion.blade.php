@@ -2795,7 +2795,7 @@
         if(resolucion != "" ){
             if(resolucion == 1){
                 errorDatosConvenio = validarDatosLaborales(1);
-                errorPagos = validarPagos();
+                errorPagos = $('#switchAdicionales').is(':checked') ? validarPagos() : false;
                 if(!errorDatosConvenio && !errorPagos){
                     
                     swal({
