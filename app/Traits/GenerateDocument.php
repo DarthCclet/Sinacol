@@ -37,7 +37,7 @@ trait GenerateDocument
      */
     public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null, $idConciliador = null)
     {
-		$plantilla = PlantillaDocumento::find($plantilla_id);
+    $plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
             if($idAudiencia != ""){
 
@@ -611,7 +611,7 @@ trait GenerateDocument
                         $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $tablaPagosDiferidos .= '<table class="tbl">';
                         $tablaPagosDiferidos .= '<tbody>';
-                        $resolucion_pagos = ResolucionPagoDiferido::where('resolucion_partes_id',$resolucionParteId)->get();
+                        $resolucion_pagos = ResolucionPagoDiferido::where('resolucion_parte_id',$resolucionParteId)->get();
                         foreach ($resolucion_pagos as $pago ) {
                             $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago->fecha_pago.' </td><td style="text-align:right;">     $'.$pago->monto_pago.'</td></tr>';
                         }
