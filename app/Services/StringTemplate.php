@@ -59,7 +59,6 @@ class StringTemplate
      * @return string
      */
     public static function sustituyePlaceholdersConditionals($string, $vars){
-
       if(Str::contains($string, '[REPETIR')) {
         $countRepetir = substr_count($string, '[FIN_REPETIR');
       }
@@ -68,7 +67,7 @@ class StringTemplate
         $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
         $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
         $countSolicitudRatificada = substr_count($string,'[SI_SOLICITUD_RATIFICADA]');
-        $countPagosDiferidos = substr_count($string,'[SI_PAGOS_DIFERIDOS]');
+        $countPagosDiferidos = substr_count($string,'[SI_RESOLUCION_PAGO_DIFERIDO]');
         
         if (isset($vars['resolucion_total_diferidos'])){
           if($vars['resolucion_total_diferidos'] >0 && $countPagosDiferidos >0){

@@ -210,14 +210,14 @@ trait GenerateDocument
 
                            }elseif ($k == 'representante_legal') {
                              foreach ($val as $n =>$v) {
-                               $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                               $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v!="") ? $v:'';
                              }
                            }
                         }
                       }elseif(gettype($val)== 'string'){
                         $pos = strpos($k,'fecha');
                         if ($pos !== false){
-                          $val = $this->formatoFecha($val);
+                          $val = $this->formatoFecha($val,1);
                         }
                       // }else{
                       }
@@ -528,7 +528,8 @@ trait GenerateDocument
                   }elseif ($model == 'Resolucion') {
                     $objetoResolucion = $model_name::find($resolucionAudienciaId);
                     $datosResolucion=[];
-                    $etapas_resolucion = EtapaResolucionAudiencia::where('audiencia_id',$audienciaId)->whereIn('etapa_resolucion_id',[3,4,5])->get();
+                    $etapas_resolucion = EtapaResolucionAudiencia::where('audiencia_id',$audienciaId)->whereIn('etapa_resolucion_id',[3,4,5,6])->get();
+                    
                     $objeto = new JsonResponse($etapas_resolucion);
                     $etapas_resolucion = json_decode($objeto->content(),true);
                     $datosResolucion['resolucion']= $objetoResolucion->nombre;
@@ -623,9 +624,10 @@ trait GenerateDocument
                         $tablaPagosDiferidos .= '<table class="tbl">';
                         $tablaPagosDiferidos .= '<tbody>';
                         $resolucion_pagos = ResolucionPagoDiferido::where('resolucion_parte_id',$resolucionParteId)->get();
+                        
                         $totalPagosDiferidos=0;
                         foreach ($resolucion_pagos as $pago ) {
-                            $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago->fecha_pago.' </td><td style="text-align:right;">     $'.$pago->monto_pago.'</td></tr>';
+                            $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:m:s',$pago->fecha_pago)->format('d/m/Y').' </td><td style="text-align:right;">     $'.$pago->monto.'</td></tr>';
                             $totalPagosDiferidos +=1;
                         }
                         $tablaPagosDiferidos .= '</tbody>';

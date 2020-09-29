@@ -376,7 +376,7 @@
                                 </div>
                                 <div class="col-md-12" style="margin-bottom: 5%">
                                     <div >
-                                    <input type="checkbox" data-render="switchery" data-theme="default" id="switchAdicionales" name='elementosAdicionales' onchange=" if($('#switchAdicionales').is(':checked')){ $('#modal-pago-diferido').modal('show'); $('#textAdicional').show(); }else{$('#textAdicional').hide();}"/>
+                                    <input type="checkbox" data-render="switchery" data-theme="default" id="switchAdicionales" name='elementosAdicionales' onchange=" if($('#switchAdicionales').is(':checked')){ $('#modal-pago-diferido').modal('show'); $('#textAdicional').show(); $('#pagosDiferidos').show(); }else{$('#textAdicional').hide(); $('#pagosDiferidos').hide();}"/>
                                     </div>
                                     <div >
                                         <span class="text-muted m-l-5 m-r-20" for='switchAdicionales'>Señalar en este espacio las fechas de pagos diferidos con el monto a pagar en cada fecha. Se permiten fechas diferidas hasta un mes natural a partir de la fecha de convenio.</span>
@@ -387,7 +387,7 @@
                                     <textarea class="form-control textarea" placeholder="Describir..." type="text" id="evidencia{{$etapa->paso}}">
                                     </textarea>
                                 </div>
-                                <div id="pagosDiferidos" style="">
+                                <div id="pagosDiferidos" style="display:none">
                                     <div class="col-md-12" id="divPagosAcordados" >
                                         <input type="hidden" id="totalPagosDiferidos">
                                         <div class="form-group col-md-2 offset-10" id="btnConfigPagos">
