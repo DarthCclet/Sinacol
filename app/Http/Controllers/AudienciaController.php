@@ -31,6 +31,7 @@ use App\Ocupacion;
 use App\Periodicidad;
 use App\Solicitud;
 use App\ClasificacionArchivo;
+use App\ResolucionPagoDiferido;
 use App\ResolucionParteConcepto;
 use App\TerminacionBilateral;
 use App\Documento;
@@ -611,7 +612,7 @@ class AudienciaController extends Controller {
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
                     }
                 }
-                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos);
+                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago );
                 $etapaAudiencia = EtapaResolucionAudiencia::create([
                             "etapa_resolucion_id" => 6,
                             "audiencia_id" => $audiencia->id,
@@ -633,7 +634,7 @@ class AudienciaController extends Controller {
      * @param Audiencia $audiencia
      * @param type $arrayRelaciones
      */
-    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array()) {
+    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array(), $listaFechasPago = array()) {
         $partes = $audiencia->audienciaParte;
         $solicitantes = $this->getSolicitantes($audiencia);
         $solicitados = $this->getSolicitados($audiencia);
@@ -724,6 +725,23 @@ class AudienciaController extends Controller {
                             }
                         }
                     }
+                    if (isset($listaFechasPago)) { //se registran pagos diferidos
+                        if (count($listaFechasPago) > 0) {
+                            foreach ($listaFechasPago as $key => $fechaPago) {
+                                if ($key == $solicitante->parte_id) {
+                                    foreach ($fechaPago as $k => $fecha) {
+                                        ResolucionPagoDiferido::create([
+                                            "resolucion_partes_id" => $resolucionParte->id,
+                                            "monto" => $fecha["monto"],
+                                            "fecha_pago" => $fecha["fecha_pago"],
+                                            "pagado" => false
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if ($terminacion == 3) {
                         //Se genera el convenio
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id, $solicitado->parte_id));
