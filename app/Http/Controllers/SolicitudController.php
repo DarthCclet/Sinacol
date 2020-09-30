@@ -47,6 +47,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FechaAudienciaService;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 class SolicitudController extends Controller {
 
@@ -391,6 +392,9 @@ class SolicitudController extends Controller {
             DB::commit();
             event(new GenerateDocumentResolution("",$solicitudSaved->id,40,6));
         } catch (\Throwable $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             if ($this->request->wantsJson()) {
                 return $this->sendError('Error al crear la solicitud'.$e->getMessage(), 'Error');
@@ -874,6 +878,9 @@ class SolicitudController extends Controller {
             });
             DB::commit();
         } catch (\Throwable $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             if ($this->request->wantsJson()) {
 
@@ -975,6 +982,9 @@ class SolicitudController extends Controller {
         return $solicitud;
 
         }catch(\Throwable $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             // dd($e);
             if ($this->request->wantsJson()) {
@@ -1132,6 +1142,9 @@ class SolicitudController extends Controller {
             event(new GenerateDocumentResolution("",$solicitud->id,40,6));
             return $audiencia;
         }catch(\Throwable $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             // dd($e);
             if ($this->request->wantsJson()) {
@@ -1316,6 +1329,9 @@ class SolicitudController extends Controller {
             DB::commit();
             return $this->sendResponse("success", "Se guardaron los correos");
         }catch(\Throwable $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Error al guardar los correos', 'Error');
         }
