@@ -741,8 +741,42 @@ class AudienciaController extends Controller {
                     }
 
                     if ($terminacion == 3) {
-                        //Se genera el convenio
-                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id, $solicitado->parte_id));
+                        //Se consulta comparecencia de citado
+                        $parte = $solicitado->parte;
+                        // if($parte->id == 84){
+                            
+                        //     dd($solicitante->parte);
+                        // }
+                        if ($parte->tipo_persona_id == 2) {
+                            $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
+                            if ($compareciente_parte != null) {
+                                $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                                // dd($comparecienteCit);
+                            } else {
+                                $comparecienteCit = null;
+                            }
+                        } else {
+                            $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+                        }
+                        // Termina consulta de comparecencia de citado
+
+                        //Se consulta comparecencia de solicitante
+                        $parteS = $solicitante->parte;
+                        if ($parteS->tipo_persona_id == 2) {
+                            $compareciente_parte = Parte::where("parte_representada_id", $parteS->id)->first();
+                            if ($compareciente_parte != null) {
+                                $comparcomparecienteSoleciente = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                            } else {
+                                $comparecienteSol = null;
+                            }
+                        } else {
+                            $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
+                        }
+                        // Termina consulta de comparecencia de solicitante
+                        if($comparecienteCit != null && $comparecienteSol != null){
+                            //Se genera el convenio
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id, $solicitado->parte_id));
+                        }
                     }
                 }
             }
