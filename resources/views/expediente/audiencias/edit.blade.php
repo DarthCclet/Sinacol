@@ -1747,6 +1747,18 @@
                 $("#clasificacion_archivo_id").prev().css("color","red");
                 error = true;
             }
+            if($("#fileIdentificacion").val() != ""){
+                if($("#tipo_documento_id").val() == "" ){
+                    $("#tipo_documento_id").prev().css("color","red");
+                    error = true;
+                }
+            }
+            if($("#fileInstrumento").val() != ""){
+                if($("#clasificacion_archivo_id_representante").val() == "" ){
+                    $("#clasificacion_archivo_id_representante").prev().css("color","red");
+                    error = true;
+                }
+            }
             if($("#feha_instrumento").val() == ""){
                 $("#feha_instrumento").prev().css("color","red");
                 error = true;
@@ -2286,6 +2298,13 @@
                 }
             });
         }
+
+        $("#fileInstrumento").change(function(e){
+            $("#labelInstrumentoRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+        });
+        $("#fileIdentificacion").change(function(e){
+            $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+        });
         $('.upper').on('keyup', function () {
             var valor = $(this).val();
             $(this).val(valor.toUpperCase());
