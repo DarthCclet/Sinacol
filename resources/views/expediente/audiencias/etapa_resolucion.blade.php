@@ -1872,31 +1872,65 @@
             type:"GET",
             dataType:"json",
             success:function(data){
-                var html="<table class='table table-bordered table-striped table-hover'>";
-                html +='<tr>';
-                html +='    <th>Tipo de parte</th>';
-                html +='    <th>Nombre</th>';
-                html +='    <th>Curp</th>';
-                html +='    <th>Es representante</th>';
-                html +='</tr>';
-                $.each(data,function(index,element){
+                
+                if(data.length > 0){
+                    $("#parte_solicitante_id").empty();
+                    $("#parte_solicitado_id").empty();
+                    var html="<table class='table table-bordered table-striped table-hover'>";
+                    var htmlSolicitantes = "<option value=''>Seleccione una opci&oacute;n</option>";
+                    var htmlCitados = "<option value=''>Seleccione una opci&oacute;n</option>";
                     html +='<tr>';
-                    html +='    <td>'+element.parte.tipoParte+'</td>';
-                    html +='    <td>'+element.parte.nombre+' '+element.parte.primer_apellido+' '+element.parte.segundo_apellido+'</td>';
-                    html +='    <td>'+element.parte.curp+'</td>';
-                    if(element.parte.tipo_parte_id == 3 && element.parte.parte_representada_id != null){
-                        if(element.parte.parteRepresentada.tipo_persona_id == 1){
-                            html +='<td>Si ('+element.parte.parteRepresentadanombre+' '+element.parte.parteRepresentada.primer_apellido+' '+element.parte.parteRepresentada.segundo_apellido+')</td>';
-                        }else{
-                            html +='<td>Si ('+element.parte.parteRepresentada.nombre_comercial+')</td>';
-                        }
-                    }else{
-                        html +='<td>No</td>';
-                    }
+                    html +='    <th>Tipo de parte</th>';
+                    html +='    <th>Nombre</th>';
+                    html +='    <th>Curp</th>';
+                    html +='    <th>Es representante</th>';
                     html +='</tr>';
-                });
-                html +='</table>';
-                $("#contentStep1").html(html);
+                    $.each(data,function(index,element){
+                        html +='<tr>';
+                        html +='    <td>'+element.parte.tipoParte+'</td>';
+                        html +='    <td>'+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+'</td>';
+                        html +='    <td>'+element.parte.curp+'</td>';
+                        if(element.parte.tipo_parte_id == 1){
+                            htmlCitados += "<option value='"+element.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                        }else if(element.parte.tipo_parte_id == 2){
+                            htmlSolicitantes += "<option value='"+element.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                        }
+
+                        if(element.parte.tipo_parte_id == 3 && element.parte.parte_representada_id != null){
+                            if(element.parte.parteRepresentada.tipo_parte_id == 1){
+                                htmlCitados += "<option value='"+element.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                            }else{
+                                htmlSolicitantes += "<option value='"+element.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                            }
+                            if(element.parte.parteRepresentada.tipo_persona_id == 1){
+                                html +='<td>Si ('+element.parte.parteRepresentadanombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')</td>';
+                                
+                            }else{
+                                html +='<td>Si ('+element.parte.parteRepresentada.nombre_comercial+')</td>';
+                                
+                            }
+                        }else{
+                            html +='<td>No</td>';
+                        }
+                        html +='</tr>';
+                    });
+                    html +='</table>';
+                    $("#contentCompareciente").html(html);
+                    $("#parte_solicitante_id").html(htmlSolicitantes);
+                    $("#parte_solicitado_id").html(htmlCitados);
+                    $("#divAudienciaColectiva").show();
+                    $("#btnCargarComparecientes").hide();
+                    if(data[0].citados && data[0].solicitantes){
+                        $("#divAudiencia").show();
+                    }else{
+                        if(!data[0].solicitantes){
+                            noComparece = true;
+                            $("#divNoComparece").show();
+                        }else{
+                            window.location = "/audiencias/{{ $audiencia->id }}/edit";
+                        }
+                    }
+                }
             }
         });
     }
