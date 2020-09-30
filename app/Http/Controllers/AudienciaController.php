@@ -1042,33 +1042,40 @@ class AudienciaController extends Controller {
                             }
                         }
                         if ($bandera) {
-                            $terminacion = 1;
-                            if ($audiencia->resolucion_id == 3) {
-                                //se genera el acta de no conciliacion para todos los casos
-                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
-                                $terminacion = 5;
-                            } else if ($audiencia->resolucion_id == 1) {
-                                $terminacion = 3;
-                            } else if ($audiencia->resolucion_id == 2) {
-                                $terminacion = 2;
-                            }
-                            $resolucionParte = ResolucionPartes::create([
-                                        "audiencia_id" => $audiencia->id,
-                                        "parte_solicitante_id" => $solicitante->parte_id,
-                                        "parte_solicitada_id" => $solicitado->parte_id,
-                                        "terminacion_bilateral_id" => $terminacion
-                            ]);
-                        }
-                        //guardar conceptos de pago para Convenio
-                        if ($audiencia->resolucion_id == 1 && isset($resolucionParte) && $terminacion == 3) { //Hubo conciliacion
-                            if ($terminacion == 3) {
-                                //Se genera el convenio
-                                $html = $request['convenio_body'];
-                                $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
-                                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,16);
+                            if ($arrayRelaciones != null) {
+                                $terminacion = 1;
+                                if ($audiencia->resolucion_id == 3) {
+                                    //se genera el acta de no conciliacion para todos los casos
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
+                                    $terminacion = 5;
+                                } else if ($audiencia->resolucion_id == 1) {
+                                    $terminacion = 3;
+                                } else if ($audiencia->resolucion_id == 2) {
+                                    $terminacion = 2;
+                                }
+                                $resolucionParte = ResolucionPartes::create([
+                                            "audiencia_id" => $audiencia->id,
+                                            "parte_solicitante_id" => $solicitante->parte_id,
+                                            "parte_solicitada_id" => $solicitado->parte_id,
+                                            "terminacion_bilateral_id" => $terminacion
+                                ]);
+                            }else{
+                                $resolucionParte = ResolucionPartes::create([
+                                    "audiencia_id" => $audiencia->id,
+                                    "parte_solicitante_id" => $solicitante->parte_id,
+                                    "parte_solicitada_id" => $solicitado->parte_id,
+                                    "terminacion_bilateral_id" => 4
+                                ]);
                             }
                         }
                     }
+                }
+                //guardar conceptos de pago para Convenio
+                if ($audiencia->resolucion_id == 1 ) { //Hubo conciliacion
+                    //Se genera el convenio
+                    $html = $request['convenio_body'];
+                    $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
+                    $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,16);
                 }
             }else{
                 $html = $request['no_comparece_body'];
