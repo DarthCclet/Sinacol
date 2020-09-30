@@ -1019,7 +1019,7 @@ class AudienciaController extends Controller {
 
                 $solicitantes = $this->getSolicitantes($audiencia);
                 $solicitados = $this->getSolicitados($audiencia);
-                $arrayRelaciones = $request->arrayRelaciones;
+                $arrayRelaciones = $request->listaRelacion;
                 foreach ($solicitantes as $solicitante) {
                     foreach ($solicitados as $solicitado) {
                         $bandera = true;
@@ -1034,39 +1034,30 @@ class AudienciaController extends Controller {
                                     $terminacion = 4;
                                 }
                                 $resolucionParte = ResolucionPartes::create([
-                                            "audiencia_id" => $audiencia->id,
-                                            "parte_solicitante_id" => $solicitante->parte_id,
-                                            "parte_solicitada_id" => $solicitado->parte_id,
-                                            "terminacion_bilateral_id" => $terminacion
+                                    "audiencia_id" => $audiencia->id,
+                                    "parte_solicitante_id" => $solicitante->parte_id,
+                                    "parte_solicitada_id" => $solicitado->parte_id,
+                                    "terminacion_bilateral_id" => $terminacion
                                 ]);
                             }
                         }
                         if ($bandera) {
-                            if ($arrayRelaciones != null) {
-                                $terminacion = 1;
-                                if ($audiencia->resolucion_id == 3) {
-                                    //se genera el acta de no conciliacion para todos los casos
-                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
-                                    $terminacion = 5;
-                                } else if ($audiencia->resolucion_id == 1) {
-                                    $terminacion = 3;
-                                } else if ($audiencia->resolucion_id == 2) {
-                                    $terminacion = 2;
-                                }
-                                $resolucionParte = ResolucionPartes::create([
-                                            "audiencia_id" => $audiencia->id,
-                                            "parte_solicitante_id" => $solicitante->parte_id,
-                                            "parte_solicitada_id" => $solicitado->parte_id,
-                                            "terminacion_bilateral_id" => $terminacion
-                                ]);
-                            }else{
-                                $resolucionParte = ResolucionPartes::create([
-                                    "audiencia_id" => $audiencia->id,
-                                    "parte_solicitante_id" => $solicitante->parte_id,
-                                    "parte_solicitada_id" => $solicitado->parte_id,
-                                    "terminacion_bilateral_id" => 4
-                                ]);
+                            $terminacion = 1;
+                            if ($audiencia->resolucion_id == 3) {
+                                //se genera el acta de no conciliacion para todos los casos
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
+                                $terminacion = 5;
+                            } else if ($audiencia->resolucion_id == 1) {
+                                $terminacion = 3;
+                            } else if ($audiencia->resolucion_id == 2) {
+                                $terminacion = 2;
                             }
+                            $resolucionParte = ResolucionPartes::create([
+                                        "audiencia_id" => $audiencia->id,
+                                        "parte_solicitante_id" => $solicitante->parte_id,
+                                        "parte_solicitada_id" => $solicitado->parte_id,
+                                        "terminacion_bilateral_id" => $terminacion
+                            ]);
                         }
                     }
                 }
