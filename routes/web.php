@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('centros/disponibilidad','CentroController@disponibilidad');
     Route::Post('centros/disponibilidades','CentroController@getDisponibilidades');
     Route::Post('centros/incidencias','CentroController@incidencia');
+    Route::Get('/calendariocolectivas','CentroController@CalendarioColectivas');
     Route::get('/calendariocentro', 'CentroController@getAudienciasCalendario');
     Route::get('/info_audiencia/{audiencia_id}', 'AudienciaController@getFullAudiencia');
     Route::get('/calendariocentro', 'CentroController@getAudienciasCalendario');

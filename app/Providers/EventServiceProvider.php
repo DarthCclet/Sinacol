@@ -26,6 +26,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\GenerateDocumentResolution' => [
             'App\Listeners\SaveResolution',
         ],
+        'App\Events\RatificacionRealizada' => [
+            'App\Listeners\SendNotificacion'
+        ],
         Logout::class => [LogSuccessfulLogout::class]
     ];
 
