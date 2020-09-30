@@ -154,7 +154,7 @@ class SolicitudController extends Controller {
                 return $this->sendResponseDatatable($total, $total, $draw, $solicitud, null);
             }
         }
-        $clasificacion_archivo = ClasificacionArchivo::all();
+        $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes','clasificacion_archivos_Representante','clasificacion_archivo'));
     }
@@ -191,7 +191,7 @@ class SolicitudController extends Controller {
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
         $motivo_excepcion = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         
-        $clasificacion_archivo = ClasificacionArchivo::all();
+        $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $giros = GiroComercial::where("parent_id",1)->orderBy('nombre')->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
@@ -507,7 +507,7 @@ class SolicitudController extends Controller {
         $audits = $this->getAcciones($solicitud, $solicitud->partes, $audiencias,$expediente);
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
-        $clasificacion_archivo = ClasificacionArchivo::all();
+        $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         
         // dd(Conciliador::all()->persona->full_name());
@@ -608,7 +608,7 @@ class SolicitudController extends Controller {
         $audits = $this->getAcciones($solicitud, $solicitud->partes, $audiencias,$expediente);
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
-        $clasificacion_archivo = ClasificacionArchivo::all();
+        $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         
         // dd(Conciliador::all()->persona->full_name());

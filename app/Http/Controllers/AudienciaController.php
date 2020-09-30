@@ -223,7 +223,7 @@ class AudienciaController extends Controller {
         $ocupaciones = $this->cacheModel('ocupaciones', Ocupacion::class);
         $jornadas = $this->cacheModel('jornadas', Jornada::class);
         $giros_comerciales = $this->cacheModel('giros_comerciales', GiroComercial::class);
-        $clasificacion_archivos = $this->cacheModel('clasificacion_archivo', ClasificacionArchivo::class);
+        $clasificacion_archivos = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
         $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
         $resoluciones = $this->cacheModel('resoluciones', Resolucion::class);
@@ -977,7 +977,7 @@ class AudienciaController extends Controller {
         $motivos_archivo = MotivoArchivado::all();
         $concepto_pago_resoluciones = ConceptoPagoResolucion::where('id', '<=', 9)->get();
         $concepto_pago_reinstalacion = ConceptoPagoResolucion::whereIn('id', [8, 9, 10])->get();
-        $clasificacion_archivo = ClasificacionArchivo::all();
+        $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
         return view('expediente.audiencias.etapa_resolucion', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id'));
     }
@@ -997,7 +997,7 @@ class AudienciaController extends Controller {
         $plantilla['plantilla_body'] = "";
         $plantilla['plantilla_footer'] = "";
         $resoluciones = $this->cacheModel('resoluciones', Resolucion::class);
-        $clasificacion_archivo = ClasificacionArchivo::all();
+        $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
         $motivos_archivo = MotivoArchivado::all();
         return view('expediente.audiencias.resolucion_colectiva', compact('plantilla','solicitud','audiencia','resoluciones','clasificacion_archivo','clasificacion_archivos_Representante','motivos_archivo'));

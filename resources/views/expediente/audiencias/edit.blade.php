@@ -680,8 +680,8 @@
                                 <label for="clasificacion_archivo_id_representante" class="control-label needed">Tipo de documento</label>
                                 <select class="form-control catSelect" required id="tipo_documento_id" name="tipo_documento_id">
                                     <option value="">Seleccione una opci&oacute;n</option>
-                                    @if(isset($clasificacion_archivo))
-                                        @foreach($clasificacion_archivo as $clasificacion)
+                                    @if(isset($clasificacion_archivos))
+                                        @foreach($clasificacion_archivos as $clasificacion)
                                             <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                         @endforeach
                                     @endif
