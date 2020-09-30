@@ -813,6 +813,7 @@
 <script src='/js/tinymce/tinymce.min.js'></script>
 <script>
     var listaContactos = [];
+    var listaResolucionesIndividuales = [];
     var noComparece = false;
     $("#resolucion_id").change(function(){
         if($(this).val() == 1){
