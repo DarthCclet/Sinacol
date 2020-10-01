@@ -2538,12 +2538,12 @@
                 let totalDiferidos = parseFloat($("#totalPagosDiferidos").val()).toFixed(2);
                 console.log(totalDiferidos);
                 console.log(totalConceptos);
-                if(totalConceptos == totalDiferidos ){
+                // if(totalConceptos == totalDiferidos ){
 
-                }else{
-                    error =true;
-                    swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
-                }
+                // }else{
+                //     error =true;
+                //     swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
+                // }
             }else{
                 error =true;
                 swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
