@@ -811,7 +811,7 @@ class AudienciaController extends Controller {
             "pagado" => false
         ]);
         //Se genera el acta de no comparecencia en fecha de pago
-        event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 12));
+        event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11));
         return $pagoDiferido;
     }
     /**
