@@ -2204,7 +2204,7 @@
             //funcion para obtener informacion de la excepcion
             var excepcion = getExcepcion();
             //Se llama api para guardar solicitud
-            if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 ){
+            if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 && arrayObjetoSolicitudes.lengua_indigena_id > 0 ){
 
                 var upd = "";
                 if($("#solicitud_id").val() == ""){
@@ -2280,7 +2280,7 @@
                 }else{
                     swal({
                         title: 'Error',
-                        text: 'Es necesario capturar al menos un solicitante, un citado y datos de la solicitud',
+                        text: 'Es necesario capturar al menos un solicitante, un citado y todos los datos de la solicitud',
                         icon: 'error'
                     });
                 }
