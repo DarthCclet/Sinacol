@@ -48,6 +48,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Services\FechaAudienciaService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
+use App\Events\RatificacionRealizada;
 
 class SolicitudController extends Controller {
 
@@ -1121,6 +1122,9 @@ class SolicitudController extends Controller {
                     AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
                     if($parte->tipo_parte_id == 2){
                         event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
+                    }
+                    if($datos_audiencia["encontro_audiencia"] && $tipo_notificacion_id != 1){
+                        event(new RatificacionRealizada($audiencia->id));
                     }
                 }
                 $expediente = Expediente::find($request->expediente_id);
