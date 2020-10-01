@@ -119,6 +119,9 @@ class StringTemplate
 
                   $string = $htmlA . $sliceNotificacion . $htmlB;
                 break;
+                default:
+                  $string = $htmlA . $htmlB;
+                break;
               }
             }
           }
