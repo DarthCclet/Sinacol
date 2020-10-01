@@ -2454,6 +2454,7 @@
                                 swal({title: 'ÉXITO',
                                 text: 'Se guardó el pago correctamente',
                                 icon: 'success'});
+                                location.reload();
                             }else{
                                 swal({
                                     title: 'Algo salió mal',
