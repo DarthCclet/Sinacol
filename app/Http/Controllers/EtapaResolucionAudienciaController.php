@@ -59,7 +59,8 @@ class EtapaResolucionAudienciaController extends Controller
                 [
                     "etapa_resolucion_id"=>$request->etapa_resolucion_id,
                     "audiencia_id"=>$request->audiencia_id,
-                    "evidencia"=>isset($request->evidencia) ? $request->evidencia : true 
+                    "evidencia"=>isset($request->evidencia) ? $request->evidencia : true,
+                    "elementos_adicionales"=>isset($request->elementos_adicionales) ? $request->elementos_adicionales : false 
                 ]);
             }else{
                 $etapaAudiencia->update(["evidencia"=>$request->evidencia ]);

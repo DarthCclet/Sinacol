@@ -295,7 +295,6 @@ class SolicitudController extends Controller {
             $solicitud['anio'] = $folio->anio;
             $solicitud['ratificada'] = false;
             $solicitudSaved = Solicitud::create($solicitud);
-
             $objeto_solicitudes = $request->input('objeto_solicitudes');
 
             foreach ($objeto_solicitudes as $key => $value) {
@@ -390,6 +389,7 @@ class SolicitudController extends Controller {
                 $solicitudSaved->loadDataFromRequest();
             });
             DB::commit();
+            // generar acuse de solicitud
             event(new GenerateDocumentResolution("",$solicitudSaved->id,40,6));
         } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
@@ -975,7 +975,6 @@ class SolicitudController extends Controller {
                 if($parte->tipo_parte_id == 1){
                     //generar constancia de incompetencia por solicitante
                     event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,13,10,$parte->id,null));
-                    // event(new GenerateDocumentResolution(18,2,79,15,3));
                 }
             }
         DB::commit();
@@ -1065,6 +1064,7 @@ class SolicitudController extends Controller {
                 foreach($partes as $parte){
                     AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
                     if($parte->tipo_parte_id == 2){
+                        // generar citatorio de conciliacion
                         event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
                     }
                 }
@@ -1086,7 +1086,6 @@ class SolicitudController extends Controller {
                     $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
                     $multiple = false;
                 }
-//                    var_dump($datos_audiencia);
                 //Obtenemos el contador
                 $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                 //creamos el registro de la audiencia
@@ -1146,7 +1145,7 @@ class SolicitudController extends Controller {
                        " Se emitió el siguiente mensale: ". $e->getMessage().
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
-            // dd($e);
+            dd($e);
             if ($this->request->wantsJson()) {
                 return $this->sendError('Error al ratificar la solicitud', 'Error');
             }
@@ -1196,6 +1195,7 @@ class SolicitudController extends Controller {
         foreach ($solicitados as $key => $solicitado) {
             foreach($request->files as $solicitante_id => $file){
                 ResolucionParteExcepcion::create(['parte_solicitante_id'=>$solicitante_id,'parte_solicitada_id'=>$solicitado->id,'conciliador_id'=>$request->conciliador_excepcion_id,'resolucion_id'=> 3 ]);
+                // generar constancia de excepcion a la conciliacion
                 event(new GenerateDocumentResolution("",$solicitud_id,2,5,$solicitante_id,$solicitado->id,$request->conciliador_excepcion_id));
             }
         }
