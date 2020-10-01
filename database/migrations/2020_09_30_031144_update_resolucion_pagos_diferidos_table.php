@@ -20,7 +20,7 @@ class UpdateResolucionPagosDiferidosTable extends Migration
             $table->boolean('pagado')->nullable()->change();
             
             // id de la audiencia 
-            $table->integer('audiencia_id')->comment('FK de la tabla audiencias');
+            $table->integer('audiencia_id')->comment('FK de la tabla audiencias')->nullable();
             $table->foreign('audiencia_id')->references('id')->on('audiencias');
         });
     }

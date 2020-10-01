@@ -623,7 +623,7 @@ trait GenerateDocument
                         $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $tablaPagosDiferidos .= '<table class="tbl">';
                         $tablaPagosDiferidos .= '<tbody>';
-                        $resolucion_pagos = ResolucionPagoDiferido::where('resolucion_parte_id',$resolucionParteId)->get();
+                        $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
                         
                         $totalPagosDiferidos=0;
                         foreach ($resolucion_pagos as $pago ) {
