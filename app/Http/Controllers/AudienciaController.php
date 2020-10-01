@@ -630,6 +630,7 @@ class AudienciaController extends Controller {
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
                     }
                 }
+                DB::commit();
                 $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago );
                 $etapaAudiencia = EtapaResolucionAudiencia::create([
                             "etapa_resolucion_id" => 6,
@@ -638,7 +639,7 @@ class AudienciaController extends Controller {
                 ]);
                 
             }
-            DB::commit();
+            
             return $audiencia;
         } catch (\Throwable $e) {
 
@@ -810,7 +811,7 @@ class AudienciaController extends Controller {
             "pagado" => false
         ]);
         //Se genera el acta de no comparecencia en fecha de pago
-        event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11));
+        event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 12));
     }
     /**
      * Funcion para generar constancia de no comparecencia en fecha de pago
