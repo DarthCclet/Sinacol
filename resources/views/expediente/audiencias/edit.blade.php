@@ -368,9 +368,9 @@
                                                                                 <td>{{ Carbon\Carbon::createFromFormat('Y-m-d H:m:s',$fechaPago->fecha_pago)->format('d/m/Y')}}</td>
                                                                                 <td>{{$fechaPago->monto}}</td>
                                                                                 <td>
-                                                                                    @if ($fechaPago->pagado == false) 
+                                                                                    @if($fechaPago->pagado == false && $fechaPago->pagado!=null) 
                                                                                         <P style="color: darkred">No Pagado</p>
-                                                                                    @elseif ($fechaPago->pagado == true) 
+                                                                                    @elseif($fechaPago->pagado == true) 
                                                                                         <P style="color:darkolivegreen">Pagado</p>
                                                                                     @else
                                                                                         <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
