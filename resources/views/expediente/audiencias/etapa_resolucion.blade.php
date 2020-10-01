@@ -2833,7 +2833,7 @@
                 if(!errorDatosConvenio && !errorPagos){
                     
                     swal({
-                        title: 'Se convino con todos los citados?',
+                        title: 'Se convino con todos los comparecientes?',
                         text: '',
                         icon: 'warning',
                         // showCancelButton: true,
@@ -3128,9 +3128,9 @@
                 table +='<td>'+fechaPago.fecha_pago+'</td>';
                 table +='<td>'+fechaPago.monto_pago+'</td>';
                 table +='<td>';
-                table +='<button onclick="eliminarFechaPago('+idSolicitante+','+index+')" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago" style="display:none;">';
-                    table +='<i class="fa fa-eye"></i>';
-                table +='</button>';
+                // table +='<button onclick="eliminarFechaPago('+idSolicitante+','+index+')" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago" style="display:none;">';
+                //     table +='<i class="fa fa-eye"></i>';
+                // table +='</button>';
                 table +='<button onclick="eliminarFechaPago('+idSolicitante+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
                     table +='<i class="fa fa-trash"></i>';
                 table +='</button>';
