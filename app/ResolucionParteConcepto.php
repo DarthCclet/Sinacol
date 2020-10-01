@@ -11,10 +11,10 @@ class ResolucionParteConcepto extends Model
     
     /*
      * Relación con la tabla conceptoPagoResolucion
-     * un centro puede tener muchas salas
+     * una resolucion tener muchas conceptos
      */
     public function ConceptoPagoResolucion(){
-        return $this->belongsTo(ConceptoPagoResolucion::class);
+        return $this->belongsTo(ConceptoPagoResolucion::class,"concepto_pago_resoluciones_id");
     }
     /*
      * Relación con la tabla resolucionPartes

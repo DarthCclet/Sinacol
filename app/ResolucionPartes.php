@@ -46,4 +46,12 @@ class ResolucionPartes extends Model
     public function terminacion_bilateral(){
         return $this->belongsTo(TerminacionBilateral::class);
     }
+
+    /**
+     * Relacion con pagosDiferidos
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function parteConceptos(){
+        return $this->hasMany(ResolucionParteConcepto::class);
+    }
 }

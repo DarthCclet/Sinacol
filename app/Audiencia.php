@@ -122,4 +122,11 @@ class Audiencia extends Model implements Auditable
     public function etapasResolucionAudiencia(){
         return $this->hasMany(EtapaResolucionAudiencia::class);
     }
+    /**
+     * Relacion con pago diferido
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function pagosDiferidos(){
+        return $this->hasMany(ResolucionPagoDiferido::class);
+    }
 }
