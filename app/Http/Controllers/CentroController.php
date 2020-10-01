@@ -217,9 +217,8 @@ class CentroController extends Controller
         return view("centros.centros.calendario_audiencias", compact('audiencias'));
     }
     public function CalendarioColectivas(){
-        dd("holi");
-//        $audiencias = Audiencia::where("encontro_audiencia",false)->get();
-        return view("centros.centros.calendario_audiencias_colectivas");
+        $audiencias = Audiencia::where("encontro_audiencia",false)->get();
+        return view("centros.centros.calendario_audiencias_colectivas", compact('audiencias'));
     }
     public function pruebaEvents(){
         event(new RatificacionRealizada(1));

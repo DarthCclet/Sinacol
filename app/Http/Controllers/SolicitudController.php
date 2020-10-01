@@ -1145,7 +1145,7 @@ class SolicitudController extends Controller {
                        " Se emitió el siguiente mensale: ". $e->getMessage().
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
-            dd($e);
+            // dd($e);
             if ($this->request->wantsJson()) {
                 return $this->sendError('Error al ratificar la solicitud', 'Error');
             }
