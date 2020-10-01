@@ -71,6 +71,8 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
     Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
     Route::Post('audiencia/nuevaAudiencia','AudienciaController@NuevaAudiencia');
+    Route::Post('audiencia/registrarPagoDiferido','AudienciaController@registrarPagoDiferido');
+    Route::Post('audiencia/generarConstanciaNoPago','AudienciaController@generarConstanciaNoPago');
 
     Route::get('debug','HeaderFooterTemplatesController@debug');
 
