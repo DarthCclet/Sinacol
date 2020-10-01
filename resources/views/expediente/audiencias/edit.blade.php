@@ -169,7 +169,7 @@
                                                 </div>
                                                 @break
                                             @case(2)
-                                                <label>Recuerde explicar los aspectos importantes de la audiencia de conciliación:</label>
+                                                {{-- <label>Recuerde explicar los aspectos importantes de la audiencia de conciliación:</label> --}}
                                                 <ul>
                                                     <li>No se reconoce carácter de representante legal de la parte trabajadora, aunque podrá comparecer con acompañante.</li>
                                                     <li>Lo dicho en la audiencia de conciliación es confidencial y no constituye prueba en ningún procedimiento jurisdiccional.</li>
@@ -192,21 +192,22 @@
                                                 </div>
                                             @break
                                             @case(3)
-                                                <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
+                                                {{-- <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
                                                 <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
-                                                <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
+                                                <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p> --}}
+                                                <p>Resumen de las manifestaciones de las partes. </p>
                                                 <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
                                                 </textarea>
                                             @break
                                             @case(4)
                                             <div class="accordion" id="accordionExample">
                                                 <p>
-                                                    El sistema le muestra 2 opciones de propuestas de convenio:
-                                                    <ol>
+                                                    Propuestas de convenio:
+                                                    {{-- <ol>
                                                         <li>El cálculo del 100% considerando indemnización, partes proporcionales de prestaciones y prima de antigüedad. </li>
                                                         <li>El mismo cálculo con 50% de la indemnización constitucional. </li><br>
-                                                    </ol>
-                                                    Usted puede escoger una de estas alternativas o bien modificar las tablas. Lo que deja confirmado en el sistema será la propuesta de arreglo que se mostrará en el acta de audiencia.
+                                                    </ol> --}}
+                                                    {{-- Usted puede escoger una de estas alternativas o bien modificar las tablas. Lo que deja confirmado en el sistema será la propuesta de arreglo que se mostrará en el acta de audiencia. --}}
                                                 </p>
                                                 @foreach($audiencia->solicitantes as $solicitante)
                                                 {{-- <pre>{{$solicitante->parte->id}}</pre> --}}
@@ -230,7 +231,7 @@
                                                             <input type="hidden" id="antiguedad"/>
                                                             <input type="hidden" id="idSolicitante"/>
                                                             <div>
-                                                                <div>
+                                                                {{-- <div>
                                                                     <table class="table">
                                                                         <thead>
                                                                             <tr>
@@ -240,8 +241,8 @@
                                                                         <tbody id="tbodyPropuestas{{$solicitante->parte->id}}">
                                                                         </tbody>
                                                                     </table>
-                                                                </div>
-                                                                <div class=" col-md-12" style="margin:5%;">
+                                                                </div> --}}
+                                                                {{-- <div class=" col-md-12" style="margin:5%;">
                                                                     <h5 class="col-form-label col-sm-10 pt-0">Seleccione una propuesta por favor</h5>
                                                                     <div class="row">
                                                                         <div class="col-sm-10 ">
@@ -264,13 +265,10 @@
                                                                                     Otro
                                                                                 </label>
                                                                             </div>
-                                                                            <div class="form-group col-md-4">
-                                                                                <a onclick="cargarConfigConceptos(); $('#propuesta_otro').prop('checked',true);" class="btn btn-primary">Configurar</a>
-                                                                            </div>
                                                                         </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
+                                                                </div> --}}
                                                                 <table class="table table-bordered" >
                                                                     <thead>
                                                                         <tr>
@@ -278,10 +276,28 @@
                                                                             <th>Dias</th>
                                                                             <th>Monto</th>
                                                                             <th>Otro</th>
-                                                                            <th>Acciones</th>
                                                                         </tr>
                                                                     </thead>
+                                                                    
                                                                     <tbody id="tbodyConceptoPrincipal{{$solicitante->parte->id}}">
+                                                                        @foreach($conceptos_pago as $concepto_pago)
+                                                                            @foreach($concepto_pago['conceptos'] as $concepto)
+                                                                                @if($solicitante->parte->id == $concepto->idSolicitante)
+                                                                                    <tr>
+                                                                                        <td>{{$concepto->nombre}}</td>
+                                                                                        <td>{{$concepto->dias}}</td>
+                                                                                        <td style="text-align: right">${{ number_format($concepto->monto,2)}}</td>
+                                                                                        <th>{{$concepto->otro}}</th>
+                                                                                    </tr>
+
+                                                                                @endif  
+                                                                            @endforeach
+                                                                            <tr>
+                                                                                <th>TOTAL</th>
+                                                                                <th colspan="3" style="text-align: right">${{number_format($concepto_pago['totalConceptos'],2)}}</th>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                        
                                                                     </tbody>
                                                                 </table>
                                                             </div>
@@ -296,20 +312,21 @@
                                                 </textarea>
                                             @break
                                             @case(5)
-                                                <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
+                                                {{-- <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
                                                 <p>Recordando que la conciliación es un proceso sin formalismos, podrán hablar ambas partes las veces necesarias. </p>
-                                                <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
+                                                <p>Al final es necesario que redacte usted en el espacio indicado el resumen de las manifestaciones de las partes, y que estén las partes de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p> --}}
+                                                <p>Resumen de las manifestaciones de las partes. </p>
                                                 <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
                                                 </textarea>
                                             @break
                                             @case(6)
-                                                <label>Debe indicar cuál de las siguientes resoluciones de audiencia procede:</label>
+                                                {{-- <label>Debe indicar cuál de las siguientes resoluciones de audiencia procede:</label>
                                                 <ul>
                                                     <li>Convenio.</li>
                                                     <li>Agendar segunda audiencia.</li>
                                                     <li>Constancia de no conciliación.</li>
                                                     <li>Las terminaciones ya están cargadas en el sistema, solamente es necesario indicar el modo de terminación de la audiencia y el resultado respecto a cada par de solicitante-citado para que el sistema coloque la terminación correcta al final del acta de audiencia.</li>
-                                                </ul>
+                                                </ul> --}}
                                                 <div class="col-md-offset-3 col-md-6 ">
                                                     <div class="form-group">
                                                         <label for="resolucion_id" class="col-sm-6 control-label">Resolución</label>
@@ -329,6 +346,45 @@
                                                 <div id="textAdicional" style="display:none">
                                                     <textarea class="form-control textarea" placeholder="Describir..." type="text" id="evidencia{{$etapa->paso}}">
                                                     </textarea>
+                                                </div>
+                                                <div id="pagosDiferidos">
+                                                    <div class="col-md-12" id="divPagosAcordados" >
+                                                        <input type="hidden" id="totalPagosDiferidos">
+                                                        <br>
+                                                        <div class="col-md-8 offset-md-2">
+                                                            <table class="table table-bordered" >
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Fecha de pago</th>
+                                                                        <th>Monto</th>
+                                                                        <th>Acciones</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="tbodyFechaPagoPrincipal">
+                                                                    @if (count($audiencia->pagosDiferidos)>0)
+                                                                    
+                                                                        @foreach($audiencia->pagosDiferidos as $fechaPago)
+                                                                            <tr>
+                                                                                <td>{{ Carbon\Carbon::createFromFormat('Y-m-d H:m:s',$fechaPago->fecha_pago)->format('d/m/Y')}}</td>
+                                                                                <td>{{$fechaPago->monto}}</td>
+                                                                                <td>
+                                                                                    @if ($fechaPago->pagado == false) 
+                                                                                        <P style="color: darkred">No Pagado</p>
+                                                                                    @elseif ($fechaPago->pagado == true) 
+                                                                                        <P style="color:darkolivegreen">Pagado</p>
+                                                                                    @else
+                                                                                        <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
+                                                                                        <button onclick="emitirConstanciaNoPago({{$fechaPago->id}})" class="btn btn-xs btn-warning" title="Registrar no comparencencia"><i class="fa fa-window-close"></i></button>
+                                                                                    @endif
+                                                                                </td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    @endif
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <hr>
+                                                    </div>
                                                 </div>
                                             @break
                                             @default
@@ -2251,6 +2307,13 @@
                             }
                         }
                     }else{
+                        if(pasoActual == 6){
+                            if(value.elementos_adicionales == true){
+                                if(!$("#switchAdicionales").is(":checked")){
+                                    $("#switchAdicionales").click();
+                                }
+                            }
+                        }
                         $("#evidencia"+pasoActual).val(value.evidencia)
                     }
                 }
@@ -2305,6 +2368,105 @@
         $("#fileIdentificacion").change(function(e){
             $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
         });
+        function emitirConstanciaNoPago(idPagoDiferido){
+            swal({
+                title: 'Advertencia',
+                text: 'Al oprimir aceptar se emitirá una constancia de no comparecencia en fecha de pago, ¿Está seguro de continuar?',
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Cancelar',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-default',
+                        closeModal: true
+                    },
+                    confirm: {
+                        text: 'Aceptar',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-warning',
+                        closeModal: true
+                    }
+                }
+            }).then(function(isConfirm){
+                if(isConfirm){
+                    $.ajax({
+                        url:"/audiencia/generarConstanciaNoPago",
+                        type:"POST",
+                        dataType:"json",
+                        data:{
+                            audiencia_id:'{{ $audiencia->id }}',
+                            idPagoDiferido:idPagoDiferido,
+                            solicitud_id:'{{$solicitud_id}}',
+                            _token:"{{ csrf_token() }}"
+                        },
+                        success:function(data){
+                            if(data != null && data != ""){
+                                location.reload();
+                            }else{
+                                swal({
+                                    title: 'Algo salió mal',
+                                    text: 'No se guardo el registro',
+                                    icon: 'warning'
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function registrarPago(idPagoDiferido){
+            swal({
+                title: 'Advertencia',
+                text: 'Al oprimir aceptar se registrará el pago correspondiente , ¿Está seguro de continuar?',
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Cancelar',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-default',
+                        closeModal: true
+                    },
+                    confirm: {
+                        text: 'Aceptar',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-warning',
+                        closeModal: true
+                    }
+                }
+            }).then(function(isConfirm){
+                if(isConfirm){
+                    $.ajax({
+                        url:"/audiencia/registrarPagoDiferido",
+                        type:"POST",
+                        dataType:"json",
+                        data:{
+                            audiencia_id:'{{ $audiencia->id }}',
+                            idPagoDiferido:idPagoDiferido,
+                            _token:"{{ csrf_token() }}"
+                        },
+                        success:function(data){
+                            if(data != null && data != ""){
+                                swal({title: 'ÉXITO',
+                                text: 'Se guardó el pago correctamente',
+                                icon: 'success'});
+                            }else{
+                                swal({
+                                    title: 'Algo salió mal',
+                                    text: 'No se guardo el registro',
+                                    icon: 'warning'
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
         $('.upper').on('keyup', function () {
             var valor = $(this).val();
             $(this).val(valor.toUpperCase());

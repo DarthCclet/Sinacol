@@ -188,6 +188,8 @@ class AudienciaController extends Controller {
         $conciliadores = array();
         $salas = array();
         $comparecientes = array();
+        $conceptos_pago = array();
+
         foreach ($audiencia->audienciaParte as $key => $parte) {
             $parte->parte->tipoParte = $parte->parte->tipoParte;
             $parte->parte->tipo_notificacion = $parte->tipo_notificacion;
@@ -218,7 +220,22 @@ class AudienciaController extends Controller {
         $audiencia->solicitantes = $this->getSolicitantes($audiencia);
         $audiencia->solicitados = $this->getSolicitados($audiencia);
         $motivos_archivo = MotivoArchivado::all();
-        $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
+        // $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
+        $audiencia->pagosDiferidos;
+        // $audiencia->resolucionPartes->conceptoPagoResolucion;
+        $totalConceptos = 0;
+        foreach ($audiencia->resolucionPartes as $resolucionParte) {
+            $conceptos =[];
+            foreach ($resolucionParte->parteConceptos as $concepto){
+                $totalConceptos += floatval($concepto->monto);
+                $conceptosP = $concepto;
+                $conceptosP->nombre = $concepto->ConceptoPagoResolucion->nombre;
+                $conceptosP->idSolicitante = $resolucionParte->parteSolicitante->id;
+                array_push($conceptos,$conceptosP);   
+            }
+            array_push($conceptos_pago,['idSolicitante'=>$resolucionParte->parteSolicitante->id, 'conceptos'=>$conceptos, 'totalConceptos'=>$totalConceptos]);
+        }
+        
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
         $ocupaciones = $this->cacheModel('ocupaciones', Ocupacion::class);
         $jornadas = $this->cacheModel('jornadas', Jornada::class);
@@ -278,7 +295,7 @@ class AudienciaController extends Controller {
         }
         $documentos = $doc;
 
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "concepto_pago_resoluciones", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id'));
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id'));
     }
 
     /**
@@ -619,14 +636,15 @@ class AudienciaController extends Controller {
                             "audiencia_id" => $audiencia->id,
                             "evidencia" => true
                 ]);
-                DB::commit();
+                
             }
+            DB::commit();
             return $audiencia;
         } catch (\Throwable $e) {
 
             DB::rollback();
             dd($e);
-            return $this->sendError('Error al registrar los comparecientes', 'Error');
+            return $this->sendError('Error al registrar la resolucion', 'Error');
         }
     }
 
@@ -704,6 +722,7 @@ class AudienciaController extends Controller {
                                 "terminacion_bilateral_id" => $terminacion
                     ]);
                 }
+                
                 //guardar conceptos de pago para Convenio
                 if ($audiencia->resolucion_id == 1 && isset($resolucionParte) && $terminacion == 3) { //Hubo conciliacion
                     // if($audiencia->resolucion_id == 1 ){ //Hubo conciliacion
@@ -729,17 +748,14 @@ class AudienciaController extends Controller {
                     if (isset($listaFechasPago)) { //se registran pagos diferidos
                         if (count($listaFechasPago) > 0) {
                             foreach ($listaFechasPago as $key => $fechaPago) {
-                                
                                 ResolucionPagoDiferido::create([
+                                    "audiencia_id" => $audiencia->id,
                                     "monto" => $fechaPago["monto_pago"],
-                                    "resolucion_parte_id" => $resolucionParte->id,
-                                    "fecha_pago" => Carbon::createFromFormat('d/m/Y',$fechaPago["fecha_pago"])->format('Y-m-d'),
-                                    "pagado" => false
+                                    "fecha_pago" => Carbon::createFromFormat('d/m/Y',$fechaPago["fecha_pago"])->format('Y-m-d')
                                 ]);
                             }
                         }
                     }
-
                     if ($terminacion == 3) {
                         //Se consulta comparecencia de citado
                         $parte = $solicitado->parte;
@@ -782,6 +798,30 @@ class AudienciaController extends Controller {
             }
         }
         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3));
+    }
+    /**
+     * Funcion para generar constancia de no comparecencia en fecha de pago
+     * @param type $audiencia_id, Pagodiferido_id
+     * @return type
+     */
+    function generarConstanciaNoPago(Request $request) {
+        $pagoDiferido = ResolucionPagoDiferido::find($request->idPagoDiferido);
+        $pagoDiferido->update([
+            "pagado" => false
+        ]);
+        //Se genera el acta de no comparecencia en fecha de pago
+        event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11));
+    }
+    /**
+     * Funcion para generar constancia de no comparecencia en fecha de pago
+     * @param type $audiencia_id, Pagodiferido_id
+     * @return type
+     */
+    function registrarPagoDiferido(Request $request) {
+        $pagoDiferido = ResolucionPagoDiferido::find($request->idPagoDiferido);
+        $pagoDiferido->update([
+            "pagado" => true
+        ]);
     }
 
     /**
@@ -1123,7 +1163,7 @@ class AudienciaController extends Controller {
             DB::commit();
             return $audiencia;
         } catch (\Throwable $e) {
-            dd($e);
+            // dd($e->getMessage());
             DB::rollback();
             return $this->sendError('Error al registrar los comparecientes', 'Error');
         }
