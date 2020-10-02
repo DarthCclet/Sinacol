@@ -12,6 +12,7 @@ use App\Filters\CatalogoFilter;
 use App\TipoAsentamiento;
 use App\TipoVialidad; 
 use App\Audiencia;
+use App\Solicitud;
 use App\Events\RatificacionRealizada;
 use Illuminate\Support\Facades\Cache;
 
@@ -213,14 +214,38 @@ class CentroController extends Controller
         return $respuesta;
     }
     public function getAudienciasCalendario(){
-        $audiencias = Audiencia::where("encontro_audiencia",false)->get();
+        $audiencias = array();
+        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[1,2])->get();
+        foreach($solicitudes as $solicitud){
+            foreach($solicitud->expediente->audiencia as $audiencia){
+                if(!$audiencia->encontro_audiencia){
+                    if(new \Carbon\Carbon($audiencia->fecha_audiencia) >= now()){
+                        $audiencias[]=$audiencia;
+                    }
+                }
+            }
+        }
         return view("centros.centros.calendario_audiencias", compact('audiencias'));
     }
     public function CalendarioColectivas(){
-        $audiencias = Audiencia::where("encontro_audiencia",false)->get();
+        $audiencias = array();
+        $solicitudes = Solicitud::where("ratificada",true)->whereIn("tipo_solicitud_id",[3,4])->get();
+        foreach($solicitudes as $solicitud){
+            foreach($solicitud->expediente->audiencia as $audiencia){
+                if(!$audiencia->encontro_audiencia){
+                    if(new \Carbon\Carbon($audiencia->fecha_audiencia) >= now()){
+                        $audiencias[]=$audiencia;
+                    }
+                }
+            }
+        }
         return view("centros.centros.calendario_audiencias_colectivas", compact('audiencias'));
     }
     public function pruebaEvents(){
+        try{
         event(new RatificacionRealizada(1));
+        }catch (\GuzzleHttp\Exception\ClientException $e) {
+            dd($e);
+        }
     }
 }
