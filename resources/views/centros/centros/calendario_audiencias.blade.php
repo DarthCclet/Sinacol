@@ -17,7 +17,7 @@
     <div class="panel-header">
         <div class="row col-md-12">
             <button class="btn btn-primary btn-sm m-l-5" class="pull-right" id="btnNoAudiencia">
-                <i class="fa fa-times"></i> No calendarizadas <span class="badge" style="background-color: #B38E5D;">4</span>
+                <i class="fa fa-times"></i> No calendarizadas <span class="badge" style="background-color: #B38E5D;" id="spanNumeroAudiencias">{{count($audiencias)}}</span>
             </button>
         </div>
     </div>
@@ -117,7 +117,7 @@
                             <tr>
                                 <td>{{$audiencia->folio}}/{{$audiencia->anio}}</td>
                                 <td>
-                                @foreach($audiencia->audienciaParte as $partes)
+                                @foreach($audiencia->audienciaParte as $parte)
                                     @if($parte->parte->tipo_parte_id == 1)
                                         @if($parte->parte->tipo_persona_id == 1)
                                         -{{$parte->parte->nombre}} {{$parte->parte->primer_apellido}} {{$parte->parte->segundo_apellido}}<br>
@@ -128,7 +128,7 @@
                                 @endforeach
                                 </td>
                                 <td>
-                                @foreach($audiencia->audienciaParte as $partes)
+                                @foreach($audiencia->audienciaParte as $parte)
                                     @if($parte->parte->tipo_parte_id == 2)
                                         @if($parte->parte->tipo_persona_id == 1)
                                         -{{$parte->parte->nombre}} {{$parte->parte->primer_apellido}} {{$parte->parte->segundo_apellido}}<br>
@@ -138,7 +138,7 @@
                                     @endif
                                 @endforeach
                                 </td>
-                                <td>{{$audiencia->folio}}/{{$audiencia->anio}}</td>
+                                <td><button class="btn btn-sm btn-primary" title="Asignar" onclick="obtenerAudiencia({{$audiencia->id}},'NoCalendarizada')"><i class="fa fa-calendar"></i></button></td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -221,7 +221,7 @@
                     }
                 });
             }
-            function obtenerAudiencia(audiencia_id){
+            function obtenerAudiencia(audiencia_id, fuente = "calendarizada"){
                 $.ajax({
                     url:"/info_audiencia/"+audiencia_id,
                     type:"GET",
@@ -229,48 +229,56 @@
                     success:function(data){
                         console.log(data);
                         if(data != null && data != ""){
-                            $("#fecha_audiencia").val(data.id);
                             $("#audiencia_id").val(audiencia_id);
                             $("#spanFolio").text(data.folio+"/"+data.anio);
-                            $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia,4));
-                            $("#spanHoraInicio").text(data.hora_inicio);
-                            $("#spanHoraFin").text(data.hora_fin);
-                            var table="";
-                            multiple = data.multiple;
-                            $.each(data.audiencia_parte,function(indexParte,elementParte){
-                                if(elementParte.tipo_parte_id != 3){
-                                    table +='<tr>';
-                                    table +='   <td>'+elementParte.parte.tipo_parte.nombre+'</td>';
-                                    if(elementParte.parte.tipo_persona_id == 1){
-                                        table +='<td>'+elementParte.parte.nombre+' '+elementParte.parte.primer_apellido+' '+elementParte.parte.segundo_apellido+'</td>';
-                                    }else{
-                                        table +='<td>'+elementParte.parte.nombre_comercial+'</td>';
-                                    }
-                                    if(data.multiple){
-                                        $.each(data.conciliadores_audiencias,function(index,element){
-                                            if(element.solicitante && elementParte.parte.tipo_parte_id == 1){
-                                                table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
-                                            }else if(!element.solicitante && elementParte.parte.tipo_parte_id == 2){
-                                                table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                            if(fuente == "NoCalendarizada"){
+                                $("#tableAudienciaSuccess").hide();
+                                $("#calendarioReagendar").show();
+                                $("#modal-audiencias").modal("hide");
+                                $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                            }else{
+                                $("#fecha_audiencia").val(data.id);
+                                $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia,4));
+                                $("#spanHoraInicio").text(data.hora_inicio);
+                                $("#spanHoraFin").text(data.hora_fin);
+                                var table="";
+                                multiple = data.multiple;
+                                    $.each(data.audiencia_parte,function(indexParte,elementParte){
+                                        if(elementParte.tipo_parte_id != 3){
+                                            table +='<tr>';
+                                            table +='   <td>'+elementParte.parte.tipo_parte.nombre+'</td>';
+                                            if(elementParte.parte.tipo_persona_id == 1){
+                                                table +='<td>'+elementParte.parte.nombre+' '+elementParte.parte.primer_apellido+' '+elementParte.parte.segundo_apellido+'</td>';
+                                            }else{
+                                                table +='<td>'+elementParte.parte.nombre_comercial+'</td>';
                                             }
-                                        });
-                                        $.each(data.salas_audiencias,function(index2,element2){
-                                            if(element2.solicitante == elementParte.parte.tipo_parte_id == 1){
-                                                table +='<td>'+element2.sala.sala+'</td>';
-                                            }else if(!element2.solicitante == elementParte.parte.tipo_parte_id == 2){
-                                                table +='<td>'+element2.sala.sala+'</td>';
+                                            if(data.multiple){
+                                                $.each(data.conciliadores_audiencias,function(index,element){
+                                                    if(element.solicitante && elementParte.parte.tipo_parte_id == 1){
+                                                        table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                                                    }else if(!element.solicitante && elementParte.parte.tipo_parte_id == 2){
+                                                        table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                                                    }
+                                                });
+                                                $.each(data.salas_audiencias,function(index2,element2){
+                                                    if(element2.solicitante == elementParte.parte.tipo_parte_id == 1){
+                                                        table +='<td>'+element2.sala.sala+'</td>';
+                                                    }else if(!element2.solicitante == elementParte.parte.tipo_parte_id == 2){
+                                                        table +='<td>'+element2.sala.sala+'</td>';
+                                                    }
+                                                });
+                                            }else{
+                                                table +='   <td>'+data.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
+                                                table +='   <td>'+data.salas_audiencias[0].sala.sala+'</td>';
                                             }
-                                        });
-                                    }else{
-                                        table +='   <td>'+data.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
-                                        table +='   <td>'+data.salas_audiencias[0].sala.sala+'</td>';
-                                    }
-                                    table +='</tr>';
-                                }
-                            });
-                            $("#tableAudienciaSuccess tbody").html(table);
-                            $("#modalRatificacion").modal("hide");
-                            $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                                            table +='</tr>';
+                                        }
+                                    });
+                                $("#tableAudienciaSuccess").show();
+                                $("#tableAudienciaSuccess tbody").html(table);
+                                $("#modalRatificacion").modal("hide");
+                                $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                            }
                         }else{
                             swal({
                                 title: 'Error',
@@ -287,5 +295,8 @@
             $("#btnNoAudiencia").on("click",function(){
                 $("#modal-audiencias").modal("show");
             });
+            function AgregarAudiencia(audiencia_id){
+                
+            }
         </script>
 @endpush

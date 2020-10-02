@@ -32,7 +32,8 @@ class AsesoriaController extends Controller
             case '1010':
                 //Presentación excepciones
                 $max_paso = 1014;
-                $paso = ($this->request->get('from',1010) + 1);
+                //$paso = ($this->request->get('from',1010) + 1);
+                $paso = 1014;
                 $asset_paso = $paso.'.jpg';
                 $paso_next = $paso;
                 if($paso >= $max_paso){
@@ -65,7 +66,8 @@ class AsesoriaController extends Controller
                 if($from < 10201010){
                     $from = 10201010;
                 }
-                $paso = ($from + 1);
+                //$paso = ($from + 1);
+                $paso = 10201018;
                 $origen = $this->request->get('source', 10201010);
                 $asset_paso = $paso.'.jpg';
                 $paso_next = $paso;
@@ -120,6 +122,7 @@ class AsesoriaController extends Controller
                 break;
 
             case '101010101010':
+                //el proceso y el nuevo sistema de justicia
                 $max_paso = 101010101019;
                 $paso = ($this->request->get('from',101010101010) + 1);
                 $origen = $this->request->get('source', 10101010);

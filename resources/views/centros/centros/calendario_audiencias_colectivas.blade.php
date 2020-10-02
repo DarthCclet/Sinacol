@@ -17,7 +17,7 @@
     <div class="panel-header">
         <div class="row col-md-12">
             <button class="btn btn-primary btn-sm m-l-5" class="pull-right" id="btnNoAudiencia">
-                <i class="fa fa-times"></i> No calendarizadas <span class="badge" style="background-color: #B38E5D;">4</span>
+                <i class="fa fa-times"></i> Por Agendar <span class="badge" style="background-color: #B38E5D;" id="spanNumeroAudiencias">{{count($audiencias)}}</span>
             </button>
         </div>
     </div>

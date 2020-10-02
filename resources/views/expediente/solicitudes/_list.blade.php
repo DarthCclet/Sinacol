@@ -1154,42 +1154,50 @@
                                             success:function(data){
                                                 console.log(data);
                                                 if(data != null && data != ""){
-                                                    $("#spanFolio").text(data.folio+"/"+data.anio);
-                                                    $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia,4));
-                                                    $("#spanHoraInicio").text(data.hora_inicio);
-                                                    $("#spanHoraFin").text(data.hora_fin);
-                                                    var table="";
-                                                    if(data.multiple){
-                                                        $.each(data.conciliadores_audiencias,function(index,element){
-                                                            table +='<tr>';
-                                                            if(element.solicitante){
-                                                                table +='   <td>Solicitante(s)</td>';
+                                                    if(data.encontro_audiencia){
+                                                        $("#spanFolio").text(data.folio+"/"+data.anio);
+                                                        $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia,4));
+                                                        $("#spanHoraInicio").text(data.hora_inicio);
+                                                        $("#spanHoraFin").text(data.hora_fin);
+                                                        var table="";
+                                                            if(data.multiple){
+                                                                $.each(data.conciliadores_audiencias,function(index,element){
+                                                                    table +='<tr>';
+                                                                    if(element.solicitante){
+                                                                        table +='   <td>Solicitante(s)</td>';
+                                                                    }else{
+                                                                        table +='   <td>Citado(s)</td>';
+                                                                    }
+                                                                    table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                                                                    $.each(data.salas_audiencias,function(index2,element2){
+                                                                        if(element2.solicitante == element.solicitante){
+                                                                            table +='<td>'+element2.sala.sala+'</td>';
+                                                                        }
+                                                                    });
+                                                                    table +='</tr>';
+                                                                });
                                                             }else{
-                                                                table +='   <td>Citado(s)</td>';
+                                                                table +='<tr>';
+                                                                table +='   <td>Solicitante(s) y citado(s)</td>';
+                                                                table +='   <td>'+data.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
+                                                                table +='   <td>'+data.salas_audiencias[0].sala.sala+'</td>';
+                                                                table +='</tr>';
                                                             }
-                                                            table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
-                                                            $.each(data.salas_audiencias,function(index2,element2){
-                                                                if(element2.solicitante == element.solicitante){
-                                                                    table +='<td>'+element2.sala.sala+'</td>';
-                                                                }
-                                                            });
-                                                            table +='</tr>';
+                                                        $("#tableAudienciaSuccess tbody").html(table);
+                                                        $("#modalRatificacion").modal("hide");
+                                                        $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                                                        swal({
+                                                            title: 'Correcto',
+                                                            text: 'Solicitud ratificada correctamente',
+                                                            icon: 'success'
                                                         });
                                                     }else{
-                                                        table +='<tr>';
-                                                        table +='   <td>Solicitante(s) y citado(s)</td>';
-                                                        table +='   <td>'+data.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
-                                                        table +='   <td>'+data.salas_audiencias[0].sala.sala+'</td>';
-                                                        table +='</tr>';
+                                                        swal({
+                                                            title: 'Correcto',
+                                                            text: 'Se genero la audiencia con el folio: '+data.folio+'/'+data.anio+', la cual no encontró espacio en la agenda y deberá ser asignada por el supervisor del centro',
+                                                            icon: 'success'
+                                                        });
                                                     }
-                                                    $("#tableAudienciaSuccess tbody").html(table);
-                                                    $("#modalRatificacion").modal("hide");
-                                                    $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
-                                                    swal({
-                                                        title: 'Correcto',
-                                                        text: 'Solicitud ratificada correctamente',
-                                                        icon: 'success'
-                                                    });
                                                 }else{
                                                     swal({
                                                         title: 'Error',
