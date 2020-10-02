@@ -25,5 +25,13 @@ class Domicilio extends Model implements AuditableContract
     {
         return $this->morphTo();
     }
+    public function estado()
+    {
+        return $this->belongsTo(Estado::class);
+    }
+    public function tipo_vialidad()
+    {
+        return $this->belongsTo(TipoVialidad::class);
+    }
 
 }

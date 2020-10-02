@@ -6,6 +6,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
+use GuzzleHttp\Client;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,6 +18,10 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         //
+        $baseURL = "https://devnotifica.lxl.mx/api/v1/notificaciones";
+        $this->app->singleton(Client::class,function($app) use ($baseURL){
+            return new Client(['base_uri' => $baseUrl]);
+        });
     }
 
     /**
@@ -36,5 +41,6 @@ class AppServiceProvider extends ServiceProvider
                         ->withPath('');
                 });
         }
+        
     }
 }
