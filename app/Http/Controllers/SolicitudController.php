@@ -1114,8 +1114,9 @@ class SolicitudController extends Controller {
                 }
                 // Guardamos todas las Partes en la audiencia
                 $partes = $solicitud->partes;
+//                dd($partes);
+                $tipo_notificacion_id = null;
                 foreach($partes as $parte){
-                    $tipo_notificacion_id = null;
                     if($parte->tipo_parte_id != 1){
                         $tipo_notificacion_id = $this->request->tipo_notificacion_id;
                     }
@@ -1123,9 +1124,9 @@ class SolicitudController extends Controller {
                     if($parte->tipo_parte_id == 2){
                         event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
                     }
-                    if($datos_audiencia["encontro_audiencia"] && $tipo_notificacion_id != 1){
-                        event(new RatificacionRealizada($audiencia->id));
-                    }
+                }
+                if($datos_audiencia["encontro_audiencia"] && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
+                    event(new RatificacionRealizada($audiencia->id));
                 }
                 $expediente = Expediente::find($request->expediente_id);
             }
@@ -1149,11 +1150,19 @@ class SolicitudController extends Controller {
                        " Se emitió el siguiente mensale: ". $e->getMessage().
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
-            // dd($e);
             if ($this->request->wantsJson()) {
                 return $this->sendError('Error al ratificar la solicitud', 'Error');
             }
             return redirect('solicitudes')->with('error', 'Error al ratificar la solicitud');
+        }catch (\GuzzleHttp\Exception\ClientException $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
+            if ($this->request->wantsJson()) {
+                return $this->sendError('Error al enviar las notificaciones', 'Error');
+            }
+            return redirect('solicitudes')->with('error', 'Error al enviar las notificaciones');
         }
     }
     function array_random_assoc($arr, $num = 1) {

@@ -155,10 +155,12 @@
                                         @if($audiencia->etapas_resolucion_audiencia_count > 0)
                                             <div style="display: inline-block;" class="m-2"><a title="Detalle" href="{!! route("audiencias.edit",$audiencia->id) !!}" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>
                                         @endif
-                                        @if($solicitud->tipo_solicitud_id == 1)
-                                            <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaAudiencia",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
-                                        @else
-                                            <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("resolucionColectiva",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
+                                        @if($audiencia->finalizada == false)
+                                            @if($solicitud->tipo_solicitud_id == 1)
+                                                <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaAudiencia",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
+                                            @else
+                                                <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("resolucionColectiva",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>

@@ -539,7 +539,42 @@ class AudienciaController extends Controller {
         foreach ($centroIncidencias as $key => $value) {
             $arrayFechas = $this->validarIncidenciasCentro($value, $arrayFechas);
         }
-        $arrayAudiencias = $this->getTodasAudiencias($centro->id);
+        $arrayAudiencias = $this->getTodasAudienciasIndividuales($centro->id);
+        $ev = array_merge($arrayFechas, $arrayAudiencias);
+        //construimos el arreglo general
+        $arregloGeneral = array();
+        $arregloGeneral["laboresCentro"] = $laboresCentro;
+        $arregloGeneral["incidenciasCentro"] = $ev;
+        $arregloGeneral["duracionPromedio"] = $centro->duracionAudiencia;
+        //obtenemos el minmaxtime
+        $minmax = $this->getMinMaxTime($centro);
+        $arregloGeneral["minTime"] = $minmax["hora_inicio"];
+        $arregloGeneral["maxtime"] = $minmax["hora_fin"];
+        return $arregloGeneral;
+    }
+    /**
+     * Funcion para obtener los momentos ocupados
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getCalendarioColectivas(Request $request) {
+        // inicio obtenemos los datos del centro donde no trabajará
+        $centro = auth()->user()->centro;
+        $centroDisponibilidad = $centro->disponibilidades;
+        $laboresCentro = array();
+        foreach ($centroDisponibilidad as $key => $value) {
+            array_push($laboresCentro, array("dow" => array($value["dia"]), "startTime" => $value["hora_inicio"], "endTime" => $value["hora_fin"]));
+        }
+        //fin obtenemos disponibilidad
+        //inicio obtenemos incidencias del centro
+        $incidenciasCentro = array();
+        $centroIncidencias = $centro->incidencias;
+        $arrayFechas = [];
+        foreach ($centroIncidencias as $key => $value) {
+            $arrayFechas = $this->validarIncidenciasCentro($value, $arrayFechas);
+        }
+        $arrayAudiencias = $this->getTodasAudienciasColectivas($centro->id);
         $ev = array_merge($arrayFechas, $arrayAudiencias);
         //construimos el arreglo general
         $arregloGeneral = array();
@@ -580,6 +615,54 @@ class AudienciaController extends Controller {
      */
     public function getTodasAudiencias() {
         $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->get();
+        $audiencias = [];
+        foreach ($solicitudes as $solicitud) {
+            $audienciasSolicitud = $solicitud->expediente->audiencia;
+            foreach ($audienciasSolicitud as $audiencia) {
+                if (new Carbon($audiencia->fecha_audiencia) >= now()) {
+                    array_push($audiencias, $audiencia);
+                }
+            }
+        }
+        $arrayEventos = [];
+        foreach ($audiencias as $audiencia) {
+            $start = $audiencia->fecha_audiencia . " " . $audiencia->hora_inicio;
+            $end = $audiencia->fecha_audiencia . " " . $audiencia->hora_fin;
+            array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->folio . "/" . $audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->id));
+        }
+        return $arrayEventos;
+    }
+    /**
+     * Funcion para obtener las audiencias individuales de el centro
+     * @param id $centro_id
+     * @return array
+     */
+    public function getTodasAudienciasIndividuales() {
+        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[1,2])->get();
+        $audiencias = [];
+        foreach ($solicitudes as $solicitud) {
+            $audienciasSolicitud = $solicitud->expediente->audiencia;
+            foreach ($audienciasSolicitud as $audiencia) {
+                if (new Carbon($audiencia->fecha_audiencia) >= now()) {
+                    array_push($audiencias, $audiencia);
+                }
+            }
+        }
+        $arrayEventos = [];
+        foreach ($audiencias as $audiencia) {
+            $start = $audiencia->fecha_audiencia . " " . $audiencia->hora_inicio;
+            $end = $audiencia->fecha_audiencia . " " . $audiencia->hora_fin;
+            array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->folio . "/" . $audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->id));
+        }
+        return $arrayEventos;
+    }
+    /**
+     * Funcion para obtener las audiencias colectivas
+     * @param id $centro_id
+     * @return array
+     */
+    public function getTodasAudienciasColectivas() {
+        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[3,4])->get();
         $audiencias = [];
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;

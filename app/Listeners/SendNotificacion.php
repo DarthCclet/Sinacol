@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Audiencia;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 class SendNotificacion
 {
@@ -81,8 +82,8 @@ class SendNotificacion
             );
         }
         //Buscamos a los demandados
-        $actores = self::getSolicitados($audiencia);
-        foreach($actores as $partes){
+        $demandados = self::getSolicitados($audiencia);
+        foreach($demandados as $partes){
             $parte =$partes->parte;
             if($parte->tipo_persona_id == 1){
                 $nombre = $parte->nombre." ".$parte->primer_apellido." ".$parte->segundo_apellido;
@@ -116,15 +117,18 @@ class SendNotificacion
             // un array con la data de los headers como tipo de peticion, etc.
             'headers' => ['foo' => 'bar'],
             // array de datos del formulario
-            'body' => json_encode($arreglo)
+            'body' => json_encode($arreglo),
+//            'http_errors' => false
         ]);
+//        if($response->getStatusCode() == 200){
+//            
+//        }else{
+//            trow
+//        }
         
         
-
         
-        
-        
-        echo $response->getBody();
+//        echo $response->getBody();
     }
     /**
      * Funcion para obtener las partes involucradas en una audiencia de tipo solicitante
