@@ -2,9 +2,17 @@
 
 @section('content')
 
+    <style>
+        .video-container{
+            outline: none;
+        }
+    </style>
 
-        <a href="/asesoria/{{$accion}}?from={{$paso_next}}&source={{$accion}}" class="text-black h4 mb-4">
-            <img width="1024" class="mx-auto d-block" src="/assets/img/asesoria/1010/{{$asset_paso}}" alt="">
-        </a>
+    <div class="embed-responsive embed-responsive-21by9">
+        <video controls id="vid" class="video-container">
+            <source src="/assets/img/asesoria/excepciones-conciliacion.mp4?autoplay=1">
+        </video>
+    </div>
 
+    <a href="/asesoria/{{$accion}}?from={{$paso_next}}&source={{$accion}}" class="btn btn-primary btn-lg m-10 float-right" type="button">Siguiente</a>
 @endsection
