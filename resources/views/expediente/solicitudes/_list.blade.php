@@ -9,7 +9,7 @@
         content: " (*)";
     }
 </style>
- 
+
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <input type="hidden" id="rutaConsulta" value="{!! route("solicitudes.consulta",'-rutaConsulta') !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
@@ -228,7 +228,7 @@
                                     </div>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" id="aradioNotificacionB2" value="3" name="aradioNotificacion1" class="custom-control-input">
-                                        <label class="custom-control-label" for="aradioNotificacionB2">B) Agendar cita con el notificador para entrega de citatorio</label>
+                                        <label class="custom-control-label" for="aradioNotificacionB2">C) Agendar cita con el notificador para entrega de citatorio</label>
                                     </div>
                                 </td>
                             </tr>
@@ -261,7 +261,7 @@
             <div class="modal-body">
                 <div style="overflow:scroll">
 
-                
+
                     <h5>Datos del Representante legal</h5>
                     <div class="col-md-12 row">
                         <div class="col-md-6 ">
@@ -302,7 +302,7 @@
                         </div>
                         <div class="col-md-12 row">
                             <div class="col-md-6">
-                                <label class=" needed">Documento de identificaci&oacute;n</label> 
+                                <label class=" needed">Documento de identificaci&oacute;n</label>
                                 <span class="btn btn-primary fileinput-button m-r-3">
                                     <i class="fa fa-fw fa-plus"></i>
                                     <span>Seleccionar identificaci&oacute;n</span>
@@ -344,7 +344,7 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class=" needed">Documento de Instrumento</label> 
+                            <label class=" needed">Documento de Instrumento</label>
                             <span class="btn btn-primary fileinput-button m-r-3">
                                 <i class="fa fa-fw fa-plus"></i>
                                 <span>Seleccionar instrumento</span>
@@ -687,7 +687,7 @@
                             }
                         }
                     },
-                   
+
                     {
                         "targets": [6],
                         "render": function (data, type, row) {
@@ -852,7 +852,7 @@
        });
 
     //    para ratificacion
-    
+
     $(document).on('click', '[data-toggle="iframe"]',function(event){
         event.preventDefault();
         var pdf_link = $(this).attr('href');
@@ -876,7 +876,7 @@
         }else{
             $("#solicitud_id").val(solicitud_id);
         }
-        
+
         getSolicitudFromBD(solicitud_id);
         $("#solicitud_id_modal").val(solicitud_id);
         actualizarPartes();
@@ -1368,7 +1368,7 @@
             });
         }
     });
-      
+
     function checkCorreo(id){
         if(!$("#checkCorreo"+id).is(":checked")){
             $("#correoValidar"+id).prop("disabled",false);
@@ -1376,7 +1376,7 @@
             $("#correoValidar"+id).prop("disabled",true);
         }
     }
-    
+
     function validarCorreos(){
         var listaCorreos = [];
         var error = false;
@@ -1681,7 +1681,7 @@
                                 $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
                             }
                         });
-                        
+
                     }else{
                         $("#tipo_documento_id").val("").trigger("change");
                         $("#labelIdentifRepresentante").html("");
@@ -1891,7 +1891,7 @@
 
     $("#btnGuardarRepresentante").on("click",function(){
         if(!validarRepresentante()){
-            
+
             var formData = new FormData(); // Currently empty
             if($("#fileIdentificacion").val() != ""){
                 formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
@@ -2145,7 +2145,7 @@
                     solicitudObj.giro_comercial = data.giroComercial.nombre;
                     solicitudObj.ambito_id = data.giroComercial.ambito_id;
                     solicitudObj.ambito_nombre = data.giroComercial.ambito.nombre;
-                    
+
                     cargarGeneros();
                     cargarTipoContactos();
                 }catch(error){
@@ -2162,7 +2162,7 @@
         $("#solicitud_id").val(solicitud_id);
         $("#solicitud_id_modal").val(solicitud_id);
         $("#modalSolicitud").modal('show');
-        
+
         var htmlSolicitud = formatoSolicitud();
         var htmlSolicitantes = formarSolicitantes();
         var htmlCitados = formarCitados();
@@ -2171,7 +2171,7 @@
         $("#divCitadosMod").html(htmlCitados);
     }
 
-    
+
     $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
     $("#fileIdentificacion").change(function(e){
         $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
