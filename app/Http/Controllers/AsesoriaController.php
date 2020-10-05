@@ -48,7 +48,6 @@ class AsesoriaController extends Controller
                 break;
 
             case '10101010':
-            case '10301010':
                 $max_paso = 10101017;
                 $paso = ($this->request->get('from',10101009) + 1);
                 $origen = $this->request->get('source', 10101010);
@@ -59,6 +58,7 @@ class AsesoriaController extends Controller
                 }
                 return view('asesoria.a10101010', compact('accion', 'asset_paso', 'paso_next', 'origen'));
                 break;
+            case '10301010':
             case '10201010':
                 //Presentación de Prestaciones laborales
                 $max_paso = 10201018;
@@ -106,7 +106,7 @@ class AsesoriaController extends Controller
                 $paso_next = $paso;
                 $last = false;
                 if($paso >= $max_paso){
-                    $accion = '../solicitudes/create-public/?solicitud=1';
+                    $accion = '101010101010';
                     $last = true;
                 }
                 return view('asesoria.a10501010', compact('accion', 'asset_paso', 'paso_next', 'origen', 'last'));

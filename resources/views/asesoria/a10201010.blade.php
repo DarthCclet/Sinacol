@@ -13,7 +13,7 @@
         </video>
     </div>
 
-    <a href="/asesoria/{{$accion}}?from={{$paso_next}}&source={{$accion}}" id="btn-siguiente" class="btn-siguiente d-none btn btn-primary btn-lg m-10 float-right d-none btn-siguiente" type="button">Siguiente</a>
+    <a href="/asesoria/{{$accion}}?from={{$paso_next}}&source={{$origen}}" id="btn-siguiente" class="btn-siguiente d-none btn btn-primary btn-lg m-10 float-right d-none btn-siguiente" type="button">Siguiente</a>
 
 @endsection
 
