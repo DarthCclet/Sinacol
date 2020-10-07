@@ -1299,27 +1299,29 @@ class AudienciaController extends Controller {
                     }
                 }
                 $totalCitadosComparecen = 0;
-            foreach ($this->request->comparecientes as $compareciente) {
-                $parte_compareciente = Parte::find($compareciente);
-                if ($parte_compareciente->tipo_parte_id == 1) {
-                    $solicitantes = true;
-                } else if ($parte_compareciente->tipo_parte_id == 2) {
-                    $citados = true;
-                        $citadosArray[]=$parte_compareciente;
-                        if($parte_compareciente->tipo_persona_id == 1){
-                            $totalCitadosComparecen++;
+                if(isset($this->request->comparecientes)){
+                    foreach ($this->request->comparecientes as $compareciente) {
+                        $parte_compareciente = Parte::find($compareciente);
+                        if ($parte_compareciente->tipo_parte_id == 1) {
+                            $solicitantes = true;
+                        } else if ($parte_compareciente->tipo_parte_id == 2) {
+                            $citados = true;
+                                $citadosArray[]=$parte_compareciente;
+                                if($parte_compareciente->tipo_persona_id == 1){
+                                    $totalCitadosComparecen++;
+                                }
+                        } else if ($parte_compareciente->tipo_parte_id == 3) {
+                            $parte_representada = Parte::find($parte_compareciente->parte_representada_id);
+                            if ($parte_representada->tipo_parte_id == 1) {
+                                $solicitantes = true;
+                            } else if ($parte_representada->tipo_parte_id == 2) {
+                                $citados = true;
+                                    $totalCitadosComparecen++;
+                            }
                         }
-                } else if ($parte_compareciente->tipo_parte_id == 3) {
-                    $parte_representada = Parte::find($parte_compareciente->parte_representada_id);
-                    if ($parte_representada->tipo_parte_id == 1) {
-                        $solicitantes = true;
-                    } else if ($parte_representada->tipo_parte_id == 2) {
-                        $citados = true;
-                            $totalCitadosComparecen++;
+                        Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $this->request->audiencia_id, "presentado" => true]);
                     }
                 }
-                Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $this->request->audiencia_id, "presentado" => true]);
-            }
                 if (!$solicitantes) {
                     // Aqui aplica el caso 1 donde no comparece el solicitante y se finaliza la solicitud por no comparecencia
                     //Archivado y se genera formato de acta de archivado por no comparecencia

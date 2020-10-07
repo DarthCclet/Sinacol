@@ -1820,6 +1820,69 @@
 
                 }
             });
+        }else{
+            swal({
+                title: '¿Estás seguro?',
+                text: 'No has seleccionado ningun compareciente, el expediente se archivará por no comparecencia del solicitante',
+                icon: 'info',
+                buttons: {
+                    cancel: {
+                        text: 'Cancelar',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-default',
+                        closeModal: true,
+                    },confirm: {
+                        text: 'Continuar',
+                        value: 1,
+                        visible: true,
+                        className: 'btn btn-danger',
+                        closeModal: true
+                    }
+                }
+            }).then(function(tipo){
+                if(tipo != null){
+                    $.ajax({
+                        url:"/audiencia/comparecientes",
+                        type:"POST",
+                        dataType:"json",
+                        async:true,
+                        data:{
+                            audiencia_id:'{{ $audiencia->id }}',
+                            comparecientes:validacion.comparecientes,
+                            _token:"{{ csrf_token() }}"
+                        },
+                        success:function(data){
+                            $("#modal-comparecientes").modal("hide");
+                            if(data.data.tipo == 1){
+                                swal({
+                                    title: 'Éxito',
+                                    text: 'Se ha archivado la audiencia por falta de solicitantes',
+                                    icon: 'success',
+                                    buttons: {
+                                        confirm: {
+                                            text: 'Aceptar',
+                                            value: true,
+                                            visible: true,
+                                            className: 'btn btn-warning',
+                                            closeModal: true
+                                        }
+                                    }
+                                }).then(function(isConfirm){
+                                    window.location.href = "/audiencias/"+data.data.response.id+"/edit";
+                                });
+                            }
+                        },
+                        error:function(data){
+                            swal({
+                                title: 'Algo salió mal',
+                                text: 'No se guardo el registro',
+                                icon: 'warning'
+                            });
+                        }
+                    });
+                }
+            });
         }
     });
     function SolicitarNuevaAudiencia(){
@@ -1944,7 +2007,7 @@
         if(listaComparecientes.length > 0){
             return {error:false,comparecientes:listaComparecientes};
         }else{
-            swal({title: 'Error',text: 'No has agregado comparecientes',icon: 'warning'});
+//            swal({title: 'Error',text: 'No has agregado comparecientes',icon: 'warning'});
             return {error:true,comparecientes:[]};
         }
     }

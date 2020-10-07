@@ -22,7 +22,7 @@ class CreateTipoNotificacionsTable extends Migration
         collect([
             ['nombre'=>'A) El solicitante entrega citatorio a solicitados'],
             ['nombre'=>'B) El actuario del centro entrega citatorio a solicitados'],
-            ['nombre'=>'B) Agendar cita con actuario para entrega de citatorio'],
+            ['nombre'=>'C) Agendar cita con actuario para entrega de citatorio'],
         ])->each(function ($item){
             \App\TipoNotificacion::create($item);
         });
