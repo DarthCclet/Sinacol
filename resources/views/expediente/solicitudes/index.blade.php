@@ -35,7 +35,7 @@
                 <p class="help-block needed">Nombre</p>
             </div>
             <div class="col-md-4">
-                <input class="form-control filtros" id="folio" placeholder="Folio" type="text" value="">
+                <input class="form-control filtros numero" id="folio" placeholder="Folio" type="text" value="">
                 <p class="help-block needed">Folio</p>
             </div>
             <div class="col-md-4">

@@ -745,6 +745,17 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                <label >Cedula Profesional</label>
+                                <span class="btn btn-primary fileinput-button m-r-3">
+                                    <i class="fa fa-fw fa-plus"></i>
+                                    <span>Seleccionar identificaci&oacute;n</span>
+                                    <input type="file" id="fileCedula" name="files">
+                                </span>
+                                <p style="margin-top: 1%;" id="labelCedula"></p>
+                            </div>
+                        </div>
                     </div>
                     <hr>
                     <h5>Datos de comprobante como representante legal</h5>
@@ -1532,6 +1543,27 @@
                         $("#detalle_instrumento").val(data.detalle_instrumento);
                         $("#parte_id").val(data.id);
                         listaContactos = data.contactos;
+                        if(data.documentos && data.documentos.length > 0){
+                            $.each(data.documentos,function(index,doc){
+                                if(doc.tipo_archivo == 1){
+                                    if(doc.clasificacion_archivo_id == 3){
+                                        $("#labelCedula").html("Cedula Profesional Capturada");
+                                    }else{
+                                        $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                        $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                                    }
+                                }else{
+                                    $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                    $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
+                                }
+                            });
+                            
+                        }else{
+                            $("#tipo_documento_id").val("").trigger("change");
+                            $("#labelIdentifRepresentante").html("");
+                            $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                            $("#labelInstrumentoRepresentante").html("");
+                        }
                     }else{
                         $("#curp").val("");
                         $("#nombre").val("");
@@ -1716,6 +1748,9 @@
                 var formData = new FormData(); // Currently empty
                 if($("#fileIdentificacion").val() != ""){
                     formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
+                }
+                if($("#fileCedula").val() != ""){
+                    formData.append('fileCedula', $("#fileCedula")[0].files[0]);
                 }
                 if($("#fileInstrumento").val() != ""){
                     formData.append('fileInstrumento', $("#fileInstrumento")[0].files[0]);
@@ -2365,6 +2400,9 @@
 
         $("#fileInstrumento").change(function(e){
             $("#labelInstrumentoRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+        });
+        $("#fileCedula").change(function(e){
+            $("#labelCedula").html("<b>Archivo: </b>"+e.target.files[0].name+"");
         });
         $("#fileIdentificacion").change(function(e){
             $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");

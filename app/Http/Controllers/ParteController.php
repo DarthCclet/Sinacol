@@ -407,6 +407,61 @@ class ParteController extends Controller
                     $exito = false;
                 }
             }
+            if(isset($request->fileCedula)){
+                
+                $parte = Parte::find($request->parte_id);
+                $solicitud = Solicitud::find($request->solicitud_id);
+                
+                try{
+                    $deleted = false;
+                    $documentos = $parte->documentos;
+                    $existeInst = false;
+                    foreach($documentos as $documento ){
+                        if($documento->clasificacionArchivo->tipo_archivo_id == 9){
+                            $existeInst = true;
+                        }
+                    }
+                    
+                    if($existeInst){
+                        
+                        $parte->documentos[0]->delete();
+                        $deleted = true;
+                    }
+                    if(!$existeInst || $deleted){
+                        $existeDocumento = $parte->documentos;
+                        if($solicitud != null){
+                            $archivo = $request->fileCedula;
+                            $solicitud_id = $solicitud->id;
+                            $clasificacion_archivo= 3;
+                            $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                            Storage::makeDirectory($directorio);
+                            $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                            
+                            $path = $archivo->store($directorio);
+                            
+                            $documento = $parte->documentos()->create([
+                                "nombre" => str_replace($directorio."/", '',$path),
+                                "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                "descripcion" => $tipoArchivo->nombre,
+                                "ruta" => $path,
+                                "tipo_almacen" => "local",
+                                "uri" => $path,
+                                "longitud" => round(Storage::size($path) / 1024, 2),
+                                "firmado" => "false",
+                                "clasificacion_archivo_id" => $tipoArchivo->id ,
+                            ]);
+                            $exito = true;
+                        }else{
+                            $exito = false;
+                            
+                        }
+                    }
+                    
+                }catch(Exception $e){
+                    $exito = false;
+                }
+            }
             // se actualiza doc
         }else{
             $parte_representada = Parte::find($request->parte_representada_id);
@@ -493,6 +548,31 @@ class ParteController extends Controller
                             "firmado" => "false",
                             "clasificacion_archivo_id" => $tipoArchivoInst->id ,
                         ]);
+
+                        // Se agrega cedula
+                        if(isset($request->fileCedula)){
+                            $archivoCed = $request->fileCedula;
+                            $solicitud_id = $solicitud->id;
+                            $clasificacion_archivoCed= 3;
+                            $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                            Storage::makeDirectory($directorio);
+                            $tipoArchivoCed = ClasificacionArchivo::find($clasificacion_archivoCed);
+                            
+                            $pathInst = $archivoCed->store($directorio);
+                            
+                            $documento = $parte->documentos()->create([
+                                "nombre" => str_replace($directorio."/", '',$path),
+                                "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                "descripcion" => $tipoArchivoCed->nombre,
+                                "ruta" => $pathInst,
+                                "tipo_almacen" => "local",
+                                "uri" => $pathInst,
+                                "longitud" => round(Storage::size($pathInst) / 1024, 2),
+                                "firmado" => "false",
+                                "clasificacion_archivo_id" => $tipoArchivoCed->id ,
+                            ]);
+                        } 
                         $exito = true;
                     }else{
                         $exito = false;
