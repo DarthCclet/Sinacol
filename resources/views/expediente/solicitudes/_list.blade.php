@@ -322,6 +322,17 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                <label >Cedula Profesional</label>
+                                <span class="btn btn-primary fileinput-button m-r-3">
+                                    <i class="fa fa-fw fa-plus"></i>
+                                    <span>Seleccionar identificaci&oacute;n</span>
+                                    <input type="file" id="fileCedula" name="files">
+                                </span>
+                                <p style="margin-top: 1%;" id="labelCedula"></p>
+                            </div>
+                        </div>
                     </div>
                     <hr>
                     <h5>Datos de comprobante como representante legal</h5>
@@ -626,7 +637,7 @@
             var ruta = $("#ruta").val();
             var rutaConsulta = $("#rutaConsulta").val();
             var dt = $('#tabla-detalle').DataTable({
-                "deferRender": true,
+                "deferRender": false,
                 "ajax": {
                     "url": '/solicitudes',
                     "dataSrc": function(json){
@@ -699,12 +710,12 @@
                         }
                     },
                     {
-                        "targets": [7],
+                        "targets": [8],
                         "render": function (data, type, row) {
                             var html = "";
                             var solicitantes = "";
                             var solicitados = "";
-                            $.each(row[7],function(key, value){
+                            $.each(row[8],function(key, value){
                                 var nombre = "";
                                 if(value.tipo_persona_id == 1){
                                         nombre = value.nombre + " " + value.primer_apellido + " " + (value.segundo_apellido || "")
@@ -727,12 +738,12 @@
                         }
                     },
                     {
-                        "targets": [8],
+                        "targets": [9],
                         "render": function (data, type, row) {
-                            console.log(row[8]);
+                            console.log(row[9]);
                             html = "N/A";
-                            if(row[8] != null){
-                            html = ""+row[8].folio;
+                            if(row[9] != null){
+                                html = ""+row[9].folio;
                             }
                             return  html;
                         }
@@ -764,9 +775,13 @@
                     {
                         "targets": -1,
                         "render": function (data, type, row) {
-                                var buttons = '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-4" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
-                                buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+rutaConsulta.replace('/-rutaConsulta',"/"+row[0])+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>';
-                                if(row[1] == 1){
+                                var buttons = '';
+                                if(row[7] == '{{Auth::user()->centro_id}}'){
+                                    buttons += '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-4" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
+                                }
+                                    buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+rutaConsulta.replace('/-rutaConsulta',"/"+row[0])+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>';
+                                
+                                if(row[1] == 1 && row[7] == '{{Auth::user()->centro_id}}'){
                                     buttons += '<div title="Ratificar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="continuarRatificacion('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></button></div>';
                                 }
                                 return buttons;
@@ -783,14 +798,14 @@
                 "recordsTotal":20,
                 "recordsFiltered":20,
                 "lengthChange": false,
-                "scrollX": true,
+                "scrollX": false,
                 "scrollY": $(window).height() - $('#header').height()-200,
                 "scrollColapse": false,
                 "scroller": {
                     "serverWait": 200,
                     "loadingIndicator": true,
                 },
-                "responsive": false,
+                "responsive": true,
                 "language": {
                     "url": "/assets/plugins/datatables.net/dataTable.es.json"
                 },
@@ -1619,6 +1634,17 @@
             });
         });
     };
+    function calculateDivider() {
+        var dividerValue = 4;
+        if ($(this).width() <= 576) {
+            dividerValue = 1;
+        } else if ($(this).width() <= 992) {
+            dividerValue = 2;
+        } else if ($(this).width() <= 1200) {
+            dividerValue = 3;
+        }
+        return dividerValue;
+    }
     var FormMultipleUpload = function () {
         "use strict";
         return {
@@ -1896,6 +1922,9 @@
             if($("#fileIdentificacion").val() != ""){
                 formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
             }
+            $("#fileCedula").change(function(e){
+                $("#labelCedula").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+            });
             if($("#fileInstrumento").val() != ""){
                 formData.append('fileInstrumento', $("#fileInstrumento")[0].files[0]);
             }
@@ -2175,6 +2204,9 @@
     $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
     $("#fileIdentificacion").change(function(e){
         $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+    });
+    $("#fileCedula").change(function(e){
+        $("#labelCedula").html("<b>Archivo: </b>"+e.target.files[0].name+"");
     });
     $("#fileInstrumento").change(function(e){
         $("#labelInstrumentoRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");

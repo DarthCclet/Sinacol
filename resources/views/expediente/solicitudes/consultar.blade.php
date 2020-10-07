@@ -386,11 +386,13 @@
                     // arrayObjetoSolicitudes = data.objeto_solicitudes;
                     // formarTablaObjetoSol();
                     solicitudObj.ratificada = data.ratificada;
+                    solicitudObj.estatus_solicitud = data.estatusSolicitud.nombre;
                     solicitudObj.fecha_ratificacion = dateFormat(data.fecha_ratificacion,2);
                     solicitudObj.fecha_recepcion = dateFormat(data.fecha_recepcion,2);
                     solicitudObj.fecha_conflicto = dateFormat(data.fecha_conflicto,4);
                     solicitudObj.giro_comercial_id = data.giro_comercial_id;
                     solicitudObj.giro_comercial = data.giroComercial.nombre;
+                    solicitudObj.expediente = data.expediente.folio;
                     
                 }catch(error){
                     console.log(error);
@@ -472,6 +474,14 @@
         html += "<div class='col-md-10 offset-1'>";
             html += "<div class='col-md-12 row'>";
                 if(solicitudObj.ratificada == true){
+                    html += "<div class='col-md-12 text-right'>";
+                        html += "<h4><b>Estatus:</b> "+solicitudObj.estatus_solicitud+ "<br></h4>";
+                    html += "</div>";
+                }
+                html += "<div class='col-md-12'>";
+                    html += "<b>Expediente:</b> "+solicitudObj.expediente+ "<br>";
+                html += "</div>";
+                if(solicitudObj.ratificada == true){
                     html += "<div class='col-md-6'>";
                         html += "<b>Fecha de ratificaci&oacute;n:</b> "+solicitudObj.fecha_ratificacion+ "<br>";
                     html += "</div>";
@@ -482,6 +492,7 @@
                 html += "<div class='col-md-6'>";
                     html += "<b>Fecha de conflicto:</b> "+solicitudObj.fecha_conflicto+ "<br>";
                 html += "</div>";
+                
                 html += "<div class='col-md-12'>";
                     html += "<b>Giro comercial</b><br> "+solicitudObj.giro_comercial+ "<br>";
                 html += "</div>";

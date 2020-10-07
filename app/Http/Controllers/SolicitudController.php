@@ -79,6 +79,7 @@ class SolicitudController extends Controller {
         if ($this->request->get('all')) {
             $solicitud = $solicitud->get();
         } else {
+            $filtrarCentro = true;
             $length = $this->request->get('length');
             $start = $this->request->get('start');
             $limSup = " 23:59:59";
@@ -96,13 +97,16 @@ class SolicitudController extends Controller {
             }
             if ($this->request->get('folio')) {
                 $solicitud->where('folio', $this->request->get('folio'));
+                $filtrarCentro = false;
             }
             if ($this->request->get('curp')) {
                 $curp = $this->request->get('curp');
                 $solicitud = $solicitud->whereHas('partes', function (Builder $query) use ($curp){
                     $query->where('curp', [$curp]);
                 });
+                $filtrarCentro = false;
             }
+           
             if ($this->request->get('nombre')) {
                 $nombre = $this->request->get('nombre');
                 $nombre = trim($nombre);
@@ -113,14 +117,7 @@ class SolicitudController extends Controller {
                     $query->where('tipo_parte_id',1)->whereRaw("to_tsvector('spanish', unaccent(trim(coalesce(nombre_comercial,' ')||' '||coalesce(nombre,' ')||' '||coalesce(primer_apellido,' ')||' '||coalesce(segundo_apellido,' ')))) @@ to_tsquery('spanish', unaccent(?))", [$nombre]);
                 });
             }
-            if ($this->request->get('Expediente')) {
-                $expediente = Expediente::where('folio', $this->request->get('Expediente'))->first();
-                if (count($expediente) > 0) {
-                    $solicitud->where('id', $expediente->solicitud->id);
-                } else {
-                    $solicitud->where('id', '<', '1');
-                }
-            }
+            
             if ($this->request->get('anio')) {
                 $solicitud->where('anio', $this->request->get('anio'));
             }
@@ -133,8 +130,20 @@ class SolicitudController extends Controller {
             if ($this->request->get('loadPartes')) {
                 $solicitud = $solicitud->with("expediente");
             }
+            if ($this->request->get('Expediente')) {
+                $expediente = $this->request->get('Expediente');
+                // $expediente = Expediente::where('folio', $this->request->get('Expediente'))->first();
+                $solicitud = $solicitud->whereHas('expediente', function (Builder $query) use ($expediente){
+                    $query->where('folio', [$expediente]);
+                });
+                $filtrarCentro = false;
+            }
+            if($filtrarCentro){
+                $centro_id = Auth::user()->centro_id;
+                $solicitud->where('centro_id',$centro_id);
+            }
             if ($this->request->get('IsDatatableScroll')) {
-                $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto']);
+                $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto','centro_id']);
             } else {
                 $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
             }
@@ -150,8 +159,14 @@ class SolicitudController extends Controller {
             if ($this->request->get('all') || $this->request->get('paginate')) {
                 return $this->sendResponse($solicitud, 'SUCCESS');
             } else {
-                $total = Solicitud::count();
+                if($filtrarCentro){
+                    $centro_id = Auth::user()->centro_id;
+                    $total = Solicitud::where('centro_id',$centro_id)->count();
+                }else{
+                    $total = Solicitud::count();
+                }
                 $draw = $this->request->get('draw');
+                
                 return $this->sendResponseDatatable($total, $total, $draw, $solicitud, null);
             }
         }
@@ -453,6 +468,7 @@ class SolicitudController extends Controller {
         $solicitud["solicitantes"] = $solicitantes;
         $solicitud->expediente = $solicitud->expediente;
         $solicitud->giroComercial = $solicitud->giroComercial;
+        $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
         if($solicitud->giroComercial){
             $solicitud->giroComercial->ambito;
         }
