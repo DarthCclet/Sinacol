@@ -473,14 +473,14 @@
         var html = "";
         html += "<div class='col-md-10 offset-1'>";
             html += "<div class='col-md-12 row'>";
+                html += "<div class='col-md-12 text-right'>";
+                    html += "<h4><b>Estatus:</b> "+solicitudObj.estatus_solicitud+ "<br></h4>";
+                html += "</div>";
                 if(solicitudObj.ratificada == true){
-                    html += "<div class='col-md-12 text-right'>";
-                        html += "<h4><b>Estatus:</b> "+solicitudObj.estatus_solicitud+ "<br></h4>";
+                    html += "<div class='col-md-12'>";
+                        html += "<b>Expediente:</b> "+solicitudObj.expediente+ "<br>";
                     html += "</div>";
                 }
-                html += "<div class='col-md-12'>";
-                    html += "<b>Expediente:</b> "+solicitudObj.expediente+ "<br>";
-                html += "</div>";
                 if(solicitudObj.ratificada == true){
                     html += "<div class='col-md-6'>";
                         html += "<b>Fecha de ratificaci&oacute;n:</b> "+solicitudObj.fecha_ratificacion+ "<br>";
