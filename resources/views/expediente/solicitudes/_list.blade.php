@@ -14,7 +14,7 @@
 <input type="hidden" id="rutaConsulta" value="{!! route("solicitudes.consulta",'-rutaConsulta') !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
-      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Año</th><th>Fecha de ratificación</th><th>Fecha de recepción</th><th>Fecha de conflicto</th><th>Partes</th><th>Expediente</th><th>Días para expiraci&oacute;n</th><th>Acción</th></tr>
+      <tr><th>Id</th><th>Estatus</th><th>Folio</th><th>Año</th><th>Fecha de ratificación</th><th>Fecha de recepción</th><th>Fecha de conflicto</th><th>Centro</th><th>Partes</th><th>Expediente</th><th>Días para expiraci&oacute;n</th><th>Acción</th></tr>
     </thead>
 
 </table>
@@ -709,6 +709,7 @@
                             }
                         }
                     },
+                    {"targets": [7], "visible": false},
                     {
                         "targets": [8],
                         "render": function (data, type, row) {
