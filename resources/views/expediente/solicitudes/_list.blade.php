@@ -263,11 +263,12 @@
 
 
                     <h5>Datos del Representante legal</h5>
+                    <input type="hidden" id="id_representante">
                     <div class="col-md-12 row">
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="curpRep" class="control-label needed">CURP</label>
-                                <input type="text" id="curpRep" maxlength="18" onblur="validaCURP(this.value);" class="form-control upper" placeholder="CURP del representante legal">
+                                <input type="text" id="curpRep" maxlength="18" onblur="getParteCurp(this.value)" class="form-control upper" placeholder="CURP del representante legal">
                             </div>
                         </div>
                         <div class="col-md-6 ">
@@ -1687,6 +1688,7 @@
                     data = data[0];
                     $("#tieneRepresentante"+parte_id).html("<i class='fa fa-check'></i> ");
                     $("#btnaddRep"+parte_id).html("Ver Representante");
+                    $("#id_representante").val(data.id);
                     $("#curpRep").val(data.curp);
                     $("#nombreRep").val(data.nombre);
                     $("#primer_apellidoRep").val(data.primer_apellido);
@@ -1716,6 +1718,7 @@
                         $("#labelInstrumentoRepresentante").html("");
                     }
                 }else{
+                    $("#id_representante").val("");
                     $("#curpRep").val("");
                     $("#nombreRep").val("");
                     $("#primer_apellidoRep").val("");
@@ -2199,6 +2202,30 @@
         $("#divSolicitudMod").html(htmlSolicitud);
         $("#divSolicitantesMod").html(htmlSolicitantes);
         $("#divCitadosMod").html(htmlCitados);
+    }
+
+    function getParteCurp(curp){
+        if(validaCURP(curp) && $("#id_representante").val() == ""){
+            $.ajax({
+                url:"/partes/getParteCurp",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    curp:curp,
+                    _token:"{{ csrf_token() }}"
+                },
+                async:true,
+                success:function(data){
+                    if(data != null && data != ""){
+                        $("#nombreRep").val(data.nombre);
+                        $("#primer_apellidoRep").val(data.primer_apellido);
+                        $("#segundo_apellidoRep").val(data.segundo_apellido);
+                        $("#fecha_nacimientoRep").val(dateFormat(data.fecha_nacimiento,4));
+                        $("#genero_idRep").val(data.genero_id).trigger("change");
+                    }
+                }
+            });
+        }
     }
 
 

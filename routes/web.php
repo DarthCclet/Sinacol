@@ -96,6 +96,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('partes/datoLaboral/{id}','ParteController@GetDatoLaboral');
     Route::Post('partes/datoLaboral','ParteController@GuardarDatoLaboral');
     Route::Post('partes/representante','ParteController@GuardarRepresentanteLegal');
+    Route::Post('partes/getParteCurp','ParteController@getParteCurp');
     Route::Post('partes/representante/contacto','ParteController@AgregarContactoRepresentante');
     Route::Post('partes/representante/contacto/eliminar','ParteController@EliminarContactoRepresentante');
     Route::GET('partes/getComboDocumentos/{solicitud_id}','ParteController@getPartesComboDocumentos');

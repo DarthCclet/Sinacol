@@ -604,6 +604,11 @@ class ParteController extends Controller
         }
         return $representante->contactos;
     }
+    
+    public function getParteCurp(Request $request){
+        $Parte = Parte::where('curp',$request->curp)->first();
+        return $Parte;
+    }
     public function EliminarContactoRepresentante(Request $request){
         $contacto = Contacto::find($request->contacto_id)->delete();
         $representante = Parte::find($request->parte_id);

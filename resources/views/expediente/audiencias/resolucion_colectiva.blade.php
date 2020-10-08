@@ -443,11 +443,12 @@
             </div>
             <div class="modal-body">
                 <h5>Datos del Representante legal</h5>
+                <input type="hidden" id="id_representante">
                 <div class="col-md-12 row">
                     <div class="col-md-6 ">
                         <div class="form-group">
                             <label for="curp" class="control-label needed">CURP</label>
-                            <input type="text" id="curp" maxlength="18" onblur="validaCURP(this.value);" class="form-control upper" placeholder="CURP del representante legal">
+                            <input type="text" id="curp" maxlength="18" onblur="getParteCurp(this.value)" class="form-control upper" placeholder="CURP del representante legal">
                         </div>
                     </div>
                     <div class="col-md-6 ">
@@ -1353,6 +1354,7 @@
             success:function(data){
                 if(data != null && data != ""){
                     data = data[0];
+                    $("#id_representante").val(data.id);
                     $("#curp").val(data.curp);
                     $("#nombre").val(data.nombre);
                     $("#primer_apellido").val(data.primer_apellido);
@@ -1386,6 +1388,7 @@
                         $("#labelInstrumentoRepresentante").html("");
                     }
                 }else{
+                    $("#id_representante").val("");
                     $("#curp").val("");
                     $("#nombre").val("");
                     $("#primer_apellido").val("");
@@ -1749,6 +1752,30 @@
             error = true;
         }
         return error;
+    }
+
+    function getParteCurp(curp){
+        if(validaCURP(curp) && $("#id_representante").val() == ""){
+            $.ajax({
+                url:"/partes/getParteCurp",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    curp:curp,
+                    _token:"{{ csrf_token() }}"
+                },
+                async:true,
+                success:function(data){
+                    if(data != null && data != ""){
+                        $("#nombre").val(data.nombre);
+                        $("#primer_apellido").val(data.primer_apellido);
+                        $("#segundo_apellido").val(data.segundo_apellido);
+                        $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
+                        $("#genero_id").val(data.genero_id).trigger("change");
+                    }
+                }
+            });
+        }
     }
 
     $("#btnAgregarResolucion").on("click",function(){
