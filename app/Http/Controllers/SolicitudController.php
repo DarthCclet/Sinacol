@@ -469,6 +469,7 @@ class SolicitudController extends Controller {
         $solicitud->expediente = $solicitud->expediente;
         $solicitud->giroComercial = $solicitud->giroComercial;
         $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
+        $solicitud->centro = $solicitud->centro;
         if($solicitud->giroComercial){
             $solicitud->giroComercial->ambito;
         }

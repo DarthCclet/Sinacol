@@ -393,6 +393,7 @@
                     solicitudObj.giro_comercial_id = data.giro_comercial_id;
                     solicitudObj.giro_comercial = data.giroComercial.nombre;
                     solicitudObj.expediente = data.expediente.folio;
+                    solicitudObj.centro = data.centro.nombre;
                     
                 }catch(error){
                     console.log(error);
@@ -477,8 +478,11 @@
                     html += "<h4><b>Estatus:</b> "+solicitudObj.estatus_solicitud+ "<br></h4>";
                 html += "</div>";
                 if(solicitudObj.ratificada == true){
-                    html += "<div class='col-md-12'>";
+                    html += "<div class='col-md-6'>";
                         html += "<b>Expediente:</b> "+solicitudObj.expediente+ "<br>";
+                    html += "</div>";
+                    html += "<div class='col-md-6'>";
+                        html += "<b>Centro:</b> "+solicitudObj.centro+ "<br>";
                     html += "</div>";
                 }
                 if(solicitudObj.ratificada == true){
