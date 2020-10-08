@@ -46,7 +46,6 @@ trait GenerateDocument
                 $algo = Storage::makeDirectory($directorio, 0775, true);
 
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
-
 				        $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
 
                 //Creamos el registro
@@ -117,8 +116,8 @@ trait GenerateDocument
 
     public function renderDocumento($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador)
     {
-        $vars = [];
-        $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador);
+      $vars = [];
+      $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador);
         if($data!=null){
             $count =0;
             foreach ($data as $key => $dato) { //solicitud
@@ -165,7 +164,7 @@ trait GenerateDocument
                 }else{//Si no es un array assoc (n solicitados, n solicitantes)
                   foreach ($dato as $data) {//sol[0]...
                     foreach ($data as $k => $val) { // folio, domicilios n
-                      $val = ($val === null && $val != false)? "" : $val;
+                      $val = ($val === null && $val !== false)? "" : $val;
                       if(gettype($val)== "boolean"){
                         $val = ($val == false)? 'No' : 'Si';
                       }elseif(gettype($val)== 'array'){
@@ -187,15 +186,15 @@ trait GenerateDocument
                             }
                           }
                         }else{
+                          $names =[];
                           foreach ($val as $i => $v) {
                             if( isset($v['nombre'] ) ){
-                              $names =[];
                               array_push($names,$v['nombre']);
                             }
                           }
                           $val = implode (", ", $names);
                         }
-                        }else{
+                      }else{
                           if( isset($val['nombre']) && $k !='persona' && $k !='datos_laborales' && $k !='representante_legal'){ //catalogos
                             $val = $val['nombre']; //catalogos
                            }elseif ($k == 'datos_laborales') {
@@ -249,7 +248,6 @@ trait GenerateDocument
                   <body>
                   ";
           $end = "</body></html>";
-
           // $config = PlantillaDocumento::orderBy('created_at', 'desc')->first();
           $config = PlantillaDocumento::find($idPlantilla);
           if (!$config) {
@@ -399,10 +397,19 @@ trait GenerateDocument
                         }
                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                         if($hayDatosLaborales >0){
-                          $salarioMensual = ($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30;
-                          $salarioMensualTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$salarioMensual);
-                          $salarioMensualTextual = str_replace("uno","un",$salarioMensualTextual);
-                          $salarioMensualTextual = str_replace("coma","punto",$salarioMensualTextual);
+                          $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
+                          $salarioMensual =number_format($salarioMensual, 2, '.', '');
+                          $salario = explode('.', $salarioMensual);
+                          $intSalarioMensual = $salario[0];
+                          $decSalarioMensual = $salario[1];
+                          $intSalarioMensualTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intSalarioMensual);
+                          $intSalarioMensualTextual = str_replace("uno","un",$intSalarioMensualTextual);
+                          $salarioMensualTextual = $intSalarioMensualTextual.' pesos '. $decSalarioMensual.'/100';
+
+                          // $salarioMensual = ($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30;
+                          // $salarioMensualTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$salarioMensual);
+                          // $salarioMensualTextual = str_replace("uno","un",$salarioMensualTextual);
+                          // $salarioMensualTextual = str_replace("coma","punto",$salarioMensualTextual);
                           $objeto = new JsonResponse($datoLaborales);
                           $datoLaboral = json_decode($objeto->content(),true);
                           $datoLaboral = Arr::except($datoLaboral, ['id','updated_at','created_at','deleted_at']);
@@ -529,7 +536,7 @@ trait GenerateDocument
                     $objetoResolucion = $model_name::find($resolucionAudienciaId);
                     $datosResolucion=[];
                     $etapas_resolucion = EtapaResolucionAudiencia::where('audiencia_id',$audienciaId)->whereIn('etapa_resolucion_id',[3,4,5,6])->get();
-                    
+
                     $objeto = new JsonResponse($etapas_resolucion);
                     $etapas_resolucion = json_decode($objeto->content(),true);
                     $datosResolucion['resolucion']= $objetoResolucion->nombre;
@@ -598,20 +605,29 @@ trait GenerateDocument
                           $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
                           if($concepto->id != 9){
                             $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
-                            $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.$concepto->monto.'</td></tr>';
+                            $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
                           }else{
                             $tablaConceptosEConvenio .= $concepto->otro.' ';
                           }
                         }
-                        $tablaConceptosConvenio .= '<tr><td> Total de percepciones </td><td>     $'.$totalPercepciones.'</td></tr>';
+                        $tablaConceptosConvenio .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
                         $tablaConceptosConvenio .= '</tbody>';
                         $tablaConceptosConvenio .= '</table>';
                         $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte <b>EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'</p>':'';
 
-                        $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
-                        $cantidadTextual = str_replace("uno","un",$cantidadTextual);
-                        $cantidadTextual = str_replace("coma","punto",$cantidadTextual);
-                        $datosResolucion['total_percepciones']= $totalPercepciones;
+                        // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
+                        $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
+                        $totalPercepcion = explode('.', $totalPercepciones);
+                        $intTotalPercepciones = $totalPercepcion[0];
+                        $decTotalPercepciones = $totalPercepcion[1];
+                        $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
+                        $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
+                        $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
+                        
+                        // $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
+                        // $cantidadTextual = str_replace("uno","un",$cantidadTextual);
+                        // $cantidadTextual = str_replace("coma","punto",$cantidadTextual);
+                        $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
                         $datosResolucion['total_percepciones_letra']= $cantidadTextual;
                         $datosResolucion['propuestas_conceptos']= $tablaConceptos;
                         $datosResolucion['propuesta_configurada']= $tablaConceptosConvenio;
@@ -627,7 +643,7 @@ trait GenerateDocument
                         
                         $totalPagosDiferidos=0;
                         foreach ($resolucion_pagos as $pago ) {
-                            $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:m:s',$pago->fecha_pago)->format('d/m/Y').' </td><td style="text-align:right;">     $'.$pago->monto.'</td></tr>';
+                            $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:m:s',$pago->fecha_pago)->format('d/m/Y').' </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
                             $totalPagosDiferidos +=1;
                         }
                         $tablaPagosDiferidos .= '</tbody>';
