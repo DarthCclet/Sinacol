@@ -35,7 +35,7 @@ class SendNotificacion
         $audiencia = Audiencia::find($event->audiencia_id);
         // Agregamos al arreglo las generalidades de la audiencia
         $arreglo["folio"] = $audiencia->folio."/".$audiencia->anio;
-        $arreglo["expediente"] = $audiencia->expediente->folio."/".$audiencia->expediente->anio;
+        $arreglo["expediente"] = $audiencia->expediente->folio."/";
         $arreglo["exhorto_num"] = "";
         $fechaIngreso = new \Carbon\Carbon($audiencia->expediente->solicitud->created_at);
         $fechaRecepcion = new \Carbon\Carbon($audiencia->expediente->solicitud->fecha_ratificacion);
@@ -43,7 +43,7 @@ class SendNotificacion
         $arreglo["fecha_ingreso"] = $fechaIngreso->format("d/m/Y");
         $arreglo["fecha_recepcion"] = $fechaRecepcion->format("d/m/Y");
         $arreglo["fecha_audiencia"] = $fechaAudiencia->format("d/m/Y");
-        $arreglo["fecha_ar"] = $fechaAudiencia->format("d/m/Y");
+        $arreglo["fecha_ar"] = $fechaRecepcion->format("d/m/Y");
         $arreglo["nombre_junta"] = $audiencia->expediente->solicitud->centro->nombre;
         $arreglo["junta_id"] = $audiencia->expediente->solicitud->centro_id;
         //Buscamos a los actores
@@ -77,7 +77,9 @@ class SendNotificacion
                     "calle" => $domicilio->vialidad,
                     "num_ext" => $domicilio->num_ext,
                     "num_int" => $domicilio->num_int,
-                    "en_catalogo" => true
+                    "en_catalogo" => true,
+                    "latitud" => $domicilio->latitud,
+                    "longitud" => $domicilio->longitud
                 )
             );
         }
@@ -107,28 +109,21 @@ class SendNotificacion
                     "calle" => $domicilio->vialidad,
                     "num_ext" => $domicilio->num_ext,
                     "num_int" => $domicilio->num_int,
-                    "en_catalogo" => true
+                    "en_catalogo" => true,
+                    "latitud" => $domicilio->latitud,
+                    "longitud" => $domicilio->longitud
                 )
             );
         }
+        Log::error('Se envia esta peticion:'.json_encode($arreglo));
         $client = new Client();
         $baseURL = env("APP_URL_NOTIFICACIONES");
         $response = $client->request('POST',$baseURL ,[
-            // un array con la data de los headers como tipo de peticion, etc.
             'headers' => ['foo' => 'bar'],
             // array de datos del formulario
             'body' => json_encode($arreglo),
 //            'http_errors' => false
         ]);
-//        if($response->getStatusCode() == 200){
-//            
-//        }else{
-//            trow
-//        }
-        
-        
-        
-//        echo $response->getBody();
     }
     /**
      * Funcion para obtener las partes involucradas en una audiencia de tipo solicitante
