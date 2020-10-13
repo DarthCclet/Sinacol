@@ -1367,12 +1367,11 @@ class SolicitudController extends Controller {
         }
     }
     private function construirCorreo(Parte $parte){
+        $password = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
         if($parte->tipo_persona_id == 1){
             $correo = str_replace(' ', '', $parte->curp)."@mibuzonlaboral.gob.mx";
-            $password = str_replace(' ', '', $parte->curp);
         }else{
             $correo = str_replace(' ', '', $parte->rfc)."@mibuzonlaboral.gob.mx";
-            $password = str_replace(' ', '', $parte->rfc);
         }
         return ["correo" => strtolower($correo),"password" => strtolower($password)];
     }
