@@ -12,7 +12,7 @@ class Centro extends Model implements Auditable
     use SoftDeletes,
     \App\Traits\CambiarEventoAudit,
     \OwenIt\Auditing\Auditable;
-    protected $guarded = ['id','created_at','updated_at','deleted_at'];
+    protected $guarded = ['id','created_at','updated_at','deleted_at','url_instancia_notificacion'];
     public function transformAudit($data):array
     {
         $data = $this->cambiarEvento($data);
