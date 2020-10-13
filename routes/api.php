@@ -78,6 +78,7 @@ Route::resource('tipo_vialidades','TipoVialidadController')->middleware('client'
 Route::resource('tipo_asentamientos','TipoAsentamientoController')->middleware('client');
 Route::resource('tipo_contactos','TipoContactoController');
 Route::resource('tipo_partes','TipoParteController')->middleware('client');
+Route::post('actualizar_notificacion','NotificacionServiceController@actutalizarNotificacion')->middleware('client');
 Route::resource('giros_comerciales','GiroComercialController');
 Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 Route::post('asentamientos/filtrarAsentamientos','AsentamientoController@filtrarAsentamientos');
