@@ -1984,16 +1984,16 @@
                         html +='    <td>'+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+'</td>';
                         html +='    <td>'+element.parte.curp+'</td>';
                         if(element.parte.tipo_parte_id == 1){
-                            htmlCitados += "<option value='"+element.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                            htmlSolicitantes += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
                         }else if(element.parte.tipo_parte_id == 2){
-                            htmlSolicitantes += "<option value='"+element.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                            htmlCitados += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
                         }
 
                         if(element.parte.tipo_parte_id == 3 && element.parte.parte_representada_id != null){
                             if(element.parte.parteRepresentada.tipo_parte_id == 1){
-                                htmlCitados += "<option value='"+element.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                                htmlSolicitantes += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
                             }else{
-                                htmlSolicitantes += "<option value='"+element.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                                htmlCitados += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
                             }
                             if(element.parte.parteRepresentada.tipo_persona_id == 1){
                                 html +='<td>Si ('+element.parte.parteRepresentadanombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')</td>';
@@ -3328,7 +3328,7 @@
         $.each(listaResolucionesIndividuales,function(i,e){
             table +='<tr>';
                 // table +='<td>'+e.parte_solicitante_nombre+'</td>';
-                table +='<td>'+e.parte_solicitado_nombre+'</td>';
+                table +='<td>'+e.parte_solicitante_nombre+'</td>';
                 table +='<td>'+e.parte_solicitado_nombre+'</td>';
                 table +='<td>';
                     table +='<button onclick="eliminarRelacion('+i+')" class="btn btn-xs btn-warning" title="Eliminar">';

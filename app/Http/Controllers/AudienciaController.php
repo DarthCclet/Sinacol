@@ -742,13 +742,26 @@ class AudienciaController extends Controller {
         $solicitantes = $this->getSolicitantes($audiencia);
         $solicitados = $this->getSolicitados($audiencia);
         $arrayMultado = [];
+        $huboConvenio = false;
         foreach ($solicitantes as $solicitante) {
             foreach ($solicitados as $solicitado) {
                 $bandera = true;
                 if ($arrayRelaciones != null) {
                     foreach ($arrayRelaciones as $relacion) {
-                        if ($solicitante->parte_id == $relacion["parte_solicitante_id"] && $solicitado->parte_id == $relacion["parte_solicitado_id"]) {
+                        //
+                        $parte_solicitante =Parte::find($relacion["parte_solicitante_id"]);
+                        if($parte_solicitante->tipo_parte_id == 3){
+                            $parte_solicitante =Parte::find($parte_solicitante->parte_representada_id);
+                        }
+                        //
+                        $parte_solicitado =Parte::find($relacion["parte_solicitado_id"]);
+                        if($parte_solicitado->tipo_parte_id == 3){
+                            $parte_solicitado =Parte::find($parte_solicitado->parte_representada_id);
+                        }
+                        
+                        if ($solicitante->parte_id == $parte_solicitante->id && $solicitado->parte_id == $parte_solicitado->id) {
                             $terminacion = 3;
+                            $huboConvenio = true;
                             // se genera convenio
                             // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
                             $bandera = false;
@@ -795,6 +808,7 @@ class AudienciaController extends Controller {
                         }
                     } else if ($audiencia->resolucion_id == 1) {
                         $terminacion = 3;
+                        $huboConvenio = true;
                     } else if ($audiencia->resolucion_id == 2) {
                         $terminacion = 2;
                         // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
@@ -841,6 +855,7 @@ class AudienciaController extends Controller {
                         }
                     }
                     if ($terminacion == 3) {
+                        $huboConvenio = true;
                         //Se consulta comparecencia de citado
                         $parte = $solicitado->parte;
                         // if($parte->id == 84){
@@ -872,12 +887,23 @@ class AudienciaController extends Controller {
                         } else {
                             $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
                         }
-                        // Termina consulta de comparecencia de solicitante
-                        if($comparecienteCit != null && $comparecienteSol != null){
-                            //Se genera el convenio
-                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id, $solicitado->parte_id));
-                        }
+                        
                     }
+                }
+            }
+        }
+        // Termina consulta de comparecencia de solicitante
+        if($huboConvenio){
+            foreach ($solicitantes as $solicitante) {
+                $convenio = ResolucionPartes::where('parte_solicitante_id',$solicitante->parte_id)->where('terminacion_bilateral_id',3)->first();
+                if($convenio != null){
+                    //Se genera el convenio
+                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2,$solicitante->parte_id));
+                }else{
+                    foreach ($solicitados as $solicitado) {
+                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
+                    }
+
                 }
             }
         }
