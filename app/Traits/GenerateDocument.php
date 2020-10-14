@@ -691,11 +691,11 @@ trait GenerateDocument
                           $nombreCitadoConvenio = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
                           $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteC['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                         }
+                        array_push($citadosConvenio, $nombreCitadoConvenio );
                       }
                       if($hayPartesConvenio > 1){
-                        array_push($citadosConvenio, $nombreCitadoConvenio );
                         $citadosConvenioA =  implode(", ",$citadosConvenio);
-                        $nombreCitadosConvenio = $this->lreplace(',', ' y', $citadosConvenioA);
+                        $nombreCitadosConvenio = $citadosConvenioA;//$this->lreplace(',', ' y', $citadosConvenioA);
                       }else{
                         $nombreCitadosConvenio = $nombreCitadoConvenio;
                       }
