@@ -21,7 +21,7 @@ class AddConstanciaNoConciliacionV3ToPlantillaDocumentosTable extends Migration
             <tbody>
             <tr style="height: 21px;">
             <td style="width: 96.1515%; line-height: 8pt; height: 14px;  text-align: center;"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;">N&uacute;mero de identificaci&oacute;n &uacute;nico</span></td>
-            <td style="width: 51.4563%; line-height: 8pt; height: 14px;  text-align: center;"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;"><span style="font-family: Montserrat, sans-serif; font-size: 8pt;"><strong class="mceNonEditable" data-nombre="expediente_folio">[EXPEDIENTE_FOLIO]</strong>&nbsp; &nbsp;</span></span></td>
+            <td style="width: 51.4563%; line-height: 8pt; height: 14px;  text-align: center;"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;"><strong class="mceNonEditable" data-nombre="expediente_folio">[EXPEDIENTE_FOLIO]</strong>&nbsp; &nbsp;</span></span></td>
             </tr>
             <tr style="height: 21px; text-align: center;">
             <td style="width: 96.1515%; line-height: 8pt; height: 42px; text-align: center;" rowspan="2"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;">Buz&oacute;n electr&oacute;nico</span></td>
@@ -36,11 +36,11 @@ class AddConstanciaNoConciliacionV3ToPlantillaDocumentosTable extends Migration
             </tr>
             <tr style="height: 13px;">
             <td style="width: 96.1515%; line-height: 8pt; height: 14px; text-align: center;"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;">N&uacute;mero de citados</span></td>
-            <td style="width: 51.4563%; line-height: 8pt; height: 14px; text-align: center;"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;"><span style="font-size: 8pt;">&nbsp; &nbsp; <strong class="mceNonEditable" data-nombre="solicitud_total_solicitados">[SOLICITUD_TOTAL_SOLICITADOS]</strong>&nbsp; </span>&nbsp; &nbsp;</span></td>
+            <td style="width: 51.4563%; line-height: 8pt; height: 14px; text-align: center;"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;"><span style="font-size: 12pt;">&nbsp; &nbsp; <strong class="mceNonEditable" data-nombre="solicitud_total_solicitados">[SOLICITUD_TOTAL_SOLICITADOS]</strong>&nbsp; </span>&nbsp; &nbsp;</span></td>
             </tr>
             <tr style="height: 13px;">
             <td style="width: 96.1515%; line-height: 8pt; height: 14px; text-align: center;"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;">Secuencia de constancia</span></td>
-            <td style="width: 51.4563%; line-height: 8pt; height: 14px; text-align: center;"><span style="font-family: Montserrat, sans-serif; font-size: 12t;">1</span></td>
+            <td style="width: 51.4563%; line-height: 8pt; height: 14px; text-align: center;"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;">1</span></td>
             </tr>
             <tr style="height: 21px; text-align: center;">
             <td style="width: 96.1515%; line-height: 8pt; height: 14px; text-align: center;"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;">Centro</span></td>
