@@ -14,7 +14,7 @@ class AddActaNoPagoV2ToPlantillaDocumentosTable extends Migration
      */
     public function up()
     {
-        DB::table('plantilla_documentos')->insert(
+        DB::table('plantilla_documentos')->where('nombre_plantilla','ACTA DE NO COMPARECENCIA EN FECHA DE PAGO')->update(
             [
             'nombre_plantilla'=> 'ACTA DE NO COMPARECENCIA EN FECHA DE PAGO',
             'plantilla_body'=>'<p>&nbsp;</p>
