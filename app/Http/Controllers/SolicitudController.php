@@ -1061,6 +1061,12 @@ class SolicitudController extends Controller {
                 //Obtenemos el contador
                 $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                 //creamos el registro de la audiencia
+                if($request->fecha_cita == "" || $request->fecha_cita == null){
+                    $fecha_cita = null;
+                }else{
+                    $fechaC = explode("/", $request->fecha_cita);
+                    $fecha_cita = $fechaC["2"]."-".$fechaC["1"]."-".$fechaC["0"];
+                }
                 $audiencia = Audiencia::create([
                     "expediente_id" => $expediente->id,
                     "multiple" => false,
@@ -1072,7 +1078,7 @@ class SolicitudController extends Controller {
                     "reprogramada" => false,
                     "anio" => $folioAudiencia->anio,
                     "folio" => $folioAudiencia->contador,
-                    "fecha_cita" => $this->request->fecha_cita
+                    "fecha_cita" => $fecha_cita
                 ]);
                 
                 // guardamos la sala y el conciliador a la audiencia
@@ -1108,6 +1114,12 @@ class SolicitudController extends Controller {
                 //Obtenemos el contador
                 $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                 //creamos el registro de la audiencia
+                if($request->fecha_cita == "" || $request->fecha_cita == null){
+                    $fecha_cita = null;
+                }else{
+                    $fechaC = explode("/", $request->fecha_cita);
+                    $fecha_cita = $fechaC["2"]."-".$fechaC["1"]."-".$fechaC["0"];
+                }
                 $audiencia = Audiencia::create([
                     "expediente_id" => $expediente->id,
                     "multiple" => $multiple,
@@ -1120,8 +1132,9 @@ class SolicitudController extends Controller {
                     "anio" => $folioAudiencia->anio,
                     "folio" => $folioAudiencia->contador,
                     "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
-                    "fecha_cita" => $this->request->fecha_cita
+                    "fecha_cita" => $fecha_cita
                 ]);
+//                dd($audiencia);
                 if($datos_audiencia["encontro_audiencia"]){
                     // guardamos la sala y el consiliador a la audiencia
                     ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $datos_audiencia["conciliador_id"],"solicitante" => true]);
@@ -1165,6 +1178,7 @@ class SolicitudController extends Controller {
             event(new GenerateDocumentResolution("",$solicitud->id,40,6));
             return $audiencia;
         }catch(\Throwable $e){
+//            dd($e);
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensale: ". $e->getMessage().
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
