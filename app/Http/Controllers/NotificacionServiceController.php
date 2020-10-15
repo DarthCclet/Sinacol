@@ -7,6 +7,8 @@ use App\Exceptions\ParametroNoValidoException;
 use App\Expediente;
 use App\Parte;
 use App\AudienciaParte;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 class NotificacionServiceController extends Controller
 {
      protected $request;
@@ -16,6 +18,7 @@ class NotificacionServiceController extends Controller
         $this->request = $request;
     }
     public function actutalizarNotificacion(){
+        DB::beginTransaction();
         try{
             $arreglo = $this->validaEstructuraParametros($this->request->getContent());
     //        Buscamos la audiencia
@@ -30,13 +33,36 @@ class NotificacionServiceController extends Controller
                             "finalizado_id" => $demandado->finalizado_id,
                             "detalle" => $demandado->detalle,
                             "detalle_id" => $demandado->detalle_id,
-                            "documento" => $demandado->documento
+//                            "documento" => $demandado->documento
+                        ]);
+                        $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia->id;
+                        Storage::makeDirectory($directorio);
+//                        list($baseType, $image) = explode(';', $demandado->documento);
+//                        list(, $image) = explode(',', $image);
+                        $image = base64_decode($demandado->documento);
+                        $fullPath = $directorio.'/notificacion'.$parteDemandado->id.'.pdf';
+                        $dir = Storage::put($fullPath, $image);
+                        $parteDemandado->documentos()->create([
+                            "nombre" => "Notificacion".$parteDemandado->id,
+                            "nombre_original" => "Notificacion".$parteDemandado->id,
+                            "descripcion" => "documento generado en el sistema de notificaciones",
+                            "nombre" => str_replace($directorio."/", '',$fullPath),
+                            "nombre_original" => str_replace($directorio."/", '',$fullPath),
+                            "descripcion" => "Documento de notificacion ",
+                            "ruta" => $fullPath,
+                            "tipo_almacen" => "local",
+                            "uri" => $fullPath,
+                            "longitud" => round(Storage::size($fullPath) / 1024, 2),
+                            "firmado" => "false",
+                            "clasificacion_archivo_id" => 45,
                         ]);
                     }
                 }
             }
+            DB::commit();
             return response('Se registraron las actualizaciones', 200);
         }catch(Exception $e){
+            DB::rollBack();
             return response('Ocurrio un error al tratar de actualizar', 500);
             
         }
