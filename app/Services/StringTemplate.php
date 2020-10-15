@@ -98,29 +98,32 @@ class StringTemplate
         if (isset($vars['solicitado_tipo_notificacion'])){
           if($vars['solicitado_tipo_notificacion'] != null && $countTipoNotificacion >0){
             for ($i=0; $i < $countTipoNotificacion; $i++) { 
+              $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+              $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
               switch ($vars['solicitado_tipo_notificacion']) {
                 case 1: // El solicitante entrega citatorio a solicitados
                   // texto de notificacion por solicitante
                   $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
                   $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
 
-                  $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-                  $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                  // $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+                  // $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
 
                   $string = $htmlA . $sliceNotificacion . $htmlB;
                 break;
-                case 2: //El actuario del centro entrega citatorio a solicitados
+                default: //2 y 3
+                // case 2: //El actuario del centro entrega citatorio a solicitados
                   // texto de notificacion por actuario
                   $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
                   $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
 
-                  $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-                  $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                  // $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+                  // $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
 
                   $string = $htmlA . $sliceNotificacion . $htmlB;
-                break;
-                default:
-                  $string = $htmlA . $htmlB;
+                // break;
+                // default: // 3
+                  // $string = $htmlA . $htmlB;
                 break;
               }
             }
