@@ -1071,7 +1071,8 @@ class SolicitudController extends Controller {
                     "numero_audiencia" => 1,
                     "reprogramada" => false,
                     "anio" => $folioAudiencia->anio,
-                    "folio" => $folioAudiencia->contador
+                    "folio" => $folioAudiencia->contador,
+                    "fecha_cita" => $this->request->fecha_cita
                 ]);
                 
                 // guardamos la sala y el conciliador a la audiencia
@@ -1118,7 +1119,8 @@ class SolicitudController extends Controller {
                     "reprogramada" => false,
                     "anio" => $folioAudiencia->anio,
                     "folio" => $folioAudiencia->contador,
-                    "encontro_audiencia" => $datos_audiencia["encontro_audiencia"]
+                    "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
+                    "fecha_cita" => $this->request->fecha_cita
                 ]);
                 if($datos_audiencia["encontro_audiencia"]){
                     // guardamos la sala y el consiliador a la audiencia
@@ -1399,5 +1401,25 @@ class SolicitudController extends Controller {
             $pasa = true;
         }
         return $pasa;
+    }
+    function obtenerFechaLimiteNotificacion(Domicilio $centro = null,Domicilio $domicilioCitado = null,$fecha_audiencia = null){
+        if($centro != null){
+    //        Obtenemos la latitud del centro
+            $lat_centro = $centro->latitud;
+            $lon_centro = $centro->longitud;
+            $lat_citado = $domicilioCitado->latitud;
+            $lon_citado = $domicilioCitado->longitud;
+            
+        }else{
+            $lat_centro = 19.3137542;
+            $lon_centro = -99.6386443;
+            $lat_citado = 19.431502;
+            $lon_citado = -99.547658;
+            
+        }
+        $sql = "select (point(".$lon_centro.",".$lat_centro.") <@> point(".$lon_citado.",".$lat_citado.")) as distance";
+        $con = DB::select($sql);
+        dd($con);
+        
     }
 }

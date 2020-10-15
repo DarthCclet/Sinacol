@@ -46,6 +46,7 @@ class SendNotificacion
         $arreglo["fecha_ar"] = $fechaRecepcion->format("d/m/Y");
         $arreglo["nombre_junta"] = $audiencia->expediente->solicitud->centro->nombre;
         $arreglo["junta_id"] = $audiencia->expediente->solicitud->centro_id;
+        $arreglo["fecha_cita"] = $audiencia->fecha_cita;
         //Buscamos a los actores
         $actores = self::getSolicitantes($audiencia);
         foreach($actores as $partes){

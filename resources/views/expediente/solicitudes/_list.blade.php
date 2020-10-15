@@ -218,17 +218,27 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="aradioNotificacionA1" value="1" name="aradioNotificacion1" class="custom-control-input">
-                                        <label class="custom-control-label" for="aradioNotificacionA1">A) El solicitante entrega citatorio al citado(s)</label>
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="aradioNotificacionB1" value="2" name="aradioNotificacion1" class="custom-control-input">
-                                        <label class="custom-control-label" for="aradioNotificacionB1">B) Un notificador del centro entrega citatorio al citado(s)</label>
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="aradioNotificacionB2" value="3" name="aradioNotificacion1" class="custom-control-input">
-                                        <label class="custom-control-label" for="aradioNotificacionB2">C) Agendar cita con el notificador para entrega de citatorio</label>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-6 ">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" id="aradioNotificacionA1" value="1" name="aradioNotificacion1" class="custom-control-input">
+                                                <label class="custom-control-label" for="aradioNotificacionA1">A) El solicitante entrega citatorio al citado(s)</label>
+                                            </div>
+                                            <div class="custom-control custom-radio" id="divGeolocalizable">
+                                                <input type="radio" id="aradioNotificacionB1" value="2" name="aradioNotificacion1" class="custom-control-input">
+                                                <label class="custom-control-label" for="aradioNotificacionB1">B) Un notificador del centro entrega citatorio al citado(s)</label>
+                                            </div>
+                                            <div class="custom-control custom-radio" id="divNoGeolocalizable">
+                                                <input type="radio" id="aradioNotificacionB2" value="3" name="aradioNotificacion1" class="custom-control-input">
+                                                <label class="custom-control-label" for="aradioNotificacionB2">B) Agendar cita con el notificador para entrega de citatorio</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 " id="divFechaCita" style="display:none;">
+                                            <div class="form-group">
+                                                <label for="fecha_cita" class="control-label needed">Fecha de cita</label>
+                                                <input type="text" id="fecha_cita" class="form-control fecha" placeholder="Fecha para atender cita">
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -910,6 +920,13 @@
             $('#btnRatificarIncompetencia').hide();
             $('#notificaAmbito').hide();
         }
+        if(solicitudObj.geolocalizable){
+            $("#divNoGeolocalizable").hide();
+            $("#divGeolocalizable").show();
+        }else{
+            $("#divNoGeolocalizable").show();
+            $("#divGeolocalizable").hide();
+        }
         try{
             cargarDocumentos();
             var solicitanteMenor = arraySolicitantes.filter(x=>x.edad <= 16).filter(x=>x.edad != null);
@@ -1165,6 +1182,7 @@
                                                 id:$("#solicitud_id").val(),
                                                 tipo_notificacion_id:validarRatificacion.tipo_notificacion_id,
                                                 inmediata:false,
+                                                fecha_cita:$("#fecha_cita").val(),
                                                 separados:separados,
                                                 _token:"{{ csrf_token() }}"
                                             },
@@ -2158,8 +2176,18 @@
                             arraySolicitantes[key].dato_laboral = arraySolicitantes[key].dato_laboral[0];
                         }
                     })
+                    console.log(arraySolicitados);
+                    solicitudObj.geolocalizable = true;
+                    $.each(arraySolicitados ,function(key,value){
+                        if($.isArray(value.domicilios)){
+                            if(value.domicilios[0].latitud == "" || value.domicilios[0].longitud != ""){
+                                solicitudObj.geolocalizable = false;
+                            }
+                        }else{
+                            solicitudObj.geolocalizable = false;
+                        }
+                    })
                     // formarTablaSolicitante();
-
                     $.each(data.objeto_solicitudes, function (key, value) {
                         var objeto_solicitud = {};
                         objeto_solicitud.id = value.id;
@@ -2245,6 +2273,14 @@
     $('.upper').on('keyup', function () {
         var valor = $(this).val();
         $(this).val(valor.toUpperCase());
+    });
+    $('input[type=radio][name=aradioNotificacion1]').change(function() {
+        if($("#aradioNotificacionB2").is(":checked")){
+            $("#divFechaCita").show();
+        }else{
+            $("#divFechaCita").hide();
+            
+        }
     });
   </script>
   @endpush
