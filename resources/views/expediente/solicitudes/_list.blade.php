@@ -732,6 +732,8 @@
                             var html = "";
                             var solicitantes = "";
                             var solicitados = "";
+                            var contSol = 0;
+                            var contCit = 0;
                             $.each(row[8],function(key, value){
                                 var nombre = "";
                                 if(value.tipo_persona_id == 1){
@@ -739,17 +741,29 @@
                                 }else{
                                     nombre = value.nombre_comercial;
                                 }
+                                var addetc = "";
+                                if(nombre.length > 30){
+                                    addetc = "...";
+                                }
                                 if(value.tipo_parte_id == 2){
-                                    solicitantes += "<p> -"+nombre+"</p>";
+                                    contSol++;
+                                    solicitantes = "<p> -"+nombre.substring(0,30)+addetc+"</p>";
                                 }else if(value.tipo_parte_id == 1){
-                                    solicitados += "<p> - "+nombre+"</p>";
+                                    contCit++;
+                                    solicitados = "<p> - "+nombre.substring(0,30)+addetc+"</p>";
                                 }
                             });
                             html += "<div>";
                             html += "<h5>Solicitantes</h5>";
                             html += solicitados;
+                            if(contSol > 1){
+                                html += "<p> Y OTROS</p>";
+                            }
                             html += "<h5>Citados</h5>";
                             html += solicitantes;
+                            if(contCit > 1){
+                                html += "<p> Y OTROS</p>";
+                            }
                             html += "</div>";
                             return  html;
                         }
