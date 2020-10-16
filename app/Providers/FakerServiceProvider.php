@@ -17,7 +17,7 @@ class FakerServiceProvider extends ServiceProvider
             $faker = \Faker\Factory::create();
             $newClass = new class($faker) extends \Faker\Provider\Base {
                 public function curp()
-                {  
+                {
                     // $curp = "AAGP910507HPLBRR02";
                     $curp = $this->lexify('????');
                     $curp .= $this->numberBetween(70,99);
@@ -28,7 +28,7 @@ class FakerServiceProvider extends ServiceProvider
                     return strtoupper($curp);
                 }
                 public function rfc()
-                {  
+                {
                     $curp = $this->lexify('????');
                     $curp .= $this->numberBetween(70,99);
                     $curp .= $this->numberBetween(10,12);
