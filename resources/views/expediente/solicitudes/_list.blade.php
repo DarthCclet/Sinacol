@@ -2199,7 +2199,7 @@
                     solicitudObj.geolocalizable = true;
                     $.each(arraySolicitados ,function(key,value){
                         if($.isArray(value.domicilios)){
-                            if(value.domicilios[0].latitud == "" || value.domicilios[0].longitud != ""){
+                            if(value.domicilios[0].latitud == "" || value.domicilios[0].longitud == ""){
                                 solicitudObj.geolocalizable = false;
                             }
                         }else{
