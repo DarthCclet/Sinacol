@@ -725,9 +725,10 @@ class AudienciaController extends Controller {
             
             return $audiencia;
         } catch (\Throwable $e) {
-
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
-            dd($e);
             return $this->sendError('Error al registrar la resolucion', 'Error');
         }
     }
@@ -1275,7 +1276,9 @@ class AudienciaController extends Controller {
             DB::commit();
             return $audiencia;
         } catch (\Throwable $e) {
-            // dd($e->getMessage());
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Error al registrar los comparecientes', 'Error');
         }
@@ -1586,6 +1589,9 @@ class AudienciaController extends Controller {
             DB::commit();
             return $this->sendResponse($response, 'SUCCESS');
         } catch (\Throwable $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Error al crear la nueva audiencia' . $e->getMessage(), 'Error');
         }
@@ -1657,7 +1663,9 @@ class AudienciaController extends Controller {
             DB::commit();
             return redirect()->back()->with('success', 'Se solicitó la cancelación');
         } catch (\Throwable $e) {
-            dd($e);
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             if ($this->request->wantsJson()) {
                 return $this->sendError('Error');
@@ -1699,6 +1707,9 @@ class AudienciaController extends Controller {
             DB::commit();
             return $audiencia;
         } catch (\Throwable $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Algo salio mal al tratar de reagendar', 'Error');
         }
