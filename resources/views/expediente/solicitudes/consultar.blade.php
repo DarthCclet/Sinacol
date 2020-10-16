@@ -392,7 +392,11 @@
                     solicitudObj.fecha_conflicto = dateFormat(data.fecha_conflicto,4);
                     solicitudObj.giro_comercial_id = data.giro_comercial_id;
                     solicitudObj.giro_comercial = data.giroComercial.nombre;
-                    solicitudObj.expediente = data.expediente.folio;
+                    if(data.expediente){
+                        solicitudObj.expediente = data.expediente.folio;
+                    }
+                    solicitudObj.folio = data.folio;
+                    solicitudObj.anio = data.anio;
                     solicitudObj.centro = data.centro.nombre;
                     
                 }catch(error){
@@ -490,6 +494,9 @@
                         html += "<b>Fecha de ratificaci&oacute;n:</b> "+solicitudObj.fecha_ratificacion+ "<br>";
                     html += "</div>";
                 }
+                html += "<div class='col-md-6'>";
+                    html += "<b>Folio de la solicitud:</b> "+solicitudObj.folio + "/" + solicitudObj.anio + "<br>";
+                html += "</div>";
                 html += "<div class='col-md-6'>";
                     html += "<b>Fecha de recepci&oacute;n:</b> "+solicitudObj.fecha_recepcion+ "<br>";
                 html += "</div>";
