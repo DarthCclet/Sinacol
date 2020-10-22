@@ -173,7 +173,7 @@ class DocumentoController extends Controller
                         "clasificacion_archivo_id" => $tipoArchivo->id ,
                     ]);
                 }
-                return '{ "files": [ { "success": "Documento almacenado correctamente", "error":0, "name": "'.$tipoArchivo->nombre.'.pdf" } ] }';
+                return '{ "files": [ { "success": "Documento almacenado correctamente","thumbnailUrl":"/api/documentos/getFile/'.$documento->id.'" ,"error":0, "name": "'.$tipoArchivo->nombre.'.pdf" } ] }';
             }else{
                 return '{ "files": [ { "error": "Ya existe un documento para este solicitante", "name": "" } ] }';
 

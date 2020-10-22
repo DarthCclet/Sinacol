@@ -49,6 +49,7 @@ use App\Services\FechaAudienciaService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use App\Events\RatificacionRealizada;
+use Carbon\Carbon;
 
 class SolicitudController extends Controller {
 
@@ -581,6 +582,20 @@ class SolicitudController extends Controller {
         $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
         if (count($expediente) > 0) {
             $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->withCount('etapasResolucionAudiencia')->get();
+            foreach($audiencias->audienciaParte as $parte){
+                $documentos = $parte->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                    $documento->tipo = pathinfo($documento->ruta)['extension'];
+                    if($parte->parte->tipo_persona_id == 1){
+                        $documento->parte = $parte->parte->nombre. " ".$parte->parte->primer_apellido." ".$parte->parte->segundo_apellido;
+                    }else{
+                        $documento->parte = $parte->parte->nombre_comercial;
+                    }
+                    $documento->tipo_doc = 2;
+                    array_push($doc,$documento);
+                }
+            }
         } else {
             $audiencias = array();
         }
@@ -1093,7 +1108,7 @@ class SolicitudController extends Controller {
                         event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
                     }
                 }
-                DB::commit();
+                DB::rollback();
                 return $audiencia;
             }else{
                 if((int)$request->tipo_notificacion_id == 1){
@@ -1103,6 +1118,17 @@ class SolicitudController extends Controller {
                     $diasHabilesMin = 15;
                     $diasHabilesMax = 18;
                 }
+//                obtenemos el domicilio del centro
+                $domicilio_centro = auth()->user()->centro->domicilio;
+//                obtenemos el domicilio del citado
+                $partes = $solicitud->partes;
+                $domicilio_citado = null;
+                foreach($partes as $parte){
+                    if($parte->tipo_parte_id == 2){
+                        $domicilio_citado = $parte->domicilios()->first();
+                        break;
+                    }
+                }
                 $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
                 if($request->separados == "true"){
                     $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
@@ -1111,6 +1137,9 @@ class SolicitudController extends Controller {
                     $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
                     $multiple = false;
                 }
+//                Solicitamos la fecha limite de notificacion
+                $fecha_notificacion = self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$datos_audiencia["fecha_audiencia"]);
+                
                 //Obtenemos el contador
                 $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                 //creamos el registro de la audiencia
@@ -1124,6 +1153,7 @@ class SolicitudController extends Controller {
                     "expediente_id" => $expediente->id,
                     "multiple" => $multiple,
                     "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
+                    "fecha_limite_audiencia" => $fecha_notificacion,
                     "hora_inicio" => $datos_audiencia["hora_inicio"], 
                     "hora_fin" => $datos_audiencia["hora_fin"],
                     "conciliador_id" =>  $datos_audiencia["conciliador_id"],
@@ -1145,7 +1175,7 @@ class SolicitudController extends Controller {
                     }
                 }
                 // Guardamos todas las Partes en la audiencia
-                $partes = $solicitud->partes;
+                
 //                dd($partes);
                 $tipo_notificacion_id = null;
                 foreach($partes as $parte){
@@ -1174,7 +1204,7 @@ class SolicitudController extends Controller {
             if($acuse != null){
                 $acuse->delete();
             }
-            DB::commit();
+            DB::rollback();
             event(new GenerateDocumentResolution("",$solicitud->id,40,6));
             return $audiencia;
         }catch(\Throwable $e){
@@ -1416,24 +1446,74 @@ class SolicitudController extends Controller {
         }
         return $pasa;
     }
-    function obtenerFechaLimiteNotificacion(Domicilio $centro = null,Domicilio $domicilioCitado = null,$fecha_audiencia = null){
+    private function obtenerFechaLimiteNotificacion(Domicilio $centro = null,Domicilio $domicilioCitado = null,$fecha_audiencia = null){
         if($centro != null){
     //        Obtenemos la latitud del centro
             $lat_centro = $centro->latitud;
             $lon_centro = $centro->longitud;
             $lat_citado = $domicilioCitado->latitud;
-            $lon_citado = $domicilioCitado->longitud;
-            
+            $lon_citado = $domicilioCitado->longitud;            
         }else{
             $lat_centro = 19.3137542;
             $lon_centro = -99.6386443;
-            $lat_citado = 19.431502;
-            $lon_citado = -99.547658;
-            
+            $lat_citado = 24.852421;
+            $lon_citado = -102.294305;
+            $fecha_audiencia = "2020/10/16";
         }
-        $sql = "select (point(".$lon_centro.",".$lat_centro.") <@> point(".$lon_citado.",".$lat_citado.")) as distance";
-        $con = DB::select($sql);
-        dd($con);
-        
+        $sql = "select (point(".$lon_centro.",".$lat_centro.") <@> point(".$lon_citado.",".$lat_citado.")) as distancia";
+        $cons = DB::select($sql);
+        $con = (int)$cons[0]->distancia;
+        if($con < 200){
+            $dias = 5;
+        }else if($con < 400){
+            $dias = 8;
+        }else if($con < 600){
+            $dias = 9;
+        }else if($con < 800){
+            $dias = 10;
+        }else if($con < 1000){
+            $dias = 11;
+        }else{
+            $dias =12;
+        }
+        $fecha = self::ultimoDiaHabilMenosDias($fecha_audiencia, $dias);
+        return $fecha;
+    }
+    public static function ultimoDiaHabilDesde($fecha){
+
+        $d = new Carbon($fecha);
+        $ayer = $d->subDay()->format("Y-m-d");
+        if(self::esFeriado($ayer)){
+            $d = new Carbon($fecha);
+            $ayer = $d->subDay()->format("Y-m-d");
+            return self::ultimoDiaHablDesde($ayer);
+        }
+        else{
+            return $ayer;
+        }
+    }
+    public static function ultimoDiaHabilMenosDias($fecha,$dias){
+        $fecha = new Carbon($fecha);
+        $diasRecorridos = 1;
+        while ($diasRecorridos < $dias){
+            $ayer = $fecha->subDay()->format("Y-m-d");
+            if(!self::esFeriado($ayer)){
+                $fecha = new Carbon($ayer);
+                $diasRecorridos++;
+            }
+        }
+        return self::ultimoDiaHabilDesde($fecha);
+    }
+    public static function esFeriado($fecha)
+    {
+        $d = new Carbon($fecha);
+        if($d->isWeekend()){
+            return true;
+        }
+        return false;
+
+//        return Feriado::whereRaw("(fecha)::date = ?",[$fecha])
+//            ->first() ? true : false;
+
     }
 }
