@@ -107,7 +107,9 @@
                 <td width="1%">
                     <span class="preview">
                         {% if (file.thumbnailUrl) { %}
-                            <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}" class="rounded"></a>
+                            <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
+                                <img src="{%=file.thumbnailUrl%}" width="80px" height="80px" class="rounded">
+                            </div>
                         {% } else { %}
                             <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
                                 <i class="fa fa-file-image fa-lg text-muted"></i>
