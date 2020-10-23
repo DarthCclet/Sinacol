@@ -31,6 +31,7 @@
         "owen-it/laravel-auditing": "^9.3",
         "rap2hpoutre/laravel-log-viewer": "^1.7",
         "spatie/laravel-permission": "^3.3",
+        "spatie/laravel-web-tinker": "^1.7",
         "symfony/translation": "4.3.8"
     },
     "require-dev": {

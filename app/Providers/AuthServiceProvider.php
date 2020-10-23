@@ -33,5 +33,10 @@ class AuthServiceProvider extends ServiceProvider
         Passport::refreshTokensExpireIn(now()->addDays(30));
 
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+
+        Gate::define('viewWebTinker', function ($user = null) {
+            if(!$user) return false;
+            return $user->hasRole('Super Usuario');
+        });
     }
 }

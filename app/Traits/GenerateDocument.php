@@ -603,7 +603,7 @@ trait GenerateDocument
                         $totalPercepciones = 0;
                         foreach ($resolucion_conceptos as $concepto ) {
                           $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
-                          if($concepto->id != 9){
+                          if($concepto->concepto_pago_resoluciones_id != 9){
                             $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
                             $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
                           }else{
@@ -613,8 +613,7 @@ trait GenerateDocument
                         $tablaConceptosConvenio .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
                         $tablaConceptosConvenio .= '</tbody>';
                         $tablaConceptosConvenio .= '</table>';
-                        $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte <b>EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'</p>':'';
-
+                        $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
                         // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                         $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
                         $totalPercepcion = explode('.', $totalPercepciones);
@@ -623,7 +622,6 @@ trait GenerateDocument
                         $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
                         $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
                         $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
-                        
                         // $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
                         // $cantidadTextual = str_replace("uno","un",$cantidadTextual);
                         // $cantidadTextual = str_replace("coma","punto",$cantidadTextual);

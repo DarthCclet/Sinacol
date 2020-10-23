@@ -8,6 +8,7 @@ use App\Expediente;
 use App\Parte;
 use App\AudienciaParte;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 class NotificacionServiceController extends Controller
 {
@@ -17,14 +18,14 @@ class NotificacionServiceController extends Controller
     {
         $this->request = $request;
     }
-    public function actutalizarNotificacion(){
+    public function actualizarNotificacion(){
         DB::beginTransaction();
         try{
             $arreglo = $this->validaEstructuraParametros($this->request->getContent());
     //        Buscamos la audiencia
             $expediente = Expediente::where("folio",$arreglo->expediente)->first();
             foreach($expediente->audiencia as $audiencia){
-                $folio = substr($arreglo->folio, 0,-5);
+                $folio = $arreglo->folio;
                 if($folio == $audiencia->folio){
                     foreach($arreglo->Demandados as $demandado){
                         $parteDemandado = AudienciaParte::where("parte_id",$demandado->demandado_id)->where("audiencia_id",$audiencia->id)->first();
@@ -33,12 +34,9 @@ class NotificacionServiceController extends Controller
                             "finalizado_id" => $demandado->finalizado_id,
                             "detalle" => $demandado->detalle,
                             "detalle_id" => $demandado->detalle_id,
-//                            "documento" => $demandado->documento
                         ]);
                         $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia->id;
                         Storage::makeDirectory($directorio);
-//                        list($baseType, $image) = explode(';', $demandado->documento);
-//                        list(, $image) = explode(',', $image);
                         $image = base64_decode($demandado->documento);
                         $fullPath = $directorio.'/notificacion'.$parteDemandado->id.'.pdf';
                         $dir = Storage::put($fullPath, $image);
@@ -60,11 +58,12 @@ class NotificacionServiceController extends Controller
                 }
             }
             DB::commit();
+            //Log::info($this->request->getContent());
             return response('Se registraron las actualizaciones', 200);
         }catch(Exception $e){
             DB::rollBack();
             return response('Ocurrio un error al tratar de actualizar', 500);
-            
+
         }
     }
     /**

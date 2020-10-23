@@ -41,6 +41,7 @@ class SendNotificacion
         $fechaRecepcion = new \Carbon\Carbon($audiencia->expediente->solicitud->fecha_ratificacion);
         $fechaAudiencia = new \Carbon\Carbon($audiencia->fecha_audiencia);
         $fechaCita = new \Carbon\Carbon($audiencia->fecha_cita);
+        $fechaLimite = new \Carbon\Carbon($audiencia->fecha_limite_audiencia);
         $arreglo["fecha_ingreso"] = $fechaIngreso->format("d/m/Y");
         $arreglo["fecha_recepcion"] = $fechaRecepcion->format("d/m/Y");
         $arreglo["fecha_audiencia"] = $fechaAudiencia->format("d/m/Y");
@@ -48,6 +49,7 @@ class SendNotificacion
         $arreglo["nombre_junta"] = $audiencia->expediente->solicitud->centro->nombre;
         $arreglo["junta_id"] = $audiencia->expediente->solicitud->centro_id;
         $arreglo["fecha_cita"] = $fechaCita->format("d/m/Y");
+        $arreglo["fecha_limite"] = $fechaLimite->format("d/m/Y");
         //Buscamos a los actores
         $actores = self::getSolicitantes($audiencia);
         foreach($actores as $partes){
