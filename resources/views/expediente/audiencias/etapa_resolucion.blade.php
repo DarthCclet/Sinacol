@@ -34,6 +34,7 @@
             color:darkred;
             content: " (*)";
         }
+        #ui-datepicker-div {z-index:9999 !important}
     </style>
 @section('content')
 <!-- begin breadcrumb -->
@@ -623,7 +624,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="feha_instrumento" class="control-label needed">Fecha de instrumento</label>
-                            <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
+                            <input type="text" id="feha_instrumento" class="form-control dateBirth" placeholder="Fecha en que se extiende el instrumento">
                         </div>
                     </div>
                     <div class="col-md-12">
@@ -1273,7 +1274,7 @@
                             <div class="form-group col-md-6">
                                 <label for="dias" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control fecha" />
+                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control dateBirth" />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
@@ -1514,7 +1515,6 @@
                         var table = "";
                         var div = "";
                         $.each(data, function(index,element){
-                            console.log(element);
                             div += '<div class="image gallery-group-1">';
                             div += '    <div class="image-inner" style="position: relative;">';
                             if(element.tipo == 'pdf' || element.tipo == 'PDF'){
@@ -1601,7 +1601,6 @@
         });
     }
     function setPasosAudiencia(etapas){
-        console.log(etapas);
         $.each(etapas, function (key, value) {
             var pasoActual = value.etapa_resolucion_id;
             $(".showTime"+pasoActual).text(value.updated_at);
@@ -2069,7 +2068,6 @@
                     options += '<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</option>';
                 });
                 $("#parte_relacionada").empty();
-                console.log(options);
                 $("#parte_relacionada").html(options);
                 $("#tbodyPartesFisicas").html(table);
                 $("#resolucionVarias").hide();
@@ -2190,7 +2188,6 @@
                                     '            <option value="">Seleccione una opci&oacute;n</option>'+
                                     '            @if(isset($solicitud_id))';
                                     $.each(data, function(index,element){
-                                        console.log(element);
                                         if(element.tipo_persona_id == 1){
                                             html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</option>';
                                         }
@@ -2364,7 +2361,6 @@
         objeto_propuesta.prima_antiguedad = $("#prima_antiguedad").val();
         objeto_propuesta.prestaciones_legales = $("#prestaciones_legales").val();
         objeto_propuesta.prestaciones_45 = $("#prestaciones_45").val();
-        console.log(objeto_propuesta);
         $("#tableOtro").show();
         $("#modal-propuesta-convenio").modal('hide')
         // formarTablaPropuestaConvenio();
@@ -2641,8 +2637,6 @@
                 });
                 let totalConceptos = totalConceptosPago.toFixed(2);
                 let totalDiferidos = parseFloat($("#totalPagosDiferidos").val()).toFixed(2);
-                console.log(totalDiferidos);
-                console.log(totalConceptos);
                 // if(totalConceptos == totalDiferidos ){
 
                 // }else{
@@ -3178,7 +3172,6 @@
     });
 
     $("#btnAgregarFechaPago").on("click",function(){
-        console.log(listaConfigFechas);
         if(listaConfigFechas.length < 5){  
             var hoy = new Date();
             var unMes = hoy.setMonth(hoy.getMonth() + 1);
@@ -3225,7 +3218,6 @@
         let idSolicitante = '';
         let totalPagoFechas = 0;
 
-        console.log(listaConfigFechas);
         $.each(listaConfigFechas,function(index,fechaPago){
             
             idSolicitante = fechaPago.idSolicitante;
@@ -3464,6 +3456,12 @@
     $("#btnFinalizarRatificacion").on("click",function(){
         location.href = "/solicitudes/consulta/{{$solicitud_id}}";
     });
+    $(".dateBirth").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "c-80:",
+            format:'dd/mm/yyyy',
+        });
 </script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush

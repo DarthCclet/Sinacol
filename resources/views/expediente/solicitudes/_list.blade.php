@@ -8,6 +8,7 @@
         color:darkred;
         content: " (*)";
     }
+    #ui-datepicker-div {z-index:9999 !important}
 </style>
 
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
@@ -238,7 +239,7 @@
                                         <div class="col-md-6 " id="divFechaCita" style="display:none;">
                                             <div class="form-group">
                                                 <label for="fecha_cita" class="control-label needed">Fecha de cita</label>
-                                                <input type="text" id="fecha_cita" class="form-control fecha" placeholder="Fecha para atender cita">
+                                                <input type="text" id="fecha_cita" class="form-control dateBirth" placeholder="Fecha para atender cita">
                                             </div>
                                         </div>
                                     </div>
@@ -304,7 +305,7 @@
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="fecha_nacimientoRep" class="control-label needed">Fecha de nacimiento</label>
-                                <input type="text" id="fecha_nacimientoRep" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
+                                <input type="text" id="fecha_nacimientoRep" class="form-control dateBirth" placeholder="Fecha de nacimiento del representante">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -364,7 +365,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="feha_instrumento" class="control-label needed">Fecha de instrumento</label>
-                                <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
+                                <input type="text" id="feha_instrumento" class="form-control dateBirth" placeholder="Fecha en que se extiende el instrumento">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -698,7 +699,6 @@
                     {
                         "targets": [4],
                         "render": function (data, type, row) {
-                                console.log(data);
                             if (data != null) {
                                 return  dateFormat(data,2);
                             } else {
@@ -773,7 +773,6 @@
                     {
                         "targets": [9],
                         "render": function (data, type, row) {
-                            console.log(row[9]);
                             html = "N/A";
                             if(row[9] != null){
                                 html = ""+row[9].folio;
@@ -844,12 +843,10 @@
                 },
                 "stateSaveParams": function (settings, data) {
                 //data.search.search = "";
-                  console.log(data);
                 },
                 "dom": "tiS", // UI layout
             });
             dt.on( 'draw', function () {
-                console.log('tratando de poner')
                 if(filtrado){
                 //dt.scroller().scrollToRow(0);
                 filtrado = false;
@@ -955,7 +952,6 @@
             if(solicitanteMenor.length > 0 || solicitanteMoral.length > 0){
                 $("#divNeedRepresentante").show();
                 var html = "";
-                console.log(solicitanteMenor);
                 $.each(solicitanteMenor,function(key,parte){
                     html += "<tr>";
                     html += "<td>"+parte.nombre + " " + parte.primer_apellido + " " + (parte.segundo_apellido|| "")+"</td>";
@@ -1036,7 +1032,6 @@
                                             });
                                         }
                                     },error:function(data){
-                                        console.log(data);
                                         swal({
                                             title: 'Error',
                                             text: data.responseJSON.message,
@@ -1208,7 +1203,6 @@
                                                 _token:"{{ csrf_token() }}"
                                             },
                                             success:function(data){
-                                                console.log(data);
                                                 if(data != null && data != ""){
                                                     if(data.encontro_audiencia){
                                                         $("#spanFolio").text(data.folio+"/"+data.anio);
@@ -1262,7 +1256,6 @@
                                                     });
                                                 }
                                             },error:function(data){
-                                                console.log(data);
                                                 swal({
                                                     title: 'Error',
                                                     text: data.responseJSON.message,
@@ -1383,7 +1376,6 @@
                             });
                         }
                     },error:function(data){
-                        console.log(data);
                         swal({
                             title: 'Error',
                             text: data.responseJSON.message,
@@ -2197,7 +2189,6 @@
                             arraySolicitantes[key].dato_laboral = arraySolicitantes[key].dato_laboral[0];
                         }
                     })
-                    console.log(arraySolicitados);
                     solicitudObj.geolocalizable = true;
                     $.each(arraySolicitados ,function(key,value){
                         if($.isArray(value.domicilios)){
@@ -2303,5 +2294,11 @@
             
         }
     });
+    $(".dateBirth").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "c-80:",
+            format:'dd/mm/yyyy',
+        });
   </script>
   @endpush

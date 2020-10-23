@@ -35,6 +35,7 @@
             color:darkred;
             content: " (*)";
         }
+        #ui-datepicker-div {z-index:9999 !important}
 
     </style>
 @section('content')
@@ -715,7 +716,7 @@
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="fecha_nacimiento" class="control-label needed">Fecha de nacimiento</label>
-                                <input type="text" id="fecha_nacimiento" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
+                                <input type="text" id="fecha_nacimiento" class="form-control dateBirth" placeholder="Fecha de nacimiento del representante">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -775,7 +776,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="feha_instrumento" class="control-label needed">Fecha de instrumento</label>
-                                <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
+                                <input type="text" id="feha_instrumento" class="form-control dateBirth" placeholder="Fecha en que se extiende el instrumento">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1366,7 +1367,6 @@
             }).always(function () {
                     $(this).removeClass('fileupload-processing');
             }).done(function (result) {
-                console.log(result);
                     $(this).fileupload('option', 'done')
                     .call(this, $.Event('done'), {result: result});
             });
@@ -1425,7 +1425,6 @@
                         var table = "";
                         var div = "";
                         $.each(data, function(index,element){
-                            console.log(element);
                             div += '<div class="image gallery-group-1">';
                             div += '    <div class="image-inner" style="position: relative;">';
                             if(element.tipo == 'pdf' || element.tipo == 'PDF'){
@@ -1879,7 +1878,6 @@
                 error = true;
             }
 
-            console.log(listaContactos.length);
             if(listaContactos.length == 0){
                 $("#contacto").prev().css("color","red");
                 $("#tipo_contacto_id").prev().css("color","red");
@@ -1984,7 +1982,6 @@
             $("#tbodyResolucionesIndividuales").html(table);
         }
         function eliminarRelacion(indice){
-            console.log(indice);
             listaResolucionesIndividuales.splice(indice,1);
             cargarTablaResolucionesIndividuales();
         }
@@ -2154,7 +2151,6 @@
             templateResult: function(data) {
                 return data.html;
             },templateSelection: function(data) {
-                console.log(data);
                 if(data.id != ""){
                     return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
                 }
@@ -2214,11 +2210,8 @@
                             swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                         }
                     },error:function(data){
-                        console.log(data);
                         var mensajes = "";
                         $.each(data.responseJSON.errors, function (key, value) {
-                            console.log(key.split("."));
-                            console.log(value);
                             var origen = key.split(".");
 
                             mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
@@ -2270,7 +2263,6 @@
                         $("#puesto").val(data.labora_actualmente);
                         $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
                         $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
-                        console.log(data.jornada_id);
                         $("#jornada_id").val(data.jornada_id);
                         $("#horas_semanales").val(data.horas_semanales);
                         $("#resolucion_dato_laboral").val(data.resolucion);
@@ -2354,7 +2346,6 @@
                 $(".showTime"+pasoActual).text(value.updated_at);
                 $("#step"+pasoActual).show();
                 if(pasoActual != 1){
-                    console.log(typeof value.evidencia);
                     if(value.evidencia == "true"){
                         if(pasoActual == 2){
                             if(!$("#explico_acta").is(":checked")){
@@ -2531,5 +2522,11 @@
             $(this).val(valor.toUpperCase());
         });
         $('[data-toggle="tooltip"]').tooltip();
+        $(".dateBirth").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "c-80:",
+            format:'dd/mm/yyyy',
+        });
     </script>
 @endpush
