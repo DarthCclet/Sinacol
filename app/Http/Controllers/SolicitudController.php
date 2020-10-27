@@ -1206,7 +1206,7 @@ class SolicitudController extends Controller {
             if($acuse != null){
                 $acuse->delete();
             }
-            DB::rollback();
+            DB::commit();
             event(new GenerateDocumentResolution("",$solicitud->id,40,6));
             return $audiencia;
         }catch(\Throwable $e){
