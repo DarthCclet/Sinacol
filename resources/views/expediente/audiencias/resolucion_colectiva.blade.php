@@ -1961,7 +1961,7 @@
                 },
                 success:function(data){
                     if(data != null && data != ""){
-                        // window.location = "/audiencias/"+data.id+"/edit"
+                        window.location = "/audiencias/"+data.id+"/edit"
                     }else{
                         swal({
                             title: 'Algo salió mal',
