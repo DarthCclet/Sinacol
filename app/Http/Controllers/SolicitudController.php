@@ -582,18 +582,20 @@ class SolicitudController extends Controller {
         $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
         if (count($expediente) > 0) {
             $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->withCount('etapasResolucionAudiencia')->get();
-            foreach($audiencias->audienciaParte as $parte){
-                $documentos = $parte->documentos;
-                foreach ($documentos as $documento) {
-                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-                    $documento->tipo = pathinfo($documento->ruta)['extension'];
-                    if($parte->parte->tipo_persona_id == 1){
-                        $documento->parte = $parte->parte->nombre. " ".$parte->parte->primer_apellido." ".$parte->parte->segundo_apellido;
-                    }else{
-                        $documento->parte = $parte->parte->nombre_comercial;
+            foreach($audiencias as $audiencia){
+                foreach($audiencia->audienciaParte as $parte){
+                    $documentos = $parte->documentos;
+                    foreach ($documentos as $documento) {
+                        $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                        $documento->tipo = pathinfo($documento->ruta)['extension'];
+                        if($parte->parte->tipo_persona_id == 1){
+                            $documento->parte = $parte->parte->nombre. " ".$parte->parte->primer_apellido." ".$parte->parte->segundo_apellido;
+                        }else{
+                            $documento->parte = $parte->parte->nombre_comercial;
+                        }
+                        $documento->tipo_doc = 2;
+                        array_push($doc,$documento);
                     }
-                    $documento->tipo_doc = 2;
-                    array_push($doc,$documento);
                 }
             }
         } else {
@@ -1108,7 +1110,7 @@ class SolicitudController extends Controller {
                         event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
                     }
                 }
-                DB::rollback();
+                DB::commit();
                 return $audiencia;
             }else{
                 if((int)$request->tipo_notificacion_id == 1){
