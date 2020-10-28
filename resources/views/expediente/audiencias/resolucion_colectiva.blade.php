@@ -2032,5 +2032,11 @@
             }
         });
     }
+    $(".dateBirth").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "c-80:",
+            format:'dd/mm/yyyy',
+        });
 </script>
 @endpush
