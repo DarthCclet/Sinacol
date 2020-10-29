@@ -215,6 +215,10 @@
                             @break
                             @case(4)
                             <div class="accordion" id="accordionExample">
+                                <input type="hidden" id="totalCompleta" />
+                                <input type="hidden" id="totalAl50" />
+                                <input type="hidden" id="totalConfig" />
+                                {{-- <input type="hidden" id="remuneracionDiaria" /> --}}
                                 <p>
                                     El sistema le muestra 2 opciones de propuestas de convenio:
                                     <ol>
@@ -313,7 +317,7 @@
                                 @endforeach
                                 </div>
                                 <br>
-                                <p> El conciliador debe incluir una explicación y motivación breve de la propuesta que fue negociada entre las partes, acreditando que en este cao no hubo renuncia de derechos.</p>
+                                <p> El conciliador debe incluir una explicación y motivación breve de la propuesta que fue negociada entre las partes, acreditando que en este caso no hubo renuncia de derechos.</p>
                                 <textarea class="form-control textarea" placeholder="Comentarios ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
                                 <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="nextStep({{$etapa->paso}})">Continuar </button>
@@ -1267,6 +1271,10 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
+                {{-- <div class="col-md-12">
+                    <h5>Total a pagar: </h5>
+                    <label for="">5,000</label>
+                </div><br> --}}
                 <div class="col-md-12 row">
                     <div class="col-md-12" id="divPagosDiferidos" >
                         <h5>Fechas para pagos diferidos</h5>
@@ -2628,17 +2636,20 @@
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
                 }
                 //total pagos diferidos
-                $.each(listaPropuestaConceptos, function (key, propuestaSolicitante) {
-                    $.each(listaPropuestaConceptos, function (key, propuestaConcepto) {
-                        $.each(propuestaConcepto, function (key, concepto) {
-                            totalConceptosPago += concepto.monto;
-                        });
-                    });
-                });
-                let totalConceptos = totalConceptosPago.toFixed(2);
-                let totalDiferidos = parseFloat($("#totalPagosDiferidos").val()).toFixed(2);
+                // $.each(listaPropuestaConceptos, function (key, propuestaSolicitante) {
+                //     $.each(listaPropuestaConceptos, function (key, propuestaConcepto) {
+                //         $.each(propuestaConcepto, function (key, concepto) {
+                //             console.log(concepto.monto);
+                            
+                //             // if(concepto.concepto_pago_resoluciones_id != 9 ){
+                //                 totalConceptosPago += concepto.monto;
+                //             // }
+                //         });
+                //     });
+                // });
+                // let totalConceptos = totalConceptosPago.toFixed(2);
+                // let totalDiferidos = parseFloat($("#totalPagosDiferidos").val()).toFixed(2);
                 // if(totalConceptos == totalDiferidos ){
-
                 // }else{
                 //     error =true;
                 //     swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
@@ -2790,7 +2801,7 @@
             }else{
                 comboConceptos = "concepto_pago_resoluciones_id";
             }
-
+            totalConceptos = 0 ;
             $.each(listaConfigConceptos,function(index,concepto){
                 idSolicitante = concepto.idSolicitante;
 
@@ -2799,7 +2810,8 @@
                     table +='<td>'+$("#"+comboConceptos+" option:selected").text()+'</td>';
                     $("#"+comboConceptos).val("");
                     table +='<td>'+concepto.dias+'</td>';
-                    table +='<td>'+concepto.monto+'</td>';
+                    conceptoMonto = (concepto.monto != "") ? parseFloat(concepto.monto).toFixed(2): ""
+                    table +='<td class="amount">'+ conceptoMonto +'</td>';
                     table +='<td>'+concepto.otro+'</td>';
                     table +='<td>';
                         table +='<button onclick="eliminarConcepto('+idSolicitante+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
@@ -2807,9 +2819,11 @@
                         table +='</button>';
                     table +='</td>';
                 table +='</tr>';
+                totalConceptos+= (concepto.monto != "") ? parseFloat(concepto.monto): 0;
             });
+            tableTotal = '<tr><b><td>TOTAL</td><td colspan="4" class="amount"zoozoo>'+totalConceptos.toFixed(2)+'</td></b></tr>';
             $("#tbodyConcepto").html(table);
-            $("#tbodyConceptoPrincipal"+idSolicitante).html(table);
+            $("#tbodyConceptoPrincipal"+idSolicitante).html(table+tableTotal);
         }
 
         function eliminarConcepto(idSolicitante,indice){
@@ -3079,6 +3093,8 @@
                 table+=" <tr>";
                 table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (dato.completa.total ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.total).toLocaleString("en-US") +"</td>";
                 table+=" </tr>";
+                $('#totalCompleta').val(dato.completa.total);
+                $('#totalAl50').val(dato.al50.total);
                 $('#tbodyPropuestas'+dato.idParte).html(table);
             }
         });
@@ -3338,7 +3354,7 @@
     }
     $("#btnGuardarResolucionMuchas").on("click",function(){
         let listaPropuestaConceptos = {};
-        totalConceptosPago = 0;
+        // totalConceptosPago = 0;
         error =false;
         $('.collapseSolicitante').each(function() {
             // let idSolicitante =$("#idSolicitante").val();
