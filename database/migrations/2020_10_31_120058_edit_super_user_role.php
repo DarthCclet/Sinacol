@@ -38,7 +38,7 @@ class EditSuperUserRole extends Migration
         $centros = Centro::all();
         foreach($centros as $centro){
             $persona = factory(App\Persona::class)->states('admin')->create();
-            $mail = "admin.".$centro->abreviatura."@centrolaboral.gob.mx";
+            $mail = "admin.".mb_strtolower(str_replace(" ","",$centro->abreviatura))."@centrolaboral.gob.mx";
             DB::table('users')->insert(
                 [
                     'name' => 'Administrador del centro',
