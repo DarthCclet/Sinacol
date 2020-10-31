@@ -102,4 +102,8 @@ class User extends Authenticatable implements AuditableContract
         return $this->belongsTo(Centro::class)
             ->withDefault(['nombre'=>'No asignado']);
     }
+    
+    public function setAttributeCentroId() {
+        $this->attributes["centro_id"] = auth()->user()->centro_id;
+    }
 }

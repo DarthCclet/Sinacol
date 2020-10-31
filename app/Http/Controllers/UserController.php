@@ -23,7 +23,7 @@ class UserController extends Controller
 
     public function __construct(Request $request)
     {
-        $this->middleware('auth');
+//        $this->middleware('auth');
         $this->request = $request;
     }
 
@@ -42,14 +42,17 @@ class UserController extends Controller
         $users = (new UserFilter(User::query(), $this->request))
             ->searchWith(User::class)
             ->filter();
+        if(!auth()->user()->hasRole('Super Usuario')){
+            $users->where("centro_id", auth()->user()->centro_id);
+        }
 
         // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
-        if ($this->request->get('all')) {
-            $users = $users->get();
-        } else {
+//        if ($this->request->get('all')) {
+//            $users = $users->get();
+//        } else {
             $users = $users->paginate($this->request->get('per_page', 10));
-        }
+//        }
 
         // Para cada objeto obtenido cargamos sus relaciones.
         $users = tap($users)->each(function ($user) {
@@ -100,8 +103,9 @@ class UserController extends Controller
 
         //Los usuarios web sólo pueden estar asociados a personas físicas
         $persona['tipo_persona_id'] = TipoPersona::where('abreviatura', 'F')->first()->id;
+        $user = $request->input('users');
 
-        $user = Persona::create($persona)->user()->create($request->input('users'))->load('persona');
+        $persona = Persona::create($persona)->user()->create($request->input('users'))->load('persona');
         
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
