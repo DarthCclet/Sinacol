@@ -21,7 +21,7 @@ class EditSuperUserRole extends Migration
         $rol = Role::find(1);
         // eliminamos todos los superusuarios
         foreach($rol->users as $user){
-            $user->delete();
+            $user->forcedelete();
         }
         // creamos el nuevo rol
         $rol = Role::create([

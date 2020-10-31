@@ -50,7 +50,7 @@ class AddCentroCentralToCentros extends Migration
         );
         $rol->givePermissionTo("Solicitudes");
         $user = User::where("email","orientador.central@centrolaboral.gob.mx")->first();
-        $user->update(["persona_id" => $persona,"centro_id" => $centro->id]);
+        $user->update(["persona_id" => $persona->id,"centro_id" => $centro->id]);
         $user->assignRole($rol->name);
     }
 
