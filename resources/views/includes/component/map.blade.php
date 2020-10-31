@@ -169,12 +169,11 @@
         // domicilio.autocomplete;
 
             domicilio.initMap = function() {
-                var lat = $('#latitud'+identifier).val() ? $('#latitud'+identifier).val() : "19.398606";
-                var lon = $('#longitud'+identifier).val() ? $('#longitud'+identifier).val() : "-99.158581";
-
+                var lat = $('#latitud'+identifier).val() ? $('#latitud'+identifier).val() : "";
+                var lon = $('#longitud'+identifier).val() ? $('#longitud'+identifier).val() : "";
                 this.map = new google.maps.Map(document.getElementById('widget-maps'+identifier), {
                     zoom: 15,
-                    center: {lat: parseFloat(lat), lng: parseFloat(lon)},
+                    center: {lat: parseFloat("19.398606"), lng: parseFloat("-99.158581")},
                     zoomControl: true,
                     mapTypeId: google.maps.MapTypeId.ROADMAP
                 });
@@ -191,7 +190,9 @@
 
                 if(needMaps == 'true'){
                     if($("#direccion_marker"+identifier).val() == ""){
-                        this.seteaMarker(this.map, {lat: parseFloat(lat), lng: parseFloat(lon)});
+                        if(lat != "" && lon != ""){
+                            this.seteaMarker(this.map, {lat: parseFloat(lat), lng: parseFloat(lon)});
+                        }
                     }
                     else{
                         this.geocodeAddress();
@@ -284,8 +285,8 @@
             $("#tipo_asentamiento_id"+identifier).val(domicilios.tipo_asentamiento_id);
             $("#latitud"+identifier).val(domicilios.latitud);
             $("#longitud"+identifier).val(domicilios.longitud);
-            var lat = $('#latitud'+identifier).val() ? $('#latitud'+identifier).val() : "19.398606";
-            var lon = $('#longitud'+identifier).val() ? $('#longitud'+identifier).val() : "-99.158581";
+            var lat = $('#latitud'+identifier).val() ? $('#latitud'+identifier).val() : "";
+            var lon = $('#longitud'+identifier).val() ? $('#longitud'+identifier).val() : "";
             $(".direccionUpd"+identifier).trigger('blur')
             $('.catSelect'+identifier).trigger('change');
             // this.seteaMarker(this.map, {lat: parseFloat(lat), lng: parseFloat(lon)});
@@ -309,8 +310,8 @@
             $('.catSelect'+identifier).trigger('change');
             $("#latitud"+identifier).val("");
             $("#longitud"+identifier).val("");
-            var lat = "19.398606";
-            var lon ="-99.158581";
+            // var lat = "";
+            // var lon ="";
             // this.seteaMarker(this.map, {lat: parseFloat(lat), lng: parseFloat(lon)});
             $(".direccionUpd"+identifier).trigger('blur')
         }
