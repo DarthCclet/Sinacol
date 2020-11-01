@@ -99,18 +99,16 @@ class UserController extends Controller
         );
 
         $persona = $request->input('personas');
-
         //Los usuarios web sólo pueden estar asociados a personas físicas
         $persona['tipo_persona_id'] = TipoPersona::where('abreviatura', 'F')->first()->id;
         $userRequest = $request->input('users');
-        $userRequest["centro_id"] = null;
         $persona = Persona::create($persona);
         $user = User::create($userRequest);
-        $user->setAttributeCentroId();
+        $user->setAttributeCentroId($user->centro_id);
+        $user->setAttributeRememberToken();
         $user->setAttributePassword($persona->password);
         $user->persona_id = $persona->id;
         $user->save();
-        
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
         }
@@ -169,9 +167,9 @@ class UserController extends Controller
             unset($data['password']);
         }
         
-//        dd($data);
         $user->fill($data)->save();
-        $user->setAttributeCentroId();
+        $user->setAttributeCentroId($data["centro_id"]);
+        $user->setAttributeRememberToken();
         $user->setAttributePassword($data["password"]);
         $user->save();
         $user->persona->fill($request->input('personas'))->save();

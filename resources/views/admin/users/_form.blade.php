@@ -37,6 +37,7 @@
                 <p class="help-block">Confirme la contraseña</p>
             </div>
         </div>
+        @if(auth()->user()->hasRole('Super Usuario'))
         <div class="form-group">
             <label for="centro_id" class="control-label">Centro</label>
             <div class="col-sm-10">
@@ -45,6 +46,7 @@
                 <p class="help-block">Selecciona el centro al que pertenece</p>
             </div>
         </div>
+        @endif
     </div>
 
     <div class="col-md-6">

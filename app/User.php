@@ -105,8 +105,14 @@ class User extends Authenticatable implements AuditableContract
             ->withDefault(['nombre'=>'No asignado']);
     }
     
-    public function setAttributeCentroId() {
-        $this->attributes["centro_id"] = auth()->user()->centro_id;
+    public function setAttributeCentroId($centro_id) {
+        if(auth()->user()->hasRole('Super Usuario')){
+            $this->attributes["centro_id"] = $centro_id;
+        }else{
+            $this->attributes["centro_id"] = auth()->user()->centro_id;
+        }
+    }
+    public function setAttributeRememberToken() {
         $this->attributes["remember_token"] = Str::random(10);
     }
     public function setAttributePassword($password) {
