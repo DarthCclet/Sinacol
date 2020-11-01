@@ -127,6 +127,6 @@ class Audiencia extends Model implements Auditable
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function pagosDiferidos(){
-        return $this->hasMany(ResolucionPagoDiferido::class);
+        return $this->hasMany(ResolucionPagoDiferido::class)->orderBy('fecha_pago');
     }
 }
