@@ -172,4 +172,11 @@ class Solicitud extends Model implements Auditable
     public function giroComercial(){
         return $this->belongsTo('App\GiroComercial');
     }
+
+    public function resuelveOficinaCentral(){
+        if($this->tipo_solicitud_id == 3 || $this->tipo_solicitud_id == 4){
+            return true;
+        }
+        return false;
+    }
 }
