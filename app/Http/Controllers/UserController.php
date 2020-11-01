@@ -35,7 +35,6 @@ class UserController extends Controller
     public function index()
     {
 
-//        dd("holi");
         User::with('persona')->get();
 
         // Filtramos los usuarios con los parametros que vengan en el request
@@ -75,7 +74,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::all();
-        $centros = Centro::all();
+        $centros = Centro::pluck('nombre', 'id');
         return view('admin.users.create', compact('roles','centros'));
     }
 
@@ -103,9 +102,14 @@ class UserController extends Controller
 
         //Los usuarios web sólo pueden estar asociados a personas físicas
         $persona['tipo_persona_id'] = TipoPersona::where('abreviatura', 'F')->first()->id;
-        $user = $request->input('users');
-
-        $persona = Persona::create($persona)->user()->create($request->input('users'))->load('persona');
+        $userRequest = $request->input('users');
+        $userRequest["centro_id"] = null;
+        $persona = Persona::create($persona);
+        $user = User::create($userRequest);
+        $user->setAttributeCentroId();
+        $user->setAttributePassword($persona->password);
+        $user->persona_id = $persona->id;
+        $user->save();
         
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
@@ -167,6 +171,9 @@ class UserController extends Controller
         
 //        dd($data);
         $user->fill($data)->save();
+        $user->setAttributeCentroId();
+        $user->setAttributePassword($data["password"]);
+        $user->save();
         $user->persona->fill($request->input('personas'))->save();
         
         if ($this->request->wantsJson()) {

@@ -20,9 +20,11 @@ class RatificacionRealizada
      * @return void
      */
     public $audiencia_id;
-    public function __construct($audiencia_id)
+    public $tipo_notificacion;
+    public function __construct($audiencia_id,$tipo_notificacion)
     {
         $this->audiencia_id = $audiencia_id;
+        $this->tipo_notificacion = $tipo_notificacion;
     }
 
     /**

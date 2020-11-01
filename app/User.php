@@ -14,6 +14,8 @@ use Spatie\Permission\Traits\HasRoles;
 use Lab404\Impersonate\Models\Impersonate;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 
 class User extends Authenticatable implements AuditableContract
@@ -105,5 +107,9 @@ class User extends Authenticatable implements AuditableContract
     
     public function setAttributeCentroId() {
         $this->attributes["centro_id"] = auth()->user()->centro_id;
+        $this->attributes["remember_token"] = Str::random(10);
+    }
+    public function setAttributePassword($password) {
+        $this->attributes["password"] = Hash::make($password);
     }
 }

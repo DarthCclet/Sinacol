@@ -1132,11 +1132,15 @@ class SolicitudController extends Controller {
                     }
                 }
                 $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
+                $centroResponsable = auth()->user()->centro;
+                if($solicitud->tipo_solicitud_id == 3 || $solicitud->tipo_solicitud_id == 4){
+                    $centroResponsable = Centro::where("nombre","Oficina Central del CFCRL")->first();
+                }
                 if($request->separados == "true"){
-                    $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                    $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax);
                     $multiple = true;
                 }else{
-                    $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                    $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax);
                     $multiple = false;
                 }
 //                Solicitamos la fecha limite de notificacion
@@ -1190,7 +1194,7 @@ class SolicitudController extends Controller {
                     }
                 }
                 if($datos_audiencia["encontro_audiencia"] && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
-                    event(new RatificacionRealizada($audiencia->id));
+                    event(new RatificacionRealizada($audiencia->id,"citatorio"));
                 }
                 $expediente = Expediente::find($request->expediente_id);
             }

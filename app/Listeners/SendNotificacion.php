@@ -50,6 +50,7 @@ class SendNotificacion
         $arreglo["junta_id"] = $audiencia->expediente->solicitud->centro_id;
         $arreglo["fecha_cita"] = $fechaCita->format("d/m/Y");
         $arreglo["fecha_limite"] = $fechaLimite->format("d/m/Y");
+        $arreglo["tipo_notificacion"] = $event->tipo_notificacion;
         //Buscamos a los actores
         $actores = self::getSolicitantes($audiencia);
         foreach($actores as $partes){
