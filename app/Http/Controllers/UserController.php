@@ -104,9 +104,6 @@ class UserController extends Controller
         $userRequest = $request->input('users');
         $persona = Persona::create($persona);
         $user = User::create($userRequest);
-        $user->setAttributeCentroId($user->centro_id);
-        $user->setAttributeRememberToken();
-        $user->setAttributePassword($persona->password);
         $user->persona_id = $persona->id;
         $user->save();
         if ($this->request->wantsJson()) {
@@ -166,14 +163,11 @@ class UserController extends Controller
         if( empty( $data['password'] ) ){
             unset($data['password']);
         }
-        
+
         $user->fill($data)->save();
-        $user->setAttributeCentroId($data["centro_id"]);
-        $user->setAttributeRememberToken();
-        $user->setAttributePassword($data["password"]);
         $user->save();
         $user->persona->fill($request->input('personas'))->save();
-        
+
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
         }
@@ -197,7 +191,7 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'Se ha eliminado el usuario exitosamente');
     }
-    
+
     public function AddRol(Request $request){
         $user = User::find($request->user_id);
         $user->assignRole($request->rol);
