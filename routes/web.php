@@ -77,6 +77,8 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencia/generarConstanciaNoPago','AudienciaController@generarConstanciaNoPago');
 
     Route::get('debug','HeaderFooterTemplatesController@debug');
+    Route::get('documentos/preview','DocumentoController@preview');
+    Route::Post('documentos/firmado','DocumentoController@firmado');
 
     Route::Get('audiencia/documentos/{audiencia_id}','AudienciaController@getDocumentosAudiencia');
     Route::Get('audiencia/fisicas/{id}','AudienciaController@GetPartesFisicas');

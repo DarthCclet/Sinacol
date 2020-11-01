@@ -28,6 +28,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use NumberFormatter;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 trait GenerateDocument
 {
@@ -238,7 +239,7 @@ trait GenerateDocument
                   thead { display: table-header-group }
                   tfoot { display: table-row-group }
                   tr { page-break-inside: avoid }
-                  #contenedor-firma {height: 60px;}
+                  #contenedor-firma {height: 5px;}
                   body {
                         margin-left: 1cm;
                         margin-right: 1cm;
@@ -376,6 +377,14 @@ trait GenerateDocument
                       }else{//moral
                         $parte['nombre_completo'] = $parte['nombre_comercial'];
                       }
+                      //$idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador
+                      $parte['qr_firma'] = QrCode::size(100)->generate($parteId."|".$audienciaId."|".$idSolicitud."|".$idPlantilla);
+                      // POST nueva ruta mismos datos  mas imagen en base 64 png
+                      // documentos\preview
+                      // documentos\firma post regresa mensaje de exito o erroe en json
+                      //try catch mandar error a la aplicacion
+
+
                       //domicilio de partes, excepto representante
                       if($parte['tipo_parte_id'] != 3 ){
                         $dom_parte = $parte['domicilios'][0];
@@ -459,6 +468,7 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
+                    // dd($data);
                 }elseif ($model == 'Expediente') {
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;
@@ -509,6 +519,7 @@ trait GenerateDocument
                     $conciliador = json_decode($objeto->content(),true);
                     $conciliador = Arr::except($conciliador, ['id','updated_at','created_at','deleted_at']);
                     $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
+                    $conciliador['qr_firma'] = QrCode::size(100)->generate($conciliadorId."|".$audienciaId."|".$idSolicitud."|".$idPlantilla);
                     $data = Arr::add( $data, 'conciliador', $conciliador );
                   }elseif ($model == 'Centro') {
                     $objeto = $model_name::with('domicilio','disponibilidades')->find($centroId);

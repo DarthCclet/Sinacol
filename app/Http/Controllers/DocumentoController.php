@@ -8,11 +8,13 @@ use App\Audiencia;
 use App\Solicitud;
 use App\ClasificacionArchivo;
 use App\Parte;
+use App\Traits\GenerateDocument;
 use Exception;
 use Validator;
 use Illuminate\Support\Facades\Storage;
 class DocumentoController extends Controller
 {
+    use GenerateDocument;
     /**
      * Display a listing of the resource.
      *
@@ -237,6 +239,82 @@ class DocumentoController extends Controller
         $file = Storage::get($documento->ruta);
         $fileMime = Storage::mimeType($documento->ruta);
         return response($file, 200)->header('Content-Type', $fileMime);
+    }
+
+    public function preview(Request $request)
+    {
+        try {
+            $idSolicitud = $request->get('solicitud_id',1);
+            $idAudiencia = $request->get('audiencia_id');
+            $plantilla_id = $request->get('plantilla_id', 1);
+            $pdf = $request->exists('pdf');
+
+            $solicitud = Solicitud::find($idSolicitud);
+            if ($solicitud) {
+                if (!$idAudiencia && isset($solicitud->expediente->audiencia->first()->id)) {
+                    $idAudiencia = $solicitud->expediente->audiencia->first()->id;
+                }
+            }
+
+            $html = $this->renderDocumento(
+                $idAudiencia,
+                $idSolicitud,
+                $plantilla_id,
+                "",//solicitante
+                "",//solicitado
+                "",//conciliador
+            );
+
+            if($pdf) {
+                return $this->renderPDF($html, $plantilla_id);
+            }
+            else{
+                echo $html; exit;
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
+
+    public function firmado(Request $request)
+    {
+        try {
+            $idSolicitud = $request->get('solicitud_id',1);
+            $idAudiencia = $request->get('audiencia_id');
+            $plantilla_id = $request->get('plantilla_id', 1);
+            $imgBase64 = $request->get('img_firma');
+            // $idSolicitante = $request->get('solicitante_id');
+            // $idSolicitado = $request->get('solicitado_id');
+            // $idConciliador = $request->get('conciliador_id');
+            $pdf = $request->exists('pdf');
+
+            $solicitud = Solicitud::find($idSolicitud);
+            if ($solicitud) {
+                if (!$idAudiencia && isset($solicitud->expediente->audiencia->first()->id)) {
+                    $idAudiencia = $solicitud->expediente->audiencia->first()->id;
+                }
+            }
+
+            $html = $this->renderDocumento( 
+                $idAudiencia,
+                $idSolicitud,
+                $plantilla_id,
+                "",//solicitante
+                "",//solicitado
+                "",//conciliador
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OK',
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ERROR:'.$th,
+            ], 200);
+        }
     }
     
 }
