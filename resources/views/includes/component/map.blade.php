@@ -78,7 +78,7 @@
     </div>
 <div class="col-md-4" title="Es el identificador de interior, no siempre es un número, puede ser por ejemplo: edificio A, Local N, Quinto piso, etc." data-toggle="tooltip" data-placement="top">
         {{-- <input class="form-control numero" id="num_int{{$identificador}}" name="domicilio[num_int]" placeholder="Num Interior" required type="text" value=""> --}}
-        {!! Form::text('domicilio[num_int]', isset($domicilio->num_int) ? $domicilio->num_int : null, ['id'=>'num_int'.$identificador, 'class'=>'form-control upper direccionUpd'.$identificador, 'placeholder'=>'Número Interior']) !!}
+        {!! Form::text('domicilio[num_int]', isset($domicilio->num_int) ? $domicilio->num_int : null, ['id'=>'num_int'.$identificador, 'class'=>'form-control upper'.$identificador, 'placeholder'=>'Número Interior']) !!}
         {!! $errors->first('domicilio[num_int]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block">Número interior</p>
     </div>
@@ -106,25 +106,25 @@
 	</div>
 	<div class="col-md-2" title="Es importante indicar el código postal para una pronta ubicación." data-toggle="tooltip" data-placement="top">
 		{{-- <input class="form-control numero" id="cp{{$identificador}}" name="domicilio[cp]" required placeholder="Código Postal" maxlength="5" type="text" value=""> --}}
-        {!! Form::text('domicilio[cp]', isset($domicilio->cp) ? $domicilio->cp : null, ['id'=>'cp'.$identificador,'required', 'class'=>'numero form-control direccionUpd'.$identificador, 'placeholder'=>'Código Postal']) !!}
+        {!! Form::text('domicilio[cp]', isset($domicilio->cp) ? $domicilio->cp : null, ['id'=>'cp'.$identificador,'required', 'class'=>'numero form-control'.$identificador, 'placeholder'=>'Código Postal']) !!}
         {!! $errors->first('domicilio[cp]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block needed">Código postal</p>
 	</div>
 	<div class="col-md-4" title="Cualquier dato útil para identificar el domicilio correcto es muy útil. Por ejemplo: Junto a parque de los venados. A una cuadra de estación Jardines, etc." data-toggle="tooltip" data-placement="top">
         {{-- <input class="form-control" id="referencias{{$identificador}}" name="domicilio[referencias]" placeholder="Referencias" required type="text" value=""> --}}
-        {!! Form::text('domicilio[referencias]', isset($domicilio->referencias) ? $domicilio->referencias : null, ['id'=>'referencias'.$identificador, 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Referencias']) !!}
+        {!! Form::text('domicilio[referencias]', isset($domicilio->referencias) ? $domicilio->referencias : null, ['id'=>'referencias'.$identificador, 'class'=>'form-control '.$identificador, 'placeholder'=>'Referencias']) !!}
         {!! $errors->first('domicilio[referencias]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Referencias</p>
 	</div>
 	<div class="col-md-4">
         {{-- <input class="form-control" id="entre_calle1{{$identificador}}" name="domicilio[entre_calle1]" placeholder="Entre calle" required type="text" value=""> --}}
-        {!! Form::text('domicilio[entre_calle1]', isset($domicilio->entre_calle1) ? $domicilio->entre_calle1 : null, ['id'=>'entre_calle1'.$identificador, 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Entre Calle']) !!}
+        {!! Form::text('domicilio[entre_calle1]', isset($domicilio->entre_calle1) ? $domicilio->entre_calle1 : null, ['id'=>'entre_calle1'.$identificador, 'class'=>'form-control '.$identificador, 'placeholder'=>'Entre Calle']) !!}
         {!! $errors->first('domicilio[entre_calle1]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">Entre calle</p>
 	</div>
 	<div class="col-md-4">
         {{-- <input class="form-control" id="entre_calle2{{$identificador}}" name="domicilio[entre_calle2]" placeholder="Entre calle 2" required type="text" value=""> --}}
-        {!! Form::text('domicilio[entre_calle2]', isset($domicilio->entre_calle2) ? $domicilio->entre_calle2 : null, ['id'=>'entre_calle2'.$identificador, 'class'=>'form-control direccionUpd'.$identificador, 'placeholder'=>'Y calle']) !!}
+        {!! Form::text('domicilio[entre_calle2]', isset($domicilio->entre_calle2) ? $domicilio->entre_calle2 : null, ['id'=>'entre_calle2'.$identificador, 'class'=>'form-control '.$identificador, 'placeholder'=>'Y calle']) !!}
         {!! $errors->first('domicilio[entre_calle2]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block">y calle</p>
     </div>
@@ -172,7 +172,7 @@
                 var lat = $('#latitud'+identifier).val() ? $('#latitud'+identifier).val() : "";
                 var lon = $('#longitud'+identifier).val() ? $('#longitud'+identifier).val() : "";
                 this.map = new google.maps.Map(document.getElementById('widget-maps'+identifier), {
-                    zoom: 15,
+                    zoom: 4,
                     center: {lat: parseFloat("19.398606"), lng: parseFloat("-99.158581")},
                     zoomControl: true,
                     mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -189,14 +189,14 @@
                 });
 
                 if(needMaps == 'true'){
-                    if($("#direccion_marker"+identifier).val() == ""){
-                        if(lat != "" && lon != ""){
-                            this.seteaMarker(this.map, {lat: parseFloat(lat), lng: parseFloat(lon)});
-                        }
-                    }
-                    else{
-                        this.geocodeAddress();
-                    }
+                    // if($("#direccion_marker"+identifier).val() == ""){
+                    //     if(lat != "" && lon != ""){
+                    //         this.seteaMarker(this.map, {lat: parseFloat(lat), lng: parseFloat(lon)});
+                    //     }
+                    // }
+                    // else{
+                    //     this.geocodeAddress();
+                    // }
                 }
 
                 // domicilio.autocomplete = new google.maps.places.Autocomplete(
@@ -212,11 +212,19 @@
                 var geocoder = new google.maps.Geocoder();
                 var address = $("#direccion_marker"+identifier).val();
                 geocoder.geocode({'address': address}, function(results, status) {
-                    if (status === 'OK') {
+                    if (status === 'OK' && !results[0].partial_match) {
                         domicilio.map.setCenter(results[0].geometry.location);
                         domicilio.seteaMarker(domicilio.map, results[0].geometry.location);
+                        domicilio.map.zoom = 16;
                         $('#btn-confirmar-direccion'+identifier).removeClass('disabled');
                     } else {
+                        
+                        if(this.marker) this.borraMarker();
+                        swal({
+                            title: 'Error',
+                            text: 'No se ha encontrado la referencia exacta en el mapa. Favor de dar click en el punto exacto donde se encuentra el domicilio del citado',
+                            icon: 'error',
+                        });
                         console.log('No se pudo completar el geocoding: %s', status);
                     }
                 });

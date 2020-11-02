@@ -264,8 +264,8 @@
                                             <p class="help-block needed">Edad del solicitante</p>
                                         </div>
                                         <div class="col-md-4">
-                                            <input class="form-control upper" id="idSolicitanteRfc" {{($tipo_solicitud_id == 2 || $tipo_solicitud_id == 3) ? "required":"" }} onblur="validaRFC(this.value);" placeholder="RFC del solicitante" type="text" value="">
-                                            <p class="help-block {{($tipo_solicitud_id == 2 || $tipo_solicitud_id == 3) ? "needed":"" }}">RFC del solicitante</p>
+                                            <input class="form-control upper" id="idSolicitanteRfc" {{($tipo_solicitud_id == 2 || $tipo_solicitud_id == 3 || $tipo_solicitud_id == 4) ? "required":"" }} onblur="validaRFC(this.value);" placeholder="RFC del solicitante" type="text" value="">
+                                            <p class="help-block {{($tipo_solicitud_id == 2 || $tipo_solicitud_id == 3 || $tipo_solicitud_id == 4) ? "needed":"" }}">RFC del solicitante</p>
                                         </div>
 
                                         <div class="col-md-4 sindicato" style="display: none;">

@@ -96,18 +96,28 @@
                 <div class="modal-body">
                     <h4>Selecciona el tipo de solicitud que deseas capturar</h4>
                     <div class="col-md-12">
-                        <div class="col-md-8 offset-2" style="margin:1%;">
-                            <a class="btn btn-primary btn-lg col-md-12 " onclick="capturarSolicitud(1)" data-dismiss="modal" ><i class="fa fa-plus"></i> Solicitud individual</a>
-                        </div>
-                        <div class="col-md-8 offset-2" style="margin:1%;">
-                            <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(2)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal individual</a>
-                        </div>
-                        <div class="col-md-8 offset-2" style="margin:1%;">
-                            <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(3)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal colectiva</a>
-                        </div>
-                        <div class="col-md-8 offset-2" style="margin:1%;">
-                            <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(4)" data-dismiss="modal" ><i class="fa fa-plus"></i> Sindicato</a>
-                        </div>
+                        @role("Orientador Central")
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(3)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal colectiva</a>
+                            </div>
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(4)" data-dismiss="modal" ><i class="fa fa-plus"></i> Sindicato</a>
+                            </div>
+                        @else
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12 " onclick="capturarSolicitud(1)" data-dismiss="modal" ><i class="fa fa-plus"></i> Solicitud individual</a>
+                            </div>
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(2)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal individual</a>
+                            </div>
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(3)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal colectiva</a>
+                            </div>
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(4)" data-dismiss="modal" ><i class="fa fa-plus"></i> Sindicato</a>
+                            </div>
+                        @endrole
+                        
                     </div>
                 </div>
                 <div class="modal-footer">

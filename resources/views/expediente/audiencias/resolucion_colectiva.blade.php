@@ -124,7 +124,7 @@
                 <div class="header_document">
                    {!!isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" !!}
                 </div>
-                <div id="audiencia_body" name="audiencia_body" class="sectionPlantilla" style="border:solid 2px lightgray; max-height:400px; height:400px; overflow: scroll;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
+                <div id="audiencia_body" name="audiencia_body" class="sectionPlantilla" style="border:solid 2px lightgray; max-height:600px; height:600px; overflow: scroll;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
             </div>
             <div class="col-md-2"></div>
         </div> 
@@ -154,7 +154,7 @@
                 <div class="header_document">
                     {!!isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" !!}
                 </div>
-                <div id="convenio_body" name="convenio_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:400px; height:400px; overflow: scroll;" contenteditable="true"></div>
+                <div id="convenio_body" name="convenio_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:600px; height:600px; overflow: scroll;" contenteditable="true"></div>
             </div>
             <div class="col-md-2"></div>
         </div> 
@@ -177,7 +177,7 @@
                 <div class="header_document">
                     {!!isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" !!}
                  </div>
-                <div id="no_comparece_body" name="no_comparece_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:400px; height:400px; overflow: scroll;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
+                <div id="no_comparece_body" name="no_comparece_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:500px; height:500px; overflow: scroll;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
             </div>
             <div class="col-md-2"></div>
         </div> 

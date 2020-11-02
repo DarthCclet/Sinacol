@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Audiencia;
 use App\AudienciaParte;
+use App\Centro;
 use App\ClasificacionArchivo;
 use App\ConceptoPagoResolucion;
 use App\DatoLaboral;
@@ -330,7 +331,11 @@ trait GenerateDocument
                     $objeto = new JsonResponse($solicitud);
                     $obj = json_decode($objeto->content(),true);
                     $idBase = intval($obj['id']);
-                    $centroId = intval($obj['centro_id']);
+                    if($solicitud->resuelveOficinaCentral()){
+                      $centroId = Centro::where('central',true)->first()->id;
+                    }else{
+                      $centroId = intval($obj['centro_id']);
+                    }
                     $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
                     $obj['prescripcion'] = $this->calcularPrescripcion($solicitud->objeto_solicitudes, $solicitud->fecha_conflicto,$solicitud->fecha_ratificacion);
                     $obj['fecha_maxima_ratificacion'] = $this->calcularFechaMaximaRatificacion($solicitud->fecha_recepcion,15);

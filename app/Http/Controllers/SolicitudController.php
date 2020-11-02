@@ -139,6 +139,10 @@ class SolicitudController extends Controller {
                 });
                 $filtrarCentro = false;
             }
+            if(Auth::user()->hasRole('Orientador Central')){
+                $solicitud->where('tipo_solicitud_id',3)->orWhere('tipo_solicitud_id',4);
+                $filtrarCentro = false;
+            }
             if($filtrarCentro){
                 $centro_id = Auth::user()->centro_id;
                 $solicitud->where('centro_id',$centro_id);
