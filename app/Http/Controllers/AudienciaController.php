@@ -1187,7 +1187,8 @@ class AudienciaController extends Controller {
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
         $motivos_archivo = MotivoArchivado::all();
-        return view('expediente.audiencias.resolucion_colectiva', compact('plantilla','solicitud','audiencia','resoluciones','clasificacion_archivo','clasificacion_archivos_Representante','motivos_archivo'));
+        $centro = Centro::where('central',true)->first();
+        return view('expediente.audiencias.resolucion_colectiva', compact('plantilla','solicitud','audiencia','resoluciones','clasificacion_archivo','clasificacion_archivos_Representante','motivos_archivo','centro'));
     }
 
     public function guardarAudienciaColectiva(Request $request) {
