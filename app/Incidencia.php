@@ -117,8 +117,16 @@ class Incidencia extends Model implements AuditableContract
     public static function siguienteDiaHabilMasDias($fecha,$id,$incidencia_type, $dias,$max)
     {
         $d = new Carbon($fecha);
-        $fecha = $d->addDays($dias)->format("Y-m-d");
+//        $fecha = $d->addDays($dias)->format("Y-m-d");
+        $diasRecorridos = 1;
+        while ($diasRecorridos < $dias){
+            $sig = $d->addDay()->format("Y-m-d");
+            if(!self::hayIncidencia($sig,$id,$incidencia_type)){
+                $d = new Carbon($sig);
+                $diasRecorridos++;
+            }
+        }
         $max = $max - $dias;
-        return self::siguienteDiaHabil($fecha,$id,$incidencia_type,$max);
+        return self::siguienteDiaHabil($d,$id,$incidencia_type,$max);
     }
 }
