@@ -1587,7 +1587,9 @@
         $("#no_issste").val("");
         $("#remuneracion").val("");
         $("#periodicidad_id").val("");
-        $("#labora_actualmente").prop("checked", false);
+        if($("#labora_actualmente").is(":checked")){
+            $("#labora_actualmente").trigger('click');
+        }
         $("#fecha_ingreso").val("");
         $("#fecha_salida").val("");
         $("#jornada_id").val("");
