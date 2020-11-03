@@ -2192,7 +2192,7 @@
                     solicitudObj.geolocalizable = true;
                     $.each(arraySolicitados ,function(key,value){
                         if($.isArray(value.domicilios)){
-                            if(value.domicilios[0].latitud == "" || value.domicilios[0].longitud == ""){
+                            if(value.domicilios[0].latitud == "" || value.domicilios[0].longitud == "" || value.domicilios[0].latitud == null || value.domicilios[0].latitud == null){
                                 solicitudObj.geolocalizable = false;
                             }
                         }else{
