@@ -67,9 +67,25 @@
             async:true,
             success:function(data){
                 var div="";
+                var centro = "{{auth()->user()->centro->nombre}}";
                 $.each(data.menu,function(index,element){
                     if(element.hijos.length == 0){
-                        div +='<li class="nav-item"> <a class="nav-link" href="'+element.ruta+'">'+element.name+'</a> </li>';
+                        var agenda = element.name;
+                        if(centro != "Oficina Central del CFCRL" && element.name != "Calendario colectivo"){
+                            if(element.name == "Agenda de conciliador"){
+                                agenda = "Agenda";
+                            }else if(element.name == "Calendario de audiencias"){
+                                agenda = "Calendario";
+                            }
+                            div +='<li class="nav-item"> <a class="nav-link" href="'+element.ruta+'">'+agenda+'</a> </li>';
+                        }else if(centro == "Oficina Central del CFCRL" && element.name != "Calendario de audiencias"){
+                            if(element.name == "Agenda de conciliador"){
+                                agenda = "Agenda";
+                            }else if(element.name == "Calendario colectivo"){
+                                agenda = "Calendario";
+                            }
+                            div +='<li class="nav-item"> <a class="nav-link" href="'+element.ruta+'">'+agenda+'</a> </li>';
+                        }
                     }else{
                         div +='<li class="nav-item dropdown">';
                         div +='    <a class="nav-link dropdown-toggle" href="'+element.ruta+'" data-toggle="dropdown">'+element.name+'  <b class="caret"></b></a>';
@@ -89,12 +105,7 @@
                 div +='<li class="nav-item dropdown">';
                 div +='    <a class="nav-link dropdown-toggle" data-toggle="dropdown">';
                 div +='         <i class="fa fa-user"></i>';
-                console.log(data.rolActual);
-                if(data.rolActual != null && data.rolActual != ""){
-                    div +='         <span class="d-none d-md-inline">'+data.nombre+'</span>&nbsp;(<small>'+data.rolActual.name+'</small>) <b class="caret"></b>';
-                }else{
-                    div +='         <span class="d-none d-md-inline">'+data.nombre+'</span>&nbsp;(<small>Sin perfil asignado</small>) <b class="caret"></b>';
-                }
+                div +='         <span class="d-none d-md-inline">'+data.nombre+'</span><b class="caret"></b>';
                 div +='    </a>';
                 div +='    <ul class="dropdown-menu">';
                 div +='         <li><a class="dropdown-item" href="#">Perfil</a>';

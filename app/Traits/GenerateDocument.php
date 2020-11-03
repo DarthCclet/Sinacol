@@ -342,13 +342,13 @@ trait GenerateDocument
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
                     if($idSolicitante != "" && $idSolicitado != ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
                     }else if($idSolicitante != "" && $idSolicitado == ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitante,2])->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitante,2])->get();
                     }else if($idSolicitante == "" && $idSolicitado != ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
                     }else{
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte')->where('solicitud_id',intval($idBase))->get();
                     }
                     $objeto = new JsonResponse($partes);
                     $obj = json_decode($objeto->content(),true);
@@ -383,7 +383,8 @@ trait GenerateDocument
                         $parte['nombre_completo'] = $parte['nombre_comercial'];
                       }
                       //$idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador
-                      $parte['qr_firma'] = QrCode::size(100)->generate($parteId."|".$audienciaId."|".$idSolicitud."|".$idPlantilla);
+                      $tipoParte = ($parte['tipo_parte_id'] == 1) ? 'solicitante':'citado';
+                      $parte['qr_firma'] = QrCode::size(100)->generate($parteId."|".$tipoParte."|".$parte['nombre_completo']."|".$audienciaId."|".$idSolicitud."|".$idPlantilla);
                       // POST nueva ruta mismos datos  mas imagen en base 64 png
                       // documentos\preview
                       // documentos\firma post regresa mensaje de exito o erroe en json
@@ -524,7 +525,8 @@ trait GenerateDocument
                     $conciliador = json_decode($objeto->content(),true);
                     $conciliador = Arr::except($conciliador, ['id','updated_at','created_at','deleted_at']);
                     $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
-                    $conciliador['qr_firma'] = QrCode::size(100)->generate($conciliadorId."|".$audienciaId."|".$idSolicitud."|".$idPlantilla);
+                    $nombreConciliador = $conciliador['persona']['nombre']." ".$conciliador['persona']['primer_apellido']." ".$conciliador['persona']['segundo_apellido'];
+                    $conciliador['qr_firma'] = QrCode::size(100)->generate($conciliadorId."|conciliador|".$nombreConciliador."|".$audienciaId."|".$idSolicitud."|".$idPlantilla);
                     $data = Arr::add( $data, 'conciliador', $conciliador );
                   }elseif ($model == 'Centro') {
                     $objeto = $model_name::with('domicilio','disponibilidades')->find($centroId);
@@ -858,7 +860,7 @@ trait GenerateDocument
     {
       try {
         if($tipo!=3){ //no es hora
-          $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noivembre", "Diciembre"];
+          $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
           $hh= "";
           if(strpos($fecha, " ") ){
             $date = explode(' ', $fecha);
