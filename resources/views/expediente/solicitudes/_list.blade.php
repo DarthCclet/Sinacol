@@ -747,22 +747,22 @@
                                 if(nombre.length > 30){
                                     addetc = "...";
                                 }
-                                if(value.tipo_parte_id == 2){
+                                if(value.tipo_parte_id == 1){
                                     contSol++;
                                     solicitantes = "<p> -"+nombre.substring(0,30)+addetc+"</p>";
-                                }else if(value.tipo_parte_id == 1){
+                                }else if(value.tipo_parte_id == 2){
                                     contCit++;
                                     solicitados = "<p> - "+nombre.substring(0,30)+addetc+"</p>";
                                 }
                             });
                             html += "<div>";
                             html += "<h5>Solicitantes</h5>";
-                            html += solicitados;
+                            html += solicitantes;
                             if(contSol > 1){
                                 html += "<p> Y OTROS</p>";
                             }
                             html += "<h5>Citados</h5>";
-                            html += solicitantes;
+                            html += solicitados;
                             if(contCit > 1){
                                 html += "<p> Y OTROS</p>";
                             }
