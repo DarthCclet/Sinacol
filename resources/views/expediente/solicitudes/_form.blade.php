@@ -1323,9 +1323,11 @@
         });
         $("#labora_actualmente").change(function(){
             if($("#labora_actualmente").is(":checked")){
-                $("#divFechaSalida").hide();
+                console.log("fecha_salida no requerida");
                 $("#fecha_salida").removeAttr("required");
+                $("#divFechaSalida").hide();
             }else{
+                console.log("fecha_salida requerida");
                 $("#fecha_salida").attr("required","");
                 $("#divFechaSalida").show();
             }

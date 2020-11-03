@@ -6,7 +6,7 @@
 @endphp
 <!-- begin #header -->
 <div id="header" class="header {{ $headerClass }}">
-
+    <input type="hidden" id="centro_nombre" value="{{ isset(auth()->user()->centro) ? auth()->user()->centro->nombre : ''}}">
     <nav class="navbar navbar-expand-lg navbar-dark" style="width: 100%;">
     <div class="navbar-header">
         <a href="/" class="navbar-brand"><span class=""><img src="{{asset('assets/img/logo/LogoEncabezado.png')}}"></span></a>
@@ -36,7 +36,10 @@
     var rol_id = 0;
     // Prevent closing from click inside dropdown
     $(function() {
-        getMenu();
+        if($("#centro_nombre").val() != ""){
+            getMenu();
+        }
+        
         $(document).on('click', '.dropdown-menu', function (e) {
             e.stopPropagation();
         });
@@ -67,7 +70,7 @@
             async:true,
             success:function(data){
                 var div="";
-                var centro = "{{auth()->user()->centro->nombre}}";
+                var centro = $("#centro_nombre").val();
                 $.each(data.menu,function(index,element){
                     if(element.hijos.length == 0){
                         var agenda = element.name;
