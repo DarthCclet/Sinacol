@@ -384,7 +384,7 @@ trait GenerateDocument
                       }
                       //$idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador
                       $tipoParte = ($parte['tipo_parte_id'] == 1) ? 'solicitante':'citado';
-                      $parte['qr_firma'] = QrCode::size(100)->generate($parteId."|".$tipoParte."|".$parte['nombre_completo']."|".$audienciaId."|".$idSolicitud."|".$idPlantilla);
+                      $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($parteId."|".$tipoParte."|".$parte['nombre_completo']."|".$audienciaId."|".$idSolicitud."|".$idPlantilla).'</div>';
                       // POST nueva ruta mismos datos  mas imagen en base 64 png
                       // documentos\preview
                       // documentos\firma post regresa mensaje de exito o erroe en json
@@ -526,7 +526,7 @@ trait GenerateDocument
                     $conciliador = Arr::except($conciliador, ['id','updated_at','created_at','deleted_at']);
                     $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
                     $nombreConciliador = $conciliador['persona']['nombre']." ".$conciliador['persona']['primer_apellido']." ".$conciliador['persona']['segundo_apellido'];
-                    $conciliador['qr_firma'] = QrCode::size(100)->generate($conciliadorId."|conciliador|".$nombreConciliador."|".$audienciaId."|".$idSolicitud."|".$idPlantilla);
+                    $conciliador['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($conciliadorId."|conciliador|".$nombreConciliador."|".$audienciaId."|".$idSolicitud."|".$idPlantilla).'</div>';
                     $data = Arr::add( $data, 'conciliador', $conciliador );
                   }elseif ($model == 'Centro') {
                     $objeto = $model_name::with('domicilio','disponibilidades')->find($centroId);
