@@ -17,12 +17,7 @@ class EditSuperUserRole extends Migration
      */
     public function up()
     {
-        //obtenemos todos los super usuarios
-        $rol = Role::find(1);
-        // eliminamos todos los superusuarios
-        foreach($rol->users as $user){
-            $user->forcedelete();
-        }
+        
         // creamos el nuevo rol
         $rol = Role::create([
             "name" => "Administrador del centro",
@@ -34,40 +29,49 @@ class EditSuperUserRole extends Migration
         foreach($permisosSupervisorConciliador as $permiso){
             $rol->givePermissionTo($permiso);
         }
-//        Recorremos los centros para crear el usuario en cada uno
-        $centros = Centro::all();
-        foreach($centros as $centro){
-            $persona = factory(App\Persona::class)->states('admin')->create();
-            $mail = "admin.".mb_strtolower(str_replace(" ","",$centro->abreviatura))."@centrolaboral.gob.mx";
-            DB::table('users')->insert(
-                [
-                    'name' => 'Administrador del centro',
-                    'email' => $mail,
-                    'email_verified_at' => now(),
-                    'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-                    'remember_token' => Str::random(10),
-                    'persona_id' => $persona->id,
-                    'centro_id' => $centro->id,
-                    'created_at' => now(),
-                    'created_at' => now()
-                ]
-            );
-            $user = User::where("email",$mail)->first();
-            $user->update(["persona_id" => $persona->id,"centro_id" => $centro->id]);
+        
+        //obtenemos todos los super usuarios
+        $rolEliminar = Role::find(1);
+        // eliminamos todos los superusuarios
+        foreach($rolEliminar->users as $user){
+            $user->removeRole($rolEliminar->name);
             $user->assignRole($rol->name);
-//            Creamos la disponibilidad del centro recien creado 
-            if($centro->nombre == "Oficina Central del CFCRL"){
-                self::agregarDisponibilidad($centro);
-    //            Creamos tres salas
-                for($i=1;$i<=3;$i++){
-                    $nombre = $centro->abreviatura."-".$i;
-                    $sala = Sala::create([
-                        "sala" => $nombre,
-                        "virtual" => false,
-                        "centro_id" => $centro->id
-                    ]);
-                    self::agregarDisponibilidad($sala);
-                }
+        }
+        
+        
+        
+//        Recorremos los centros para crear el usuario en cada uno
+        $centro = Centro::where("nombre","Oficina Central del CFCRL")->first();
+        $persona = factory(App\Persona::class)->states('admin')->create();
+        $mail = "admin.".mb_strtolower(str_replace(" ","",$centro->abreviatura))."@centrolaboral.gob.mx";
+        DB::table('users')->insert(
+            [
+                'name' => 'Administrador del centro',
+                'email' => $mail,
+                'email_verified_at' => now(),
+                'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+                'remember_token' => Str::random(10),
+                'persona_id' => $persona->id,
+                'centro_id' => $centro->id,
+                'created_at' => now(),
+                'created_at' => now()
+            ]
+        );
+        $user = User::where("email",$mail)->first();
+        $user->update(["persona_id" => $persona->id,"centro_id" => $centro->id]);
+        $user->assignRole($rol->name);
+//      Creamos la disponibilidad del centro recien creado 
+        if($centro->nombre == "Oficina Central del CFCRL"){
+            self::agregarDisponibilidad($centro);
+//            Creamos tres salas
+            for($i=1;$i<=3;$i++){
+                $nombre = $centro->abreviatura."-".$i;
+                $sala = Sala::create([
+                    "sala" => $nombre,
+                    "virtual" => false,
+                    "centro_id" => $centro->id
+                ]);
+                self::agregarDisponibilidad($sala);
             }
         }
 //        Creamos el usuario super usuario
