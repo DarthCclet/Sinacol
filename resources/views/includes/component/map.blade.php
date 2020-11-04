@@ -295,7 +295,7 @@
             $("#num_int"+identifier).val(domicilios.num_int);
             
             $("#asentamiento"+identifier).val(domicilios.asentamiento);
-            $("#asentamientoAutoc"+identifier).append("<option value='"+domicilios.asentamiento+"' selected='selected'>"+domicilios.asentamiento+"</option>").trigger("change")
+            $("#asentamientoAutoc"+identifier).append("<option value='"+domicilios.asentamiento.toUpperCase()+"' selected='selected'>"+domicilios.asentamiento.toUpperCase()+"</option>").trigger("change")
             $("#municipio"+identifier+" option:contains("+ domicilios.municipio +")").prop("selected",true).trigger("change");
             $("#cp"+identifier).val(domicilios.cp);
             $("#entre_calle1"+identifier).val(domicilios.entre_calle1);
