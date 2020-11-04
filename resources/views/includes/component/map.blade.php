@@ -129,7 +129,7 @@
 		<p class="help-block">y calle</p>
     </div>
     @if($needsMaps == 'true')
-
+        <h4 id="alertMap{{$identificador}}" style="color:red;"></h4>
         <div style="width:100%">
             <div class="panel-botones">
                 <button class="btn btn-primary" type="button" id="validaDir{{$identificador}}"  > <i class="fa fa-map-marker"></i> Validar direcci&oacute;n</button>
@@ -164,8 +164,8 @@
             postal_code: 'cp'+identifier
         }
         if(needMaps){
-        domicilio.map;
-        domicilio.marker;
+            domicilio.map;
+            domicilio.marker;
         // domicilio.autocomplete;
 
             domicilio.initMap = function() {
@@ -189,6 +189,12 @@
                 });
 
                 if(needMaps == 'true'){
+                    this.map.addListener('click', function(e) {
+                        var pos = domicilio.map.panorama.getPosition() ;
+                        domicilio.seteaMarker(domicilio.map,e.latLng);
+                        domicilio.map.setCenter(e.latLng);
+                        domicilio.map.zoom = 16;
+                    });
                     // if($("#direccion_marker"+identifier).val() == ""){
                     //     if(lat != "" && lon != ""){
                     //         this.seteaMarker(this.map, {lat: parseFloat(lat), lng: parseFloat(lon)});
@@ -217,21 +223,26 @@
                         domicilio.seteaMarker(domicilio.map, results[0].geometry.location);
                         domicilio.map.zoom = 16;
                         $('#btn-confirmar-direccion'+identifier).removeClass('disabled');
+                        $("#alertMap"+identifier).text("");
                     } else {
                         
-                        if(this.marker) this.borraMarker();
+                        if(domicilio.marker) domicilio.borraMarker();
+                        if(status === "OK"){
+                            domicilio.map.setCenter(results[0].geometry.location);
+                            domicilio.map.zoom = 16;
+                        }
+                        $("#alertMap"+identifier).text("No se ha encontrado la referencia exacta en el mapa. Favor de dar click en el punto exacto donde se encuentra el domicilio del citado");
                         swal({
                             title: 'Error',
                             text: 'No se ha encontrado la referencia exacta en el mapa. Favor de dar click en el punto exacto donde se encuentra el domicilio del citado',
-                            icon: 'error',
+                            icon: 'error'
                         });
-                        console.log('No se pudo completar el geocoding: %s', status);
                     }
                 });
             }
             domicilio.seteaMarker = function (resultsMap, coords) {
-                if(this.marker) this.borraMarker();
-                this.marker = new google.maps.Marker({
+                if(domicilio.marker) domicilio.borraMarker();
+                domicilio.marker = new google.maps.Marker({
                     map: resultsMap,
                     draggable: true,
                     animation: google.maps.Animation.DROP,
@@ -240,7 +251,8 @@
                 $('#latitud'+identifier).val(coords.lat);
                 $('#longitud'+identifier).val(coords.lng);
                 $('#btn-confirmar-direccion'+identifier).removeClass('disabled');
-                this.marker.addListener('dragend', this.seteaNuevaPosicionManual);
+                $("#alertMap"+identifier).text("");
+                domicilio.marker.addListener('dragend', domicilio.seteaNuevaPosicionManual);
             };
             domicilio.seteaNuevaPosicionManual = function(ev){
                 $('#latitud'+identifier).val(ev.latLng.lat());
@@ -248,7 +260,7 @@
                 $('#btn-confirmar-direccion'+identifier).removeClass('disabled');
             }
             domicilio.borraMarker = function(){
-                this.marker.setMap(null);
+                domicilio.marker.setMap(null);
             }
         }
 
@@ -283,6 +295,7 @@
             $("#num_int"+identifier).val(domicilios.num_int);
             
             $("#asentamiento"+identifier).val(domicilios.asentamiento);
+            $("#asentamientoAutoc"+identifier).append("<option value='"+domicilios.asentamiento.toUpperCase()+"' selected='selected'>"+domicilios.asentamiento.toUpperCase()+"</option>").trigger("change")
             $("#municipio"+identifier+" option:contains("+ domicilios.municipio +")").prop("selected",true).trigger("change");
             $("#cp"+identifier).val(domicilios.cp);
             $("#entre_calle1"+identifier).val(domicilios.entre_calle1);
@@ -353,6 +366,9 @@
 		$("#validaDir"+identifier).click(function(){
 			domicilio.tomarGeoreferencia();
 		});
+        $("#agregarPin"+identifier).click(function(){
+			domicilio.tomarGeoreferencia();
+		});
         $("#tipo_vialidad_id"+identifier).change(function(){
             $("#tipo_vialidad"+identifier).val($("#tipo_vialidad_id"+identifier+" :selected").text());
         });
@@ -405,6 +421,7 @@
                 $("#asentamiento"+identifier).val("");
             }
          });
+
         $("#asentamientoAutoc"+identifier).select2({
             ajax: {
                 url: '/api/asentamientos/filtrarAsentamientos',
@@ -449,10 +466,11 @@
             },templateSelection: function(data) {
                 if(data.id != ""){
                     if(data.estado != undefined){
-                        $("#municipio"+identifier+" option:contains("+ data.municipio +")").prop("selected",true).trigger("change");
-                        $("#cp"+identifier).val(data.cp);
-                        $("#asentamiento"+identifier).val(data.asentamiento);
-                        $(".direccionUpd"+identifier).trigger('blur');
+                        // alert(data.municipio);
+                        // $("#municipio"+identifier+" option:contains("+ data.municipio +")").prop("selected",true).trigger("change");
+                        // $("#cp"+identifier).val(data.cp);
+                        // $("#asentamiento"+identifier).val(data.asentamiento);
+                        // $(".direccionUpd"+identifier).trigger('blur');
                         return data.asentamiento;
                     }
                 }
@@ -464,6 +482,18 @@
             allowClear: true,
             tags: true,
             language: "es"
+        });
+
+        $("#asentamientoAutoc"+identifier).on('select2:select', function(selection){
+            data = selection.params.data;
+            if(data.id != ""){
+                if(data.estado != undefined){
+                    $("#municipio"+identifier+" option:contains("+ data.municipio +")").prop("selected",true).trigger("change");
+                    $("#cp"+identifier).val(data.cp);
+                    $("#asentamiento"+identifier).val(data.asentamiento);
+                    $(".direccionUpd"+identifier).trigger('blur');
+                }
+            }
         });
 
         return domicilio;

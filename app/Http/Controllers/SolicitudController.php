@@ -1147,8 +1147,11 @@ class SolicitudController extends Controller {
                     $datos_audiencia = FechaAudienciaService::proximaFechaCita(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax);
                     $multiple = false;
                 }
-//                Solicitamos la fecha limite de notificacion
-                $fecha_notificacion = self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$datos_audiencia["fecha_audiencia"]);
+//                Solicitamos la fecha limite de notificacion solo cuando el tipo de notificación es por notificador sin cita
+                $fecha_notificacion = null;
+                if((int)$request->tipo_notificacion_id == 2){
+                    $fecha_notificacion = self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$datos_audiencia["fecha_audiencia"]);
+                }
                 
                 //Obtenemos el contador
                 $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
