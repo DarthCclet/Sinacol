@@ -780,6 +780,31 @@ class AudienciaController extends Controller {
                     }
                 }
                 if ($bandera) {
+                      //Se consulta comparecencia de solicitante
+                      $parteS = $solicitante->parte;
+                      if ($parteS->tipo_persona_id == 2) {
+                          $compareciente_parte = Parte::where("parte_representada_id", $parteS->id)->first();
+                          if ($compareciente_parte != null) {
+                              $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                          } else {
+                              $comparecienteSol = null;
+                          }
+                      } else {
+                          $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
+                      }
+                      //Se consulta comparecencia de citado
+                      $parte = $solicitado->parte;
+                      if ($parte->tipo_persona_id == 2) {
+                          $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
+                          if ($compareciente_parte != null) {
+                              $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                          } else {
+                              $comparecienteCit = null;
+                          }
+                      } else {
+                          $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+                      }
+
                     $terminacion = 1;
                     if ($audiencia->resolucion_id == 3) {
                         $terminacion = 5;
@@ -808,8 +833,16 @@ class AudienciaController extends Controller {
 
                         }
                     } else if ($audiencia->resolucion_id == 1) {
-                        $terminacion = 3;
-                        $huboConvenio = true;
+                        if($comparecienteSol != null && $comparecienteCit != null){
+                            $terminacion = 3;
+                            $huboConvenio = true;
+                        }else if($comparecienteSol != null){
+                            $huboConvenio = false;
+                            $terminacion = 4;
+                        }else{
+                            $huboConvenio = false;
+                            $terminacion = 1;
+                        }
                     } else if ($audiencia->resolucion_id == 2) {
                         $terminacion = 2;
                         // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
@@ -901,10 +934,12 @@ class AudienciaController extends Controller {
                     //Se genera el convenio
                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2,$solicitante->parte_id));
                 }else{
-                    foreach ($solicitados as $solicitado) {
-                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
+                    $noConciliacion = ResolucionPartes::where('parte_solicitante_id',$solicitante->parte_id)->where('terminacion_bilateral_id',5)->first();
+                    if($noConciliacion != null){
+                        foreach ($solicitados as $solicitado) {
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
+                        }
                     }
-
                 }
             }
         }
