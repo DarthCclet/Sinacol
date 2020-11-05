@@ -678,7 +678,7 @@ class SolicitudController extends Controller {
                 foreach ($documentos as $documento) {
                     $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                     $documento->tipo = pathinfo($documento->ruta)['extension'];
-                    $documento->tipo_doc = 2;
+                    $documento->tipo_doc = 3;
                     $documento->audiencia = $audiencia->folio."/".$audiencia->anio;
                     $documento->audiencia_id = $audiencia->id;
                     array_push($doc,$documento);
