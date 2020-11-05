@@ -268,7 +268,7 @@ class AudienciaController extends Controller {
             $documentos = $parte->documentos;
             foreach ($documentos as $documento) {
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-                $documento->tipo = pathinfo($documento->ruta)['extension'];
+                $documento->tipo = pathinfo($documento->ruta,PATHINFO_EXTENSION);
                 $documento->parte = $parte->nombre. " ".$parte->primer_apellido." ".$parte->segundo_apellido;
                 $documento->tipo_doc = 2;
                 array_push($doc,$documento);
@@ -278,6 +278,7 @@ class AudienciaController extends Controller {
         foreach ($documentos as $documento) {
             $documento->clasificacionArchivo = $documento->clasificacionArchivo;
             $documento->tipo = pathinfo($documento->ruta)['extension'];
+            $documento->tipo = pathinfo($documento->ruta,PATHINFO_EXTENSION);
             $documento->tipo_doc = 1;
             array_push($doc,$documento);
         }
@@ -286,7 +287,7 @@ class AudienciaController extends Controller {
 
             foreach ($documentos as $documento) {
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-                $documento->tipo = pathinfo($documento->ruta)['extension'];
+                $documento->tipo = pathinfo($documento->ruta,PATHINFO_EXTENSION);
                 $documento->tipo_doc = 3;
                 $documento->audiencia = $audienciaSol->folio."/".$audienciaSol->anio;
                 $documento->audiencia_id = $audienciaSol->id;
