@@ -593,9 +593,9 @@ class SolicitudController extends Controller {
                         $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                         $documento->tipo = pathinfo($documento->ruta)['extension'];
                         if($parte->parte->tipo_persona_id == 1){
-                            $documento->parte = $parte->parte->nombre. " ".$parte->parte->primer_apellido." ".$parte->parte->segundo_apellido;
+                            $documento->audiencia = $parte->parte->nombre. " ".$parte->parte->primer_apellido." ".$parte->parte->segundo_apellido;
                         }else{
-                            $documento->parte = $parte->parte->nombre_comercial;
+                            $documento->audiencia = $parte->parte->nombre_comercial;
                         }
                         $documento->tipo_doc = 3;
                         array_push($doc,$documento);
@@ -1499,7 +1499,7 @@ class SolicitudController extends Controller {
         if(self::esFeriado($ayer)){
             $d = new Carbon($fecha);
             $ayer = $d->subDay()->format("Y-m-d");
-            return self::ultimoDiaHablDesde($ayer);
+            return self::ultimoDiaHabilDesde($ayer);
         }
         else{
             return $ayer;
