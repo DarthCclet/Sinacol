@@ -599,7 +599,7 @@ class SolicitudController extends Controller {
                             $documento->audiencia = $parte->parte->nombre_comercial;
                         }
                         $documento->tipo_doc = 3;
-                        array_push($doc,$documento);
+                        $doc->push($documento);
                     }
                 }
             }
@@ -1298,14 +1298,15 @@ class SolicitudController extends Controller {
     }
 
     function getDocumentosSolicitud($solicitud_id) {
-        $doc = [];
+        $doc= collect();
         $solicitud = Solicitud::find($solicitud_id);
         $documentos = $solicitud->documentos;
         foreach ($documentos as $documento) {
             if($documento->ruta != ""){
+            $documento->id = $documento->id;
             $documento->clasificacionArchivo = $documento->clasificacionArchivo;
             $documento->tipo = pathinfo($documento->ruta)['extension'];
-            array_push($doc,$documento);
+            $doc->push($documento);
         }
         }
         $partes = Parte::where('solicitud_id',$solicitud_id)->get();
@@ -1313,13 +1314,15 @@ class SolicitudController extends Controller {
 
             $documentos = $parte->documentos;
             foreach ($documentos as $documento) {
+                $documento->id = $documento->id;
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                 $documento->tipo = pathinfo($documento->ruta)['extension'];
                 $documento->parte = $parte->nombre. " ".$parte->primer_apellido." ".$parte->segundo_apellido;
-                array_push($doc,$documento);
+                $doc->push($documento);
             }
         }
-        return $doc;
+        $documentos = $doc->sortBy('id');
+        return $documentos;
     }
     function getAcuseSolicitud($solicitud_id) {
         $doc = [];
