@@ -277,7 +277,6 @@ class AudienciaController extends Controller {
         $documentos = $solicitud->documentos;
         foreach ($documentos as $documento) {
             $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-            $documento->tipo = pathinfo($documento->ruta)['extension'];
             $documento->tipo = pathinfo($documento->ruta,PATHINFO_EXTENSION);
             $documento->tipo_doc = 1;
             array_push($doc,$documento);
