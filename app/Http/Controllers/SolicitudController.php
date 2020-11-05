@@ -668,6 +668,13 @@ class SolicitudController extends Controller {
         if($solicitud->expediente && $solicitud->expediente->audiencia){
             foreach($solicitud->expediente->audiencia as $audiencia){
                 $documentos = $audiencia->documentos;
+                foreach($audiencia->audienciaParte as $parte){
+                    $clasificacion = ClasificacionArchivo::where("nombre","Notificacion")->first();
+                    $parteDoc = $parte->documentos()->where("clasificacion_archivo_id",$clasificacion->id)->get();
+                    if(count($parteDoc) > 0){
+                        array_push($documentos,$parteDoc);
+                    }
+                }
                 foreach ($documentos as $documento) {
                     $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                     $documento->tipo = pathinfo($documento->ruta)['extension'];
