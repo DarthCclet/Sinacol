@@ -1964,7 +1964,7 @@
                     success:function(data){
                         if(data != null && data != ""){
                             window.location = "/audiencias/"+data.id+"/edit"
-                        }else{
+                        }else{ 
                             swal({
                                 title: 'Algo salió mal',
                                 text: 'No se guardo el registro',
