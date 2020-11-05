@@ -182,7 +182,7 @@ class AudienciaController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function edit(Audiencia $audiencia) {
-        $doc= [];
+        $doc= collect();
         // obtenemos los conciliadores
         $partes = array();
         $conciliadores = array();
@@ -267,33 +267,36 @@ class AudienciaController extends Controller {
         foreach($solicitudPartes as $key => $parte){
             $documentos = $parte->documentos;
             foreach ($documentos as $documento) {
+                $documento->id = $documento->id;
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                 $documento->tipo = pathinfo($documento->ruta,PATHINFO_EXTENSION);
                 $documento->parte = $parte->nombre. " ".$parte->primer_apellido." ".$parte->segundo_apellido;
                 $documento->tipo_doc = 2;
-                array_push($doc,$documento);
+                $doc->push($documento);
             }
         }
         $documentos = $solicitud->documentos;
         foreach ($documentos as $documento) {
+            $documento->id = $documento->id;
             $documento->clasificacionArchivo = $documento->clasificacionArchivo;
             $documento->tipo = pathinfo($documento->ruta,PATHINFO_EXTENSION);
             $documento->tipo_doc = 1;
-            array_push($doc,$documento);
+            $doc->push($documento);
         }
         foreach($solicitud->expediente->audiencia as $audienciaSol){
             $documentos = $audienciaSol->documentos;
 
             foreach ($documentos as $documento) {
+                $documento->id = $documento->id;
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                 $documento->tipo = pathinfo($documento->ruta,PATHINFO_EXTENSION);
                 $documento->tipo_doc = 3;
                 $documento->audiencia = $audienciaSol->folio."/".$audienciaSol->anio;
                 $documento->audiencia_id = $audienciaSol->id;
-                array_push($doc,$documento);
+                $doc->push($documento);
             }
         }
-        $documentos = $doc;
+        $documentos = $doc->sortBy('id');
 
         return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id'));
     }
@@ -1819,7 +1822,6 @@ class AudienciaController extends Controller {
         $pdf->setOption('page-size', 'Letter')
             ->setOption('margin-top', '25mm')
             ->setOption('margin-bottom', '11mm')
-            ->setOption('header-html', env('APP_URL').'/header/'."1")
             ->setOption('footer-html', env('APP_URL').'/footer/'."1")
         ;
         if($path){
