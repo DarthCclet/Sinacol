@@ -1499,7 +1499,7 @@ class SolicitudController extends Controller {
         if(self::esFeriado($ayer)){
             $d = new Carbon($fecha);
             $ayer = $d->subDay()->format("Y-m-d");
-            return self::ultimoDiaHablDesde($ayer);
+            return self::ultimoDiaHabilDesde($ayer);
         }
         else{
             return $ayer;
