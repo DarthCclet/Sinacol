@@ -1945,35 +1945,40 @@
         error =false;
         
         console.log(listaPropuestaConceptos);
-        if(!error){
-            $.ajax({
-                url:"/audiencia/guardarAudienciaColectiva",
-                type:"POST",
-                dataType:"json",
-                data:{
-                    audiencia_id:'{{ $audiencia->id }}',
-                    solicitud_id:'{{ $solicitud->id }}',
-                    audiencia_body:tinyMCE.get('audiencia_body').getContent(),
-                    convenio_body:tinyMCE.get('convenio_body').getContent(),
-                    no_comparece_body:tinyMCE.get('no_comparece_body').getContent(),
-                    resolucion_id:$("#resolucion_id").val(),
-                    listaRelacion:listaResolucionesIndividuales,
-                    _token:"{{ csrf_token() }}"
-                },
-                success:function(data){
-                    if(data != null && data != ""){
-                        window.location = "/audiencias/"+data.id+"/edit"
-                    }else{
-                        swal({
-                            title: 'Algo salió mal',
-                            text: 'No se guardo el registro',
-                            icon: 'warning'
-                        });
+        if($("#resolucion_id").val() != ""){
+            if(!error){
+                $.ajax({
+                    url:"/audiencia/guardarAudienciaColectiva",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        audiencia_id:'{{ $audiencia->id }}',
+                        solicitud_id:'{{ $solicitud->id }}',
+                        audiencia_body:tinyMCE.get('audiencia_body').getContent(),
+                        convenio_body:tinyMCE.get('convenio_body').getContent(),
+                        no_comparece_body:tinyMCE.get('no_comparece_body').getContent(),
+                        resolucion_id:$("#resolucion_id").val(),
+                        listaRelacion:listaResolucionesIndividuales,
+                        _token:"{{ csrf_token() }}"
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            window.location = "/audiencias/"+data.id+"/edit"
+                        }else{
+                            swal({
+                                title: 'Algo salió mal',
+                                text: 'No se guardo el registro',
+                                icon: 'warning'
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }else{
+                swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
+            }
         }else{
-            swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
+                swal({title: 'Error',text: 'Debe seleccionar una resolución para continuar',icon: 'error'});
+
         }
     });
     $('.upper').on('keyup', function () {
