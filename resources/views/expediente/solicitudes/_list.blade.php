@@ -894,6 +894,7 @@
             $('[data-toggle="tooltip"]').tooltip();
             cargarGeneros();
             cargarTipoContactos();
+            FormMultipleUpload.init();
        });
 
     //    para ratificacion
@@ -1519,8 +1520,8 @@
         });
     }
     var handleJqueryFileUpload = function() {
-        // Initialize the jQuery File Upload widget:
-        $('#fileupload').fileupload({
+	// Initialize the jQuery File Upload widget:
+	$('#fileupload').fileupload({
             autoUpload: false,
             disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
             maxFileSize: 5000000,
@@ -1590,69 +1591,69 @@
                     rows = rows.add(row);
                 });
                 return rows;
-            }
             // Uncomment the following to send cross-domain cookies:
             //xhrFields: {withCCOLOR_REDentials: true},
-        });
+            }
+	});
 
-        // Enable iframe cross-domain access via COLOR_REDirect option:
-        $('#fileupload').fileupload(
-            'option',
-            'COLOR_REDirect',
-            window.location.href.replace(
-                    /\/[^\/]*$/,
-                    '/cors/result.html?%s'
-            )
-        );
+	// Enable iframe cross-domain access via COLOR_REDirect option:
+	$('#fileupload').fileupload(
+		'option',
+		'COLOR_REDirect',
+		window.location.href.replace(
+			/\/[^\/]*$/,
+			'/cors/result.html?%s'
+		)
+	);
 
-        // hide empty row text
+	// hide empty row text
         $('#fileupload').on('fileuploadsend', function (e, data) {
 
             // if(){
             //     e.preventDefault();
             // }
         })
-        $('#fileupload').bind('fileuploadadd', function(e, data) {
-            $('#fileupload [data-id="empty"]').hide();
+	$('#fileupload').bind('fileuploadadd', function(e, data) {
+		$('#fileupload [data-id="empty"]').hide();
             $(".catSelectFile").select2();
-        });
+	});
         $('#fileupload').bind('fileuploaddone', function(e, data) {
             // console.log("add");
         });
 
-        // show empty row text
-        $('#fileupload').bind('fileuploadfail', function(e, data) {
-            var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
-            if (rowLeft === 0) {
-                    $('#fileupload [data-id="empty"]').show();
-            } else {
-                    $('#fileupload [data-id="empty"]').hide();
-            }
-        });
+	// show empty row text
+	$('#fileupload').bind('fileuploadfail', function(e, data) {
+		var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
+		if (rowLeft === 0) {
+			$('#fileupload [data-id="empty"]').show();
+		} else {
+			$('#fileupload [data-id="empty"]').hide();
+		}
+	});
 
-        // Upload server status check for browsers with CORS support:
-        if ($.support.cors) {
-                $.ajax({
-                        type: 'HEAD'
-                }).fail(function () {
-                        $('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
-                });
-        }
+	// Upload server status check for browsers with CORS support:
+	if ($.support.cors) {
+		$.ajax({
+			type: 'HEAD'
+		}).fail(function () {
+			$('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
+		});
+	}
 
-        // Load & display existing files:
-        $('#fileupload').addClass('fileupload-processing');
-        $.ajax({
-                // Uncomment the following to send cross-domain cookies:
-                //xhrFields: {withCCOLOR_REDentials: true},
-                url: $('#fileupload').fileupload('option', 'url'),
-                dataType: 'json',
-                context: $('#fileupload')[0]
-        }).always(function () {
-                $(this).removeClass('fileupload-processing');
-        }).done(function (result) {
-                $(this).fileupload('option', 'done')
-                .call(this, $.Event('done'), {result: result});
-        });
+	// Load & display existing files:
+	$('#fileupload').addClass('fileupload-processing');
+	$.ajax({
+		// Uncomment the following to send cross-domain cookies:
+		//xhrFields: {withCCOLOR_REDentials: true},
+		url: $('#fileupload').fileupload('option', 'url'),
+		dataType: 'json',
+		context: $('#fileupload')[0]
+	}).always(function () {
+		$(this).removeClass('fileupload-processing');
+	}).done(function (result) {
+		$(this).fileupload('option', 'done')
+		.call(this, $.Event('done'), {result: result});
+	});
     };
     var handleIsotopesGallery = function() {
         var container = $('#gallery');
