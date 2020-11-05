@@ -672,7 +672,7 @@ class SolicitudController extends Controller {
                     $clasificacion = ClasificacionArchivo::where("nombre","Notificacion")->first();
                     $parteDoc = $parte->documentos()->where("clasificacion_archivo_id",$clasificacion->id)->get();
                     if(count($parteDoc) > 0){
-                        array_push($documentos,$parteDoc);
+                        $documentos->merge($parteDoc);
                     }
                 }
                 foreach ($documentos as $documento) {
