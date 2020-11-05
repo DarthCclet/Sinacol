@@ -1973,7 +1973,7 @@
                         }
                     }
                 });
-            }else{
+            }else{ 
                 swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
             }
         }else{
