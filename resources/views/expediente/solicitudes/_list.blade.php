@@ -1526,6 +1526,10 @@
             disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
             maxFileSize: 5000000,
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
+            messages: {
+                acceptFileTypes: 'Archivo no permitido',
+                maxFileSize: 'El archivo es muy pesado'
+            },
             stop: function(e,data){
               cargarDocumentos();
             //   $("#modal-archivos").modal("hide");
