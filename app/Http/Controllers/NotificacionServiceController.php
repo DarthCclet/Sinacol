@@ -34,6 +34,7 @@ class NotificacionServiceController extends Controller
                             "finalizado_id" => $demandado->finalizado_id,
                             "detalle" => $demandado->detalle,
                             "detalle_id" => $demandado->detalle_id,
+                            "fecha_notificacion" => $demandado->fecha_notificacion
                         ]);
                         $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia->id;
                         Storage::makeDirectory($directorio);
@@ -115,6 +116,16 @@ class NotificacionServiceController extends Controller
                 if(!isset($demandado->documento)){
                     throw new ParametroNoValidoException("El campo documento es requerido.", 1018);
                     return null;
+                }
+                if(!isset($demandado->fecha_notificacion)){
+                    throw new ParametroNoValidoException("El campo fecha_notificacion es requerido.", 1018);
+                    return null;
+                }else{
+                    $fecha = new \Carbon\Carbon($demandado->fecha_notificacion);
+                    if($fecha > now()){
+                        throw new ParametroNoValidoException("La fecha no puede ser mayor a la fecha actual.", 1019);
+                        return null;
+                    }
                 }
             }
         }

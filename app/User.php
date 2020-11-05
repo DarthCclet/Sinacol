@@ -104,10 +104,10 @@ class User extends Authenticatable implements AuditableContract
     }
 
     public function setCentroIdAttribute($centro_id) {
-        if (auth()->user()) {
-            $this->attributes["centro_id"] = auth()->user()->centro_id;
-        } else {
+        if (auth()->user()->hasRole("Super Usuario")) {
             $this->attributes["centro_id"] = $centro_id;
+        } else {
+            $this->attributes["centro_id"] = auth()->user()->centro_id;
         }
     }
 
