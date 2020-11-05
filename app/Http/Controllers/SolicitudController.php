@@ -684,7 +684,7 @@ class SolicitudController extends Controller {
                     array_push($doc,$documento);
                 }
             }
-        }
+	}
 
         $documentos = $doc;
         //termina consulta de documentos
