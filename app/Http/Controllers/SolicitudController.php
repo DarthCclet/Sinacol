@@ -551,7 +551,7 @@ class SolicitudController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function consulta($id) {
-        $doc= [];
+        $doc= collect();
         
         //Consulta de solicitud con relaciones
         $solicitud = Solicitud::find($id);
@@ -590,6 +590,7 @@ class SolicitudController extends Controller {
                 foreach($audiencia->audienciaParte as $parte){
                     $documentos = $parte->documentos;
                     foreach ($documentos as $documento) {
+                        $documento->id = $documento->id;
                         $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                         $documento->tipo = pathinfo($documento->ruta)['extension'];
                         if($parte->parte->tipo_persona_id == 1){
@@ -613,11 +614,12 @@ class SolicitudController extends Controller {
             $partes[$key] = $parte;
             $documentos = $parte->documentos;
             foreach ($documentos as $documento) {
+                $documento->id = $documento->id;
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                 $documento->tipo = pathinfo($documento->ruta)['extension'];
                 $documento->parte = $parte->nombre. " ".$parte->primer_apellido." ".$parte->segundo_apellido;
                 $documento->tipo_doc = 2;
-                array_push($doc,$documento);
+                $doc->push($documento);
             }
         }
         
@@ -660,26 +662,28 @@ class SolicitudController extends Controller {
         
         $documentos = $solicitud->documentos;
         foreach ($documentos as $documento) {
+            $documento->id = $documento->id;
             $documento->clasificacionArchivo = $documento->clasificacionArchivo;
             $documento->tipo = pathinfo($documento->ruta,PATHINFO_EXTENSION);
             $documento->tipo_doc = 1;
-            array_push($doc,$documento);
+            $doc->push($documento);
         }
         if($solicitud->expediente && $solicitud->expediente->audiencia){
             foreach($solicitud->expediente->audiencia as $audiencia){
                 $documentos = $audiencia->documentos;
                 foreach ($documentos as $documento) {
+                    $documento->id = $documento->id;
                     $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                     $documento->tipo = pathinfo($documento->ruta)['extension'];
                     $documento->tipo_doc = 3;
                     $documento->audiencia = $audiencia->folio."/".$audiencia->anio;
                     $documento->audiencia_id = $audiencia->id;
-                    array_push($doc,$documento);
+                    $doc->push($documento);
                 }
             }
         }
-
-        $documentos = $doc;
+        
+        $documentos = $doc->sortBy('id');
         //termina consulta de documentos
         return view('expediente.solicitudes.consultar', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante','documentos'));
     }
