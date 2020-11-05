@@ -47,7 +47,7 @@
                         @foreach ($documentos as $documento)
                             @if ($documento->tipo_doc == 3)    
                                 <tr>
-                                    <td><b>{{isset($documento->audiencia_id) ? "".$documento->audiencia."- ":""  }}</b>{{$documento->clasificacionArchivo->nombre}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->id}}" target="_blank">Descargar</a></td>
+                                    <td><b>{{isset($documento->audiencia_id) ? "".$documento->audiencia."- ":$documento->parte."- "  }}</b>{{$documento->clasificacionArchivo->nombre}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->id}}" target="_blank">Descargar</a></td>
                                 </tr>
                             @endif
                         @endforeach
