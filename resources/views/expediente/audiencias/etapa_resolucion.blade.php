@@ -1513,7 +1513,7 @@
                                     // if(parte != undefined){
                                         html += "<tr>";
                                         html += "<td>"+value.parte+"</td>";
-                                        html += "<td>"+value.nombre_original + " "+ value.clasificacion_archivo_id+"</td>";
+                                        html += "<td>"+ value.clasificacion_archivo.nombre+"</td>";
                                         html += "</tr>";
                                         ratifican = true;
                                     // }

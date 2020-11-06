@@ -855,17 +855,14 @@ class AudienciaController extends Controller {
                     } else if ($audiencia->resolucion_id == 2) {
                         //no hubo convenio pero se agenda nueva audiencia, guarda para todos las partes
                         $terminacion = 2;
-                        $guardaResolucion = true;
                         // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
                     }
-                    if($guardaResolucion){
                         $resolucionParte = ResolucionPartes::create([
                             "audiencia_id" => $audiencia->id,
                             "parte_solicitante_id" => $solicitante->parte_id,
                             "parte_solicitada_id" => $solicitado->parte_id,
                             "terminacion_bilateral_id" => $terminacion
                         ]);
-                    }
                 }
                 //guardar conceptos de pago para Convenio
                 if ($audiencia->resolucion_id == 1 && isset($resolucionParte) && $terminacion == 3) { //Hubo conciliacion
