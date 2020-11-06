@@ -1680,10 +1680,8 @@ class AudienciaController extends Controller {
         }
     }
 
-    public function getComparecientes($audiencia = null) {
-        if($audiencia == null){
-            $audiencia = Audiencia::find($this->request->audiencia_id);
-        }
+    public function getComparecientes() {
+        $audiencia = Audiencia::find($this->request->audiencia_id);
         $comparecientes = array();
         $solicitantes = false;
         $citados = false;
