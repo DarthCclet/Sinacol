@@ -358,7 +358,7 @@
                                         @foreach($audiencia->solicitantesComparecientes as $solicitante)
                                             {{-- @if($parte->tipo_parte_id == 1) --}}
                                                 <tr>
-                                                    <td class="text-nowrap">{{ $solicitante->parte->tipoParte }}</td>
+                                                    <td class="text-nowrap">{{ $solicitante->parte->tipoParte->nombre }}</td>
                                                     @if($solicitante->parte->tipo_persona_id == 1)
                                                         <td class="text-nowrap">{{ $solicitante->parte->nombre }} {{ $solicitante->parte->primer_apellido }} {{ $solicitante->parte->segundo_apellido }}</td>
                                                     @else
@@ -475,7 +475,7 @@
                             <div class="form-group col-md-6">
                                 <label for="monto" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="monto" placeholder="Monto a pagar" class="form-control" />
+                                    <input type="text" id="monto" placeholder="Monto a pagar" class="form-control numero" />
                                 </div>
                             </div>
                             <div class="form-group col-md-12">
