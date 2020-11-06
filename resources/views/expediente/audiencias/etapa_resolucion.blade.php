@@ -1282,7 +1282,7 @@
                             <div class="form-group col-md-6">
                                 <label for="fecha_pago" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control dateBirth" />
+                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control fecha" />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
