@@ -47,6 +47,7 @@ class EtapaResolucionAudienciaController extends Controller
      */
     public function store(Request $request)
     {
+        $request->evidencia = ($request->evidencia != null)? $request->evidencia : "";
         try{
             $request->validate([
                 'etapa_resolucion_id' => 'required',

@@ -227,7 +227,7 @@
                                     </ol>
                                     Usted puede escoger una de estas alternativas precargadas, la alternativa de un convenio de reinstalación, o puede escoger una propuesta que configurará con base en las negociaciones entre las partes. Al escoger la propuesta OTRA, tendrá que indicar cada una de las prestaciones que se incluirá, y el número de días o monto de cada prestación. El sistema creará una tabla para mostrar el monto de cada prestación seleccionada y el total de la propuesta. La opción que usted selecciona será la propuesta de arreglo que se mostrará en el acta de audiencia.
                                 </p>
-                                @foreach($audiencia->solicitantes as $solicitante)
+                                @foreach($audiencia->solicitantesComparecientes as $solicitante)
                                 {{-- <pre>{{$solicitante->parte->id}}</pre> --}}
                                     <div class="card">
                                     <div class="card-header" id="headingOne">
@@ -355,26 +355,26 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        @foreach($audiencia->partes as $parte)
-                                            @if($parte->tipo_parte_id == 1)
+                                        @foreach($audiencia->solicitantesComparecientes as $solicitante)
+                                            {{-- @if($parte->tipo_parte_id == 1) --}}
                                                 <tr>
-                                                    <td class="text-nowrap">{{ $parte->tipoParte->nombre }}</td>
-                                                    @if($parte->tipo_persona_id == 1)
-                                                        <td class="text-nowrap">{{ $parte->nombre }} {{ $parte->primer_apellido }} {{ $parte->segundo_apellido }}</td>
+                                                    <td class="text-nowrap">{{ $solicitante->parte->tipoParte }}</td>
+                                                    @if($solicitante->parte->tipo_persona_id == 1)
+                                                        <td class="text-nowrap">{{ $solicitante->parte->nombre }} {{ $solicitante->parte->primer_apellido }} {{ $solicitante->parte->segundo_apellido }}</td>
                                                     @else
-                                                        <td class="text-nowrap">{{ $parte->nombre_comercial }}</td>
+                                                        <td class="text-nowrap">{{ $solicitante->parte->nombre_comercial }}</td>
                                                     @endif
                                                     <td>
-                                                        @if($parte->tipo_parte_id == 1)
+                                                        @if($solicitante->parte->tipo_parte_id == 1)
                                                         <div style="display: inline-block;">
-                                                            <button onclick="DatosLaborales({{$parte->id}},true)" class="btn btn-xs btn-primary" title="Datos Laborales">
+                                                            <button onclick="DatosLaborales({{$solicitante->parte->id}},true)" class="btn btn-xs btn-primary" title="Datos Laborales">
                                                                 <i class="fa fa-briefcase"></i>
                                                             </button>
                                                         </div>
                                                         @endif
                                                     </td>
                                                 </tr>
-                                            @endif
+                                            {{-- @endif --}}
                                         @endforeach
                                         </tbody>
                                     </table>
@@ -590,12 +590,12 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-12 row">
                         <div class="col-md-6">
-                            <label >Cedula Profesional</label>
+                            <label >C&eacute;dula Profesional</label><br>
                             <span class="btn btn-primary fileinput-button m-r-3">
                                 <i class="fa fa-fw fa-plus"></i>
-                                <span>Seleccionar identificaci&oacute;n</span>
+                                <span>Seleccionar c&eacute;dula</span>
                                 <input type="file" id="fileCedula" name="files">
                             </span>
                             <p style="margin-top: 1%;" id="labelCedula"></p>
@@ -1288,7 +1288,7 @@
                             <div class="form-group col-md-6">
                                 <label for="monto" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="monto_pago" placeholder="Monto a pagar" class="form-control" />
+                                    <input type="text" id="monto_pago" placeholder="Monto a pagar" class="form-control numero" />
                                 </div>
                             </div>
                         </div>
@@ -1335,7 +1335,7 @@
     var listaConfigConceptos= {};
     var listaConfigFechas= [];
     var listaResolucionesIndividuales = [];
-    var lastTimeStamp = "";
+    var firstTimeStamp = "";
     $(document).ready(function(){
         $( "#accordion" ).accordion();
 
@@ -1578,6 +1578,9 @@
             },
             success:function(data){
                 try{
+                    if(etapa==1){
+                        location.reload();
+                    }
                     respuesta = true;
 
                     $(".showTime"+etapa).text(data.data.created_at);
@@ -1652,9 +1655,12 @@
             $("#icon"+pasoActual).css("background","lightgreen");
             // $("#contentStep"+pasoActual).hide();
             $("#step"+siguiente).show();
-            lastTimeStamp = value.created_at;
-
+            if(pasoActual == 1){
+                firstTimeStamp = value.created_at;
+            }
+            
         });
+        startTimer();
     }
     $('.textarea').wysihtml5({locale: 'es-ES'});
 
@@ -3239,7 +3245,7 @@
             idSolicitante = fechaPago.idSolicitante;
             table +='<tr>';
                 table +='<td>'+fechaPago.fecha_pago+'</td>';
-                table +='<td>'+fechaPago.monto_pago+'</td>';
+                table +='<td>'+(fechaPago.monto_pago)+'</td>';
                 table +='<td>';
                 // table +='<button onclick="eliminarFechaPago('+idSolicitante+','+index+')" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago" style="display:none;">';
                 //     table +='<i class="fa fa-eye"></i>';
@@ -3409,10 +3415,10 @@
     var timer = 0;
     function startTimer(){
         var days = "";
-        if(lastTimeStamp != ""){
-            lastTimeStamp = moment(lastTimeStamp)
+        if(firstTimeStamp != ""){
+            firstTimeStamp = moment(firstTimeStamp)
             var actualDate = moment();
-            var seconds = actualDate.diff(lastTimeStamp,"seconds");
+            var seconds = actualDate.diff(firstTimeStamp,"seconds");
             var minutes = seconds / 60;
             var hours = minutes /60;
             days = hours / 24;
@@ -3429,8 +3435,8 @@
                 timer = 1;
                 timestamp = new Date(timestamp.getTime() + interval*1000);
                 var dias = "";
-                if(days != ""){
-                    dias = days.toString().split(".")[0]+ "dias "
+                if(days != "" && parseInt(days) != 0){
+                    dias = days.toString().split(".")[0]+ " dias "
                 }
                 $('.countdown').text(dias + formatNumberTimer(timestamp.getHours())+':'+formatNumberTimer(timestamp.getMinutes())+':'+formatNumberTimer(timestamp.getSeconds()));
             }, 1000);

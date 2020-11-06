@@ -210,7 +210,7 @@
                                                     </ol> --}}
                                                     {{-- Usted puede escoger una de estas alternativas o bien modificar las tablas. Lo que deja confirmado en el sistema será la propuesta de arreglo que se mostrará en el acta de audiencia. --}}
                                                 </p>
-                                                @foreach($audiencia->solicitantes as $solicitante)
+                                                @foreach($audiencia->solicitantesComparecientes as $solicitante)
                                                 {{-- <pre>{{$solicitante->parte->id}}</pre> --}}
                                                     <div class="card">
                                                     <div class="card-header" id="headingOne">
