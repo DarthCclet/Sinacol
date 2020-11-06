@@ -469,7 +469,7 @@
                             <div class="form-group col-md-6">
                                 <label for="dias" class="col-sm-6 control-label labelResolucion">D&iacute;as a pagar</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="dias" placeholder="D&iacute;as a pagar" class="form-control" />
+                                    <input type="text" id="dias" placeholder="D&iacute;as a pagar" class="form-control numero" />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
@@ -1280,13 +1280,13 @@
                         <h5>Fechas para pagos diferidos</h5>
                         <div class="row">
                             <div class="form-group col-md-6">
-                                <label for="dias" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
+                                <label for="fecha_pago" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
                                 <div class="col-sm-12">
                                     <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control dateBirth" />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
-                                <label for="monto" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
+                                <label for="monto_pago" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
                                 <div class="col-sm-12">
                                     <input type="text" id="monto_pago" placeholder="Monto a pagar" class="form-control numero" />
                                 </div>
