@@ -143,6 +143,16 @@ class SolicitudController extends Controller {
                 $solicitud->where('tipo_solicitud_id',3)->orWhere('tipo_solicitud_id',4);
                 $filtrarCentro = false;
             }
+            if(Auth::user()->hasRole('Personal conciliador') && $this->request->get('mis_solicitudes') == "true"){
+                $persona_id= Auth::user()->persona->id;
+                $conciliador = Conciliador::where('persona_id',$persona_id)->first();
+                if($conciliador != null){
+                    $conciliador_id = $conciliador->id;
+                    $solicitud->whereHas('expediente.audiencia', function($q) use($conciliador_id){
+                        $q->where('conciliador_id', $conciliador_id);
+                    });
+                }
+            }
             if($filtrarCentro){
                 $centro_id = Auth::user()->centro_id;
                 $solicitud->where('centro_id',$centro_id);
@@ -170,9 +180,10 @@ class SolicitudController extends Controller {
                 }else{
                     $total = Solicitud::count();
                 }
+                $filtered = $solicitud->count();
                 $draw = $this->request->get('draw');
                 
-                return $this->sendResponseDatatable($total, $total, $draw, $solicitud, null);
+                return $this->sendResponseDatatable($total, $filtered, $draw, $solicitud, null);
             }
         }
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();

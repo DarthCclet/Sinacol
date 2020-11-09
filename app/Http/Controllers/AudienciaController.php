@@ -721,6 +721,12 @@ class AudienciaController extends Controller {
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
                     }
                 }
+                if($audiencia->resolucion_id != 2){
+                    $solicitud = $audiencia->expediente->solicitud;
+                    $solicitud->update([
+                        "estatus_solicitud_id" => 3
+                    ]);
+                }
                 DB::commit();
                 $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago );
                 $etapaAudiencia = EtapaResolucionAudiencia::create([

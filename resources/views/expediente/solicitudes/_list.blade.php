@@ -9,6 +9,11 @@
         content: " (*)";
     }
     #ui-datepicker-div {z-index:9999 !important}
+    .selectedButton{
+        color: #fff !important;
+        background-color: #9D2449 !important;
+        border-color: #9D2449 !important;
+    }
 </style>
 
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
@@ -656,7 +661,10 @@
                     "url": '/solicitudes',
                     "dataSrc": function(json){
                         var array = new Array();
-                        this.recordsTotal = json.total;
+                        this.recordsTotal = json.recordsTotal;
+                        if(mis_solicitudes == true){
+                            $("#spanMisSol").html(json.recordsFiltered);
+                        }
                         $.each(json.data,function(key, value){
                             array.push(Object.values(value));
                         });
@@ -670,6 +678,7 @@
                         d.Expediente = $("#Expediente").val(),
                         d.anio = $("#anio").val(),
                         d.estatus_solicitud_id = $("#estatus_solicitud_id").val(),
+                        d.mis_solicitudes = $("#mis_solicitudes").val(),
                         d.curp = $("#curp").val(),
                         d.nombre = $("#nombre").val(),
                         d.IsDatatableScroll = true,
@@ -896,6 +905,19 @@
             cargarTipoContactos();
             FormMultipleUpload.init();
        });
+
+        function filtrarMisSolicitudes(){
+            mis_solicitudes = !mis_solicitudes; 
+            $('#mis_solicitudes').val(mis_solicitudes).trigger('change');
+            if(mis_solicitudes){
+                $("#spanMisSol").addClass('badge-success');
+                $("#btnMisSol").addClass('selectedButton');
+            }else{
+                $("#btnMisSol").removeClass('selectedButton');
+                $("#spanMisSol").removeClass('badge-success');
+                $("#spanMisSol").html("0");
+            }
+        }
 
     //    para ratificacion
 
@@ -2300,10 +2322,16 @@
         }
     });
     $(".dateBirth").datepicker({
-            changeMonth: true,
-            changeYear: true,
-            yearRange: "c-80:",
-            format:'dd/mm/yyyy',
-        });
+        changeMonth: true,
+        changeYear: true,
+        yearRange: "c-80:",
+        format:'dd/mm/yyyy',
+    });
+
+    $("#estatus_solicitud_id").change(function(){
+        var estatus = $(this).val();
+        $(".estatus").removeClass('selectedButton');
+        $("#estatus"+estatus).addClass('selectedButton');
+    });
   </script>
   @endpush

@@ -25,7 +25,16 @@
                 <button class="btn btn-primary pull-right" onclick="nuevaSolicitud()" > <i class="fa fa-plus-circle"></i> Nueva solicitud</button>
             </div>
         </div>
+        @if(auth()->user()->hasRole('Personal conciliador'))
+        <div class="col-md-12">
+            <a href="#" onclick="filtrarMisSolicitudes()" id="btnMisSol" class="btn btn-primary badge-pill btn-sm mb-2" title="Solo mostrar mis solicitudes asignadas">
+                <span class="fa fa-unlink"></span> &nbsp; Mis solicitudes &nbsp;
+                <span class="badge badge-pill btn-light" id="spanMisSol">0</span>
+            </a>    
+        </div>
+        @endif
         <div id="divFilters" class="col-md-12 row" style="display: none">
+            <input type="hidden" value="false" class="filtros" id="mis_solicitudes">
             <div class="col-md-4">
                 <input class="form-control filtros" id="curp" placeholder="CURP" type="text" value="">
                 <p class="help-block needed">CURP</p>
@@ -73,10 +82,10 @@
         <div style="float: left;">
             <label class="col-md-12"> Filtros</label>
             <button class="btn btn-primary pull-right m-2" onclick="filtros()">Mas filtros</button>
-            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(3).trigger('change');" >Concluidas</button>
-            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(2).trigger('change');">Ratificadas</button>
-            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(1).trigger('change');">Sin Ratificar</button>
-            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val('').trigger('change');">Todas</button>
+            <button class="btn btn-primary pull-right m-2 estatus" id="estatus3" onclick="$('#estatus_solicitud_id').val(3).trigger('change');" >Concluidas</button>
+            <button class="btn btn-primary pull-right m-2 estatus" id="estatus2" onclick="$('#estatus_solicitud_id').val(2).trigger('change');">Ratificadas</button>
+            <button class="btn btn-primary pull-right m-2 estatus" id="estatus1" onclick="$('#estatus_solicitud_id').val(1).trigger('change');">Sin Ratificar</button>
+            <button class="btn btn-primary pull-right m-2 estatus selectedButton" id="estatus" onclick="$('#estatus_solicitud_id').val('').trigger('change');">Todas</button>
         </div>
         <br>
         <br>
@@ -132,6 +141,7 @@
 
 @push('scripts')
     <script>
+        var mis_solicitudes = false;
         $(".date").datetimepicker({format:"DD/MM/YYYY",locale:'es'});
 //        $.datetimepicker.setLocale('es');
         $('#solicitantefechaNacimiento').datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm'});
