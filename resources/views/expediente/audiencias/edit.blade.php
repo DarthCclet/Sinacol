@@ -2495,6 +2495,7 @@
                         dataType:"json",
                         data:{
                             audiencia_id:'{{ $audiencia->id }}',
+                            solicitud_id:'{{$solicitud_id}}',
                             idPagoDiferido:idPagoDiferido,
                             _token:"{{ csrf_token() }}"
                         },
