@@ -233,9 +233,9 @@
                         }
                         $("#alertMap"+identifier).text("No se ha encontrado la referencia exacta en el mapa. Favor de dar click en el punto exacto donde se encuentra el domicilio del citado");
                         swal({
-                            title: 'Error',
+                            title: '',
                             text: 'No se ha encontrado la referencia exacta en el mapa. Favor de dar click en el punto exacto donde se encuentra el domicilio del citado',
-                            icon: 'error'
+                            icon: 'warning'
                         });
                     }
                 });
