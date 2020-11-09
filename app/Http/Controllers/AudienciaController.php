@@ -43,6 +43,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FechaAudienciaService;
+use Illuminate\Support\Facades\Auth;
 
 class AudienciaController extends Controller {
 
@@ -101,6 +102,12 @@ class AudienciaController extends Controller {
             if ($this->request->get('expediente_id') != "") {
                 $audiencias->where('expediente_id', "=", $this->request->get('expediente_id'))->orderBy('fecha_audiencia', 'asc');
             }
+            
+            $persona_id= Auth::user()->persona->id;
+            $conciliador = Conciliador::where('persona_id',$persona_id)->first();
+            $conciliador_id = $conciliador->id;
+            $audiencias->where('conciliador_id',$conciliador_id);
+
             if ($this->request->get('IsDatatableScroll')) {
                 $audiencias = $audiencias->with('conciliador.persona');
                 $audiencias = $audiencias->with('expediente.solicitud');
@@ -123,7 +130,8 @@ class AudienciaController extends Controller {
             } else {
                 $total = Audiencia::count();
                 $draw = $this->request->get('draw');
-                return $this->sendResponseDatatable($total, $total, $draw, $audiencias, null);
+                $filtered = $audiencias->count();
+                return $this->sendResponseDatatable($total, $filtered, $draw, $audiencias, null);
             }
         }
         return view('expediente.audiencias.index');
