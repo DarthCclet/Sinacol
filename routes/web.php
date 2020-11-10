@@ -65,10 +65,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('audiencias','AudienciaController');
     Route::resource('audiencia','AudienciaController');
     Route::Post('audiencia/ConciliadoresDisponibles','AudienciaController@ConciliadoresDisponibles');
+    Route::Post('audiencia/ConciliadoresDisponiblesCentral','AudienciaController@ConciliadoresDisponiblesCentral');
+    Route::Post('audiencia/SalasDisponiblesCentral','AudienciaController@SalasDisponiblesCentral');
     Route::Post('audiencia/SalasDisponibles','AudienciaController@SalasDisponibles');
     Route::Post('audiencia/calendarizar','AudienciaController@calendarizar');
+    Route::Post('audiencia/calendarizarCentral','AudienciaController@calendarizarCentral');
     Route::Post('audiencia/reagendar','AudienciaController@cambiarFecha');
     Route::Post('audiencia/getCalendario','AudienciaController@getCalendario');
+    Route::Post('audiencia/getCalendarioCentral','AudienciaController@getCalendarioCentral');
     Route::Post('audiencia/getCalendarioColectivas','AudienciaController@getCalendarioColectivas');
     Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
     Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
