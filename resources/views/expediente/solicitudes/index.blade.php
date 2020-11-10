@@ -4,6 +4,8 @@
 
 @include('includes.component.datatables')
 @include('includes.component.pickers')
+@include('includes.component.calendar')
+@include('includes.component.dropzone')
 
 @section('content')
 
@@ -146,11 +148,9 @@
 //        $.datetimepicker.setLocale('es');
         $('#solicitantefechaNacimiento').datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm'});
         $(document).ready(function() {
-
-
-                $('#data-table-default').DataTable({
-                    responsive: true
-                });
+            $('#data-table-default').DataTable({
+                responsive: true
+            });
             $('.btn-borrar').on('click', function (e) {
                 let that = this;
                 console.log('boton clic');
