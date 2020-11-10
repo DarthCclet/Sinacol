@@ -43,10 +43,12 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FechaAudienciaService;
+use App\Traits\FechaNotificacion;
+use App\Events\RatificacionRealizada;
 
 class AudienciaController extends Controller {
 
-    use ValidateRange;
+    use ValidateRange,FechaNotificacion;
 
     protected $request;
 
@@ -410,6 +412,60 @@ class AudienciaController extends Controller {
         }
         return $conciliadoresResponse;
     }
+    /**
+     * Funcion para obtener los conciliadores disponibles de la oficina central
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function ConciliadoresDisponiblesCentral(Request $request) {
+        $fechaInicio = $request->fechaInicio;
+        $fechaInicioSola = date('Y-m-d', strtotime($request->fechaInicio));
+        $horaInicio = date('H:i:s', strtotime($request->fechaInicio));
+        $diaSemana = date('N', strtotime($request->fechaInicio));
+        $fechaFin = $request->fechaFin;
+        $fechaFinSola = date('Y-m-d', strtotime($request->fechaFin));
+        $horaFin = date('H:i:s', strtotime($request->fechaFin));
+        $centro = Centro::where("nombre","Oficina Central del CFCRL")->first();
+
+        $conciliadores = Conciliador::where("centro_id", $centro->id)->get();
+        $conciliadoresResponse = [];
+        foreach ($conciliadores as $conciliador) {
+            $pasa = false;
+            if (count($conciliador->disponibilidades) > 0) {
+                foreach ($conciliador->disponibilidades as $disp) {
+                    if ($disp["dia"] == $diaSemana) {
+                        $pasa = true;
+                    }
+                }
+            } else {
+                $pasa = false;
+            }
+            if ($pasa) {
+                foreach ($conciliador->incidencias as $inci) {
+                    if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
+                        $pasa = false;
+                    }
+                }
+                if ($pasa) {
+                    $conciliadoresAudiencia = array();
+                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
+                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
+                            //Buscamos que la hora inicio no este entre una audiencia
+                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
+                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
+                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
+                        }
+                    }
+                }
+            }
+            if ($pasa) {
+                $conciliador->persona = $conciliador->persona;
+                $conciliadoresResponse[] = $conciliador;
+            }
+        }
+        return $conciliadoresResponse;
+    }
 
     /**
      * Funcion para obtener las Salas disponibles
@@ -427,6 +483,63 @@ class AudienciaController extends Controller {
         $horaFin = date('H:i:s', strtotime($request->fechaFin));
         ## Obtenemos las salas -> en el futuro seran filtradas por el centro de la sesión
         $salas = Sala::where("centro_id", auth()->user()->centro_id)->get();
+        $salasResponse = [];
+        ## Recorremos las salas para la audiencia
+        foreach ($salas as $sala) {
+            $pasa = false;
+            ## buscamos si tiene disponibilidad y si esta en el día que se solicita
+            if (count($sala->disponibilidades) > 0) {
+                foreach ($sala->disponibilidades as $disp) {
+                    if ($disp["dia"] == $diaSemana) {
+                        $pasa = true;
+                    }
+                }
+            } else {
+                $pasa = false;
+            }
+            if ($pasa) {
+                ## Validamos que no haya incidencias
+                foreach ($sala->incidencias as $inci) {
+                    if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
+                        $pasa = false;
+                    }
+                }
+                if ($pasa) {
+                    ## validamos que no haya audiencias en el horario solicitado
+                    foreach ($sala->salaAudiencia as $salaAudiencia) {
+                        if ($salaAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
+                            //Buscamos que la hora inicio no este entre una audiencia
+                            $horaInicioAudiencia = $salaAudiencia->audiencia->hora_inicio;
+                            $horaFinAudiencia = $salaAudiencia->audiencia->hora_fin;
+                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
+                        }
+                    }
+                }
+            }
+
+            if ($pasa) {
+                $salasResponse[] = $sala;
+            }
+        }
+        return $salasResponse;
+    }
+    /**
+     * Funcion para obtener las Salas disponibles de la oficina central
+     * @param Request $request
+     * @return type
+     */
+    public function SalasDisponiblesCentral(Request $request) {
+        ## Agregamos las variables con lo que recibimos
+        $fechaInicio = $request->fechaInicio;
+        $fechaInicioSola = date('Y-m-d', strtotime($request->fechaInicio));
+        $horaInicio = date('H:i:s', strtotime($request->fechaInicio));
+        $diaSemana = date('N', strtotime($request->fechaInicio));
+        $fechaFin = $request->fechaFin;
+        $fechaFinSola = date('Y-m-d', strtotime($request->fechaFin));
+        $horaFin = date('H:i:s', strtotime($request->fechaFin));
+        ## Obtenemos las salas -> en el futuro seran filtradas por el centro de la sesión
+        $centro = Centro::where("nombre","Oficina Central del CFCRL")->first();
+        $salas = Sala::where("centro_id", $centro->id)->get();
         $salasResponse = [];
         ## Recorremos las salas para la audiencia
         foreach ($salas as $sala) {
@@ -524,6 +637,126 @@ class AudienciaController extends Controller {
         event(new GenerateDocumentResolution($audiencia->id, $expediente->solicitud_id, 14, 4));
         return $audiencia;
     }
+    /**
+     * Funcion para obtener la vista del calendario central
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function calendarizarCentral(Request $request) {
+        if ($request->tipoAsignacion == 1) {
+            $multiple = false;
+        } else {
+            $multiple = true;
+        }
+        DB::beginTransaction();
+        try{
+            $solicitud = Solicitud::find($request->solicitud_id);
+            $ContadorController = new ContadorController();
+            //Obtenemos el contador
+            $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
+            $edo_folio = $solicitud->centro->abreviatura;
+            $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
+            //Creamos el expediente de la solicitud
+            $expediente = Expediente::create(["solicitud_id" => $request->solicitud_id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
+            foreach ($solicitud->partes as $key => $parte) {
+                if(count($parte->documentos) == 0){
+                    $parte->ratifico = true;
+                    $parte->update();
+                }
+            }
+//                obtenemos el domicilio del centro
+            $domicilio_centro = auth()->user()->centro->domicilio;
+//                obtenemos el domicilio del citado
+            $partes = $solicitud->partes;
+            $domicilio_citado = null;
+            foreach($partes as $parte){
+                if($parte->tipo_parte_id == 2){
+                    $domicilio_citado = $parte->domicilios()->first();
+                    break;
+                }
+            }
+            
+            $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
+            $fecha_notificacion = null;
+            if((int)$request->tipo_notificacion_id == 2){
+                $fecha_notificacion = self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$request->fecha_audiencia);
+            }
+            //Obtenemos el contador
+            $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+            //creamos el registro de la audiencia
+            if($request->fecha_cita == "" || $request->fecha_cita == null){
+                $fecha_cita = null;
+            }else{
+                $fechaC = explode("/", $request->fecha_cita);
+                $fecha_cita = $fechaC["2"]."-".$fechaC["1"]."-".$fechaC["0"];
+            }
+            $audiencia = Audiencia::create([
+                "expediente_id" => $expediente->id,
+                "multiple" => $multiple,
+                "fecha_audiencia" => $request->fecha_audiencia,
+                "fecha_limite_audiencia" => $fecha_notificacion,
+                "hora_inicio" => $request->hora_inicio, 
+                "hora_fin" => $request->hora_fin,
+                "conciliador_id" =>  1,
+                "numero_audiencia" => 1,
+                "reprogramada" => false,
+                "anio" => $folioAudiencia->anio,
+                "folio" => $folioAudiencia->contador,
+                "encontro_audiencia" => true,
+                "fecha_cita" => $fecha_cita
+            ]);
+            $id_conciliador = null;
+            foreach ($request->asignacion as $value) {
+                if ($value["resolucion"]) {
+                    $id_conciliador = $value["conciliador"];
+                }
+                ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $value["conciliador"], "solicitante" => $value["resolucion"]]);
+                SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $value["sala"], "solicitante" => $value["resolucion"]]);
+            }
+            $audiencia->update(["conciliador_id" => $id_conciliador]);
+            // Guardamos todas las Partes en la audiencia
+            $partes = $solicitud->partes;
+            $tipo_notificacion_id = null;
+            foreach ($partes as $parte) {
+                if($parte->tipo_parte_id != 1){
+                    $tipo_notificacion_id = $request->tipo_notificacion_id;
+                }
+                AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id]);
+                if($parte->tipo_parte_id == 2){
+                    event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
+                }
+            }
+            if($tipo_notificacion_id != 1 && $tipo_notificacion_id != null){
+                event(new RatificacionRealizada($audiencia->id,"citatorio"));
+            }
+            
+            $audiencia = Audiencia::find($audiencia->id);
+            $salas = [];
+            foreach($audiencia->salasAudiencias as $sala){
+                $sala->sala;
+            }
+            foreach($audiencia->conciliadoresAudiencias as $conciliador){
+                $conciliador->conciliador->persona;
+            }
+            $acuse = Documento::where('documentable_type','App\Solicitud')->where('documentable_id',$solicitud->id)->where('clasificacion_archivo_id',40)->first();
+            if($acuse != null){
+                $acuse->delete();
+            }
+            event(new GenerateDocumentResolution("",$solicitud->id,40,6));
+            DB::commit();
+            return $audiencia;
+        } catch (\Throwable $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
+            if ($this->request->wantsJson()) {
+                return $this->sendError('Error al ratificar la solicitud', 'Error');
+            }
+            return redirect('solicitudes')->with('error', 'Error al ratificar la solicitud');
+        }
+    }
 
     /**
      * Funcion para obtener los momentos ocupados
@@ -534,6 +767,41 @@ class AudienciaController extends Controller {
     public function getCalendario(Request $request) {
         // inicio obtenemos los datos del centro donde no trabajará
         $centro = auth()->user()->centro;
+        $centroDisponibilidad = $centro->disponibilidades;
+        $laboresCentro = array();
+        foreach ($centroDisponibilidad as $key => $value) {
+            array_push($laboresCentro, array("dow" => array($value["dia"]), "startTime" => $value["hora_inicio"], "endTime" => $value["hora_fin"]));
+        }
+        //fin obtenemos disponibilidad
+        //inicio obtenemos incidencias del centro
+        $incidenciasCentro = array();
+        $centroIncidencias = $centro->incidencias;
+        $arrayFechas = [];
+        foreach ($centroIncidencias as $key => $value) {
+            $arrayFechas = $this->validarIncidenciasCentro($value, $arrayFechas);
+        }
+        $arrayAudiencias = $this->getTodasAudienciasIndividuales($centro->id);
+        $ev = array_merge($arrayFechas, $arrayAudiencias);
+        //construimos el arreglo general
+        $arregloGeneral = array();
+        $arregloGeneral["laboresCentro"] = $laboresCentro;
+        $arregloGeneral["incidenciasCentro"] = $ev;
+        $arregloGeneral["duracionPromedio"] = $centro->duracionAudiencia;
+        //obtenemos el minmaxtime
+        $minmax = $this->getMinMaxTime($centro);
+        $arregloGeneral["minTime"] = $minmax["hora_inicio"];
+        $arregloGeneral["maxtime"] = $minmax["hora_fin"];
+        return $arregloGeneral;
+    }
+    /**
+     * Funcion para obtener los momentos ocupados
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getCalendarioCentral(Request $request) {
+        // inicio obtenemos los datos del centro donde no trabajará
+        $centro = Centro::where("nombre","Oficina Central del CFCRL")->first();
         $centroDisponibilidad = $centro->disponibilidades;
         $laboresCentro = array();
         foreach ($centroDisponibilidad as $key => $value) {
@@ -670,7 +938,7 @@ class AudienciaController extends Controller {
      * @return array
      */
     public function getTodasAudienciasColectivas() {
-        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[3,4])->get();
+        $solicitudes = Solicitud::whereIn("tipo_solicitud_id", [3,4])->where("ratificada",true)->get();
         $audiencias = [];
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
