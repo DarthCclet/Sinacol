@@ -46,7 +46,7 @@ class StringTemplate
      * @return string
      */
     public static function sustituyePlaceholders($string){
-        $string = preg_replace('/\[ESPACIO_FIRMA\]/','&nbsp;&nbsp;&nbsp;', $string);
+        $string = preg_replace('/\[ESPACIO_FIRMA\]/','&nbsp;&nbsp;', $string);
         $blade = preg_replace('/<strong class="mceNonEditable" data-nombre="(\w+)">\[([\\p{L}_ &;]+)\]<\/strong>/i',
             '<strong>{!! \$$1 !!}</strong>', $string);
         return $blade;
@@ -82,13 +82,13 @@ class StringTemplate
                 $string = $htmlA . $sliceDiferido . $htmlB;
 
               }else{//Sin pagos diferidos
-                  $sliceDiferido = Str::after($string, '[SI_RESOLUCION_PAGO_NO_DIFERIDO]');
-                  $sliceDiferido = Str::before($sliceDiferido, '[FIN_SI_RESOLUCION_PAGO]');
+                $sliceDiferido = Str::after($string, '[SI_RESOLUCION_PAGO_NO_DIFERIDO]');
+                $sliceDiferido = Str::before($sliceDiferido, '[FIN_SI_RESOLUCION_PAGO]');
 
-                  $htmlA = Str::before($string, '[SI_RESOLUCION_PAGO_DIFERIDO');
-                  $htmlB = Str::after($string, '[FIN_SI_RESOLUCION_PAGO]');
+                $htmlA = Str::before($string, '[SI_RESOLUCION_PAGO_DIFERIDO');
+                $htmlB = Str::after($string, '[FIN_SI_RESOLUCION_PAGO]');
 
-                  $string = $htmlA . $sliceDiferido . $htmlB;
+                $string = $htmlA . $sliceDiferido . $htmlB;
                 // break;
               }
             }
@@ -127,6 +127,10 @@ class StringTemplate
                 break;
               }
             }
+          }else{
+            $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+            $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+            $string = $htmlA . $htmlB;
           }
         }
         if (isset($vars['audiencia_multiple'])){
