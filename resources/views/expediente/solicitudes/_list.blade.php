@@ -1,5 +1,3 @@
-@include('includes.component.dropzone')
-
 <style>
     .upper{
         text-transform: uppercase;
@@ -253,6 +251,11 @@
                         <tbody>
                     </table>
                 </div>
+                <div class="col-md-12" id="divCalendarioCentral">
+                    <h5>Calendario de oficina central</h5>
+                    <hr class="red">
+                    @include('expediente.audiencias.calendarioRatificacion')
+                </div>
                 <div class="col-md-12">
                     <p id="notificaAmbito" style="color: darkred; font-weight:bold; display:none; text-align:right;"></p>
                 </div>
@@ -278,8 +281,6 @@
             </div>
             <div class="modal-body">
                 <div style="overflow:scroll">
-
-
                     <h5>Datos del Representante legal</h5>
                     <input type="hidden" id="id_representante">
                     <div class="col-md-12 row">
@@ -967,6 +968,14 @@
         }else{
             $("#divNoGeolocalizable").show();
             $("#divGeolocalizable").hide();
+        }
+        console.log(solicitudObj.tipo_solicitud_id);
+        if(solicitudObj.tipo_solicitud_id == 3 || solicitudObj.tipo_solicitud_id == 4){
+            $("#btnGuardarRatificar").hide();
+            $("#divCalendarioCentral").show();
+        }else{
+            $("#divCalendarioCentral").hide();
+            $("#btnGuardarRatificar").show();
         }
         try{
             cargarDocumentos();
@@ -2245,6 +2254,7 @@
                     solicitudObj.giro_comercial = data.giroComercial.nombre;
                     solicitudObj.ambito_id = data.giroComercial.ambito_id;
                     solicitudObj.ambito_nombre = data.giroComercial.ambito.nombre;
+                    solicitudObj.tipo_solicitud_id = data.tipo_solicitud_id;
 
                     cargarGeneros();
                     cargarTipoContactos();

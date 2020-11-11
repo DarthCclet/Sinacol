@@ -94,7 +94,7 @@ class UserController extends Controller
                 'personas.nombre' => 'required|alpha|max:60',
                 'personas.primer_apellido' => 'required|alpha|max:60',
                 'personas.segundo_apellido' => 'alpha|nullable|max:60',
-                'personas.rfc' => 'alphanum|required|max:13',
+                'personas.curp' => 'alphanum|required|max:18',
             ]
         );
 
@@ -106,6 +106,9 @@ class UserController extends Controller
         $user = User::create($userRequest);
         $user->persona_id = $persona->id;
         $user->save();
+        if (auth()->user()->centro->nombre == "Oficina Central del CFCRL") {
+            $user->assignRole("Orientador Central");
+        }
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
         }

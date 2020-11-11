@@ -250,6 +250,15 @@
                                             <input type="hidden" id="tiempoVencido"/>
                                             <input type="hidden" id="idSolicitante"/>
                                             <div>
+                                                Datos laborales:
+                                                <ul>
+                                                    <li id="salario"> </li>
+                                                    <li id="fechaIngreso"> </li>
+                                                    <li id="fechaSalida"> </li>
+                                                </ul>
+                                            </div>
+                                            <br>
+                                            <div>
                                                 <div>
                                                     <table class="table">
                                                         <thead>
@@ -3080,6 +3089,10 @@
                 $('#tiempoVencido').val(dato.tiempoVencido);
                 $('#idSolicitante').val(dato.idParte);
 
+                $('#salario').html(" Remuneraci&oacute;n "+ dato.salario);
+                $('#fechaIngreso').html(" Fecha de ingreso: " + dato.fechaIngreso);
+                $('#fechaSalida').html(" Fecha de salida: " + dato.fechaSalida);
+
                 let table = "";
                 table+=" <tr>";
                 table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td><td class="amount" > $'+ (dato.al50.indemnizacion).toLocaleString("en-US") +'</td>';
@@ -3173,11 +3186,11 @@
         salarioMinimo = $('#salarioMinimo').val();
         switch (concepto) {
             case '4': //Dias de aguinaldo
-                if(dias <15){
-                    swal({title: 'Error',text: 'El numero de dias para aguinaldo debe ser mayor o igual a 15',icon: 'warning'});
-                }else{
+                // if(dias <15){
+                //     swal({title: 'Error',text: 'El numero de dias para aguinaldo debe ser mayor o igual a 15',icon: 'warning'});
+                // }else{
                     monto = dias * pagoDia;
-                }
+                // }
                 break;
             case '7': // Prima topada por antiguedad
 
@@ -3196,11 +3209,12 @@
     $("#btnAgregarFechaPago").on("click",function(){
         if(listaConfigFechas.length < 5){  
             var hoy = new Date();
-            var unMes = hoy.setMonth(hoy.getMonth() + 1);
+            var _45dias = hoy.setDate(hoy.getDate() + 45);
+            // var unMes = hoy.setMonth(hoy.getMonth() + 1);
             let fechaP = $("#fecha_pago").val().split("/");
             var fpago = new Date(fechaP[1]+'/'+fechaP[0]+'/'+fechaP[2]);
             
-            if(fpago <= unMes){
+            if(fpago <= _45dias){
                 let idSolicitante =$("#idSolicitante").val();
                 if( $("#fecha_pago").val() != "" && $("#monto_pago").val() != ""){
                     let existe = false;
@@ -3228,7 +3242,7 @@
                     swal({title: 'Error',text: 'Debe ingresar fecha y monto de pago',icon: 'warning'});
                 }
             }else{
-                swal({title: 'Error',text: 'La fecha de pago no puede exceder un mes',icon: 'warning'});
+                swal({title: 'Error',text: 'La fecha de pago no puede exceder 45 d&iacute;as',icon: 'warning'});
             }
         }else{
             swal({title: 'Error',text: 'El número máximo de pagos permitidos es cinco.' ,icon: 'warning'});
