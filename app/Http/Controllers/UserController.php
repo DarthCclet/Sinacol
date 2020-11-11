@@ -106,6 +106,9 @@ class UserController extends Controller
         $user = User::create($userRequest);
         $user->persona_id = $persona->id;
         $user->save();
+        if (auth()->user()->centro->nombre == "Oficina Central del CFCRL") {
+            $user->assignRole("Orientador Central");
+        }
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
         }
