@@ -894,62 +894,185 @@
         }
     });
 
-    config_tmce = function(selector) {
-        return {
-            auto_focus: 'plantilla-body',
-            selector: selector,
-            language: 'es_MX',
-            
-            language_url: '/js/tinymce/languages/es_MX.js',
-            inline: false,
-            menubar: false,
-            toolbar_items_size: 'large',
-            plugins: [
-                'noneditable advlist autolink lists link image imagetools preview',
-                ' media table paste pagebreak'
-            ],
-            toolbar1: 'basicDateButton | mybutton | fontselect fontsizeselect | undo redo ' +
-            '| bold italic underline| alignleft aligncenter alignright alignjustify | bullist numlist ' +
-            '| outdent indent | link unlink image | table pagebreak forecolor backcolor',
-            toolbar2: "",
-            image_title: true,
-            automatic_uploads: true,
-            file_picker_types: 'image',
-            font_formats: 'Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva',
-            paste_as_text: true,
-            file_picker_callback: function (cb, value, meta) {
-                var input = document.createElement('input');
-                input.setAttribute('type', 'file');
-                input.setAttribute('accept', 'image/*');
-                input.onchange = function () {
-                    var file = this.files[0];
-                    var reader = new FileReader();
-                    reader.onload = function () {
-                        var id = 'blobid' + (new Date()).getTime();
-                        var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                        var base64 = reader.result.split(',')[1];
-                        var blobInfo = blobCache.create(id, file, base64);
-                        blobCache.add(blobInfo);
-                        cb(blobInfo.blobUri(), {title: file.name});
-                    };
-                    reader.readAsDataURL(file);
-                };
-                input.click();
-            },
-            setup: function (editor) {
-                editor.on('init', function (ed) {
-                    ed.target.editorCommands.execCommand("fontName", false, "Arial");
+    
+
+    //files functions
+    var handleJqueryFileUpload = function() {
+        // Initialize the jQuery File Upload widget:
+        $('#fileupload').fileupload({
+            autoUpload: false,
+            disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
+            maxFileSize: 5000000,
+            acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
+            stop: function(e,data){
+                cargarDocumentos();
+            //   $("#modal-archivos").modal("hide");
+            }
+            // Uncomment the following to send cross-domain cookies:
+            //xhrFields: {withCCOLOR_REDentials: true},
+        });
+
+        // Enable iframe cross-domain access via COLOR_REDirect option:
+        $('#fileupload').fileupload(
+            'option',
+            'COLOR_REDirect',
+            window.location.href.replace(
+                    /\/[^\/]*$/,
+                    '/cors/result.html?%s'
+            )
+        );
+
+        // hide empty row text
+        $('#fileupload').on('fileuploadsend', function (e, data) {
+
+            // if(){
+            //     e.preventDefault();
+            // }
+        })
+        $('#fileupload').bind('fileuploadadd', function(e, data) {
+            $('#fileupload [data-id="empty"]').hide();
+            $(".catSelectFile").select2();
+        });
+        $('#fileupload').bind('fileuploaddone', function(e, data) {
+            // console.log("add");
+        });
+
+        // show empty row text
+        $('#fileupload').bind('fileuploadfail', function(e, data) {
+            var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
+            if (rowLeft === 0) {
+                    $('#fileupload [data-id="empty"]').show();
+            } else {
+                    $('#fileupload [data-id="empty"]').hide();
+            }
+        });
+
+        // Upload server status check for browsers with CORS support:
+        if ($.support.cors) {
+                $.ajax({
+                        type: 'HEAD'
+                }).fail(function () {
+                        $('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
                 });
-                // editor.ui.registry.addButton('mybutton', {
-                //   text: 'My Custom Button',
-                //   onAction: () => alert('Button clicked!')
-                // });
+        }
+
+        // Load & display existing files:
+        $('#fileupload').addClass('fileupload-processing');
+        $.ajax({
+                // Uncomment the following to send cross-domain cookies:
+                //xhrFields: {withCCOLOR_REDentials: true},
+                url: $('#fileupload').fileupload('option', 'url'),
+                dataType: 'json',
+                context: $('#fileupload')[0]
+        }).always(function () {
+                $(this).removeClass('fileupload-processing');
+        }).done(function (result) {
+                $(this).fileupload('option', 'done')
+                .call(this, $.Event('done'), {result: result});
+        });
+    };
+    var handleIsotopesGallery = function() {
+        var container = $('#gallery');
+        $(window).on('resize', function() {
+            var dividerValue = calculateDivider();
+            var containerWidth = $(container).width();
+            var columnWidth = containerWidth / dividerValue;
+            $(container).isotope({
+                masonry: {
+                    columnWidth: columnWidth
+                }
+            });
+        });
+    };
+    function calculateDivider() {
+        var dividerValue = 4;
+        if ($(this).width() <= 576) {
+            dividerValue = 1;
+        } else if ($(this).width() <= 992) {
+            dividerValue = 2;
+        } else if ($(this).width() <= 1200) {
+            dividerValue = 3;
+        }
+        return dividerValue;
+    }
+    var FormMultipleUpload = function () {
+        "use strict";
+        return {
+            //main function
+            init: function () {
+                handleJqueryFileUpload();
             }
         };
-    };
-    tinymce.init(config_tmce('#convenio_body'));
-    tinymce.init(config_tmce('#audiencia_body'));
-    tinymce.init(config_tmce('#no_comparece_body'));
+    }();
+    var Gallery = function () {
+        "use strict";
+        return {
+            //main function
+            init: function () {
+                handleIsotopesGallery();
+            }
+        };
+    }();
+
+    function cargarDocumentos(){
+            $.ajax({
+                url:"/audiencia/documentos/"+$("#audiencia_id").val(),
+                type:"GET",
+                dataType:"json",
+                async:true,
+                success:function(data){
+                    if(data != null && data != ""){
+                        var html = "";
+                        $.each(data, function (key, value) {
+                            if(value.documentable_type == "App\\Parte"){
+                                    // var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
+                                    // if(parte != undefined){
+                                        html += "<tr>";
+                                        html += "<td>"+value.parte+"</td>";
+                                        html += "<td>"+ value.clasificacion_archivo.nombre+"</td>";
+                                        html += "</tr>";
+                                        ratifican = true;
+                                    // }
+                            }
+                        });
+                        $("#tbodyRatificacion").html(html);
+                        var table = "";
+                        var div = "";
+                        $.each(data, function(index,element){
+                            div += '<div class="image gallery-group-1">';
+                            div += '    <div class="image-inner" style="position: relative;">';
+                            if(element.tipo == 'pdf' || element.tipo == 'PDF'){
+                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
+                                div += '                <div class="img" align="center">';
+                                div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
+                                div += '                </div>';
+                                div += '            </a>';
+                            }else{
+                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
+                                div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
+                                div += '            </a>';
+                            }
+                            div += '            <p class="image-caption">';
+                            div += '                '+element.longitud+' kb';
+                            div += '            </p>';
+                            div += '    </div>';
+                            div += '    <div class="image-info">';
+                            div += '            <h5 class="title">'+element.nombre_original+'</h5>';
+                            div += '            <div class="desc">';
+                            div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
+                            div +=                  element.descripcion+'<br>';
+                            div += '            </div>';
+                            div += '    </div>';
+                            div += '</div>';
+                        });
+                        $("#gallery").html(div);
+                    }else{
+
+                    }
+                }
+            });
+        }
+    // end files function
 
     $("#btnCargarComparecientes").on("click",function(){
         $.ajax({
@@ -2043,6 +2166,68 @@
             changeYear: true,
             yearRange: "c-80:",
             format:'dd/mm/yyyy',
+        });
+            config_tmce = function(selector) {
+                return {
+                    auto_focus: 'plantilla-body',
+                    selector: selector,
+                    language: 'es_MX',
+                    
+                    language_url: '/js/tinymce/languages/es_MX.js',
+                    inline: false,
+                    menubar: false,
+                    toolbar_items_size: 'large',
+                    plugins: [
+                        'noneditable advlist autolink lists link image imagetools preview',
+                        ' media table paste pagebreak'
+                    ],
+                    toolbar1: 'basicDateButton | mybutton | fontselect fontsizeselect | undo redo ' +
+                    '| bold italic underline| alignleft aligncenter alignright alignjustify | bullist numlist ' +
+                    '| outdent indent | link unlink image | table pagebreak forecolor backcolor',
+                    toolbar2: "",
+                    image_title: true,
+                    automatic_uploads: true,
+                    file_picker_types: 'image',
+                    font_formats: 'Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva',
+                    paste_as_text: true,
+                    file_picker_callback: function (cb, value, meta) {
+                        var input = document.createElement('input');
+                        input.setAttribute('type', 'file');
+                        input.setAttribute('accept', 'image/*');
+                        input.onchange = function () {
+                            var file = this.files[0];
+                            var reader = new FileReader();
+                            reader.onload = function () {
+                                var id = 'blobid' + (new Date()).getTime();
+                                var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                                var base64 = reader.result.split(',')[1];
+                                var blobInfo = blobCache.create(id, file, base64);
+                                blobCache.add(blobInfo);
+                                cb(blobInfo.blobUri(), {title: file.name});
+                            };
+                            reader.readAsDataURL(file);
+                        };
+                        input.click();
+                    },
+                    setup: function (editor) {
+                        editor.on('init', function (ed) {
+                            ed.target.editorCommands.execCommand("fontName", false, "Arial");
+                        });
+                        // editor.ui.registry.addButton('mybutton', {
+                        //   text: 'My Custom Button',
+                        //   onAction: () => alert('Button clicked!')
+                        // });
+                    }
+                };
+            };
+            
+
+        $(document).ready(function(){    
+            tinymce.init(config_tmce('#convenio_body'));
+            tinymce.init(config_tmce('#audiencia_body'));
+            tinymce.init(config_tmce('#no_comparece_body'));
+            FormMultipleUpload.init();
+            Gallery.init();
         });
 </script>
 @endpush

@@ -141,7 +141,7 @@ class SolicitudController extends Controller {
                 $filtrarCentro = false;
             }
             if(Auth::user()->hasRole('Orientador Central')){
-                $solicitud->where('tipo_solicitud_id',3)->orWhere('tipo_solicitud_id',4);
+                $solicitud->whereRaw('(tipo_solicitud_id = 3 or tipo_solicitud_id = 4)');
                 $filtrarCentro = false;
             }
             if(Auth::user()->hasRole('Personal conciliador') && $this->request->get('mis_solicitudes') == "true"){
@@ -512,7 +512,6 @@ class SolicitudController extends Controller {
         foreach($solicitud->partes as $key => $parte){
             $parte->tipoParte = $parte->tipoParte;
             $parte->domicilios = $parte->domicilios()->first();
-//            dd($parte);
             $partes[$key] = $parte;
         }
         
@@ -545,10 +544,8 @@ class SolicitudController extends Controller {
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
         
-        // dd(Conciliador::all()->persona->full_name());
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
         $giros = GiroComercial::where("parent_id",1)->orderBy('nombre')->get();
-        // dd($conciliador);
         // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
 
         // consulta de documentos

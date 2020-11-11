@@ -28,7 +28,7 @@
             </div>
         </div>
         @if(auth()->user()->hasRole('Personal conciliador'))
-        <div class="col-md-12">
+        <div class="col-md-6">
             <a href="#" onclick="filtrarMisSolicitudes()" id="btnMisSol" class="btn btn-primary badge-pill btn-sm mb-2" title="Solo mostrar mis solicitudes asignadas">
                 <span class="fa fa-unlink"></span> &nbsp; Mis solicitudes &nbsp;
                 <span class="badge badge-pill btn-light" id="spanMisSol">0</span>

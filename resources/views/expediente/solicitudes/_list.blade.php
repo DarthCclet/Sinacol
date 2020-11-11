@@ -30,6 +30,8 @@
     <div class="text-right">
         <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
     </div>
+    <input type="hidden" id="centro_id" value="{{Auth::user()->centro_id}}">
+    <input type="hidden" id="oficina_central" value="{{(auth()->user()->hasRole('Orientador Central')) ? 'true':'false'}}">
     <div class="col-md-12">
         <div id="gallery" class="gallery row"></div>
         <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
@@ -178,7 +180,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <div class="col-md-12">
+                <div style="overflow:scroll" class="col-md-12">
                     <div id="divNeedRepresentante" style="display: none;">
                         <h5>Representantes legales</h5>
                         <hr class="red">
@@ -818,12 +820,12 @@
                         "targets": -1,
                         "render": function (data, type, row) {
                                 var buttons = '';
-                                if(row[7] == '{{Auth::user()->centro_id}}'){
+                                if(row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true"){
                                     buttons += '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-4" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
                                 }
                                     buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+rutaConsulta.replace('/-rutaConsulta',"/"+row[0])+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>';
                                 
-                                if(row[1] == 1 && row[7] == '{{Auth::user()->centro_id}}'){
+                                if(row[1] == 1 && (row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true")){
                                     buttons += '<div title="Ratificar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="continuarRatificacion('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></button></div>';
                                 }
                                 return buttons;

@@ -335,7 +335,7 @@ trait GenerateDocument
                     $objeto = new JsonResponse($solicitud);
                     $obj = json_decode($objeto->content(),true);
                     $idBase = intval($obj['id']);
-                    if($solicitud->resuelveOficinaCentral()){
+                    if($solicitud->resuelveOficinaCentral() && $idPlantilla != 6){
                       $centroId = Centro::where('central',true)->first()->id;
                     }else{
                       $centroId = intval($obj['centro_id']);

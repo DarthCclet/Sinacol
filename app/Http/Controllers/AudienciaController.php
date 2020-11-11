@@ -1568,7 +1568,12 @@ class AudienciaController extends Controller {
                 $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
                 $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,15);
                 $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true));
-
+                if($request->resolucion_id != 2){
+                    $solicitud = $audiencia->expediente->solicitud;
+                    $solicitud->update([
+                        "estatus_solicitud_id" => 3
+                    ]);
+                }
                 $solicitantes = $this->getSolicitantes($audiencia);
                 $solicitados = $this->getSolicitados($audiencia);
                 $arrayRelaciones = $request->listaRelacion;
