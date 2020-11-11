@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use NumberFormatter;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Events\RatificacionRealizada;
 
 trait GenerateDocument
 {
@@ -72,6 +73,9 @@ trait GenerateDocument
                     "firmado" => "false",
                     "clasificacion_archivo_id" => $tipoArchivo->id,
                 ]);
+                if($tipoArchivo->id == 18){
+                    event(new RatificacionRealizada($audiencia->id,"multa"));
+                }
             }
             else{
                 $padre = Solicitud::find($idSolicitud);

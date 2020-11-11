@@ -94,7 +94,7 @@ class UserController extends Controller
                 'personas.nombre' => 'required|alpha|max:60',
                 'personas.primer_apellido' => 'required|alpha|max:60',
                 'personas.segundo_apellido' => 'alpha|nullable|max:60',
-                'personas.rfc' => 'alphanum|required|max:13',
+                'personas.curp' => 'alphanum|required|max:18',
             ]
         );
 
