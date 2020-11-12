@@ -130,6 +130,7 @@ class ConceptosResolucionController extends Controller
             $id = $this->request->get('solicitante_id');
             $parte = Parte::find($id);
             $datoLaboral = $parte->dato_laboral;
+            $fechaSalida = "";
             if(count($datoLaboral) > 1){
                 $datoLaborales =$datoLaboral->where('resolucion',true)->first();
             }else{
@@ -138,10 +139,12 @@ class ConceptosResolucionController extends Controller
             $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
             $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
             $labora_actualmente = $datoLaborales->labora_actualmente;
-            if($labora_actualmente != ""){
+            if($labora_actualmente == false){
+                $fechaSalida = Carbon::parse($datoLaborales->fecha_salida);
                 $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears($datoLaborales->fecha_salida);
             }else{
-                $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears(Carbon::now());
+                $fechaSalida = "Labora actualmente";
+                $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears(Carbon::today());
             }
             $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
             $salarios = SalarioMinimo::get('salario_minimo');
@@ -154,6 +157,9 @@ class ConceptosResolucionController extends Controller
             $datosL['antiguedad']= $anios_antiguedad;
             $datosL['salarioMinimo']= $salarioMinimo;
             $datosL['tiempoVencido']= $tiempoVencido;
+            $datosL['salario']= $diasPeriodicidad->nombre .': $'.$datoLaborales->remuneracion ;
+            $datosL['fechaIngreso']= Carbon::parse($datoLaborales->fecha_ingreso)->format('d/m/Y');
+            $datosL['fechaSalida']= $fechaSalida;
             // $anioSalida = Carbon::parse($datoLaboral->fecha_salida);
             // $anioSalida = Carbon::createFromFormat('Y-m-d', $datoLaboral->fecha_salida)->year;
             $anioSalida = Carbon::parse($datoLaborales->fecha_salida)->startOfYear();

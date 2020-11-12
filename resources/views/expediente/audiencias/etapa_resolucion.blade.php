@@ -2737,6 +2737,7 @@
                 },
                 success:function(data){
                     if(data != null && data != ""){
+                        getDatosLaboralesParte($("#parte_id").val());
                         swal({title: 'ÉXITO',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
                         $("#modal-dato-laboral").modal("hide");
                     }else{
