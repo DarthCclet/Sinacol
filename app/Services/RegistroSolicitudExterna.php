@@ -67,13 +67,13 @@ class RegistroSolicitudExterna
             $parteArray["solicitud_id"] = $solicitudSaved->id;
             $parteSaved = Parte::create($parteArray);
             // Guardamos el domicilio
-            foreach($parte->domicilios as $domicilio){
-                $domicilio->tipo_vialidad = "as";
-                $domicilio->estado = "as";
+            foreach($parte->domicilio as $domicilio){
+//                $domicilio->tipo_vialidad = "as";
+//                $domicilio->estado = "as";
                 $domicilioSaved = $parteSaved->domicilios()->create((array)$domicilio);
             }
             // Guardamos los datos de contacto
-            foreach($parte->contacto as $contacto){
+            foreach($parte->contactos as $contacto){
                 $parteSaved->contactos()->create((array)$contacto);
             }
             // validamos si es solicitante para guardar sus datos laborales
@@ -85,27 +85,25 @@ class RegistroSolicitudExterna
         }
         
         # Sección para guardar documentos
-        foreach($datosSolicitud->documentos as $documento){
-            $directorio = 'solicitudes/'.$solicitudSaved->id;
-            Storage::makeDirectory($directorio);
-            $data = base64_decode($documento->archivo);
-            $filename = uniqid().".".$documento->extencion;
-            Storage::disk('local')->put($directorio. "/" . $filename, $data);
-            $path = $directorio."/".$filename;
-            $tipoArchivo = ClasificacionArchivo::find($documento->clasificacion_archivo_id);
-            $solicitudSaved->documentos()->create([
-                "nombre" => str_replace($directorio."/", '',$path),
-                "nombre_original" => $documento->nombre,
-                "descripcion" => $documento->descripcion,
-                "ruta" => $path,
-                "tipo_almacen" => "local",
-                "uri" => $path,
-                "longitud" => round(Storage::size($path) / 1024, 2),
-                "firmado" => "false",
-                "clasificacion_archivo_id" => $tipoArchivo->id ,
-            ]);
-        }
-        
+        $documento = $datosSolicitud->documento;
+        $directorio = 'solicitudes/'.$solicitudSaved->id;
+        Storage::makeDirectory($directorio);
+        $data = base64_decode($documento->archivo);
+        $filename = uniqid().".".$documento->extencion;
+        Storage::disk('local')->put($directorio. "/" . $filename, $data);
+        $path = $directorio."/".$filename;
+        $tipoArchivo = ClasificacionArchivo::where("nombre","Credencial de elector")->first();
+        $solicitudSaved->documentos()->create([
+            "nombre" => str_replace($directorio."/", '',$path),
+            "nombre_original" => $documento->nombre,
+            "descripcion" => $documento->descripcion,
+            "ruta" => $path,
+            "tipo_almacen" => "local",
+            "uri" => $path,
+            "longitud" => round(Storage::size($path) / 1024, 2),
+            "firmado" => "false",
+            "clasificacion_archivo_id" => $tipoArchivo->id ,
+        ]);
         
         $respuesta = array();
         $respuesta["folio_solicitud"] = $solicitudSaved->folio;
@@ -161,11 +159,11 @@ class RegistroSolicitudExterna
             $paramsJSON->parte_demandada = $parteDemandada;
         }
         // validamos si vienen documentos en la solicitud
-        if(!isset($paramsJSON->documentos) || !$paramsJSON->documentos || !count($paramsJSON->documentos) ){
+        if(!isset($paramsJSON->documento) || !$paramsJSON->documento){
             throw new ParametroNoValidoException("Se debe agregar al menos un documento a la solicitud.", 1020);
             return null;
         }else{
-            $paramsJSON->documentos = $this->validarDocumentos($paramsJSON->documentos);
+            $paramsJSON->documento = $this->validarDocumentos($paramsJSON->documento);
         }
         return $paramsJSON;
     }
@@ -182,11 +180,7 @@ class RegistroSolicitudExterna
                 throw new ParametroNoValidoException("El primer apellido de la parte es requerido.", 1021);
                 return null;
             }
-            if(!isset($parte->segundo_apellido) || !trim($parte->segundo_apellido)){
-                throw new ParametroNoValidoException("El parámetro del segundo apellido es requerido.", 1022);
-                return null;
-            }
-            if(!isset($parte->curp) || !trim($parte->curp)){
+            if(!isset($parte->curp)){
                 throw new ParametroNoValidoException("La clave curp es requerida para personas físicas.", 1023);
                 return null;
             }
@@ -195,14 +189,6 @@ class RegistroSolicitudExterna
                 return null;
             }else{
                 $parte->fecha_nacimiento = $this->validaFechas($parte->fecha_nacimiento);
-            }
-            if(!isset($parte->edad) || !trim($parte->edad)){
-                throw new ParametroNoValidoException("La edad es requerida para personas físicas.", 1025);
-                return null;
-            }
-            if(!isset($parte->genero) || !trim($parte->genero)){
-                throw new ParametroNoValidoException("El genero es requerido para personas físicas.", 1026);
-                return null;
             }
             if(!isset($parte->entidad_nacimiento_id) || !trim($parte->entidad_nacimiento_id)){
                 throw new ParametroNoValidoException("El estado de nacimiento es requerido para personas físicas.", 1029);
@@ -218,12 +204,12 @@ class RegistroSolicitudExterna
                 throw new ParametroNoValidoException("La denominación o razón social de la persona moral es requerido.", 1020);
                 return null;
             }
-            if(!isset($parte->rfc) || !trim($parte->rfc)){
+            if(!isset($parte->rfc)){
                 throw new ParametroNoValidoException("El rfc de la persona moral es requerido.", 1021);
                 return null;
             }
             
-            $parte->domicilios = $this->validarDomicilio($parte->domicilios);
+            $parte->domicilio = $this->validarDomicilio($parte->domicilio);
         }else{
             throw new ParametroNoValidoException("Agrega un tipo de persona valido.", 1020);
             return null;
@@ -239,7 +225,7 @@ class RegistroSolicitudExterna
             $parte->tipo_parte_id = 2;
             
         }
-        $contacto = $this->validarContacto($parte->contacto);
+        $contacto = $this->validarContacto($parte->contactos);
         return $parte;
     }
     private function validarDomicilio($domicilios){
@@ -281,15 +267,15 @@ class RegistroSolicitudExterna
                     throw new ParametroNoValidoException("El asentamiento es obligatorio para los domicios.", 1020);
                     return null;
                 }
-                if(!isset($domicilio->entre_calle1) || !trim($domicilio->entre_calle1) ){
+                if(!isset($domicilio->entre_calle1) ){
                     throw new ParametroNoValidoException("Entre calle 1 es obligatorio para los domicios.", 1020);
                     return null;
                 }
-                if(!isset($domicilio->entre_calle2) || !trim($domicilio->entre_calle2) ){
+                if(!isset($domicilio->entre_calle2) ){
                     throw new ParametroNoValidoException("Entre calle 2 es obligatorio para los domicios.", 1020);
                     return null;
                 }
-                if(!isset($domicilio->referencias) || !trim($domicilio->referencias) ){
+                if(!isset($domicilio->referencias)){
                     throw new ParametroNoValidoException("Las referencias son obligatorio para los domicios.", 1020);
                     return null;
                 }
@@ -300,22 +286,15 @@ class RegistroSolicitudExterna
     }
     private function validarLaborales($datos_laborales){
         if(!isset($datos_laborales)){
-            throw new ParametroNoValidoException("TLos actores deben incluir su información laboral.", 1020);
+            throw new ParametroNoValidoException("Los actores deben incluir su información laboral.", 1020);
             return null;
         }else{
-            if(!isset($datos_laborales->ocupacion_id) || !trim($datos_laborales->ocupacion_id)){
+            if(!isset($datos_laborales->ocupacion_id)){
                 throw new ParametroNoValidoException("La ocupación es obligatoria para los datos laborales.", 1021);
                 return null;
             }
-            if(!isset($datos_laborales->percepcion_mensual_neta) || !trim($datos_laborales->percepcion_mensual_neta)){
-                throw new ParametroNoValidoException("La percepción mensual neta es obligatoria para los datos laborales.", 1021);
-                return null;
-            }
-            if(!isset($datos_laborales->percepcion_mensual_bruta) || !trim($datos_laborales->percepcion_mensual_bruta)){
-                throw new ParametroNoValidoException("La percepción mensual bruta es obligatoria para los datos laborales.", 1021);
-                return null;
-            }
-            if(!isset($datos_laborales->labora_actualmente) || !trim($datos_laborales->labora_actualmente)){
+            
+            if(!isset($datos_laborales->labora_actualmente)){
                 throw new ParametroNoValidoException("Se debe indicar si aun se labora para los datos laborales.", 1021);
                 return null;
             }
@@ -360,38 +339,28 @@ class RegistroSolicitudExterna
             return $contacto;
         }
     }
-    private function validarDocumentos($documentos){
-        if(!isset($documentos) || !count($documentos) ){
+    private function validarDocumentos($documento){
+        if(!isset($documento) ){
             throw new ParametroNoValidoException("La solicitud debe contener documentos.", 1020);
             return null;
         }else{
-            foreach($documentos as $documento){
-                if(!isset($documento->clasificacion_archivo_id) || !trim($documento->clasificacion_archivo_id) ){
-                    throw new ParametroNoValidoException("Indica el la clasificacion del archivo.", 1020);
-                    return null;
-                }
-                if(!isset($documento->archivo) || !trim($documento->archivo) ){
-                    throw new ParametroNoValidoException("No se puede obtener el archivo.", 1020);
-                    return null;
-                }
-                if(!isset($documento->nombre) || !trim($documento->nombre) ){
-                    throw new ParametroNoValidoException("Los documentos deben contener un nombre.", 1020);
-                    return null;
-                }
-                if(!isset($documento->extencion) || !trim($documento->extencion) ){
-                    throw new ParametroNoValidoException("Los documentos deben contener la extencion que les corresponde.", 1020);
-                    return null;
-                }
-                if(!isset($documento->longitud) || !trim($documento->longitud) ){
-                    throw new ParametroNoValidoException("Los documentos deben contener la longitud que tienen.", 1020);
-                    return null;
-                }
-                if(!isset($documento->descripcion) || !trim($documento->descripcion) ){
-                    throw new ParametroNoValidoException("Los documentos deben contener una descripcion.", 1020);
-                    return null;
-                }
+            if(!isset($documento->archivo) || !trim($documento->archivo) ){
+                throw new ParametroNoValidoException("No se puede obtener el archivo.", 1020);
+                return null;
             }
-            return $documentos;
+            if(!isset($documento->nombre) || !trim($documento->nombre) ){
+                throw new ParametroNoValidoException("Los documentos deben contener un nombre.", 1020);
+                return null;
+            }
+            if(!isset($documento->extencion) || !trim($documento->extencion) ){
+                throw new ParametroNoValidoException("Los documentos deben contener la extencion que les corresponde.", 1020);
+                return null;
+            }
+            if(!isset($documento->descripcion) || !trim($documento->descripcion) ){
+                throw new ParametroNoValidoException("Los documentos deben contener una descripcion.", 1020);
+                return null;
+            }
+            return $documento;
         }
     }
     private function validaFechas($fecha)
@@ -406,13 +375,13 @@ class RegistroSolicitudExterna
                 elseif(strlen($match[1]) == 10)
                     return Carbon::createFromTimestamp($match[1], $match[2].$match[3]);
                 else
-                    throw new FechaInvalidaException("La fecha $fecha no es válida");
+                    throw new FechaInvalidaException("La fecha $fecha no es válida 3");
             }catch (\Exception $e){
-                throw new FechaInvalidaException("La fecha $fecha no es válida");
+                throw new FechaInvalidaException("La fecha $fecha no es válida 2");
             }
 
         }else {
-            throw new FechaInvalidaException("La fecha $fecha no es válida");
+            throw new FechaInvalidaException("La fecha $fecha no es válida 1");
         }
     }
 }
