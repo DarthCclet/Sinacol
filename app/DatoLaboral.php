@@ -57,7 +57,7 @@ public function parte(){
  * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
  */
 public function ocupacion(){
-  return $this->belongsTo(Ocupacion::class);
+  return $this->belongsTo(Ocupacion::class)->withDefault(["nombre" => "N/A"]);
 
 }
 
