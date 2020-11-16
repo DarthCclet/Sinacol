@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use App\Parte;
+use App\Audiencia;
 
 class AccesoBuzonMail extends Mailable
 {
@@ -14,16 +14,16 @@ class AccesoBuzonMail extends Mailable
     
     public $parte;
     public $subject;
-    public $liga;
+    public $audiencia;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(Parte $parte,$liga)
+    public function __construct(Audiencia $audiencia,Parte $parte)
     {
+        $this->audiencia = $audiencia;
         $this->parte = $parte;
-        $this->liga = $liga;
         $this->subject = "Acceso al buzón";
     }
 
@@ -34,6 +34,6 @@ class AccesoBuzonMail extends Mailable
      */
     public function build()
     {
-        return $this->view('mail.accesoBuzon')->with(["parte" => $this->parte,"liga" => $this->liga]);
+        return $this->view('mail.CambioFecha')->with(["audiencia" => $this->audiencia,"parte" => $this->parte]);
     }
 }
