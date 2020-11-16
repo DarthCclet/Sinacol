@@ -1,5 +1,6 @@
 <?php
 
+use App\Ocupacion;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -25,11 +26,12 @@ class UpdateOcupacionesTable extends Migration
                 if ($c == 1) {
                     continue;
                 }
-                DB::table('ocupaciones')->update(
-                    [
-                        'nombre' => $ocupacion[0],
-                        'salario_zona_libre'=> $ocupacion[1],
-                        'salario_resto_del_pais' => $ocupacion[2],
+                $id = $c-1;
+                Ocupacion::find($id)->update(
+                [
+                    'nombre' => $ocupacion[0],
+                    'salario_zona_libre'=> $ocupacion[1],
+                    'salario_resto_del_pais' => $ocupacion[2],
                     ]
                 );
             }
