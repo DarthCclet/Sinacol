@@ -188,7 +188,7 @@ class SolicitudController extends Controller {
             }
         }
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
         return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes','clasificacion_archivos_Representante','clasificacion_archivo'));
     }
 
@@ -226,7 +226,7 @@ class SolicitudController extends Controller {
         
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $giros = GiroComercial::where("parent_id",1)->orderBy('nombre')->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
         //$municipios = array_pluck(Municipio::all(),'municipio','id');
         $municipios=[];
@@ -542,7 +542,7 @@ class SolicitudController extends Controller {
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
         
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
         $giros = GiroComercial::where("parent_id",1)->orderBy('nombre')->get();
@@ -659,7 +659,7 @@ class SolicitudController extends Controller {
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
         
         // dd(Conciliador::all()->persona->full_name());
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
