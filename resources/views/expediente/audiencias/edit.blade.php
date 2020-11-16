@@ -768,7 +768,8 @@
                                 <select id="clasificacion_archivo_id_representante" class="form-control select-element">
                                     <option value="">-- Selecciona un instrumento</option>
                                     @foreach($clasificacion_archivos_Representante as $clasificacion)
-                                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    
+                                    <option class='{{($clasificacion->tipo_archivo_id == 10) ? "archivo_sindical" : ""}}' value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                     @endforeach
                                 </select>
                             </div>

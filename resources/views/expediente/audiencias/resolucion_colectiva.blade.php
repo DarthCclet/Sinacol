@@ -90,7 +90,7 @@
                     <td>
                         @if(($parte->tipo_persona_id == 2) || ($parte->tipo_parte_id == 2 && $parte->tipo_persona_id == 1))
                         <div class="md-2" style="display: inline-block;">
-                            <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante Legal" data-toggle="tooltip" data-placement="top">
+                            <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante" data-toggle="tooltip" data-placement="top">
                                 <i class="fa fa-plus"></i>
                             </button>
                         </div>
@@ -435,28 +435,28 @@
     </script>
 </div>
 <!-- Fin Modal de cargar archivos-->
-<!--inicio modal para representante legal-->
+<!--inicio modal para representante-->
 <div class="modal" id="modal-representante" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Representante legal</h4>
+                <h4 class="modal-title">Representante</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <h5>Datos del Representante legal</h5>
+                <h5>Datos del Representante</h5>
                 <input type="hidden" id="id_representante">
                 <div class="col-md-12 row">
                     <div class="col-md-6 ">
                         <div class="form-group">
                             <label for="curp" class="control-label needed">CURP</label>
-                            <input type="text" id="curp" maxlength="18" onblur="getParteCurp(this.value)" class="form-control upper" placeholder="CURP del representante legal">
+                            <input type="text" id="curp" maxlength="18" onblur="getParteCurp(this.value)" class="form-control upper" placeholder="CURP del representante">
                         </div>
                     </div>
                     <div class="col-md-6 ">
                         <div class="form-group">
                             <label for="nombre" class="control-label needed">Nombre</label>
-                            <input type="text" id="nombre" class="form-control upper" placeholder="Nombre del representante legal">
+                            <input type="text" id="nombre" class="form-control upper" placeholder="Nombre del representante">
                         </div>
                     </div>
                     <div class="col-md-6 ">
@@ -518,7 +518,7 @@
                     </div>
                 </div>
                 <hr>
-                <h5>Datos de comprobante como representante legal</h5>
+                <h5>Datos de comprobante como representante</h5>
                 <div class="col-md-12 row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -526,7 +526,7 @@
                             <select id="clasificacion_archivo_id_representante" class="form-control select-element">
                                 <option value="">-- Selecciona un instrumento</option>
                                 @foreach($clasificacion_archivos_Representante as $clasificacion)
-                                <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                <option class='{{($clasificacion->tipo_archivo_id == 10) ? "archivo_sindical" : ""}}' value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -597,8 +597,8 @@
         </div>
     </div>
 </div>
-<!--Fin de modal de representante legal-->
-<!--inicio modal para representante legal-->
+<!--Fin de modal de representante-->
+<!--inicio modal para representante-->
 <div class="modal" id="modal-dato-laboral" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -717,7 +717,7 @@
         </div>
     </div>
 </div>
-<!--Fin de modal de representante legal-->
+<!--Fin de modal de representante-->
 <!-- modal de relaciones bilaterales-->
 <div class="modal" id="modal-relaciones" style="display:none;">
     <div class="modal-dialog modal-lg">
@@ -1086,7 +1086,7 @@
                 }else{
                     swal({
                         title: '¿Ya capturaste todos los representantes?',
-                        text: 'Recuerde capturar a los representantes legales comparecientes para que aparezcan en la lista',
+                        text: 'Recuerde capturar a los representantes comparecientes para que aparezcan en la lista',
                         icon: '',
                         // showCancelButton: true,
                         buttons: {
@@ -1426,7 +1426,7 @@
         }
     }
 
-    // Funciones para representante legal(Etapa 1)
+    // Funciones para representante(Etapa 1)
     function getPersonasComparecer(){
         $.ajax({
             url:"/audiencia/fisicas/{{ $audiencia->id }}",

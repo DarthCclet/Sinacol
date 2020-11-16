@@ -14,7 +14,9 @@ use App\Domicilio;
 use App\Filters\ParteFilter;
 use App\Solicitud;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Validator;
 
@@ -83,27 +85,52 @@ class ParteController extends Controller
         $validator = Validator::make($request->all(), [
             'solicitud_id' => 'required|Integer',
             'tipo_parte_id' => 'required|Integer',
-            'genero_id' => 'required|Integer',
+            'genero_id' => 'nullable|Integer',
             'tipo_persona_id' => 'required|Integer',
-            'nacionalidad_id' => 'required|Integer',
-            'entidad_nacimiento_id' => 'required|Integer',
-            'fecha_nacimiento' => 'required|Date',
-            'nombre' => 'required|max:500|String',
-            'primer_apellido' => 'required|max:500|String',
-            'segundo_apellido' => 'required|max:500|String',
-            'nombre_comercial' => 'required|max:500|String',
-            'edad' => 'required|max:500|String',
-            'rfc' => 'required|max:500|String',
-            'curp' => 'required|max:500|String',
+            'nacionalidad_id' => 'nullable|Integer',
+            'entidad_nacimiento_id' => 'nullable|Integer',
+            'fecha_nacimiento' => 'nullable|Date',
+            'nombre' => 'nullable|max:500|String',
+            'primer_apellido' => 'nullable|max:500|String',
+            'segundo_apellido' => 'nullable|max:500|String',
+            'nombre_comercial' => 'nullable|max:500|String',
+            'edad' => 'nullable|max:500|String',
+            'rfc' => 'nullable|max:500|String',
+            'curp' => 'nullable|max:500|String',
+            'domicilios.*' => 'required',
         ]);
-
         if ($validator->fails()) {
-            return response()->json($validator, 201);
-                        // ->withInput();
+            return response()->json($validator->errors(), 201);
         }
-       $parte = Parte::create($request->all());
+        DB::beginTransaction();
+        try{
+            $parte = Arr::except($request->all(), ['domicilios','_token','contactos']);
+            $contactos = $request->get('contactos');
+            $domicilios = $request->get('domicilios');
 
-       return response()->json($parte, 201);
+            $parteSaved = Parte::create($parte);
+            if ($domicilios && count($domicilios) > 0) {
+                foreach ($domicilios as $key => $domicilio) {
+                    unset($domicilio['activo']);
+                    $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                }
+            }
+            if ($contactos && count($contactos) > 0) {
+                foreach ($contactos as $key => $contacto) {
+                    unset($contacto['activo']);
+                    $contactoSaved = $parteSaved->contactos()->create($contacto);
+                }
+            }
+            DB::commit();
+            return $this->sendResponse($parteSaved, 'SUCCESS');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
+            return $this->sendError('Error'.$e->getMessage());
+        
+        }
     }
 
     /**

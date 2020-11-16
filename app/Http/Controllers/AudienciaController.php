@@ -257,7 +257,7 @@ class AudienciaController extends Controller {
         $jornadas = $this->cacheModel('jornadas', Jornada::class);
         $giros_comerciales = $this->cacheModel('giros_comerciales', GiroComercial::class);
         $clasificacion_archivos = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
         $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
         $resoluciones = $this->cacheModel('resoluciones', Resolucion::class);
         $audiencia->solicitantes = $this->getSolicitantes($audiencia);
@@ -1529,8 +1529,18 @@ class AudienciaController extends Controller {
         $concepto_pago_resoluciones = ConceptoPagoResolucion::where('id', '<=', 9)->get();
         $concepto_pago_reinstalacion = ConceptoPagoResolucion::whereIn('id', [8, 9, 10])->get();
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
-        return view('expediente.audiencias.etapa_resolucion', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id'));
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
+
+        $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
+        $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
+        $estados = $this->cacheModel('estados',Estado::class);
+        $nacionalidades = $this->cacheModel('nacionalidades',Nacionalidad::class);
+        $generos = $this->cacheModel('generos',Genero::class);
+        $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
+        
+
+
+        return view('expediente.audiencias.etapa_resolucion', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id','estados','tipos_vialidades','tipos_asentamientos','nacionalidades','generos','tipo_contacto'));
     }
 
     public function resolucionColectiva($id) {
@@ -1549,7 +1559,7 @@ class AudienciaController extends Controller {
         $plantilla['plantilla_footer'] = "";
         $resoluciones = $this->cacheModel('resoluciones', Resolucion::class);
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
         $motivos_archivo = MotivoArchivado::all();
         $centro = Centro::where('central',true)->first();
         return view('expediente.audiencias.resolucion_colectiva', compact('plantilla','solicitud','audiencia','resoluciones','clasificacion_archivo','clasificacion_archivos_Representante','motivos_archivo','centro'));
