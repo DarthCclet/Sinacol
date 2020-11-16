@@ -2,7 +2,7 @@
     <div class="vertical-box">
     <!-- end event-list -->
     <!-- begin calendar -->
-    <div id="calendar" class="vertical-box-column calendar"></div>
+    <div id="calendarReagendar" class="vertical-box-column"></div>
     <!-- end calendar -->
     </div>
     <!-- end vertical-box -->
@@ -197,11 +197,11 @@
                                 icon: 'warning'
                             });
                         }
-                        construirCalendario(data);
+                        construirCalendarioResolicion(data);
                     }
                 });
             });
-            function construirCalendario(arregloGeneral){
+            function construirCalendarioResolicion(arregloGeneral){
                 $('#external-events .fc-event').each(function() {
                     // store data so the calendar knows to render an event upon drop
                     $(this).data('event', {
@@ -209,7 +209,7 @@
                             stick: true // maintain when user navigates (see docs on the renderEvent method)
                     });
                 });
-                $('#calendar').fullCalendar({
+                $('#calendarReagendar').fullCalendar({
                     header: {
                         left: 'month,agendaWeek',
                         center: 'title',
@@ -227,7 +227,7 @@
                         var startVal = new Date(start);
                         if(startVal > ahora){ //validar si la fecha es mayor que hoy
                             if(b.type == "month"){ // si es la vista de mes, abrir la vista de semana
-                                $('#calendar').fullCalendar("gotoDate",start);
+                                $('#calendarReagendar').fullCalendar("gotoDate",start);
                                 $(".fc-agendaWeek-button").click();
                                 $("#fecha_audiencia").val(start);
                             }else{
@@ -240,7 +240,7 @@
                                 icon: 'warning'
                             });
                         }
-                        $('#calendar').fullCalendar('unselect');
+                        $('#calendarReagendar').fullCalendar('unselect');
                     },
                     selectOverlap: function(event) {
                         return event.rendering !== 'background';
@@ -295,7 +295,7 @@
                     $("#tipoAsignacion").val(2);
                 }
                 getConciliadores(inicio,fin);
-                getSalas(inicio,fin);
+                getSalasReagendar(inicio,fin);
                 $("#hora_inicio").val(inicio);
                 $("#hora_fin").val(fin);
                 $("#lableFechaInicio").html(inicio.substring(1, 10));
@@ -325,7 +325,7 @@
                     }
                 });
             };
-            function getSalas(fechaInicio,fechaFin){
+            function getSalasReagendar(fechaInicio,fechaFin){
                 $.ajax({
                     url:"/audiencia/SalasDisponibles",
                     type:"POST",
@@ -337,18 +337,18 @@
                     },
                     dataType:"json",
                     success:function(data){
-                        $("#sala_id,#sala_solicitado_id,#sala_solicitante_id").html("<option value=''>-- Selecciona una sala</option>");
+                        $("#sala_id,#sala_solicitado_id,#sala_solicitante_id,#sala_cambio_id").html("<option value=''>-- Selecciona una sala</option>");
                         if(data != null && data != ""){
                             $.each(data,function(index,element){
-                                $("#sala_id,#sala_solicitado_id,#sala_solicitante_id").append("<option value='"+element.id+"'>"+element.sala+"</option>");
+                                $("#sala_id,#sala_solicitado_id,#sala_solicitante_id,#sala_cambio_id").append("<option value='"+element.id+"'>"+element.sala+"</option>");
                             });
                         }
-                        $("#sala_id,#sala_solicitado_id,#sala_solicitante_id").select2();
+                        $("#sala_id,#sala_solicitado_id,#sala_solicitante_id,#sala_cambio_id").select2();
                     }
                 });
             }
-            $("#btnGuardarAudiencia").on("click",function(){
-                var validacion = validarAsignacion();
+            function guardarAudiencia(){
+                var validacion = validarAsignacionResolucion();
                 if(!validacion.error){
                     var listaRelaciones = [];
                     if(origen == 'audiencias'){
@@ -356,6 +356,7 @@
                         $(".switchPartes").each(function(index){
                             if($(this).is(":checked")){
                                 listaRelaciones.push({
+                                    id:$(this).data("id"),
                                     parte_solicitante_id:$(this).data("parte_solicitante_id"),
                                     parte_solicitada_id:$(this).data("parte_solicitada_id")
                                 });
@@ -379,7 +380,6 @@
                             tipoAsignacion:$("#tipoAsignacion").val(),
                             expediente_id:$("#expediente_id").val(),
                             asignacion:validacion.arrayEnvio,
-                            listaNotificaciones:validacion.listaNotificaciones,
                             nuevaCalendarizacion:'S',
                             listaRelaciones:listaRelaciones,
                             audiencia_id:$("#audiencia_id").val(),
@@ -390,7 +390,7 @@
                             console.log(data);
                             if(data != null && data != ""){
                                 if(origen == 'audiencias'){
-                                    window.location.href = "audiencias/"+data.id+"/edit";
+                                    window.location.href = "/audiencias/"+data.id+"/edit";
                                 }else{
                                     window.location.href = "/audiencias/"+data.id+"/edit";
                                     // window.location.href = "{{ route('audiencias.index')}}";
@@ -411,22 +411,21 @@
                         icon: 'warning'
                     });
                 }
+            }
+            $("#btnGuardarAudiencia").on("click",function(){
+                guardarAudiencia();
             });
-            function validarAsignacion(){
+            function validarAsignacionResolucion(){
                 var error = false;
                 var msg="";
                 var arrayEnvio = new Array();
                 if($("#tipoAsignacion").val() == 1){
-                    if($("#sala_id").val() == ""){
+                    if($("#sala_cambio_id").val() == ""){
                         error = true;
                         msg = "Selecciona una sala";
                     }
-                    if($("#conciliador_id").val() == ""){
-                        error = true;
-                        msg = "Selecciona un conciliador";
-                    }
                     if(!error){
-                        arrayEnvio.push({sala:$("#sala_id").val(),conciliador:$("#conciliador_id").val(),resolucion:true});
+                        arrayEnvio.push({sala:$("#sala_cambio_id").val(),resolucion:true});
                     }
                 }else{
                     if(($("#sala_solicitante_id").val() == "" || $("#sala_solicitado_id").val() == "") || ($("#sala_solicitante_id").val() == $("#sala_solicitado_id").val())){
@@ -442,31 +441,10 @@
                         arrayEnvio.push({sala:$("#sala_solicitado_id").val(),conciliador:$("#conciliador_solicitado_id").val(),resolucion:false});
                     }
                 }
-                var listaNotificaciones = [];
-                if(!error){
-                    $(".hddParte_id").each(function(element){
-                        var parte_id = $(this).val();
-                        if($("#radioNotificacionA"+parte_id).is(":checked")){
-                            listaNotificaciones.push({
-                                parte_id:parte_id,
-                                tipo_notificacion_id:1
-                            });
-                        }else if($("#radioNotificacionB"+parte_id).is(":checked")){
-                            listaNotificaciones.push({
-                                parte_id:parte_id,
-                                tipo_notificacion_id:2
-                            });
-                        }else{
-                            msg = "Indica el tipo de notificación para los citados";
-                            error = true;
-                        }
-                    });
-                }
                 var array = [];
                 array.error=error;
                 array.msg=msg;
                 array.arrayEnvio=arrayEnvio;
-                array.listaNotificaciones=listaNotificaciones;
                 return array;
             }
         </script>

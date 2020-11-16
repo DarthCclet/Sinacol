@@ -88,7 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencia/comparecientes','AudienciaController@guardarComparecientes');
     Route::Get('audiencia/comparecientes/{audiencia_id}','AudienciaController@getComparecientes');
     Route::Get('audiencia/negarCancelacion/{audiencia_id}','AudienciaController@negarCancelacion');
-    Route::Get('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
+    Route::Post('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
     Route::Post('audiencias/solicitar_nueva','AudienciaController@SolicitarNueva');
     Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');
     Route::get('resolucionColectiva/{id}','AudienciaController@resolucionColectiva')->name('resolucionColectiva');
@@ -184,7 +184,7 @@ Route::post('solicitar_acceso','BuzonController@SolicitarAcceso')->name('solicit
 Route::get('buzon','BuzonController@BuzonElectronico')->name('buzon');
 Route::get('validar_token/{token}/{correo}','BuzonController@validar_token');
 Route::resource('etapa_resolucion_audiencia','EtapaResolucionAudienciaController');
-Route::post('acceso_buzon','BuzonController@AccesoBuzon')->name('acceso_buzon');
+Route::get('acceso_buzon','BuzonController@AccesoBuzon')->name('acceso_buzon');
 
 Auth::routes(['register' => false]);
 

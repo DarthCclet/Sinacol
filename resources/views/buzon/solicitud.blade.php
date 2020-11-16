@@ -46,7 +46,7 @@
                 <div class="alert alert-muted">
                     - No encontramos correos electronicos registrados, por favor proporciona el correo y contraseña que te proporcionó el centro
                 </div>
-                <form action="{{route('acceso_buzon')}}" method="POST" name="form_acceso_buzon">
+                <form action="{{route('acceso_buzon')}}" method="GET" name="form_acceso_buzon">
                     {{csrf_field()}}
                     <div class="form-group m-b-20">
                         <input type="text" class="form-control form-control-lg" placeholder="Correo" id="correo_buzon" name="correo_buzon"/>
@@ -92,6 +92,7 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
+                        data = data[0];
                         if(data.correo){
                             swal({
                                 title: 'Correcto',
