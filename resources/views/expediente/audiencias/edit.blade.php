@@ -768,8 +768,7 @@
                                 <select id="clasificacion_archivo_id_representante" class="form-control select-element">
                                     <option value="">-- Selecciona un instrumento</option>
                                     @foreach($clasificacion_archivos_Representante as $clasificacion)
-                                    
-                                    <option class='{{($clasificacion->tipo_archivo_id == 10) ? "archivo_sindical" : ""}}' value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -1228,7 +1227,6 @@
             <div class="modal-body">
                 <div class="alert alert-muted">
                     - Selecciona el conciliador y la sala donde se celebrará la audiencia<br>
-                    - La fecha limite para notificar será 5 días habiles previo a la fecha de audiencia (<span id="lableFechaInicio"></span>>)
                 </div>
                 <div id="divAsignarUno">
                     <div class="col-md-12 row">
@@ -1248,7 +1246,71 @@
             <div class="modal-footer">
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" onclick="guardarAudiencia()"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="modal-Sala-Cambio" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Asignar audiencia</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    - Selecciona el conciliador y la sala donde se celebrará la audiencia<br>
+                </div>
+                <div id="divAsignarUno">
+                    <div class="col-md-12 row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="sala_cambio_fecha_id" class="col-sm-6 control-label">Sala</label>
+                                <div class="col-sm-10">
+                                    <select id="sala_cambio_fecha_id" class="form-control">
+                                        <option value="">-- Selecciona una sala</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarNuevaFecha"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="modal" id="modal-comunicados" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Asignar audiencia</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    - Las siguientes personas no pudieron ser notificadas del cambio por correo electrónico, deberán ser contactadas a traves de los siguientes medios<br>
+                </div>
+                <table class="table table-bordered table-striped table-hover" id="tableNoContactados">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Contacto</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
                 </div>
             </div>
         </div>

@@ -20,7 +20,7 @@
 @if(!isset($audiencias))
 <div id="divFilters" class="col-md-12 row" >
     <div class="col-md-4">
-        <input class="form-control filtros numero" id="NoAudiencia" placeholder=" No. Audiencia" type="text" value="">
+        <input class="form-control filtros" id="NoAudiencia" placeholder=" No. Audiencia" type="text" value="">
         <p class="help-block needed">No. Audiencia</p>
     </div>
     <div class="col-md-4">
@@ -67,6 +67,7 @@
                     {
                         "targets": [0],
                         "render": function (data, type, row) {
+                            $(row).css("background-color","red");
                             return  row[1]+"/"+row[2];
                         }
                     },
@@ -98,8 +99,8 @@
                         "render": function (data, type, row) {
                             var html = "";
 
-                            if(row[9] != null){
-                                html = ""+row[9].persona.nombre + " "+ row[9].persona.primer_apellido + " " + (row[9].persona.segundo_apellido|| "");
+                            if(row[11] != null){
+                                html = ""+row[11].persona.nombre + " "+ row[11].persona.primer_apellido + " " + (row[11].persona.segundo_apellido|| "");
 
                             }
                             return  html;
@@ -123,7 +124,7 @@
                                 // console.log(row[0]);
                                 var guia = "";
                                 if(row[7] == false){
-                                    if(row[10].solicitud.tipo_solicitud_id == 1){
+                                    if(row[12].solicitud.tipo_solicitud_id == 1){
                                         guia = '<div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="'+ruta.replace('/audiencias/1/edit',"/guiaAudiencia/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>';
                                     }else{
                                         guia = '<div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="'+ruta.replace('/audiencias/1/edit',"/resolucionColectiva/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>';
@@ -135,6 +136,11 @@
                         // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a>&nbsp;<button class="btn btn-xs btn-danger btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
                     }
                 ],
+                "rowCallback": function( row, data ) {
+                    if(data[9] && !data[10]){
+                        $(row).css("background-color","rgb(157 36 73 / 0.28)");
+                    }
+                },
                 "serverSide": true,
                 "processing": true,
                 select: true,
@@ -162,7 +168,6 @@
             });
             dt.on( 'draw', function () {
                 if(filtrado){
-                //dt.scroller().scrollToRow(0);
                 filtrado = false;
                 }
             });
