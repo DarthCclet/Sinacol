@@ -3252,11 +3252,19 @@
                         if(listaConfigFechas == undefined ){
                             listaConfigFechas = [];
                         }
-                        listaConfigFechas.push({
-                            //idSolicitante:$("#idSolicitante").val(),
-                            fecha_pago:$("#fecha_pago").val(),
-                            monto_pago:$("#monto_pago").val(),
-                        });
+                        if(isNaN($("#monto_pago").val()) ){
+                            swal({
+                                title: 'Alerta',
+                                text: 'El campo monto a pagar sólo puede contener números y punto decimal',
+                                icon: 'warning'
+                            });
+                        }else{
+                            listaConfigFechas.push({
+                                //idSolicitante:$("#idSolicitante").val(),
+                                fecha_pago:$("#fecha_pago").val(),
+                                monto_pago:$("#monto_pago").val(),
+                            });
+                        }
                         $("#fecha_pago").val('');
                         $("#monto_pago").val('');
                         cargarTablaFechasPago(listaConfigFechas);
