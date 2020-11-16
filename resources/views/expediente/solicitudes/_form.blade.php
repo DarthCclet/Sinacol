@@ -33,6 +33,9 @@
     .upper{
         text-transform: uppercase;
     }
+    .ui-datepicker.ui-widget-content{
+        z-index: 9000 !important;
+    }
 
 </style>
 @if(auth()->user())
@@ -906,7 +909,7 @@
                     El sistema indica que la actividad principal del patrón es de competencia local, no federal.
                 </p>
                 <p style="font-size:large;">
-                    Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibildiad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de ratificación su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
+                    Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de ratificación su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
                 </p>
             </div>
             <div class="modal-footer">
@@ -999,7 +1002,7 @@
 </div>
 
 
-<!--Fin de modal de representante legal-->
+<!--Fin de modal de representante-->
 <input type="hidden" id="expediente_id">
 <!--</div>-->
 @push('scripts')
