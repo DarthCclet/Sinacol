@@ -14,6 +14,7 @@
     }
 </style>
 
+<input type="hidden" id="instancia" value="{{ env('INSTACIA') ? env('INSTACIA') : 'federal'}}">
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <input type="hidden" id="rutaConsulta" value="{!! route("solicitudes.consulta",'-rutaConsulta') !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
@@ -169,7 +170,7 @@
 {{-- Div carga documento --}}
 
 {{-- Modal ratificacion --}}
-<!--inicio modal para representante legal-->
+<!--inicio modal para representante-->
 <input type="hidden" id="solicitud_id" value="">
 
 <div class="modal" id="modalRatificacion" aria-hidden="true" style="display:none;">
@@ -182,10 +183,10 @@
             <div class="modal-body">
                 <div style="overflow:scroll" class="col-md-12">
                     <div id="divNeedRepresentante" style="display: none;">
-                        <h5>Representantes legales</h5>
+                        <h5>Representantes</h5>
                         <hr class="red">
                         <div class="alert alert-muted" style="display: none;" id="menorAlert" >
-                            <strong>Menor de edad:</strong> Detectamos que al menos un solicitante no es mayor de edad, para poder continuar con la solicitud es necesario agregar al representante legal del menor y la identificación oficial de dicho representante.
+                            <strong>Menor de edad:</strong> Detectamos que al menos un solicitante no es mayor de edad, para poder continuar con la solicitud es necesario agregar al representante del menor y la identificación oficial de dicho representante.
                         </div>
                         <input type="hidden" id="parte_id" />
                         <input type="hidden" id="parte_representada_id">
@@ -278,24 +279,24 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Representante legal</h4>
+                <h4 class="modal-title">Representante</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
                 <div style="overflow:scroll">
-                    <h5>Datos del Representante legal</h5>
+                    <h5>Datos del Representante</h5>
                     <input type="hidden" id="id_representante">
                     <div class="col-md-12 row">
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="curpRep" class="control-label needed">CURP</label>
-                                <input type="text" id="curpRep" maxlength="18" onblur="getParteCurp(this.value)" class="form-control upper" placeholder="CURP del representante legal">
+                                <input type="text" id="curpRep" maxlength="18" onblur="getParteCurp(this.value)" class="form-control upper" placeholder="CURP del representante">
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="nombreRep" class="control-label needed">Nombre</label>
-                                <input type="text" id="nombreRep" class="form-control upper" placeholder="Nombre del representante legal">
+                                <input type="text" id="nombreRep" class="form-control upper" placeholder="Nombre del representante">
                             </div>
                         </div>
                         <div class="col-md-6 ">
@@ -357,15 +358,15 @@
                         </div>
                     </div>
                     <hr>
-                    <h5>Datos de comprobante como representante legal</h5>
+                    <h5>Datos de comprobante como representante</h5>
                     <div class="col-md-12 row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="clasificacion_archivo_id_representante" class="control-label needed">Instrumento</label>
-                                <select id="clasificacion_archivo_id_representante" class="form-control catSelect select-element">
+                                <select id="clasificacion_archivo_id_representante" class="form-control select-element">
                                     <option value="">-- Selecciona un instrumento</option>
                                     @foreach($clasificacion_archivos_Representante as $clasificacion)
-                                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    <option class='{{($clasificacion->tipo_archivo_id == 10) ? "archivo_sindical" : ""}}' value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -441,7 +442,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Representante legal</h4>
+                <h4 class="modal-title">Representante</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -653,7 +654,7 @@
       @foreach($estatus_solicitudes as $key => $node)
         estatus_solicitudes['{{$key}}'] = '{{$node}}';
       @endforeach
-
+        var esSindical=false;
         var filtrado=false;
         $(document).ready(function() {
             var ruta = $("#ruta").val();
@@ -951,7 +952,8 @@
         getSolicitudFromBD(solicitud_id);
         $("#solicitud_id_modal").val(solicitud_id);
         actualizarPartes();
-        if(solicitudObj.ambito_id != 1){ //No es ambito Federal
+        var instancia = $("#instancia").val();
+        if((solicitudObj.ambito_id != 1 && instancia == "federal") || (solicitudObj.ambito_id != 2 && instancia == "local") ){ //No es ambito Federal
             $('#btnGuardarRatificar').hide();
             $('#btnGuardarConvenio').hide();
             $('#btnRatificarIncompetencia').show();
@@ -973,9 +975,11 @@
         }
         console.log(solicitudObj.tipo_solicitud_id);
         if(solicitudObj.tipo_solicitud_id == 3 || solicitudObj.tipo_solicitud_id == 4){
+            $(".archivo_sindical").hide();
             $("#btnGuardarRatificar").hide();
             $("#divCalendarioCentral").show();
         }else{
+            $(".archivo_sindical").show();
             $("#divCalendarioCentral").hide();
             $("#btnGuardarRatificar").show();
         }
@@ -1189,6 +1193,7 @@
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
+                                
                                 swal({
                                     title: '¿Las partes concilian en la misma sala?',
                                     text: 'Selecciona el tipo de conciliación que se llevará a cabo',
@@ -1205,7 +1210,7 @@
                                             text: "Separados",
                                             value: 2,
                                             className: 'btn btn-warning',
-                                            visible: true,
+                                            visible: !esSindical,
                                             closeModal: true
                                         },
                                         confirm: {
@@ -2210,6 +2215,7 @@
         arrayObjetoSolicitudes = []; // Array de objeto_solicitude para el citado
         solicitudObj = {}; // Array de objeto_solicitude para el citado
         ratifican = false;; // Array de solicitante excepción
+        esSindical = false;
         $.ajax({
             url:'/solicitudes/'+solicitud,
             type:"GET",
@@ -2257,6 +2263,9 @@
                     solicitudObj.ambito_id = data.giroComercial.ambito_id;
                     solicitudObj.ambito_nombre = data.giroComercial.ambito.nombre;
                     solicitudObj.tipo_solicitud_id = data.tipo_solicitud_id;
+                    if(solicitudObj.tipo_solicitud_id == 3 || solicitudObj.tipo_solicitud_id == 4 ){
+                        esSindical = true;
+                    }
 
                     cargarGeneros();
                     cargarTipoContactos();

@@ -75,7 +75,7 @@
                         <td>
                             @if(($parte->tipo_persona_id == 2) || ($parte->tipo_parte_id == 2 && $parte->tipo_persona_id == 1))
                             <div class="md-2" style="display: inline-block;">
-                                <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante Legal" data-toggle="tooltip" data-placement="top">
+                                <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante" data-toggle="tooltip" data-placement="top">
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>

@@ -78,6 +78,7 @@
                     <p>
                         @switch($etapa->paso)
                             @case(1)
+                                <button class="btn btn-primary" style="float: right;" onclick="$('#modal-parte').modal('show')">Agregar Nuevo compareciente <em class="fa fa-plus"></em> </button>
                                 <p>Comparecientes</p>
                                 <div class="col-md-12 ">
                                     <table style="font-size: small;" class="table table-striped table-bordered table-td-valign-middle">
@@ -568,7 +569,7 @@
                     <div class="col-md-6 ">
                         <div class="form-group">
                             <label for="fecha_nacimiento" class="control-label needed">Fecha de nacimiento</label>
-                            <input type="text" id="fecha_nacimiento" class="form-control dateBirth" placeholder="Fecha de nacimiento del representante">
+                            <input type="text" id="fecha_nacimiento" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -620,7 +621,7 @@
                             <select id="clasificacion_archivo_id_representante" class="form-control select-element">
                                 <option value="">-- Selecciona un instrumento</option>
                                 @foreach($clasificacion_archivos_Representante as $clasificacion)
-                                <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                <option class='{{($clasificacion->tipo_archivo_id == 10) ? "archivo_sindical" : ""}}' value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -637,7 +638,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="feha_instrumento" class="control-label needed">Fecha de instrumento</label>
-                            <input type="text" id="feha_instrumento" class="form-control dateBirth" placeholder="Fecha en que se extiende el instrumento">
+                            <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
                         </div>
                     </div>
                     <div class="col-md-12">
@@ -1327,6 +1328,27 @@
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarFechasPago"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin de modal propuesta convenio-->
+
+<!--Inicio modal para fechas de pagos diferidos convenio-->
+<div class="modal" id="modal-parte" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                @include('expediente.solicitudes.agregarParte',['tipo_solicitud_id'=>0])
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarParte"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
@@ -3494,11 +3516,12 @@
         location.href = "/solicitudes/consulta/{{$solicitud_id}}";
     });
     $(".dateBirth").datepicker({
-            changeMonth: true,
-            changeYear: true,
-            yearRange: "c-80:",
-            format:'dd/mm/yyyy',
-        });
+        changeMonth: true,
+        changeYear: true,
+        yearRange: "c-80:",
+        format:'dd/mm/yyyy',
+    });
+    $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
 </script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush

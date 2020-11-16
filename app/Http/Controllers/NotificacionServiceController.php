@@ -7,6 +7,7 @@ use App\Exceptions\ParametroNoValidoException;
 use App\Expediente;
 use App\Parte;
 use App\AudienciaParte;
+use App\ClasificacionArchivo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -41,6 +42,7 @@ class NotificacionServiceController extends Controller
                         $image = base64_decode($demandado->documento);
                         $fullPath = $directorio.'/notificacion'.$parteDemandado->id.'.pdf';
                         $dir = Storage::put($fullPath, $image);
+                        $clasificacion = ClasificacionArchivo::where("nombre","Razón de notificación citatorio")->first();
                         $parteDemandado->documentos()->create([
                             "nombre" => "Notificacion".$parteDemandado->id,
                             "nombre_original" => "Notificacion".$parteDemandado->id,
@@ -53,7 +55,7 @@ class NotificacionServiceController extends Controller
                             "uri" => $fullPath,
                             "longitud" => round(Storage::size($fullPath) / 1024, 2),
                             "firmado" => "false",
-                            "clasificacion_archivo_id" => 45,
+                            "clasificacion_archivo_id" => $clasificacion->id,
                         ]);
                     }
                 }

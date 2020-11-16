@@ -74,7 +74,7 @@ trait GenerateDocument
                     "clasificacion_archivo_id" => $tipoArchivo->id,
                 ]);
                 if($tipoArchivo->id == 18){
-                    event(new RatificacionRealizada($audiencia->id,"multa"));
+                    event(new RatificacionRealizada($padre->id,"multa"));
                 }
             }
             else{

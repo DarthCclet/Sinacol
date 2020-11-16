@@ -71,125 +71,134 @@ class SolicitudController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        // Filtramos los usuarios con los parametros que vengan en el request
-        $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
-                ->searchWith(Solicitud::class)
-                ->filter(false);
-
-        // Si en el request viene el parametro all entonces regresamos todos los elementos
-        // de lo contrario paginamos
-        if ($this->request->get('all')) {
-            $solicitud = $solicitud->get();
-        } else {
-            $filtrarCentro = true;
-            $length = $this->request->get('length');
-            $start = $this->request->get('start');
-            $limSup = " 23:59:59";
-            $limInf = " 00:00:00";
-            if ($this->request->get('fechaRatificacion')) {
-                $solicitud->where('fecha_ratificacion', "<", $this->request->get('fechaRatificacion') . $limSup);
-                $solicitud->where('fecha_ratificacion', ">", $this->request->get('fechaRatificacion') . $limInf);
-            }
-            if ($this->request->get('fechaRecepcion')) {
-                $solicitud->where('fecha_recepcion', "<", $this->request->get('fechaRecepcion') . $limSup);
-                $solicitud->where('fecha_recepcion', ">", $this->request->get('fechaRecepcion') . $limInf);
-            }
-            if ($this->request->get('fechaConflicto')) {
-                $solicitud->where('fecha_conflicto', $this->request->get('fechaConflicto'));
-            }
-            if ($this->request->get('folio')) {
-                $solicitud->where('folio', $this->request->get('folio'));
-                $filtrarCentro = false;
-            }
-            if ($this->request->get('curp')) {
-                $curp = $this->request->get('curp');
-                $solicitud = $solicitud->whereHas('partes', function (Builder $query) use ($curp){
-                    $query->where('curp', [$curp]);
-                });
-                $filtrarCentro = false;
-            }
-           
-            if ($this->request->get('nombre')) {
-                $nombre = $this->request->get('nombre');
-                $nombre = trim($nombre);
-                $nombre = str_replace(' ','&',$nombre);
-                // dd($nombre);
-                $sql = " ";
-                $solicitud = $solicitud->whereHas('partes', function (Builder $query) use ($nombre,$sql){
-                    $query->where('tipo_parte_id',1)->whereRaw("to_tsvector('spanish', unaccent(trim(coalesce(nombre_comercial,' ')||' '||coalesce(nombre,' ')||' '||coalesce(primer_apellido,' ')||' '||coalesce(segundo_apellido,' ')))) @@ to_tsquery('spanish', unaccent(?))", [$nombre]);
-                });
-            }
+        try{
+            // Filtramos los usuarios con los parametros que vengan en el request
+            $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
+                    ->searchWith(Solicitud::class)
+                    ->filter(false);
+            // Si en el request viene el parametro all entonces regresamos todos los elementos
+            // de lo contrario paginamos
+            if ($this->request->get('all')) {
+                $solicitud = $solicitud->get();
+            } else {
+                $filtrarCentro = true;
+                $length = $this->request->get('length');
+                $start = $this->request->get('start');
+                $limSup = " 23:59:59";
+                $limInf = " 00:00:00";
+                if ($this->request->get('fechaRatificacion')) {
+                    $solicitud->where('fecha_ratificacion', "<", $this->request->get('fechaRatificacion') . $limSup);
+                    $solicitud->where('fecha_ratificacion', ">", $this->request->get('fechaRatificacion') . $limInf);
+                }
+                if ($this->request->get('fechaRecepcion')) {
+                    $solicitud->where('fecha_recepcion', "<", $this->request->get('fechaRecepcion') . $limSup);
+                    $solicitud->where('fecha_recepcion', ">", $this->request->get('fechaRecepcion') . $limInf);
+                }
+                if ($this->request->get('fechaConflicto')) {
+                    $solicitud->where('fecha_conflicto', $this->request->get('fechaConflicto'));
+                }
+                if ($this->request->get('folio')) {
+                    $solicitud->where('folio', $this->request->get('folio'));
+                    $filtrarCentro = false;
+                }
+                if ($this->request->get('curp')) {
+                    $curp = $this->request->get('curp');
+                    $solicitud = $solicitud->whereHas('partes', function (Builder $query) use ($curp){
+                        $query->where('curp', [$curp]);
+                    });
+                    $filtrarCentro = false;
+                }
             
-            if ($this->request->get('anio')) {
-                $solicitud->where('anio', $this->request->get('anio'));
-            }
-            if ($this->request->get('estatus_solicitud_id')) {
-                $solicitud->where('estatus_solicitud_id', $this->request->get('estatus_solicitud_id'));
-            }
-            if ($this->request->get('loadPartes')) {
-                $solicitud = $solicitud->with("partes");
-            }
-            if ($this->request->get('loadPartes')) {
-                $solicitud = $solicitud->with("expediente");
-            }
-            if ($this->request->get('Expediente')) {
-                $expediente = $this->request->get('Expediente');
-                // $expediente = Expediente::where('folio', $this->request->get('Expediente'))->first();
-                $solicitud = $solicitud->whereHas('expediente', function (Builder $query) use ($expediente){
-                    $query->where('folio', [$expediente]);
-                });
-                $filtrarCentro = false;
-            }
-            if(Auth::user()->hasRole('Orientador Central')){
-                $solicitud->whereRaw('(tipo_solicitud_id = 3 or tipo_solicitud_id = 4)');
-                $filtrarCentro = false;
-            }
-            if(Auth::user()->hasRole('Personal conciliador') && $this->request->get('mis_solicitudes') == "true"){
-                $persona_id= Auth::user()->persona->id;
-                $conciliador = Conciliador::where('persona_id',$persona_id)->first();
-                if($conciliador != null){
-                    $conciliador_id = $conciliador->id;
-                    $solicitud->whereHas('expediente.audiencia', function($q) use($conciliador_id){
-                        $q->where('conciliador_id', $conciliador_id);
+                if ($this->request->get('nombre')) {
+                    $nombre = $this->request->get('nombre');
+                    $nombre = trim($nombre);
+                    $nombre = str_replace(' ','&',$nombre);
+                    $sql = " ";
+                    $solicitud = $solicitud->whereHas('partes', function (Builder $query) use ($nombre,$sql){
+                        $query->where('tipo_parte_id',1)->whereRaw("to_tsvector('spanish', unaccent(trim(coalesce(nombre_comercial,' ')||' '||coalesce(nombre,' ')||' '||coalesce(primer_apellido,' ')||' '||coalesce(segundo_apellido,' ')))) @@ to_tsquery('spanish', unaccent(?))", [$nombre]);
                     });
                 }
-            }
-            if($filtrarCentro){
-                $centro_id = Auth::user()->centro_id;
-                $solicitud->where('centro_id',$centro_id);
-            }
-            if ($this->request->get('IsDatatableScroll')) {
-                $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto','centro_id']);
-            } else {
-                $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
-            }
-        }
-
-        // // Para cada objeto obtenido cargamos sus relaciones.
-        $solicitud = tap($solicitud)->each(function ($solicitud) {
-            $solicitud->loadDataFromRequest();
-        });
-        $objeto_solicitudes = $this->cacheModel('objeto_solicitudes', ObjetoSolicitud::class);
-        $estatus_solicitudes = $this->cacheModel('estatus_solicitudes', EstatusSolicitud::class);
-        if ($this->request->wantsJson()) {
-            if ($this->request->get('all') || $this->request->get('paginate')) {
-                return $this->sendResponse($solicitud, 'SUCCESS');
-            } else {
+                
+                if ($this->request->get('anio')) {
+                    $solicitud->where('anio', $this->request->get('anio'));
+                }
+                if ($this->request->get('estatus_solicitud_id')) {
+                    $solicitud->where('estatus_solicitud_id', $this->request->get('estatus_solicitud_id'));
+                }
+                if ($this->request->get('loadPartes')) {
+                    $solicitud = $solicitud->with("partes");
+                }
+                if ($this->request->get('loadPartes')) {
+                    $solicitud = $solicitud->with("expediente");
+                }
+                if ($this->request->get('Expediente')) {
+                    $expediente = $this->request->get('Expediente');
+                    // $expediente = Expediente::where('folio', $this->request->get('Expediente'))->first();
+                    $solicitud = $solicitud->whereHas('expediente', function (Builder $query) use ($expediente){
+                        $query->where('folio', [$expediente]);
+                    });
+                    $filtrarCentro = false;
+                }
+                if(Auth::user()->hasRole('Orientador Central')){
+                    $solicitud->whereRaw('(tipo_solicitud_id = 3 or tipo_solicitud_id = 4)');
+                    $filtrarCentro = false;
+                }
+                if(Auth::user()->hasRole('Personal conciliador') && $this->request->get('mis_solicitudes') == "true"){
+                    $persona_id= Auth::user()->persona->id;
+                    $conciliador = Conciliador::where('persona_id',$persona_id)->first();
+                    if($conciliador != null){
+                        $conciliador_id = $conciliador->id;
+                        $solicitud->whereHas('expediente.audiencia', function($q) use($conciliador_id){
+                            $q->where('conciliador_id', $conciliador_id);
+                        });
+                    }
+                }
                 if($filtrarCentro){
                     $centro_id = Auth::user()->centro_id;
-                    $total = Solicitud::where('centro_id',$centro_id)->count();
-                }else{
-                    $total = Solicitud::count();
+                    $solicitud->where('centro_id',$centro_id);
                 }
-                $filtered = $solicitud->count();
-                $draw = $this->request->get('draw');
-                
-                return $this->sendResponseDatatable($total, $filtered, $draw, $solicitud, null);
+                if ($this->request->get('IsDatatableScroll')) {
+                    $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto','centro_id']);
+                } else {
+                    $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
+                }
             }
+
+            // // Para cada objeto obtenido cargamos sus relaciones.
+            $solicitud = tap($solicitud)->each(function ($solicitud) {
+                $solicitud->loadDataFromRequest();
+            });
+            $objeto_solicitudes = $this->cacheModel('objeto_solicitudes', ObjetoSolicitud::class);
+            $estatus_solicitudes = $this->cacheModel('estatus_solicitudes', EstatusSolicitud::class);
+            if ($this->request->wantsJson()) {
+                if ($this->request->get('all') || $this->request->get('paginate')) {
+                    return $this->sendResponse($solicitud, 'SUCCESS');
+                } else {
+                    if($filtrarCentro){
+                        $centro_id = Auth::user()->centro_id;
+                        $total = Solicitud::where('centro_id',$centro_id)->count();
+                    }else{
+                        $total = Solicitud::count();
+                    }
+                    $filtered = $solicitud->count();
+                    $draw = $this->request->get('draw');
+                    return $this->sendResponseDatatable($total, $filtered, $draw, $solicitud, null);
+                }
+            }
+            $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
+            $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
+            return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes','clasificacion_archivos_Representante','clasificacion_archivo'));
+        } catch (\Throwable $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                    " Se emitió el siguiente mensale: ". $e->getMessage().
+                    " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            if ($this->request->wantsJson()) {
+                return $this->sendResponseDatatable(0, 0, 0, [], null);
+            }
+            $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
+            $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
+            return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes','clasificacion_archivos_Representante','clasificacion_archivo'));
         }
-        $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
-        return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes','clasificacion_archivos_Representante','clasificacion_archivo'));
     }
 
     /**
@@ -226,7 +235,7 @@ class SolicitudController extends Controller {
         
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $giros = GiroComercial::where("parent_id",1)->orderBy('nombre')->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
         // $municipios = $this->cacheModel('municipios',Municipio::class,'municipio');
         //$municipios = array_pluck(Municipio::all(),'municipio','id');
         $municipios=[];
@@ -542,7 +551,7 @@ class SolicitudController extends Controller {
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
         
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
         $giros = GiroComercial::where("parent_id",1)->orderBy('nombre')->get();
@@ -659,7 +668,7 @@ class SolicitudController extends Controller {
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->get();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
         
         // dd(Conciliador::all()->persona->full_name());
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');

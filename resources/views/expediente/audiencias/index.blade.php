@@ -26,6 +26,7 @@
         </div>
         <div style="float: left;">
             <label class="col-md-12"> Filtrar</label>
+            <button class="btn btn-primary pull-right mx-2" onclick="$('#estatus_audiencia').val(3).trigger('change');" >Por Reagendar <span class="badge" style="background-color: #B38E5D;" id="spanNumeroAudiencias">{{$reagendar}}</span></button>
             <button class="btn btn-primary pull-right mx-2" onclick="$('#estatus_audiencia').val(1).trigger('change');" >Pendientes</button>
             <button class="btn btn-primary pull-right" onclick="$('#estatus_audiencia').val(2).trigger('change');">Concluidas</button>
         </div>
