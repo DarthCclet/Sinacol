@@ -20,7 +20,7 @@
 @if(!isset($audiencias))
 <div id="divFilters" class="col-md-12 row" >
     <div class="col-md-4">
-        <input class="form-control filtros" id="NoAudiencia" placeholder=" No. Audiencia" type="text" value="">
+        <input class="form-control filtros numero" id="NoAudiencia" placeholder=" No. Audiencia" type="text" value="">
         <p class="help-block needed">No. Audiencia</p>
     </div>
     <div class="col-md-4">

@@ -66,77 +66,89 @@ class AudienciaController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-//        return Audiencia::all();
-        Audiencia::with('conciliador')->get();
-        // $solicitud = Solicitud::all();
-        // Filtramos los usuarios con los parametros que vengan en el request
-        $audiencias = (new CatalogoFilter(Audiencia::query(), $this->request))
-                ->searchWith(Audiencia::class)
-                ->filter(false);
-        // Si en el request viene el parametro all entonces regresamos todos los elementos
-        // de lo contrario paginamos
-        if ($this->request->get('all')) {
-            $audiencias = $audiencias->get();
-        } else {
+        try{
 
-            $length = $this->request->get('length');
-            $start = $this->request->get('start');
-            $limSup = " 23:59:59";
-            $limInf = " 00:00:00";
-            if ($this->request->get('fechaAudiencia')) {
-                $audiencias->where('fecha_audiencia', "=", $this->request->get('fechaAudiencia'))->orderBy("fecha_audiencia", 'desc');
-                // $audiencias->where('fecha_audiencia',">",$this->request->get('fechaAudiencia') . $limInf);
-            }
-            if ($this->request->get('NoAudiencia')) {
-                $audiencias->where('numero_audiencia', $this->request->get('NoAudiencia'))->orderBy("fecha_audiencia", 'desc');
-            }
-            if ($this->request->get('estatus_audiencia')) {
-                if ($this->request->get('estatus_audiencia') == 2) {
-                    $audiencias->where('finalizada', true);
-                    // $date = Carbon::now();
-                    // $audiencias->where('fecha_audiencia',"<=",$date)->orderBy('fecha_audiencia','desc');
-                } else if ($this->request->get('estatus_audiencia') == 1) {
-                    $audiencias->where('finalizada', false);
-                    // $date = Carbon::now();
-                    // $audiencias->where('fecha_audiencia',">=",$date)->orderBy('fecha_audiencia','asc');
+            Audiencia::with('conciliador')->get();
+            // $solicitud = Solicitud::all();
+            // Filtramos los usuarios con los parametros que vengan en el request
+            $audiencias = (new CatalogoFilter(Audiencia::query(), $this->request))
+                    ->searchWith(Audiencia::class)
+                    ->filter(false);
+            // Si en el request viene el parametro all entonces regresamos todos los elementos
+            // de lo contrario paginamos
+            if ($this->request->get('all')) {
+                $audiencias = $audiencias->get();
+            } else {
+
+                $length = $this->request->get('length');
+                $start = $this->request->get('start');
+                $limSup = " 23:59:59";
+                $limInf = " 00:00:00";
+                if ($this->request->get('fechaAudiencia')) {
+                    $audiencias->where('fecha_audiencia', "=", $this->request->get('fechaAudiencia'))->orderBy("fecha_audiencia", 'desc');
+                    // $audiencias->where('fecha_audiencia',">",$this->request->get('fechaAudiencia') . $limInf);
+                }
+                if ($this->request->get('NoAudiencia')) {
+                    $audiencias->where('folio', $this->request->get('NoAudiencia'))->orderBy("fecha_audiencia", 'desc');
+                }
+                if ($this->request->get('estatus_audiencia')) {
+                    if ($this->request->get('estatus_audiencia') == 2) {
+                        $audiencias->where('finalizada', true);
+                        // $date = Carbon::now();
+                        // $audiencias->where('fecha_audiencia',"<=",$date)->orderBy('fecha_audiencia','desc');
+                    } else if ($this->request->get('estatus_audiencia') == 1) {
+                        $audiencias->where('finalizada', false);
+                        // $date = Carbon::now();
+                        // $audiencias->where('fecha_audiencia',">=",$date)->orderBy('fecha_audiencia','asc');
+                    }
+                }
+                if ($this->request->get('expediente_id') != "") {
+                    $audiencias->where('expediente_id', "=", $this->request->get('expediente_id'))->orderBy('fecha_audiencia', 'asc');
+                }
+                
+                $persona_id= Auth::user()->persona->id;
+                $conciliador = Conciliador::where('persona_id',$persona_id)->first();
+                if($conciliador != null){
+                    $conciliador_id = $conciliador->id;
+                    $audiencias->where('conciliador_id',$conciliador_id);
+                }
+
+                if ($this->request->get('IsDatatableScroll')) {
+                    $audiencias = $audiencias->with('conciliador.persona');
+                    $audiencias = $audiencias->with('expediente.solicitud');
+                    $audiencias = $audiencias->orderBy("fecha_audiencia", 'desc')->take($length)->skip($start)->get(['id', 'folio', 'anio', 'fecha_audiencia', 'hora_inicio', 'hora_fin', 'conciliador_id', 'finalizada','expediente_id']);
+                    // $audiencias = $audiencias->select(['id','conciliador','numero_audiencia','fecha_audiencia','hora_inicio','hora_fin'])->orderBy("fecha_audiencia",'desc')->take($length)->skip($start)->get();
+                } else {
+                    $audiencias = $audiencias->paginate($this->request->get('per_page', 10));
                 }
             }
-            if ($this->request->get('expediente_id') != "") {
-                $audiencias->where('expediente_id', "=", $this->request->get('expediente_id'))->orderBy('fecha_audiencia', 'asc');
-            }
-            
-            $persona_id= Auth::user()->persona->id;
-            $conciliador = Conciliador::where('persona_id',$persona_id)->first();
-            $conciliador_id = $conciliador->id;
-            $audiencias->where('conciliador_id',$conciliador_id);
+            // // Para cada objeto obtenido cargamos sus relaciones.
+            $audiencias = tap($audiencias)->each(function ($audiencia) {
+                $audiencia->loadDataFromRequest();
+            });
 
-            if ($this->request->get('IsDatatableScroll')) {
-                $audiencias = $audiencias->with('conciliador.persona');
-                $audiencias = $audiencias->with('expediente.solicitud');
-                $audiencias = $audiencias->orderBy("fecha_audiencia", 'desc')->take($length)->skip($start)->get(['id', 'folio', 'anio', 'fecha_audiencia', 'hora_inicio', 'hora_fin', 'conciliador_id', 'finalizada','expediente_id']);
-                // $audiencias = $audiencias->select(['id','conciliador','numero_audiencia','fecha_audiencia','hora_inicio','hora_fin'])->orderBy("fecha_audiencia",'desc')->take($length)->skip($start)->get();
-            } else {
-                $audiencias = $audiencias->paginate($this->request->get('per_page', 10));
+            // return $this->sendResponse($solicitud, 'SUCCESS');
+
+            if ($this->request->wantsJson()) {
+                if ($this->request->get('all') || $this->request->get('paginate')) {
+                    return $this->sendResponse($audiencias, 'SUCCESS');
+                } else {
+                    $total = Audiencia::count();
+                    $draw = $this->request->get('draw');
+                    $filtered = $audiencias->count();
+                    return $this->sendResponseDatatable($total, $filtered, $draw, $audiencias, null);
+                }
             }
+            return view('expediente.audiencias.index');
+        } catch (\Throwable $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                    " Se emitió el siguiente mensale: ". $e->getMessage().
+                    " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            if ($this->request->wantsJson()) {
+                return $this->sendResponseDatatable(0, 0, 0, [], null);
+            }
+            return view('expediente.audiencias.index');
         }
-        // // Para cada objeto obtenido cargamos sus relaciones.
-        $audiencias = tap($audiencias)->each(function ($audiencia) {
-            $audiencia->loadDataFromRequest();
-        });
-
-        // return $this->sendResponse($solicitud, 'SUCCESS');
-
-        if ($this->request->wantsJson()) {
-            if ($this->request->get('all') || $this->request->get('paginate')) {
-                return $this->sendResponse($audiencias, 'SUCCESS');
-            } else {
-                $total = Audiencia::count();
-                $draw = $this->request->get('draw');
-                $filtered = $audiencias->count();
-                return $this->sendResponseDatatable($total, $filtered, $draw, $audiencias, null);
-            }
-        }
-        return view('expediente.audiencias.index');
     }
 
     /**
