@@ -1280,7 +1280,7 @@ class AudienciaController extends Controller {
             //si los pagos anteriores han sido pagados y es el ultimo pago
             //generar constancia de cumplimiento de convenio
             if($pagados && ($ultimoPago == $request->idPagoDiferido)){
-                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 17, 12));
+                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12));
             }
             return $pagoDiferido;
         } catch (\Throwable $e) {
