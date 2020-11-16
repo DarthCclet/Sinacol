@@ -276,6 +276,7 @@
                     tipo_parte_id:2,
                     rfc: $("#idCitadoRfc").val(),
                     activo: 1,
+                    audiencia_id: $("#audiencia_id").val(),
                     domicilios: arrayDomiciliosSolicitado,
                     contactos: arrayContactoSolicitados,
                     _token:$("input[name=_token]").val()

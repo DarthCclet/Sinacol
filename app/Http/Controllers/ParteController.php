@@ -105,6 +105,7 @@ class ParteController extends Controller
         DB::beginTransaction();
         try{
             $parte = Arr::except($request->all(), ['domicilios','_token','contactos']);
+            $audiencia_id = $request->get('audiencia_id');
             $contactos = $request->get('contactos');
             $domicilios = $request->get('domicilios');
 
@@ -120,6 +121,9 @@ class ParteController extends Controller
                     unset($contacto['activo']);
                     $contactoSaved = $parteSaved->contactos()->create($contacto);
                 }
+            }
+            if($audiencia_id != ""){
+                AudienciaParte::create(["audiencia_id" => $audiencia_id, "parte_id" => $parteSaved->id, "tipo_notificacion_id" => 1]);
             }
             DB::commit();
             return $this->sendResponse($parteSaved, 'SUCCESS');
