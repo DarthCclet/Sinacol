@@ -14,6 +14,7 @@
     }
 </style>
 
+<input type="hidden" id="instancia" value="{{env('INSTACIA')}}">
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <input type="hidden" id="rutaConsulta" value="{!! route("solicitudes.consulta",'-rutaConsulta') !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
@@ -951,7 +952,8 @@
         getSolicitudFromBD(solicitud_id);
         $("#solicitud_id_modal").val(solicitud_id);
         actualizarPartes();
-        if(solicitudObj.ambito_id != 1){ //No es ambito Federal
+        var instancia = $("#instancia").val();
+        if((solicitudObj.ambito_id != 1 && instancia == "federal") || (solicitudObj.ambito_id != 2 && instancia == "local") ){ //No es ambito Federal
             $('#btnGuardarRatificar').hide();
             $('#btnGuardarConvenio').hide();
             $('#btnRatificarIncompetencia').show();

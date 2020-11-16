@@ -43,6 +43,7 @@
 @else
     <input type="hidden" id="externo" value="1">
 @endif
+<input type="hidden" id="instancia" value="{{env('INSTACIA')}}">
 <div class="tab-content" style="background: #f2f3f4 !important;">
 <div class="tab-pane fade active show" id="default-tab-1">
     <div id="wizard" class="col-md-12" >
@@ -904,13 +905,22 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body" >
-
-                <p style="font-size:large;">
-                    El sistema indica que la actividad principal del patrón es de competencia local, no federal.
-                </p>
-                <p style="font-size:large;">
-                    Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de ratificación su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
-                </p>
+                <div id="msjFederal">
+                    <p style="font-size:large;">
+                        El sistema indica que la actividad principal del patrón es de competencia local, no federal.
+                    </p>
+                    <p style="font-size:large;">
+                        Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de ratificación su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
+                    </p>
+                </div>
+                <div style="display: none;" id="msjLocal">
+                    <p style="font-size:large;">
+                        El sistema indica que la actividad principal del patrón es de competencia federal, no local.
+                    </p>
+                    <p style="font-size:large;">
+                        Acuda a la Oficina Estatal del Centro Federal de Conciliación y Registro Laboral de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el CFCRL, puede continuar la solicitud en el Centro de Conciliación Local y en el momento de ratificación su solicitud será revisada por un funcionario del Centro, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al CFCRL.
+                    </p>
+                </div>
             </div>
             <div class="modal-footer">
                 <div class="text-right">
@@ -2391,7 +2401,13 @@
             return data.html;
         },templateSelection: function(data) {
             if(data && data.id != "" ){
-                if(data.ambito_id != 1){
+                var instancia = $("#instancia").val();
+                
+                if((data.ambito_id != 1 && instancia == "federal") || (data.ambito_id != 2 && instancia == "local")){
+                    if(instancia == "local"){
+                        $("#msjFederal").hide();
+                        $("#msjLocal").show();
+                    }
                     $("#modal-giro").modal("show");
                 }
                 $("#giro_solicitanteSol").html(data.nombre);
