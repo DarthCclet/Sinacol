@@ -1065,7 +1065,7 @@ class AudienciaController extends Controller {
                         } else {
 
                             $bandera = false;
-                            $terminacion = 4;
+                            $terminacion = 5;
                         }
                         $resolucionParte = ResolucionPartes::create([
                                     "audiencia_id" => $audiencia->id,
