@@ -358,6 +358,7 @@
                                                                     <tr>
                                                                         <th>Fecha de pago</th>
                                                                         <th>Monto</th>
+                                                                        <th>Estatus</th>
                                                                         <th>Acciones</th>
                                                                     </tr>
                                                                 </thead>
@@ -374,6 +375,17 @@
                                                                                         <P style="color: darkred">No Pagado</p>
                                                                                     @elseif($fechaPago->pagado === true) 
                                                                                         <P style="color:darkolivegreen">Pagado</p>
+                                                                                    @else
+                                                                                        {{-- <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button> --}}
+                                                                                        {{-- <button onclick="emitirConstanciaNoPago({{$fechaPago->id}})" class="btn btn-xs btn-warning" title="Registrar no comparencencia"><i class="fa fa-window-close"></i></button> --}}
+                                                                                    @endif
+                                                                                </td>
+                                                                                <td>
+
+                                                                                    @if($fechaPago->pagado === false) 
+                                                                                        <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
+                                                                                    @elseif($fechaPago->pagado == true) 
+
                                                                                     @else
                                                                                         <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
                                                                                         <button onclick="emitirConstanciaNoPago({{$fechaPago->id}})" class="btn btn-xs btn-warning" title="Registrar no comparencencia"><i class="fa fa-window-close"></i></button>
