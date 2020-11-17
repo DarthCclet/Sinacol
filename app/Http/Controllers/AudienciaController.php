@@ -1153,7 +1153,7 @@ class AudienciaController extends Controller {
                         ]);
                 }
                 //guardar conceptos de pago para Convenio
-                if ($audiencia->resolucion_id == 1 && isset($resolucionParte) && $terminacion == 3) { //Hubo conciliacion
+                if ( isset($resolucionParte)) { //Hubo conciliacion
                     // if($audiencia->resolucion_id == 1 ){ //Hubo conciliacion
                     if (isset($listaConceptos)) {
                         if (count($listaConceptos) > 0) {
