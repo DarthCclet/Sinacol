@@ -359,11 +359,19 @@
         {
             "id": "90",
             "nombre": "Zoque del norte bajo"
+        },
+        {
+            "id": "91",
+            "nombre": "Matlatzinca"
+        },
+        {
+            "id": "92",
+            "nombre": "Lenguaje de señas mexicana"
         }
     ],
     "metadatos": {
         "fechaActualizacion": "2020/03",
         "fuenteInfo": "https://www.ifdp.cjf.gob.mx/index.htm#Lenguas"
     },
-    "numReg": 90
+    "numReg": 92
 }
