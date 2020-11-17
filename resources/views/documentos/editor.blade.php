@@ -52,52 +52,54 @@
                 document_base_url: '/public',
                 relative_urls: false,
                 language: 'es_MX',
-                width: "622",//"670"
+                width: "785",//"670"
                 language_url: '/js/tinymce/langs/es_MX.js',
                 inline: true,
                 menubar: false,
                 toolbar_items_size: 'small',
                 plugins: [
                     'noneditable advlist autolink lists link image imagetools preview',
-                    ' media table advtable paste uploadimage lineheight pagebreak'
+                    ' media table advtable paste uploadimage lineheight'
                 ],
                 toolbar1: botonesHeader + botonesBody + 'basicDateButton | mybutton | fontselect fontsizeselect textcolor| undo redo ' +
                 '| bold italic underline| alignleft aligncenter alignright alignjustify | bullist numlist ' +
-                '| outdent indent | lineheightselect | table | uploadimage image | pagebreak forecolor backcolor',
+                '| outdent indent | lineheightselect | table | uploadimage image | forecolor backcolor',
                 toolbar2: "",
                 // paste_data_images: true,
               	images_upload_handler: function (blobInfo, success, failure) {
               		success("data:" + blobInfo.blob().type + ";base64," + blobInfo.base64());
               	},
-              	url:'img/logo/logo-stps-786x196.png',
+              	//url:'img/logo/logo-stps-786x196.png',
                 image_title: true,
                 automatic_uploads: true,
                 file_picker_types: 'image',
                 font_formats: 'Montserrat=Montserrat,sans-serif; Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva;',
                 paste_as_text: true,
-                lineheight_formats: "6px 8px 9px 10px 11px 12px 14px 16px 18px 20px 22px 24px 26px 36px",
+                fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
+                lineheight_formats: "6px 8px 9px 10px 11px 12px 14px 16px",
+                content_style: "body {font-size: 12pt;}",
                 // image_list: [
                 //   {title: 'LogoSTPS', value: 'https://192.168.10.10/assets/img/logo/logo-stps-786x196.png'},
                 //   {title: 'Logo', value: 'https://192.168.10.10/assets/img/logo/logo-stps-786x196.png'}
                 // ],
                 file_picker_callback: function (cb, value, meta) {
-                    var input = document.createElement('input');
-                    input.setAttribute('type', 'file');
-                    input.setAttribute('accept', 'image/*');
-                    input.onchange = function () {
-                        var file = this.files[0];
-                        var reader = new FileReader();
-                        reader.onload = function () {
-                            var id = 'blobid' + (new Date()).getTime();
-                            var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                            var base64 = reader.result.split(',')[1];
-                            var blobInfo = blobCache.create(id, file, base64);
-                            blobCache.add(blobInfo);
-                            cb(blobInfo.blobUri(), {title: file.name});
-                        };
-                        reader.readAsDataURL(file);
-                    };
-                    input.click();
+                  var input = document.createElement('input');
+                  input.setAttribute('type', 'file');
+                  input.setAttribute('accept', 'image/*');
+                  input.onchange = function () {
+                      var file = this.files[0];
+                      var reader = new FileReader();
+                      reader.onload = function () {
+                          var id = 'blobid' + (new Date()).getTime();
+                          var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                          var base64 = reader.result.split(',')[1];
+                          var blobInfo = blobCache.create(id, file, base64);
+                          blobCache.add(blobInfo);
+                          cb(blobInfo.blobUri(), {title: file.name});
+                      };
+                      reader.readAsDataURL(file);
+                  };
+                  input.click();
                 },
                 setup: function (editor) {
                   //Editor Body
