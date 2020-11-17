@@ -347,7 +347,7 @@
                         </div>
                         <div class="col-md-12">
                             <div class="col-md-6">
-                                <label >Cedula Profesional</label>
+                                <label >Cedula profesional</label>
                                 <span class="btn btn-primary fileinput-button m-r-3">
                                     <i class="fa fa-fw fa-plus"></i>
                                     <span>Seleccionar identificaci&oacute;n</span>
@@ -420,7 +420,7 @@
                                 <tr>
                                     <th style="width:80%;">Tipo</th>
                                     <th style="width:80%;">Contacto</th>
-                                    <th style="width:20%; text-align: center;">Accion</th>
+                                    <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                 </tr>
                             </thead>
                             <tbody id="tbodyContacto">
