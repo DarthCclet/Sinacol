@@ -87,11 +87,15 @@
         {
             "cve_tipo_vial": "22",
             "descripcion": "NINGUNO"
+        },
+        {
+            "cve_tipo_vial": "23",
+            "descripcion": "CARRETERA"
         }
     ],
     "metadatos": {
         "fechaActualizacion": "2018/12",
         "fuenteInfo": " Marco Geoestadístico, 2018"
     },
-    "numReg": 22
+    "numReg": 23
 }
