@@ -349,8 +349,8 @@ class SolicitudController extends Controller {
 
             foreach ($solicitantes as $key => $value) {
                 $value['solicitud_id'] = $solicitudSaved['id'];
-                unset($contactos);
-                unset($domicilio);
+                $contactos = Array();
+                $domicilios = Array();
                 unset($value['activo']);
                 if(isset($value['dato_laboral'])){
                     $dato_laboral = $value['dato_laboral'];
@@ -395,8 +395,7 @@ class SolicitudController extends Controller {
 
             foreach ($solicitados as $key => $value) {
                 unset($value['activo']);
-                unset($contactos);
-                unset($domicilio);
+                $contactos = Array();
                 $domicilios = Array();
                 if (isset($value["domicilios"])) {
                     $domicilios = $value["domicilios"];
