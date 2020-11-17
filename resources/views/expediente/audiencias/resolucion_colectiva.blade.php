@@ -74,7 +74,7 @@
             <tr>
                 <th class="text-nowrap">Tipo Parte</th>
                 <th class="text-nowrap">Nombre de la parte</th>
-                <th class="text-nowrap" >Accion</th>
+                <th class="text-nowrap" >Acción</th>
             </tr>
         </thead>
         <tbody>
@@ -580,7 +580,7 @@
                             <tr>
                                 <th style="width:80%;">Tipo</th>
                                 <th style="width:80%;">Contacto</th>
-                                <th style="width:20%; text-align: center;">Accion</th>
+                                <th style="width:20%; text-align: center;">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyContacto">

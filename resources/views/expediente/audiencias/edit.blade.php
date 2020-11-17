@@ -381,7 +381,6 @@
                                                                                     @endif
                                                                                 </td>
                                                                                 <td>
-
                                                                                     @if($fechaPago->pagado === false) 
                                                                                         <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
                                                                                     @elseif($fechaPago->pagado == true) 
@@ -834,7 +833,7 @@
                                 <tr>
                                     <th style="width:80%;">Tipo</th>
                                     <th style="width:80%;">Contacto</th>
-                                    <th style="width:20%; text-align: center;">Accion</th>
+                                    <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                 </tr>
                             </thead>
                             <tbody id="tbodyContacto">
@@ -958,7 +957,7 @@
                                     <th>Nombre</th>
                                     <th>Primer Apellido</th>
                                     <th>Segundo Apellido</th>
-                                    <th>Comparecio</th>
+                                    <th>Compareci&oacute;</th>
                                 </tr>
                             </thead>
                             <tbody id="tbodyPartesFisicas">
