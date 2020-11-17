@@ -721,6 +721,7 @@ trait GenerateDocument
                       }
                     }else{
                       $nombreCitadosConvenio = "-";
+                      $clausulaCitadosConvenio = "";
                     }
                     $datosResolucion['citados_convenio'] = $nombreCitadosConvenio;
                     $datosResolucion['segunda_declaracion_convenio'] = $clausulaCitadosConvenio;
