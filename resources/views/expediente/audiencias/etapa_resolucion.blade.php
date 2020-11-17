@@ -86,7 +86,7 @@
                                             <tr>
                                                 <th class="text-nowrap">Tipo Parte</th>
                                                 <th class="text-nowrap">Nombre de la parte</th>
-                                                <th class="text-nowrap" >Accion</th>
+                                                <th class="text-nowrap" >Acci&oacute;n</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -135,7 +135,7 @@
                                         No es necesario que la parte trabajadora acuda con representante legal y si acudiera no se le reconocerá como tal; aunque podrá comparecer como acompañante.
                                     </p>
                                     <p>
-                                        <u><i>EL CONCILIADOR LEERÁ EL SIGUIENTE TEXTO, DIRIGIENDOSE AL TRABAJADOR</i></u> “La conciliación es personal. Aunque asista el trabajador con el apoyo de cualquier persona de su confianza, el trabajador mismo es quien decide lo que pide, lo que negocia y lo que acepta o no en este proceso.”.
+                                        <u><i>EL CONCILIADOR LEERÁ EL SIGUIENTE TEXTO, DIRIGIÉNDOSE AL TRABAJADOR</i></u> “La conciliación es personal. Aunque asista el trabajador con el apoyo de cualquier persona de su confianza, el trabajador mismo es quien decide lo que pide, lo que negocia y lo que acepta o no en este proceso.”.
                                     </p>
                                     <div >
                                         {{-- <input type="hidden" /> --}}
@@ -162,7 +162,7 @@
                                     <b><h5>Paso 3: Los principios y derechos en el proceso de la conciliación</h5></b>
                                     <p>
                                         <i>Para el conciliador:</i>
-                                        Explicar las características de la conciliación y los derechos de las partes en ella. Recuerde que el proceso de conciliación se realiza en conformidad con los principios constitucionales de legalidad, imparcialidad, confiabilidad, eficacia, objetividad, profesionalismo, transparencia y publicidad. Es importante mencionar a las partes que es en algunas ocasiones el conciliador considera necesario hablar con cada una de las partes por separado durante el proceso de negociación. Se realizan estas consultas con cada una de las partes para coadyuvar con el proceso de conciliación, conforme a los principios antes mencionados de este procedimento. 
+                                        Explicar las características de la conciliación y los derechos de las partes en ella. Recuerde que el proceso de conciliación se realiza en conformidad con los principios constitucionales de legalidad, imparcialidad, confiabilidad, eficacia, objetividad, profesionalismo, transparencia y publicidad. Es importante mencionar a las partes que en algunas ocasiones el conciliador considera necesario hablar con cada una de las partes por separado durante el proceso de negociación. Se realizan estas consultas con cada una de las partes para coadyuvar con el proceso de conciliación, conforme a los principios antes mencionados de este procedimento. 
                                     </p>
                                     <p>
                                         <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u> “La conciliación es un proceso ágil, objetivo, imparcial, transparente y eficaz. Cada una de las partes tendrá derecho de hablar y de ser escuchada, de plantear, de negociar y de responder. Es un proceso voluntario, no se obligará a nadie a un acuerdo que no quiere. Nos trataremos todos con respeto en esta audiencia. En algún momento de la audiencia es posible que para avanzar la conciliación se tenga que hablar por separado con cada una de las partes, lo que se realiza en algunos casos con el ánimo de arreglar el conflicto, siguiendo los mismos principios mencionados de la conciliación.”.
@@ -675,7 +675,7 @@
                             <tr>
                                 <th style="width:80%;">Tipo</th>
                                 <th style="width:80%;">Contacto</th>
-                                <th style="width:20%; text-align: center;">Accion</th>
+                                <th style="width:20%; text-align: center;">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyContacto">
