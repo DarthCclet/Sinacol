@@ -7,9 +7,13 @@ use App\Documento;
 use App\Audiencia;
 use App\Solicitud;
 use App\ClasificacionArchivo;
+use App\Conciliador;
+use App\Events\GenerateDocumentResolution;
+use App\FirmaDocumento;
 use App\Parte;
 use App\Traits\GenerateDocument;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Validator;
 use Illuminate\Support\Facades\Storage;
 class DocumentoController extends Controller
@@ -244,7 +248,7 @@ class DocumentoController extends Controller
     public function preview(Request $request)
     {
         try {
-            $idSolicitud = $request->get('solicitud_id',1);
+            $idSolicitud = $request->get('solicitud_id');
             $idAudiencia = $request->get('audiencia_id');
             $plantilla_id = $request->get('plantilla_id', 1);
             $pdf = $request->exists('pdf');
@@ -262,7 +266,7 @@ class DocumentoController extends Controller
                 $plantilla_id,
                 "",//solicitante
                 "",//solicitado
-                "",//conciliador
+                "",//documento
             );
 
             if($pdf) {
@@ -279,40 +283,63 @@ class DocumentoController extends Controller
     public function firmado(Request $request)
     {
         try {
-            $idSolicitud = $request->get('solicitud_id',1);
+            $idParte = $request->get('parte_id');
+            $tipoPersona = $request->get('tipo_persona');
+            $idSolicitud = $request->get('solicitud_id');
             $idAudiencia = $request->get('audiencia_id');
-            $plantilla_id = $request->get('plantilla_id', 1);
-            $imgBase64 = $request->get('img_firma');
-            // $idSolicitante = $request->get('solicitante_id');
-            // $idSolicitado = $request->get('solicitado_id');
-            // $idConciliador = $request->get('conciliador_id');
-            $pdf = $request->exists('pdf');
+            $idPlantilla = $request->get('plantilla_id');
+            $idDocumento = $request->get('documento_id');
+            $idSolicitado = $request->get('solicitado_id');
+            $idSolicitante = $request->get('solicitante_id');
+            $firmaBase64 = $request->get('img_firma');
 
-            $solicitud = Solicitud::find($idSolicitud);
-            if ($solicitud) {
-                if (!$idAudiencia && isset($solicitud->expediente->audiencia->first()->id)) {
-                    $idAudiencia = $solicitud->expediente->audiencia->first()->id;
+            if($tipoPersona!='conciliador'){
+                $model = 'Parte';
+            }else{
+                $model = 'Conciliador';
+            }
+            //guardar o actualizar firma
+            $firmaDocumento = FirmaDocumento::where('firmable_id',$idParte)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->first();
+            if($firmaDocumento != null){
+                $firmaDocumento->update([
+                    "firma" => $firmaBase64
+                ]);
+            }else{
+                $firmaDocumento = FirmaDocumento::create([
+                    "firmable_type" => $model,
+                    "firmable_id" => $idParte,
+                    "audiencia_id" => $idAudiencia,
+                    "solicitud_id" => $idSolicitud,
+                    "plantilla_id" => $idPlantilla,
+                    "firma" => $firmaBase64
+                ]);
+            }
+            //eliminar documento con codigo QR
+            $documento = Documento::find($idDocumento);
+            $clasificacionArchivo = $documento->clasificacion_archivo_id;
+            $totalFirmantes = $documento->total_firmantes;
+            $firmasDocumento = FirmaDocumento::where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->get();
+            if($totalFirmantes == count($firmasDocumento)){
+                if($documento != null){
+                    $documento->delete();
                 }
+                //generar documento con firmas
+                event(new GenerateDocumentResolution($idAudiencia,$idSolicitud,$clasificacionArchivo,$idPlantilla,$idSolicitante,$idSolicitado));
             }
 
-            $html = $this->renderDocumento( 
-                $idAudiencia,
-                $idSolicitud,
-                $plantilla_id,
-                "",//solicitante
-                "",//solicitado
-                "",//conciliador
-            );
 
             return response()->json([
                 'success' => true,
                 'message' => 'OK',
             ], 200);
 
-        } catch (\Throwable $th) {
+        } catch (\Throwable $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             return response()->json([
                 'success' => false,
-                'message' => 'ERROR:'.$th,
+                'message' => 'ERROR:'.$e,
             ], 200);
         }
     }
