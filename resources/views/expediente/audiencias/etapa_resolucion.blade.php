@@ -2673,24 +2673,22 @@
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
                 }
                 //total pagos diferidos
-                // $.each(listaPropuestaConceptos, function (key, propuestaSolicitante) {
-                //     $.each(listaPropuestaConceptos, function (key, propuestaConcepto) {
-                //         $.each(propuestaConcepto, function (key, concepto) {
-                //             console.log(concepto.monto);
-                            
-                //             // if(concepto.concepto_pago_resoluciones_id != 9 ){
-                //                 totalConceptosPago += concepto.monto;
-                //             // }
-                //         });
-                //     });
-                // });
-                // let totalConceptos = totalConceptosPago.toFixed(2);
-                // let totalDiferidos = parseFloat($("#totalPagosDiferidos").val()).toFixed(2);
-                // if(totalConceptos == totalDiferidos ){
-                // }else{
-                //     error =true;
-                //     swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
-                // }
+                $.each(listaPropuestaConceptos, function (key, propuestaSolicitante) {
+                    $.each(listaPropuestaConceptos, function (key, propuestaConcepto) {
+                        $.each(propuestaConcepto, function (key, concepto) {
+                            if(concepto.concepto_pago_resoluciones_id != 9 ){
+                                totalConceptosPago += concepto.monto;
+                            }
+                        });
+                    });
+                });
+                let totalConceptos = parseInt(totalConceptosPago);
+                let totalDiferidos = parseInt($("#totalPagosDiferidos").val());
+                if(totalConceptos == totalDiferidos ){
+                }else{
+                    error =true;
+                    swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
+                }
             }else{
                 error =true;
                 swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
@@ -2859,6 +2857,7 @@
                 table +='</tr>';
                 totalConceptos+= (concepto.monto != "") ? parseFloat(concepto.monto): 0;
             });
+            $("#totalConfig").val(totalConceptos.toFixed(2));
             tableTotal = '<tr><b><td>TOTAL</td><td colspan="4" class="amount"zoozoo>'+totalConceptos.toFixed(2)+'</td></b></tr>';
             $("#tbodyConcepto").html(table);
             $("#tbodyConceptoPrincipal"+idSolicitante).html(table+tableTotal);
