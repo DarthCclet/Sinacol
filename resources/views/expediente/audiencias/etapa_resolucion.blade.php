@@ -791,13 +791,13 @@
                             <p class="help-block needed">Días de vacaciones</p>
                         </div>
                         <div class="col-md-4">
-                            <input class="form-control date datoLaboralExtra" data-parsley-type='integer' id="dias_aguinaldo" placeholder="Días de aguinaldo por año" type="text" value="">
+                            <input class="form-control datoLaboralExtra" data-parsley-type='integer' id="dias_aguinaldo" placeholder="Días de aguinaldo por año" type="text" value="">
                             <p class="help-block needed">Días de aguinaldo</p>
                         </div>
                     </div>
                     <div class="col-md-12 row">
                         <div class="col-md-12">
-                            <input class="form-control date datoLaboralExtra" id="prestaciones_adicionales" placeholder="Prestaciones adicionales" type="text" value="">
+                            <input class="form-control datoLaboralExtra" id="prestaciones_adicionales" placeholder="Prestaciones adicionales" type="text" value="">
                             <p class="help-block needed">Otras prestaciones en especie (bonos, vales de despensa, seguros de gastos médicos mayores etc)</p>
                         </div>
                     </div>
@@ -1292,7 +1292,7 @@
                             <div class="form-group col-md-6">
                                 <label for="fecha_pago" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control fecha" />
+                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control" autocomplete="off" />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
@@ -3530,6 +3530,7 @@
         format:'dd/mm/yyyy',
     });
     $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
+    $("#fecha_pago").datepicker({minDate: new Date()});
 </script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush
