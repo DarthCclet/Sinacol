@@ -35,6 +35,7 @@
             color:darkred;
             content: " (*)";
         }
+        #ui-datepicker-div {z-index:9999 !important}
 
     </style>
 @section('content')
@@ -209,7 +210,7 @@
                                                     </ol> --}}
                                                     {{-- Usted puede escoger una de estas alternativas o bien modificar las tablas. Lo que deja confirmado en el sistema será la propuesta de arreglo que se mostrará en el acta de audiencia. --}}
                                                 </p>
-                                                @foreach($audiencia->solicitantes as $solicitante)
+                                                @foreach($audiencia->solicitantesComparecientes as $solicitante)
                                                 {{-- <pre>{{$solicitante->parte->id}}</pre> --}}
                                                     <div class="card">
                                                     <div class="card-header" id="headingOne">
@@ -357,6 +358,7 @@
                                                                     <tr>
                                                                         <th>Fecha de pago</th>
                                                                         <th>Monto</th>
+                                                                        <th>Estatus</th>
                                                                         <th>Acciones</th>
                                                                     </tr>
                                                                 </thead>
@@ -373,6 +375,16 @@
                                                                                         <P style="color: darkred">No Pagado</p>
                                                                                     @elseif($fechaPago->pagado === true) 
                                                                                         <P style="color:darkolivegreen">Pagado</p>
+                                                                                    @else
+                                                                                        {{-- <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button> --}}
+                                                                                        {{-- <button onclick="emitirConstanciaNoPago({{$fechaPago->id}})" class="btn btn-xs btn-warning" title="Registrar no comparencencia"><i class="fa fa-window-close"></i></button> --}}
+                                                                                    @endif
+                                                                                </td>
+                                                                                <td>
+                                                                                    @if($fechaPago->pagado === false) 
+                                                                                        <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
+                                                                                    @elseif($fechaPago->pagado == true) 
+
                                                                                     @else
                                                                                         <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
                                                                                         <button onclick="emitirConstanciaNoPago({{$fechaPago->id}})" class="btn btn-xs btn-warning" title="Registrar no comparencencia"><i class="fa fa-window-close"></i></button>
@@ -715,7 +727,7 @@
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="fecha_nacimiento" class="control-label needed">Fecha de nacimiento</label>
-                                <input type="text" id="fecha_nacimiento" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
+                                <input type="text" id="fecha_nacimiento" class="form-control dateBirth" placeholder="Fecha de nacimiento del representante">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -775,7 +787,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="feha_instrumento" class="control-label needed">Fecha de instrumento</label>
-                                <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
+                                <input type="text" id="feha_instrumento" class="form-control dateBirth" placeholder="Fecha en que se extiende el instrumento">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -821,7 +833,7 @@
                                 <tr>
                                     <th style="width:80%;">Tipo</th>
                                     <th style="width:80%;">Contacto</th>
-                                    <th style="width:20%; text-align: center;">Accion</th>
+                                    <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                 </tr>
                             </thead>
                             <tbody id="tbodyContacto">
@@ -945,7 +957,7 @@
                                     <th>Nombre</th>
                                     <th>Primer Apellido</th>
                                     <th>Segundo Apellido</th>
-                                    <th>Comparecio</th>
+                                    <th>Compareci&oacute;</th>
                                 </tr>
                             </thead>
                             <tbody id="tbodyPartesFisicas">
@@ -1226,7 +1238,6 @@
             <div class="modal-body">
                 <div class="alert alert-muted">
                     - Selecciona el conciliador y la sala donde se celebrará la audiencia<br>
-                    - La fecha limite para notificar será 5 días habiles previo a la fecha de audiencia (<span id="lableFechaInicio"></span>>)
                 </div>
                 <div id="divAsignarUno">
                     <div class="col-md-12 row">
@@ -1246,7 +1257,71 @@
             <div class="modal-footer">
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" onclick="guardarAudienciaReagendar()"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="modal-Sala-Cambio" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Asignar audiencia</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    - Selecciona el conciliador y la sala donde se celebrará la audiencia<br>
+                </div>
+                <div id="divAsignarUno">
+                    <div class="col-md-12 row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="sala_cambio_fecha_id" class="col-sm-6 control-label">Sala</label>
+                                <div class="col-sm-10">
+                                    <select id="sala_cambio_fecha_id" class="form-control">
+                                        <option value="">-- Selecciona una sala</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarNuevaFecha"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="modal" id="modal-comunicados" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Asignar audiencia</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    - Las siguientes personas no pudieron ser notificadas del cambio por correo electrónico, deberán ser contactadas a traves de los siguientes medios<br>
+                </div>
+                <table class="table table-bordered table-striped table-hover" id="tableNoContactados">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Contacto</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
                 </div>
             </div>
         </div>
@@ -1366,7 +1441,6 @@
             }).always(function () {
                     $(this).removeClass('fileupload-processing');
             }).done(function (result) {
-                console.log(result);
                     $(this).fileupload('option', 'done')
                     .call(this, $.Event('done'), {result: result});
             });
@@ -1425,7 +1499,6 @@
                         var table = "";
                         var div = "";
                         $.each(data, function(index,element){
-                            console.log(element);
                             div += '<div class="image gallery-group-1">';
                             div += '    <div class="image-inner" style="position: relative;">';
                             if(element.tipo == 'pdf' || element.tipo == 'PDF'){
@@ -1879,7 +1952,6 @@
                 error = true;
             }
 
-            console.log(listaContactos.length);
             if(listaContactos.length == 0){
                 $("#contacto").prev().css("color","red");
                 $("#tipo_contacto_id").prev().css("color","red");
@@ -1984,7 +2056,6 @@
             $("#tbodyResolucionesIndividuales").html(table);
         }
         function eliminarRelacion(indice){
-            console.log(indice);
             listaResolucionesIndividuales.splice(indice,1);
             cargarTablaResolucionesIndividuales();
         }
@@ -2154,7 +2225,6 @@
             templateResult: function(data) {
                 return data.html;
             },templateSelection: function(data) {
-                console.log(data);
                 if(data.id != ""){
                     return "<b>"+data.codigo+"</b>&nbsp;&nbsp;"+data.nombre;
                 }
@@ -2214,11 +2284,8 @@
                             swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                         }
                     },error:function(data){
-                        console.log(data);
                         var mensajes = "";
                         $.each(data.responseJSON.errors, function (key, value) {
-                            console.log(key.split("."));
-                            console.log(value);
                             var origen = key.split(".");
 
                             mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
@@ -2270,7 +2337,6 @@
                         $("#puesto").val(data.labora_actualmente);
                         $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
                         $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
-                        console.log(data.jornada_id);
                         $("#jornada_id").val(data.jornada_id);
                         $("#horas_semanales").val(data.horas_semanales);
                         $("#resolucion_dato_laboral").val(data.resolucion);
@@ -2354,7 +2420,6 @@
                 $(".showTime"+pasoActual).text(value.updated_at);
                 $("#step"+pasoActual).show();
                 if(pasoActual != 1){
-                    console.log(typeof value.evidencia);
                     if(value.evidencia == "true"){
                         if(pasoActual == 2){
                             if(!$("#explico_acta").is(":checked")){
@@ -2504,6 +2569,7 @@
                         dataType:"json",
                         data:{
                             audiencia_id:'{{ $audiencia->id }}',
+                            solicitud_id:'{{$solicitud_id}}',
                             idPagoDiferido:idPagoDiferido,
                             _token:"{{ csrf_token() }}"
                         },
@@ -2531,5 +2597,11 @@
             $(this).val(valor.toUpperCase());
         });
         $('[data-toggle="tooltip"]').tooltip();
+        $(".dateBirth").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "c-80:",
+            format:'dd/mm/yyyy',
+        });
     </script>
 @endpush

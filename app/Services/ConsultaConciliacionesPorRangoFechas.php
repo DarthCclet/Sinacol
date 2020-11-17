@@ -34,11 +34,10 @@ class ConsultaConciliacionesPorRangoFechas
         }
 
         $audiencias = $query->paginate();
-
         $res = [];
         foreach ($audiencias as $audiencia){
             $parte_actora = $this->partesTransformer($audiencia->expediente->solicitud->partes, 'solicitante');
-            $parte_demandada = $this->partesTransformer($audiencia->expediente->solicitud->partes, 'solicitado');
+            $parte_demandada = $this->partesTransformer($audiencia->expediente->solicitud->partes, 'citado');
 
             $res[] = [
                 'numero_expediente_oij' => $audiencia->expediente->folio,

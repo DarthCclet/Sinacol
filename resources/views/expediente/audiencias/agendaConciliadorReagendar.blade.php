@@ -42,6 +42,8 @@
                     },
                     selectable: true,
                     selectHelper: true,
+                    minTime: arregloGeneral.minTime,
+                    maxTime: arregloGeneral.maxTime,
                     select: function(start, end,a,b) {
                         var ahora = new Date();
                         end=moment(end).add(1, 'hours').add(30,'minutes').format('Y-MM-DD HH:mm:ss');
@@ -71,7 +73,7 @@
                     editable: false,
                     allDaySlot:false,
                     eventLimit: false,
-                    events: arregloGeneral,
+                    events: arregloGeneral.eventos,
                     eventConstraint: "businessHours"
                 });
             }
@@ -117,8 +119,11 @@
                 $("#hora_fin").val(fin);
                 $("#lableFechaInicio").html(inicio.substring(1, 10));
                 $("#modal-reprogramacion").modal("hide");
-                $("#modal-asignarAudiencia").modal("show");
+                $("#modal-Sala-Cambio").modal("show");
             }
+            $('#modal-comunicados').on('hidden.bs.modal', function () {
+                location.reload();
+            });
             function getSalas(fechaInicio,fechaFin){
                 $.ajax({
                     url:"/audiencia/SalasDisponibles",
@@ -131,18 +136,18 @@
                     },
                     dataType:"json",
                     success:function(data){
-                        $("#sala_cambio_id").html("<option value=''>-- Selecciona una sala</option>");
+                        $("#sala_cambio_fecha_id").html("<option value=''>-- Selecciona una sala</option>");
                         if(data != null && data != ""){
                             $.each(data,function(index,element){
-                                $("#sala_cambio_id").append("<option value='"+element.id+"'>"+element.sala+"</option>");
+                                $("#sala_cambio_fecha_id").append("<option value='"+element.id+"'>"+element.sala+"</option>");
                             });
                         }
-                        $("#sala_cambio_id").select2();
+                        $("#sala_cambio_fecha_id").select2();
                     }
                 });
             }
             $("#btnGuardarNuevaFecha").on("click",function(){
-                if($("#sala_cambio_id option:selected").attr("value") != ""){
+                if($("#sala_cambio_fecha_id option:selected").attr("value") != ""){
                     var listaRelaciones = [];
                     $.ajax({
                         url:'/audiencias/cambiar_fecha',
@@ -156,20 +161,33 @@
                         },
                         dataType:"json",
                         success:function(data){
-                            if(data != null && data != ""){
+                            var table = "";
+                            if(data.sin_contactar != null){
+                                $.each(data.sin_contactar,function(index,element){
+                                    table += '<tr>';
+                                    if(element.tipo_persona_id == 1){
+                                        table += '  <td>'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</td>';
+                                    }else{
+                                        table +='   <td>'+element.nombre_comercial+'</td>';
+                                    }
+                                    table +='   <td>';
+                                    $.each(element.contactos,function(index,contacto){
+                                        table +='<strong>'+contacto.tipo_contacto.nombre+': </strong>'+contacto.contacto+'<br>';
+                                    });
+                                    table +='   </td>';
+                                    table += '</tr>';
+                                });
+                                $("#tableNoContactados tbody").html(table);
+                                $("#modal-Sala-Cambio").modal("hide");
+                                $("#modal-comunicados").modal("show");
+                            }else{
                                 swal({
                                     title: 'Correcto',
                                     text: 'Se cambio la fecha de audiencia',
                                     icon: 'success'
                                 });
-                                window.location.reload();
-                            }else{
-                                swal({
-                                    title: 'Algo salió mal',
-                                    text: 'No se registro la audiencia',
-                                    icon: 'warning'
-                                });
                             }
+                            
                         },error: function(){
                             swal({
                                 title: 'Error',

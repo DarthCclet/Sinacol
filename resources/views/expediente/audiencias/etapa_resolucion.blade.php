@@ -34,6 +34,7 @@
             color:darkred;
             content: " (*)";
         }
+        #ui-datepicker-div {z-index:9999 !important}
     </style>
 @section('content')
 <!-- begin breadcrumb -->
@@ -77,6 +78,7 @@
                     <p>
                         @switch($etapa->paso)
                             @case(1)
+                                <button class="btn btn-primary" style="float: right;" onclick="$('#modal-parte').modal('show')">Agregar Nuevo compareciente <em class="fa fa-plus"></em> </button>
                                 <p>Comparecientes</p>
                                 <div class="col-md-12 ">
                                     <table style="font-size: small;" class="table table-striped table-bordered table-td-valign-middle">
@@ -84,7 +86,7 @@
                                             <tr>
                                                 <th class="text-nowrap">Tipo Parte</th>
                                                 <th class="text-nowrap">Nombre de la parte</th>
-                                                <th class="text-nowrap" >Accion</th>
+                                                <th class="text-nowrap" >Acci&oacute;n</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -133,7 +135,7 @@
                                         No es necesario que la parte trabajadora acuda con representante legal y si acudiera no se le reconocerá como tal; aunque podrá comparecer como acompañante.
                                     </p>
                                     <p>
-                                        <u><i>EL CONCILIADOR LEERÁ EL SIGUIENTE TEXTO, DIRIGIENDOSE AL TRABAJADOR</i></u> “La conciliación es personal. Aunque asista el trabajador con el apoyo de cualquier persona de su confianza, el trabajador mismo es quien decide lo que pide, lo que negocia y lo que acepta o no en este proceso.”.
+                                        <u><i>EL CONCILIADOR LEERÁ EL SIGUIENTE TEXTO, DIRIGIÉNDOSE AL TRABAJADOR</i></u> “La conciliación es personal. Aunque asista el trabajador con el apoyo de cualquier persona de su confianza, el trabajador mismo es quien decide lo que pide, lo que negocia y lo que acepta o no en este proceso.”.
                                     </p>
                                     <div >
                                         {{-- <input type="hidden" /> --}}
@@ -160,7 +162,7 @@
                                     <b><h5>Paso 3: Los principios y derechos en el proceso de la conciliación</h5></b>
                                     <p>
                                         <i>Para el conciliador:</i>
-                                        Explicar las características de la conciliación y los derechos de las partes en ella. Recuerde que el proceso de conciliación se realiza en conformidad con los principios constitucionales de legalidad, imparcialidad, confiabilidad, eficacia, objetividad, profesionalismo, transparencia y publicidad. Es importante mencionar a las partes que es en algunas ocasiones el conciliador considera necesario hablar con cada una de las partes por separado durante el proceso de negociación. Se realizan estas consultas con cada una de las partes para coadyuvar con el proceso de conciliación, conforme a los principios antes mencionados de este procedimento. 
+                                        Explicar las características de la conciliación y los derechos de las partes en ella. Recuerde que el proceso de conciliación se realiza en conformidad con los principios constitucionales de legalidad, imparcialidad, confiabilidad, eficacia, objetividad, profesionalismo, transparencia y publicidad. Es importante mencionar a las partes que en algunas ocasiones el conciliador considera necesario hablar con cada una de las partes por separado durante el proceso de negociación. Se realizan estas consultas con cada una de las partes para coadyuvar con el proceso de conciliación, conforme a los principios antes mencionados de este procedimento. 
                                     </p>
                                     <p>
                                         <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u> “La conciliación es un proceso ágil, objetivo, imparcial, transparente y eficaz. Cada una de las partes tendrá derecho de hablar y de ser escuchada, de plantear, de negociar y de responder. Es un proceso voluntario, no se obligará a nadie a un acuerdo que no quiere. Nos trataremos todos con respeto en esta audiencia. En algún momento de la audiencia es posible que para avanzar la conciliación se tenga que hablar por separado con cada una de las partes, lo que se realiza en algunos casos con el ánimo de arreglar el conflicto, siguiendo los mismos principios mencionados de la conciliación.”.
@@ -214,6 +216,10 @@
                             @break
                             @case(4)
                             <div class="accordion" id="accordionExample">
+                                <input type="hidden" id="totalCompleta" />
+                                <input type="hidden" id="totalAl50" />
+                                <input type="hidden" id="totalConfig" />
+                                {{-- <input type="hidden" id="remuneracionDiaria" /> --}}
                                 <p>
                                     El sistema le muestra 2 opciones de propuestas de convenio:
                                     <ol>
@@ -222,7 +228,7 @@
                                     </ol>
                                     Usted puede escoger una de estas alternativas precargadas, la alternativa de un convenio de reinstalación, o puede escoger una propuesta que configurará con base en las negociaciones entre las partes. Al escoger la propuesta OTRA, tendrá que indicar cada una de las prestaciones que se incluirá, y el número de días o monto de cada prestación. El sistema creará una tabla para mostrar el monto de cada prestación seleccionada y el total de la propuesta. La opción que usted selecciona será la propuesta de arreglo que se mostrará en el acta de audiencia.
                                 </p>
-                                @foreach($audiencia->solicitantes as $solicitante)
+                                @foreach($audiencia->solicitantesComparecientes as $solicitante)
                                 {{-- <pre>{{$solicitante->parte->id}}</pre> --}}
                                     <div class="card">
                                     <div class="card-header" id="headingOne">
@@ -244,6 +250,15 @@
                                             <input type="hidden" id="antiguedad"/>
                                             <input type="hidden" id="tiempoVencido"/>
                                             <input type="hidden" id="idSolicitante"/>
+                                            <div>
+                                                Datos laborales:
+                                                <ul>
+                                                    <li id="salario"> </li>
+                                                    <li id="fechaIngreso"> </li>
+                                                    <li id="fechaSalida"> </li>
+                                                </ul>
+                                            </div>
+                                            <br>
                                             <div>
                                                 <div>
                                                     <table class="table">
@@ -312,7 +327,7 @@
                                 @endforeach
                                 </div>
                                 <br>
-                                <p> El conciliador debe incluir una explicación y motivación breve de la propuesta que fue negociada entre las partes, acreditando que en este cao no hubo renuncia de derechos.</p>
+                                <p> El conciliador debe incluir una explicación y motivación breve de la propuesta que fue negociada entre las partes, acreditando que en este caso no hubo renuncia de derechos.</p>
                                 <textarea class="form-control textarea" placeholder="Comentarios ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
                                 <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="nextStep({{$etapa->paso}})">Continuar </button>
@@ -350,26 +365,26 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        @foreach($audiencia->partes as $parte)
-                                            @if($parte->tipo_parte_id == 1)
+                                        @foreach($audiencia->solicitantesComparecientes as $solicitante)
+                                            {{-- @if($parte->tipo_parte_id == 1) --}}
                                                 <tr>
-                                                    <td class="text-nowrap">{{ $parte->tipoParte->nombre }}</td>
-                                                    @if($parte->tipo_persona_id == 1)
-                                                        <td class="text-nowrap">{{ $parte->nombre }} {{ $parte->primer_apellido }} {{ $parte->segundo_apellido }}</td>
+                                                    <td class="text-nowrap">{{ $solicitante->parte->tipoParte->nombre }}</td>
+                                                    @if($solicitante->parte->tipo_persona_id == 1)
+                                                        <td class="text-nowrap">{{ $solicitante->parte->nombre }} {{ $solicitante->parte->primer_apellido }} {{ $solicitante->parte->segundo_apellido }}</td>
                                                     @else
-                                                        <td class="text-nowrap">{{ $parte->nombre_comercial }}</td>
+                                                        <td class="text-nowrap">{{ $solicitante->parte->nombre_comercial }}</td>
                                                     @endif
                                                     <td>
-                                                        @if($parte->tipo_parte_id == 1)
+                                                        @if($solicitante->parte->tipo_parte_id == 1)
                                                         <div style="display: inline-block;">
-                                                            <button onclick="DatosLaborales({{$parte->id}},true)" class="btn btn-xs btn-primary" title="Datos Laborales">
+                                                            <button onclick="DatosLaborales({{$solicitante->parte->id}},true)" class="btn btn-xs btn-primary" title="Datos Laborales">
                                                                 <i class="fa fa-briefcase"></i>
                                                             </button>
                                                         </div>
                                                         @endif
                                                     </td>
                                                 </tr>
-                                            @endif
+                                            {{-- @endif --}}
                                         @endforeach
                                         </tbody>
                                     </table>
@@ -464,13 +479,13 @@
                             <div class="form-group col-md-6">
                                 <label for="dias" class="col-sm-6 control-label labelResolucion">D&iacute;as a pagar</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="dias" placeholder="D&iacute;as a pagar" class="form-control" />
+                                    <input type="text" id="dias" placeholder="D&iacute;as a pagar" class="form-control numero" />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="monto" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="monto" placeholder="Monto a pagar" class="form-control" />
+                                    <input type="text" id="monto" placeholder="Monto a pagar" class="form-control numero" />
                                 </div>
                             </div>
                             <div class="form-group col-md-12">
@@ -554,7 +569,7 @@
                     <div class="col-md-6 ">
                         <div class="form-group">
                             <label for="fecha_nacimiento" class="control-label needed">Fecha de nacimiento</label>
-                            <input type="text" id="fecha_nacimiento" class="form-control dateBirth" placeholder="Fecha de nacimiento del representante">
+                            <input type="text" id="fecha_nacimiento" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -585,12 +600,12 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-12 row">
                         <div class="col-md-6">
-                            <label >Cedula Profesional</label>
+                            <label >C&eacute;dula Profesional</label><br>
                             <span class="btn btn-primary fileinput-button m-r-3">
                                 <i class="fa fa-fw fa-plus"></i>
-                                <span>Seleccionar identificaci&oacute;n</span>
+                                <span>Seleccionar c&eacute;dula</span>
                                 <input type="file" id="fileCedula" name="files">
                             </span>
                             <p style="margin-top: 1%;" id="labelCedula"></p>
@@ -606,7 +621,7 @@
                             <select id="clasificacion_archivo_id_representante" class="form-control select-element">
                                 <option value="">-- Selecciona un instrumento</option>
                                 @foreach($clasificacion_archivos_Representante as $clasificacion)
-                                <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                <option class='{{($clasificacion->tipo_archivo_id == 10) ? "archivo_sindical" : ""}}' value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -660,7 +675,7 @@
                             <tr>
                                 <th style="width:80%;">Tipo</th>
                                 <th style="width:80%;">Contacto</th>
-                                <th style="width:20%; text-align: center;">Accion</th>
+                                <th style="width:20%; text-align: center;">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyContacto">
@@ -776,13 +791,13 @@
                             <p class="help-block needed">Días de vacaciones</p>
                         </div>
                         <div class="col-md-4">
-                            <input class="form-control date datoLaboralExtra" data-parsley-type='integer' id="dias_aguinaldo" placeholder="Días de aguinaldo por año" type="text" value="">
+                            <input class="form-control datoLaboralExtra" data-parsley-type='integer' id="dias_aguinaldo" placeholder="Días de aguinaldo por año" type="text" value="">
                             <p class="help-block needed">Días de aguinaldo</p>
                         </div>
                     </div>
                     <div class="col-md-12 row">
                         <div class="col-md-12">
-                            <input class="form-control date datoLaboralExtra" id="prestaciones_adicionales" placeholder="Prestaciones adicionales" type="text" value="">
+                            <input class="form-control datoLaboralExtra" id="prestaciones_adicionales" placeholder="Prestaciones adicionales" type="text" value="">
                             <p class="help-block needed">Otras prestaciones en especie (bonos, vales de despensa, seguros de gastos médicos mayores etc)</p>
                         </div>
                     </div>
@@ -1219,7 +1234,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Fecha de Audiencia: </strong><span id="spanFechaAudiencia"></span><br>
+                            <strong>Fecha de audiencia: </strong><span id="spanFechaAudiencia"></span><br>
                         </div>
                     </div>
                 </div>
@@ -1231,7 +1246,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Hora de termino: </strong><span id="spanHoraFin"></span><br>
+                            <strong>Hora de t&eacute;rmino: </strong><span id="spanHoraFin"></span><br>
                         </div>
                     </div>
                 </div>
@@ -1266,20 +1281,24 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
+                {{-- <div class="col-md-12">
+                    <h5>Total a pagar: </h5>
+                    <label for="">5,000</label>
+                </div><br> --}}
                 <div class="col-md-12 row">
                     <div class="col-md-12" id="divPagosDiferidos" >
                         <h5>Fechas para pagos diferidos</h5>
                         <div class="row">
                             <div class="form-group col-md-6">
-                                <label for="dias" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
+                                <label for="fecha_pago" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control fecha" />
+                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control" autocomplete="off" />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
-                                <label for="monto" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
+                                <label for="monto_pago" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="monto_pago" placeholder="Monto a pagar" class="form-control" />
+                                    <input type="text" id="monto_pago" placeholder="Monto a pagar" class="form-control numero" />
                                 </div>
                             </div>
                         </div>
@@ -1316,6 +1335,27 @@
 </div>
 <!--Fin de modal propuesta convenio-->
 
+<!--Inicio modal para fechas de pagos diferidos convenio-->
+<div class="modal" id="modal-parte" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                @include('expediente.solicitudes.agregarParte',['tipo_solicitud_id'=>0])
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarParte"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin de modal propuesta convenio-->
+
 <input type="hidden" id="parte_id">
 <input type="hidden" id="parte_representada_id">
 @endsection
@@ -1326,7 +1366,7 @@
     var listaConfigConceptos= {};
     var listaConfigFechas= [];
     var listaResolucionesIndividuales = [];
-    var lastTimeStamp = "";
+    var firstTimeStamp = "";
     $(document).ready(function(){
         $( "#accordion" ).accordion();
 
@@ -1504,7 +1544,7 @@
                                     // if(parte != undefined){
                                         html += "<tr>";
                                         html += "<td>"+value.parte+"</td>";
-                                        html += "<td>"+value.nombre_original + " "+ value.clasificacion_archivo_id+"</td>";
+                                        html += "<td>"+ value.clasificacion_archivo.nombre+"</td>";
                                         html += "</tr>";
                                         ratifican = true;
                                     // }
@@ -1514,7 +1554,6 @@
                         var table = "";
                         var div = "";
                         $.each(data, function(index,element){
-                            console.log(element);
                             div += '<div class="image gallery-group-1">';
                             div += '    <div class="image-inner" style="position: relative;">';
                             if(element.tipo == 'pdf' || element.tipo == 'PDF'){
@@ -1570,6 +1609,9 @@
             },
             success:function(data){
                 try{
+                    if(etapa==1){
+                        location.reload();
+                    }
                     respuesta = true;
 
                     $(".showTime"+etapa).text(data.data.created_at);
@@ -1601,7 +1643,6 @@
         });
     }
     function setPasosAudiencia(etapas){
-        console.log(etapas);
         $.each(etapas, function (key, value) {
             var pasoActual = value.etapa_resolucion_id;
             $(".showTime"+pasoActual).text(value.updated_at);
@@ -1645,9 +1686,12 @@
             $("#icon"+pasoActual).css("background","lightgreen");
             // $("#contentStep"+pasoActual).hide();
             $("#step"+siguiente).show();
-            lastTimeStamp = value.created_at;
-
+            if(pasoActual == 1){
+                firstTimeStamp = value.created_at;
+            }
+            
         });
+        startTimer();
     }
     $('.textarea').wysihtml5({locale: 'es-ES'});
 
@@ -2069,7 +2113,6 @@
                     options += '<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</option>';
                 });
                 $("#parte_relacionada").empty();
-                console.log(options);
                 $("#parte_relacionada").html(options);
                 $("#tbodyPartesFisicas").html(table);
                 $("#resolucionVarias").hide();
@@ -2190,7 +2233,6 @@
                                     '            <option value="">Seleccione una opci&oacute;n</option>'+
                                     '            @if(isset($solicitud_id))';
                                     $.each(data, function(index,element){
-                                        console.log(element);
                                         if(element.tipo_persona_id == 1){
                                             html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</option>';
                                         }
@@ -2364,7 +2406,6 @@
         objeto_propuesta.prima_antiguedad = $("#prima_antiguedad").val();
         objeto_propuesta.prestaciones_legales = $("#prestaciones_legales").val();
         objeto_propuesta.prestaciones_45 = $("#prestaciones_45").val();
-        console.log(objeto_propuesta);
         $("#tableOtro").show();
         $("#modal-propuesta-convenio").modal('hide')
         // formarTablaPropuestaConvenio();
@@ -2635,20 +2676,19 @@
                 $.each(listaPropuestaConceptos, function (key, propuestaSolicitante) {
                     $.each(listaPropuestaConceptos, function (key, propuestaConcepto) {
                         $.each(propuestaConcepto, function (key, concepto) {
-                            totalConceptosPago += concepto.monto;
+                            if(concepto.concepto_pago_resoluciones_id != 9 ){
+                                totalConceptosPago += concepto.monto;
+                            }
                         });
                     });
                 });
-                let totalConceptos = totalConceptosPago.toFixed(2);
-                let totalDiferidos = parseFloat($("#totalPagosDiferidos").val()).toFixed(2);
-                console.log(totalDiferidos);
-                console.log(totalConceptos);
-                // if(totalConceptos == totalDiferidos ){
-
-                // }else{
-                //     error =true;
-                //     swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
-                // }
+                let totalConceptos = parseInt(totalConceptosPago);
+                let totalDiferidos = parseInt($("#totalPagosDiferidos").val());
+                if(totalConceptos == totalDiferidos ){
+                }else{
+                    error =true;
+                    swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
+                }
             }else{
                 error =true;
                 swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
@@ -2717,6 +2757,7 @@
                 },
                 success:function(data){
                     if(data != null && data != ""){
+                        getDatosLaboralesParte($("#parte_id").val());
                         swal({title: 'ÉXITO',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
                         $("#modal-dato-laboral").modal("hide");
                     }else{
@@ -2796,7 +2837,7 @@
             }else{
                 comboConceptos = "concepto_pago_resoluciones_id";
             }
-
+            totalConceptos = 0 ;
             $.each(listaConfigConceptos,function(index,concepto){
                 idSolicitante = concepto.idSolicitante;
 
@@ -2805,7 +2846,8 @@
                     table +='<td>'+$("#"+comboConceptos+" option:selected").text()+'</td>';
                     $("#"+comboConceptos).val("");
                     table +='<td>'+concepto.dias+'</td>';
-                    table +='<td>'+concepto.monto+'</td>';
+                    conceptoMonto = (concepto.monto != "") ? parseFloat(concepto.monto).toFixed(2): ""
+                    table +='<td class="amount">'+ conceptoMonto +'</td>';
                     table +='<td>'+concepto.otro+'</td>';
                     table +='<td>';
                         table +='<button onclick="eliminarConcepto('+idSolicitante+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
@@ -2813,9 +2855,12 @@
                         table +='</button>';
                     table +='</td>';
                 table +='</tr>';
+                totalConceptos+= (concepto.monto != "") ? parseFloat(concepto.monto): 0;
             });
+            $("#totalConfig").val(totalConceptos.toFixed(2));
+            tableTotal = '<tr><b><td>TOTAL</td><td colspan="4" class="amount"zoozoo>'+totalConceptos.toFixed(2)+'</td></b></tr>';
             $("#tbodyConcepto").html(table);
-            $("#tbodyConceptoPrincipal"+idSolicitante).html(table);
+            $("#tbodyConceptoPrincipal"+idSolicitante).html(table+tableTotal);
         }
 
         function eliminarConcepto(idSolicitante,indice){
@@ -3066,6 +3111,10 @@
                 $('#tiempoVencido').val(dato.tiempoVencido);
                 $('#idSolicitante').val(dato.idParte);
 
+                $('#salario').html(" Remuneraci&oacute;n "+ dato.salario);
+                $('#fechaIngreso').html(" Fecha de ingreso: " + dato.fechaIngreso);
+                $('#fechaSalida').html(" Fecha de salida: " + dato.fechaSalida);
+
                 let table = "";
                 table+=" <tr>";
                 table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td><td class="amount" > $'+ (dato.al50.indemnizacion).toLocaleString("en-US") +'</td>';
@@ -3085,6 +3134,8 @@
                 table+=" <tr>";
                 table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (dato.completa.total ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.total).toLocaleString("en-US") +"</td>";
                 table+=" </tr>";
+                $('#totalCompleta').val(dato.completa.total);
+                $('#totalAl50').val(dato.al50.total);
                 $('#tbodyPropuestas'+dato.idParte).html(table);
             }
         });
@@ -3157,11 +3208,11 @@
         salarioMinimo = $('#salarioMinimo').val();
         switch (concepto) {
             case '4': //Dias de aguinaldo
-                if(dias <15){
-                    swal({title: 'Error',text: 'El numero de dias para aguinaldo debe ser mayor o igual a 15',icon: 'warning'});
-                }else{
+                // if(dias <15){
+                //     swal({title: 'Error',text: 'El numero de dias para aguinaldo debe ser mayor o igual a 15',icon: 'warning'});
+                // }else{
                     monto = dias * pagoDia;
-                }
+                // }
                 break;
             case '7': // Prima topada por antiguedad
 
@@ -3178,14 +3229,14 @@
     });
 
     $("#btnAgregarFechaPago").on("click",function(){
-        console.log(listaConfigFechas);
         if(listaConfigFechas.length < 5){  
             var hoy = new Date();
-            var unMes = hoy.setMonth(hoy.getMonth() + 1);
+            var _45dias = hoy.setDate(hoy.getDate() + 45);
+            // var unMes = hoy.setMonth(hoy.getMonth() + 1);
             let fechaP = $("#fecha_pago").val().split("/");
             var fpago = new Date(fechaP[1]+'/'+fechaP[0]+'/'+fechaP[2]);
             
-            if(fpago <= unMes){
+            if(fpago <= _45dias){
                 let idSolicitante =$("#idSolicitante").val();
                 if( $("#fecha_pago").val() != "" && $("#monto_pago").val() != ""){
                     let existe = false;
@@ -3200,11 +3251,19 @@
                         if(listaConfigFechas == undefined ){
                             listaConfigFechas = [];
                         }
-                        listaConfigFechas.push({
-                            //idSolicitante:$("#idSolicitante").val(),
-                            fecha_pago:$("#fecha_pago").val(),
-                            monto_pago:$("#monto_pago").val(),
-                        });
+                        if(isNaN($("#monto_pago").val()) ){
+                            swal({
+                                title: 'Alerta',
+                                text: 'El campo monto a pagar sólo puede contener números y punto decimal',
+                                icon: 'warning'
+                            });
+                        }else{
+                            listaConfigFechas.push({
+                                //idSolicitante:$("#idSolicitante").val(),
+                                fecha_pago:$("#fecha_pago").val(),
+                                monto_pago:$("#monto_pago").val(),
+                            });
+                        }
                         $("#fecha_pago").val('');
                         $("#monto_pago").val('');
                         cargarTablaFechasPago(listaConfigFechas);
@@ -3213,7 +3272,7 @@
                     swal({title: 'Error',text: 'Debe ingresar fecha y monto de pago',icon: 'warning'});
                 }
             }else{
-                swal({title: 'Error',text: 'La fecha de pago no puede exceder un mes',icon: 'warning'});
+                swal({title: 'Error',text: 'La fecha de pago no puede exceder 45 d&iacute;as',icon: 'warning'});
             }
         }else{
             swal({title: 'Error',text: 'El número máximo de pagos permitidos es cinco.' ,icon: 'warning'});
@@ -3225,13 +3284,12 @@
         let idSolicitante = '';
         let totalPagoFechas = 0;
 
-        console.log(listaConfigFechas);
         $.each(listaConfigFechas,function(index,fechaPago){
             
             idSolicitante = fechaPago.idSolicitante;
             table +='<tr>';
                 table +='<td>'+fechaPago.fecha_pago+'</td>';
-                table +='<td>'+fechaPago.monto_pago+'</td>';
+                table +='<td>'+(fechaPago.monto_pago)+'</td>';
                 table +='<td>';
                 // table +='<button onclick="eliminarFechaPago('+idSolicitante+','+index+')" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago" style="display:none;">';
                 //     table +='<i class="fa fa-eye"></i>';
@@ -3346,7 +3404,7 @@
     }
     $("#btnGuardarResolucionMuchas").on("click",function(){
         let listaPropuestaConceptos = {};
-        totalConceptosPago = 0;
+        // totalConceptosPago = 0;
         error =false;
         $('.collapseSolicitante').each(function() {
             // let idSolicitante =$("#idSolicitante").val();
@@ -3401,10 +3459,10 @@
     var timer = 0;
     function startTimer(){
         var days = "";
-        if(lastTimeStamp != ""){
-            lastTimeStamp = moment(lastTimeStamp)
+        if(firstTimeStamp != ""){
+            firstTimeStamp = moment(firstTimeStamp)
             var actualDate = moment();
-            var seconds = actualDate.diff(lastTimeStamp,"seconds");
+            var seconds = actualDate.diff(firstTimeStamp,"seconds");
             var minutes = seconds / 60;
             var hours = minutes /60;
             days = hours / 24;
@@ -3421,8 +3479,8 @@
                 timer = 1;
                 timestamp = new Date(timestamp.getTime() + interval*1000);
                 var dias = "";
-                if(days != ""){
-                    dias = days.toString().split(".")[0]+ "dias "
+                if(days != "" && parseInt(days) != 0){
+                    dias = days.toString().split(".")[0]+ " dias "
                 }
                 $('.countdown').text(dias + formatNumberTimer(timestamp.getHours())+':'+formatNumberTimer(timestamp.getMinutes())+':'+formatNumberTimer(timestamp.getSeconds()));
             }, 1000);
@@ -3464,6 +3522,14 @@
     $("#btnFinalizarRatificacion").on("click",function(){
         location.href = "/solicitudes/consulta/{{$solicitud_id}}";
     });
+    $(".dateBirth").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        yearRange: "c-80:",
+        format:'dd/mm/yyyy',
+    });
+    $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
+    $("#fecha_pago").datepicker({minDate: new Date()});
 </script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush

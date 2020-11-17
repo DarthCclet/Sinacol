@@ -37,6 +37,7 @@
                 <p class="help-block">Confirme la contraseña</p>
             </div>
         </div>
+        @if(auth()->user()->hasRole('Super Usuario'))
         <div class="form-group">
             <label for="centro_id" class="control-label">Centro</label>
             <div class="col-sm-10">
@@ -45,6 +46,7 @@
                 <p class="help-block">Selecciona el centro al que pertenece</p>
             </div>
         </div>
+        @endif
     </div>
 
     <div class="col-md-6">
@@ -76,11 +78,11 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="apepat" class="control-label">RFC</label>
+            <label for="apepat" class="control-label">CURP</label>
             <div class="col-sm-10">
-                {!! Form::text('personas[rfc]', isset($user->persona) ? $user->persona->rfc : null, ['class'=>'form-control', 'id'=>'rfc', 'placeholder'=>'RFC']) !!}
-                {!! $errors->first('personas.rfc', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block">Registro Federal de Contribuyentes de la person a la que pertenece esta cuenta</p>
+                {!! Form::text('personas[curp]', isset($user->persona) ? $user->persona->curp : null, ['class'=>'form-control', 'id'=>'curp', 'placeholder'=>'RFC']) !!}
+                {!! $errors->first('personas.curp', '<span class=text-danger>:message</span>') !!}
+                <p class="help-block">Clave única de registro de población de la person a la que pertenece esta cuenta</p>
             </div>
         </div>
     </div>

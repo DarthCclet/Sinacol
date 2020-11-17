@@ -264,6 +264,30 @@
             "nombre": "Convenio de reinstalación con firma autógrafa",
             "tipo_archivo_id":5,
             "entidad_emisora_id":8
+        },
+        {
+            "id": "45",
+            "nombre": "Acta de cumplimiento de convenio",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "46",
+            "nombre": "Acta de cumplimiento de convenio con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "47",
+            "nombre": "Toma de nota",
+            "tipo_archivo_id":10,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "48",
+            "nombre": "Estatuto de los Sindicatos",
+            "tipo_archivo_id":10,
+            "entidad_emisora_id":null
         }
     ],
 

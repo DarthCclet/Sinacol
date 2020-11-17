@@ -65,10 +65,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('audiencias','AudienciaController');
     Route::resource('audiencia','AudienciaController');
     Route::Post('audiencia/ConciliadoresDisponibles','AudienciaController@ConciliadoresDisponibles');
+    Route::Post('audiencia/ConciliadoresDisponiblesCentral','AudienciaController@ConciliadoresDisponiblesCentral');
+    Route::Post('audiencia/SalasDisponiblesCentral','AudienciaController@SalasDisponiblesCentral');
     Route::Post('audiencia/SalasDisponibles','AudienciaController@SalasDisponibles');
     Route::Post('audiencia/calendarizar','AudienciaController@calendarizar');
+    Route::Post('audiencia/calendarizarCentral','AudienciaController@calendarizarCentral');
     Route::Post('audiencia/reagendar','AudienciaController@cambiarFecha');
     Route::Post('audiencia/getCalendario','AudienciaController@getCalendario');
+    Route::Post('audiencia/getCalendarioCentral','AudienciaController@getCalendarioCentral');
     Route::Post('audiencia/getCalendarioColectivas','AudienciaController@getCalendarioColectivas');
     Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
     Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
@@ -84,7 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencia/comparecientes','AudienciaController@guardarComparecientes');
     Route::Get('audiencia/comparecientes/{audiencia_id}','AudienciaController@getComparecientes');
     Route::Get('audiencia/negarCancelacion/{audiencia_id}','AudienciaController@negarCancelacion');
-    Route::Get('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
+    Route::Post('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
     Route::Post('audiencias/solicitar_nueva','AudienciaController@SolicitarNueva');
     Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');
     Route::get('resolucionColectiva/{id}','AudienciaController@resolucionColectiva')->name('resolucionColectiva');
@@ -180,7 +184,7 @@ Route::post('solicitar_acceso','BuzonController@SolicitarAcceso')->name('solicit
 Route::get('buzon','BuzonController@BuzonElectronico')->name('buzon');
 Route::get('validar_token/{token}/{correo}','BuzonController@validar_token');
 Route::resource('etapa_resolucion_audiencia','EtapaResolucionAudienciaController');
-Route::post('acceso_buzon','BuzonController@AccesoBuzon')->name('acceso_buzon');
+Route::get('acceso_buzon','BuzonController@AccesoBuzon')->name('acceso_buzon');
 
 Auth::routes(['register' => false]);
 

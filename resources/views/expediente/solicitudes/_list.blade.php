@@ -1,5 +1,3 @@
-@include('includes.component.dropzone')
-
 <style>
     .upper{
         text-transform: uppercase;
@@ -8,8 +6,15 @@
         color:darkred;
         content: " (*)";
     }
+    #ui-datepicker-div {z-index:9999 !important}
+    .selectedButton{
+        color: #fff !important;
+        background-color: #9D2449 !important;
+        border-color: #9D2449 !important;
+    }
 </style>
 
+<input type="hidden" id="instancia" value="{{ env('INSTACIA') ? env('INSTACIA') : 'federal'}}">
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <input type="hidden" id="rutaConsulta" value="{!! route("solicitudes.consulta",'-rutaConsulta') !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
@@ -26,6 +31,8 @@
     <div class="text-right">
         <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
     </div>
+    <input type="hidden" id="centro_id" value="{{Auth::user()->centro_id}}">
+    <input type="hidden" id="oficina_central" value="{{(auth()->user()->hasRole('Orientador Central')) ? 'true':'false'}}">
     <div class="col-md-12">
         <div id="gallery" class="gallery row"></div>
         <!--<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">-->
@@ -107,7 +114,9 @@
                 <td width="1%">
                     <span class="preview">
                         {% if (file.thumbnailUrl) { %}
-                            <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}" class="rounded"></a>
+                            <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
+                                <img src="{%=file.thumbnailUrl%}" width="80px" height="80px" class="rounded">
+                            </div>
                         {% } else { %}
                             <div class="bg-light text-center f-s-20" style="width: 80px; height: 80px; line-height: 80px; border-radius: 6px;">
                                 <i class="fa fa-file-image fa-lg text-muted"></i>
@@ -161,7 +170,7 @@
 {{-- Div carga documento --}}
 
 {{-- Modal ratificacion --}}
-<!--inicio modal para representante legal-->
+<!--inicio modal para representante-->
 <input type="hidden" id="solicitud_id" value="">
 
 <div class="modal" id="modalRatificacion" aria-hidden="true" style="display:none;">
@@ -172,12 +181,12 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <div class="col-md-12">
+                <div style="overflow:scroll" class="col-md-12">
                     <div id="divNeedRepresentante" style="display: none;">
-                        <h5>Representantes legales</h5>
+                        <h5>Representantes</h5>
                         <hr class="red">
                         <div class="alert alert-muted" style="display: none;" id="menorAlert" >
-                            <strong>Menor de edad:</strong> Detectamos que al menos un solicitante no es mayor de edad, para poder continuar con la solicitud es necesario agregar al representante legal del menor y la identificación oficial de dicho representante.
+                            <strong>Menor de edad:</strong> Detectamos que al menos un solicitante no es mayor de edad, para poder continuar con la solicitud es necesario agregar al representante del menor y la identificación oficial de dicho representante.
                         </div>
                         <input type="hidden" id="parte_id" />
                         <input type="hidden" id="parte_representada_id">
@@ -236,7 +245,7 @@
                                         <div class="col-md-6 " id="divFechaCita" style="display:none;">
                                             <div class="form-group">
                                                 <label for="fecha_cita" class="control-label needed">Fecha de cita</label>
-                                                <input type="text" id="fecha_cita" class="form-control fecha" placeholder="Fecha para atender cita">
+                                                <input type="text" id="fecha_cita" class="form-control dateBirth" placeholder="Fecha para atender cita">
                                             </div>
                                         </div>
                                     </div>
@@ -244,6 +253,11 @@
                             </tr>
                         <tbody>
                     </table>
+                </div>
+                <div class="col-md-12" id="divCalendarioCentral">
+                    <h5>Calendario de oficina central</h5>
+                    <hr class="red">
+                    @include('expediente.audiencias.calendarioRatificacion')
                 </div>
                 <div class="col-md-12">
                     <p id="notificaAmbito" style="color: darkred; font-weight:bold; display:none; text-align:right;"></p>
@@ -265,26 +279,24 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Representante legal</h4>
+                <h4 class="modal-title">Representante</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
                 <div style="overflow:scroll">
-
-
-                    <h5>Datos del Representante legal</h5>
+                    <h5>Datos del Representante</h5>
                     <input type="hidden" id="id_representante">
                     <div class="col-md-12 row">
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="curpRep" class="control-label needed">CURP</label>
-                                <input type="text" id="curpRep" maxlength="18" onblur="getParteCurp(this.value)" class="form-control upper" placeholder="CURP del representante legal">
+                                <input type="text" id="curpRep" maxlength="18" onblur="getParteCurp(this.value)" class="form-control upper" placeholder="CURP del representante">
                             </div>
                         </div>
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="nombreRep" class="control-label needed">Nombre</label>
-                                <input type="text" id="nombreRep" class="form-control upper" placeholder="Nombre del representante legal">
+                                <input type="text" id="nombreRep" class="form-control upper" placeholder="Nombre del representante">
                             </div>
                         </div>
                         <div class="col-md-6 ">
@@ -302,7 +314,7 @@
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="fecha_nacimientoRep" class="control-label needed">Fecha de nacimiento</label>
-                                <input type="text" id="fecha_nacimientoRep" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
+                                <input type="text" id="fecha_nacimientoRep" class="form-control dateBirth" placeholder="Fecha de nacimiento del representante">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -335,7 +347,7 @@
                         </div>
                         <div class="col-md-12">
                             <div class="col-md-6">
-                                <label >Cedula Profesional</label>
+                                <label >Cedula profesional</label>
                                 <span class="btn btn-primary fileinput-button m-r-3">
                                     <i class="fa fa-fw fa-plus"></i>
                                     <span>Seleccionar identificaci&oacute;n</span>
@@ -346,15 +358,15 @@
                         </div>
                     </div>
                     <hr>
-                    <h5>Datos de comprobante como representante legal</h5>
+                    <h5>Datos de comprobante como representante</h5>
                     <div class="col-md-12 row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="clasificacion_archivo_id_representante" class="control-label needed">Instrumento</label>
-                                <select id="clasificacion_archivo_id_representante" class="form-control catSelect select-element">
+                                <select id="clasificacion_archivo_id_representante" class="form-control select-element">
                                     <option value="">-- Selecciona un instrumento</option>
                                     @foreach($clasificacion_archivos_Representante as $clasificacion)
-                                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    <option class='{{($clasificacion->tipo_archivo_id == 10) ? "archivo_sindical" : ""}}' value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -362,7 +374,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="feha_instrumento" class="control-label needed">Fecha de instrumento</label>
-                                <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
+                                <input type="text" id="feha_instrumento" class="form-control dateBirth" placeholder="Fecha en que se extiende el instrumento">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -408,7 +420,7 @@
                                 <tr>
                                     <th style="width:80%;">Tipo</th>
                                     <th style="width:80%;">Contacto</th>
-                                    <th style="width:20%; text-align: center;">Accion</th>
+                                    <th style="width:20%; text-align: center;">Acci&oacute;n</th>
                                 </tr>
                             </thead>
                             <tbody id="tbodyContacto">
@@ -430,7 +442,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Representante legal</h4>
+                <h4 class="modal-title">Representante</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -610,7 +622,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Hora de termino: </strong><span id="spanHoraFin"></span><br>
+                            <strong>Hora de t&eacute;rmino: </strong><span id="spanHoraFin"></span><br>
                         </div>
                     </div>
                 </div>
@@ -642,7 +654,7 @@
       @foreach($estatus_solicitudes as $key => $node)
         estatus_solicitudes['{{$key}}'] = '{{$node}}';
       @endforeach
-
+        var esSindical=false;
         var filtrado=false;
         $(document).ready(function() {
             var ruta = $("#ruta").val();
@@ -653,7 +665,10 @@
                     "url": '/solicitudes',
                     "dataSrc": function(json){
                         var array = new Array();
-                        this.recordsTotal = json.total;
+                        this.recordsTotal = json.recordsTotal;
+                        if(mis_solicitudes == true){
+                            $("#spanMisSol").html(json.recordsFiltered);
+                        }
                         $.each(json.data,function(key, value){
                             array.push(Object.values(value));
                         });
@@ -667,6 +682,7 @@
                         d.Expediente = $("#Expediente").val(),
                         d.anio = $("#anio").val(),
                         d.estatus_solicitud_id = $("#estatus_solicitud_id").val(),
+                        d.mis_solicitudes = $("#mis_solicitudes").val(),
                         d.curp = $("#curp").val(),
                         d.nombre = $("#nombre").val(),
                         d.IsDatatableScroll = true,
@@ -696,7 +712,6 @@
                     {
                         "targets": [4],
                         "render": function (data, type, row) {
-                                console.log(data);
                             if (data != null) {
                                 return  dateFormat(data,2);
                             } else {
@@ -745,22 +760,22 @@
                                 if(nombre.length > 30){
                                     addetc = "...";
                                 }
-                                if(value.tipo_parte_id == 2){
+                                if(value.tipo_parte_id == 1){
                                     contSol++;
                                     solicitantes = "<p> -"+nombre.substring(0,30)+addetc+"</p>";
-                                }else if(value.tipo_parte_id == 1){
+                                }else if(value.tipo_parte_id == 2){
                                     contCit++;
                                     solicitados = "<p> - "+nombre.substring(0,30)+addetc+"</p>";
                                 }
                             });
                             html += "<div>";
                             html += "<h5>Solicitantes</h5>";
-                            html += solicitados;
+                            html += solicitantes;
                             if(contSol > 1){
                                 html += "<p> Y OTROS</p>";
                             }
                             html += "<h5>Citados</h5>";
-                            html += solicitantes;
+                            html += solicitados;
                             if(contCit > 1){
                                 html += "<p> Y OTROS</p>";
                             }
@@ -771,7 +786,6 @@
                     {
                         "targets": [9],
                         "render": function (data, type, row) {
-                            console.log(row[9]);
                             html = "N/A";
                             if(row[9] != null){
                                 html = ""+row[9].folio;
@@ -807,12 +821,12 @@
                         "targets": -1,
                         "render": function (data, type, row) {
                                 var buttons = '';
-                                if(row[7] == '{{Auth::user()->centro_id}}'){
+                                if(row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true"){
                                     buttons += '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-4" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
                                 }
                                     buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+rutaConsulta.replace('/-rutaConsulta',"/"+row[0])+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>';
                                 
-                                if(row[1] == 1 && row[7] == '{{Auth::user()->centro_id}}'){
+                                if(row[1] == 1 && (row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true")){
                                     buttons += '<div title="Ratificar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="continuarRatificacion('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></button></div>';
                                 }
                                 return buttons;
@@ -842,12 +856,10 @@
                 },
                 "stateSaveParams": function (settings, data) {
                 //data.search.search = "";
-                  console.log(data);
                 },
                 "dom": "tiS", // UI layout
             });
             dt.on( 'draw', function () {
-                console.log('tratando de poner')
                 if(filtrado){
                 //dt.scroller().scrollToRow(0);
                 filtrado = false;
@@ -895,7 +907,21 @@
             $('[data-toggle="tooltip"]').tooltip();
             cargarGeneros();
             cargarTipoContactos();
+            FormMultipleUpload.init();
        });
+
+        function filtrarMisSolicitudes(){
+            mis_solicitudes = !mis_solicitudes; 
+            $('#mis_solicitudes').val(mis_solicitudes).trigger('change');
+            if(mis_solicitudes){
+                $("#spanMisSol").addClass('badge-success');
+                $("#btnMisSol").addClass('selectedButton');
+            }else{
+                $("#btnMisSol").removeClass('selectedButton');
+                $("#spanMisSol").removeClass('badge-success');
+                $("#spanMisSol").html("0");
+            }
+        }
 
     //    para ratificacion
 
@@ -926,7 +952,8 @@
         getSolicitudFromBD(solicitud_id);
         $("#solicitud_id_modal").val(solicitud_id);
         actualizarPartes();
-        if(solicitudObj.ambito_id != 1){ //No es ambito Federal
+        var instancia = $("#instancia").val();
+        if((solicitudObj.ambito_id != 1 && instancia == "federal") || (solicitudObj.ambito_id != 2 && instancia == "local") ){ //No es ambito Federal
             $('#btnGuardarRatificar').hide();
             $('#btnGuardarConvenio').hide();
             $('#btnRatificarIncompetencia').show();
@@ -946,6 +973,16 @@
             $("#divNoGeolocalizable").show();
             $("#divGeolocalizable").hide();
         }
+        console.log(solicitudObj.tipo_solicitud_id);
+        if(solicitudObj.tipo_solicitud_id == 3 || solicitudObj.tipo_solicitud_id == 4){
+            $(".archivo_sindical").hide();
+            $("#btnGuardarRatificar").hide();
+            $("#divCalendarioCentral").show();
+        }else{
+            $(".archivo_sindical").show();
+            $("#divCalendarioCentral").hide();
+            $("#btnGuardarRatificar").show();
+        }
         try{
             cargarDocumentos();
             var solicitanteMenor = arraySolicitantes.filter(x=>x.edad <= 16).filter(x=>x.edad != null);
@@ -953,7 +990,6 @@
             if(solicitanteMenor.length > 0 || solicitanteMoral.length > 0){
                 $("#divNeedRepresentante").show();
                 var html = "";
-                console.log(solicitanteMenor);
                 $.each(solicitanteMenor,function(key,parte){
                     html += "<tr>";
                     html += "<td>"+parte.nombre + " " + parte.primer_apellido + " " + (parte.segundo_apellido|| "")+"</td>";
@@ -1034,7 +1070,6 @@
                                             });
                                         }
                                     },error:function(data){
-                                        console.log(data);
                                         swal({
                                             title: 'Error',
                                             text: data.responseJSON.message,
@@ -1158,6 +1193,7 @@
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
+                                
                                 swal({
                                     title: '¿Las partes concilian en la misma sala?',
                                     text: 'Selecciona el tipo de conciliación que se llevará a cabo',
@@ -1174,7 +1210,7 @@
                                             text: "Separados",
                                             value: 2,
                                             className: 'btn btn-warning',
-                                            visible: true,
+                                            visible: !esSindical,
                                             closeModal: true
                                         },
                                         confirm: {
@@ -1206,7 +1242,6 @@
                                                 _token:"{{ csrf_token() }}"
                                             },
                                             success:function(data){
-                                                console.log(data);
                                                 if(data != null && data != ""){
                                                     if(data.encontro_audiencia){
                                                         $("#spanFolio").text(data.folio+"/"+data.anio);
@@ -1260,7 +1295,6 @@
                                                     });
                                                 }
                                             },error:function(data){
-                                                console.log(data);
                                                 swal({
                                                     title: 'Error',
                                                     text: data.responseJSON.message,
@@ -1381,7 +1415,6 @@
                             });
                         }
                     },error:function(data){
-                        console.log(data);
                         swal({
                             title: 'Error',
                             text: data.responseJSON.message,
@@ -1479,7 +1512,7 @@
                             // if(parte != undefined){
                                 html += "<tr>";
                                 html += "<td>"+value.parte+"</td>";
-                                html += "<td>"+value.nombre_original + " "+ value.clasificacion_archivo_id+"</td>";
+                                html += "<td>"+ value.clasificacion_archivo.nombre+"</td>";
                                 html += "</tr>";
                                 ratifican = true;
                             // }
@@ -1525,12 +1558,16 @@
         });
     }
     var handleJqueryFileUpload = function() {
-        // Initialize the jQuery File Upload widget:
-        $('#fileupload').fileupload({
+	// Initialize the jQuery File Upload widget:
+	$('#fileupload').fileupload({
             autoUpload: false,
             disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
             maxFileSize: 5000000,
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
+            messages: {
+                acceptFileTypes: 'Archivo no permitido',
+                maxFileSize: 'El archivo es muy pesado'
+            },
             stop: function(e,data){
               cargarDocumentos();
             //   $("#modal-archivos").modal("hide");
@@ -1596,69 +1633,69 @@
                     rows = rows.add(row);
                 });
                 return rows;
-            }
             // Uncomment the following to send cross-domain cookies:
             //xhrFields: {withCCOLOR_REDentials: true},
-        });
+            }
+	});
 
-        // Enable iframe cross-domain access via COLOR_REDirect option:
-        $('#fileupload').fileupload(
-            'option',
-            'COLOR_REDirect',
-            window.location.href.replace(
-                    /\/[^\/]*$/,
-                    '/cors/result.html?%s'
-            )
-        );
+	// Enable iframe cross-domain access via COLOR_REDirect option:
+	$('#fileupload').fileupload(
+		'option',
+		'COLOR_REDirect',
+		window.location.href.replace(
+			/\/[^\/]*$/,
+			'/cors/result.html?%s'
+		)
+	);
 
-        // hide empty row text
+	// hide empty row text
         $('#fileupload').on('fileuploadsend', function (e, data) {
 
             // if(){
             //     e.preventDefault();
             // }
         })
-        $('#fileupload').bind('fileuploadadd', function(e, data) {
-            $('#fileupload [data-id="empty"]').hide();
+	$('#fileupload').bind('fileuploadadd', function(e, data) {
+		$('#fileupload [data-id="empty"]').hide();
             $(".catSelectFile").select2();
-        });
+	});
         $('#fileupload').bind('fileuploaddone', function(e, data) {
             // console.log("add");
         });
 
-        // show empty row text
-        $('#fileupload').bind('fileuploadfail', function(e, data) {
-            var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
-            if (rowLeft === 0) {
-                    $('#fileupload [data-id="empty"]').show();
-            } else {
-                    $('#fileupload [data-id="empty"]').hide();
-            }
-        });
+	// show empty row text
+	$('#fileupload').bind('fileuploadfail', function(e, data) {
+		var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
+		if (rowLeft === 0) {
+			$('#fileupload [data-id="empty"]').show();
+		} else {
+			$('#fileupload [data-id="empty"]').hide();
+		}
+	});
 
-        // Upload server status check for browsers with CORS support:
-        if ($.support.cors) {
-                $.ajax({
-                        type: 'HEAD'
-                }).fail(function () {
-                        $('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
-                });
-        }
+	// Upload server status check for browsers with CORS support:
+	if ($.support.cors) {
+		$.ajax({
+			type: 'HEAD'
+		}).fail(function () {
+			$('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
+		});
+	}
 
-        // Load & display existing files:
-        $('#fileupload').addClass('fileupload-processing');
-        $.ajax({
-                // Uncomment the following to send cross-domain cookies:
-                //xhrFields: {withCCOLOR_REDentials: true},
-                url: $('#fileupload').fileupload('option', 'url'),
-                dataType: 'json',
-                context: $('#fileupload')[0]
-        }).always(function () {
-                $(this).removeClass('fileupload-processing');
-        }).done(function (result) {
-                $(this).fileupload('option', 'done')
-                .call(this, $.Event('done'), {result: result});
-        });
+	// Load & display existing files:
+	$('#fileupload').addClass('fileupload-processing');
+	$.ajax({
+		// Uncomment the following to send cross-domain cookies:
+		//xhrFields: {withCCOLOR_REDentials: true},
+		url: $('#fileupload').fileupload('option', 'url'),
+		dataType: 'json',
+		context: $('#fileupload')[0]
+	}).always(function () {
+		$(this).removeClass('fileupload-processing');
+	}).done(function (result) {
+		$(this).fileupload('option', 'done')
+		.call(this, $.Event('done'), {result: result});
+	});
     };
     var handleIsotopesGallery = function() {
         var container = $('#gallery');
@@ -2178,6 +2215,7 @@
         arrayObjetoSolicitudes = []; // Array de objeto_solicitude para el citado
         solicitudObj = {}; // Array de objeto_solicitude para el citado
         ratifican = false;; // Array de solicitante excepción
+        esSindical = false;
         $.ajax({
             url:'/solicitudes/'+solicitud,
             type:"GET",
@@ -2195,11 +2233,10 @@
                             arraySolicitantes[key].dato_laboral = arraySolicitantes[key].dato_laboral[0];
                         }
                     })
-                    console.log(arraySolicitados);
                     solicitudObj.geolocalizable = true;
                     $.each(arraySolicitados ,function(key,value){
                         if($.isArray(value.domicilios)){
-                            if(value.domicilios[0].latitud == "" || value.domicilios[0].longitud == ""){
+                            if(value.domicilios[0].latitud == "" || value.domicilios[0].longitud == "" || value.domicilios[0].latitud == null || value.domicilios[0].latitud == null){
                                 solicitudObj.geolocalizable = false;
                             }
                         }else{
@@ -2225,6 +2262,10 @@
                     solicitudObj.giro_comercial = data.giroComercial.nombre;
                     solicitudObj.ambito_id = data.giroComercial.ambito_id;
                     solicitudObj.ambito_nombre = data.giroComercial.ambito.nombre;
+                    solicitudObj.tipo_solicitud_id = data.tipo_solicitud_id;
+                    if(solicitudObj.tipo_solicitud_id == 3 || solicitudObj.tipo_solicitud_id == 4 ){
+                        esSindical = true;
+                    }
 
                     cargarGeneros();
                     cargarTipoContactos();
@@ -2300,6 +2341,18 @@
             $("#divFechaCita").hide();
             
         }
+    });
+    $(".dateBirth").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        yearRange: "c-80:",
+        format:'dd/mm/yyyy',
+    });
+
+    $("#estatus_solicitud_id").change(function(){
+        var estatus = $(this).val();
+        $(".estatus").removeClass('selectedButton');
+        $("#estatus"+estatus).addClass('selectedButton');
     });
   </script>
   @endpush

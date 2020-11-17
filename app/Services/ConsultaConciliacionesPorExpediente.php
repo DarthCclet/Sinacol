@@ -10,6 +10,7 @@ use App\Expediente;
 use App\Parte;
 use App\Solicitud;
 use App\TipoParte;
+use App\ClasificacionArchivo;
 use App\Traits\Transformer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -44,8 +45,9 @@ class ConsultaConciliacionesPorExpediente
         }
 
         $partes = $expediente->solicitud->partes;
-        $parte_demandada = $this->partesTransformer($partes, 'solicitado', true);
+        $parte_demandada = $this->partesTransformer($partes, 'citado', true);
         $parte_actora= $this->partesTransformer($partes, 'solicitante', true);
+//        dd($parte_actora);
 
         $res[] = [
             'numero_expediente_oij' => $audiencia->expediente->folio,
@@ -61,11 +63,12 @@ class ConsultaConciliacionesPorExpediente
         //TODO: Firma de documentos (PEndiente)
         //TODO: Implementar el catálogo de clasificación de archivo (Pendiente).
         if($resolucion_id == 3){
-            $clasificacion_archivo_id = 1;
+            $clasificacion_archivo = "Constancia de no conciliación con firma autógrafa";
         }else{
-            $clasificacion_archivo_id = 2;
+            $clasificacion_archivo = "Convenio con firma autógrafa";
         }
-        $documento=$audiencia->documentos()->where('clasificacion_archivo_id',$clasificacion_archivo_id)->first();
+        $clasificacion = ClasificacionArchivo::where("nombre",$clasificacion_archivo)->first();
+        $documento=$audiencia->documentos()->where('clasificacion_archivo_id',$clasificacion->id)->first();
         if($documento != null){
             if(Storage::disk('local')->exists($documento->ruta)){
                 $contents = base64_encode(Storage::get($documento->ruta));
@@ -219,7 +222,8 @@ class ConsultaConciliacionesPorExpediente
         return $contacto;
     }
     public function laboralTransformer($datos){
-        if($datos != null){
+        if(count($datos) > 0){
+            $datos = $datos[0];
             $laboral = array(
                 'ocupacion_id' => $datos->ocupacion_id,
                 'ocupacion_nombre' => $datos->ocupacion->nombre,

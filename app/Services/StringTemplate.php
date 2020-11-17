@@ -28,7 +28,7 @@ class StringTemplate
         try {
             eval('?' . '>' . $php);
         } catch (ErrorException $err) {
-            dd($err);
+            //dd($err);
         } catch (Exception $e) {
             while (ob_get_level() > $obLevel) ob_end_clean();
             throw $e;
@@ -46,7 +46,7 @@ class StringTemplate
      * @return string
      */
     public static function sustituyePlaceholders($string){
-        $string = preg_replace('/\[ESPACIO_FIRMA\]/','&nbsp;&nbsp;&nbsp;', $string);
+        $string = preg_replace('/\[ESPACIO_FIRMA\]/','&nbsp;&nbsp;', $string);
         $blade = preg_replace('/<strong class="mceNonEditable" data-nombre="(\w+)">\[([\\p{L}_ &;]+)\]<\/strong>/i',
             '<strong>{!! \$$1 !!}</strong>', $string);
         return $blade;
@@ -82,13 +82,13 @@ class StringTemplate
                 $string = $htmlA . $sliceDiferido . $htmlB;
 
               }else{//Sin pagos diferidos
-                  $sliceDiferido = Str::after($string, '[SI_RESOLUCION_PAGO_NO_DIFERIDO]');
-                  $sliceDiferido = Str::before($sliceDiferido, '[FIN_SI_RESOLUCION_PAGO]');
+                $sliceDiferido = Str::after($string, '[SI_RESOLUCION_PAGO_NO_DIFERIDO]');
+                $sliceDiferido = Str::before($sliceDiferido, '[FIN_SI_RESOLUCION_PAGO]');
 
-                  $htmlA = Str::before($string, '[SI_RESOLUCION_PAGO_DIFERIDO');
-                  $htmlB = Str::after($string, '[FIN_SI_RESOLUCION_PAGO]');
+                $htmlA = Str::before($string, '[SI_RESOLUCION_PAGO_DIFERIDO');
+                $htmlB = Str::after($string, '[FIN_SI_RESOLUCION_PAGO]');
 
-                  $string = $htmlA . $sliceDiferido . $htmlB;
+                $string = $htmlA . $sliceDiferido . $htmlB;
                 // break;
               }
             }
@@ -96,36 +96,36 @@ class StringTemplate
         }
         
         if (isset($vars['solicitado_tipo_notificacion'])){
-          if($vars['solicitado_tipo_notificacion'] != null && $countTipoNotificacion >0){
-            for ($i=0; $i < $countTipoNotificacion; $i++) { 
+          if ($countTipoNotificacion >0 ){
+            if($vars['solicitado_tipo_notificacion'] != null){
+              for ($i=0; $i < $countTipoNotificacion; $i++) { 
+                $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                switch ($vars['solicitado_tipo_notificacion']) {
+                  case 1: // El solicitante entrega citatorio a solicitados
+                    // texto de notificacion por solicitante
+                    $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
+                    $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
+
+                    $string = $htmlA . $sliceNotificacion . $htmlB;
+                  break;
+                  default: //2 y 3
+                  // case 2: //El actuario del centro entrega citatorio a solicitados
+                    // texto de notificacion por actuario
+                    $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
+                    $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+
+
+                    $string = $htmlA . $sliceNotificacion . $htmlB;
+                  // default: // 3
+                    // $string = $htmlA . $htmlB;
+                  break;
+                }
+              }
+            }else{
               $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
               $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-              switch ($vars['solicitado_tipo_notificacion']) {
-                case 1: // El solicitante entrega citatorio a solicitados
-                  // texto de notificacion por solicitante
-                  $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
-                  $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
-
-                  // $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-                  // $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-
-                  $string = $htmlA . $sliceNotificacion . $htmlB;
-                break;
-                default: //2 y 3
-                // case 2: //El actuario del centro entrega citatorio a solicitados
-                  // texto de notificacion por actuario
-                  $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
-                  $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-
-                  // $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-                  // $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-
-                  $string = $htmlA . $sliceNotificacion . $htmlB;
-                // break;
-                // default: // 3
-                  // $string = $htmlA . $htmlB;
-                break;
-              }
+              $string = $htmlA . $htmlB;
             }
           }
         }

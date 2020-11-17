@@ -3,9 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\ClasificacionArchivo;
 
-class AddAcuseNotificacionToClasificacionArchivos extends Migration
+class AddFechaNotificacionToAudienciasPartes extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +13,9 @@ class AddAcuseNotificacionToClasificacionArchivos extends Migration
      */
     public function up()
     {
-        ClasificacionArchivo::create([
-            "nombre" => "Notificacion",
-            "tipo_documento_id" => 4
-        ]);
+        Schema::table('audiencias_partes', function (Blueprint $table) {
+            $table->date("fecha_notificacion")->nullable();
+        });
     }
 
     /**
@@ -27,7 +25,8 @@ class AddAcuseNotificacionToClasificacionArchivos extends Migration
      */
     public function down()
     {
-        $clasificacion = ClasificacionArchivo::where("nombre","Notificacion")->first();
-        $clasificacion->delete();
+        Schema::table('audiencias_partes', function (Blueprint $table) {
+            $table->dropColumn("fecha_notificacion");
+        });
     }
 }

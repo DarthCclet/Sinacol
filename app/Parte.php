@@ -176,7 +176,9 @@ class Parte extends Model implements Auditable
 //        Validamos el solicita_traductor
         if (Arr::has($data, 'new_values.solicita_traductor')) {
             if($data["event"] != "created"){
-                $data['old_values']['Solicita traductor'] = $this->validBool($this->getOriginal('solicita_traductor'));
+                if($this->getOriginal('solicita_traductor') != ""){
+                    $data['old_values']['Solicita traductor'] = $this->validBool($this->getOriginal('solicita_traductor'));
+                }
                 unset($data['old_values']["solicita_traductor"]);
             }
             $data['new_values']['Solicita traductor'] = $this->validBool($this->getAttribute('solicita_traductor'));

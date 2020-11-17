@@ -86,7 +86,7 @@
     <!--[if (gte IE 8)&(lt IE 10)]>
             <script src="/assets/plugins/jquery-file-upload/js/cors/jquery.xdr-transport.js"></script>
     <![endif]-->
-    <script src="/assets/js/demo/form-multiple-upload.demo.js"></script>
+    <!--<script src="/assets/js/demo/form-multiple-upload.demo.js"></script>-->
     <script src="/assets/plugins/isotope-layout/dist/isotope.pkgd.min.js"></script>
 	<!--<script src="/assets/plugins/lightbox2/dist/js/lightbox.min.js"></script>-->
 	<script src="/assets/plugins/ekko-lightbox/ekko-lightbox.min.js"></script>

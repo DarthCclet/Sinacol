@@ -78,7 +78,7 @@ Route::resource('tipo_vialidades','TipoVialidadController')->middleware('client'
 Route::resource('tipo_asentamientos','TipoAsentamientoController')->middleware('client');
 Route::resource('tipo_contactos','TipoContactoController');
 Route::resource('tipo_partes','TipoParteController')->middleware('client');
-Route::post('actualizar_notificacion','NotificacionServiceController@actutalizarNotificacion')->middleware('client');
+Route::post('actualizar_notificacion','NotificacionServiceController@actualizarNotificacion')->middleware('client');
 Route::resource('giros_comerciales','GiroComercialController');
 Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 Route::post('asentamientos/filtrarAsentamientos','AsentamientoController@filtrarAsentamientos');
@@ -121,7 +121,15 @@ Route::post('comparecientes/documentos', 'DocumentoController@postComparece');
 Route::get('getDomicilioParte/{id}', 'ParteController@getDomicilioParte');
 Route::post('cambiarDomicilioParte', 'ParteController@cambiarDomicilioParte');
 
+# Rutas para firma autógrafa de los documentos
+Route::middleware(['auth:api'])->group(function () {
+    Route::get('documentos/preview','DocumentoController@preview');
+    Route::Post('documentos/firmado','DocumentoController@firmado');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('sala','SalaController');
+
+
 });
+

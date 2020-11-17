@@ -85,7 +85,7 @@
                                         Fecha de audiencia: {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->format('d/m/Y')}}
                                     </td>
                                     <td class="text-nowrap">Hora de inicio: {{$audiencia->hora_inicio}}</td>
-                                    <td class="text-nowrap">Hora de termino: {{$audiencia->hora_fin}}</td>
+                                    <td class="text-nowrap">Hora de t&eacute;rmino: {{$audiencia->hora_fin}}</td>
                                 </tr>
                                 <tr>
                                     @foreach($audiencia->audienciaParte as $parte)

@@ -21,11 +21,11 @@
     </div>
     <div class="col-md-offset-3 col-md-4 ">
         <div class="form-group">
-            <label for="nombre" class="control-label">Hora de termino</label>
+            <label for="nombre" class="control-label">Hora de t&eacute;rmino</label>
             <div class="col-sm-10">
                 {!! Form::text('hora_fin', isset($audiencia) ? $audiencia->hora_fin : null, ['class'=>'form-control', 'id'=>'hora_fin', 'placeholder'=>'Duración', 'maxlength'=>'30', 'size'=>'10', 'autofocus'=>true,'disabled'=>'disabled']) !!}
                 {!! $errors->first('centro.duracionAudiencia', '<span class=text-danger>:message</span>') !!}
-                <p class="help-block">Hora de termino programada para la audiencia</p>
+                <p class="help-block">Hora de t&eacute;rmino programada para la audiencia</p>
             </div>
         </div>
     </div>
@@ -37,7 +37,7 @@
                     <th class="text-nowrap">Nombre de la parte</th>
                     <th class="text-nowrap">Conciliador</th>
                     <th class="text-nowrap">Sala</th>
-                    <th class="text-nowrap" style="width: 10%;">Accion</th>
+                    <th class="text-nowrap" style="width: 10%;">Acci&oacute;n</th>
                 </tr>
             </thead>
             <tbody>
@@ -75,7 +75,7 @@
                         <td>
                             @if(($parte->tipo_persona_id == 2) || ($parte->tipo_parte_id == 2 && $parte->tipo_persona_id == 1))
                             <div class="md-2" style="display: inline-block;">
-                                <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante Legal" data-toggle="tooltip" data-placement="top">
+                                <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante" data-toggle="tooltip" data-placement="top">
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>

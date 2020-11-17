@@ -119,7 +119,7 @@ class ServiciosCJFController extends Controller
     {
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(4,null);
-        $tipoSolicitado = TipoParte::where('nombre','ilike','SOLICITADO')->first();
+        $tipoSolicitado = TipoParte::where('nombre','ilike','CITADO')->first();
         $parametros = $this->request->getContent();
         try {
             $estructuraNombre = $consulta->validaEstructuraParametros($parametros);

@@ -7,7 +7,9 @@ use App\Exceptions\ParametroNoValidoException;
 use App\Expediente;
 use App\Parte;
 use App\AudienciaParte;
+use App\ClasificacionArchivo;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 class NotificacionServiceController extends Controller
 {
@@ -17,14 +19,14 @@ class NotificacionServiceController extends Controller
     {
         $this->request = $request;
     }
-    public function actutalizarNotificacion(){
+    public function actualizarNotificacion(){
         DB::beginTransaction();
         try{
             $arreglo = $this->validaEstructuraParametros($this->request->getContent());
     //        Buscamos la audiencia
             $expediente = Expediente::where("folio",$arreglo->expediente)->first();
             foreach($expediente->audiencia as $audiencia){
-                $folio = substr($arreglo->folio, 0,-5);
+                $folio = $arreglo->folio;
                 if($folio == $audiencia->folio){
                     foreach($arreglo->Demandados as $demandado){
                         $parteDemandado = AudienciaParte::where("parte_id",$demandado->demandado_id)->where("audiencia_id",$audiencia->id)->first();
@@ -33,15 +35,14 @@ class NotificacionServiceController extends Controller
                             "finalizado_id" => $demandado->finalizado_id,
                             "detalle" => $demandado->detalle,
                             "detalle_id" => $demandado->detalle_id,
-//                            "documento" => $demandado->documento
+                            "fecha_notificacion" => $demandado->fecha_notificacion
                         ]);
                         $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia->id;
                         Storage::makeDirectory($directorio);
-//                        list($baseType, $image) = explode(';', $demandado->documento);
-//                        list(, $image) = explode(',', $image);
                         $image = base64_decode($demandado->documento);
                         $fullPath = $directorio.'/notificacion'.$parteDemandado->id.'.pdf';
                         $dir = Storage::put($fullPath, $image);
+                        $clasificacion = ClasificacionArchivo::where("nombre","Razón de notificación citatorio")->first();
                         $parteDemandado->documentos()->create([
                             "nombre" => "Notificacion".$parteDemandado->id,
                             "nombre_original" => "Notificacion".$parteDemandado->id,
@@ -54,17 +55,18 @@ class NotificacionServiceController extends Controller
                             "uri" => $fullPath,
                             "longitud" => round(Storage::size($fullPath) / 1024, 2),
                             "firmado" => "false",
-                            "clasificacion_archivo_id" => 45,
+                            "clasificacion_archivo_id" => $clasificacion->id,
                         ]);
                     }
                 }
             }
             DB::commit();
+            //Log::info($this->request->getContent());
             return response('Se registraron las actualizaciones', 200);
         }catch(Exception $e){
             DB::rollBack();
             return response('Ocurrio un error al tratar de actualizar', 500);
-            
+
         }
     }
     /**
@@ -116,6 +118,16 @@ class NotificacionServiceController extends Controller
                 if(!isset($demandado->documento)){
                     throw new ParametroNoValidoException("El campo documento es requerido.", 1018);
                     return null;
+                }
+                if(!isset($demandado->fecha_notificacion)){
+                    throw new ParametroNoValidoException("El campo fecha_notificacion es requerido.", 1018);
+                    return null;
+                }else{
+                    $fecha = new \Carbon\Carbon($demandado->fecha_notificacion);
+                    if($fecha > now()){
+                        throw new ParametroNoValidoException("La fecha no puede ser mayor a la fecha actual.", 1019);
+                        return null;
+                    }
                 }
             }
         }

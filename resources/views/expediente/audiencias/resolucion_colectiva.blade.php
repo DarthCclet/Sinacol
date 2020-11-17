@@ -35,6 +35,7 @@
         color:darkred;
         content: " (*)";
     }
+    #ui-datepicker-div {z-index:9999 !important}
 </style>
 @endpush
 
@@ -73,7 +74,7 @@
             <tr>
                 <th class="text-nowrap">Tipo Parte</th>
                 <th class="text-nowrap">Nombre de la parte</th>
-                <th class="text-nowrap" >Accion</th>
+                <th class="text-nowrap" >Acción</th>
             </tr>
         </thead>
         <tbody>
@@ -89,7 +90,7 @@
                     <td>
                         @if(($parte->tipo_persona_id == 2) || ($parte->tipo_parte_id == 2 && $parte->tipo_persona_id == 1))
                         <div class="md-2" style="display: inline-block;">
-                            <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante Legal" data-toggle="tooltip" data-placement="top">
+                            <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante" data-toggle="tooltip" data-placement="top">
                                 <i class="fa fa-plus"></i>
                             </button>
                         </div>
@@ -114,7 +115,7 @@
                 <table style="width: 100%; border-collapse: collapse; margin-left: auto; margin-right: auto;" border="0">
                     <tbody>
                     <tr>
-                    <td class="celda-logo" style="width: 35.1477%;"><img src="/assets/img/logo/LOGO_cfcrl.png" height="70" /></td>
+                    <td class="celda-logo" style="width: 35.1477%;"></td>
                     <td class="celda-centro" style="width: 13.3335%;">&nbsp;</td>
                     <td class="celda-derecha" style="width: 51.5187%; text-align: center;">&nbsp;</td>
                     </tr>
@@ -123,7 +124,7 @@
                 <div class="header_document">
                    {!!isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" !!}
                 </div>
-                <div id="audiencia_body" name="audiencia_body" class="sectionPlantilla" style="border:solid 2px lightgray; max-height:400px; height:400px; overflow: scroll;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
+                <div id="audiencia_body" name="audiencia_body" class="sectionPlantilla" style="border:solid 2px lightgray; max-height:600px; height:600px; overflow: scroll;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
             </div>
             <div class="col-md-2"></div>
         </div> 
@@ -144,7 +145,7 @@
                 <table style="width: 100%; border-collapse: collapse; margin-left: auto; margin-right: auto;" border="0">
                     <tbody>
                     <tr>
-                    <td class="celda-logo" style="width: 35.1477%;"><img src="/assets/img/logo/LOGO_cfcrl.png" height="70" /></td>
+                    <td class="celda-logo" style="width: 35.1477%;"></td>
                     <td class="celda-centro" style="width: 13.3335%;">&nbsp;</td>
                     <td class="celda-derecha" style="width: 51.5187%; text-align: center;">&nbsp;</td>
                     </tr>
@@ -153,7 +154,7 @@
                 <div class="header_document">
                     {!!isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" !!}
                 </div>
-                <div id="convenio_body" name="convenio_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:400px; height:400px; overflow: scroll;" contenteditable="true"></div>
+                <div id="convenio_body" name="convenio_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:600px; height:600px; overflow: scroll;" contenteditable="true"></div>
             </div>
             <div class="col-md-2"></div>
         </div> 
@@ -167,7 +168,8 @@
                 <table style="width: 100%; border-collapse: collapse; margin-left: auto; margin-right: auto;" border="0">
                     <tbody>
                     <tr>
-                    <td class="celda-logo" style="width: 35.1477%;"><img src="/assets/img/logo/LOGO_cfcrl.png" height="70" /></td>
+                    <td class="celda-logo" style="width: 35.1477%;">
+                    </td>
                     <td class="celda-centro" style="width: 13.3335%;">&nbsp;</td>
                     <td class="celda-derecha" style="width: 51.5187%; text-align: center;">&nbsp;</td>
                     </tr>
@@ -176,7 +178,7 @@
                 <div class="header_document">
                     {!!isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header']: "" !!}
                  </div>
-                <div id="no_comparece_body" name="no_comparece_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:400px; height:400px; overflow: scroll;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
+                <div id="no_comparece_body" name="no_comparece_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:500px; height:500px; overflow: scroll;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
             </div>
             <div class="col-md-2"></div>
         </div> 
@@ -433,28 +435,28 @@
     </script>
 </div>
 <!-- Fin Modal de cargar archivos-->
-<!--inicio modal para representante legal-->
+<!--inicio modal para representante-->
 <div class="modal" id="modal-representante" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Representante legal</h4>
+                <h4 class="modal-title">Representante</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <h5>Datos del Representante legal</h5>
+                <h5>Datos del Representante</h5>
                 <input type="hidden" id="id_representante">
                 <div class="col-md-12 row">
                     <div class="col-md-6 ">
                         <div class="form-group">
                             <label for="curp" class="control-label needed">CURP</label>
-                            <input type="text" id="curp" maxlength="18" onblur="getParteCurp(this.value)" class="form-control upper" placeholder="CURP del representante legal">
+                            <input type="text" id="curp" maxlength="18" onblur="getParteCurp(this.value)" class="form-control upper" placeholder="CURP del representante">
                         </div>
                     </div>
                     <div class="col-md-6 ">
                         <div class="form-group">
                             <label for="nombre" class="control-label needed">Nombre</label>
-                            <input type="text" id="nombre" class="form-control upper" placeholder="Nombre del representante legal">
+                            <input type="text" id="nombre" class="form-control upper" placeholder="Nombre del representante">
                         </div>
                     </div>
                     <div class="col-md-6 ">
@@ -516,7 +518,7 @@
                     </div>
                 </div>
                 <hr>
-                <h5>Datos de comprobante como representante legal</h5>
+                <h5>Datos de comprobante como representante</h5>
                 <div class="col-md-12 row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -524,7 +526,7 @@
                             <select id="clasificacion_archivo_id_representante" class="form-control select-element">
                                 <option value="">-- Selecciona un instrumento</option>
                                 @foreach($clasificacion_archivos_Representante as $clasificacion)
-                                <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                <option class='{{($clasificacion->tipo_archivo_id == 10) ? "archivo_sindical" : ""}}' value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -578,7 +580,7 @@
                             <tr>
                                 <th style="width:80%;">Tipo</th>
                                 <th style="width:80%;">Contacto</th>
-                                <th style="width:20%; text-align: center;">Accion</th>
+                                <th style="width:20%; text-align: center;">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyContacto">
@@ -595,8 +597,8 @@
         </div>
     </div>
 </div>
-<!--Fin de modal de representante legal-->
-<!--inicio modal para representante legal-->
+<!--Fin de modal de representante-->
+<!--inicio modal para representante-->
 <div class="modal" id="modal-dato-laboral" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -715,7 +717,7 @@
         </div>
     </div>
 </div>
-<!--Fin de modal de representante legal-->
+<!--Fin de modal de representante-->
 <!-- modal de relaciones bilaterales-->
 <div class="modal" id="modal-relaciones" style="display:none;">
     <div class="modal-dialog modal-lg">
@@ -825,7 +827,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Fecha de Audiencia: </strong><span id="spanFechaAudiencia"></span><br>
+                            <strong>Fecha de audiencia: </strong><span id="spanFechaAudiencia"></span><br>
                         </div>
                     </div>
                 </div>
@@ -837,7 +839,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Hora de termino: </strong><span id="spanHoraFin"></span><br>
+                            <strong>Hora de t&eacute;rmino: </strong><span id="spanHoraFin"></span><br>
                         </div>
                     </div>
                 </div>
@@ -892,62 +894,185 @@
         }
     });
 
-    config_tmce = function(selector) {
-        return {
-            auto_focus: 'plantilla-body',
-            selector: selector,
-            language: 'es_MX',
-            
-            language_url: '/js/tinymce/languages/es_MX.js',
-            inline: false,
-            menubar: false,
-            toolbar_items_size: 'large',
-            plugins: [
-                'noneditable advlist autolink lists link image imagetools preview',
-                ' media table paste pagebreak'
-            ],
-            toolbar1: 'basicDateButton | mybutton | fontselect fontsizeselect | undo redo ' +
-            '| bold italic underline| alignleft aligncenter alignright alignjustify | bullist numlist ' +
-            '| outdent indent | link unlink image | table pagebreak forecolor backcolor',
-            toolbar2: "",
-            image_title: true,
-            automatic_uploads: true,
-            file_picker_types: 'image',
-            font_formats: 'Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva',
-            paste_as_text: true,
-            file_picker_callback: function (cb, value, meta) {
-                var input = document.createElement('input');
-                input.setAttribute('type', 'file');
-                input.setAttribute('accept', 'image/*');
-                input.onchange = function () {
-                    var file = this.files[0];
-                    var reader = new FileReader();
-                    reader.onload = function () {
-                        var id = 'blobid' + (new Date()).getTime();
-                        var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                        var base64 = reader.result.split(',')[1];
-                        var blobInfo = blobCache.create(id, file, base64);
-                        blobCache.add(blobInfo);
-                        cb(blobInfo.blobUri(), {title: file.name});
-                    };
-                    reader.readAsDataURL(file);
-                };
-                input.click();
-            },
-            setup: function (editor) {
-                editor.on('init', function (ed) {
-                    ed.target.editorCommands.execCommand("fontName", false, "Arial");
+    
+
+    //files functions
+    var handleJqueryFileUpload = function() {
+        // Initialize the jQuery File Upload widget:
+        $('#fileupload').fileupload({
+            autoUpload: false,
+            disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
+            maxFileSize: 5000000,
+            acceptFileTypes: /(\.|\/)(gif|jpe?g|png|pdf)$/i,
+            stop: function(e,data){
+                cargarDocumentos();
+            //   $("#modal-archivos").modal("hide");
+            }
+            // Uncomment the following to send cross-domain cookies:
+            //xhrFields: {withCCOLOR_REDentials: true},
+        });
+
+        // Enable iframe cross-domain access via COLOR_REDirect option:
+        $('#fileupload').fileupload(
+            'option',
+            'COLOR_REDirect',
+            window.location.href.replace(
+                    /\/[^\/]*$/,
+                    '/cors/result.html?%s'
+            )
+        );
+
+        // hide empty row text
+        $('#fileupload').on('fileuploadsend', function (e, data) {
+
+            // if(){
+            //     e.preventDefault();
+            // }
+        })
+        $('#fileupload').bind('fileuploadadd', function(e, data) {
+            $('#fileupload [data-id="empty"]').hide();
+            $(".catSelectFile").select2();
+        });
+        $('#fileupload').bind('fileuploaddone', function(e, data) {
+            // console.log("add");
+        });
+
+        // show empty row text
+        $('#fileupload').bind('fileuploadfail', function(e, data) {
+            var rowLeft = (data['originalFiles']) ? data['originalFiles'].length : 0;
+            if (rowLeft === 0) {
+                    $('#fileupload [data-id="empty"]').show();
+            } else {
+                    $('#fileupload [data-id="empty"]').hide();
+            }
+        });
+
+        // Upload server status check for browsers with CORS support:
+        if ($.support.cors) {
+                $.ajax({
+                        type: 'HEAD'
+                }).fail(function () {
+                        $('<div class="alert alert-danger"/>').text('Upload server currently unavailable - ' + new Date()).appendTo('#fileupload');
                 });
-                // editor.ui.registry.addButton('mybutton', {
-                //   text: 'My Custom Button',
-                //   onAction: () => alert('Button clicked!')
-                // });
+        }
+
+        // Load & display existing files:
+        $('#fileupload').addClass('fileupload-processing');
+        $.ajax({
+                // Uncomment the following to send cross-domain cookies:
+                //xhrFields: {withCCOLOR_REDentials: true},
+                url: $('#fileupload').fileupload('option', 'url'),
+                dataType: 'json',
+                context: $('#fileupload')[0]
+        }).always(function () {
+                $(this).removeClass('fileupload-processing');
+        }).done(function (result) {
+                $(this).fileupload('option', 'done')
+                .call(this, $.Event('done'), {result: result});
+        });
+    };
+    var handleIsotopesGallery = function() {
+        var container = $('#gallery');
+        $(window).on('resize', function() {
+            var dividerValue = calculateDivider();
+            var containerWidth = $(container).width();
+            var columnWidth = containerWidth / dividerValue;
+            $(container).isotope({
+                masonry: {
+                    columnWidth: columnWidth
+                }
+            });
+        });
+    };
+    function calculateDivider() {
+        var dividerValue = 4;
+        if ($(this).width() <= 576) {
+            dividerValue = 1;
+        } else if ($(this).width() <= 992) {
+            dividerValue = 2;
+        } else if ($(this).width() <= 1200) {
+            dividerValue = 3;
+        }
+        return dividerValue;
+    }
+    var FormMultipleUpload = function () {
+        "use strict";
+        return {
+            //main function
+            init: function () {
+                handleJqueryFileUpload();
             }
         };
-    };
-    tinymce.init(config_tmce('#convenio_body'));
-    tinymce.init(config_tmce('#audiencia_body'));
-    tinymce.init(config_tmce('#no_comparece_body'));
+    }();
+    var Gallery = function () {
+        "use strict";
+        return {
+            //main function
+            init: function () {
+                handleIsotopesGallery();
+            }
+        };
+    }();
+
+    function cargarDocumentos(){
+            $.ajax({
+                url:"/audiencia/documentos/"+$("#audiencia_id").val(),
+                type:"GET",
+                dataType:"json",
+                async:true,
+                success:function(data){
+                    if(data != null && data != ""){
+                        var html = "";
+                        $.each(data, function (key, value) {
+                            if(value.documentable_type == "App\\Parte"){
+                                    // var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
+                                    // if(parte != undefined){
+                                        html += "<tr>";
+                                        html += "<td>"+value.parte+"</td>";
+                                        html += "<td>"+ value.clasificacion_archivo.nombre+"</td>";
+                                        html += "</tr>";
+                                        ratifican = true;
+                                    // }
+                            }
+                        });
+                        $("#tbodyRatificacion").html(html);
+                        var table = "";
+                        var div = "";
+                        $.each(data, function(index,element){
+                            div += '<div class="image gallery-group-1">';
+                            div += '    <div class="image-inner" style="position: relative;">';
+                            if(element.tipo == 'pdf' || element.tipo == 'PDF'){
+                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
+                                div += '                <div class="img" align="center">';
+                                div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
+                                div += '                </div>';
+                                div += '            </a>';
+                            }else{
+                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
+                                div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
+                                div += '            </a>';
+                            }
+                            div += '            <p class="image-caption">';
+                            div += '                '+element.longitud+' kb';
+                            div += '            </p>';
+                            div += '    </div>';
+                            div += '    <div class="image-info">';
+                            div += '            <h5 class="title">'+element.nombre_original+'</h5>';
+                            div += '            <div class="desc">';
+                            div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
+                            div +=                  element.descripcion+'<br>';
+                            div += '            </div>';
+                            div += '    </div>';
+                            div += '</div>';
+                        });
+                        $("#gallery").html(div);
+                    }else{
+
+                    }
+                }
+            });
+        }
+    // end files function
 
     $("#btnCargarComparecientes").on("click",function(){
         $.ajax({
@@ -961,7 +1086,7 @@
                 }else{
                     swal({
                         title: '¿Ya capturaste todos los representantes?',
-                        text: 'Recuerde capturar a los representantes legales comparecientes para que aparezcan en la lista',
+                        text: 'Recuerde capturar a los representantes comparecientes para que aparezcan en la lista',
                         icon: '',
                         // showCancelButton: true,
                         buttons: {
@@ -1301,7 +1426,7 @@
         }
     }
 
-    // Funciones para representante legal(Etapa 1)
+    // Funciones para representante(Etapa 1)
     function getPersonasComparecer(){
         $.ajax({
             url:"/audiencia/fisicas/{{ $audiencia->id }}",
@@ -1943,35 +2068,40 @@
         error =false;
         
         console.log(listaPropuestaConceptos);
-        if(!error){
-            $.ajax({
-                url:"/audiencia/guardarAudienciaColectiva",
-                type:"POST",
-                dataType:"json",
-                data:{
-                    audiencia_id:'{{ $audiencia->id }}',
-                    solicitud_id:'{{ $solicitud->id }}',
-                    audiencia_body:tinyMCE.get('audiencia_body').getContent(),
-                    convenio_body:tinyMCE.get('convenio_body').getContent(),
-                    no_comparece_body:tinyMCE.get('no_comparece_body').getContent(),
-                    resolucion_id:$("#resolucion_id").val(),
-                    listaRelacion:listaResolucionesIndividuales,
-                    _token:"{{ csrf_token() }}"
-                },
-                success:function(data){
-                    if(data != null && data != ""){
-                        // window.location = "/audiencias/"+data.id+"/edit"
-                    }else{
-                        swal({
-                            title: 'Algo salió mal',
-                            text: 'No se guardo el registro',
-                            icon: 'warning'
-                        });
+        if($("#resolucion_id").val() != ""){
+            if(!error){
+                $.ajax({
+                    url:"/audiencia/guardarAudienciaColectiva",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        audiencia_id:'{{ $audiencia->id }}',
+                        solicitud_id:'{{ $solicitud->id }}',
+                        audiencia_body:tinyMCE.get('audiencia_body').getContent(),
+                        convenio_body:tinyMCE.get('convenio_body').getContent(),
+                        no_comparece_body:tinyMCE.get('no_comparece_body').getContent(),
+                        resolucion_id:$("#resolucion_id").val(),
+                        listaRelacion:listaResolucionesIndividuales,
+                        _token:"{{ csrf_token() }}"
+                    },
+                    success:function(data){
+                        if(data != null && data != ""){
+                            window.location = "/audiencias/"+data.id+"/edit"
+                        }else{ 
+                            swal({
+                                title: 'Algo salió mal',
+                                text: 'No se guardo el registro',
+                                icon: 'warning'
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }else{ 
+                swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
+            }
         }else{
-            swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
+                swal({title: 'Error',text: 'Debe seleccionar una resolución para continuar',icon: 'error'});
+
         }
     });
     $('.upper').on('keyup', function () {
@@ -1980,6 +2110,7 @@
     });
     $(".tipo_documento,.select-element,.catSelect").select2();
     $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
+    
     cargarGeneros();
     cargarTipoContactos();
     cargarComparecientes();
@@ -2030,5 +2161,73 @@
             }
         });
     }
+    $(".dateBirth").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "c-80:",
+            format:'dd/mm/yyyy',
+        });
+            config_tmce = function(selector) {
+                return {
+                    auto_focus: 'plantilla-body',
+                    selector: selector,
+                    language: 'es_MX',
+                    
+                    language_url: '/js/tinymce/languages/es_MX.js',
+                    inline: false,
+                    menubar: false,
+                    toolbar_items_size: 'large',
+                    plugins: [
+                        'noneditable advlist autolink lists link image imagetools preview',
+                        ' media table paste pagebreak'
+                    ],
+                    toolbar1: 'basicDateButton | mybutton | fontselect fontsizeselect | undo redo ' +
+                    '| bold italic underline| alignleft aligncenter alignright alignjustify | bullist numlist ' +
+                    '| outdent indent | link unlink image | table pagebreak forecolor backcolor',
+                    toolbar2: "",
+                    image_title: true,
+                    automatic_uploads: true,
+                    file_picker_types: 'image',
+                    font_formats: 'Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva',
+                    paste_as_text: true,
+                    file_picker_callback: function (cb, value, meta) {
+                        var input = document.createElement('input');
+                        input.setAttribute('type', 'file');
+                        input.setAttribute('accept', 'image/*');
+                        input.onchange = function () {
+                            var file = this.files[0];
+                            var reader = new FileReader();
+                            reader.onload = function () {
+                                var id = 'blobid' + (new Date()).getTime();
+                                var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                                var base64 = reader.result.split(',')[1];
+                                var blobInfo = blobCache.create(id, file, base64);
+                                blobCache.add(blobInfo);
+                                cb(blobInfo.blobUri(), {title: file.name});
+                            };
+                            reader.readAsDataURL(file);
+                        };
+                        input.click();
+                    },
+                    setup: function (editor) {
+                        editor.on('init', function (ed) {
+                            ed.target.editorCommands.execCommand("fontName", false, "Arial");
+                        });
+                        // editor.ui.registry.addButton('mybutton', {
+                        //   text: 'My Custom Button',
+                        //   onAction: () => alert('Button clicked!')
+                        // });
+                    }
+                };
+            };
+            
+
+        $(document).ready(function(){    
+            tinymce.init(config_tmce('#convenio_body'));
+            tinymce.init(config_tmce('#audiencia_body'));
+            tinymce.init(config_tmce('#no_comparece_body'));
+            FormMultipleUpload.init();
+            Gallery.init();
+        });
 </script>
 @endpush

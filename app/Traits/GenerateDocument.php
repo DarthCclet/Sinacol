@@ -4,12 +4,14 @@ namespace App\Traits;
 
 use App\Audiencia;
 use App\AudienciaParte;
+use App\Centro;
 use App\ClasificacionArchivo;
 use App\ConceptoPagoResolucion;
 use App\DatoLaboral;
 use App\Disponibilidad;
 use App\EtapaResolucionAudiencia;
 use App\Expediente;
+use App\FirmaDocumento;
 use App\Parte;
 use App\Periodicidad;
 use App\PlantillaDocumento;
@@ -28,6 +30,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use NumberFormatter;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Events\RatificacionRealizada;
+use Illuminate\Support\Facades\Log;
 
 trait GenerateDocument
 {
@@ -35,7 +40,7 @@ trait GenerateDocument
      * Generar documento a partir de un modelo y de una plantilla
      * @return mixed
      */
-    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null, $idConciliador = null)
+    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null)
     {
     $plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
@@ -46,10 +51,12 @@ trait GenerateDocument
                 $algo = Storage::makeDirectory($directorio, 0775, true);
 
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
-				        $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
 
                 //Creamos el registro
                 $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre]);
+                //generamos html del archivo
+                $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
+                $firmantes = substr_count($html, 'class="qr"');
                 $plantilla = PlantillaDocumento::find($plantilla->id);
                 $nombreArchivo = $plantilla->nombre_plantilla;
                 $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
@@ -69,9 +76,12 @@ trait GenerateDocument
                     "longitud" => round(Storage::size($path) / 1024, 2),
                     "firmado" => "false",
                     "clasificacion_archivo_id" => $tipoArchivo->id,
+                    "total_firmantes" => $firmantes,
                 ]);
-            }
-            else{
+                if($tipoArchivo->id == 18){
+                    event(new RatificacionRealizada($padre->id,"multa"));
+                }
+            }else{
                 $padre = Solicitud::find($idSolicitud);
                 if($padre->expediente != null){
                   $directorio = 'expedientes/' . $padre->expediente->id . '/solicitud/' . $idSolicitud;
@@ -82,10 +92,10 @@ trait GenerateDocument
 
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
 
-                $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$idConciliador);
-
                 //Creamos el registro
                 $archivo = $padre->documentos()->create(["descripcion" => "Documento de solicitud " . $tipoArchivo->nombre]);
+                $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
+                $firmantes = substr_count($html, 'class="qr"');
                 $plantilla = PlantillaDocumento::find($plantilla->id);
                 $nombreArchivo = $plantilla->nombre_plantilla;
                 $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
@@ -105,19 +115,21 @@ trait GenerateDocument
                     "longitud" => round(Storage::size($path) / 1024, 2),
                     "firmado" => "false",
                     "clasificacion_archivo_id" => $tipoArchivo->id,
+                    "total_firmantes" => $firmantes,
                 ]);
             }
-            return 'Product saved successfully';
+            return 'Guardado correctamente';
         }
         else{
             return 'No existe plantilla';
         }
     }
 
-    public function renderDocumento($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador)
-    {
+    public function renderDocumento($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idDocumento)
+    { 
       $vars = [];
-      $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador);
+      $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idDocumento);
+//
         if($data!=null){
             $count =0;
             foreach ($data as $key => $dato) { //solicitud
@@ -164,37 +176,37 @@ trait GenerateDocument
                 }else{//Si no es un array assoc (n solicitados, n solicitantes)
                   foreach ($dato as $data) {//sol[0]...
                     foreach ($data as $k => $val) { // folio, domicilios n
-                      $val = ($val === null && $val !== false)? "" : $val;
+                      $val = ($val === null && $val !== false)? "--" : $val;
                       if(gettype($val)== "boolean"){
                         $val = ($val == false)? 'No' : 'Si';
                       }elseif(gettype($val)== 'array'){
                         $isArrayAssoc = Arr::isAssoc($val);
-                      if( !$isArrayAssoc ){ // with
-                        if($k == 'domicilios'){
-                          $val = Arr::except($val[0],['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','hora_atencion_de','hora_atencion_a','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id']);
-                          foreach ($val as $n =>$v) {
-                            $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
-                          }
-                        }else if($k =='contactos'){
-                          foreach ($val as $n =>$v) {
-                            // dd($data);
-                            $v = Arr::except($v,['id','updated_at','created_at','deleted_at','contactable_type','contactable_id']);
-                            $vars[strtolower($key.'_'.$k.'_'.$v['tipo_contacto']['nombre'])] = ($v['contacto'] !== null)? $v['contacto'] :'-';
-                            if($v['tipo_contacto_id'] == 3 && $data['correo_buzon'] == null){
-                              $vars[$key.'_correo_buzon'] = $v['contacto'];
-                              $vars[$key.'_password_buzon'] = '';
+                        if( !$isArrayAssoc ){ // with
+                          if($k == 'domicilios'){
+                            $val = Arr::except($val[0],['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','hora_atencion_de','hora_atencion_a','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id']);
+                            foreach ($val as $n =>$v) {
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
                             }
+                          }else if($k =='contactos'){
+                            foreach ($val as $n =>$v) {
+                              // dd($data);
+                              $v = Arr::except($v,['id','updated_at','created_at','deleted_at','contactable_type','contactable_id']);
+                              $vars[strtolower($key.'_'.$k.'_'.$v['tipo_contacto']['nombre'])] = ($v['contacto'] !== null)? $v['contacto'] :'-';
+                              if($v['tipo_contacto_id'] == 3 && $data['correo_buzon'] == null){
+                                $vars[$key.'_correo_buzon'] = $v['contacto'];
+                                $vars[$key.'_password_buzon'] = '';
+                              }
+                            }
+                          }else{
+                            $names =[];
+                            foreach ($val as $i => $v) {
+                              if( isset($v['nombre'] ) ){
+                                array_push($names,$v['nombre']);
+                              }
+                            }
+                            $val = implode (", ", $names);
                           }
                         }else{
-                          $names =[];
-                          foreach ($val as $i => $v) {
-                            if( isset($v['nombre'] ) ){
-                              array_push($names,$v['nombre']);
-                            }
-                          }
-                          $val = implode (", ", $names);
-                        }
-                      }else{
                           if( isset($val['nombre']) && $k !='persona' && $k !='datos_laborales' && $k !='representante_legal'){ //catalogos
                             $val = $val['nombre']; //catalogos
                            }elseif ($k == 'datos_laborales') {
@@ -215,7 +227,7 @@ trait GenerateDocument
                         }
                       }elseif(gettype($val)== 'string'){
                         $pos = strpos($k,'fecha');
-                        if ($pos !== false){
+                        if ($pos !== false && $val != "--"){
                           $val = $this->formatoFecha($val,1);
                         }
                       // }else{
@@ -231,14 +243,15 @@ trait GenerateDocument
             $vars[strtolower('fecha_actual')] = $this->formatoFecha(Carbon::now(),1);
             $vars[strtolower('hora_actual')] = $this->formatoFecha(Carbon::now(),2);
           }
+          //dd($vars);
           $vars = Arr::except($vars, ['conciliador_persona']);
-        $style = "<html xmlns=\"http://www.w3.org/1999/html\">
+          $style = "<html xmlns=\"http://www.w3.org/1999/html\">
                   <head>
                   <style>
                   thead { display: table-header-group }
                   tfoot { display: table-row-group }
                   tr { page-break-inside: avoid }
-                  #contenedor-firma {height: 60px;}
+                  #contenedor-firma {height: 5px;}
                   body {
                         margin-left: 1cm;
                         margin-right: 1cm;
@@ -305,7 +318,7 @@ trait GenerateDocument
         return StringTemplate::renderPlantillaPlaceholders($html,[]);
     }
 
-    private function getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador)
+    private function getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idDocumento)
     {
       try {
             $plantilla = PlantillaDocumento::find($idPlantilla);
@@ -329,20 +342,24 @@ trait GenerateDocument
                     $objeto = new JsonResponse($solicitud);
                     $obj = json_decode($objeto->content(),true);
                     $idBase = intval($obj['id']);
-                    $centroId = intval($obj['centro_id']);
+                    if($solicitud->resuelveOficinaCentral() && $idPlantilla != 6){
+                      $centroId = Centro::where('central',true)->first()->id;
+                    }else{
+                      $centroId = intval($obj['centro_id']);
+                    }
                     $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
                     $obj['prescripcion'] = $this->calcularPrescripcion($solicitud->objeto_solicitudes, $solicitud->fecha_conflicto,$solicitud->fecha_ratificacion);
                     $obj['fecha_maxima_ratificacion'] = $this->calcularFechaMaximaRatificacion($solicitud->fecha_recepcion,15);
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
                     if($idSolicitante != "" && $idSolicitado != ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
                     }else if($idSolicitante != "" && $idSolicitado == ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitante,2])->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitante,2])->get();
                     }else if($idSolicitante == "" && $idSolicitado != ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
                     }else{
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto')->where('solicitud_id',intval($idBase))->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte')->where('solicitud_id',intval($idBase))->get();
                     }
                     $objeto = new JsonResponse($partes);
                     $obj = json_decode($objeto->content(),true);
@@ -354,7 +371,7 @@ trait GenerateDocument
                     $nombresSolicitados = [];
                     $datoLaboral="";
                       // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
-                    foreach ($obj as $parte ) {
+                    foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
                         foreach ($parte['documentos'] as $k => $docu) {
                           if($docu['clasificacion_archivo']['tipo_archivo_id'] == 1){ //tipo identificacion
@@ -376,6 +393,18 @@ trait GenerateDocument
                       }else{//moral
                         $parte['nombre_completo'] = $parte['nombre_comercial'];
                       }
+                      //$idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador
+                      $tipoParte = ($parte['tipo_parte_id'] == 1) ? 'solicitante':'citado';
+                      if($idAudiencia ==""){
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('solicitud_id',$idBase)->first();
+                      }else{
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->first();
+                      }
+                      if($firmaDocumento != null){
+                        $parte['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                      }else{
+                        $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($parteId."|".$tipoParte."|".$parte['nombre_completo']."|".$audienciaId."|".$idSolicitud."|".$idPlantilla."|".$idDocumento ."|".$idSolicitante ."|".$idSolicitado).'</div>';
+                      }
                       //domicilio de partes, excepto representante
                       if($parte['tipo_parte_id'] != 3 ){
                         $dom_parte = $parte['domicilios'][0];
@@ -386,6 +415,7 @@ trait GenerateDocument
                         $estado =  ($dom_parte['estado'] !== null)? $dom_parte['estado'] :"";
                         $parte['domicilios_completo'] = mb_strtoupper($tipo_vialidad.' '.$vialidad.' '.$num_ext.', '.$municipio.', '.$estado);
                       }
+                      
                       if($parte['tipo_parte_id'] == 1 ){//Solicitante
                         //datos laborales del solicitante
                         $datoLaborales = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
@@ -420,7 +450,7 @@ trait GenerateDocument
                         array_push($parte1, $parte);
                         array_push($nombresSolicitantes, $parte['nombre_completo'] );
                         $countSolicitante += 1;
-                      }elseif ($parte['tipo_parte_id'] == 2 ) {//Solicitado
+                      }elseif ($parte['tipo_parte_id'] == 2 ) {//Citado
                         //representante legal solicitado
                         $representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
                         if(count($representanteLegal) > 0){
@@ -444,8 +474,15 @@ trait GenerateDocument
                           //tipoNotificacion solicitado
                         if($audienciaId!=""){
                           $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('parte_id',$parteId)->get();
-                          // $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('tipo_notificacion_id','<>',null)->get();
-                          $parte['tipo_notificacion'] = $audienciaParte[0]->tipo_notificacion_id;
+                          if(count($audienciaParte)>0){
+                            // $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('tipo_notificacion_id','<>',null)->get();
+                            $parte['tipo_notificacion'] = $audienciaParte[0]->tipo_notificacion_id;
+                            $parte['fecha_notificacion'] = $audienciaParte[0]->fecha_notificacion;
+                            //$parte['fecha_notificacion'] = ($audienciaParte[0]->fecha_notificacion!= null) ? $audienciaParte[0]->fecha_notificacion : "--";
+                          }else{
+                            $parte['tipo_notificacion'] = null;
+                            $parte['fecha_notificacion'] = "";
+                          }
                         }
                           // $data = Arr::add( $data, 'solicitado', $parte );
                         $countSolicitado += 1;
@@ -509,6 +546,13 @@ trait GenerateDocument
                     $conciliador = json_decode($objeto->content(),true);
                     $conciliador = Arr::except($conciliador, ['id','updated_at','created_at','deleted_at']);
                     $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
+                    $nombreConciliador = $conciliador['persona']['nombre']." ".$conciliador['persona']['primer_apellido']." ".$conciliador['persona']['segundo_apellido'];
+                    $firmaDocumento = FirmaDocumento::where('firmable_id',$conciliadorId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->first();
+                      if($firmaDocumento != null){
+                        $conciliador['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                      }else{
+                        $conciliador['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($conciliadorId."|conciliador|".$nombreConciliador."|".$audienciaId."|".$idSolicitud."|".$idPlantilla."|".$idDocumento ."|".$idSolicitante ."|".$idSolicitado).'</div>';
+                      }
                     $data = Arr::add( $data, 'conciliador', $conciliador );
                   }elseif ($model == 'Centro') {
                     $objeto = $model_name::with('domicilio','disponibilidades')->find($centroId);
@@ -603,7 +647,7 @@ trait GenerateDocument
                         $totalPercepciones = 0;
                         foreach ($resolucion_conceptos as $concepto ) {
                           $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
-                          if($concepto->id != 9){
+                          if($concepto->concepto_pago_resoluciones_id != 9){
                             $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
                             $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
                           }else{
@@ -613,8 +657,7 @@ trait GenerateDocument
                         $tablaConceptosConvenio .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
                         $tablaConceptosConvenio .= '</tbody>';
                         $tablaConceptosConvenio .= '</table>';
-                        $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte <b>EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'</p>':'';
-
+                        $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
                         // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                         $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
                         $totalPercepcion = explode('.', $totalPercepciones);
@@ -623,7 +666,6 @@ trait GenerateDocument
                         $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
                         $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
                         $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
-                        
                         // $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
                         // $cantidadTextual = str_replace("uno","un",$cantidadTextual);
                         // $cantidadTextual = str_replace("coma","punto",$cantidadTextual);
@@ -701,6 +743,7 @@ trait GenerateDocument
                       }
                     }else{
                       $nombreCitadosConvenio = "-";
+                      $clausulaCitadosConvenio = "";
                     }
                     $datosResolucion['citados_convenio'] = $nombreCitadosConvenio;
                     $datosResolucion['segunda_declaracion_convenio'] = $clausulaCitadosConvenio;
@@ -723,9 +766,11 @@ trait GenerateDocument
                 }
               }
             }
-            // dd($data);
             return $data;
-          } catch (\Throwable $th) {
+          } catch (\Throwable $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             return $data;
           }
     }
@@ -844,7 +889,7 @@ trait GenerateDocument
     {
       try {
         if($tipo!=3){ //no es hora
-          $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noivembre", "Diciembre"];
+          $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
           $hh= "";
           if(strpos($fecha, " ") ){
             $date = explode(' ', $fecha);

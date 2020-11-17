@@ -4,6 +4,8 @@
 
 @include('includes.component.datatables')
 @include('includes.component.pickers')
+@include('includes.component.calendar')
+@include('includes.component.dropzone')
 
 @section('content')
 
@@ -25,7 +27,16 @@
                 <button class="btn btn-primary pull-right" onclick="nuevaSolicitud()" > <i class="fa fa-plus-circle"></i> Nueva solicitud</button>
             </div>
         </div>
+        @if(auth()->user()->hasRole('Personal conciliador'))
+        <div class="col-md-6">
+            <a href="#" onclick="filtrarMisSolicitudes()" id="btnMisSol" class="btn btn-primary badge-pill btn-sm mb-2" title="Solo mostrar mis solicitudes asignadas">
+                <span class="fa fa-unlink"></span> &nbsp; Mis solicitudes &nbsp;
+                <span class="badge badge-pill btn-light" id="spanMisSol">0</span>
+            </a>    
+        </div>
+        @endif
         <div id="divFilters" class="col-md-12 row" style="display: none">
+            <input type="hidden" value="false" class="filtros" id="mis_solicitudes">
             <div class="col-md-4">
                 <input class="form-control filtros" id="curp" placeholder="CURP" type="text" value="">
                 <p class="help-block needed">CURP</p>
@@ -73,10 +84,10 @@
         <div style="float: left;">
             <label class="col-md-12"> Filtros</label>
             <button class="btn btn-primary pull-right m-2" onclick="filtros()">Mas filtros</button>
-            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(3).trigger('change');" >Concluidas</button>
-            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(2).trigger('change');">Ratificadas</button>
-            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val(1).trigger('change');">Sin Ratificar</button>
-            <button class="btn btn-primary pull-right m-2" onclick="$('#estatus_solicitud_id').val('').trigger('change');">Todas</button>
+            <button class="btn btn-primary pull-right m-2 estatus" id="estatus3" onclick="$('#estatus_solicitud_id').val(3).trigger('change');" >Concluidas</button>
+            <button class="btn btn-primary pull-right m-2 estatus" id="estatus2" onclick="$('#estatus_solicitud_id').val(2).trigger('change');">Ratificadas</button>
+            <button class="btn btn-primary pull-right m-2 estatus" id="estatus1" onclick="$('#estatus_solicitud_id').val(1).trigger('change');">Sin Ratificar</button>
+            <button class="btn btn-primary pull-right m-2 estatus selectedButton" id="estatus" onclick="$('#estatus_solicitud_id').val('').trigger('change');">Todas</button>
         </div>
         <br>
         <br>
@@ -96,18 +107,28 @@
                 <div class="modal-body">
                     <h4>Selecciona el tipo de solicitud que deseas capturar</h4>
                     <div class="col-md-12">
-                        <div class="col-md-8 offset-2" style="margin:1%;">
-                            <a class="btn btn-primary btn-lg col-md-12 " onclick="capturarSolicitud(1)" data-dismiss="modal" ><i class="fa fa-plus"></i> Solicitud individual</a>
-                        </div>
-                        <div class="col-md-8 offset-2" style="margin:1%;">
-                            <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(2)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal individual</a>
-                        </div>
-                        <div class="col-md-8 offset-2" style="margin:1%;">
-                            <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(3)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal colectiva</a>
-                        </div>
-                        <div class="col-md-8 offset-2" style="margin:1%;">
-                            <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(4)" data-dismiss="modal" ><i class="fa fa-plus"></i> Sindicato</a>
-                        </div>
+                        @role("Orientador Central")
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(3)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal colectiva</a>
+                            </div>
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(4)" data-dismiss="modal" ><i class="fa fa-plus"></i> Sindicato</a>
+                            </div>
+                        @else
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12 " onclick="capturarSolicitud(1)" data-dismiss="modal" ><i class="fa fa-plus"></i> Solicitud individual</a>
+                            </div>
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(2)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal individual</a>
+                            </div>
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(3)" data-dismiss="modal" ><i class="fa fa-plus"></i> Patronal colectiva</a>
+                            </div>
+                            <div class="col-md-8 offset-2" style="margin:1%;">
+                                <a class="btn btn-primary btn-lg col-md-12" onclick="capturarSolicitud(4)" data-dismiss="modal" ><i class="fa fa-plus"></i> Sindicato</a>
+                            </div>
+                        @endrole
+                        
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -122,15 +143,14 @@
 
 @push('scripts')
     <script>
+        var mis_solicitudes = false;
         $(".date").datetimepicker({format:"DD/MM/YYYY",locale:'es'});
 //        $.datetimepicker.setLocale('es');
         $('#solicitantefechaNacimiento').datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm'});
         $(document).ready(function() {
-
-
-                $('#data-table-default').DataTable({
-                    responsive: true
-                });
+            $('#data-table-default').DataTable({
+                responsive: true
+            });
             $('.btn-borrar').on('click', function (e) {
                 let that = this;
                 console.log('boton clic');

@@ -175,6 +175,11 @@ class AsesoriaController extends Controller
                 return view('asesoria.a2020');
                 break;
 
+            case 'inicio':
+                //Presenta mapa implementación año 2020
+                return view('asesoria.mapa-implementacion');
+                break;
+
             default:
                 return view('asesoria.default');
                 break;

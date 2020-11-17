@@ -33,6 +33,9 @@
     .upper{
         text-transform: uppercase;
     }
+    .ui-datepicker.ui-widget-content{
+        z-index: 9000 !important;
+    }
 
 </style>
 @if(auth()->user())
@@ -40,6 +43,7 @@
 @else
     <input type="hidden" id="externo" value="1">
 @endif
+<input type="hidden" id="instancia" value="{{ env('INSTACIA') ? env('INSTACIA') : 'federal'}}">
 <div class="tab-content" style="background: #f2f3f4 !important;">
 <div class="tab-pane fade active show" id="default-tab-1">
     <div id="wizard" class="col-md-12" >
@@ -123,6 +127,9 @@
                             <div class="col-md-12 mt-4">
                                 <h2>Datos generales de la solicitud</h2>
                                 <hr class="red">
+                            </div>
+                            <div style="margin: 2%;">
+                                <h5>Nota: Los campos marcados con <span style="color: red;">(*)</span> son datos obligatorios, favor de proporcionarlos.</h5>
                             </div>
                             <div class="col-md-4">
                                 <input class="form-control date" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
@@ -264,8 +271,8 @@
                                             <p class="help-block needed">Edad del solicitante</p>
                                         </div>
                                         <div class="col-md-4">
-                                            <input class="form-control upper" id="idSolicitanteRfc" {{($tipo_solicitud_id == 2 || $tipo_solicitud_id == 3) ? "required":"" }} onblur="validaRFC(this.value);" placeholder="RFC del solicitante" type="text" value="">
-                                            <p class="help-block {{($tipo_solicitud_id == 2 || $tipo_solicitud_id == 3) ? "needed":"" }}">RFC del solicitante</p>
+                                            <input class="form-control upper" id="idSolicitanteRfc" {{($tipo_solicitud_id == 2 || $tipo_solicitud_id == 3 || $tipo_solicitud_id == 4) ? "required":"" }} onblur="validaRFC(this.value);" placeholder="RFC del solicitante" type="text" value="">
+                                            <p class="help-block {{($tipo_solicitud_id == 2 || $tipo_solicitud_id == 3 || $tipo_solicitud_id == 4) ? "needed":"" }}">RFC del solicitante</p>
                                         </div>
 
                                         <div class="col-md-4 sindicato" style="display: none;">
@@ -901,13 +908,22 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body" >
-
-                <p style="font-size:large;">
-                    El sistema indica que la actividad principal del patrón es de competencia local, no federal.
-                </p>
-                <p style="font-size:large;">
-                    Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibildiad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de ratificación su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
-                </p>
+                <div id="msjFederal">
+                    <p style="font-size:large;">
+                        El sistema indica que la actividad principal del patrón es de competencia local, no federal.
+                    </p>
+                    <p style="font-size:large;">
+                        Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de ratificación su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
+                    </p>
+                </div>
+                <div style="display: none;" id="msjLocal">
+                    <p style="font-size:large;">
+                        El sistema indica que la actividad principal del patrón es de competencia federal, no local.
+                    </p>
+                    <p style="font-size:large;">
+                        Acuda a la Oficina Estatal del Centro Federal de Conciliación y Registro Laboral de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el CFCRL, puede continuar la solicitud en el Centro de Conciliación Local y en el momento de ratificación su solicitud será revisada por un funcionario del Centro, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al CFCRL.
+                    </p>
+                </div>
             </div>
             <div class="modal-footer">
                 <div class="text-right">
@@ -960,7 +976,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Fecha de Audiencia: </strong><span id="spanFechaAudiencia"></span><br>
+                            <strong>Fecha de audiencia: </strong><span id="spanFechaAudiencia"></span><br>
                         </div>
                     </div>
                 </div>
@@ -972,7 +988,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Hora de termino: </strong><span id="spanHoraFin"></span><br>
+                            <strong>Hora de t&eacute;rmino: </strong><span id="spanHoraFin"></span><br>
                         </div>
                     </div>
                 </div>
@@ -999,7 +1015,7 @@
 </div>
 
 
-<!--Fin de modal de representante legal-->
+<!--Fin de modal de representante-->
 <input type="hidden" id="expediente_id">
 <!--</div>-->
 @push('scripts')
@@ -1323,9 +1339,11 @@
         });
         $("#labora_actualmente").change(function(){
             if($("#labora_actualmente").is(":checked")){
-                $("#divFechaSalida").hide();
+                console.log("fecha_salida no requerida");
                 $("#fecha_salida").removeAttr("required");
+                $("#divFechaSalida").hide();
             }else{
+                console.log("fecha_salida requerida");
                 $("#fecha_salida").attr("required","");
                 $("#divFechaSalida").show();
             }
@@ -1585,7 +1603,9 @@
         $("#no_issste").val("");
         $("#remuneracion").val("");
         $("#periodicidad_id").val("");
-        $("#labora_actualmente").prop("checked", false);
+        if($("#labora_actualmente").is(":checked")){
+            $("#labora_actualmente").trigger('click');
+        }
         $("#fecha_ingreso").val("");
         $("#fecha_salida").val("");
         $("#jornada_id").val("");
@@ -2384,7 +2404,13 @@
             return data.html;
         },templateSelection: function(data) {
             if(data && data.id != "" ){
-                if(data.ambito_id != 1){
+                var instancia = $("#instancia").val();
+                
+                if((data.ambito_id != 1 && instancia == "federal") || (data.ambito_id != 2 && instancia == "local")){
+                    if(instancia == "local"){
+                        $("#msjFederal").hide();
+                        $("#msjLocal").show();
+                    }
                     $("#modal-giro").modal("show");
                 }
                 $("#giro_solicitanteSol").html(data.nombre);

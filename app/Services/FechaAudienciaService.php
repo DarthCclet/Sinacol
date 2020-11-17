@@ -224,7 +224,8 @@ class FechaAudienciaService{
                                             "sala_id" => $sala_id,
                                             "sala2_id" => $sala2_id,
                                             "conciliador_id" => $conciliador->id,
-                                            "conciliador2_id" => $segundoConciliador["segundo_conciliador_id"]
+                                            "conciliador2_id" => $segundoConciliador["segundo_conciliador_id"],
+                                            "encontro_audiencia" =>true
                                         );
                                         break;
                                     }
@@ -239,7 +240,8 @@ class FechaAudienciaService{
                                         "sala_id" => $sala_id,
                                         "sala2_id" => $sala2_id,
                                         "conciliador_id" => $conciliador->id,
-                                        "conciliador2_id" => $segundoConciliador["segundo_conciliador_id"]
+                                        "conciliador2_id" => $segundoConciliador["segundo_conciliador_id"],
+                                        "encontro_audiencia" => true
                                     );
                                     break;
                                 }

@@ -23,8 +23,12 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         if($request->session()->get('rolActual') != null){
-            if($request->session()->get('rolActual')->id == 3 || $request->session()->get('rolActual')->id == 4){
+            if($request->session()->get('rolActual')->name == "Personal conciliador"){
                 return redirect('agendaConciliador');
+            }else if($request->session()->get('rolActual')->name == "Orientador" || $request->session()->get('rolActual')->name == "Orientador Central"){
+                return redirect('solicitudes');
+            }else if($request->session()->get('rolActual')->name == "Supervisor de conciliación" || $request->session()->get('rolActual')->name == "Administrador del centro"){
+                return redirect('calendariocentro');
             }
             
         }

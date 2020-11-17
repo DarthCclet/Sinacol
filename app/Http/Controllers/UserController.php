@@ -23,7 +23,7 @@ class UserController extends Controller
 
     public function __construct(Request $request)
     {
-        $this->middleware('auth');
+//        $this->middleware('auth');
         $this->request = $request;
     }
 
@@ -35,21 +35,23 @@ class UserController extends Controller
     public function index()
     {
 
-//        dd("holi");
         User::with('persona')->get();
 
         // Filtramos los usuarios con los parametros que vengan en el request
         $users = (new UserFilter(User::query(), $this->request))
             ->searchWith(User::class)
             ->filter();
+        if(!auth()->user()->hasRole('Super Usuario')){
+            $users->where("centro_id", auth()->user()->centro_id);
+        }
 
         // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
-        if ($this->request->get('all')) {
-            $users = $users->get();
-        } else {
+//        if ($this->request->get('all')) {
+//            $users = $users->get();
+//        } else {
             $users = $users->paginate($this->request->get('per_page', 10));
-        }
+//        }
 
         // Para cada objeto obtenido cargamos sus relaciones.
         $users = tap($users)->each(function ($user) {
@@ -72,7 +74,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::all();
-        $centros = Centro::all();
+        $centros = Centro::pluck('nombre', 'id');
         return view('admin.users.create', compact('roles','centros'));
     }
 
@@ -92,17 +94,21 @@ class UserController extends Controller
                 'personas.nombre' => 'required|alpha|max:60',
                 'personas.primer_apellido' => 'required|alpha|max:60',
                 'personas.segundo_apellido' => 'alpha|nullable|max:60',
-                'personas.rfc' => 'alphanum|required|max:13',
+                'personas.curp' => 'alphanum|required|max:18',
             ]
         );
 
         $persona = $request->input('personas');
-
         //Los usuarios web sólo pueden estar asociados a personas físicas
         $persona['tipo_persona_id'] = TipoPersona::where('abreviatura', 'F')->first()->id;
-
-        $user = Persona::create($persona)->user()->create($request->input('users'))->load('persona');
-        
+        $userRequest = $request->input('users');
+        $persona = Persona::create($persona);
+        $user = User::create($userRequest);
+        $user->persona_id = $persona->id;
+        $user->save();
+        if (auth()->user()->centro->nombre == "Oficina Central del CFCRL") {
+            $user->assignRole("Orientador Central");
+        }
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
         }
@@ -160,11 +166,11 @@ class UserController extends Controller
         if( empty( $data['password'] ) ){
             unset($data['password']);
         }
-        
-//        dd($data);
+
         $user->fill($data)->save();
+        $user->save();
         $user->persona->fill($request->input('personas'))->save();
-        
+
         if ($this->request->wantsJson()) {
             return $this->sendResponse($user, 'SUCCESS');
         }
@@ -188,7 +194,7 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'Se ha eliminado el usuario exitosamente');
     }
-    
+
     public function AddRol(Request $request){
         $user = User::find($request->user_id);
         $user->assignRole($request->rol);

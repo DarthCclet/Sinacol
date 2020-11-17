@@ -9,11 +9,11 @@ use App\Traits\RequestsAppends;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Passport\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 use Lab404\Impersonate\Models\Impersonate;
-use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use Laravel\Passport\HasApiTokens;
 use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use Spatie\Permission\Traits\HasRoles;
 
 
 class User extends Authenticatable implements AuditableContract
@@ -102,4 +102,20 @@ class User extends Authenticatable implements AuditableContract
         return $this->belongsTo(Centro::class)
             ->withDefault(['nombre'=>'No asignado']);
     }
+
+    public function setCentroIdAttribute($centro_id) {
+        if (auth()->user()->hasRole("Super Usuario")) {
+            $this->attributes["centro_id"] = $centro_id;
+        } else {
+            $this->attributes["centro_id"] = auth()->user()->centro_id;
+        }
+    }
+
+    public function setPasswordAttribute($v)
+    {
+        if (trim($v)) {
+            $this->attributes['password'] = app('hash')->make(trim($v));
+        }
+    }
+
 }

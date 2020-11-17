@@ -153,13 +153,15 @@
                                 <td class="all">
                                     <div style="display: inline-block;">
                                         @if($audiencia->etapas_resolucion_audiencia_count > 0)
-                                            <div style="display: inline-block;" class="m-2"><a title="Detalle" href="{!! route("audiencias.edit",$audiencia->id) !!}" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>
+                                            <div style="display: inline-block;" class="m-2"><a title="Detalle" href="{!! route("audiencias.edit",$audiencia->id) !!}" class="btn btn-xs btn-primary"><i class="fa fa-gavel"></i></a></div>
                                         @endif
                                         @if($audiencia->finalizada == false)
-                                            @if($solicitud->tipo_solicitud_id == 1)
-                                                <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaAudiencia",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
-                                            @else
-                                                <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("resolucionColectiva",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
+                                            @if(auth()->user()->hasRole("Personal conciliador"))
+                                                @if($solicitud->tipo_solicitud_id == 1)
+                                                    <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaAudiencia",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
+                                                @else
+                                                    <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("resolucionColectiva",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
+                                                @endif
                                             @endif
                                         @endif
                                     </div>
@@ -225,7 +227,7 @@
                     El sistema indica que la actividad principal del patrón es de competencia local, no federal.
                 </p>
                 <p style="font-size:large;">
-                    Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibildiad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de ratificación su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
+                    Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de ratificación su solicitud será revisada por un funcionario del CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al Centro de Conciliación competente.
                 </p>
             </div>
             <div class="modal-footer">
@@ -291,7 +293,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Hora de termino: </strong><span id="spanHoraFin"></span><br>
+                            <strong>Hora de t&eacute;rmino: </strong><span id="spanHoraFin"></span><br>
                         </div>
                     </div>
                 </div>
@@ -346,6 +348,13 @@
         $("#solicitud_id_excepcion").val(solicitud);
             
     });
+    
+    history.pushState(null, document.title, location.href);
+    history.back();
+    history.forward();
+    window.onpopstate = function () {
+        history.go(1);
+    };
 
     
     function getSolicitudFromBD(solicitud){
@@ -392,6 +401,7 @@
                     solicitudObj.fecha_conflicto = dateFormat(data.fecha_conflicto,4);
                     solicitudObj.giro_comercial_id = data.giro_comercial_id;
                     solicitudObj.giro_comercial = data.giroComercial.nombre;
+                    solicitudObj.observaciones = data.observaciones;
                     if(data.expediente){
                         solicitudObj.expediente = data.expediente.folio;
                     }
@@ -515,6 +525,10 @@
                     });
                     html += "</ul>";
                 html += "</div>";
+                html += "<div class='col-md-12'>";
+                    html += "<b>Observaciones:</b>";
+                        html += "<p>"+solicitudObj.observaciones+"</p>";
+                html += "</div>";
             html += "</div>";
         html += "</div>";
         
@@ -546,13 +560,19 @@
                                         html+='<label><b>CURP:</b>'+value.curp+'</label>';
                                     html+='</div>';
                                 }
+                                if(value.solicita_traductor){
+                                    html+='<div>';
+                                        html+='<label><b>Solicita traductor</b> </label><p>Lengua: ('+value.lengua_indigena.nombre+')</p>';
+                                    html+='</div>';
+                                }
+                                
                                 if(value.rfc){
                                     html+='<div>';
                                         html+='<label><b>RFC:</b>'+value.rfc+'</label>';
                                     html+='</div>';
                                 }
                                 html+='<div>';
-                                    html+="<b>Direccion:</b><br> &nbsp;&nbsp;&nbsp;&nbsp;"+value.domicilios[0].tipo_vialidad+" "+value.domicilios[0].vialidad+", "+value.domicilios[0].asentamiento+", "+value.domicilios[0].municipio+", "+value.domicilios[0].estado.toUpperCase();
+                                    html+="<b>Dirección:</b><br> &nbsp;&nbsp;&nbsp;&nbsp;"+value.domicilios[0].tipo_vialidad+" "+value.domicilios[0].vialidad+", "+value.domicilios[0].asentamiento+", "+value.domicilios[0].municipio+", "+value.domicilios[0].estado.toUpperCase();
                                 html+='</div>';
                                 html+='<div>';
                                     html+='<label><b>Contactos:</b></label>';

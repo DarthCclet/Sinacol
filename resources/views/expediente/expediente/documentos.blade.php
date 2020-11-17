@@ -22,7 +22,7 @@
                         <thead>
                             <tr>
                                 <th>Nombre</th>
-                                <th>Accion</th>
+                                <th>Acción</th>
                             </tr>
                         </thead>
                         @foreach ($documentos as $documento)
@@ -41,7 +41,7 @@
                         <thead>
                             <tr>
                                 <th>Nombre</th>
-                                <th>Accion</th>
+                                <th>Acción</th>
                             </tr>
                         </thead>
                         @foreach ($documentos as $documento)
