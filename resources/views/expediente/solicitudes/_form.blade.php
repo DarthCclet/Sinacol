@@ -128,6 +128,9 @@
                                 <h2>Datos generales de la solicitud</h2>
                                 <hr class="red">
                             </div>
+                            <div style="margin: 2%;">
+                                <h5>Nota: Los campos marcados con <span style="color: red;">(*)</span> son datos obligatorios, favor de proporcionarlos.</h5>
+                            </div>
                             <div class="col-md-4">
                                 <input class="form-control date" required id="fechaConflicto" placeholder="Fecha de Conflicto" type="text" value="">
                                 <p class="help-block needed">Fecha de conflicto</p>

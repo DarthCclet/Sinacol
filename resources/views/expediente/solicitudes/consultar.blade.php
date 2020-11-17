@@ -401,6 +401,7 @@
                     solicitudObj.fecha_conflicto = dateFormat(data.fecha_conflicto,4);
                     solicitudObj.giro_comercial_id = data.giro_comercial_id;
                     solicitudObj.giro_comercial = data.giroComercial.nombre;
+                    solicitudObj.observaciones = data.observaciones;
                     if(data.expediente){
                         solicitudObj.expediente = data.expediente.folio;
                     }
@@ -524,6 +525,10 @@
                     });
                     html += "</ul>";
                 html += "</div>";
+                html += "<div class='col-md-12'>";
+                    html += "<b>Observaciones:</b>";
+                        html += "<p>"+solicitudObj.observaciones+"</p>";
+                html += "</div>";
             html += "</div>";
         html += "</div>";
         
@@ -555,6 +560,12 @@
                                         html+='<label><b>CURP:</b>'+value.curp+'</label>';
                                     html+='</div>';
                                 }
+                                if(value.solicita_traductor){
+                                    html+='<div>';
+                                        html+='<label><b>Solicita traductor</b> </label><p>Lengua: ('+value.lengua_indigena.nombre+')</p>';
+                                    html+='</div>';
+                                }
+                                
                                 if(value.rfc){
                                     html+='<div>';
                                         html+='<label><b>RFC:</b>'+value.rfc+'</label>';

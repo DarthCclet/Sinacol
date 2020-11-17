@@ -484,6 +484,7 @@ class SolicitudController extends Controller {
             $value->dato_laboral;
             $value->domicilios;
             $value->contactos;
+            $value->lenguaIndigena;
             $solicitantes[$key]["activo"] = 1;
         }
         $solicitados = $partes->where('tipo_parte_id', 2);
