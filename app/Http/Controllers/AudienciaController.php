@@ -1383,6 +1383,7 @@ class AudienciaController extends Controller {
     }
 
     public function NuevaAudiencia(Request $request) {
+        DB::beginTransaction();
         ##Obtenemos la audiencia origen
         $audiencia = Audiencia::find($request->audiencia_id);
 
@@ -1407,16 +1408,16 @@ class AudienciaController extends Controller {
         $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
         ##creamos la resolución a partir de los datos ya existentes y los nuevos
         $audienciaN = Audiencia::create([
-                    "expediente_id" => $audiencia->expediente_id,
-                    "multiple" => $multiple,
-                    "fecha_audiencia" => $fecha_audiencia,
-                    "hora_inicio" => $hora_inicio,
-                    "hora_fin" => $hora_fin,
-                    "conciliador_id" => $audiencia->conciliador_id,
-                    "numero_audiencia" => 1,
-                    "reprogramada" => true,
-                    "anio" => $folio->anio,
-                    "folio" => $folio->contador
+            "expediente_id" => $audiencia->expediente_id,
+            "multiple" => $multiple,
+            "fecha_audiencia" => $fecha_audiencia,
+            "hora_inicio" => $hora_inicio,
+            "hora_fin" => $hora_fin,
+            "conciliador_id" => $audiencia->conciliador_id,
+            "numero_audiencia" => 1,
+            "reprogramada" => true,
+            "anio" => $folio->anio,
+            "folio" => $folio->contador
         ]);
         ## si la audiencia se calendariza se deben guardar los datos recibidos en el arreglo, si no se copian los de la audiencia origen
         if ($request->nuevaCalendarizacion == "S") {
@@ -1465,7 +1466,7 @@ class AudienciaController extends Controller {
                 $arregloPartesAgregadas[] = $relacion["parte_solicitada_id"];
                 AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $relacion["parte_solicitada_id"]]);
                 // buscamos representantes legales de esta parte
-                $parte = $audiencia->expediente->solicitud->partes()->where("parte_representada_id",$relacion["parte_solicitante_id"])->first();
+                $parte = $audiencia->expediente->solicitud->partes()->where("parte_representada_id",$relacion["parte_solicitada_id"])->first();
                 if($parte != null){
                     AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
                 }
@@ -1476,7 +1477,9 @@ class AudienciaController extends Controller {
         $expediente = Expediente::find($audiencia->expediente_id);
         //Se genera citatorio de audiencia
         event(new GenerateDocumentResolution($audiencia->id, $expediente->solicitud_id, 14, 4));
+        DB::commit();
         return $audienciaN;
+        
     }
 
     ############################### A partir de este punto comienzan las funciones para el chacklist ########################################
