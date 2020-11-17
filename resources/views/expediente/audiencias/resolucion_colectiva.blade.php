@@ -827,7 +827,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Fecha de Audiencia: </strong><span id="spanFechaAudiencia"></span><br>
+                            <strong>Fecha de audiencia: </strong><span id="spanFechaAudiencia"></span><br>
                         </div>
                     </div>
                 </div>
@@ -839,7 +839,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Hora de termino: </strong><span id="spanHoraFin"></span><br>
+                            <strong>Hora de t&eacute;rmino: </strong><span id="spanHoraFin"></span><br>
                         </div>
                     </div>
                 </div>

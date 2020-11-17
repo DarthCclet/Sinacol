@@ -293,7 +293,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Hora de termino: </strong><span id="spanHoraFin"></span><br>
+                            <strong>Hora de t&eacute;rmino: </strong><span id="spanHoraFin"></span><br>
                         </div>
                     </div>
                 </div>

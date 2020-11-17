@@ -74,7 +74,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Hora de inicio: </strong>{{$audiencia->hora_inicio}}</td>
-                                <td><strong>Hora de termino: </strong>{{$audiencia->hora_fin}}</td>
+                                <td><strong>Hora de t&eacute;rmino: </strong>{{$audiencia->hora_fin}}</td>
                             </tr>
                         </table>
                         <br><br>
