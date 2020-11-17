@@ -231,7 +231,7 @@
                                 $(".fc-agendaWeek-button").click();
                                 $("#fecha_audiencia").val(start);
                             }else{
-                                SolicitarAudiencia(start,end);
+                                CargarModalResolucion(start,end);
                             }
                         }else{
                             swal({
@@ -253,55 +253,19 @@
                     eventConstraint: "businessHours"
                 });
             }
-            function SolicitarAudiencia(inicio,fin){
-                swal({
-                    title: '¿Las partes concilian en la misma sala?',
-                    text: 'Al oprimir aceptar se asignará solo un conciliador y una sola sala para solicitante y citado',
-                    icon: 'warning',
-                    buttons: {
-                        cancel: {
-                            text: 'Separados',
-                            value: null,
-                            visible: true,
-                            className: 'btn btn-default',
-                            closeModal: true,
-                        },
-                        confirm: {
-                            text: 'Aceptar',
-                            value: true,
-                            visible: true,
-                            className: 'btn btn-warning',
-                            closeModal: true
-                        }
-                    }
-                }).then(function(isConfirm){
-                    if(isConfirm){
-                        CargarModal(1,inicio,fin);
-                    }else{
-                        CargarModal(2,inicio,fin);
-                    }
-                });
-            }
-            function CargarModal(aux,inicio,fin){
-//                console.log(inicio);
-//                console.log(fin);
-                if(aux == 1){
-                    $("#divAsignarUno").show();
-                    $("#divAsignarDos").hide();
-                    $("#tipoAsignacion").val(1);
-                }else{
-                    $("#divAsignarUno").hide();
-                    $("#divAsignarDos").show();
-                    $("#tipoAsignacion").val(2);
-                }
-                getConciliadores(inicio,fin);
+
+            function CargarModalResolucion(inicio,fin){
+                $("#divAsignarUno").show();
+                $("#divAsignarDos").hide();
+                $("#tipoAsignacion").val(1);
+                
                 getSalasReagendar(inicio,fin);
                 $("#hora_inicio").val(inicio);
                 $("#hora_fin").val(fin);
                 $("#lableFechaInicio").html(inicio.substring(1, 10));
-                $("#modal-asignar").modal("show");
+                $("#modal-asignarAudiencia").modal("show");
             }
-            getConciliadores = function(fechaInicio,fechaFin){
+            getConciliadoresResolucion = function(fechaInicio,fechaFin){
                 $.ajax({
                     url:"/audiencia/ConciliadoresDisponibles",
                     type:"POST",
@@ -347,7 +311,7 @@
                     }
                 });
             }
-            function guardarAudiencia(){
+            function guardarAudienciaReagendar(){
                 var validacion = validarAsignacionResolucion();
                 if(!validacion.error){
                     var listaRelaciones = [];
