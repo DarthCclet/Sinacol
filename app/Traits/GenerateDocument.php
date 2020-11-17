@@ -126,7 +126,7 @@ trait GenerateDocument
     }
 
     public function renderDocumento($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idDocumento)
-    {
+    { 
       $vars = [];
       $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idDocumento);
 //
@@ -415,6 +415,7 @@ trait GenerateDocument
                         $estado =  ($dom_parte['estado'] !== null)? $dom_parte['estado'] :"";
                         $parte['domicilios_completo'] = mb_strtoupper($tipo_vialidad.' '.$vialidad.' '.$num_ext.', '.$municipio.', '.$estado);
                       }
+                      
                       if($parte['tipo_parte_id'] == 1 ){//Solicitante
                         //datos laborales del solicitante
                         $datoLaborales = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
@@ -473,10 +474,15 @@ trait GenerateDocument
                           //tipoNotificacion solicitado
                         if($audienciaId!=""){
                           $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('parte_id',$parteId)->get();
-                          // $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('tipo_notificacion_id','<>',null)->get();
-                          $parte['tipo_notificacion'] = $audienciaParte[0]->tipo_notificacion_id;
-                          $parte['fecha_notificacion'] = $audienciaParte[0]->fecha_notificacion;
-                          //$parte['fecha_notificacion'] = ($audienciaParte[0]->fecha_notificacion!= null) ? $audienciaParte[0]->fecha_notificacion : "--";
+                          if(count($audienciaParte)>0){
+                            // $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('tipo_notificacion_id','<>',null)->get();
+                            $parte['tipo_notificacion'] = $audienciaParte[0]->tipo_notificacion_id;
+                            $parte['fecha_notificacion'] = $audienciaParte[0]->fecha_notificacion;
+                            //$parte['fecha_notificacion'] = ($audienciaParte[0]->fecha_notificacion!= null) ? $audienciaParte[0]->fecha_notificacion : "--";
+                          }else{
+                            $parte['tipo_notificacion'] = null;
+                            $parte['fecha_notificacion'] = "";
+                          }
                         }
                           // $data = Arr::add( $data, 'solicitado', $parte );
                         $countSolicitado += 1;
@@ -490,7 +496,6 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
-                    // dd($data);
                 }elseif ($model == 'Expediente') {
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;
@@ -761,7 +766,6 @@ trait GenerateDocument
                 }
               }
             }
-            // dd($data);
             return $data;
           } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
