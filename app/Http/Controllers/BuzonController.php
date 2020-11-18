@@ -40,12 +40,12 @@ class BuzonController extends Controller
             }
             if($correo != ""){
 //                Se crea el token
-                $token = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
-
+                $token = str_pad((string)rand(0, 999999), 6, '0', STR_PAD_LEFT);
                 if (!Cache::has($token)) {
                     Cache::put($token, $busqueda,now()->addMinutes(50));
                 }
                 $respuesta = Cache::get($token);
+//                dd($respuesta);
                 $parte->token = $token;
                 $parte->email = $correo;
                 $composicion = base64_encode($token)."/".base64_encode($correo);
