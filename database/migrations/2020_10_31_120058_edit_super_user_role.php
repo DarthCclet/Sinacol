@@ -58,7 +58,9 @@ class EditSuperUserRole extends Migration
             ]
         );
         $user = User::where("email",$mail)->first();
-        $user->update(["persona_id" => $persona->id,"centro_id" => $centro->id]);
+        DB::table('users')
+                ->where("email",$mail)
+                ->update(["persona_id" => $persona->id,"centro_id" => $centro->id]);
         $user->assignRole($rol->name);
 //      Creamos la disponibilidad del centro recien creado 
         if($centro->nombre == "Oficina Central del CFCRL"){
@@ -91,6 +93,9 @@ class EditSuperUserRole extends Migration
         );
         $rolSuperUser = Role::find(1);
         $userSU = User::where("email",$mail)->first();
+        DB::table('users')
+                ->where("email",$mail)
+                ->update(["persona_id" => $persona->id]);
         $userSU->update(["persona_id" => $persona->id]);
         $userSU->assignRole($rolSuperUser->name);        
     }
