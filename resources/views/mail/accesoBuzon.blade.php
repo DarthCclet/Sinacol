@@ -36,7 +36,7 @@
             <div class="login-header" align="center" style="padding:10px;">
                 <div class="brand">
                     <span>
-                        <img src="https://framework-gb.cdn.gob.mx/landing/img/logoheader.svg" width="220px">
+                        <img src="{{asset('assets/img/logo/LogoEncabezado.png')}}" width="220px">
                     </span>
                 </div>
             </div>
