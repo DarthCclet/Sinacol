@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Traits\Menu;
 use App\Centro;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -91,9 +92,8 @@ class UserController extends Controller
                 'users.name' => 'required|unique:users|max:128',
                 'users.email' => 'required|unique:users|email',
                 'users.password' => 'required|confirmed',
-                'personas.nombre' => 'required|alpha|max:60',
-                'personas.primer_apellido' => 'required|alpha|max:60',
-                'personas.segundo_apellido' => 'alpha|nullable|max:60',
+                'personas.nombre' => 'required|regex:/^[\pL\s\-]+$/u|max:60',
+                'personas.primer_apellido' => 'required|regex:/^[\pL\s\-]+$/u|max:60',
                 'personas.curp' => 'alphanum|required|max:18',
             ]
         );
@@ -102,9 +102,12 @@ class UserController extends Controller
         //Los usuarios web sólo pueden estar asociados a personas físicas
         $persona['tipo_persona_id'] = TipoPersona::where('abreviatura', 'F')->first()->id;
         $userRequest = $request->input('users');
+        $userRequest['email_verified_at'] = now()->format('Y-m-d H:i:s');
         $persona = Persona::create($persona);
         $user = User::create($userRequest);
         $user->persona_id = $persona->id;
+        $user->email_verified_at = now()->format('Y-m-d H:i:s');
+        $user->remember_token = Str::random(10);;
         $user->save();
         if (auth()->user()->centro->nombre == "Oficina Central del CFCRL") {
             $user->assignRole("Orientador Central");
@@ -154,10 +157,9 @@ class UserController extends Controller
                 'users.name' => 'required|max:128|'.Rule::unique('users')->ignore($user->id),
                 'users.email' => 'required|email|'.Rule::unique('users')->ignore($user->id),
                 'users.password' => 'confirmed|min:6|nullable',
-                'personas.nombre' => 'required|alpha|max:60',
-                'personas.primer_apellido' => 'required|alpha|max:60',
-                'personas.segundo_apellido' => 'alpha|nullable|max:60',
-                'personas.rfc' => 'alphanum|required|size:13',
+                'personas.nombre' => 'required|regex:/^[\pL\s\-]+$/u|max:60',
+                'personas.primer_apellido' => 'required|regex:/^[\pL\s\-]+$/u|max:60',
+                'personas.curp' => 'alphanum|required|size:18',
             ]
         );
         $data = $request->input('users');
