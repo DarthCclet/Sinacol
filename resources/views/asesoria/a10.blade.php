@@ -14,7 +14,7 @@
         <li class="mb-4"><a href="/asesoria/1020" data-toggle="modal" data-target="#confirmar" class="text-black h4 mb-4">Renuncié y no me pagaron el finiquito correcto.</a></li>
         <li class="mb-4"><a href="/asesoria/1030" data-toggle="modal" data-target="#confirmar" class="text-black h4 mb-4">Sigo laborando para mi patrón pero tengo un conflicto con él.</a></li>
         <li class="mb-4"><a href="/asesoria/1040" data-toggle="modal" data-target="#confirmar" class="text-black h4 mb-4">Quiero dejar de trabajar para mi patrón y quiero una compensación.</a></li>
-        <li class="mb-4"><a href="/asesoria/1050" data-toggle="modal" data-target="#confirmar" class="text-black h4 mb-4">Quiero reclamar mi derecho de preferencia, antigüedad o ascenso bajo el </a><a href="http://www.diputados.gob.mx/LeyesBiblio/pdf/125_020719.pdf#page=50" target="_blank">Título IV Capítulo IV de la Ley Federal del Trabajo.</a></li>
+        <li class="mb-4"><a href="/asesoria/1050" data-toggle="modal" data-target="#confirmar" class="text-black h4 mb-4">Quiero reclamar mi derecho de preferencia, antigüedad o ascenso bajo el </a><a href="http://www.diputados.gob.mx/LeyesBiblio/pdf/125_020719.pdf#page=50" target="_blank" rel="noopener noreferrer">Título IV Capítulo IV de la Ley Federal del Trabajo.</a></li>
     </ol>
 
     <!-- Modal -->
