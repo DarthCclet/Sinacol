@@ -37,7 +37,7 @@
 
         <hr class="red">
 	</div>
-	<input type="hidden" id="domicilio_id{{$identificador}}">
+	<input type="hidden" name="domicilio[id]" value="{{isset($domicilio->id) ? $domicilio->id : '' }}" id="domicilio_id{{$identificador}}">
 	<input type="hidden" id="direccion_marker{{$identificador}}">
     <input type="hidden" name="domicilio[latitud]" value="{{isset($domicilio->latitud) ? $domicilio->latitud : '' }}" id="latitud{{$identificador}}">
 	<input type="hidden" name="domicilio[longitud]" value="{{isset($domicilio->longitud) ? $domicilio->longitud : '' }}" id="longitud{{$identificador}}">

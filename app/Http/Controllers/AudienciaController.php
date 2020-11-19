@@ -48,6 +48,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Traits\FechaNotificacion;
 use App\Events\RatificacionRealizada;
 use App\Mail\CambioFecha;
+use Illuminate\Support\Facades\Mail;
 
 class AudienciaController extends Controller {
 
@@ -111,8 +112,12 @@ class AudienciaController extends Controller {
             
             $persona_id= Auth::user()->persona->id;
             $conciliador = Conciliador::where('persona_id',$persona_id)->first();
-            $conciliador_id = $conciliador->id;
-            $audiencias->where('conciliador_id',$conciliador_id);
+            if($conciliador != null){
+                $conciliador_id = $conciliador->id;
+                $audiencias->where('conciliador_id',$conciliador_id);
+            }else{
+                return $this->sendResponseDatatable(0, 0, 0, [], null);
+            }
 
             if ($this->request->get('IsDatatableScroll')) {
                 $audiencias = $audiencias->with('conciliador.persona');
@@ -1541,12 +1546,13 @@ class AudienciaController extends Controller {
         }
         $audiencia->solicitantesComparecientes = $solicitantesComparecientes;
         $audiencia->solicitados = $this->getSolicitados($audiencia);
+        $conciliador = Conciliador::find($audiencia->conciliador_id);
         $motivos_archivo = MotivoArchivado::all();
         $concepto_pago_resoluciones = ConceptoPagoResolucion::where('id', '<=', 9)->get();
         $concepto_pago_reinstalacion = ConceptoPagoResolucion::whereIn('id', [8, 9, 10])->get();
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
-        return view('expediente.audiencias.etapa_resolucion', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id'));
+        return view('expediente.audiencias.etapa_resolucion', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id','conciliador'));
     }
 
     public function resolucionColectiva($id) {

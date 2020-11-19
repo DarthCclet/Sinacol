@@ -49,6 +49,8 @@
 <!-- end page-header -->
 <h1 class="badge badge-secondary col-md-2 offset-10" style="position: fixed; font-size: 2rem; z-index:999;" onclick="startTimer();"><span class="countdown">00:00:00</span></h1>
 <input type="hidden" id="audiencia_id" name="audiencia_id" value="{{$audiencia->id}}" />
+
+@if(auth()->user()->persona_id == $conciliador->persona_id)
 <!-- begin timeline -->
 <ul class="timeline">
     @foreach($etapa_resolucion as $etapa)
@@ -1358,6 +1360,15 @@
 
 <input type="hidden" id="parte_id">
 <input type="hidden" id="parte_representada_id">
+@else
+    <div style="margin: 5%;" >
+        <div >
+            <a href="{{ url()->previous() }}" class="btn btn-primary btn-sm"><i class="fa fa-arrow-alt-circle-left"></i> Regresar</a>
+        </div>
+        <h1>El conciliador asignado para esta audiencia es: <strong>{{$conciliador->persona->nombre}} {{$conciliador->persona->primer_apellido}} {{$conciliador->persona->segundo_apellido}}</strong> . Si usted requiere realizar esta audiencia favor de solicitar la reasignación.</h1>
+    </div>
+@endif
+
 @endsection
 @push('scripts')
 <script>
