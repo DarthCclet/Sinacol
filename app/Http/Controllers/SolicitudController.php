@@ -157,6 +157,7 @@ class SolicitudController extends Controller {
                     $centro_id = Auth::user()->centro_id;
                     $solicitud->where('centro_id',$centro_id);
                 }
+                $filtered = $solicitud->count();
                 if ($this->request->get('IsDatatableScroll')) {
                     $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto','centro_id']);
                 } else {
@@ -180,7 +181,7 @@ class SolicitudController extends Controller {
                     }else{
                         $total = Solicitud::count();
                     }
-                    $filtered = $solicitud->count();
+                    
                     $draw = $this->request->get('draw');
                     return $this->sendResponseDatatable($total, $filtered, $draw, $solicitud, null);
                 }
