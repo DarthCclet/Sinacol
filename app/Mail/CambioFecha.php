@@ -25,7 +25,7 @@ class CambioFecha extends Mailable
     {
         $this->audiencia = $audiencia;
         $this->parte = $parte;
-        $this->subject = "Acceso al buzón";
+        $this->subject = "Cambio de fecha de audiencia";
     }
 
     /**
