@@ -132,7 +132,12 @@ class CentroController extends Controller
     {
         $centro->update($request->input('centro'));
         $domicilio = $request->input('domicilio');
-        $centro->domicilio()->create($domicilio);
+        if($domicilio['id'] != null){
+            $centro->domicilio()->create($domicilio);
+        }else{
+            $centro->domicilio()->update($domicilio);
+
+        }
         return redirect('centros');
     }
 
