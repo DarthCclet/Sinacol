@@ -115,7 +115,9 @@ class AudienciaController extends Controller {
                 $conciliador_id = $conciliador->id;
                 $audiencias->where('conciliador_id',$conciliador_id);
             }else{
-                return $this->sendResponseDatatable(0, 0, 0, [], null);
+                if ($this->request->wantsJson()) {
+                    return $this->sendResponseDatatable(0, 0, 0, [], null);
+                }
             }
 
             if ($this->request->get('IsDatatableScroll')) {
