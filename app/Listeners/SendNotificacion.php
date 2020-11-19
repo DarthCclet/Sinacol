@@ -122,13 +122,15 @@ class SendNotificacion
         }
         Log::error('Se envia esta peticion:'.json_encode($arreglo));
         $client = new Client();
-        $baseURL = env("APP_URL_NOTIFICACIONES");
-        $response = $client->request('POST',$baseURL ,[
-            'headers' => ['foo' => 'bar'],
-            // array de datos del formulario
-            'body' => json_encode($arreglo),
-//            'http_errors' => false
-        ]);
+        $baseURL = $audiencia->expediente->solicitud->centro->url_instancia_notificacion;
+        if($baseURL != null){
+            $response = $client->request('POST',$baseURL ,[
+                'headers' => ['foo' => 'bar'],
+                // array de datos del formulario
+                'body' => json_encode($arreglo),
+    //            'http_errors' => false
+            ]);
+        }
     }
     /**
      * Funcion para obtener las partes involucradas en una audiencia de tipo solicitante

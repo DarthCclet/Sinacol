@@ -2101,7 +2101,7 @@ class AudienciaController extends Controller {
                         $tipo_mail = TipoContacto::where("nombre","EMAIL")->first();
                         if($contacto->tipo_contacto_id == $tipo_mail->id){
 //                            Se envia la notificación por correo electronico
-                            Mail::to($correo)->send(new CambioFecha($audiencia,$parte->parte));
+                            Mail::to($contacto->contacto)->send(new CambioFecha($audiencia,$parte->parte));
                             $envio = true;
                         }
                     }

@@ -46,6 +46,8 @@
                 <p class="help-block">Selecciona el centro al que pertenece</p>
             </div>
         </div>
+        @else
+        {!! Form::hidden('users[centro_id]',auth()->user()->centro_id ,[]) !!}
         @endif
     </div>
 
@@ -80,7 +82,7 @@
         <div class="form-group">
             <label for="apepat" class="control-label">CURP</label>
             <div class="col-sm-10">
-                {!! Form::text('personas[curp]', isset($user->persona) ? $user->persona->curp : null, ['class'=>'form-control', 'id'=>'curp', 'placeholder'=>'RFC']) !!}
+                {!! Form::text('personas[curp]', isset($user->persona) ? $user->persona->curp : null, ['class'=>'form-control', 'id'=>'curp', 'placeholder'=>'CURP']) !!}
                 {!! $errors->first('personas.curp', '<span class=text-danger>:message</span>') !!}
                 <p class="help-block">Clave única de registro de población de la person a la que pertenece esta cuenta</p>
             </div>
