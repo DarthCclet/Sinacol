@@ -48,6 +48,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Traits\FechaNotificacion;
 use App\Events\RatificacionRealizada;
 use App\Mail\CambioFecha;
+use Illuminate\Support\Facades\Mail;
 
 class AudienciaController extends Controller {
 
