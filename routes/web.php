@@ -96,6 +96,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('calendario','AudienciaController@calendario');
     Route::get('getAudienciaConciliador','AudienciaController@GetAudienciaConciliador');
     Route::get('agendaConciliador','AudienciaController@AgendaConciliador');
+    Route::post('audiencia/cambiar_conciliador','AudienciaController@CambiarConciliador');
     Route::resource('parte','ParteController');
     Route::Get('partes/representante/{id}','ParteController@GetRepresentanteLegal');
     Route::Get('partes/datoLaboral/{id}','ParteController@GetDatoLaboral');
