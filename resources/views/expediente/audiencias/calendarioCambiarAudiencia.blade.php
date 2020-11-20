@@ -259,14 +259,14 @@
                     dataType:"json",
                     success:function(data){
                         if(data != null && data != ""){
-                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un conciliador</option>");
+                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id,#conciliador_cambio_id,#conciliador_cambio_solicitante_id,#conciliador_cambio_solicitado_id").html("<option value=''>-- Selecciona un conciliador</option>");
                             $.each(data,function(index,element){
-                                $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").append("<option value='"+element.id+"'>"+element.persona.nombre+" "+element.persona.primer_apellido+" "+element.persona.segundo_apellido+"</option>");
+                                $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id,#conciliador_cambio_id,#conciliador_cambio_solicitante_id,#conciliador_cambio_solicitado_id").append("<option value='"+element.id+"'>"+element.persona.nombre+" "+element.persona.primer_apellido+" "+element.persona.segundo_apellido+"</option>");
                             });
                         }else{
-                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un conciliador</option>");
+                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id,#conciliador_cambio_id,#conciliador_cambio_solicitante_id,#conciliador_cambio_solicitado_id").html("<option value=''>-- Selecciona un conciliador</option>");
                         }
-                        $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").select2();
+                        $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id,#conciliador_cambio_id,#conciliador_cambio_solicitante_id,#conciliador_cambio_solicitado_id").select2();
                     }
                 });
             };
