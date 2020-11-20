@@ -2188,6 +2188,37 @@ class AudienciaController extends Controller {
         }
         return $audiencia;
     }
+    
+    public function CambiarConciliador(){
+        $audiencia = Audiencia::find($this->request->audiencia_id);
+        $conciliador_id = null;
+        if($this->request->tipoAsignacion == 1){
+            $aud = ConciliadorAudiencia::where("audiencia_id",$audiencia->id)->where("solicitante",true)->first();
+            foreach ($this->request->asignacion as $value) {
+                if($value["resolucion"]){
+                    $conciliador_id = $value["conciliador"];
+                    $aud->update(["conciliador_id" => $value["conciliador"], "solicitante" => $value["resolucion"]]);
+                }
+            }
+        }else{
+            $aud = ConciliadorAudiencia::where("audiencia_id",$audiencia->id)->where("solicitante",true)->first();
+            foreach ($this->request->asignacion as $value) {
+                if($value["resolucion"]){
+                    $conciliador_id = $value["conciliador"];
+                    $aud->update(["conciliador_id" => $value["conciliador"], "solicitante" => $value["resolucion"]]);
+                }
+            }
+            $aud = ConciliadorAudiencia::where("audiencia_id",$audiencia->id)->where("solicitante",false)->first();
+            foreach ($this->request->asignacion as $value) {
+                if(!$value["resolucion"]){
+                    $aud->update(["conciliador_id" => $value["conciliador"], "solicitante" => $value["resolucion"]]);
+                }
+            }
+            
+        }
+        $audiencia->update(["conciliador_id" => $conciliador_id]);
+        return $audiencia;
+    }
 
     public function renderPDF($html, $plantilla_id, $path=null){
         $pdf = App::make('snappy.pdf.wrapper');
