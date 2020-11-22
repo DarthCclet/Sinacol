@@ -110,6 +110,7 @@ class UserController extends Controller
         $user->email_verified_at = now()->format('Y-m-d H:i:s');
         $user->remember_token = Str::random(10);;
         $user->save();
+        UsuarioCentro::create(["user_id" => $user->id,"centro_id" => $user->centro_id]);
         if (auth()->user()->centro->nombre == "Oficina Central del CFCRL") {
             $user->assignRole("Orientador Central");
         }
