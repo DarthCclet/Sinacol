@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Audiencia;
+use App\Parte;
 
 class CambioFecha extends Mailable
 {
@@ -24,7 +25,7 @@ class CambioFecha extends Mailable
     {
         $this->audiencia = $audiencia;
         $this->parte = $parte;
-        $this->subject = "Acceso al buzón";
+        $this->subject = "Cambio de fecha de audiencia";
     }
 
     /**

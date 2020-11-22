@@ -2095,7 +2095,8 @@ class AudienciaController extends Controller {
         try {
             DB::beginTransaction();
             $audiencia = Audiencia::find($this->request->audiencia_id);
-            $audiencia->update(["fecha_audiencia" => $this->request->fecha_audiencia, "hora_inicio" => $this->request->hora_inicio, "hora_fin" => $this->request->hora_fin, "cancelacion_atendida" => true]);
+            $fecha = new \Carbon\Carbon($this->request->fecha_audiencia);
+            $audiencia->update(["fecha_audiencia" =>$fecha->format("Y-m-d"), "hora_inicio" => $this->request->hora_inicio, "hora_fin" => $this->request->hora_fin, "cancelacion_atendida" => true]);
             //Se genera citatorio de audiencia
             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 14, 4));
             
@@ -2185,6 +2186,37 @@ class AudienciaController extends Controller {
         foreach ($audiencia->audienciaParte as $partes) {
             $partes->parte->tipoParte;
         }
+        return $audiencia;
+    }
+    
+    public function CambiarConciliador(){
+        $audiencia = Audiencia::find($this->request->audiencia_id);
+        $conciliador_id = null;
+        if($this->request->tipoAsignacion == 1){
+            $aud = ConciliadorAudiencia::where("audiencia_id",$audiencia->id)->where("solicitante",true)->first();
+            foreach ($this->request->asignacion as $value) {
+                if($value["resolucion"]){
+                    $conciliador_id = $value["conciliador"];
+                    $aud->update(["conciliador_id" => $value["conciliador"], "solicitante" => $value["resolucion"]]);
+                }
+            }
+        }else{
+            $aud = ConciliadorAudiencia::where("audiencia_id",$audiencia->id)->where("solicitante",true)->first();
+            foreach ($this->request->asignacion as $value) {
+                if($value["resolucion"]){
+                    $conciliador_id = $value["conciliador"];
+                    $aud->update(["conciliador_id" => $value["conciliador"], "solicitante" => $value["resolucion"]]);
+                }
+            }
+            $aud = ConciliadorAudiencia::where("audiencia_id",$audiencia->id)->where("solicitante",false)->first();
+            foreach ($this->request->asignacion as $value) {
+                if(!$value["resolucion"]){
+                    $aud->update(["conciliador_id" => $value["conciliador"], "solicitante" => $value["resolucion"]]);
+                }
+            }
+            
+        }
+        $audiencia->update(["conciliador_id" => $conciliador_id]);
         return $audiencia;
     }
 

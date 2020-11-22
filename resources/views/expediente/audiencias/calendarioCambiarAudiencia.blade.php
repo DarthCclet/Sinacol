@@ -2,12 +2,12 @@
     <div class="vertical-box">
     <!-- end event-list -->
     <!-- begin calendar -->
-    <div id="calendar" class="vertical-box-column calendar"></div>
+    <div id="calendarioCambioAudiencia" class="vertical-box-column calendar"></div>
     <!-- end calendar -->
     </div>
     <!-- end vertical-box -->
 <!-- inicio Modal de disponibilidad-->
-<div class="modal" id="modal-asignar" aria-hidden="true" style="display:none;">
+<div class="modal" id="modal-asignar_nueva_audiencia" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -109,7 +109,7 @@
             <div class="modal-footer">
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarAudiencia"><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarAudiencia_nueva"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
@@ -152,7 +152,7 @@
                             stick: true // maintain when user navigates (see docs on the renderEvent method)
                     });
                 });
-                $('#calendar').fullCalendar({
+                $('#calendarioCambioAudiencia').fullCalendar({
                     header: {
                         left: 'month,agendaWeek',
                         center: 'title',
@@ -170,7 +170,7 @@
                         var startVal = new Date(start);
                         if(startVal > ahora){ //validar si la fecha es mayor que hoy
                             if(b.type == "month"){ // si es la vista de mes, abrir la vista de semana
-                                $('#calendar').fullCalendar("gotoDate",start);
+                                $('#calendarioCambioAudiencia').fullCalendar("gotoDate",start);
                                 $(".fc-agendaWeek-button").click();
                                 $("#fecha_audiencia").val(start);
                             }else{
@@ -183,7 +183,7 @@
                                 icon: 'warning'
                             });
                         }
-                        $('#calendar').fullCalendar('unselect');
+                        $('#calendarioCambioAudiencia').fullCalendar('unselect');
                     },
                     selectOverlap: function(event) {
                         return event.rendering !== 'background';
@@ -244,7 +244,7 @@
                 $("#hora_inicio").val(inicio);
                 $("#hora_fin").val(fin);
                 $("#lableFechaInicio").html(dateFormat(inicio),2);
-                $("#modal-asignar").modal("show");
+                $("#modal-asignar_nueva_audiencia").modal("show");
             }
             getConciliadores = function(fechaInicio,fechaFin){
                 $.ajax({
@@ -259,14 +259,14 @@
                     dataType:"json",
                     success:function(data){
                         if(data != null && data != ""){
-                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un conciliador</option>");
+                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id,#conciliador_cambio_id,#conciliador_cambio_solicitante_id,#conciliador_cambio_solicitado_id").html("<option value=''>-- Selecciona un conciliador</option>");
                             $.each(data,function(index,element){
-                                $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").append("<option value='"+element.id+"'>"+element.persona.nombre+" "+element.persona.primer_apellido+" "+element.persona.segundo_apellido+"</option>");
+                                $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id,#conciliador_cambio_id,#conciliador_cambio_solicitante_id,#conciliador_cambio_solicitado_id").append("<option value='"+element.id+"'>"+element.persona.nombre+" "+element.persona.primer_apellido+" "+element.persona.segundo_apellido+"</option>");
                             });
                         }else{
-                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un conciliador</option>");
+                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id,#conciliador_cambio_id,#conciliador_cambio_solicitante_id,#conciliador_cambio_solicitado_id").html("<option value=''>-- Selecciona un conciliador</option>");
                         }
-                        $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").select2();
+                        $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id,#conciliador_cambio_id,#conciliador_cambio_solicitante_id,#conciliador_cambio_solicitado_id").select2();
                     }
                 });
             };
@@ -292,14 +292,15 @@
                     }
                 });
             }
-            $("#btnGuardarAudiencia").on("click",function(){
+            $("#btnGuardarAudiencia_nueva").on("click",function(){
                 var validacion = validarAsignacion();
                 if(!validacion.error){
+                    var fecha_audiencia = $("#hora_inicio").val();
                     $.ajax({
                         url:'/audiencia/reagendar',
                         type:"POST",
                         data:{
-                            fecha_audiencia:new Date($("#fecha_audiencia").val()).toISOString(),
+                            fecha_audiencia:fecha_audiencia.substr(0, 10),
                             hora_inicio:$("#hora_inicio").val(),
                             hora_fin:$("#hora_fin").val(),
                             tipoAsignacion:$("#tipoAsignacion").val(),
