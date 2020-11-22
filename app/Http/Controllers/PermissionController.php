@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use App\Traits\Menu;
+use App\User;
+use Illuminate\Support\Facades\DB;
 
 class PermissionController extends Controller
 {
@@ -107,7 +109,13 @@ class PermissionController extends Controller
     
     public function getMenu(Request $request){
         $nombre = auth()->user()->persona->nombre;
-        $arreglo = array("menu" => $request->session()->get('menu'), "roles" => $request->session()->get('roles'),"rolActual" => $request->session()->get('rolActual'),"nombre" => $nombre);
+        $centros = auth()->user()->centros;
+        $centroResponse = [];
+        foreach($centros as $centro){
+            $centro->centro->usuario_centro_id = $centro->id;
+            $centroResponse[] =$centro->centro;
+        }
+        $arreglo = array("menu" => $request->session()->get('menu'), "roles" => $request->session()->get('roles'),"rolActual" => $request->session()->get('rolActual'),"nombre" => $nombre,"centros" => $centroResponse,"centroActual" => auth()->user()->centro_id);
         return $arreglo;
     }
     
@@ -116,5 +124,12 @@ class PermissionController extends Controller
         $request->session()->put('menu', $menu);
         $request->session()->put('rolActual', Role::find($id));
         return $menu;
+    }
+    public function cambiarCentro($centro_id){
+        DB::table('users')
+              ->where('id', auth()->user()->id)
+              ->update(['centro_id' => (int)$centro_id]);
+        $usuario = User::find(auth()->user()->id);
+        return $usuario;
     }
 }
