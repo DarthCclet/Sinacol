@@ -45,6 +45,7 @@
     <input type="hidden" id="tipo_vialidad{{$identificador}}" value="{{isset($domicilio->tipo_vialidad) ? $domicilio->tipo_vialidad : '' }}" name="domicilio[tipo_vialidad]">
     <input type="hidden" id="tipo_asentamiento{{$identificador}}" value="{{isset($domicilio->tipo_asentamiento) ? $domicilio->tipo_asentamiento : '' }}" name="domicilio[tipo_asentamiento]">
     <input type="hidden" id="estado{{$identificador}}" value="{{isset($domicilio->estado) ? $domicilio->estado : '' }}" name="domicilio[estado]">
+    <input type="hidden" id="georeferenciable{{$identificador}}" value="{{isset($domicilio->georeferenciable) ? $domicilio->georeferenciable : 'false' }}" name="domicilio[georeferenciable]">
 
 
     <div class="col-md-3" title="Especifica el Estado o Entidad Federativa donde se encuentra el domicilio." data-toggle="tooltip" data-placement="top">
@@ -250,6 +251,7 @@
                 });
                 $('#latitud'+identifier).val(coords.lat);
                 $('#longitud'+identifier).val(coords.lng);
+                $('#georeferenciable'+identifier).val(true);
                 $('#btn-confirmar-direccion'+identifier).removeClass('disabled');
                 $("#alertMap"+identifier).text("");
                 domicilio.marker.addListener('dragend', domicilio.seteaNuevaPosicionManual);
@@ -257,6 +259,7 @@
             domicilio.seteaNuevaPosicionManual = function(ev){
                 $('#latitud'+identifier).val(ev.latLng.lat());
                 $('#longitud'+identifier).val(ev.latLng.lng());
+                $('#georeferenciable'+identifier).val(true);
                 $('#btn-confirmar-direccion'+identifier).removeClass('disabled');
             }
             domicilio.borraMarker = function(){
@@ -285,6 +288,7 @@
             domicilioLoc.estado = $("#estado"+identifier).val();
             domicilioLoc.latitud = $("#latitud"+identifier).val();
             domicilioLoc.longitud = $('#longitud'+identifier).val();
+            domicilioLoc.georeferenciable = $('#georeferenciable'+identifier).val();
             domicilioLoc.activo = "1";
             return domicilioLoc;
         }
@@ -306,6 +310,7 @@
             $("#tipo_asentamiento_id"+identifier).val(domicilios.tipo_asentamiento_id);
             $("#latitud"+identifier).val(domicilios.latitud);
             $("#longitud"+identifier).val(domicilios.longitud);
+            $("#georeferenciable"+identifier).val(domicilios.georeferenciable);
             var lat = $('#latitud'+identifier).val() ? $('#latitud'+identifier).val() : "";
             var lon = $('#longitud'+identifier).val() ? $('#longitud'+identifier).val() : "";
             $(".direccionUpd"+identifier).trigger('blur')
@@ -331,6 +336,7 @@
             $('.catSelect'+identifier).trigger('change');
             $("#latitud"+identifier).val("");
             $("#longitud"+identifier).val("");
+            $("#georeferenciable"+identifier).val("");
             // var lat = "";
             // var lon ="";
             // this.seteaMarker(this.map, {lat: parseFloat(lat), lng: parseFloat(lon)});
