@@ -40,7 +40,10 @@ class SendNotificacion
         $fechaIngreso = new \Carbon\Carbon($audiencia->expediente->solicitud->created_at);
         $fechaRecepcion = new \Carbon\Carbon($audiencia->expediente->solicitud->fecha_ratificacion);
         $fechaAudiencia = new \Carbon\Carbon($audiencia->fecha_audiencia);
-        $fechaCita = new \Carbon\Carbon($audiencia->fecha_cita);
+        $fechaCita = null;
+        if($audiencia->fecha_cita != null && $audiencia->fecha_cita != ""){
+            $fechaCita = new \Carbon\Carbon($audiencia->fecha_cita);
+        }
         $fechaLimite = new \Carbon\Carbon($audiencia->fecha_limite_audiencia);
         $arreglo["fecha_ingreso"] = $fechaIngreso->format("d/m/Y");
         $arreglo["fecha_recepcion"] = $fechaRecepcion->format("d/m/Y");
