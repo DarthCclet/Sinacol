@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Traits\Menu;
 use App\Centro;
+use App\UsuarioCentro;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -109,6 +110,7 @@ class UserController extends Controller
         $user->email_verified_at = now()->format('Y-m-d H:i:s');
         $user->remember_token = Str::random(10);;
         $user->save();
+        UsuarioCentro::create(["user_id" => $user->id,"centro_id" => $user->centro_id]);
         if (auth()->user()->centro->nombre == "Oficina Central del CFCRL") {
             $user->assignRole("Orientador Central");
         }
@@ -242,5 +244,27 @@ class UserController extends Controller
         }catch(\Throwable $e){
             $this->sendError("No se puede abandonar al usuario","Error");
         }
+    }
+    public function AgregarCentro(){
+        $usuarios = UsuarioCentro::where("centro_id",$this->request->centro_id)->where("user_id", $this->request->user_id)->first();
+        if($usuarios == null){
+            $response = UsuarioCentro::create(["centro_id" => $this->request->centro_id,"user_id" => $this->request->user_id]);
+        }else{
+            $response = $usuarios;
+        }
+        return $response;
+    }
+    public function ObtenerCentros(){
+        $user = User::find($this->request->user_id);
+        $centros = $user->centros;
+        foreach($centros as $centro){
+            $centro->centro = $centro->centro;
+        }
+        return $centros;
+    }
+    public function EliminarCentro(){
+        $usuario = UsuarioCentro::find($this->request->id);
+        $usuario->delete();
+        return $usuario;
     }
 }

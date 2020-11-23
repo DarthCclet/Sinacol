@@ -32,6 +32,12 @@
                 <span class="d-sm-block d-none">Roles</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="#default-tab-3" data-toggle="tab" class="nav-link">
+                <span class="d-sm-none">Cen</span>
+                <span class="d-sm-block d-none">Centros</span>
+            </a>
+        </li>
     </ul>
     <div class="tab-content" style="background: #f2f3f4 !important;">
         <div class="tab-pane fade active show" id="default-tab-1">
@@ -79,7 +85,42 @@
                 </div>
             </fieldset>
         </div>
+        <div class="tab-pane fade show" id="default-tab-3">
+            <fieldset>
+            <div class="row">
+                <div class="col-xl-10 offset-xl-1">
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="centro_user_id" class="control-label">Centro</label>
+                                <div class="col-sm-10">
+                                    {!! Form::select('centro_user_id', isset($centros) ? $centros : [] , null , ['id'=>'centro_user_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control']);  !!}
+                                    {!! $errors->first('centro_user_id', '<span class=text-danger>:message</span>') !!}
+                                    <p class="help-block">Selecciona el centro Que se podrá asignar</p>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="panel-footer text-right">
+                                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarCentro"><i class="fa fa-plus"></i> Agregar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <table class="table table-bordered table-striped" id="table-centros" style="width: 100%">
+                                <thead>
+                                <th>Centro</th>
+                                <th>Accion</th>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    
     <input type="hidden" id="user_id">
 @endsection
 @push('scripts')
@@ -87,7 +128,9 @@
         $("#user_id").val('{{ $user->id }}');
         $(document).ready(function() {
             $(".selectRol").select2({ placeholder: "Selecciona un rol" });
+            $("#centro_user_id").select2({ placeholder: "Selecciona un centro" });
             getRoles();
+            cargarCentros($("#user_id").val());
         });
         $("#btnAgregarRol").on("click",function(){
             if($("#rol").val() != ""){
@@ -132,7 +175,7 @@
                 table +='   <td>'+element.description+'</td>';
                 table +='   <td>';
                 table +='       <a class="btn btn-xs btn-primary" onclick="EliminarRol(\''+element.name+'\')">';
-                table +='           <i class="fa fa-edit text-light"></i>';
+                table +='           <i class="fa fa-trash"></i>';
                 table +='       </a>';
                 table +='   </td>';
                 table +='</tr>';
@@ -175,6 +218,91 @@
                         success:function(data){
                             if(data != null){
                                 CrearTabla(data);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        $("#btnGuardarCentro").on("click",function(){
+            if($("#centro_user_id").val() != "" && $("#centro_user_id").val() != null){
+                $.ajax({
+                    url:"/usuario/centros",
+                    type:"POST",
+                    dataType:"json",
+                    async:true,
+                    data:{
+                        _token: "{{ csrf_token() }}",
+                        user_id:$("#user_id").val(),
+                        centro_id:$("#centro_user_id").val()
+                    },
+                    success:function(data){
+                        if(data != null){
+                            cargarCentros($("#user_id").val());
+                        }
+                    }
+                });
+            }else{
+                swal({title: 'Error',text: 'Deberás seleccionar un centro de la lista',icon: 'error'});
+            }
+        });
+        function cargarCentros(user_id){
+            $.ajax({
+                url:"/usuario/centros/"+user_id,
+                type:"GET",
+                dataType:"json",
+                async:true,
+                success:function(data){
+                    var table = "";
+                    $.each(data, function(index,element){
+                        table +='<tr>';
+                        table +='   <td>'+element.centro.nombre+'</td>';
+                        table +='   <td>';
+                        table +='       <a class="btn btn-xs btn-primary" onclick="EliminarCentro('+element.id+')">';
+                        table +='           <i class="fa fa-trash"></i>';
+                        table +='       </a>';
+                        table +='   </td>';
+                        table +='</tr>';
+                    });
+                    $("#table-centros tbody").html(table)
+                }
+            });
+        }
+        function EliminarCentro(id){
+        swal({
+                title: 'Advertencia',
+                text: 'Al oprimir aceptar se eliminará el centro, ¿Esta seguro de continuar?',
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Cancelar',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-default',
+                        closeModal: true
+                    },
+                    confirm: {
+                        text: 'Aceptar',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-warning',
+                        closeModal: true
+                    }
+                }
+            }).then(function(isConfirm){
+                if(isConfirm){
+                    $.ajax({
+                        url:"/usuario/centros/delete",
+                        type:"POST",
+                        dataType:"json",
+                        async:true,
+                        data:{
+                            _token: "{{ csrf_token() }}",
+                            id:id,
+                        },
+                        success:function(data){
+                            if(data != null){
+                                cargarCentros($("#user_id").val());
                             }
                         }
                     });

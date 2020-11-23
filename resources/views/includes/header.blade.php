@@ -61,6 +61,11 @@
                 cambiarRol($(this).data('rol'));
             }
         });
+        $("#divMenu,#divUser").on("click",".centroChange", function(event) {
+            if($(this).data('centro_id') != '{{auth()->user()->centro_id}}'){
+                cambiarCentro($(this).data('centro_id'));
+            }
+        });
     });
     function getMenu(){
         $.ajax({
@@ -111,6 +116,7 @@
                 div +='         <span class="d-none d-md-inline">'+data.nombre+'</span><b class="caret"></b>';
                 div +='    </a>';
                 div +='    <ul class="dropdown-menu">';
+                
                 div +='         <li><a class="dropdown-item" href="#">Perfil</a>';
                 div +='             <ul class="submenu dropdown-menu derecha">';
                 $.each(data.roles,function(i,e){
@@ -122,6 +128,19 @@
                 });
                 div +='             </ul>';
                 div +='         </li>';
+                
+                div +='         <li><a class="dropdown-item" href="#">Centro</a>';
+                div +='             <ul class="submenu dropdown-menu derecha">';
+                $.each(data.centros,function(i,e){
+                    var selected='';
+                    if(e.id === data.centroActual){
+                          selected = '<i class="fa fa-check-circle" style="color:#9d2449;"></i>';
+                    }
+                div +='                 <li><a class="dropdown-item centroChange" data-id="'+e.usuario_centro_id+'" data-centro_id="'+e.id+'" href="#">'+e.nombre+selected+'</a>';
+                });
+                div +='             </ul>';
+                div +='         </li>';
+                
                 var ruta_impersonate = "impersonate_leave";
                 @if(SESSION('impersonated_by'))
                 div +='         <li><a class="dropdown-item" href="{{route('impersonate_leave')}}">Regresar al perfil</a> </li>';
@@ -158,6 +177,17 @@
     function cambiarRol(rol){
         $.ajax({
             url:"/cambiarRol/"+rol,
+            type:"GET",
+            dataType:"json",
+            async:false,
+            success:function(data){
+                window.location.href = "{{ route('home') }}";
+            }
+        });
+    }
+    function cambiarCentro(centro_id){
+        $.ajax({
+            url:"/cambiarCentro/"+centro_id,
             type:"GET",
             dataType:"json",
             async:false,

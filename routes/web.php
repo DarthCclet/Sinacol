@@ -152,9 +152,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('usuario/roles','UserController@AddRol');
     Route::get('usuario/roles/{id}','UserController@GetRoles');
     Route::post('usuario/roles/delete','UserController@EliminarRol');
+    Route::post('usuario/centros','UserController@AgregarCentro');
+    Route::get('usuario/centros/{user_id}','UserController@ObtenerCentros');
+    Route::post('usuario/centros/delete','UserController@EliminarCentro');
 
     Route::get('getMenu/{rol_id}','PermissionController@getMenu');
     Route::get('cambiarRol/{rol_id}','PermissionController@cambiarRol');
+    Route::get('cambiarCentro/{centro_id}','PermissionController@cambiarCentro');
     Route::get('impersonate/{user_id}','UserController@impersonate')->name('impersonate');
     Route::get('impersonate_leave','UserController@impersonate_leave')->name('impersonate_leave');
 

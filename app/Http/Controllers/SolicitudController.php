@@ -51,6 +51,7 @@ use Illuminate\Support\Facades\Log;
 use App\Events\RatificacionRealizada;
 use Carbon\Carbon;
 use App\Traits\FechaNotificacion;
+use Illuminate\Support\Arr;
 
 class SolicitudController extends Controller {
     use FechaNotificacion;
@@ -992,7 +993,12 @@ class SolicitudController extends Controller {
             $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
             
             // Obtenemos la sala virtual
-            $sala_id = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->get()[0]->id;
+            $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
+            if($sala == null){
+                DB::rollBack();
+                return $this->sendError('No hay salas virtuales disponibles', 'Error');
+            }
+            $sala_id = $sala->id;
             //obtenemos al conciliador disponible
             $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
             $conciliadoresDisponibles = array();
@@ -1009,8 +1015,9 @@ class SolicitudController extends Controller {
             }
             $conciliador_id = null;
             if(count($conciliadoresDisponibles) > 0){
-                $conciliador = $this->array_random_assoc($conciliadoresDisponibles);
+                $conciliador = Arr::random($conciliadoresDisponibles);
             }else{
+                DB::rollBack();
                 return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
             }
             
@@ -1024,7 +1031,7 @@ class SolicitudController extends Controller {
                 "fecha_audiencia" => now()->format('Y-m-d'),
                 "hora_inicio" => now()->format('H:i:s'), 
                 "hora_fin" => \Carbon\Carbon::now()->addHours(1)->format('H:i:s'),
-                "conciliador_id" =>  $conciliador[0]->id,
+                "conciliador_id" =>  $conciliador->id,
                 "numero_audiencia" => 1,
                 "reprogramada" => false,
                 "anio" => $folioAudiencia->anio,
@@ -1032,7 +1039,7 @@ class SolicitudController extends Controller {
             ]);
             
             // guardamos la sala y el conciliador a la audiencia
-            ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador[0]->id,"solicitante" => true]);
+            ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id,"solicitante" => true]);
             SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
             // Guardamos todas las Partes en la audiencia
             $partes = $solicitud->partes;
@@ -1082,7 +1089,12 @@ class SolicitudController extends Controller {
             if($request->inmediata == "true"){
                 $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => true]);
                 // Obtenemos la sala virtual
-                $sala_id = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->get()[0]->id;
+                $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
+                if($sala == null){
+                    DB::rollBack();
+                    return $this->sendError('No hay salas virtuales disponibles', 'Error');
+                }
+                $sala_id = $sala->id;
                 //obtenemos al conciliador disponible
                 $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
                 $conciliadoresDisponibles = array();
@@ -1099,12 +1111,11 @@ class SolicitudController extends Controller {
                 }
                 $conciliador_id = null;
                 if(count($conciliadoresDisponibles) > 0){
-                    $conciliador = $this->array_random_assoc($conciliadoresDisponibles);
+                    $conciliador = Arr::random($conciliadoresDisponibles);
                 }else{
+                    DB::rollBack();
                     return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
                 }
-                
-                
                 // Registramos la audiencia
                 //Obtenemos el contador
                 $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
@@ -1121,7 +1132,7 @@ class SolicitudController extends Controller {
                     "fecha_audiencia" => now()->format('Y-m-d'),
                     "hora_inicio" => now()->format('H:i:s'), 
                     "hora_fin" => \Carbon\Carbon::now()->addHours(1)->format('H:i:s'),
-                    "conciliador_id" =>  $conciliador[0]->id,
+                    "conciliador_id" =>  $conciliador->id,
                     "numero_audiencia" => 1,
                     "reprogramada" => false,
                     "anio" => $folioAudiencia->anio,
@@ -1130,7 +1141,7 @@ class SolicitudController extends Controller {
                 ]);
                 
                 // guardamos la sala y el conciliador a la audiencia
-                ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador[0]->id,"solicitante" => true]);
+                ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id,"solicitante" => true]);
                 SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
                 // Guardamos todas las Partes en la audiencia
                 $partes = $solicitud->partes;

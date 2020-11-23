@@ -102,6 +102,17 @@ class User extends Authenticatable implements AuditableContract
         return $this->belongsTo(Centro::class)
             ->withDefault(['nombre'=>'No asignado']);
     }
+    /**
+     * Una cuenta pertenece a una persona
+     *
+     * Relaciona usuario con persona de uno a uno
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function centros()
+    {
+        return $this->hasMany(UsuarioCentro::class);
+    }
 
     public function setCentroIdAttribute($centro_id) {
         if (auth()->user()->hasRole("Super Usuario")) {
