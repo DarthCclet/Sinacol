@@ -1502,25 +1502,31 @@ class SolicitudController extends Controller {
     }
     public function ReenviarNotificacion(){
         //Buscamos las solicitudes que no tengan fecha_peticion_notificacion
-        $solicitudes = Solicitud::where("fecha_peticion_notificacion",null)->get();
-        foreach($solicitudes as $solicitud){
-            if(isset($solicitud->expediente->audiencia)){
-                //Obtenemos la audiencia
-                foreach($solicitud->expediente->audiencia as $audiencia){
-                    $notificar = false;
-                    foreach($audiencia->audienciaParte as $parte){
-                        if($parte->parte->tipo_parte_id != 1){
-                            if($parte->tipo_notificacion_id != 1 && $parte->tipo_notificacion_id != null){
-                                $notificar = true;
+        try{
+            $solicitudes = Solicitud::where("fecha_peticion_notificacion",null)->get();
+            foreach($solicitudes as $solicitud){
+                if(isset($solicitud->expediente->audiencia)){
+                    //Obtenemos la audiencia
+                    foreach($solicitud->expediente->audiencia as $audiencia){
+                        $notificar = false;
+                        foreach($audiencia->audienciaParte as $parte){
+                            if($parte->parte->tipo_parte_id != 1){
+                                if($parte->tipo_notificacion_id != 1 && $parte->tipo_notificacion_id != null){
+                                    $notificar = true;
+                                }
                             }
                         }
+                        if($notificar){
+                            event(new RatificacionRealizada($audiencia->id,"citatorio"));
+                        }
+                        var_dump("se notifica la audiencia: ".$audiencia->id.": ".$audiencia->folio."/".$audiencia->anio);
                     }
-                    if($notificar){
-                        event(new RatificacionRealizada($audiencia->id,"citatorio"));
-                    }
-                    var_dump("se notifica la audiencia: ".$audiencia->id.": ".$audiencia->folio."/".$audiencia->anio);
                 }
             }
+        }catch(\Throwable $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+               " Se emitió el siguiente mensale: ". $e->getMessage().
+               " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
         }
     }
 }
