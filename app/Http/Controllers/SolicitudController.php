@@ -1500,4 +1500,27 @@ class SolicitudController extends Controller {
         }
         return $pasa;
     }
+    public function ReenviarNotificacion(){
+        //Buscamos las solicitudes que no tengan fecha_peticion_notificacion
+        $solicitudes = Solicitud::where("fecha_peticion_notificacion",null)->get();
+        foreach($solicitudes as $solicitud){
+            if(isset($solicitud->expediente->audiencia)){
+                //Obtenemos la audiencia
+                foreach($solicitud->expediente->audiencia as $audiencia){
+                    $notificar = false;
+                    foreach($audiencia->audienciaParte as $parte){
+                        if($parte->parte->tipo_parte_id != 1){
+                            if($parte->tipo_notificacion_id != 1 && $parte->tipo_notificacion_id != null){
+                                $notificar = true;
+                            }
+                        }
+                    }
+                    if($notificar){
+                        event(new RatificacionRealizada($audiencia->id,"citatorio"));
+                    }
+                    var_dump("se notifica la audiencia: ".$audiencia->id.": ".$audiencia->folio."/".$audiencia->anio);
+                }
+            }
+        }
+    }
 }
