@@ -1505,6 +1505,7 @@ class SolicitudController extends Controller {
         try{
             $solicitudes = Solicitud::where("fecha_peticion_notificacion",null)->get();
             foreach($solicitudes as $solicitud){
+            DB::beginTransaction();
                 if(isset($solicitud->expediente->audiencia)){
                     //Obtenemos la audiencia
                     foreach($solicitud->expediente->audiencia as $audiencia){
@@ -1522,8 +1523,10 @@ class SolicitudController extends Controller {
                         var_dump("se notifica la audiencia: ".$audiencia->id.": ".$audiencia->folio."/".$audiencia->anio);
                     }
                 }
+            DB:commit();
             }
         }catch(\Throwable $e){
+            DB::rollBack();
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                " Se emitió el siguiente mensale: ". $e->getMessage().
                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
