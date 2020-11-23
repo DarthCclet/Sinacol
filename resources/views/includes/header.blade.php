@@ -6,7 +6,7 @@
 @endphp
 <!-- begin #header -->
 <div id="header" class="header {{ $headerClass }}">
-    <input type="hidden" id="centro_nombre" value="{{ isset(auth()->user) ? auth()->user()->centro->nombre : ''}}">
+    <input type="hidden" id="centro_nombre" value="{{ isset(auth()->user()->centro->nombre) ? auth()->user()->centro->nombre : ''}}">
     <nav class="navbar navbar-expand-lg navbar-dark" style="width: 100%;">
     <div class="navbar-header">
         <a href="/" class="navbar-brand"><span class=""><img src="{{asset('assets/img/logo/LogoEncabezado.png')}}"></span></a>
