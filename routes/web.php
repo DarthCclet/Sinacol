@@ -175,6 +175,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('tipos_contactos','TipoContactoController');
     Route::resource('tipos_contadores','TipoContadorController');
     Route::resource('tipos_discapacidades','TipoDiscapacidadController');
+    Route::get('reenviar_notificaciones','SolicitudController@ReenviarNotificacion');
 
     // Visor de los logs via web
     Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
