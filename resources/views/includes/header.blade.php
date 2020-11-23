@@ -6,7 +6,7 @@
 @endphp
 <!-- begin #header -->
 <div id="header" class="header {{ $headerClass }}">
-    <input type="hidden" id="centro_nombre" value="{{ isset(auth()->user()->centro) ? auth()->user()->centro->nombre : ''}}">
+    <input type="hidden" id="centro_nombre" value="{{ isset(auth()->user) ? auth()->user()->centro->nombre : ''}}">
     <nav class="navbar navbar-expand-lg navbar-dark" style="width: 100%;">
     <div class="navbar-header">
         <a href="/" class="navbar-brand"><span class=""><img src="{{asset('assets/img/logo/LogoEncabezado.png')}}"></span></a>
@@ -39,7 +39,7 @@
         if($("#centro_nombre").val() != ""){
             getMenu();
         }
-        
+
         $(document).on('click', '.dropdown-menu', function (e) {
             e.stopPropagation();
         });
@@ -62,7 +62,7 @@
             }
         });
         $("#divMenu,#divUser").on("click",".centroChange", function(event) {
-            if($(this).data('centro_id') != '{{auth()->user()->centro_id}}'){
+            if($(this).data('centro_id') != '{{isset(auth()->user)? auth()->user->centro_id:''}}'){
                 cambiarCentro($(this).data('centro_id'));
             }
         });
@@ -116,7 +116,7 @@
                 div +='         <span class="d-none d-md-inline">'+data.nombre+'</span><b class="caret"></b>';
                 div +='    </a>';
                 div +='    <ul class="dropdown-menu">';
-                
+
                 div +='         <li><a class="dropdown-item" href="#">Perfil</a>';
                 div +='             <ul class="submenu dropdown-menu derecha">';
                 $.each(data.roles,function(i,e){
@@ -128,7 +128,7 @@
                 });
                 div +='             </ul>';
                 div +='         </li>';
-                
+
                 div +='         <li><a class="dropdown-item" href="#">Centro</a>';
                 div +='             <ul class="submenu dropdown-menu derecha">';
                 $.each(data.centros,function(i,e){
@@ -140,7 +140,7 @@
                 });
                 div +='             </ul>';
                 div +='         </li>';
-                
+
                 var ruta_impersonate = "impersonate_leave";
                 @if(SESSION('impersonated_by'))
                 div +='         <li><a class="dropdown-item" href="{{route('impersonate_leave')}}">Regresar al perfil</a> </li>';
