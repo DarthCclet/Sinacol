@@ -131,6 +131,9 @@ class SendNotificacion
     //            'http_errors' => false
             ]);
         }
+//        Cambiamos el estatus de notificación
+        $solicitud = $audiencia->expediente->solicitud;
+        $solicitud->update(["fecha_peticion_notificacion" => now()]);
     }
     /**
      * Funcion para obtener las partes involucradas en una audiencia de tipo solicitante
