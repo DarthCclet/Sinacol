@@ -51,7 +51,11 @@ class SendNotificacion
         $arreglo["fecha_ar"] = $fechaRecepcion->format("d/m/Y");
         $arreglo["nombre_junta"] = $audiencia->expediente->solicitud->centro->nombre;
         $arreglo["junta_id"] = $audiencia->expediente->solicitud->centro_id;
-        $arreglo["fecha_cita"] = $fechaCita->format("d/m/Y");
+        if($fechaCita != null){
+            $arreglo["fecha_cita"] = $fechaCita->format("d/m/Y");
+        }else{
+            $arreglo["fecha_cita"] = null;
+        }
         $arreglo["fecha_limite"] = $fechaLimite->format("d/m/Y");
         $arreglo["tipo_notificacion"] = $event->tipo_notificacion;
         //Buscamos a los actores
