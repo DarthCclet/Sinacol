@@ -1523,7 +1523,7 @@ class SolicitudController extends Controller {
                         var_dump("se notifica la audiencia: ".$audiencia->id.": ".$audiencia->folio."/".$audiencia->anio);
                     }
                 }
-            DB:commit();
+            DB::commit();
             }
         }catch(\Throwable $e){
             DB::rollBack();
