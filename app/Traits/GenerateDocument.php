@@ -707,37 +707,42 @@ trait GenerateDocument
                       $citadosConvenio = [];
                       $nombreCitadoConvenio = "";
                       $nombreCitadosConvenio = "";
-                      $clausulaCitadosConvenio = ($hayPartesConvenio >1)? 'n ' : "";
+                      $idParteCitada = "";
+                      $clausulaCitadosConvenio = ($hayPartesConvenio >1)? ' ' : "";
                       foreach ($partes_convenio as $key => $parteConvenio) {
+                        //citados convenio
                         $parteC = $parteConvenio->parteSolicitada;
-                        if($parteC->tipo_persona_id == 1){//fisica
-                          foreach ($parteC->documentos as $k => $docu) {
-                            if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
-                              $parteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
-                            }
-                          }
-                          $segundo_apellido_citado = ($parteC['segundo_apellido']!="")?' '.$parteC['segundo_apellido']:"";
-                          $nombreCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado;
-                          $clausulaCitadosConvenio .= $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
-                        }else{ //moral
-                          $representanteLegalC = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteC->id)->where('tipo_parte_id',3)->get();
-                          $representanteLegalC = $representanteLegalC[0];
-                          $segundo_apellido_representante = ($representanteLegalC['segundo_apellido']!="")?' '.$representanteLegalC['segundo_apellido']:"";
-                          $nombreRepresentanteLegal = $representanteLegalC['nombre'].' '.$representanteLegalC['primer_apellido'].$segundo_apellido_representante;
-                          $representanteIdentificacion = "--";
-                          if( sizeof($representanteLegalC['documentos']) > 0 ){
-                            foreach ($representanteLegalC['documentos'] as $k => $docu) {
+                        if($parteC->id != $idParteCitada){
+                          $idParteCitada = $parteC->id;
+                          if($parteC->tipo_persona_id == 1){//fisica
+                            foreach ($parteC->documentos as $k => $docu) {
                               if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
-                                $representanteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
-                              }else if($docu->clasificacionArchivo->tipo_archivo_id == 9){
-                                $representantePoder = ($docu->clasificacionArchivo->nombre != null ) ? " en términos de " .$docu->clasificacionArchivo->nombre . ' poder que a la fecha de este convenio no le ha sido revocado. ' : "";
+                                $parteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
                               }
                             }
+                            $segundo_apellido_citado = ($parteC['segundo_apellido']!="")?' '.$parteC['segundo_apellido']:"";
+                            $nombreCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado;
+                            $clausulaCitadosConvenio .= $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
+                          }else{ //moral
+                            $representanteLegalC = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteC->id)->where('tipo_parte_id',3)->get();
+                            $representanteLegalC = $representanteLegalC[0];
+                            $segundo_apellido_representante = ($representanteLegalC['segundo_apellido']!="")?' '.$representanteLegalC['segundo_apellido']:"";
+                            $nombreRepresentanteLegal = $representanteLegalC['nombre'].' '.$representanteLegalC['primer_apellido'].$segundo_apellido_representante;
+                            $representanteIdentificacion = "--";
+                            if( sizeof($representanteLegalC['documentos']) > 0 ){
+                              foreach ($representanteLegalC['documentos'] as $k => $docu) {
+                                if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
+                                  $representanteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
+                                }else if($docu->clasificacionArchivo->tipo_archivo_id == 9){
+                                  $representantePoder = ($docu->clasificacionArchivo->nombre != null ) ? " en términos de " .$docu->clasificacionArchivo->nombre . ' poder que a la fecha de este convenio no le ha sido revocado. ' : "";
+                                }
+                              }
+                            }
+                            $nombreCitadoConvenio = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
+                            $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteC['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                           }
-                          $nombreCitadoConvenio = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
-                          $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteC['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
+                          array_push($citadosConvenio, $nombreCitadoConvenio );
                         }
-                        array_push($citadosConvenio, $nombreCitadoConvenio );
                       }
                       if($hayPartesConvenio > 1){
                         $citadosConvenioA =  implode(", ",$citadosConvenio);
