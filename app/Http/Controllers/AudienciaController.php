@@ -940,7 +940,7 @@ class AudienciaController extends Controller {
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
             foreach ($audienciasSolicitud as $audiencia) {
-                if (new Carbon($audiencia->fecha_audiencia) >= now()) {
+                if (new Carbon($audiencia->fecha_audiencia) >= date("Y-m-d")) {
                     array_push($audiencias, $audiencia);
                 }
             }
