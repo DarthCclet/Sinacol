@@ -2096,7 +2096,7 @@ class AudienciaController extends Controller {
             DB::beginTransaction();
             $audiencia = Audiencia::find($this->request->audiencia_id);
             $fecha = new \Carbon\Carbon($this->request->fecha_audiencia);
-            $audiencia->update(["fecha_audiencia" =>$fecha->format("Y-m-d"), "hora_inicio" => $this->request->hora_inicio, "hora_fin" => $this->request->hora_fin, "cancelacion_atendida" => true]);
+            $audiencia->update(["fecha_audiencia" =>$fecha->format("Y-m-d"), "hora_inicio" => $this->request->hora_inicio, "hora_fin" => $this->request->hora_fin, "cancelacion_atendida" => true,"encontro_audiencia" => true]);
             //Se genera citatorio de audiencia
             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 14, 4));
             
