@@ -1036,6 +1036,7 @@
     var editCitado = false; //Lista de citados
     var editSolicitante = false; //Lista de citados
     var listaContactos=[];
+    var municipiosCede = []; //Lista de citados
 
     $(document).ready(function() {
         $('#wizard').smartWizard({
@@ -1336,6 +1337,39 @@
                 $(".personaFisicaSolicitanteNO").hide();
                 $(".divGrupoPrioritario").hide();
             }
+        });
+        /**
+        * Funcion para conocer si el tipo persona del solicitante es moral o fisica
+        */
+        $("#municipiosolicitante").change(function(){
+           if(($("#tipo_solicitud_id").val() == 4 || $("#tipo_solicitud_id").val() == 2)  && $("#municipiosolicitante").val() != ""){
+               if(municipiosCede.length > 0){
+                    var municipioExistente = municipiosCede.find(x=>x.municipio == $("#municipiosolicitante").val());
+                    if(municipioExistente == undefined){
+                        swal({
+                            title: 'Advertencia',
+                            text: ' Lamentamos que su municipio no está incluido en la etapa actual de la implementación de la reforma a la justicia laboral ',
+                            icon: 'warning'
+                        });
+                        $("#municipiosolicitante").val("").trigger('change');
+                    }
+               }
+           }
+        });
+        $("#municipiosolicitado").change(function(){
+           if(($("#tipo_solicitud_id").val() == 1 || $("#tipo_solicitud_id").val() == 3) && $("#municipiosolicitado").val() != ""){
+                if(municipiosCede.length > 0){
+                    var municipioExistente = municipiosCede.find(x=>x.municipio == $("#municipiosolicitado").val());
+                    if(municipioExistente == undefined){
+                        swal({
+                            title: 'Advertencia',
+                            text: ' Lamentamos que su municipio no está incluido en la etapa actual de la implementación de la reforma a la justicia laboral ',
+                            icon: 'warning'
+                        });
+                        $("#municipiosolicitado").val("").trigger('change');
+                    }
+                }
+           }
         });
         $("#labora_actualmente").change(function(){
             if($("#labora_actualmente").is(":checked")){

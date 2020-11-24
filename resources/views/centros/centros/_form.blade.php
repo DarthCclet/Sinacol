@@ -23,5 +23,13 @@
             <p class="help-block">Es la duración promedio de una audiencia</p>
         </div>
     </div>
-    @include('includes.component.map',['identificador' => '', 'instancia' => '1','domicilio'=>isset($centro) ? $centro->domicilio : null,'needsMaps'=>"false"])
+    <div class=" col-md-4 ">
+        <div class="form-group">
+            <label for="centro[sedes_multiples]" class="control-label">Multiples sedes</label>
+            <input type="checkbox" {{isset($centro) && $centro->sedes_multiples ? 'checked' : ''}} value="true" data-render="switchery" data-theme="default" id="centro[sedes_multiples]" name='centro[sedes_multiples]'/>
+            {!! $errors->first('centro.sedes_multiples', '<span class=text-danger>:message</span>') !!}
+            <p class="help-block">Es la duración promedio de una audiencia</p>
+        </div>
+    </div>
+    @include('includes.component.map',['identificador' => '', 'instancia' => '1','domicilio'=>isset($centro->domicilio) ? $centro->domicilio : null,'needsMaps'=>"false"])
 </div>
