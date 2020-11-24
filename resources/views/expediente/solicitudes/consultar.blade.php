@@ -140,13 +140,25 @@
                         @foreach($audiencias as $audiencia)
                             <tr class="odd gradeX">
                                 <td width="1%" class="f-s-600 text-inverse">{{$audiencia->folio}}/{{$audiencia->anio}}</td>
-                                <td>{{date('d/m/Y', strtotime($audiencia->fecha_audiencia))}}</td>
-                                <td>{{\Carbon\Carbon::createFromFormat('H:i:s',$audiencia->hora_inicio)->format('h:i')}} - {{\Carbon\Carbon::createFromFormat('H:i:s',$audiencia->hora_fin)->format('h:i')}}</td>
-                                
-                                @if($audiencia->conciliador->persona->tipo_persona_id == 1)
-                                    <td>{{$audiencia->conciliador->persona->nombre}} {{$audiencia->conciliador->persona->primer_apellido}} {{$audiencia->conciliador->persona->segundo_apellido}}</td>
+                                @if($audiencia->fecha_audiencia) 
+                                    <td>{{date('d/m/Y', strtotime($audiencia->fecha_audiencia))}}</td>
                                 @else
+                                    <td></td>
+                                @endif
+                                @if($audiencia->hora_inicio) 
+                                    <td>{{\Carbon\Carbon::createFromFormat('H:i:s',$audiencia->hora_inicio)->format('h:i')}} - {{\Carbon\Carbon::createFromFormat('H:i:s',$audiencia->hora_fin)->format('h:i')}}</td>
+                                    @else
+                                    <td></td>
+                                @endif
+                                @if($audiencia->conciliador)
+                                    @if($audiencia->conciliador->persona->tipo_persona_id == 1)
+                                        <td>{{$audiencia->conciliador->persona->nombre}} {{$audiencia->conciliador->persona->primer_apellido}} {{$audiencia->conciliador->persona->segundo_apellido}}</td>
+                                    @else
                                     <td>{{isset($audiencia->conciliador->persona->nombre_comercial)}}</td>
+                                    @endif
+                                    @else
+                                    
+                                    <td></td>
                                 @endif
 
                                 <td>{{$audiencia->finalizada ? "Concluida":"Pendiente"}}</td>
