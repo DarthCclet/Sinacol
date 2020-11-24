@@ -35,6 +35,7 @@ use App\Rules\RFC;
 use App\TipoAsentamiento;
 use App\TipoContacto;
 use App\TipoVialidad;
+use App\CentroMunicipio;
 use App\User;
 use App\Sala;
 use App\SalaAudiencia;
@@ -369,18 +370,16 @@ class SolicitudController extends Controller {
                     unset($value['contactos']);
                 }
 
-                // dd($value);
                 $parteSaved = Parte::create($value);
                 if(isset($dato_laboral)){
                     $parteSaved->dato_laboral()->create($dato_laboral);
                 }
-                // dd($domicilio);
                 // foreach ($domicilios as $key => $domicilio) {
                 unset($domicilio['activo']);
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                 if($key == 0 && ($tipo_solicitud_id == 2 ||$tipo_solicitud_id == 3 )){
                     $domiciliop = $domicilio["estado_id"];
-                    $centro = $this->getCentroId($domicilio["estado_id"]);
+                    $centro = $this->getCentroId($domicilio["estado_id"],$domicilio['municipio']);
                 }
                 // }
                 if (count($contactos) > 0) {
@@ -404,7 +403,7 @@ class SolicitudController extends Controller {
                     unset($value['domicilios']);
                     if($key == 0 && ($tipo_solicitud_id == 1 ||$tipo_solicitud_id == 4 )){
                         $domiciliop = $domicilios[0]["estado_id"];
-                        $centro = $this->getCentroId($domicilios[0]["estado_id"]);
+                        $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilio['municipio']);
                     }
                 }
                 if (isset($value["contactos"])) {
@@ -429,15 +428,18 @@ class SolicitudController extends Controller {
             }
             if($centro != null){
                 $solicitudSaved->update(["centro_id" => $centro]);
+            }else{
+                DB::rollback();
+                return $this->sendError(' Lamentamos que su municipio no está incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
             }
 
             // // Para cada objeto obtenido cargamos sus relaciones.
             $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
                 $solicitudSaved->loadDataFromRequest();
             });
-            DB::commit();
             // generar acuse de solicitud
             event(new GenerateDocumentResolution("",$solicitudSaved->id,40,6));
+            DB::commit();
         } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensale: ". $e->getMessage().
@@ -459,13 +461,35 @@ class SolicitudController extends Controller {
      *
      * @return int
      */
-    private function getCentroId($estado_id = null) {
+    private function getCentroId($estado_id = null,$municipio = null ) {
         if($estado_id != null){
             $centro = Centro::find($estado_id);
+            if($centro && $centro->sedes_multiples){
+                $municipio = mb_strtoupper($municipio);
+                $centro_municipio = CentroMunicipio::whereRaw("to_tsvector('spanish', unaccent(trim(municipio))) @@ to_tsquery('spanish', unaccent(?))", [$municipio.""])->first();
+                if($centro_municipio != null){
+                    $centro = Centro::find($centro_municipio->centro_id);
+                }
+            }
         }else{
             $centro = Centro::inRandomOrder()->first();
         }
         return $centro->id;
+    }
+
+     /**
+     * Función para guardar modificar y eliminar disponibilidades
+     * @param Request $request
+     * @return Centro $centro
+     */
+    public function getSedeMultiple(Request $request){
+        $centro = Centro::find($request->estado_id);
+
+        if($centro != null && $centro->sedes_multiples){
+            $municipios = CentroMunicipio::all('municipio')->toArray();
+            return $this->sendResponse($municipios, 'SUCCESS');
+        }
+        return $this->sendResponse([], 'SUCCESS');
     }
 
     /**

@@ -975,11 +975,11 @@
         }
         console.log(solicitudObj.tipo_solicitud_id);
         if(solicitudObj.tipo_solicitud_id == 3 || solicitudObj.tipo_solicitud_id == 4){
-            $(".archivo_sindical").hide();
+            $(".archivo_sindical").show();
             $("#btnGuardarRatificar").hide();
             $("#divCalendarioCentral").show();
         }else{
-            $(".archivo_sindical").show();
+            $(".archivo_sindical").hide();
             $("#divCalendarioCentral").hide();
             $("#btnGuardarRatificar").show();
         }

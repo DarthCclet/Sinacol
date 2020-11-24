@@ -84,10 +84,10 @@
         <p class="help-block">Número interior</p>
     </div>
     <div class="col-md-5" title="Escribe el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Si escoges la correcta se llenarán de forma automática los demás campos." data-toggle="tooltip" data-placement="top">
-        <select name="asentamientoAutoc" placeholder="Seleccione" id="asentamientoAutoc{{$identificador}}" class="form-control"></select>
+        <select name="asentamientoAutoc" placeholder="Seleccione" value='{{isset($domicilio) ? $domicilio->asentamiento : ""}}' id="asentamientoAutoc{{$identificador}}" class="form-control"></select>
         <input type="hidden" id="term{{$identificador}}">
         <p class="help-block upper needed">Escribe el nombre de tu colonia.</p>
-        <input type="hidden" id="asentamiento{{$identificador}}" >
+        <input type="hidden" name="domicilio[asentamiento]" id="asentamiento{{$identificador}}" >
     </div>
 
     {{-- <div class="col-md-4">
@@ -98,10 +98,8 @@
     </div> --}}
 
 	<div class="col-md-5" title="En caso de la Ciudad de México se trata del nombre de la alcaldía, en otras entidades de la República se trata de municipios." data-toggle="tooltip" data-placement="top">
-        {{-- <input class="form-control direccionUpd{{$identificador}}" name="domicilio[municipio]" id="municipio{{$identificador}}" required placeholder="Municipio" type="text" value=""> --}}
-
-        {!! Form::select('domicilio[municipio]', isset($municipios) ? $municipios : [], isset($domicilio->municipio) ? $domicilio->municipio : '', ['id'=>'municipio'.$identificador,'required', 'class'=>'form-control '.' direccionUpd'.$identificador, 'placeholder'=>'Seleccione una opción']) !!}
-
+        <input  name="domicilio[municipio]" id="municipioText{{$identificador}}" type="hidden" value="{{isset($domicilio) ? $domicilio->municipio : ''}}">
+        {!! Form::select('municipio', isset($municipios) ? $municipios : [], isset($municipio_id) ? $municipio_id : '', ['id'=>'municipio'.$identificador,'required', 'class'=>'form-control '.' direccionUpd'.$identificador, 'placeholder'=>'Seleccione una opción']) !!}
         {!! $errors->first('domicilio[municipio]', '<span class=text-danger>:message</span>') !!}
 		<p class="help-block needed">Nombre del municipio / alcaldía.</p>
 	</div>
@@ -378,9 +376,12 @@
         $("#tipo_vialidad_id"+identifier).change(function(){
             $("#tipo_vialidad"+identifier).val($("#tipo_vialidad_id"+identifier+" :selected").text());
         });
+        $("#municipio"+identifier).change(function(){
+            $("#municipioText"+identifier).val($("#municipio"+identifier+" :selected").text());
+        });
         $(".catSelect"+identifier).select2({width: '100%'});
         $(".estadoSelect"+identifier).select2({width: '100%'});
-        $("#municipio"+identifier).select2({width: '100%', tags: true});
+        $("#municipio"+identifier).select2({width: '100%'});
         $("#estado_id"+identifier).change(function(){
             $("#estado"+identifier).val($("#estado_id"+identifier+" :selected").text());
             $.ajax({
@@ -396,6 +397,22 @@
                     for(let i in data){
                         $('#municipio'+identifier).append(new Option(data[i], data[i], false, false));
                     }
+                },
+                error: function() {
+                }
+            });
+
+            $.ajax({
+                url : '/api/solicitudes/sedeMultiple',
+                type : "POST",
+                dataType:"json",
+                async: false,
+                data:{
+                    estado_id:$("#estado_id"+identifier+"").val()
+                },
+                success : function(json) {
+                    municipiosCede = [];
+                    municipiosCede = json.data;
                 },
                 error: function() {
                 }
@@ -496,6 +513,7 @@
                 if(data.estado != undefined){
                     $("#municipio"+identifier+" option:contains("+ data.municipio +")").prop("selected",true).trigger("change");
                     $("#cp"+identifier).val(data.cp);
+                    console.log(data.asentamiento);
                     $("#asentamiento"+identifier).val(data.asentamiento);
                     $(".direccionUpd"+identifier).trigger('blur');
                 }

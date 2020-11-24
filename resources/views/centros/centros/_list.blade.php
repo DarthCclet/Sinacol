@@ -36,4 +36,5 @@
     
 </tbody>
 </table>
+<p>Mostrando registros del {{ $centros->total() > 0 ? ((($centros->currentPage() -1) * 10)+1) : 0 }} al {{ ((($centros->currentPage() -1) * 10))+$centros->count() }} de un total de {{ $centros->total() }} registros: </p>
 {{ $centros->links() }}

@@ -58,6 +58,7 @@ Route::Get('documentos/getFile/{id}','DocumentoController@getFile');
 Route::Post('documentos/solicitud','DocumentoController@solicitud');
 Route::resource('compareciente','ComparecienteController');
 Route::resource('centro','CentroController');
+Route::post('solicitudes/sedeMultiple','SolicitudController@getSedeMultiple');
 Route::post('centros/disponibilidad','CentroController@disponibilidad');
 Route::Post('centros/disponibilidades','CentroController@getDisponibilidades');
 Route::Post('centros/incidencias','CentroController@incidencia');

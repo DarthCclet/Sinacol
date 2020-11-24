@@ -12,6 +12,8 @@ use App\Filters\CatalogoFilter;
 use App\TipoAsentamiento;
 use App\TipoVialidad; 
 use App\Audiencia;
+use App\CentroMunicipio;
+use App\Domicilio;
 use App\Solicitud;
 use App\Events\RatificacionRealizada;
 use Illuminate\Support\Facades\Cache;
@@ -35,8 +37,7 @@ class CentroController extends Controller
         // Filtramos los centros con los parametros que vengan en el request
         $centros = (new CatalogoFilter(Centro::query(), $this->request))
             ->searchWith(Centro::class)
-            ->filter();
-
+            ->filter(false);
         //Evaluamos si es una consulta de la ruta de catálogos entonces regresamos CSV
         if ($this->request->is('catalogos/*')){
             $archivo_csv = 'CatalogoCentros.csv';
@@ -52,7 +53,7 @@ class CentroController extends Controller
             $centros = $centros->get();
         } else {
             $centros->select("id","nombre","duracionAudiencia","abreviatura","created_at as creado","updated_at as modificado","deleted_at as eliminado");
-            $centros = $centros->paginate($this->request->get('per_page', 10));
+            $centros = $centros->orderby('nombre')->paginate($this->request->get('per_page', 10));
         }
 
         // Si el request solicita respuesta en JSON (es el caso de API y requests ajax)
@@ -113,12 +114,19 @@ class CentroController extends Controller
      */
     public function edit(Centro $centro)
     {
+        $municipio_id = "";
         $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
         $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
         $estados = array_pluck(Estado::all(),'nombre','id');
         $municipios = array_pluck(Municipio::all(),'municipio','id');
-        $centro->domicilios;
-        return view('centros.centros.edit', compact('centro','estados','tipos_asentamientos','tipos_vialidades','municipios'));
+        if($centro->domicilio){
+            $municipio_nombre = mb_strtoupper($centro->domicilio->municipio);
+            $municipio_selected = Municipio::where('municipio','like','%'.$municipio_nombre.'%')->first();
+            if($municipio_selected){
+                $municipio_id = $municipio_selected->id;
+            }
+        }
+        return view('centros.centros.edit', compact('centro','estados','tipos_asentamientos','tipos_vialidades','municipios','municipio_id'));
     }
 
     /**
@@ -130,12 +138,18 @@ class CentroController extends Controller
      */
     public function update(Request $request, Centro $centro)
     {
-        $centro->update($request->input('centro'));
-        $domicilio = $request->input('domicilio');
-        if($domicilio['id'] != null){
-            $centro->domicilio()->create($domicilio);
+        $centroRequest = $request->input('centro');
+        if(!isset($centroRequest['sedes_multiples'])){
+            $centroRequest['sedes_multiples'] = false;
         }else{
-            $centro->domicilio()->update($domicilio);
+            $centroRequest['sedes_multiples'] = true;
+        }
+        $centro->update($centroRequest);
+        $domicilio = $request->input('domicilio');
+        if($domicilio['id'] != null && $domicilio['id'] != ""){
+            Domicilio::find($domicilio['id'])->update($domicilio);
+        }else{
+            $centro->domicilio()->create($domicilio);
 
         }
         return redirect('centros');
