@@ -60,7 +60,7 @@
                 }
             });
             $.ajax({
-                url:"/api/persona",
+                url:"/get_personas",
                 type:"GET",
                 dataType:"json",
                 success:function(data){

@@ -44,5 +44,3 @@
     @endforeach
     </tbody>
 </table>
-<p>Mostrando registros del {{ $conciliadores->total() > 0 ? ((($conciliadores->currentPage() -1) * 10)+1) : 0 }} al {{ ((($conciliadores->currentPage() -1) * 10))+$conciliadores->count() }} de un total de {{ $conciliadores->total() }} registros: </p>
-{{ $conciliadores->links() }}
