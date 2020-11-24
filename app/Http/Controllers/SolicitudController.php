@@ -465,8 +465,7 @@ class SolicitudController extends Controller {
         if($estado_id != null){
             $centro = Centro::find($estado_id);
             if($centro && $centro->sedes_multiples){
-                $municipio = mb_strtoupper($municipio);
-                $centro_municipio = CentroMunicipio::whereRaw("to_tsvector('spanish', unaccent(trim(municipio))) @@ to_tsquery('spanish', unaccent(?))", [$municipio.""])->first();
+                $centro_municipio = CentroMunicipio::where("municipio", $municipio)->first();
                 if($centro_municipio != null){
                     $centro = Centro::find($centro_municipio->centro_id);
                 }
