@@ -1342,7 +1342,7 @@
         * Funcion para conocer si el tipo persona del solicitante es moral o fisica
         */
         $("#municipiosolicitante").change(function(){
-           if(($("#tipo_solicitud_id").val() == 4 || $("#tipo_solicitud_id").val() == 2)  && $("#municipiosolicitante").val() != ""){
+           if(($("#tipo_solicitud_id").val() == 4 || $("#tipo_solicitud_id").val() == 2)  && $("#municipiosolicitante").val() != "" && $("#municipiosolicitante").val() != null){
                if(municipiosCede.length > 0){
                     var municipioExistente = municipiosCede.find(x=>x.municipio == $("#municipiosolicitante").val());
                     if(municipioExistente == undefined){
@@ -1357,7 +1357,7 @@
            }
         });
         $("#municipiosolicitado").change(function(){
-           if(($("#tipo_solicitud_id").val() == 1 || $("#tipo_solicitud_id").val() == 3) && $("#municipiosolicitado").val() != ""){
+           if(($("#tipo_solicitud_id").val() == 1 || $("#tipo_solicitud_id").val() == 3) && $("#municipiosolicitado").val() != "" && $("#municipiosolicitado").val() != null){
                 if(municipiosCede.length > 0){
                     var municipioExistente = municipiosCede.find(x=>x.municipio == $("#municipiosolicitado").val());
                     if(municipioExistente == undefined){
