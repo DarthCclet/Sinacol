@@ -179,6 +179,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Visor de los logs via web
     Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
+    
+    Route::get('get_personas','PersonaController@GetPersonaCentro');
 });
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 
