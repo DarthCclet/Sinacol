@@ -2098,8 +2098,21 @@ class AudienciaController extends Controller {
             $fecha = new \Carbon\Carbon($this->request->fecha_audiencia);
             $audiencia->update(["fecha_audiencia" =>$fecha->format("Y-m-d"), "hora_inicio" => $this->request->hora_inicio, "hora_fin" => $this->request->hora_fin, "cancelacion_atendida" => true,"encontro_audiencia" => true]);
             //Se genera citatorio de audiencia
+            //
+            if(isset($this->request->agregarConciliador)){
+                if($this->request->agregarConciliador == 'noEncontrados'){
+                    $id_conciliador = null;
+                    foreach ($this->request->asignacion as $value) {
+                        if ($value["resolucion"]) {
+                            $id_conciliador = $value["conciliador"];
+                        }
+                        ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $value["conciliador"], "solicitante" => $value["resolucion"]]);
+                        SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $value["sala"], "solicitante" => $value["resolucion"]]);
+                    }
+                    $audiencia->update(["conciliador_id" => $id_conciliador]);
+                }
+            }
             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 14, 4));
-            
             //Buscamos un correo electronico de las partes solicitadas
             $contactados = array();
             $sin_contactar = array();
