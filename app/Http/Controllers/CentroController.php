@@ -224,9 +224,7 @@ class CentroController extends Controller
         foreach($solicitudes as $solicitud){
             foreach($solicitud->expediente->audiencia as $audiencia){
                 if(!$audiencia->encontro_audiencia){
-                    if(new \Carbon\Carbon($audiencia->fecha_audiencia) >= now()){
-                        $audiencias[]=$audiencia;
-                    }
+                    $audiencias[]=$audiencia;
                 }
             }
         }
@@ -238,9 +236,7 @@ class CentroController extends Controller
         foreach($solicitudes as $solicitud){
             foreach($solicitud->expediente->audiencia as $audiencia){
                 if(!$audiencia->encontro_audiencia){
-                    if(new \Carbon\Carbon($audiencia->fecha_audiencia) >= now()){
-                        $audiencias[]=$audiencia;
-                    }
+                    $audiencias[]=$audiencia;
                 }
             }
         }
