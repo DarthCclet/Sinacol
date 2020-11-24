@@ -1504,6 +1504,8 @@ class SolicitudController extends Controller {
         //Buscamos las solicitudes que no tengan fecha_peticion_notificacion
         try{
             $solicitudes = Solicitud::where("fecha_peticion_notificacion",null)->get();
+            var_dump("La transaccion inicia a las: ".date("H:i:s")."\n");
+            $enviadas = 0;
             foreach($solicitudes as $solicitud){
             DB::beginTransaction();
                 if(isset($solicitud->expediente->audiencia)){
@@ -1519,11 +1521,14 @@ class SolicitudController extends Controller {
                         }
                         if($notificar){
                             event(new RatificacionRealizada($audiencia->id,"citatorio"));
+                            $enviadas++;
                         }
-                        var_dump("se notifica la audiencia: ".$audiencia->id.": ".$audiencia->folio."/".$audiencia->anio);
+                        var_dump("se notifica la audiencia: ".$audiencia->id.": ".$audiencia->folio."/".$audiencia->anio."\n");
                     }
                 }
             DB::commit();
+            var_dump("La transaccion termina a las: ".date("H:i:s")."\n");
+            var_dump("Se enviaron: ".$enviadas." solicitudes");
             }
         }catch(\Throwable $e){
             DB::rollBack();
