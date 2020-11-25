@@ -316,39 +316,223 @@ class ParteController extends Controller
     
     function GuardarRepresentanteLegal(Request $request){
         DB::beginTransaction();
-        $exito = true;
-        if($request->parte_id != "" && $request->parte_id != null){
-            $parte = Parte::find($request->parte_id);
-            $parte->update([
-                "curp" => $request->curp,
-                "nombre" => $request->nombre,
-                "primer_apellido" => $request->primer_apellido,
-                "segundo_apellido" => $request->segundo_apellido,
-                "fecha_nacimiento" => $request->fecha_nacimiento,
-                "genero_id" => $request->genero_id,
-                "clasificacion_archivo_id" => $request->clasificacion_archivo_id,
-                "genero_id" => $request->genero_id,
-                "feha_instrumento" => $request->feha_instrumento,
-                "detalle_instrumento" => $request->detalle_instrumento
-            ]);
-            // se actualiza doc
-            if(isset($request->fileIdentificacion)){
+        try{
+            $exito = true;
+            if($request->parte_id != "" && $request->parte_id != null){
                 $parte = Parte::find($request->parte_id);
-                $solicitud = Solicitud::find($request->solicitud_id);
-                
-                try{
-                    $deleted = false;
-                    $documentos = $parte->documentos;
-                    foreach($documentos as $documento ){
-                        if($documento->clasificacionArchivo->tipo_archivo_id == 1){
-                            $existe = true;
+                $parte->update([
+                    "curp" => $request->curp,
+                    "nombre" => $request->nombre,
+                    "primer_apellido" => $request->primer_apellido,
+                    "segundo_apellido" => $request->segundo_apellido,
+                    "fecha_nacimiento" => $request->fecha_nacimiento,
+                    "genero_id" => $request->genero_id,
+                    "clasificacion_archivo_id" => $request->clasificacion_archivo_id,
+                    "genero_id" => $request->genero_id,
+                    "feha_instrumento" => $request->feha_instrumento,
+                    "detalle_instrumento" => $request->detalle_instrumento
+                ]);
+                // se actualiza doc
+                if(isset($request->fileIdentificacion)){
+                    $parte = Parte::find($request->parte_id);
+                    $solicitud = Solicitud::find($request->solicitud_id);
+                    
+                    try{
+                        $deleted = false;
+                        $documentos = $parte->documentos;
+                        foreach($documentos as $documento ){
+                            if($documento->clasificacionArchivo->tipo_archivo_id == 1){
+                                $existe = true;
+                            }
                         }
+                        if($existe){
+                            $parte->documentos[0]->delete();
+                            $deleted = true;
+                        }
+                        if(!$existe || $deleted){
+                            $existeDocumento = $parte->documentos;
+                            if($solicitud != null){
+                                $archivo = $request->fileIdentificacion;
+                                $solicitud_id = $solicitud->id;
+                                $clasificacion_archivo= $request->tipo_documento_id;
+                                $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                                Storage::makeDirectory($directorio);
+                                $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                                
+                                $path = $archivo->store($directorio);
+                                
+                                $documento = $parte->documentos()->create([
+                                    "nombre" => str_replace($directorio."/", '',$path),
+                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "descripcion" => $tipoArchivo->nombre,
+                                    "ruta" => $path,
+                                    "tipo_almacen" => "local",
+                                    "uri" => $path,
+                                    "longitud" => round(Storage::size($path) / 1024, 2),
+                                    "firmado" => "false",
+                                    "clasificacion_archivo_id" => $tipoArchivo->id ,
+                                ]);
+                                $exito = true;
+                            }else{
+                                $exito = false;
+                                
+                            }
+                        }
+                        
+                    }catch(Exception $e){
+                        $exito = false;
                     }
-                    if($existe){
-                        $parte->documentos[0]->delete();
-                        $deleted = true;
+                }
+                if(isset($request->fileInstrumento)){
+                    
+                    $parte = Parte::find($request->parte_id);
+                    $solicitud = Solicitud::find($request->solicitud_id);
+                    
+                    try{
+                        $deleted = false;
+                        $documentos = $parte->documentos;
+                        $existeInst = false;
+                        foreach($documentos as $documento ){
+                            if($documento->clasificacionArchivo->tipo_archivo_id == 9){
+                                $existeInst = true;
+                            }
+                        }
+                        
+                        if($existeInst){
+                            
+                            $parte->documentos[0]->delete();
+                            $deleted = true;
+                        }
+                        if(!$existeInst || $deleted){
+                            $existeDocumento = $parte->documentos;
+                            if($solicitud != null){
+                                $archivo = $request->fileInstrumento;
+                                $solicitud_id = $solicitud->id;
+                                $clasificacion_archivo= $request->clasificacion_archivo_id;
+                                $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                                Storage::makeDirectory($directorio);
+                                $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                                
+                                $path = $archivo->store($directorio);
+                                
+                                $documento = $parte->documentos()->create([
+                                    "nombre" => str_replace($directorio."/", '',$path),
+                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "descripcion" => $tipoArchivo->nombre,
+                                    "ruta" => $path,
+                                    "tipo_almacen" => "local",
+                                    "uri" => $path,
+                                    "longitud" => round(Storage::size($path) / 1024, 2),
+                                    "firmado" => "false",
+                                    "clasificacion_archivo_id" => $tipoArchivo->id ,
+                                ]);
+                                $exito = true;
+                            }else{
+                                $exito = false;
+                                
+                            }
+                        }
+                        
+                    }catch(Exception $e){
+                        $exito = false;
                     }
-                    if(!$existe || $deleted){
+                }
+                if(isset($request->fileCedula)){
+                    
+                    $parte = Parte::find($request->parte_id);
+                    $solicitud = Solicitud::find($request->solicitud_id);
+                    
+                    try{
+                        $deleted = false;
+                        $documentos = $parte->documentos;
+                        $existeInst = false;
+                        foreach($documentos as $documento ){
+                            if($documento->clasificacionArchivo->tipo_archivo_id == 9){
+                                $existeInst = true;
+                            }
+                        }
+                        
+                        if($existeInst){
+                            
+                            $parte->documentos[0]->delete();
+                            $deleted = true;
+                        }
+                        if(!$existeInst || $deleted){
+                            $existeDocumento = $parte->documentos;
+                            if($solicitud != null){
+                                $archivo = $request->fileCedula;
+                                $solicitud_id = $solicitud->id;
+                                $clasificacion_archivo= 3;
+                                $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                                Storage::makeDirectory($directorio);
+                                $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                                
+                                $path = $archivo->store($directorio);
+                                
+                                $documento = $parte->documentos()->create([
+                                    "nombre" => str_replace($directorio."/", '',$path),
+                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "descripcion" => $tipoArchivo->nombre,
+                                    "ruta" => $path,
+                                    "tipo_almacen" => "local",
+                                    "uri" => $path,
+                                    "longitud" => round(Storage::size($path) / 1024, 2),
+                                    "firmado" => "false",
+                                    "clasificacion_archivo_id" => $tipoArchivo->id ,
+                                ]);
+                                $exito = true;
+                            }else{
+                                $exito = false;
+                                
+                            }
+                        }
+                        
+                    }catch(Exception $e){
+                        $exito = false;
+                    }
+                }
+                // se actualiza doc
+            }else{
+                $parte_representada = Parte::find($request->parte_representada_id);
+                $parte = Parte::create([
+                    "solicitud_id" => $parte_representada->solicitud->id,
+                    "tipo_parte_id" => 3,
+                    "tipo_persona_id" => 1,
+                    "rfc" => "NOAPLICA",
+                    "curp" => $request->curp,
+                    "nombre" => $request->nombre,
+                    "primer_apellido" => $request->primer_apellido,
+                    "segundo_apellido" => $request->segundo_apellido,
+                    "fecha_nacimiento" => $request->fecha_nacimiento,
+                    "genero_id" => $request->genero_id,
+                    "clasificacion_archivo_id" => $request->clasificacion_archivo_id,
+                    "detalle_instrumento" => $request->detalle_instrumento,
+                    "genero_id" => $request->genero_id,
+                    "feha_instrumento" => $request->feha_instrumento,
+                    "detalle_instrumento" => $request->detalle_instrumento,
+                    "parte_representada_id" => $request->parte_representada_id,
+                    "representante" => true
+                ]);
+                $listaContactos = json_decode($request->listaContactos);
+                foreach($listaContactos as $contacto){
+                    $parte->contactos()->create([
+                        "contacto" => $contacto->contacto,
+                        "tipo_contacto_id" => $contacto->tipo_contacto_id,
+                    ]);
+                }
+                
+                // Creamos la relacion en audiencias_partes
+                if(!isset($request->fuente_solicitud)){
+                    AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+                }
+                // se agrega doc
+                // $parte = $parte_representada;
+                $solicitud = Solicitud::find($request->solicitud_id);
+                try{
+                    if(count($parte->documentos) == 0){
                         $existeDocumento = $parte->documentos;
                         if($solicitud != null){
                             $archivo = $request->fileIdentificacion;
@@ -372,257 +556,79 @@ class ParteController extends Controller
                                 "firmado" => "false",
                                 "clasificacion_archivo_id" => $tipoArchivo->id ,
                             ]);
-                            $exito = true;
-                        }else{
-                            $exito = false;
-                            
-                        }
-                    }
-                    
-                }catch(Exception $e){
-                    $exito = false;
-                }
-            }
-            if(isset($request->fileInstrumento)){
-                
-                $parte = Parte::find($request->parte_id);
-                $solicitud = Solicitud::find($request->solicitud_id);
-                
-                try{
-                    $deleted = false;
-                    $documentos = $parte->documentos;
-                    $existeInst = false;
-                    foreach($documentos as $documento ){
-                        if($documento->clasificacionArchivo->tipo_archivo_id == 9){
-                            $existeInst = true;
-                        }
-                    }
-                    
-                    if($existeInst){
-                        
-                        $parte->documentos[0]->delete();
-                        $deleted = true;
-                    }
-                    if(!$existeInst || $deleted){
-                        $existeDocumento = $parte->documentos;
-                        if($solicitud != null){
-                            $archivo = $request->fileInstrumento;
+
+                            // Se agregan instruccion
+
+                            $archivoInst = $request->fileInstrumento;
                             $solicitud_id = $solicitud->id;
-                            $clasificacion_archivo= $request->clasificacion_archivo_id;
+                            $clasificacion_archivoInst= $request->clasificacion_archivo_id;
                             $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                             Storage::makeDirectory($directorio);
-                            $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                            $tipoArchivoInst = ClasificacionArchivo::find($clasificacion_archivoInst);
                             
-                            $path = $archivo->store($directorio);
+                            $pathInst = $archivoInst->store($directorio);
                             
                             $documento = $parte->documentos()->create([
                                 "nombre" => str_replace($directorio."/", '',$path),
                                 "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                                 // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                "descripcion" => $tipoArchivo->nombre,
-                                "ruta" => $path,
-                                "tipo_almacen" => "local",
-                                "uri" => $path,
-                                "longitud" => round(Storage::size($path) / 1024, 2),
-                                "firmado" => "false",
-                                "clasificacion_archivo_id" => $tipoArchivo->id ,
-                            ]);
-                            $exito = true;
-                        }else{
-                            $exito = false;
-                            
-                        }
-                    }
-                    
-                }catch(Exception $e){
-                    $exito = false;
-                }
-            }
-            if(isset($request->fileCedula)){
-                
-                $parte = Parte::find($request->parte_id);
-                $solicitud = Solicitud::find($request->solicitud_id);
-                
-                try{
-                    $deleted = false;
-                    $documentos = $parte->documentos;
-                    $existeInst = false;
-                    foreach($documentos as $documento ){
-                        if($documento->clasificacionArchivo->tipo_archivo_id == 9){
-                            $existeInst = true;
-                        }
-                    }
-                    
-                    if($existeInst){
-                        
-                        $parte->documentos[0]->delete();
-                        $deleted = true;
-                    }
-                    if(!$existeInst || $deleted){
-                        $existeDocumento = $parte->documentos;
-                        if($solicitud != null){
-                            $archivo = $request->fileCedula;
-                            $solicitud_id = $solicitud->id;
-                            $clasificacion_archivo= 3;
-                            $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
-                            Storage::makeDirectory($directorio);
-                            $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                            
-                            $path = $archivo->store($directorio);
-                            
-                            $documento = $parte->documentos()->create([
-                                "nombre" => str_replace($directorio."/", '',$path),
-                                "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                "descripcion" => $tipoArchivo->nombre,
-                                "ruta" => $path,
-                                "tipo_almacen" => "local",
-                                "uri" => $path,
-                                "longitud" => round(Storage::size($path) / 1024, 2),
-                                "firmado" => "false",
-                                "clasificacion_archivo_id" => $tipoArchivo->id ,
-                            ]);
-                            $exito = true;
-                        }else{
-                            $exito = false;
-                            
-                        }
-                    }
-                    
-                }catch(Exception $e){
-                    $exito = false;
-                }
-            }
-            // se actualiza doc
-        }else{
-            $parte_representada = Parte::find($request->parte_representada_id);
-            $parte = Parte::create([
-                "solicitud_id" => $parte_representada->solicitud->id,
-                "tipo_parte_id" => 3,
-                "tipo_persona_id" => 1,
-                "rfc" => "NOAPLICA",
-                "curp" => $request->curp,
-                "nombre" => $request->nombre,
-                "primer_apellido" => $request->primer_apellido,
-                "segundo_apellido" => $request->segundo_apellido,
-                "fecha_nacimiento" => $request->fecha_nacimiento,
-                "genero_id" => $request->genero_id,
-                "clasificacion_archivo_id" => $request->clasificacion_archivo_id,
-                "detalle_instrumento" => $request->detalle_instrumento,
-                "genero_id" => $request->genero_id,
-                "feha_instrumento" => $request->feha_instrumento,
-                "detalle_instrumento" => $request->detalle_instrumento,
-                "parte_representada_id" => $request->parte_representada_id,
-                "representante" => true
-            ]);
-            $listaContactos = json_decode($request->listaContactos);
-            foreach($listaContactos as $contacto){
-                $parte->contactos()->create([
-                    "contacto" => $contacto->contacto,
-                    "tipo_contacto_id" => $contacto->tipo_contacto_id,
-                ]);
-            }
-            
-            // Creamos la relacion en audiencias_partes
-            if(!isset($request->fuente_solicitud)){
-                AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
-            }
-            // se agrega doc
-            // $parte = $parte_representada;
-            $solicitud = Solicitud::find($request->solicitud_id);
-            try{
-                if(count($parte->documentos) == 0){
-                    $existeDocumento = $parte->documentos;
-                    if($solicitud != null){
-                        $archivo = $request->fileIdentificacion;
-                        $solicitud_id = $solicitud->id;
-                        $clasificacion_archivo= $request->tipo_documento_id;
-                        $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
-                        Storage::makeDirectory($directorio);
-                        $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                        
-                        $path = $archivo->store($directorio);
-                        
-                        $documento = $parte->documentos()->create([
-                            "nombre" => str_replace($directorio."/", '',$path),
-                            "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                            // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                            "descripcion" => $tipoArchivo->nombre,
-                            "ruta" => $path,
-                            "tipo_almacen" => "local",
-                            "uri" => $path,
-                            "longitud" => round(Storage::size($path) / 1024, 2),
-                            "firmado" => "false",
-                            "clasificacion_archivo_id" => $tipoArchivo->id ,
-                        ]);
-
-                        // Se agregan instruccion
-
-                        $archivoInst = $request->fileInstrumento;
-                        $solicitud_id = $solicitud->id;
-                        $clasificacion_archivoInst= $request->clasificacion_archivo_id;
-                        $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
-                        Storage::makeDirectory($directorio);
-                        $tipoArchivoInst = ClasificacionArchivo::find($clasificacion_archivoInst);
-                        
-                        $pathInst = $archivoInst->store($directorio);
-                        
-                        $documento = $parte->documentos()->create([
-                            "nombre" => str_replace($directorio."/", '',$path),
-                            "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                            // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                            "descripcion" => $tipoArchivoInst->nombre,
-                            "ruta" => $pathInst,
-                            "tipo_almacen" => "local",
-                            "uri" => $pathInst,
-                            "longitud" => round(Storage::size($pathInst) / 1024, 2),
-                            "firmado" => "false",
-                            "clasificacion_archivo_id" => $tipoArchivoInst->id ,
-                        ]);
-
-                        // Se agrega cedula
-                        if(isset($request->fileCedula)){
-                            $archivoCed = $request->fileCedula;
-                            $solicitud_id = $solicitud->id;
-                            $clasificacion_archivoCed= 3;
-                            $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
-                            Storage::makeDirectory($directorio);
-                            $tipoArchivoCed = ClasificacionArchivo::find($clasificacion_archivoCed);
-                            
-                            $pathInst = $archivoCed->store($directorio);
-                            
-                            $documento = $parte->documentos()->create([
-                                "nombre" => str_replace($directorio."/", '',$path),
-                                "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                "descripcion" => $tipoArchivoCed->nombre,
+                                "descripcion" => $tipoArchivoInst->nombre,
                                 "ruta" => $pathInst,
                                 "tipo_almacen" => "local",
                                 "uri" => $pathInst,
                                 "longitud" => round(Storage::size($pathInst) / 1024, 2),
                                 "firmado" => "false",
-                                "clasificacion_archivo_id" => $tipoArchivoCed->id ,
+                                "clasificacion_archivo_id" => $tipoArchivoInst->id ,
                             ]);
-                        } 
-                        $exito = true;
-                    }else{
-                        $exito = false;
-                        
+
+                            // Se agrega cedula
+                            if(isset($request->fileCedula)){
+                                $archivoCed = $request->fileCedula;
+                                $solicitud_id = $solicitud->id;
+                                $clasificacion_archivoCed= 3;
+                                $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
+                                Storage::makeDirectory($directorio);
+                                $tipoArchivoCed = ClasificacionArchivo::find($clasificacion_archivoCed);
+                                
+                                $pathInst = $archivoCed->store($directorio);
+                                
+                                $documento = $parte->documentos()->create([
+                                    "nombre" => str_replace($directorio."/", '',$path),
+                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "descripcion" => $tipoArchivoCed->nombre,
+                                    "ruta" => $pathInst,
+                                    "tipo_almacen" => "local",
+                                    "uri" => $pathInst,
+                                    "longitud" => round(Storage::size($pathInst) / 1024, 2),
+                                    "firmado" => "false",
+                                    "clasificacion_archivo_id" => $tipoArchivoCed->id ,
+                                ]);
+                            } 
+                            $exito = true;
+                        }else{
+                            $exito = false;
+                            
+                        }
                     }
+                    
+                }catch(Exception $e){
+                    $exito = false;
+                    
                 }
-                
-            }catch(Exception $e){
-                $exito = false;
-                
+                // se actualiza doc
             }
-            // se actualiza doc
-        }
-        if($exito){
-            DB::commit();
-            return $parte;
-        }else{
+            if($exito){
+                DB::commit();
+                return $parte;
+            }else{
+                DB::rollback();
+                return $this->sendError('Error al capturar representante', 'Error');
+            }
+            
+        }catch(Exception $e){
             DB::rollback();
-            return $this->sendError('Error al guardar los correos', 'Error');
+            return $this->sendError('Error al capturar representante', 'Error');
 
         }
     }
