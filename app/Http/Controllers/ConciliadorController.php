@@ -10,6 +10,7 @@ use App\Disponibilidad;
 use App\Incidencia;
 use App\RolConciliador;
 use Validator;
+use Illuminate\Support\Collection;
 class ConciliadorController extends Controller
 {
     protected $request;
@@ -31,23 +32,21 @@ class ConciliadorController extends Controller
         // Filtramos las salas con los parametros que vengan en el request
         $conciliadores = (new CatalogoFilter(Conciliador::query(), $this->request))
             ->searchWith(Conciliador::class)
-            ->filter();
-
-        // Si en el request viene el parametro all entonces regresamos todos los elementos
-        // de lo contrario paginamos
-        if ($this->request->get('all')) {
-            $conciliadores = $conciliadores->get();
-        } else {
-            $conciliadores = $conciliadores->paginate($this->request->get('per_page', 10));
+            ->filter()->get();
+        $conciliadoresResponse = [];
+        if(!auth()->user()->hasRole("Super Usuario")){
+            foreach($conciliadores as $conciliador){
+                if($conciliador->persona->user->centro_id == auth()->user()->centro_id){
+                    $conciliadoresResponse[] = $conciliador;
+                }
+            }
+            $conciliadoresResponse = new Collection($conciliadoresResponse);
+        }else{
+            $conciliadoresResponse = $conciliadores;
         }
-
-        // Para cada objeto obtenido cargamos sus relaciones.
-         $conciliadores = tap($conciliadores)->each(function ($conciliador) {
-             $conciliador->loadDataFromRequest();
-         });
-
+        $conciliadores = $conciliadoresResponse;
         // Si el request solicita respuesta en JSON (es el caso de API y requests ajax)
-        if ($this->request->wantsJson()) {
+        if ($this->request->wantsJson()){
             return $this->sendResponse($conciliadores, 'SUCCESS');
         }
         return view('centros.conciliadores.index', compact('conciliadores'));
@@ -72,7 +71,6 @@ class ConciliadorController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'centro_id' => 'required|Integer',
             'persona_id' => 'required|Integer',
         ]);
         if ($validator->fails()) {
@@ -82,7 +80,13 @@ class ConciliadorController extends Controller
             $conciliador = Conciliador::find($request->id);
             $conciliador->update(["persona_id" => $request->persona_id,"centro_id" => $request->centro_id]);
         }else{
-            $conciliador = Conciliador::create($request->all());
+            $req = $request->all();
+            if (auth()->user()->hasRole("Super Usuario")) {
+                $req["centro_id"] = $request->centro_id;
+            } else {
+                $req["centro_id"] = auth()->user()->centro_id;
+            }
+            $conciliador = Conciliador::create($req);
         }
         return $conciliador;
     }

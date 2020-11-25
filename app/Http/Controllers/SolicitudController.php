@@ -1541,9 +1541,9 @@ class SolicitudController extends Controller {
                     }
                 }
             DB::commit();
+            }
             var_dump("La transaccion termina a las: ".date("H:i:s")."\n");
             var_dump("Se enviaron: ".$enviadas." solicitudes");
-            }
         }catch(\Throwable $e){
             DB::rollBack();
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().

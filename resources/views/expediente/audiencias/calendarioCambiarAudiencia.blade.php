@@ -306,6 +306,7 @@
                             tipoAsignacion:$("#tipoAsignacion").val(),
                             asignacion:validacion.arrayEnvio,
                             nuevaCalendarizacion:'S',
+                            agregarConciliador:'noEncontrados',
                             audiencia_id:$("#audiencia_id").val(),
                             _token:"{{ csrf_token() }}"
                         },

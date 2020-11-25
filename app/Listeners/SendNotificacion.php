@@ -127,7 +127,7 @@ class SendNotificacion
                 )
             );
         }
-        Log::error('Se envia esta peticion:'.json_encode($arreglo));
+        Log::debug('Se envia esta peticion:'.json_encode($arreglo));
         $client = new Client();
         $baseURL = $audiencia->expediente->solicitud->centro->url_instancia_notificacion;
         if($baseURL != null){

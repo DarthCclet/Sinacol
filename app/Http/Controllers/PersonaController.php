@@ -8,6 +8,9 @@ use Validator;
 
 class PersonaController extends Controller
 {
+    public function __construct() {
+        $this->middleware("auth");
+    }
     /**
      * Display a listing of the resource.
      *
@@ -111,5 +114,21 @@ class PersonaController extends Controller
     {
         $persona = Persona::findOrFail($id)->delete();
         return 204;
+    }
+    public function GetPersonaCentro(){
+        $personas = Persona::all();
+        $response = [];
+        if(!auth()->user()->hasRole('Super Usuario')){
+            foreach($personas as $persona){
+                if(isset($persona->user->centro_id)){
+                    if($persona->user->centro_id == auth()->user()->centro_id){
+                        $response[]=$persona;
+                    }
+                }
+            }
+        }else{
+            $response = $personas;
+        }
+        return $response;
     }
 }

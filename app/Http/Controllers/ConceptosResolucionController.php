@@ -186,15 +186,15 @@ class ConceptosResolucionController extends Controller
             
             $total = 0;
             $completa['indemnizacion']= round($remuneracionDiaria * 90,2);
-            $total += $remuneracionDiaria * 90;
+            $total += round($remuneracionDiaria * 90,2);
             $completa['aguinaldo']= round($remuneracionDiaria * 15 * $propAguinaldo,2);
-            $total += $remuneracionDiaria * 15 * $propAguinaldo;
+            $total += round($remuneracionDiaria * 15 * $propAguinaldo,2);
             $completa['vacaciones']= round($pagoVacaciones,2);
-            $total += $pagoVacaciones;
+            $total += round($pagoVacaciones,2);
             $completa['prima_vacacional']= round($pagoVacaciones * 0.25,2);
-            $total += $pagoVacaciones * 0.25;
+            $total += round($pagoVacaciones * 0.25,2);
             $completa['prima_antiguedad']= round($salarioTopado * $anios_antiguedad *12,2);
-            $total += $salarioTopado * $anios_antiguedad *12;
+            $total += round($salarioTopado * $anios_antiguedad *12,2);
             $completa['total']= round($total,2);
 
             $datosL['completa']= $completa;
@@ -209,15 +209,16 @@ class ConceptosResolucionController extends Controller
 
             $total = 0;
             $al50['indemnizacion']= round($remuneracionDiaria * 45,2);
-            $total += $remuneracionDiaria * 45;
+            $total += round($remuneracionDiaria * 45,2);
             $al50['aguinaldo']= round($remuneracionDiaria * 15 * $propAguinaldo,2);
-            $total += $remuneracionDiaria * 15 * $propAguinaldo;
+            $total += round($remuneracionDiaria * 15 * $propAguinaldo,2);
             $al50['vacaciones']= round($pagoVacaciones,2);
-            $total += $pagoVacaciones;
+            $total += round($pagoVacaciones,2);
             $al50['prima_vacacional']= round($pagoVacaciones * 0.25,2);
-            $total += $pagoVacaciones * 0.25;
+            $total += round($pagoVacaciones * 0.25,2);
             $al50['prima_antiguedad']= round($salarioTopado * $anios_antiguedad * 6,2);
-            $total += $salarioTopado * $anios_antiguedad * 6;
+            $total += round($salarioTopado * $anios_antiguedad * 6,2);
+
             $al50['total']= round($total,2);
 
             $datosL['al50']= $al50;
@@ -294,17 +295,17 @@ class ConceptosResolucionController extends Controller
             
             $total = 0;
             $completa['indemnizacion']= round($remuneracionDiaria * 90,2);
-            $total += $remuneracionDiaria * 90;
+            $total += round($remuneracionDiaria * 90,2);
             $completa['aguinaldo']= round($remuneracionDiaria * 15 * $propAguinaldo,2);
-            $total += $remuneracionDiaria * 15 * $propAguinaldo;
+            $total += round($remuneracionDiaria * 15 * $propAguinaldo,2);
             $completa['vacaciones']= round($pagoVacaciones,2);
-            $total += $pagoVacaciones;
+            $total += round($pagoVacaciones,2);
             $completa['prima_vacacional']= round($pagoVacaciones * 0.25,2);
-            $total += $pagoVacaciones * 0.25;
+            $total += round($pagoVacaciones * 0.25,2);
             $completa['prima_antiguedad']= round($salarioTopado * $anios_antiguedad *12,2);
+            $total += round($salarioTopado * $anios_antiguedad *12,2);
             $gratificacionB = ($anios_antiguedad_int * 20) * $remuneracionDiaria ;
             $completa['gratificacion_b'] = round($gratificacionB);
-            $total += $salarioTopado * $anios_antiguedad *12;
             $completa['total']= round($total,2);
             $datosL['completa']= $completa;
             $datosL['anios_antiguedad']= $anios_antiguedad_int;
@@ -318,15 +319,14 @@ class ConceptosResolucionController extends Controller
 
             $total = 0;
             $al50['indemnizacion']= round($remuneracionDiaria * 45,2);
-            $total += $remuneracionDiaria * 45;
+            $total += round($remuneracionDiaria * 45,2);
             $al50['aguinaldo']= round($remuneracionDiaria * 15 * $propAguinaldo,2);
-            $total += $remuneracionDiaria * 15 * $propAguinaldo;
+            $total += round($remuneracionDiaria * 15 * $propAguinaldo,2);
             $al50['vacaciones']= round($pagoVacaciones,2);
-            $total += $pagoVacaciones;
+            $total += round($pagoVacaciones,2);
             $al50['prima_vacacional']= round($pagoVacaciones * 0.25,2);
-            $total += $pagoVacaciones * 0.25;
+            $total += round($pagoVacaciones * 0.25,2);
             $al50['prima_antiguedad']= round($salarioTopado * $anios_antiguedad * 6,2);
-            $total += $salarioTopado * $anios_antiguedad * 6;
             $al50['total']= round($total,2);
 
             $datosL['al50']= $al50;
