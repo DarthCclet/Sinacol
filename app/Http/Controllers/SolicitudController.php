@@ -1175,6 +1175,7 @@ class SolicitudController extends Controller {
                         event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
                     }
                 }
+                $audiencia->tipo_solicitud_id = $audiencia->expediente->solicitud->tipo_solicitud_id;
                 DB::commit();
                 return $audiencia;
             }else{
