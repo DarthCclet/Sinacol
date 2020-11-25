@@ -2241,6 +2241,7 @@ class AudienciaController extends Controller {
         $pdf->setOption('page-size', 'Letter')
             ->setOption('margin-top', '25mm')
             ->setOption('margin-bottom', '11mm')
+            ->setOption('header-html', env('APP_URL').'/header/'."1")
             ->setOption('footer-html', env('APP_URL').'/footer/'."1")
         ;
         if($path){
