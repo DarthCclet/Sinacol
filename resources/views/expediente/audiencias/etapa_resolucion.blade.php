@@ -255,9 +255,9 @@
                                             <div>
                                                 Datos laborales:
                                                 <ul>
-                                                    <li id="salario"> </li>
-                                                    <li id="fechaIngreso"> </li>
-                                                    <li id="fechaSalida"> </li>
+                                                    <li id="salario{{$solicitante->parte->id}}"> </li>
+                                                    <li id="fechaIngreso{{$solicitante->parte->id}}"> </li>
+                                                    <li id="fechaSalida{{$solicitante->parte->id}}"> </li>
                                                 </ul>
                                             </div>
                                             <br>
@@ -1294,7 +1294,7 @@
                             <div class="form-group col-md-6">
                                 <label for="fecha_pago" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control" autocomplete="off" />
+                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control fecha" autocomplete="off" />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
@@ -2490,6 +2490,9 @@
                     }else{
                         swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                     }
+                },
+                error: function(){
+                    swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayo a 10M ',icon: 'warning'});
                 }
             });
         }else{
@@ -2683,28 +2686,29 @@
                 }else{
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
                 }
-                //total pagos diferidos
-                $.each(listaPropuestaConceptos, function (key, propuestaSolicitante) {
-                    $.each(listaPropuestaConceptos, function (key, propuestaConcepto) {
-                        $.each(propuestaConcepto, function (key, concepto) {
-                            if(concepto.concepto_pago_resoluciones_id != 9 ){
-                                totalConceptosPago += concepto.monto;
-                            }
-                        });
-                    });
-                });
-                let totalConceptos = parseInt(totalConceptosPago);
-                let totalDiferidos = parseInt($("#totalPagosDiferidos").val());
-                if(totalConceptos == totalDiferidos ){
-                }else{
-                    error =true;
-                    swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
-                }
             }else{
                 error =true;
                 swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
             }
         });
+        //total pagos diferidos
+        $.each(listaPropuestaConceptos, function (key, propuestaSolicitante) {
+            totalConceptosPago = 0;
+            $.each(listaPropuestaConceptos, function (key, propuestaConcepto) {
+                $.each(propuestaConcepto, function (key, concepto) {
+                    if(concepto.concepto_pago_resoluciones_id != 9 ){
+                        totalConceptosPago += concepto.monto;
+                    }
+                });
+            });
+        });
+        let totalConceptos = parseInt(totalConceptosPago);
+        let totalDiferidos = parseInt($("#totalPagosDiferidos").val());
+        if(totalConceptos == totalDiferidos ){
+        }else{
+            error =true;
+            swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
+        }
         return error;
     }
 
@@ -3122,9 +3126,9 @@
                 $('#tiempoVencido').val(dato.tiempoVencido);
                 $('#idSolicitante').val(dato.idParte);
 
-                $('#salario').html(" Remuneraci&oacute;n "+ dato.salario);
-                $('#fechaIngreso').html(" Fecha de ingreso: " + dato.fechaIngreso);
-                $('#fechaSalida').html(" Fecha de salida: " + dato.fechaSalida);
+                $('#salario'+dato.idParte).html(" Remuneraci&oacute;n "+ dato.salario);
+                $('#fechaIngreso'+dato.idParte).html(" Fecha de ingreso: " + dato.fechaIngreso);
+                $('#fechaSalida'+dato.idParte).html(" Fecha de salida: " + dato.fechaSalida);
 
                 let table = "";
                 table+=" <tr>";

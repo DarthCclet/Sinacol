@@ -1820,6 +1820,9 @@
                     }else{
                         swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                     }
+                },
+                error: function(){
+                    swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayo a 10M ',icon: 'warning'});
                 }
             });
         }else{

@@ -66,7 +66,7 @@
                         <p class="help-block">Edad del citado</p>
                     </div>
                     <div class="col-md-4">
-                        <input class="form-control upper" id="idCitadoRfc" onblur="validaRFC(this.value);" placeholder="RFC del citado" type="text" value="">
+                        <input class="form-control upper" id="idCitadoRfc" placeholder="RFC del citado" type="text" value="">
                         <p class="help-block">RFC del citado</p>
                     </div>
                     <div class="col-md-4 personaFisicaCitadoNO">
