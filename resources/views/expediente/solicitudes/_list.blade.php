@@ -314,7 +314,7 @@
                         <div class="col-md-6 ">
                             <div class="form-group">
                                 <label for="fecha_nacimientoRep" class="control-label needed">Fecha de nacimiento</label>
-                                <input type="text" id="fecha_nacimientoRep" class="form-control dateBirth" placeholder="Fecha de nacimiento del representante">
+                                <input type="text" id="fecha_nacimientoRep" class="form-control fecha" placeholder="Fecha de nacimiento del representante">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -374,7 +374,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="feha_instrumento" class="control-label needed">Fecha de instrumento</label>
-                                <input type="text" id="feha_instrumento" class="form-control dateBirth" placeholder="Fecha en que se extiende el instrumento">
+                                <input type="text" id="feha_instrumento" class="form-control fecha" placeholder="Fecha en que se extiende el instrumento">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -2054,6 +2054,9 @@
                     }else{
                         swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                     }
+                },
+                error: function(){
+                    swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayo a 10M ',icon: 'warning'});
                 }
             });
         }else{
