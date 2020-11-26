@@ -2063,6 +2063,51 @@
             //     _token:"{{ csrf_token() }}"
             // }
             $.ajax({
+                xhr: function() {
+                    var xhr = new window.XMLHttpRequest();
+                    var progreso = 0;
+                     // Download progress
+                     xhr.addEventListener("progress", function(evt){
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            // Do something with download progress
+                            console.log(percentComplete);
+                            $('#progress-bar').show();
+                            var percent = parseInt(percentComplete * 100)
+                            $("#progressbar-ajax-value").text(percent+"%");;
+                            $('#progressbar-ajax').css({
+                                width: percent + '%'
+                            });
+                            if (percentComplete === 1) {
+                                $('#progress-bar').hide();
+                                $('#progressbar-ajax').css({
+                                    width: '0%'
+                                });
+                            }
+                        }
+                    }, false);
+                    // Upload progress
+                    xhr.upload.addEventListener("progress", function(evt){
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            //Do something with upload progress
+                            console.log(percentComplete);
+                            $('#progress-bar').show();
+                            var percent = parseInt(percentComplete * 100)
+                            $("#progressbar-ajax-value").text(percent+"%");;
+                            $('#progressbar-ajax').css({
+                                width: percent + '%'
+                            });
+                            if (percentComplete === 1) {
+                                $('#progress-bar').hide();
+                                $('#progressbar-ajax').css({
+                                    width: '0%'
+                                });
+                            }
+                        }
+                    }, false);
+                    return xhr;
+                },
                 url:"/partes/representante",
                 type:"POST",
                 dataType:"json",
