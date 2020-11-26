@@ -456,9 +456,10 @@
                 <h5></h5>
                 <div class="col-md-12 row">
                     <div class="col-md-12" id="divConceptosAcordados" >
-                        <h5>Conceptos de pago para resolucion</h5>
+                        <h5>Conceptos de pago para resolucion</h5><br>
+                        <label class="col-md-12 control-label">Ingresa los días a pagar o el monto por cada concepto de la propuesta. </label>
                         <div class="form-group">
-                            <label for="concepto_pago_resoluciones_id" class="col-sm-6 control-label labelResolucion">Concepto de pago</label>
+                            <label for="concepto_pago_resoluciones_id" class="col-sm-6 control-label labelResolucion needed">Concepto de pago</label>
                             <div class="col-sm-10  select-otro" >
 
                                 <select id="concepto_pago_resoluciones_id" class="form-control select-element conceptosPago" >
@@ -633,7 +634,7 @@
                         <span class="btn btn-primary fileinput-button m-r-3">
                             <i class="fa fa-fw fa-plus"></i>
                             <span>Seleccionar instrumento</span>
-                            <input type="file" id="fileInstrumento" name="files">
+                            <input type="file" id="fileInstrumento" name="files" max-size="32154">
                         </span>
                         <p style="margin-top: 1%;" id="labelInstrumentoRepresentante"></p>
                     </div>
@@ -1723,6 +1724,7 @@
             success:function(data){
                 try{
                 // console.log(data.pasa);
+<<<<<<< HEAD
                     if(data.pasa){
                         getPersonasComparecer();
                     }else{
@@ -1746,6 +1748,30 @@
                                     className: 'btn btn-warning',
                                     closeModal: true
                                 }
+=======
+                if(data.pasa){
+                    getPersonasComparecer();
+                }else{
+                    swal({
+                        title: '¿Ya se han capturado todos los representantes?',
+                        text: 'Recuerde capturar a los representantes legales comparecientes para que aparezcan en la lista',
+                        icon: '',
+                        // showCancelButton: true,
+                        buttons: {
+                            cancel: {
+                                text: 'No',
+                                value: null,
+                                visible: true,
+                                className: 'btn btn-default',
+                                closeModal: true
+                            },
+                            confirm: {
+                                text: 'Sí',
+                                value: true,
+                                visible: true,
+                                className: 'btn btn-warning',
+                                closeModal: true
+>>>>>>> f6f7f81624c34f6b57c7bcc8e569567b7feb2a53
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
@@ -1875,6 +1901,55 @@
                                         className: 'btn btn-danger',
                                         closeModal: true
                         }
+<<<<<<< HEAD
+=======
+                        $("#tableAudienciaSuccess tbody").html(table);
+                        $("#modalRatificacion").modal("hide");
+                        $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                    }else if(data.data.tipo == 4){
+                        swal({
+                            title: 'Éxito',
+                            text: 'Se han registrado los comparecientes',
+                            icon: 'success'
+                        });
+                        cargarComparecientes();
+                        startTimer();
+                        nextStep(1);
+                    }else if(data.data.tipo == 5){
+                        swal({
+                            title: '¿Qué desea hacer?',
+                            text: 'Detectamos que no todos los citados comparecieron, ¿Desea continuar con el proceso de audiencia?, de indicar que no, se generará una nueva audiencia',
+                            icon: 'info',
+                            buttons: {
+                                cancel: {
+                                    text: 'Cancelar',
+                                    value: null,
+                                    visible: true,
+                                    className: 'btn btn-default',
+                                    closeModal: true,
+                                },roll: {
+                                    text: "No",
+                                    value: 2,
+                                    className: 'btn btn-warning',
+                                    visible: true,
+                                    closeModal: true
+                                },confirm: {
+                                    text: 'Si',
+                                    value: 1,
+                                    visible: true,
+                                    className: 'btn btn-danger',
+                                    closeModal: true
+                    }
+                            }
+                        }).then(function(tipo){
+                            if(tipo != null){
+                                if(tipo == 1){
+                                    cargarComparecientes();
+                                    startTimer();
+                                    nextStep(1);
+                                }else if(tipo == 2){
+                                    SolicitarNuevaAudiencia();
+>>>>>>> f6f7f81624c34f6b57c7bcc8e569567b7feb2a53
                                 }
                             }).then(function(tipo){
                                 if(tipo != null){
@@ -1920,8 +1995,8 @@
             });
         }else{
             swal({
-                title: '¿Estás seguro?',
-                text: 'No has seleccionado ningun compareciente, el expediente se archivará por no comparecencia del solicitante',
+                title: '¿Está seguro?',
+                text: 'No ha seleccionado ningun compareciente, el expediente se archivará por no comparecencia del solicitante',
                 icon: 'info',
                 buttons: {
                     cancel: {
@@ -1978,7 +2053,7 @@
                         error:function(data){
                             swal({
                                 title: 'Algo salió mal',
-                                text: 'No se guardo el registro',
+                                text: 'No se guardó el registro',
                                 icon: 'warning'
                             });
                         }
@@ -2405,7 +2480,7 @@
                 if(!/^[0-9]{10}$/.test(contactoVal)){
                     swal({
                         title: 'Error',
-                        text: 'El contacto debe tener 10 digitos de tipo numero',
+                        text: 'El contacto debe tener 10 dígitos de tipo número',
                         icon: 'error',
 
                     });
@@ -2456,18 +2531,27 @@
         }
     });
     $("#btnGuardarPropuestaConvenio").on("click",function(){
-        var objeto_propuesta = {};
-        objeto_propuesta.indemnizacion90 = $("#indemnizacion90").val();
-        objeto_propuesta.indemnizacion45 = $("#indemnizacion45").val();
-        objeto_propuesta.aguinaldo = $("#aguinaldo").val();
-        objeto_propuesta.vacaciones = $("#vacaciones").val();
-        objeto_propuesta.prima_vacacional = $("#prima_vacacional").val();
-        objeto_propuesta.prima_antiguedad = $("#prima_antiguedad").val();
-        objeto_propuesta.prestaciones_legales = $("#prestaciones_legales").val();
-        objeto_propuesta.prestaciones_45 = $("#prestaciones_45").val();
-        $("#tableOtro").show();
-        $("#modal-propuesta-convenio").modal('hide')
-        // formarTablaPropuestaConvenio();
+        let idSol = parseInt($("#idSolicitante").val());
+        if((Object.keys(listaConfigConceptos).length  <= 0) || (typeof(listaConfigConceptos[idSol])!=='undefined') && (Object.keys(listaConfigConceptos[idSol]).length <= 0)) {
+            swal({
+                title: 'Error',
+                text: 'Debe registrar al menos un concepto de pago para esta propuesta ',
+                icon: 'error',
+            }); 
+        }else{
+            var objeto_propuesta = {};
+            objeto_propuesta.indemnizacion90 = $("#indemnizacion90").val();
+            objeto_propuesta.indemnizacion45 = $("#indemnizacion45").val();
+            objeto_propuesta.aguinaldo = $("#aguinaldo").val();
+            objeto_propuesta.vacaciones = $("#vacaciones").val();
+            objeto_propuesta.prima_vacacional = $("#prima_vacacional").val();
+            objeto_propuesta.prima_antiguedad = $("#prima_antiguedad").val();
+            objeto_propuesta.prestaciones_legales = $("#prestaciones_legales").val();
+            objeto_propuesta.prestaciones_45 = $("#prestaciones_45").val();
+            $("#tableOtro").show();
+            $("#modal-propuesta-convenio").modal('hide')
+            // formarTablaPropuestaConvenio();
+        }
     });
     $("#fileIdentificacion").change(function(e){
         $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
@@ -2642,6 +2726,9 @@
                 $("#clasificacion_archivo_id_representante").prev().css("color","red");
                 error = true;
             }
+            // if($("#fileInstrumento")[0].files[0].size> ("#fileInstrumento").data('max-size')){
+                // error = true;
+            // }
         }
         if($("#feha_instrumento").val() == ""){
             $("#feha_instrumento").prev().css("color","red");
@@ -2894,6 +2981,7 @@
                     }
                 },error:function(data){
                     // console.log(data);
+<<<<<<< HEAD
                     try{
 
                         var mensajes = "";
@@ -2912,6 +3000,19 @@
                     }catch(error){
                         console.log(error);
                     }
+=======
+                    var mensajes = "";
+                    $.each(data.responseJSON.errors, function (key, value) {
+                        var origen = key.split(".");
+
+                        mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
+                    });
+                    swal({
+                        title: 'Error',
+                        text: 'Es necesario validar los siguientes campos \n'+mensajes,
+                        icon: 'error'
+                    });
+>>>>>>> f6f7f81624c34f6b57c7bcc8e569567b7feb2a53
                 }
             });
         }
@@ -2931,17 +3032,24 @@
         }else{
             comboConceptos = $("#concepto_pago_resoluciones_id");
         }
-            if( comboConceptos.val() != "" ){
-                let idSolicitante =$("#idSolicitante").val();
-                if( comboConceptos.val() == 7 || comboConceptos.val() == 10 || ( ($("#otro").val() != "") || ($("#dias").val() != "" && $("#monto").val() != "")  || ($("#monto").val() != "" && comboConceptos.val() == 8) ) ){
-                    let existe = false;
-                    $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
-                        if(concepto.concepto_pago_resoluciones_id == comboConceptos.val() ){
-                            existe= true;
-                        }
-                    });
-                    if(existe){
-                        swal({title: 'Error',text: 'El concepto de pago ya se encuentra registrado',icon: 'warning'});
+        if( comboConceptos.val() != "" ){
+            let idSolicitante =$("#idSolicitante").val();
+            if( comboConceptos.val() == 7 || comboConceptos.val() == 10 || ( ($("#otro").val() != "") || ($("#monto").val() != "")  || ($("#monto").val() != "" && comboConceptos.val() == 8) ) ){
+                let existe = false;
+                $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
+                    if(concepto.concepto_pago_resoluciones_id == comboConceptos.val() ){
+                        existe= true;
+                    }
+                });
+                if(existe){
+                    swal({title: 'Error',text: 'El concepto de pago ya se encuentra registrado',icon: 'warning'});
+                }else{
+                    if(isNaN($("#monto").val()) ){
+                        swal({
+                            title: 'Alerta',
+                            text: 'El campo monto a pagar sólo puede contener números y punto decimal',
+                            icon: 'warning'
+                        });
                     }else{
                         if(listaConfigConceptos[idSolicitante] == undefined ){
                             listaConfigConceptos[idSolicitante] = [];
@@ -2953,19 +3061,22 @@
                             monto:$("#monto").val(),
                             otro:$("#otro").val(),
                         });
-                        limpiarConcepto();
-                        cargarTablaConcepto(listaConfigConceptos[[idSolicitante]]);
+                        cargarTablaConcepto(listaConfigConceptos[[idSolicitante]],idSolicitante);
                     }
-                }else{
-                    swal({title: 'Error',text: 'Debe ingresar dias y monto ó descripción del concepto',icon: 'warning'});
+                    limpiarConcepto();
                 }
             }else{
-                swal({title: 'Error',text: 'Debe seleccionar el concepto de pago',icon: 'warning'});
+                swal({title: 'Error',text: 'Debe ingresar monto ó descripción del concepto',icon: 'warning'});
             }
+        }else{
+            swal({title: 'Error',text: 'Debe seleccionar el concepto de pago',icon: 'warning'});
+        }
     });
-        function cargarTablaConcepto(listaConfigConceptos){
+        function cargarTablaConcepto(listaConfigConceptos,idSolicitante){
+            // $("#tbodyConcepto").html("");
+            // $("#tbodyConceptoPrincipal"+idSolicitante).html("");
             let table = '';
-            let idSolicitante = '';
+            //let idSolicitante = '';
             if( $('#radioReinstalacion').is(':checked') ){
                 comboConceptos = 'concepto_pago_reinstalacion_id';
             }else{
@@ -2973,7 +3084,7 @@
             }
             totalConceptos = 0 ;
             $.each(listaConfigConceptos,function(index,concepto){
-                idSolicitante = concepto.idSolicitante;
+                //idSolicitante = concepto.idSolicitante;
 
                 table +='<tr>';
                     $("#"+comboConceptos).val(concepto.concepto_pago_resoluciones_id);
@@ -2999,7 +3110,7 @@
 
         function eliminarConcepto(idSolicitante,indice){
             listaConfigConceptos[idSolicitante].splice(indice,1);
-            cargarTablaConcepto(listaConfigConceptos[idSolicitante]);
+            cargarTablaConcepto(listaConfigConceptos[idSolicitante],idSolicitante);
         }
         function limpiarConcepto(){
             $("#concepto_pago_resoluciones_id").val("");
@@ -3025,7 +3136,7 @@
                 if(Object.keys(listaConfigConceptos).length > 0){
                     swal({
                         title: 'Descartar propuesta',
-                        text: '¿Estas seguro que deseas descartar la propuesta '+nombrePropuesta+'?',
+                        text: '¿Está seguro que desea descartar la propuesta '+nombrePropuesta+'?',
                         icon: 'warning',
                         buttons: {
                             cancel: {
@@ -3158,7 +3269,7 @@
 
                 swal({
                     title: '',
-                    text: '¿Estas seguro que deseas terminar la audiencia?',
+                    text: '¿Está seguro que desea terminar la audiencia?',
                     icon: 'warning',
                     // showCancelButton: true,
                     buttons: {
@@ -3335,7 +3446,7 @@
         $('#otro').val('');
         switch (concepto) {
             case '7': // Prima topada por antiguedad
-                $('#monto').attr('disabled',true);
+                //$('#monto').attr('disabled',true);
                 $('#dias').attr('disabled',true);
                 $('#otro').attr('disabled',true);
                 if(antiguedad > 0){
@@ -3349,24 +3460,24 @@
                 $('#monto').val(monto);
                 break;
             case '8':    //Gratificacion D
-                $('#monto').removeAttr('disabled');
+                //$('#monto').removeAttr('disabled');
                 $('#dias').attr('disabled',true);
                 $('#otro').attr('disabled',true);
                 break;
             case '9':    //Gratificacion E
-                $('#monto').attr('disabled',true);
+                //$('#monto').attr('disabled',true);
                 $('#dias').attr('disabled',true);
                 $('#otro').removeAttr('disabled');
                 break;
             case '10':    //Salarios vencidos
                 monto = (tiempoVencido * pagoDia).toFixed(2);
-                $('#monto').val(monto);
+                //$('#monto').val(monto);
                 $('#monto').attr('disabled',true);
                 $('#dias').attr('disabled',true);
                 $('#otro').attr('disabled',true);
                 break;
             default: //Dias de sueldo, Dias de vacaciones
-                $('#monto').attr('disabled',true);
+                //$('#monto').attr('disabled',true);
                 $('#otro').attr('disabled',true);
                 $('#dias').removeAttr('disabled');
                 break;
@@ -3399,6 +3510,10 @@
         }
         monto = (monto >0 )? monto.toFixed(2) : "";
         $('#monto').val(monto);
+    });
+
+    $("#monto").on("change",function(){
+        $('#dias').val("");
     });
 
     $("#btnAgregarFechaPago").on("click",function(){
@@ -3548,7 +3663,7 @@
         $.each(listaResolucionesIndividuales,function(i,e){
             if(e.parte_solicitante_id == $("#parte_solicitante_id").val() && e.parte_solicitado_id == $("#parte_solicitado_id").val()){
                 error = false;
-                swal({title: 'Error',text: 'Ya has agregado esta relacion',icon: 'error'});
+                swal({title: 'Error',text: 'Ya ha agregado esta relación',icon: 'error'});
                 return false;
             }
         });
