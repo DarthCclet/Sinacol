@@ -641,7 +641,7 @@
                             _token:"{{ csrf_token() }}"
                         },
                         success:function(data){
-                            tr{
+                            try{
 
                                 if(data != null && data != ""){
                                     getConciliadorIncidencias($("#id").val());
@@ -673,7 +673,7 @@
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
-                    tr{
+                    try{
 
                         if(data != null){
                             $("#id").val(data.id);
