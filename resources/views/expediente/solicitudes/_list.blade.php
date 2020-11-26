@@ -2071,7 +2071,6 @@
                 data:formData,
                 success:function(data){
                     try{
-
                         if(data != null && data != ""){
                             swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
                             actualizarPartes();
@@ -2080,6 +2079,13 @@
                         }else{
                             swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                         }
+                    }catch(error){
+                        console.log(error);
+                    }
+                },error:function(data){
+                    // console.log(data);
+                    try{
+                        swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
                     }catch(error){
                         console.log(error);
                     }

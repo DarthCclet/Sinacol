@@ -2582,8 +2582,16 @@
                             actualizarPartes();
                             $("#modal-representante").modal("hide");
                         }else{
-                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
                         }
+                    }catch(error){
+                        console.log(error);
+                        swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
+                    }
+                },error:function(data){
+                    // console.log(data);
+                    try{
+                        swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
                     }catch(error){
                         console.log(error);
                     }

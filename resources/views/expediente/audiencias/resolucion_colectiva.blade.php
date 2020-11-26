@@ -1858,6 +1858,13 @@
                     }catch(error){
                         console.log(error);
                     }
+                },error:function(data){
+                    // console.log(data);
+                    try{
+                        swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
+                    }catch(error){
+                        console.log(error);
+                    }
                 }
             });
         }else{
