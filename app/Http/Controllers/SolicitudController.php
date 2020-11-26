@@ -31,6 +31,7 @@ use App\Parte;
 use App\Periodicidad;
 use App\ResolucionParteExcepcion;
 use App\Rules\Curp;
+use App\Rules\RFC;
 use App\TipoAsentamiento;
 use App\TipoContacto;
 use App\TipoVialidad;
@@ -275,6 +276,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -286,6 +288,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
@@ -298,6 +301,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -308,6 +312,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
@@ -745,6 +750,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -756,6 +762,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
@@ -768,6 +775,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -778,6 +786,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
@@ -1109,27 +1118,41 @@ class SolicitudController extends Controller {
                     return $this->sendError('No hay salas virtuales disponibles', 'Error');
                 }
                 $sala_id = $sala->id;
-                //obtenemos al conciliador disponible
-                $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
-                $conciliadoresDisponibles = array();
-                foreach($conciliadores as $conciliador){
-                    $conciliadorDisponible = false;
-                    foreach($conciliador->rolesConciliador as $roles){
-                        if($roles->rol_atencion_id == 2){
-                            $conciliadorDisponible = true;
-                        }
-                    }
-                    if($conciliadorDisponible){
-                        $conciliadoresDisponibles[]=$conciliador;
-                    }
-                }
-                $conciliador_id = null;
-                if(count($conciliadoresDisponibles) > 0){
-                    $conciliador = Arr::random($conciliadoresDisponibles);
-                }else{
+//                Validamos que el que ratifica sea conciliador
+                if(!auth()->user()->hasRole('Personal conciliador')){
                     DB::rollBack();
-                    return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
+                    return $this->sendError('La solicitud con convenio solo puede ser ratificada por personal conciliador', 'Error');
+                }else{
+                    //Buscamos el conciliador del usuario
+                    if(isset(auth()->user()->persona->conciliador)){
+                        $conciliador = auth()->user()->persona->conciliador;
+                    }else{
+                        DB::rollBack();
+                        return $this->sendError('El usuario no esta dado de alta en la lista de conciliadores', 'Error');
+                    }
                 }
+                
+                //obtenemos al conciliador disponible
+//                $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
+//                $conciliadoresDisponibles = array();
+//                foreach($conciliadores as $conciliador){
+//                    $conciliadorDisponible = false;
+//                    foreach($conciliador->rolesConciliador as $roles){
+//                        if($roles->rol_atencion_id == 2){
+//                            $conciliadorDisponible = true;
+//                        }
+//                    }
+//                    if($conciliadorDisponible){
+//                        $conciliadoresDisponibles[]=$conciliador;
+//                    }
+//                }
+//                $conciliador_id = null;
+//                if(count($conciliadoresDisponibles) > 0){
+//                    $conciliador = Arr::random($conciliadoresDisponibles);
+//                }else{
+//                    DB::rollBack();
+//                    return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
+//                }
                 // Registramos la audiencia
                 //Obtenemos el contador
                 $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
