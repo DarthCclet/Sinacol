@@ -139,6 +139,7 @@
                     type:"POST",
                     dataType:"json",
                     async:true,
+                    global:false,
                     data:{
                         _token: "{{ csrf_token() }}",
                         user_id:$("#user_id").val(),
@@ -159,6 +160,7 @@
                 url:"/usuario/roles/"+$("#user_id").val(),
                 type:"GET",
                 dataType:"json",
+                global:false,
                 async:true,
                 success:function(data){
                     if(data != null){
@@ -210,6 +212,7 @@
                         type:"POST",
                         dataType:"json",
                         async:true,
+                        global:false,
                         data:{
                             _token: "{{ csrf_token() }}",
                             user_id:$("#user_id").val(),
@@ -231,6 +234,7 @@
                     type:"POST",
                     dataType:"json",
                     async:true,
+                    global:false,
                     data:{
                         _token: "{{ csrf_token() }}",
                         user_id:$("#user_id").val(),
@@ -251,6 +255,7 @@
                 url:"/usuario/centros/"+user_id,
                 type:"GET",
                 dataType:"json",
+                global:false,
                 async:true,
                 success:function(data){
                     var table = "";
@@ -296,6 +301,7 @@
                         type:"POST",
                         dataType:"json",
                         async:true,
+                        global:false,
                         data:{
                             _token: "{{ csrf_token() }}",
                             id:id,

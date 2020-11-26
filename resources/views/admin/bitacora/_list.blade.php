@@ -197,17 +197,20 @@
                 muestraCodigo: true
             },
             success:function(json){
-                console.log(json.data != "");
-                if(json != null && json.data != ""){
-                    $("#"+select).html("<option value=''>Selecciona una opción</option>");
-                    $.each(json.data,function(index,element){
-                        $("#"+select).append("<option value='"+element.id+"'>"+element.codigo+"|&nbsp;&nbsp;"+element.nombre+"</option>");
-                    });
-                    tieneHijos = true;
-                }else{
-                    $("#"+select).html("<option value=''>No hay opciones a mostrar</option>");
+                try{
+                    console.log(json.data != "");
+                    if(json != null && json.data != ""){
+                        $("#"+select).html("<option value=''>Selecciona una opción</option>");
+                        $.each(json.data,function(index,element){
+                            $("#"+select).append("<option value='"+element.id+"'>"+element.codigo+"|&nbsp;&nbsp;"+element.nombre+"</option>");
+                        });
+                        tieneHijos = true;
+                    }else{
+                        $("#"+select).html("<option value=''>No hay opciones a mostrar</option>");
+                    }
+                }catch(error){
+                    console.log(error);
                 }
-
             }
         });
         return tieneHijos;

@@ -1170,164 +1170,172 @@
                 dataType:"json",
                 async:true,
                 success:function(data){
-                    if(data == null || data == ""){
-                        swal({
-                            title: '¿Estas seguro?',
-                            text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
-                            icon: 'warning',
-                            buttons: {
-                                cancel: {
-                                    text: 'Cancelar',
-                                    value: null,
-                                    visible: true,
-                                    className: 'btn btn-default',
-                                    closeModal: true,
-                                },
-                                confirm: {
-                                    text: 'Aceptar',
-                                    value: true,
-                                    visible: true,
-                                    className: 'btn btn-danger',
-                                    closeModal: true
-                                }
-                            }
-                        }).then(function(isConfirm){
-                            if(isConfirm){
-                                
-                                swal({
-                                    title: '¿Las partes concilian en la misma sala?',
-                                    text: 'Selecciona el tipo de conciliación que se llevará a cabo',
-                                    icon: 'warning',
-                                    buttons: {
-                                        cancel: {
-                                            text: 'cancelar',
-                                            value: null,
-                                            visible: true,
-                                            className: 'btn btn-default',
-                                            closeModal: true,
-                                        },
-                                        roll: {
-                                            text: "Separados",
-                                            value: 2,
-                                            className: 'btn btn-warning',
-                                            visible: !esSindical,
-                                            closeModal: true
-                                        },
-                                        confirm: {
-                                            text: 'Juntos',
-                                            value: 1,
-                                            visible: true,
-                                            className: 'btn btn-warning',
-                                            closeModal: true
-                                        }
+                    try{
+                        if(data == null || data == ""){
+                            swal({
+                                title: '¿Estas seguro?',
+                                text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
+                                icon: 'warning',
+                                buttons: {
+                                    cancel: {
+                                        text: 'Cancelar',
+                                        value: null,
+                                        visible: true,
+                                        className: 'btn btn-default',
+                                        closeModal: true,
+                                    },
+                                    confirm: {
+                                        text: 'Aceptar',
+                                        value: true,
+                                        visible: true,
+                                        className: 'btn btn-danger',
+                                        closeModal: true
                                     }
-                                }).then(function(tipo){
-                                    if(tipo == 1 || tipo == 2){
-                                        if(tipo == 1){
-                                            var separados = false;
-                                        }else{
-                                            var separados = true;
-                                        }
-                                        $.ajax({
-                                            url:'/solicitud/ratificar',
-                                            type:'POST',
-                                            dataType:"json",
-                                            async:true,
-                                            data:{
-                                                id:$("#solicitud_id").val(),
-                                                tipo_notificacion_id:validarRatificacion.tipo_notificacion_id,
-                                                inmediata:false,
-                                                fecha_cita:$("#fecha_cita").val(),
-                                                separados:separados,
-                                                _token:"{{ csrf_token() }}"
+                                }
+                            }).then(function(isConfirm){
+                                if(isConfirm){
+                                    
+                                    swal({
+                                        title: '¿Las partes concilian en la misma sala?',
+                                        text: 'Selecciona el tipo de conciliación que se llevará a cabo',
+                                        icon: 'warning',
+                                        buttons: {
+                                            cancel: {
+                                                text: 'cancelar',
+                                                value: null,
+                                                visible: true,
+                                                className: 'btn btn-default',
+                                                closeModal: true,
                                             },
-                                            success:function(data){
-                                                if(data != null && data != ""){
-                                                    if(data.encontro_audiencia){
-                                                        $("#spanFolio").text(data.folio+"/"+data.anio);
-                                                        $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia,4));
-                                                        $("#spanHoraInicio").text(data.hora_inicio);
-                                                        $("#spanHoraFin").text(data.hora_fin);
-                                                        var table="";
-                                                            if(data.multiple){
-                                                                $.each(data.conciliadores_audiencias,function(index,element){
-                                                                    table +='<tr>';
-                                                                    if(element.solicitante){
-                                                                        table +='   <td>Solicitante(s)</td>';
+                                            roll: {
+                                                text: "Separados",
+                                                value: 2,
+                                                className: 'btn btn-warning',
+                                                visible: !esSindical,
+                                                closeModal: true
+                                            },
+                                            confirm: {
+                                                text: 'Juntos',
+                                                value: 1,
+                                                visible: true,
+                                                className: 'btn btn-warning',
+                                                closeModal: true
+                                            }
+                                        }
+                                    }).then(function(tipo){
+                                        if(tipo == 1 || tipo == 2){
+                                            if(tipo == 1){
+                                                var separados = false;
+                                            }else{
+                                                var separados = true;
+                                            }
+                                            $.ajax({
+                                                url:'/solicitud/ratificar',
+                                                type:'POST',
+                                                dataType:"json",
+                                                async:true,
+                                                data:{
+                                                    id:$("#solicitud_id").val(),
+                                                    tipo_notificacion_id:validarRatificacion.tipo_notificacion_id,
+                                                    inmediata:false,
+                                                    fecha_cita:$("#fecha_cita").val(),
+                                                    separados:separados,
+                                                    _token:"{{ csrf_token() }}"
+                                                },
+                                                success:function(data){
+                                                    try{
+                                                        if(data != null && data != ""){
+                                                            if(data.encontro_audiencia){
+                                                                $("#spanFolio").text(data.folio+"/"+data.anio);
+                                                                $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia,4));
+                                                                $("#spanHoraInicio").text(data.hora_inicio);
+                                                                $("#spanHoraFin").text(data.hora_fin);
+                                                                var table="";
+                                                                    if(data.multiple){
+                                                                        $.each(data.conciliadores_audiencias,function(index,element){
+                                                                            table +='<tr>';
+                                                                            if(element.solicitante){
+                                                                                table +='   <td>Solicitante(s)</td>';
+                                                                            }else{
+                                                                                table +='   <td>Citado(s)</td>';
+                                                                            }
+                                                                            table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                                                                            $.each(data.salas_audiencias,function(index2,element2){
+                                                                                if(element2.solicitante == element.solicitante){
+                                                                                    table +='<td>'+element2.sala.sala+'</td>';
+                                                                                }
+                                                                            });
+                                                                            table +='</tr>';
+                                                                        });
                                                                     }else{
-                                                                        table +='   <td>Citado(s)</td>';
+                                                                        table +='<tr>';
+                                                                        table +='   <td>Solicitante(s) y citado(s)</td>';
+                                                                        table +='   <td>'+data.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
+                                                                        table +='   <td>'+data.salas_audiencias[0].sala.sala+'</td>';
+                                                                        table +='</tr>';
                                                                     }
-                                                                    table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
-                                                                    $.each(data.salas_audiencias,function(index2,element2){
-                                                                        if(element2.solicitante == element.solicitante){
-                                                                            table +='<td>'+element2.sala.sala+'</td>';
-                                                                        }
-                                                                    });
-                                                                    table +='</tr>';
+                                                                $("#tableAudienciaSuccess tbody").html(table);
+                                                                $("#modalRatificacion").modal("hide");
+                                                                $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                                                                swal({
+                                                                    title: 'Correcto',
+                                                                    text: 'Solicitud ratificada correctamente',
+                                                                    icon: 'success'
                                                                 });
                                                             }else{
-                                                                table +='<tr>';
-                                                                table +='   <td>Solicitante(s) y citado(s)</td>';
-                                                                table +='   <td>'+data.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
-                                                                table +='   <td>'+data.salas_audiencias[0].sala.sala+'</td>';
-                                                                table +='</tr>';
+                                                                swal({
+                                                                    title: 'Correcto',
+                                                                    text: 'Se genero la audiencia con el folio: '+data.folio+'/'+data.anio+', la cual no encontró espacio en la agenda y deberá ser asignada por el supervisor del centro',
+                                                                    icon: 'success'
+                                                                });
                                                             }
-                                                        $("#tableAudienciaSuccess tbody").html(table);
-                                                        $("#modalRatificacion").modal("hide");
-                                                        $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
-                                                        swal({
-                                                            title: 'Correcto',
-                                                            text: 'Solicitud ratificada correctamente',
-                                                            icon: 'success'
-                                                        });
-                                                    }else{
-                                                        swal({
-                                                            title: 'Correcto',
-                                                            text: 'Se genero la audiencia con el folio: '+data.folio+'/'+data.anio+', la cual no encontró espacio en la agenda y deberá ser asignada por el supervisor del centro',
-                                                            icon: 'success'
-                                                        });
+                                                        }else{
+                                                            swal({
+                                                                title: 'Error',
+                                                                text: 'No se pudo ratificar',
+                                                                icon: 'error'
+                                                            });
+                                                        }
+                                                    }catch(error){
+                                                        console.log(error);
                                                     }
-                                                }else{
+                                                },error:function(data){
                                                     swal({
                                                         title: 'Error',
-                                                        text: 'No se pudo ratificar',
+                                                        text: data.responseJSON.message,
                                                         icon: 'error'
                                                     });
                                                 }
-                                            },error:function(data){
-                                                swal({
-                                                    title: 'Error',
-                                                    text: data.responseJSON.message,
-                                                    icon: 'error'
-                                                });
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    }else{
-                        var tableSolicitantes = '';
-                        $.each(data, function(index,element){
-                            tableSolicitantes +='<tr>';
-                            if(element.tipo_persona_id == 1){
-                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
-                            }else{
-                                tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
-                            }
-                            tableSolicitantes += '  <td>';
-                            tableSolicitantes += '      <div class="col-md-12">';
-                            tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
-                            tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
-                            tableSolicitantes += '      </div>';
-                            tableSolicitantes += '  </td>';
-                            tableSolicitantes += '  <td>';
-                            tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
-                            tableSolicitantes += '  </td>';
-                            tableSolicitantes +='</tr>';
-                        });
-                        $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
-                        $("#modal-registro-correos").modal("show");
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }else{
+                            var tableSolicitantes = '';
+                            $.each(data, function(index,element){
+                                tableSolicitantes +='<tr>';
+                                if(element.tipo_persona_id == 1){
+                                    tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
+                                }else{
+                                    tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
+                                }
+                                tableSolicitantes += '  <td>';
+                                tableSolicitantes += '      <div class="col-md-12">';
+                                tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
+                                tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
+                                tableSolicitantes += '      </div>';
+                                tableSolicitantes += '  </td>';
+                                tableSolicitantes += '  <td>';
+                                tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
+                                tableSolicitantes += '  </td>';
+                                tableSolicitantes +='</tr>';
+                            });
+                            $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
+                            $("#modal-registro-correos").modal("show");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -1398,6 +1406,7 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
+<<<<<<< HEAD
                         if(data != null && data != ""){
                             $("#modal-aviso-resolucion-inmediata").modal("hide");
                             $("#modalRatificacion").modal("hide");
@@ -1418,6 +1427,28 @@
                                 text: 'No se pudo ratificar',
                                 icon: 'error'
                             });
+=======
+                        try{
+
+                            if(data != null && data != ""){
+                                $("#modal-aviso-resolucion-inmediata").modal("hide");
+                                $("#modalRatificacion").modal("hide");
+                                swal({
+                                    title: 'Correcto',
+                                    text: 'Solicitud ratificada correctamente',
+                                    icon: 'success'
+                                });
+                                window.location.href = "/guiaAudiencia/"+data.id;
+                            }else{
+                                swal({
+                                    title: 'Error',
+                                    text: 'No se pudo ratificar',
+                                    icon: 'error'
+                                });
+                            }
+                        }catch(error){
+                            console.log(error);
+>>>>>>> PA-centro-multisede
                         }
                     },error:function(data){
                         swal({
@@ -1763,67 +1794,71 @@
             type:"GET",
             dataType:"json",
             success:function(data){
-                if(data != null && data != ""){
-                    data = data[0];
-                    $("#tieneRepresentante"+parte_id).html("<i class='fa fa-check'></i> ");
-                    $("#btnaddRep"+parte_id).html("Ver Representante");
-                    $("#id_representante").val(data.id);
-                    $("#curpRep").val(data.curp);
-                    $("#nombreRep").val(data.nombre);
-                    $("#primer_apellidoRep").val(data.primer_apellido);
-                    $("#segundo_apellidoRep").val((data.segundo_apellido|| ""));
-                    $("#fecha_nacimientoRep").val(dateFormat(data.fecha_nacimiento,4));
-                    $("#genero_idRep").val(data.genero_id).trigger("change");
-                    $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).trigger('change');
-                    $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
-                    $("#detalle_instrumento").val(data.detalle_instrumento);
-                    $("#parte_id").val(data.id);
-                    listaContactos = data.contactos;
-                    if(data.documentos && data.documentos.length > 0){
-                        $.each(data.documentos,function(index,doc){
-                            if(doc.tipo_archivo == 1){
-                                $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
-                                $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
-                            }else{
-                                $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
-                                $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
-                            }
-                        });
+                try{
+                    if(data != null && data != ""){
+                        data = data[0];
+                        $("#tieneRepresentante"+parte_id).html("<i class='fa fa-check'></i> ");
+                        $("#btnaddRep"+parte_id).html("Ver Representante");
+                        $("#id_representante").val(data.id);
+                        $("#curpRep").val(data.curp);
+                        $("#nombreRep").val(data.nombre);
+                        $("#primer_apellidoRep").val(data.primer_apellido);
+                        $("#segundo_apellidoRep").val((data.segundo_apellido|| ""));
+                        $("#fecha_nacimientoRep").val(dateFormat(data.fecha_nacimiento,4));
+                        $("#genero_idRep").val(data.genero_id).trigger("change");
+                        $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).trigger('change');
+                        $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
+                        $("#detalle_instrumento").val(data.detalle_instrumento);
+                        $("#parte_id").val(data.id);
+                        listaContactos = data.contactos;
+                        if(data.documentos && data.documentos.length > 0){
+                            $.each(data.documentos,function(index,doc){
+                                if(doc.tipo_archivo == 1){
+                                    $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                    $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                                }else{
+                                    $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                    $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
+                                }
+                            });
 
+                        }else{
+                            $("#tipo_documento_id").val("").trigger("change");
+                            $("#labelIdentifRepresentante").html("");
+                            $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                            $("#labelInstrumentoRepresentante").html("");
+                        }
                     }else{
+                        $("#id_representante").val("");
+                        $("#curpRep").val("");
+                        $("#nombreRep").val("");
+                        $("#primer_apellidoRep").val("");
+                        $("#segundo_apellidoRep").val("");
+                        $("#fecha_nacimientoRep").val("");
+                        $("#genero_idRep").val("").trigger("change");
+                        $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                        $("#feha_instrumento").val("");
+                        $("#detalle_instrumento").val("");
+                        $("#parte_id").val("");
                         $("#tipo_documento_id").val("").trigger("change");
                         $("#labelIdentifRepresentante").html("");
-                        $("#clasificacion_archivo_id_representante").val("").trigger('change');
-                        $("#labelInstrumentoRepresentante").html("");
+                        listaContactos = [];
                     }
-                }else{
-                    $("#id_representante").val("");
-                    $("#curpRep").val("");
-                    $("#nombreRep").val("");
-                    $("#primer_apellidoRep").val("");
-                    $("#segundo_apellidoRep").val("");
-                    $("#fecha_nacimientoRep").val("");
-                    $("#genero_idRep").val("").trigger("change");
-                    $("#clasificacion_archivo_id_representante").val("").trigger('change');
-                    $("#feha_instrumento").val("");
-                    $("#detalle_instrumento").val("");
-                    $("#parte_id").val("");
-                    $("#tipo_documento_id").val("").trigger("change");
-                    $("#labelIdentifRepresentante").html("");
-                    listaContactos = [];
+                    $("#tipo_contacto_id").val("").trigger("change");
+                    $("#contacto").val("");
+                    $("#parte_representada_id").val(parte_id);
+                    if(tipoRepresentante == 1){
+                        $("#menorAlert").show();
+                        $("#representanteMoral").hide();
+                    }else{
+                        $("#menorAlert").hide();
+                        $("#representanteMoral").show();
+                    }
+                    cargarContactos();
+                    $("#modal-representante").modal("show");
+                }catch(error){
+                    console.log(error);
                 }
-                $("#tipo_contacto_id").val("").trigger("change");
-                $("#contacto").val("");
-                $("#parte_representada_id").val(parte_id);
-                if(tipoRepresentante == 1){
-                    $("#menorAlert").show();
-                    $("#representanteMoral").hide();
-                }else{
-                    $("#menorAlert").hide();
-                    $("#representanteMoral").show();
-                }
-                cargarContactos();
-                $("#modal-representante").modal("show");
             }
         });
     }
@@ -1833,13 +1868,18 @@
             type:"GET",
             dataType:"json",
             success:function(data){
-                $("#genero_idRep").html("<option value=''>-- Selecciona un género</option>");
-                if(data.data.length > 0){
-                    $.each(data.data,function(index,element){
-                        $("#genero_idRep").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
-                    });
+                try{
+
+                    $("#genero_idRep").html("<option value=''>-- Selecciona un género</option>");
+                    if(data.data.length > 0){
+                        $.each(data.data,function(index,element){
+                            $("#genero_idRep").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                        });
+                    }
+                    $("#genero_idRep").trigger("change");
+                }catch(error){
+                    console.log(error);
                 }
-                $("#genero_idRep").trigger("change");
             }
         });
     }
@@ -1848,6 +1888,7 @@
         $.ajax({
             url:"/tipos_contactos",
             type:"GET",
+            global:false,
             dataType:"json",
             success:function(data){
                 if(data.data.total > 0){
@@ -1891,6 +1932,7 @@
                 $.ajax({
                     url:"/partes/representante/contacto",
                     type:"POST",
+                    global:false,
                     dataType:"json",
                     data:{
                         tipo_contacto_id:$("#tipo_contacto_id").val(),
@@ -2044,6 +2086,51 @@
             //     _token:"{{ csrf_token() }}"
             // }
             $.ajax({
+                xhr: function() {
+                    var xhr = new window.XMLHttpRequest();
+                    var progreso = 0;
+                     // Download progress
+                     xhr.addEventListener("progress", function(evt){
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            // Do something with download progress
+                            console.log(percentComplete);
+                            $('#progress-bar').show();
+                            var percent = parseInt(percentComplete * 100)
+                            $("#progressbar-ajax-value").text(percent+"%");;
+                            $('#progressbar-ajax').css({
+                                width: percent + '%'
+                            });
+                            if (percentComplete === 1) {
+                                $('#progress-bar').hide();
+                                $('#progressbar-ajax').css({
+                                    width: '0%'
+                                });
+                            }
+                        }
+                    }, false);
+                    // Upload progress
+                    xhr.upload.addEventListener("progress", function(evt){
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            //Do something with upload progress
+                            console.log(percentComplete);
+                            $('#progress-bar').show();
+                            var percent = parseInt(percentComplete * 100)
+                            $("#progressbar-ajax-value").text(percent+"%");;
+                            $('#progressbar-ajax').css({
+                                width: percent + '%'
+                            });
+                            if (percentComplete === 1) {
+                                $('#progress-bar').hide();
+                                $('#progressbar-ajax').css({
+                                    width: '0%'
+                                });
+                            }
+                        }
+                    }, false);
+                    return xhr;
+                },
                 url:"/partes/representante",
                 type:"POST",
                 dataType:"json",
@@ -2051,13 +2138,24 @@
                 contentType: false,
                 data:formData,
                 success:function(data){
-                    if(data != null && data != ""){
-                        swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
-                        actualizarPartes();
-                        cargarDocumentos();
-                        $("#modal-representante").modal("hide");
-                    }else{
-                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                    try{
+                        if(data != null && data != ""){
+                            swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
+                            actualizarPartes();
+                            cargarDocumentos();
+                            $("#modal-representante").modal("hide");
+                        }else{
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        }
+                    }catch(error){
+                        console.log(error);
+                    }
+                },error:function(data){
+                    // console.log(data);
+                    try{
+                        swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
+                    }catch(error){
+                        console.log(error);
                     }
                 },
                 error: function(){
@@ -2074,85 +2172,89 @@
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    if(data != null && data != ""){
-                        var html="";
-                        $('#fileupload').fileupload({
-                            uploadTemplate: function (o) {
-                                var rows = $();
-                                $.each(o.files, function (index, file) {
-                                    var html= '<tr class="template-upload fade show">'+
-                                    '    <td>'+
-                                    '        <span class="preview"></span>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <div class="bg-light rounded p-10 mb-2">'+
-                                    '            <dl class="m-b-0">'+
-                                    '                <dt class="text-inverse">Nombre del documento:</dt>'+
-                                    '                <dd class="name">'+file.name+'</dd>'+
-                                    '                <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>'+
-                                    '                <dd class="size">Processing...</dd>'+
-                                    '            </dl>'+
-                                    '        </div>'+
-                                    '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
-                                    '            <option value="">Seleccione una opci&oacute;n</option>'+
-                                    '            @if(isset($clasificacion_archivo))'+
-                                    '                @foreach($clasificacion_archivo as $clasificacion)'+
-                                    '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
-                                    '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
-                                    '                    @endif'+
-                                    '                @endforeach'+
-                                    '            @endif'+
-                                    '        </select>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
-                                    '            <option value="">Seleccione una opci&oacute;n</option>';
-                                    $.each(data, function(index,element){
-                                        if(element.tipo_persona_id == 1 && element.tipo_parte_id == 1 ){
-                                            html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</option>';
+                    try{
+                        if(data != null && data != ""){
+                            var html="";
+                            $('#fileupload').fileupload({
+                                uploadTemplate: function (o) {
+                                    var rows = $();
+                                    $.each(o.files, function (index, file) {
+                                        var html= '<tr class="template-upload fade show">'+
+                                        '    <td>'+
+                                        '        <span class="preview"></span>'+
+                                        '    </td>'+
+                                        '    <td>'+
+                                        '        <div class="bg-light rounded p-10 mb-2">'+
+                                        '            <dl class="m-b-0">'+
+                                        '                <dt class="text-inverse">Nombre del documento:</dt>'+
+                                        '                <dd class="name">'+file.name+'</dd>'+
+                                        '                <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo:</dt>'+
+                                        '                <dd class="size">Processing...</dd>'+
+                                        '            </dl>'+
+                                        '        </div>'+
+                                        '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
+                                        '    </td>'+
+                                        '    <td>'+
+                                        '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
+                                        '            <option value="">Seleccione una opci&oacute;n</option>'+
+                                        '            @if(isset($clasificacion_archivo))'+
+                                        '                @foreach($clasificacion_archivo as $clasificacion)'+
+                                        '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
+                                        '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
+                                        '                    @endif'+
+                                        '                @endforeach'+
+                                        '            @endif'+
+                                        '        </select>'+
+                                        '    </td>'+
+                                        '    <td>'+
+                                        '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
+                                        '            <option value="">Seleccione una opci&oacute;n</option>';
+                                        $.each(data, function(index,element){
+                                            if(element.tipo_persona_id == 1 && element.tipo_parte_id == 1 ){
+                                                html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</option>';
+                                            }
+                                            // else{
+                                            //     html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                                            //     // html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                                            // }
+                                        });
+                                        html +=' </select>'+
+                                        '    </td>'+
+                                        '    <td>'+
+                                        '        <dl>'+
+                                        '            <dt class="text-inverse m-t-3">Progreso:</dt>'+
+                                        '            <dd class="m-t-5">'+
+                                        '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
+                                        '            </dd>'+
+                                        '        </dl>'+
+                                        '    </td>'+
+                                        '    <td nowrap>'+
+                                        '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
+                                        '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
+                                        '                <span>Guardar</span>'+
+                                        '            </button>'+
+                                        '    </td>'+
+                                        '    <td nowrap>'+
+                                        '            <button class="btn btn-default cancel width-100 p-r-20">'+
+                                        '                <i class="fa fa-trash fa-fw text-muted"></i>'+
+                                        '                <span>Cancelar</span>'+
+                                        '            </button>'+
+                                        '    </td>'+
+                                        '</tr>';
+                                        var row = $(html);
+                                        if (file.error) {
+                                            row.find('.error').text(file.error);
                                         }
-                                        // else{
-                                        //     html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
-                                        //     // html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
-                                        // }
+                                        rows = rows.add(row);
                                     });
-                                    html +=' </select>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <dl>'+
-                                    '            <dt class="text-inverse m-t-3">Progreso:</dt>'+
-                                    '            <dd class="m-t-5">'+
-                                    '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
-                                    '            </dd>'+
-                                    '        </dl>'+
-                                    '    </td>'+
-                                    '    <td nowrap>'+
-                                    '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
-                                    '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
-                                    '                <span>Guardar</span>'+
-                                    '            </button>'+
-                                    '    </td>'+
-                                    '    <td nowrap>'+
-                                    '            <button class="btn btn-default cancel width-100 p-r-20">'+
-                                    '                <i class="fa fa-trash fa-fw text-muted"></i>'+
-                                    '                <span>Cancelar</span>'+
-                                    '            </button>'+
-                                    '    </td>'+
-                                    '</tr>';
-                                    var row = $(html);
-                                    if (file.error) {
-                                        row.find('.error').text(file.error);
-                                    }
-                                    rows = rows.add(row);
-                                });
-                                return rows;
-                            }
-                        });
-                    }else{
-                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                                    return rows;
+                                }
+                            });
+                        }else{
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -2165,30 +2267,35 @@
                 dataType:"json",
                 async:true,
                 success:function(data){
-                    if(data == null || data == ""){
-                        $("#modal-aviso-resolucion-inmediata").modal("show");
-                    }else{ //si parte no proporciono correo
-                        var tableSolicitantes = '';
-                        $.each(data, function(index,element){
-                            tableSolicitantes +='<tr>';
-                            if(element.tipo_persona_id == 1){
-                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
-                            }else{
-                                tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
-                            }
-                            tableSolicitantes += '  <td>';
-                            tableSolicitantes += '      <div class="col-md-12">';
-                            tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
-                            tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
-                            tableSolicitantes += '      </div>';
-                            tableSolicitantes += '  </td>';
-                            tableSolicitantes += '  <td>';
-                            tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
-                            tableSolicitantes += '  </td>';
-                            tableSolicitantes +='</tr>';
-                        });
-                        $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
-                        $("#modal-registro-correos").modal("show");
+                    try{
+
+                        if(data == null || data == ""){
+                            $("#modal-aviso-resolucion-inmediata").modal("show");
+                        }else{ //si parte no proporciono correo
+                            var tableSolicitantes = '';
+                            $.each(data, function(index,element){
+                                tableSolicitantes +='<tr>';
+                                if(element.tipo_persona_id == 1){
+                                    tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
+                                }else{
+                                    tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
+                                }
+                                tableSolicitantes += '  <td>';
+                                tableSolicitantes += '      <div class="col-md-12">';
+                                tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
+                                tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
+                                tableSolicitantes += '      </div>';
+                                tableSolicitantes += '  </td>';
+                                tableSolicitantes += '  <td>';
+                                    tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
+                                    tableSolicitantes += '  </td>';
+                                    tableSolicitantes +='</tr>';
+                                });
+                                $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
+                                $("#modal-registro-correos").modal("show");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -2312,12 +2419,17 @@
                 },
                 async:true,
                 success:function(data){
-                    if(data != null && data != ""){
-                        $("#nombreRep").val(data.nombre);
-                        $("#primer_apellidoRep").val(data.primer_apellido);
-                        $("#segundo_apellidoRep").val(data.segundo_apellido);
-                        $("#fecha_nacimientoRep").val(dateFormat(data.fecha_nacimiento,4));
-                        $("#genero_idRep").val(data.genero_id).trigger("change");
+                    try{
+
+                        if(data != null && data != ""){
+                            $("#nombreRep").val(data.nombre);
+                            $("#primer_apellidoRep").val(data.primer_apellido);
+                            $("#segundo_apellidoRep").val(data.segundo_apellido);
+                            $("#fecha_nacimientoRep").val(dateFormat(data.fecha_nacimiento,4));
+                            $("#genero_idRep").val(data.genero_id).trigger("change");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });

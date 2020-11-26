@@ -204,6 +204,7 @@
                         $.ajax({
                             url:"/api/ocupacion/multiples",
                             type:"POST",
+                            global:false,
                             dataType:"json",
                             data:{
                                 ids:ocupacionesSelec,

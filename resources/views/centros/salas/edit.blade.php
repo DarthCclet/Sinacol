@@ -50,15 +50,19 @@
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    if(data.data != null && data.data != ""){
-                        $("#centro_id").html("<option value=''>-- Selecciona un centro</option>");
-                        $.each(data.data,function(index,element){
-                            $("#centro_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
-                        });
-                    }else{
-                        $("#centro_id").html("<option value=''>-- Selecciona un centro</option>");
+                    try{
+                        if(data.data != null && data.data != ""){
+                            $("#centro_id").html("<option value=''>-- Selecciona un centro</option>");
+                            $.each(data.data,function(index,element){
+                                $("#centro_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                            });
+                        }else{
+                            $("#centro_id").html("<option value=''>-- Selecciona un centro</option>");
+                        }
+                        $("#centro_id").val('{{ $sala->centro_id }}').select2();
+                    }catch(error){
+                        console.log(error);
                     }
-                    $("#centro_id").val('{{ $sala->centro_id }}').select2();
                 }
             });
         });

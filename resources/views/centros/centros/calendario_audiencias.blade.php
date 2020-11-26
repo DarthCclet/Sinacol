@@ -245,14 +245,19 @@
                     },
                     dataType:"json",
                     success:function(data){
-                        if(data.minTime == "23:59:59" && data.maxtime == "00:00:00"){
-                            swal({
-                                title: 'Error',
-                                text: 'No está configurada la disponibilidad del centro',
-                                icon: 'warning'
-                            });
+                        try{
+
+                            if(data.minTime == "23:59:59" && data.maxtime == "00:00:00"){
+                                swal({
+                                    title: 'Error',
+                                    text: 'No está configurada la disponibilidad del centro',
+                                    icon: 'warning'
+                                });
+                            }
+                            construirCalendario(data);
+                        }catch(error){
+                            console.log(error);
                         }
-                        construirCalendario(data);
                     }
                 });
             });
@@ -306,77 +311,79 @@
                     type:"GET",
                     dataType:"json",
                     success:function(data){
-                        console.log(data);
-                        if(data != null && data != ""){
-                            if(!data.multiple){
-                                $("#divAsignarUnoCambiar").show();
-                                $("#divAsignarDosCambiar").hide();
-                                $("#tipoAsignacionCambiar").val(1);
-                            }else{
-                                $("#divAsignarUnoCambiar").hide();
-                                $("#divAsignarDosCambiar").show();
-                                $("#tipoAsignacionCambiar").val(2);
-                            }
-                            
-                            
-                            $("#audiencia_id").val(audiencia_id);
-                            $("#spanFolio").text(data.folio+"/"+data.anio);
-                            if(fuente == "NoCalendarizada"){
-                                $("#tableAudienciaSuccess").hide();
-                                $("#calendarioReagendar").show();
-                                $("#modal-audiencias").modal("hide");
-                                $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
-                            }else{
-                                $("#fecha_audiencia").val(data.id);
-                                $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia,4));
-                                $("#spanHoraInicio").text(data.hora_inicio);
-                                $("#spanHoraFin").text(data.hora_fin);
-                                $("#hora_inicio_audiencia").val(data.fecha_audiencia+" "+data.hora_inicio);
-                                $("#hora_fin_audiencia").val(data.fecha_audiencia+" "+data.hora_fin);
-                                var table="";
-                                multiple = data.multiple;
-                                    $.each(data.audiencia_parte,function(indexParte,elementParte){
-                                        if(elementParte.tipo_parte_id != 3){
-                                            table +='<tr>';
-                                            table +='   <td>'+elementParte.parte.tipo_parte.nombre+'</td>';
-                                            if(elementParte.parte.tipo_persona_id == 1){
-                                                table +='<td>'+elementParte.parte.nombre+' '+elementParte.parte.primer_apellido+' '+elementParte.parte.segundo_apellido+'</td>';
-                                            }else{
-                                                table +='<td>'+elementParte.parte.nombre_comercial+'</td>';
+                        try{
+                            console.log(data);
+                            if(data != null && data != ""){
+                                if(!data.multiple){
+                                    $("#divAsignarUnoCambiar").show();
+                                    $("#divAsignarDosCambiar").hide();
+                                    $("#tipoAsignacionCambiar").val(1);
+                                }else{
+                                    $("#divAsignarUnoCambiar").hide();
+                                    $("#divAsignarDosCambiar").show();
+                                    $("#tipoAsignacionCambiar").val(2);
+                                }
+                                $("#audiencia_id").val(audiencia_id);
+                                $("#spanFolio").text(data.folio+"/"+data.anio);
+                                if(fuente == "NoCalendarizada"){
+                                    $("#tableAudienciaSuccess").hide();
+                                    $("#calendarioReagendar").show();
+                                    $("#modal-audiencias").modal("hide");
+                                    $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                                }else{
+                                    $("#fecha_audiencia").val(data.id);
+                                    $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia,4));
+                                    $("#spanHoraInicio").text(data.hora_inicio);
+                                    $("#spanHoraFin").text(data.hora_fin);
+                                    $("#hora_inicio_audiencia").val(data.fecha_audiencia+" "+data.hora_inicio);
+                                    $("#hora_fin_audiencia").val(data.fecha_audiencia+" "+data.hora_fin);
+                                    var table="";
+                                    multiple = data.multiple;
+                                        $.each(data.audiencia_parte,function(indexParte,elementParte){
+                                            if(elementParte.tipo_parte_id != 3){
+                                                table +='<tr>';
+                                                table +='   <td>'+elementParte.parte.tipo_parte.nombre+'</td>';
+                                                if(elementParte.parte.tipo_persona_id == 1){
+                                                    table +='<td>'+elementParte.parte.nombre+' '+elementParte.parte.primer_apellido+' '+elementParte.parte.segundo_apellido+'</td>';
+                                                }else{
+                                                    table +='<td>'+elementParte.parte.nombre_comercial+'</td>';
+                                                }
+                                                if(data.multiple){
+                                                    $.each(data.conciliadores_audiencias,function(index,element){
+                                                        if(element.solicitante && elementParte.parte.tipo_parte_id == 1){
+                                                            table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                                                        }else if(!element.solicitante && elementParte.parte.tipo_parte_id == 2){
+                                                            table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                                                        }
+                                                    });
+                                                    $.each(data.salas_audiencias,function(index2,element2){
+                                                        if(element2.solicitante == elementParte.parte.tipo_parte_id == 1){
+                                                            table +='<td>'+element2.sala.sala+'</td>';
+                                                        }else if(!element2.solicitante == elementParte.parte.tipo_parte_id == 2){
+                                                            table +='<td>'+element2.sala.sala+'</td>';
+                                                        }
+                                                    });
+                                                }else{
+                                                    table +='   <td>'+data.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
+                                                    table +='   <td>'+data.salas_audiencias[0].sala.sala+'</td>';
+                                                }
+                                                table +='</tr>';
                                             }
-                                            if(data.multiple){
-                                                $.each(data.conciliadores_audiencias,function(index,element){
-                                                    if(element.solicitante && elementParte.parte.tipo_parte_id == 1){
-                                                        table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
-                                                    }else if(!element.solicitante && elementParte.parte.tipo_parte_id == 2){
-                                                        table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
-                                                    }
-                                                });
-                                                $.each(data.salas_audiencias,function(index2,element2){
-                                                    if(element2.solicitante == elementParte.parte.tipo_parte_id == 1){
-                                                        table +='<td>'+element2.sala.sala+'</td>';
-                                                    }else if(!element2.solicitante == elementParte.parte.tipo_parte_id == 2){
-                                                        table +='<td>'+element2.sala.sala+'</td>';
-                                                    }
-                                                });
-                                            }else{
-                                                table +='   <td>'+data.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
-                                                table +='   <td>'+data.salas_audiencias[0].sala.sala+'</td>';
-                                            }
-                                            table +='</tr>';
-                                        }
-                                    });
-                                $("#tableAudienciaSuccess").show();
-                                $("#tableAudienciaSuccess tbody").html(table);
-                                $("#modalRatificacion").modal("hide");
-                                $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                                        });
+                                    $("#tableAudienciaSuccess").show();
+                                    $("#tableAudienciaSuccess tbody").html(table);
+                                    $("#modalRatificacion").modal("hide");
+                                    $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                                }
+                            }else{
+                                swal({
+                                    title: 'Error',
+                                    text: 'No se pudo obtener la información de la audiencia',
+                                    icon: 'error'
+                                });
                             }
-                        }else{
-                            swal({
-                                title: 'Error',
-                                text: 'No se pudo obtener la información de la audiencia',
-                                icon: 'error'
-                            });
+                        }catch(error){
+                            console.log(error);
                         }
                     }
                 });
@@ -406,22 +413,26 @@
                         },
                         dataType:"json",
                         success:function(data){
-                            console.log(data);
-                            if(data != null && data != ""){
-                                swal({
-                                    title: 'Correcto',
-                                    text: 'Se cambio el conciliador de la audiencia',
-                                    icon: 'success'
-                                });
-                                $('.modal').modal('hide');
-                                setTimeout('', 5000);
-                                location.reload();
-                            }else{
-                                swal({
-                                    title: 'Algo salió mal',
-                                    text: 'No se registro la audiencia',
-                                    icon: 'warning'
-                                });
+                            try{
+                                console.log(data);
+                                if(data != null && data != ""){
+                                    swal({
+                                        title: 'Correcto',
+                                        text: 'Se cambio el conciliador de la audiencia',
+                                        icon: 'success'
+                                    });
+                                    $('.modal').modal('hide');
+                                    setTimeout('', 5000);
+                                    location.reload();
+                                }else{
+                                    swal({
+                                        title: 'Algo salió mal',
+                                        text: 'No se registro la audiencia',
+                                        icon: 'warning'
+                                    });
+                                }
+                            }catch(error){
+                                console.log(error);
                             }
                         }
                     });

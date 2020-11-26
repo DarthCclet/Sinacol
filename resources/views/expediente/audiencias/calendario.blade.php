@@ -157,7 +157,12 @@
                     },
                     dataType:"json",
                     success:function(data){
-                        construirCalendario(data);
+                        try{
+
+                            construirCalendario(data);
+                        }catch(error){
+                            console.log(error);
+                        }
                     }
                 });
             });

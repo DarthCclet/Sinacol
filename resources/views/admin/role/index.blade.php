@@ -101,23 +101,28 @@
                 dataType:"json",
                 async:true,
                 success:function(data){
-                    if(data != null){
-                        var table="";
-                        $.each(data,function(index,element){
+                    try{
+
+                        if(data != null){
+                            var table="";
+                            $.each(data,function(index,element){
                             table +='<tr>';
                             table +='   <td>'+element.name+'</td>';
                             table +='   <td>'+element.description+'</td>';
                             table +='   <td>';
-                            table +='       <a class="btn btn-xs btn-primary" onclick="eliminarPermiso(\''+element.name+'\')">';
-                            table +='           <i class="fa fa-edit text-light"></i>';
-                            table +='       </a>';
-                            table +='   </td>';
-                            table +='</tr>';
-                        });
-                        $("#role_id").val(id);
-                        $("#nombre_rol").text(nombre);
-                        $("#tbodyPermisos").html(table);
-                        $("#modalPermisos").modal("show");
+                                table +='       <a class="btn btn-xs btn-primary" onclick="eliminarPermiso(\''+element.name+'\')">';
+                                    table +='           <i class="fa fa-edit text-light"></i>';
+                                    table +='       </a>';
+                                    table +='   </td>';
+                                    table +='</tr>';
+                                });
+                                $("#role_id").val(id);
+                                $("#nombre_rol").text(nombre);
+                                $("#tbodyPermisos").html(table);
+                                $("#modalPermisos").modal("show");
+                            }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -155,22 +160,26 @@
                             permiso:name
                         },
                         success:function(data){
-                            if(data != null){
-                                var table="";
-                                $.each(data,function(index,element){
-                                    table +='<tr>';
-                                    table +='   <td>'+element.name+'</td>';
-                                    table +='   <td>'+element.description+'</td>';
-                                    table +='   <td>';
-                                    table +='       <a class="btn btn-xs btn-primary" onclick="eliminarPermiso('+element.name+')">';
-                                    table +='           <i class="fa fa-edit text-light"></i>';
-                                    table +='       </a>';
-                                    table +='   </td>';
-                                    table +='</tr>';
-                                });
-//                                $("#nombre_rol").text(nombre);
-                                $("#tbodyPermisos").html(table);
-//                                $("#modalPermisos").modal("show");
+                            try{
+                                if(data != null){
+                                    var table="";
+                                    $.each(data,function(index,element){
+                                        table +='<tr>';
+                                        table +='   <td>'+element.name+'</td>';
+                                        table +='   <td>'+element.description+'</td>';
+                                        table +='   <td>';
+                                        table +='       <a class="btn btn-xs btn-primary" onclick="eliminarPermiso('+element.name+')">';
+                                        table +='           <i class="fa fa-edit text-light"></i>';
+                                        table +='       </a>';
+                                        table +='   </td>';
+                                        table +='</tr>';
+                                    });
+    //                                $("#nombre_rol").text(nombre);
+                                    $("#tbodyPermisos").html(table);
+    //                                $("#modalPermisos").modal("show");
+                                }
+                            }catch(error){
+                                console.log(error);
                             }
                         }
                     });

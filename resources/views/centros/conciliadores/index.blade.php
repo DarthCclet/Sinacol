@@ -328,19 +328,23 @@
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
-                    console.log(data);
-                    if(data != null){
-                        $("#id").val(data.id);
-                        $("#nombreConciliador").text(data.persona.nombre+' '+data.persona.primer_apellido+' '+(data.persona.segundo_apellido|| ""));
-                        limpiarModal();
-                        $.each(data.disponibilidades,function(index,data){
-                            var elm = $("#switch"+data.dia);
-                            $(elm).trigger('click');
-                            $(elm).prev().val(data.id);
-                            $(elm).parent().next().children().next().val(data.hora_inicio);
-                            $(elm).parent().next().next().children().next().val(data.hora_fin);
-                        });
-                        $("#modal-disponinbilidad").modal("show");
+                    try{
+                        console.log(data);
+                        if(data != null){
+                            $("#id").val(data.id);
+                            $("#nombreConciliador").text(data.persona.nombre+' '+data.persona.primer_apellido+' '+(data.persona.segundo_apellido|| ""));
+                            limpiarModal();
+                            $.each(data.disponibilidades,function(index,data){
+                                var elm = $("#switch"+data.dia);
+                                $(elm).trigger('click');
+                                $(elm).prev().val(data.id);
+                                $(elm).parent().next().children().next().val(data.hora_inicio);
+                                $(elm).parent().next().next().children().next().val(data.hora_fin);
+                            });
+                            $("#modal-disponinbilidad").modal("show");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -448,44 +452,48 @@
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
-                    console.log(data);
-                    if(data != null){
-                        $("#id").val(data.id);
-                        $("#nombreConciliadorIncidencia").text(data.persona.nombre+' '+data.persona.primer_apellido+' '+(data.persona.segundo_apellido|| ""));
-                        limpiarModalIncidencia();
-                        var table = `
-                            <table id="data-table-incidencias" class="table table-striped table-bordered table-condensed table-td-valign-middle">
-                                <thead>
-                                <tr>
-                                    <th class="text-nowrap">Justificación</th>
-                                    <th class="text-nowrap">Fecha y hora de inicio</th>
-                                    <th class="text-nowrap">Fecha y hora fin</th>
-                                    <th class="text-nowrap all">Acciones</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                        `;
-                        $.each(data.incidencias,function(index,data){
-                            table +='<tr>';
-                            table +='   <td>'+data.justificacion+'</td>';
-                            table +='   <td>'+data.fecha_inicio+'</td>';
-                            table +='   <td>'+data.fecha_fin+'</td>';
-                            table +='   <td>';
-                            table +='       <a class="btn btn-xs btn-primary incidencia" onclick="cargarIncidencia('+data.id+')">';
-                            table +='           <i class="fa fa-edit"></i>';
-                            table +='       </a>';
-                            table +='       <a class="btn btn-xs btn-warning incidencia" onclick="eliminarIncidencia('+data.id+')">';
-                            table +='           <i class="fa fa-trash"></i>';
-                            table +='       </a>';
-                            table +='   </td>';
-                            table +='</tr>';
-                        });
-                        table +='</tbody>';
-                        table +='</table>';
-                        $("#table_incidencias").html(table);
-                        $('#data-table-incidencias').DataTable();
-                        cambiarDivIncidencias(1);
-                        $("#modal-incidencias").modal("show");
+                    try{
+                        console.log(data);
+                        if(data != null){
+                            $("#id").val(data.id);
+                            $("#nombreConciliadorIncidencia").text(data.persona.nombre+' '+data.persona.primer_apellido+' '+(data.persona.segundo_apellido|| ""));
+                            limpiarModalIncidencia();
+                            var table = `
+                                <table id="data-table-incidencias" class="table table-striped table-bordered table-condensed table-td-valign-middle">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-nowrap">Justificación</th>
+                                        <th class="text-nowrap">Fecha y hora de inicio</th>
+                                        <th class="text-nowrap">Fecha y hora fin</th>
+                                        <th class="text-nowrap all">Acciones</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                            `;
+                            $.each(data.incidencias,function(index,data){
+                                table +='<tr>';
+                                table +='   <td>'+data.justificacion+'</td>';
+                                table +='   <td>'+data.fecha_inicio+'</td>';
+                                table +='   <td>'+data.fecha_fin+'</td>';
+                                table +='   <td>';
+                                table +='       <a class="btn btn-xs btn-primary incidencia" onclick="cargarIncidencia('+data.id+')">';
+                                table +='           <i class="fa fa-edit"></i>';
+                                table +='       </a>';
+                                table +='       <a class="btn btn-xs btn-warning incidencia" onclick="eliminarIncidencia('+data.id+')">';
+                                table +='           <i class="fa fa-trash"></i>';
+                                table +='       </a>';
+                                table +='   </td>';
+                                table +='</tr>';
+                            });
+                            table +='</tbody>';
+                            table +='</table>';
+                            $("#table_incidencias").html(table);
+                            $('#data-table-incidencias').DataTable();
+                            cambiarDivIncidencias(1);
+                            $("#modal-incidencias").modal("show");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -530,12 +538,17 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
-                        getConciliadorIncidencias($("#id").val());
-                        swal({
-                            title: 'Éxito',
-                            text: 'Se guardarón los datos de la disponibilidad',
-                            icon: 'success'
-                        });
+                        try{
+
+                            getConciliadorIncidencias($("#id").val());
+                            swal({
+                                title: 'Éxito',
+                                text: 'Se guardarón los datos de la disponibilidad',
+                                icon: 'success'
+                            });
+                        }catch(error){
+                            console.log(error);
+                        }
                     }
                 });
             }else{
@@ -574,19 +587,24 @@
                 dataType:"json",
                 async:true,
                 success:function(data){
-                    if(data != null && data != ""){
-                        limpiarModalIncidencia();
-                        $("#incidencia_id").val(data.id);
-                        $("#justificacion").val(data.justificacion);
-                        $("#fecha_inicio").val(data.fecha_inicio);
-                        $("#fecha_fin").val(data.fecha_fin);
-                        cambiarDivIncidencias(2);
-                    }else{
-                        swal({
-                            title: 'Algo salió mal',
-                            text: 'No pudimos traer la información',
-                            icon: 'warning'
-                        });
+                    try{
+
+                        if(data != null && data != ""){
+                            limpiarModalIncidencia();
+                            $("#incidencia_id").val(data.id);
+                            $("#justificacion").val(data.justificacion);
+                            $("#fecha_inicio").val(data.fecha_inicio);
+                            $("#fecha_fin").val(data.fecha_fin);
+                            cambiarDivIncidencias(2);
+                        }else{
+                            swal({
+                                title: 'Algo salió mal',
+                                text: 'No pudimos traer la información',
+                                icon: 'warning'
+                            });
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -623,14 +641,19 @@
                             _token:"{{ csrf_token() }}"
                         },
                         success:function(data){
-                            if(data != null && data != ""){
-                                getConciliadorIncidencias($("#id").val());
-                            }else{
-                                swal({
-                                    title: 'Algo salió mal',
-                                    text: 'No pudimos traer la información',
-                                    icon: 'warning'
-                                });
+                            tr{
+
+                                if(data != null && data != ""){
+                                    getConciliadorIncidencias($("#id").val());
+                                }else{
+                                    swal({
+                                        title: 'Algo salió mal',
+                                        text: 'No pudimos traer la información',
+                                        icon: 'warning'
+                                    });
+                                }
+                            }catch(error){
+                                console.log(error);
                             }
                         }
                     });
@@ -650,14 +673,19 @@
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
-                    if(data != null){
-                        $("#id").val(data.id);
-                        limpiarRoles();
-                        $.each(data.RolesConciliador, function(index,element){
-                            $("#check"+element.rol_atencion_id).prop("checked",true);
-                            $("#rol_conciliador_id"+element.rol_atencion_id).val(element.id);
-                        });
-                        $("#modal-roles").modal("show");
+                    tr{
+
+                        if(data != null){
+                            $("#id").val(data.id);
+                            limpiarRoles();
+                            $.each(data.RolesConciliador, function(index,element){
+                                $("#check"+element.rol_atencion_id).prop("checked",true);
+                                $("#rol_conciliador_id"+element.rol_atencion_id).val(element.id);
+                            });
+                            $("#modal-roles").modal("show");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -668,24 +696,28 @@
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    console.log(data);
-                     if(data.data.data != null && data.data.data != ""){
-                         var table='';
-                        $.each(data.data.data,function(index,element){
-                            table +='<tr>';
-                            table +='   <td class="with-checkbox">';
-                            table +='       <input type="hidden" class="hddRoles" id="rol_conciliador_id'+element.id+'">';
-                            table +='       <div class="checkbox checkbox-css" >';
-                            table +='           <input class="checkRol" type="checkbox" value="'+element.id+'" id="check'+element.id+'" onchange="cambio(this.value)"/>';
-                            table +='           <label for="check'+element.id+'"></label>';
-                            table +='       </div>';
-                            table +='   </td>';
-                            table +='   <td>'+element.nombre+'</td>';
-                            table +='</tr>';
-                        });
-                        $("#table-roles tbody").html(table);
-                    }else{
-                        $("#table-roles tbody").html("");
+                    try{
+                        console.log(data);
+                        if(data.data.data != null && data.data.data != ""){
+                            var table='';
+                            $.each(data.data.data,function(index,element){
+                                table +='<tr>';
+                                table +='   <td class="with-checkbox">';
+                                table +='       <input type="hidden" class="hddRoles" id="rol_conciliador_id'+element.id+'">';
+                                table +='       <div class="checkbox checkbox-css" >';
+                                table +='           <input class="checkRol" type="checkbox" value="'+element.id+'" id="check'+element.id+'" onchange="cambio(this.value)"/>';
+                                table +='           <label for="check'+element.id+'"></label>';
+                                table +='       </div>';
+                                table +='   </td>';
+                                table +='   <td>'+element.nombre+'</td>';
+                                table +='</tr>';
+                            });
+                            $("#table-roles tbody").html(table);
+                        }else{
+                            $("#table-roles tbody").html("");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
