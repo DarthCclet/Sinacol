@@ -282,11 +282,16 @@
                     _token:$("input[name=_token]").val()
                 },
                 success:function(data){
-                    if(data != null && data != ""){
-                        swal({title: 'ÉXITO',text: 'Se Agrego correctamente la parte ',icon: 'success'});
-                        window.location.reload();
-                    }else{
-                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                    try{
+
+                        if(data != null && data != ""){
+                            swal({title: 'ÉXITO',text: 'Se Agrego correctamente la parte ',icon: 'success'});
+                            window.location.reload();
+                        }else{
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 },error:function(data){
                     var mensajes = "";

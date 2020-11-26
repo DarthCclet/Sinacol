@@ -21,7 +21,11 @@
                     type:"GET",
                     dataType:"json",
                     success:function(data){
-                        construirCalendario(data);
+                        try{
+                            construirCalendario(data);
+                        }catch(error){
+                            console.log(error);
+                        }
                     }
                 });
             });
@@ -136,13 +140,17 @@
                     },
                     dataType:"json",
                     success:function(data){
-                        $("#sala_cambio_fecha_id").html("<option value=''>-- Selecciona una sala</option>");
-                        if(data != null && data != ""){
-                            $.each(data,function(index,element){
-                                $("#sala_cambio_fecha_id").append("<option value='"+element.id+"'>"+element.sala+"</option>");
-                            });
-                        }
-                        $("#sala_cambio_fecha_id").select2();
+                        try{
+                            $("#sala_cambio_fecha_id").html("<option value=''>-- Selecciona una sala</option>");
+                            if(data != null && data != ""){
+                                $.each(data,function(index,element){
+                                    $("#sala_cambio_fecha_id").append("<option value='"+element.id+"'>"+element.sala+"</option>");
+                                });
+                            }
+                            $("#sala_cambio_fecha_id").select2();
+                        }catch(error){
+                            console.log(error);
+                        }}
                     }
                 });
             }
@@ -161,33 +169,36 @@
                         },
                         dataType:"json",
                         success:function(data){
-                            var table = "";
-                            if(data.sin_contactar != null){
-                                $.each(data.sin_contactar,function(index,element){
-                                    table += '<tr>';
-                                    if(element.tipo_persona_id == 1){
-                                        table += '  <td>'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</td>';
-                                    }else{
-                                        table +='   <td>'+element.nombre_comercial+'</td>';
-                                    }
-                                    table +='   <td>';
-                                    $.each(element.contactos,function(index,contacto){
-                                        table +='<strong>'+contacto.tipo_contacto.nombre+': </strong>'+contacto.contacto+'<br>';
+                            try{
+                                var table = "";
+                                if(data.sin_contactar != null){
+                                    $.each(data.sin_contactar,function(index,element){
+                                        table += '<tr>';
+                                        if(element.tipo_persona_id == 1){
+                                            table += '  <td>'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</td>';
+                                        }else{
+                                            table +='   <td>'+element.nombre_comercial+'</td>';
+                                        }
+                                        table +='   <td>';
+                                        $.each(element.contactos,function(index,contacto){
+                                            table +='<strong>'+contacto.tipo_contacto.nombre+': </strong>'+contacto.contacto+'<br>';
+                                        });
+                                        table +='   </td>';
+                                        table += '</tr>';
                                     });
-                                    table +='   </td>';
-                                    table += '</tr>';
-                                });
-                                $("#tableNoContactados tbody").html(table);
-                                $("#modal-Sala-Cambio").modal("hide");
-                                $("#modal-comunicados").modal("show");
-                            }else{
-                                swal({
-                                    title: 'Correcto',
-                                    text: 'Se cambio la fecha de audiencia',
-                                    icon: 'success'
-                                });
+                                    $("#tableNoContactados tbody").html(table);
+                                    $("#modal-Sala-Cambio").modal("hide");
+                                    $("#modal-comunicados").modal("show");
+                                }else{
+                                    swal({
+                                        title: 'Correcto',
+                                        text: 'Se cambio la fecha de audiencia',
+                                        icon: 'success'
+                                    });
+                                }
+                            }catch(error){
+                                console.log(error);
                             }
-                            
                         },error: function(){
                             swal({
                                 title: 'Error',

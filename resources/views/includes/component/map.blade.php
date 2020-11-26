@@ -389,13 +389,18 @@
                 type : "get",
                 async: false,
                 success : function(data) {
-                    $('#municipio'+identifier).empty().trigger('change');
-                    $("#asentamiento"+identifier).empty().trigger('change');
-                    $("#asentamientoAutoc"+identifier).empty('').trigger('change');
-                    $("#cp"+identifier).val("");
-                    $('#municipio'+identifier).append(new Option("Seleccione una opción","", false, false));
-                    for(let i in data){
-                        $('#municipio'+identifier).append(new Option(data[i], data[i], false, false));
+                    try{
+
+                        $('#municipio'+identifier).empty().trigger('change');
+                        $("#asentamiento"+identifier).empty().trigger('change');
+                        $("#asentamientoAutoc"+identifier).empty('').trigger('change');
+                        $("#cp"+identifier).val("");
+                        $('#municipio'+identifier).append(new Option("Seleccione una opción","", false, false));
+                        for(let i in data){
+                            $('#municipio'+identifier).append(new Option(data[i], data[i], false, false));
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 },
                 error: function() {
@@ -411,8 +416,13 @@
                     estado_id:$("#estado_id"+identifier+"").val()
                 },
                 success : function(json) {
-                    municipiosCede = [];
-                    municipiosCede = json.data;
+                    try{
+
+                        municipiosCede = [];
+                        municipiosCede = json.data;
+                    }catch(error){
+                        console.log(error);
+                    }
                 },
                 error: function() {
                 }

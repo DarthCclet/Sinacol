@@ -51,11 +51,15 @@
                 dataType:"json",
                 async:true,
                 success:function(data){
-                    if(data != null){
-                        $.each(data,function(index,element){
-                            $(".multiple-select2 option[value='"+element.name+"']").attr("selected","selected");
-                        });
-                        $(".multiple-select2").trigger("change");
+                    try{
+                        if(data != null){
+                            $.each(data,function(index,element){
+                                $(".multiple-select2 option[value='"+element.name+"']").attr("selected","selected");
+                            });
+                            $(".multiple-select2").trigger("change");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });

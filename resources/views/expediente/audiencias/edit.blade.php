@@ -1354,17 +1354,22 @@
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    if(data.data.data != null && data.data.data != ""){
-                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
-//                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
-                        $.each(data.data.data,function(index,element){
-                            $("#resolucion_id,#resolucion_individual_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
-                        });
-                    }else{
-                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
+                    try{
+
+                        if(data.data.data != null && data.data.data != ""){
+                            $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
+                            //                        $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
+                            $.each(data.data.data,function(index,element){
+                                $("#resolucion_id,#resolucion_individual_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                            });
+                        }else{
+                            $("#resolucion_id,#resolucion_individual_id").html("<option value=''>-- Selecciona una resolucion</option>");
+                        }
+                        $("#resolucion_id").val('{{ $audiencia->resolucion_id }}');
+                        $("#resolucion_id,#resolucion_individual_id").trigger("change");
+                    }catch(error){
+                        console.log(error);
                     }
-                    $("#resolucion_id").val('{{ $audiencia->resolucion_id }}');
-                    $("#resolucion_id,#resolucion_individual_id").trigger("change");
                 }
             });
             CargarFinalizacion();
@@ -1495,39 +1500,43 @@
                 dataType:"json",
                 async:true,
                 success:function(data){
-                    if(data != null && data != ""){
-                        var table = "";
-                        var div = "";
-                        $.each(data, function(index,element){
-                            div += '<div class="image gallery-group-1">';
-                            div += '    <div class="image-inner" style="position: relative;">';
-                            if(element.tipo == 'pdf' || element.tipo == 'PDF'){
-                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
-                                div += '                <div class="img" align="center">';
-                                div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
-                                div += '                </div>';
-                                div += '            </a>';
-                            }else{
-                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
-                                div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
-                                div += '            </a>';
-                            }
-                            div += '            <p class="image-caption">';
-                            div += '                '+element.longitud+' kb';
-                            div += '            </p>';
-                            div += '    </div>';
-                            div += '    <div class="image-info">';
-                            div += '            <h5 class="title">'+element.nombre_original+'</h5>';
-                            div += '            <div class="desc">';
-                            div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
-                            div +=                  element.descripcion+'<br>';
-                            div += '            </div>';
-                            div += '    </div>';
-                            div += '</div>';
-                        });
-                        $("#gallery").html(div);
-                    }else{
+                    try{
+                        if(data != null && data != ""){
+                            var table = "";
+                            var div = "";
+                            $.each(data, function(index,element){
+                                div += '<div class="image gallery-group-1">';
+                                div += '    <div class="image-inner" style="position: relative;">';
+                                if(element.tipo == 'pdf' || element.tipo == 'PDF'){
+                                    div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
+                                    div += '                <div class="img" align="center">';
+                                    div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
+                                    div += '                </div>';
+                                    div += '            </a>';
+                                }else{
+                                    div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
+                                    div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
+                                    div += '            </a>';
+                                }
+                                div += '            <p class="image-caption">';
+                                div += '                '+element.longitud+' kb';
+                                div += '            </p>';
+                                div += '    </div>';
+                                div += '    <div class="image-info">';
+                                div += '            <h5 class="title">'+element.nombre_original+'</h5>';
+                                div += '            <div class="desc">';
+                                div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
+                                div +=                  element.descripcion+'<br>';
+                                div += '            </div>';
+                                div += '    </div>';
+                                div += '</div>';
+                            });
+                            $("#gallery").html(div);
+                        }else{
 
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -1567,15 +1576,20 @@
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    if(data.data != null && data.data != ""){
-                        $("#genero_id").html("<option value=''>-- Selecciona un género</option>");
-                        $.each(data.data,function(index,element){
-                            $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
-                        });
-                    }else{
-                        $("#genero_id").html("<option value=''>-- Selecciona una opción</option>");
+                    try{
+
+                        if(data.data != null && data.data != ""){
+                            $("#genero_id").html("<option value=''>-- Selecciona un género</option>");
+                            $.each(data.data,function(index,element){
+                                $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                            });
+                        }else{
+                            $("#genero_id").html("<option value=''>-- Selecciona una opción</option>");
+                        }
+                        $("#genero_id").trigger("change");
+                    }catch(error){
+                        console.log(error);
                     }
-                    $("#genero_id").trigger("change");
                 }
             });
         }
@@ -1583,6 +1597,7 @@
             $.ajax({
                 url:"/tipos_contactos",
                 type:"GET",
+                global:false,
                 dataType:"json",
                 success:function(data){
                     if(data.data.total > 0){
@@ -1604,58 +1619,63 @@
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    if(data != null && data != ""){
-                        data = data[0];
-                        $("#id_representante").val(data.id);
-                        $("#curp").val(data.curp);
-                        $("#nombre").val(data.nombre);
-                        $("#primer_apellido").val(data.primer_apellido);
-                        $("#segundo_apellido").val((data.segundo_apellido|| ""));
-                        $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
-                        $("#genero_id").val(data.genero_id).trigger("change");
-                        $("#clasificacion_archivo_id").val(data.clasificacion_archivo_id).change();
-                        $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
-                        $("#detalle_instrumento").val(data.detalle_instrumento);
-                        $("#parte_id").val(data.id);
-                        listaContactos = data.contactos;
-                        if(data.documentos && data.documentos.length > 0){
-                            $.each(data.documentos,function(index,doc){
-                                if(doc.tipo_archivo == 1){
-                                    if(doc.clasificacion_archivo_id == 3){
-                                        $("#labelCedula").html("Cedula Profesional Capturada");
+                    try{
+
+                        if(data != null && data != ""){
+                            data = data[0];
+                            $("#id_representante").val(data.id);
+                            $("#curp").val(data.curp);
+                            $("#nombre").val(data.nombre);
+                            $("#primer_apellido").val(data.primer_apellido);
+                            $("#segundo_apellido").val((data.segundo_apellido|| ""));
+                            $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
+                            $("#genero_id").val(data.genero_id).trigger("change");
+                            $("#clasificacion_archivo_id").val(data.clasificacion_archivo_id).change();
+                            $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
+                            $("#detalle_instrumento").val(data.detalle_instrumento);
+                            $("#parte_id").val(data.id);
+                            listaContactos = data.contactos;
+                            if(data.documentos && data.documentos.length > 0){
+                                $.each(data.documentos,function(index,doc){
+                                    if(doc.tipo_archivo == 1){
+                                        if(doc.clasificacion_archivo_id == 3){
+                                            $("#labelCedula").html("Cedula Profesional Capturada");
+                                        }else{
+                                            $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                            $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                                        }
                                     }else{
-                                        $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
-                                        $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                                        $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                        $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
                                     }
-                                }else{
-                                    $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
-                                    $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
-                                }
-                            });
-                            
+                                });
+                                
+                            }else{
+                                $("#tipo_documento_id").val("").trigger("change");
+                                $("#labelIdentifRepresentante").html("");
+                                $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                                $("#labelInstrumentoRepresentante").html("");
+                            }
                         }else{
-                            $("#tipo_documento_id").val("").trigger("change");
-                            $("#labelIdentifRepresentante").html("");
-                            $("#clasificacion_archivo_id_representante").val("").trigger('change');
-                            $("#labelInstrumentoRepresentante").html("");
+                            $("#id_representante").val("");
+                            $("#curp").val("");
+                            $("#nombre").val("");
+                            $("#primer_apellido").val("");
+                            $("#segundo_apellido").val("");
+                            $("#fecha_nacimiento").val("");
+                            $("#genero_id").val("").trigger("change");
+                            $("#clasificacion_archivo_id").val("").change();
+                            $("#feha_instrumento").val("");
+                            $("#detalle_instrumento").val("");
+                            $("#parte_id").val("");
+                            listaContactos = [];
                         }
-                    }else{
-                        $("#id_representante").val("");
-                        $("#curp").val("");
-                        $("#nombre").val("");
-                        $("#primer_apellido").val("");
-                        $("#segundo_apellido").val("");
-                        $("#fecha_nacimiento").val("");
-                        $("#genero_id").val("").trigger("change");
-                        $("#clasificacion_archivo_id").val("").change();
-                        $("#feha_instrumento").val("");
-                        $("#detalle_instrumento").val("");
-                        $("#parte_id").val("");
-                        listaContactos = [];
+                        $("#parte_representada_id").val(parte_id);
+                        cargarContactos();
+                        $("#modal-representante").modal("show");
+                    }catch(error){
+                        console.log(error);
                     }
-                    $("#parte_representada_id").val(parte_id);
-                    cargarContactos();
-                    $("#modal-representante").modal("show");
                 }
             });
         }
@@ -1672,12 +1692,17 @@
                 },
                 async:true,
                 success:function(data){
-                    if(data != null && data != ""){
-                        $("#nombre").val(data.nombre);
-                        $("#primer_apellido").val(data.primer_apellido);
-                        $("#segundo_apellido").val(data.segundo_apellido);
-                        $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
-                        $("#genero_id").val(data.genero_id).trigger("change");
+                    try{
+
+                        if(data != null && data != ""){
+                            $("#nombre").val(data.nombre);
+                            $("#primer_apellido").val(data.primer_apellido);
+                            $("#segundo_apellido").val(data.segundo_apellido);
+                            $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
+                            $("#genero_id").val(data.genero_id).trigger("change");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -1735,11 +1760,16 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
-                        if(data != null && data != ""){
-                            listaContactos = data;
-                            cargarContactos();
-                        }else{
-                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        try{
+
+                            if(data != null && data != ""){
+                                listaContactos = data;
+                                cargarContactos();
+                            }else{
+                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            }
+                        }catch(error){
+                            console.log(error);
                         }
                     }
                 });
@@ -1829,11 +1859,15 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
-                        if(data != null && data != ""){
-                            listaContactos = data;
-                            cargarContactos();
-                        }else{
-                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        try{
+                            if(data != null && data != ""){
+                                listaContactos = data;
+                                cargarContactos();
+                            }else{
+                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            }
+                        }catch(error){
+                            console.log(error);
                         }
                     }
                 });
@@ -1895,12 +1929,17 @@
                     contentType: false,
                     data:formData,
                     success:function(data){
-                        if(data != null && data != ""){
-                            swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
-                            actualizarPartes();
-                            $("#modal-representante").modal("hide");
-                        }else{
-                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        try{
+
+                            if(data != null && data != ""){
+                                swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
+                                actualizarPartes();
+                                $("#modal-representante").modal("hide");
+                            }else{
+                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            }
+                        }catch(error){
+                            console.log(error);
                         }
                     }
                 });
@@ -1966,27 +2005,31 @@
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    var table = "";
-                    $.each(data, function(index,element){
-                        table +='<tr>';
-                        table +='   <td>'+element.tipo_parte.nombre+'</td>';
-                        table +='   <td>'+element.nombre+'</td>';
-                        table +='   <td>'+element.primer_apellido+'</td>';
-                        table +='   <td>'+(element.segundo_apellido|| "")+'</td>';
-                        table +='   <td>';
-                        table +='       <div class="col-md-2">';
-                        table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
-                        table +='       </div>';
-                        table +='   </td>';
-                        table +='</tr>';
-                    });
-                    $("#tbodyPartesFisicas").html(table);
-                    $("#resolucionVarias").hide();
-                    $("#btnCancelarVarias").hide();
-                    $("#btnGuardarResolucionMuchas").hide();
-                    $("#btnConfigurarResoluciones").show();
-                    $("#btnGuardarResolucionUna").show();
-                    $("#modal-comparecientes").modal("show");
+                    try{
+                        var table = "";
+                        $.each(data, function(index,element){
+                            table +='<tr>';
+                            table +='   <td>'+element.tipo_parte.nombre+'</td>';
+                            table +='   <td>'+element.nombre+'</td>';
+                            table +='   <td>'+element.primer_apellido+'</td>';
+                            table +='   <td>'+(element.segundo_apellido|| "")+'</td>';
+                            table +='   <td>';
+                            table +='       <div class="col-md-2">';
+                            table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
+                            table +='       </div>';
+                            table +='   </td>';
+                            table +='</tr>';
+                        });
+                            $("#tbodyPartesFisicas").html(table);
+                            $("#resolucionVarias").hide();
+                            $("#btnCancelarVarias").hide();
+                            $("#btnGuardarResolucionMuchas").hide();
+                            $("#btnConfigurarResoluciones").show();
+                            $("#btnGuardarResolucionUna").show();
+                            $("#modal-comparecientes").modal("show");
+                    }catch(error){
+                        console.log(error);
+                    }
                 }
             });
         }
@@ -2108,14 +2151,18 @@
                                 _token:"{{ csrf_token() }}"
                             },
                             success:function(data){
-                                if(data != null && data != ""){
-                                    confirmVista(data.id);
-                                }else{
-                                    swal({
-                                        title: 'Algo salió mal',
-                                        text: 'No se guardo el registro',
-                                        icon: 'warning'
-                                    });
+                                try{
+                                    if(data != null && data != ""){
+                                        confirmVista(data.id);
+                                    }else{
+                                        swal({
+                                            title: 'Algo salió mal',
+                                            text: 'No se guardo el registro',
+                                            icon: 'warning'
+                                        });
+                                    }
+                                }catch(error){
+                                    console.log(error);
                                 }
                             }
                         });
@@ -2277,11 +2324,15 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
-                        if(data != null && data != ""){
-                            swal({title: 'ÉXITO',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
-                            $("#modal-dato-laboral").modal("hide");
-                        }else{
-                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        try{
+                            if(data != null && data != ""){
+                                swal({title: 'ÉXITO',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
+                                $("#modal-dato-laboral").modal("hide");
+                            }else{
+                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            }
+                        }catch(error){
+                            console.log(error);
                         }
                     },error:function(data){
                         var mensajes = "";
@@ -2322,27 +2373,31 @@
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    if(data != null && data != ""){
-                        $("#dato_laboral_id").val(data.id);
-                        // getGiroEditar("solicitante");
-                        $("#ocupacion_id").val(data.ocupacion_id);
-                        $("#nss").val(data.nss);
-                        $("#no_issste").val(data.no_issste);
-                        $("#remuneracion").val(data.remuneracion);
-                        $("#periodicidad_id").val(data.periodicidad_id);
-                        if(data.labora_actualmente != $("#labora_actualmente").is(":checked")){
-                            $("#labora_actualmente").click();
-                            $("#labora_actualmente").trigger("change");
+                    try{
+                        if(data != null && data != ""){
+                            $("#dato_laboral_id").val(data.id);
+                            // getGiroEditar("solicitante");
+                            $("#ocupacion_id").val(data.ocupacion_id);
+                            $("#nss").val(data.nss);
+                            $("#no_issste").val(data.no_issste);
+                            $("#remuneracion").val(data.remuneracion);
+                            $("#periodicidad_id").val(data.periodicidad_id);
+                            if(data.labora_actualmente != $("#labora_actualmente").is(":checked")){
+                                $("#labora_actualmente").click();
+                                $("#labora_actualmente").trigger("change");
+                            }
+                            $("#puesto").val(data.labora_actualmente);
+                            $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
+                            $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
+                            $("#jornada_id").val(data.jornada_id);
+                            $("#horas_semanales").val(data.horas_semanales);
+                            $("#resolucion_dato_laboral").val(data.resolucion);
+                            $(".catSelect").trigger('change')
                         }
-                        $("#puesto").val(data.labora_actualmente);
-                        $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
-                        $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
-                        $("#jornada_id").val(data.jornada_id);
-                        $("#horas_semanales").val(data.horas_semanales);
-                        $("#resolucion_dato_laboral").val(data.resolucion);
-                        $(".catSelect").trigger('change')
+                        $("#modal-dato-laboral").modal("show");
+                    }catch(error){
+                        console.log(error);
                     }
-                    $("#modal-dato-laboral").modal("show");
                 }
             });
         }
@@ -2374,19 +2429,24 @@
                         type:"GET",
                         dataType:"json",
                         success:function(data){
-                            if(data != null && data != ""){
-                                swal({
-                                    title: 'Correcto',
-                                    text: 'Se negó la reprogramación',
-                                    icon: 'success'
-                                });
-                                location.reload();
-                            }else{
-                                swal({
-                                    title: 'Algo salió mal',
-                                    text: 'No se guardo el registro',
-                                    icon: 'warning'
-                                });
+                            try{
+
+                                if(data != null && data != ""){
+                                    swal({
+                                        title: 'Correcto',
+                                        text: 'Se negó la reprogramación',
+                                        icon: 'success'
+                                    });
+                                    location.reload();
+                                }else{
+                                    swal({
+                                        title: 'Algo salió mal',
+                                        text: 'No se guardo el registro',
+                                        icon: 'warning'
+                                    });
+                                }
+                            }catch(error){
+                                console.log(error);
                             }
                         }
                     });
@@ -2451,33 +2511,35 @@
                     // solicitante_id:$("#parte_solicitante_id").val()
                 },
                 success:function(datos){
-                    let dato = datos.data;
-
-                    $('#remuneracionDiaria').val(dato.remuneracionDiaria);
-                    $('#salarioMinimo').val(dato.salarioMinimo);
-                    $('#antiguedad').val(dato.antiguedad);
-                    $('#idSolicitante').val(dato.idParte);
-
-                    let table = "";
-                    table+=" <tr>";
-                    table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td><td class="amount" > $'+ (dato.al50.indemnizacion).toLocaleString("en-US") +'</td>';
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.aguinaldo).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.vacaciones).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_vacacional).toLocaleString("en-US") +"</td>";
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th>Prima antigüedad</th><td class="amount"> $'+ (dato.completa.prima_antiguedad ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_antiguedad).toLocaleString("en-US") +"</td>";
-                    table+=" </tr>";
-                    table+=" <tr>";
-                    table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (dato.completa.total ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.total).toLocaleString("en-US") +"</td>";
-                    table+=" </tr>";
-                    $('#tbodyPropuestas'+dato.idParte).html(table);
+                    try{
+                        let dato = datos.data;
+                        $('#remuneracionDiaria').val(dato.remuneracionDiaria);
+                        $('#salarioMinimo').val(dato.salarioMinimo);
+                        $('#antiguedad').val(dato.antiguedad);
+                        $('#idSolicitante').val(dato.idParte);
+                        let table = "";
+                        table+=" <tr>";
+                        table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td><td class="amount" > $'+ (dato.al50.indemnizacion).toLocaleString("en-US") +'</td>';
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.aguinaldo).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.vacaciones).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_vacacional).toLocaleString("en-US") +"</td>";
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th>Prima antigüedad</th><td class="amount"> $'+ (dato.completa.prima_antiguedad ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_antiguedad).toLocaleString("en-US") +"</td>";
+                        table+=" </tr>";
+                        table+=" <tr>";
+                        table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (dato.completa.total ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.total).toLocaleString("en-US") +"</td>";
+                        table+=" </tr>";
+                        $('#tbodyPropuestas'+dato.idParte).html(table);
+                    }catch(error){
+                        console.log(error);
+                    }
                 }
             });
         }
@@ -2525,14 +2587,19 @@
                             _token:"{{ csrf_token() }}"
                         },
                         success:function(data){
-                            if(data != null && data != ""){
-                                location.reload();
-                            }else{
-                                swal({
-                                    title: 'Algo salió mal',
-                                    text: 'No se guardo el registro',
-                                    icon: 'warning'
-                                });
+                            try{
+
+                                if(data != null && data != ""){
+                                    location.reload();
+                                }else{
+                                    swal({
+                                        title: 'Algo salió mal',
+                                        text: 'No se guardo el registro',
+                                        icon: 'warning'
+                                    });
+                                }
+                            }catch(error){
+                                console.log(error);
                             }
                         }
                     });
@@ -2574,17 +2641,22 @@
                             _token:"{{ csrf_token() }}"
                         },
                         success:function(data){
-                            if(data != null && data != ""){
-                                swal({title: 'ÉXITO',
-                                text: 'Se guardó el pago correctamente',
-                                icon: 'success'});
-                                location.reload();
-                            }else{
-                                swal({
-                                    title: 'Algo salió mal',
-                                    text: 'No se guardo el registro',
-                                    icon: 'warning'
-                                });
+                            try{
+
+                                if(data != null && data != ""){
+                                    swal({title: 'ÉXITO',
+                                    text: 'Se guardó el pago correctamente',
+                                    icon: 'success'});
+                                    location.reload();
+                                }else{
+                                    swal({
+                                        title: 'Algo salió mal',
+                                        text: 'No se guardo el registro',
+                                        icon: 'warning'
+                                    });
+                                }
+                            }catch(error){
+                                console.log(error);
                             }
                         }
                     });

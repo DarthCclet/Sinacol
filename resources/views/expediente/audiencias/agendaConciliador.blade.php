@@ -43,7 +43,11 @@
                     dataType:"json",
                     async:true,
                     success:function(data){
-                        construirCalendario(data);
+                        try{
+                            construirCalendario(data);
+                        }catch(error){
+                            console.log(error);
+                        }
                     }
                 });
             });

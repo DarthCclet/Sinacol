@@ -48,6 +48,7 @@
             $.ajax({
                 url:"/api/centro",
                 type:"GET",
+                global:false,
                 dataType:"json",
                 success:function(data){
                     if(data.data.data != null && data.data.data != ""){
@@ -64,6 +65,7 @@
             $.ajax({
                 url:"/api/tipo_contadores",
                 type:"GET",
+                global:false,
                 dataType:"json",
                 success:function(data){
                     if(data != null && data != ""){
@@ -85,6 +87,7 @@
                     url:"/api/contadores",
                     type:"POST",
                     dataType:"json",
+                    global:false,
                     data:{
                         id:"",
                         centro_id:$("#centro_id").val(),

@@ -2287,19 +2287,23 @@
 
                     },
                     success:function(data){
-                        if(data.success){
-                            // swal({
-                            //     title: 'Correcto',
-                            //     text: 'Solicitud guardada correctamente',
-                            //     icon: 'success',
-
-                            // });
-                            // setTimeout('', 5000);
-                            // location.href='{{ route('solicitudes.index')  }}'
-                            $("#solicitud_id").val(data.data.id);
-                            getDocumentoAcuse();
-                        }else{
-
+                        try{
+                            if(data.success){
+                                // swal({
+                                    //     title: 'Correcto',
+                                    //     text: 'Solicitud guardada correctamente',
+                                    //     icon: 'success',
+                                    
+                                    // });
+                                    // setTimeout('', 5000);
+                                    // location.href='{{ route('solicitudes.index')  }}'
+                                    $("#solicitud_id").val(data.data.id);
+                                    getDocumentoAcuse();
+                                }else{
+                                    
+                                }
+                        }catch(error){
+                            console.log(error);
                         }
 
                     },error:function(data){
@@ -2723,11 +2727,16 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
-                        if(data != null && data != ""){
-                            listaContactos = data;
-                            cargarContactos();
-                        }else{
-                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        try{
+
+                            if(data != null && data != ""){
+                                listaContactos = data;
+                                cargarContactos();
+                            }else{
+                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            }
+                        }catch(error){
+                            console.log(error);
                         }
                     }
                 });

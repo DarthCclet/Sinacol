@@ -182,6 +182,7 @@
                 $.ajax({
                     url:"/audiencia/getCalendario",
                     type:"POST",
+                    global:false,
                     data:{
                         centro_id:1,
                         _token:"{{ csrf_token() }}"
@@ -269,6 +270,7 @@
                 $.ajax({
                     url:"/audiencia/ConciliadoresDisponibles",
                     type:"POST",
+                    global:false,
                     data:{
                         fechaInicio:fechaInicio,
                         fechaFin:fechaFin,
@@ -293,6 +295,7 @@
                 $.ajax({
                     url:"/audiencia/SalasDisponibles",
                     type:"POST",
+                    global:false,
                     data:{
                         fechaInicio:fechaInicio,
                         fechaFin:fechaFin,
@@ -337,6 +340,7 @@
                     $.ajax({
                         url:url,
                         type:"POST",
+                        global:false,
                         data:{
                             fecha_audiencia:new Date($("#fecha_audiencia").val()).toISOString(),
                             hora_inicio:$("#hora_inicio").val(),

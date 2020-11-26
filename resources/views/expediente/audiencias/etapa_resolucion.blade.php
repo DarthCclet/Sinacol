@@ -1547,53 +1547,57 @@
                 dataType:"json",
                 async:true,
                 success:function(data){
-                    if(data != null && data != ""){
-                        var html = "";
-                        $.each(data, function (key, value) {
-                            if(value.documentable_type == "App\\Parte"){
-                                    // var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
-                                    // if(parte != undefined){
-                                        html += "<tr>";
-                                        html += "<td>"+value.parte+"</td>";
-                                        html += "<td>"+ value.clasificacion_archivo.nombre+"</td>";
-                                        html += "</tr>";
-                                        ratifican = true;
-                                    // }
-                            }
-                        });
-                        $("#tbodyRatificacion").html(html);
-                        var table = "";
-                        var div = "";
-                        $.each(data, function(index,element){
-                            div += '<div class="image gallery-group-1">';
-                            div += '    <div class="image-inner" style="position: relative;">';
-                            if(element.tipo == 'pdf' || element.tipo == 'PDF'){
-                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
-                                div += '                <div class="img" align="center">';
-                                div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
-                                div += '                </div>';
-                                div += '            </a>';
-                            }else{
-                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
-                                div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
-                                div += '            </a>';
-                            }
-                            div += '            <p class="image-caption">';
-                            div += '                '+element.longitud+' kb';
-                            div += '            </p>';
-                            div += '    </div>';
-                            div += '    <div class="image-info">';
-                            div += '            <h5 class="title">'+element.nombre_original+'</h5>';
-                            div += '            <div class="desc">';
-                            div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
-                            div +=                  element.descripcion+'<br>';
-                            div += '            </div>';
-                            div += '    </div>';
-                            div += '</div>';
-                        });
-                        $("#gallery").html(div);
-                    }else{
+                    try{
+                        if(data != null && data != ""){
+                            var html = "";
+                            $.each(data, function (key, value) {
+                                if(value.documentable_type == "App\\Parte"){
+                                        // var parte = arraySolicitantes.find(x=>x.id == value.documentable_id);
+                                        // if(parte != undefined){
+                                            html += "<tr>";
+                                            html += "<td>"+value.parte+"</td>";
+                                            html += "<td>"+ value.clasificacion_archivo.nombre+"</td>";
+                                            html += "</tr>";
+                                            ratifican = true;
+                                        // }
+                                }
+                            });
+                            $("#tbodyRatificacion").html(html);
+                            var table = "";
+                            var div = "";
+                            $.each(data, function(index,element){
+                                div += '<div class="image gallery-group-1">';
+                                div += '    <div class="image-inner" style="position: relative;">';
+                                if(element.tipo == 'pdf' || element.tipo == 'PDF'){
+                                    div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
+                                    div += '                <div class="img" align="center">';
+                                    div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
+                                    div += '                </div>';
+                                    div += '            </a>';
+                                }else{
+                                    div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
+                                    div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
+                                    div += '            </a>';
+                                }
+                                div += '            <p class="image-caption">';
+                                div += '                '+element.longitud+' kb';
+                                div += '            </p>';
+                                div += '    </div>';
+                                div += '    <div class="image-info">';
+                                div += '            <h5 class="title">'+element.nombre_original+'</h5>';
+                                div += '            <div class="desc">';
+                                div += '                <strong>Documento: </strong>'+element.clasificacionArchivo.nombre;
+                                div +=                  element.descripcion+'<br>';
+                                div += '            </div>';
+                                div += '    </div>';
+                                div += '</div>';
+                            });
+                            $("#gallery").html(div);
+                        }else{
 
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -1641,6 +1645,7 @@
             url:'/api/etapa_resolucion_audiencia/audiencia/'+$("#audiencia_id").val(),
             type:"GET",
             dataType:"json",
+            global:false,
             async:false,
             data:{
             },
@@ -1716,36 +1721,40 @@
             type:"GET",
             dataType:"json",
             success:function(data){
+                try{
                 // console.log(data.pasa);
-                if(data.pasa){
-                    getPersonasComparecer();
-                }else{
-                    swal({
-                        title: '¿Ya capturaste todos los representantes?',
-                        text: 'Recuerde capturar a los representantes legales comparecientes para que aparezcan en la lista',
-                        icon: '',
-                        // showCancelButton: true,
-                        buttons: {
-                            cancel: {
-                                text: 'No',
-                                value: null,
-                                visible: true,
-                                className: 'btn btn-default',
-                                closeModal: true
-                            },
-                            confirm: {
-                                text: 'Sí',
-                                value: true,
-                                visible: true,
-                                className: 'btn btn-warning',
-                                closeModal: true
+                    if(data.pasa){
+                        getPersonasComparecer();
+                    }else{
+                        swal({
+                            title: '¿Ya capturaste todos los representantes?',
+                            text: 'Recuerde capturar a los representantes legales comparecientes para que aparezcan en la lista',
+                            icon: '',
+                            // showCancelButton: true,
+                            buttons: {
+                                cancel: {
+                                    text: 'No',
+                                    value: null,
+                                    visible: true,
+                                    className: 'btn btn-default',
+                                    closeModal: true
+                                },
+                                confirm: {
+                                    text: 'Sí',
+                                    value: true,
+                                    visible: true,
+                                    className: 'btn btn-warning',
+                                    closeModal: true
+                                }
                             }
-                        }
-                    }).then(function(isConfirm){
-                        if(isConfirm){
-                            getPersonasComparecer();
-                        }
-                    });
+                        }).then(function(isConfirm){
+                            if(isConfirm){
+                                getPersonasComparecer();
+                            }
+                        });
+                    }
+                }catch(error){
+                    console.log(error);
                 }
             }
         });
@@ -1764,29 +1773,13 @@
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
-                    $("#modal-comparecientes").modal("hide");
-                    if(data.data.tipo == 1){
-                        swal({
-                        title: 'Éxito',
-                            text: 'Se ha archivado la audiencia por falta de solicitantes',
-                            icon: 'success',
-                        buttons: {
-                            confirm: {
-                                text: 'Aceptar',
-                                value: true,
-                                visible: true,
-                                className: 'btn btn-warning',
-                                closeModal: true
-                            }
-                        }
-                        }).then(function(isConfirm){
-                            window.location.href = "/audiencias/"+data.data.response.id+"/edit";
-                        });
-                    }else if(data.data.tipo == 2){
-                        swal({
+                    try{
+                        $("#modal-comparecientes").modal("hide");
+                        if(data.data.tipo == 1){
+                            swal({
                             title: 'Éxito',
-                            text: 'Se ha finalizado la audiencia, se generaron las actas de no conciliación y las actas de multa para los citados que no acudieron',
-                            icon: 'success',
+                                text: 'Se ha archivado la audiencia por falta de solicitantes',
+                                icon: 'success',
                             buttons: {
                                 confirm: {
                                     text: 'Aceptar',
@@ -1794,106 +1787,126 @@
                                     visible: true,
                                     className: 'btn btn-warning',
                                     closeModal: true
-                            }
-                            }
-                        }).then(function(isConfirm){
-                            $("#btnFinalizarRatificacion").click();
-                        });
-                    }else if(data.data.tipo == 3){
-                        $("#spanFolio").text(data.data.response.folio+"/"+data.data.response.anio);
-                        $("#spanFechaAudiencia").text(dateFormat(data.data.response.fecha_audiencia,4));
-                        $("#spanHoraInicio").text(data.data.response.hora_inicio);
-                        $("#spanHoraFin").text(data.data.response.hora_fin);
-                        var table="";
-                        if(data.data.response.multiple){
-                            $.each(data.data.response.conciliadores_audiencias,function(index,element){
-                                table +='<tr>';
-                                if(element.solicitante){
-                                    table +='   <td>Solicitante(s)</td>';
-                    }else{
-                                    table +='   <td>Citado(s)</td>';
                                 }
-                                table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
-                                $.each(data.data.response.salas_audiencias,function(index2,element2){
-                                    if(element2.solicitante == element.solicitante){
-                                        table +='<td>'+element2.sala.sala+'</td>';
-                                    }
-                                });
-                                table +='</tr>';
+                            }
+                            }).then(function(isConfirm){
+                                window.location.href = "/audiencias/"+data.data.response.id+"/edit";
                             });
-                        }else{
-                            table +='<tr>';
-                            table +='   <td>Solicitante(s) y citado(s)</td>';
-                            table +='   <td>'+data.data.response.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
-                            table +='   <td>'+data.data.response.salas_audiencias[0].sala.sala+'</td>';
-                            table +='</tr>';
-                        }
-                        $("#tableAudienciaSuccess tbody").html(table);
-                        $("#modalRatificacion").modal("hide");
-                        $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
-                    }else if(data.data.tipo == 4){
-                        swal({
-                            title: 'Éxito',
-                            text: 'Se han registrado los comparecientes',
-                            icon: 'success'
-                        });
-                        cargarComparecientes();
-                        startTimer();
-                        nextStep(1);
-                    }else if(data.data.tipo == 5){
-                        swal({
-                            title: '¿Qué deseas hacer?',
-                            text: 'Detectamos que no todos los citados comparecieron, ¿Deseas continuar con el proceso de audiencia?, de indicar que no, se generará una nueva audiencia',
-                            icon: 'info',
-                            buttons: {
-                                cancel: {
-                                    text: 'Cancelar',
-                                    value: null,
-                                    visible: true,
-                                    className: 'btn btn-default',
-                                    closeModal: true,
-                                },roll: {
-                                    text: "No",
-                                    value: 2,
-                                    className: 'btn btn-warning',
-                                    visible: true,
-                                    closeModal: true
-                                },confirm: {
-                                    text: 'Si',
-                                    value: 1,
-                                    visible: true,
-                                    className: 'btn btn-danger',
-                                    closeModal: true
-                    }
-                            }
-                        }).then(function(tipo){
-                            if(tipo != null){
-                                if(tipo == 1){
-                                    cargarComparecientes();
-                                    startTimer();
-                                    nextStep(1);
-                                }else if(tipo == 2){
-                                    SolicitarNuevaAudiencia();
+                        }else if(data.data.tipo == 2){
+                            swal({
+                                title: 'Éxito',
+                                text: 'Se ha finalizado la audiencia, se generaron las actas de no conciliación y las actas de multa para los citados que no acudieron',
+                                icon: 'success',
+                                buttons: {
+                                    confirm: {
+                                        text: 'Aceptar',
+                                        value: true,
+                                        visible: true,
+                                        className: 'btn btn-warning',
+                                        closeModal: true
                                 }
+                                }
+                            }).then(function(isConfirm){
+                                $("#btnFinalizarRatificacion").click();
+                            });
+                        }else if(data.data.tipo == 3){
+                            $("#spanFolio").text(data.data.response.folio+"/"+data.data.response.anio);
+                            $("#spanFechaAudiencia").text(dateFormat(data.data.response.fecha_audiencia,4));
+                            $("#spanHoraInicio").text(data.data.response.hora_inicio);
+                            $("#spanHoraFin").text(data.data.response.hora_fin);
+                            var table="";
+                            if(data.data.response.multiple){
+                                $.each(data.data.response.conciliadores_audiencias,function(index,element){
+                                    table +='<tr>';
+                                    if(element.solicitante){
+                                        table +='   <td>Solicitante(s)</td>';
+                                    }else{
+                                        table +='   <td>Citado(s)</td>';
+                                    }
+                                    table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                                    $.each(data.data.response.salas_audiencias,function(index2,element2){
+                                        if(element2.solicitante == element.solicitante){
+                                            table +='<td>'+element2.sala.sala+'</td>';
+                                        }
+                                    });
+                                    table +='</tr>';
+                                });
+                            }else{
+                                table +='<tr>';
+                                table +='   <td>Solicitante(s) y citado(s)</td>';
+                                table +='   <td>'+data.data.response.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
+                                table +='   <td>'+data.data.response.salas_audiencias[0].sala.sala+'</td>';
+                                table +='</tr>';
                             }
-                        });
-                    }else if(data.data.tipo == 6){
-                        swal({
-                            title: 'Error',
-                            text: 'Esta audiencia ya fue finalizada',
-                            icon: 'error',
-                            buttons: {
-                                confirm: {
-                                    text: 'Aceptar',
-                                    value: true,
-                                    visible: true,
-                                    className: 'btn btn-warning',
-                                    closeModal: true
-                            }
-                            }
-                        }).then(function(isConfirm){
-                            $("#btnFinalizarRatificacion").click();
-                        });
+                            $("#tableAudienciaSuccess tbody").html(table);
+                            $("#modalRatificacion").modal("hide");
+                            $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                        }else if(data.data.tipo == 4){
+                            swal({
+                                title: 'Éxito',
+                                text: 'Se han registrado los comparecientes',
+                                icon: 'success'
+                            });
+                            cargarComparecientes();
+                            startTimer();
+                            nextStep(1);
+                        }else if(data.data.tipo == 5){
+                            swal({
+                                title: '¿Qué deseas hacer?',
+                                text: 'Detectamos que no todos los citados comparecieron, ¿Deseas continuar con el proceso de audiencia?, de indicar que no, se generará una nueva audiencia',
+                                icon: 'info',
+                                buttons: {
+                                    cancel: {
+                                        text: 'Cancelar',
+                                        value: null,
+                                        visible: true,
+                                        className: 'btn btn-default',
+                                        closeModal: true,
+                                    },roll: {
+                                        text: "No",
+                                        value: 2,
+                                        className: 'btn btn-warning',
+                                        visible: true,
+                                        closeModal: true
+                                    },confirm: {
+                                        text: 'Si',
+                                        value: 1,
+                                        visible: true,
+                                        className: 'btn btn-danger',
+                                        closeModal: true
+                        }
+                                }
+                            }).then(function(tipo){
+                                if(tipo != null){
+                                    if(tipo == 1){
+                                        cargarComparecientes();
+                                        startTimer();
+                                        nextStep(1);
+                                    }else if(tipo == 2){
+                                        SolicitarNuevaAudiencia();
+                                    }
+                                }
+                            });
+                        }else if(data.data.tipo == 6){
+                            swal({
+                                title: 'Error',
+                                text: 'Esta audiencia ya fue finalizada',
+                                icon: 'error',
+                                buttons: {
+                                    confirm: {
+                                        text: 'Aceptar',
+                                        value: true,
+                                        visible: true,
+                                        className: 'btn btn-warning',
+                                        closeModal: true
+                                }
+                                }
+                            }).then(function(isConfirm){
+                                $("#btnFinalizarRatificacion").click();
+                            });
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 },
                 error:function(data){
@@ -1938,24 +1951,28 @@
                             _token:"{{ csrf_token() }}"
                         },
                         success:function(data){
-                            $("#modal-comparecientes").modal("hide");
-                            if(data.data.tipo == 1){
-                                swal({
-                                    title: 'Éxito',
-                                    text: 'Se ha archivado la audiencia por falta de solicitantes',
-                                    icon: 'success',
-                                    buttons: {
-                                        confirm: {
-                                            text: 'Aceptar',
-                                            value: true,
-                                            visible: true,
-                                            className: 'btn btn-warning',
-                                            closeModal: true
+                            try{
+                                $("#modal-comparecientes").modal("hide");
+                                if(data.data.tipo == 1){
+                                    swal({
+                                        title: 'Éxito',
+                                        text: 'Se ha archivado la audiencia por falta de solicitantes',
+                                        icon: 'success',
+                                        buttons: {
+                                            confirm: {
+                                                text: 'Aceptar',
+                                                value: true,
+                                                visible: true,
+                                                className: 'btn btn-warning',
+                                                closeModal: true
+                                            }
                                         }
-                                    }
-                                }).then(function(isConfirm){
-                                    window.location.href = "/audiencias/"+data.data.response.id+"/edit";
-                                });
+                                    }).then(function(isConfirm){
+                                        window.location.href = "/audiencias/"+data.data.response.id+"/edit";
+                                    });
+                                }
+                            }catch(error){
+                                console.log(error);
                             }
                         },
                         error:function(data){
@@ -1980,37 +1997,41 @@
                 _token:"{{ csrf_token() }}"
             },
             success:function(data){
-                $("#spanFolio").text(data.data.response.folio+"/"+data.data.response.anio);
-                $("#spanFechaAudiencia").text(dateFormat(data.data.response.fecha_audiencia,4));
-                $("#spanHoraInicio").text(data.data.response.hora_inicio);
-                $("#spanHoraFin").text(data.data.response.hora_fin);
-                var table="";
-                if(data.data.response.multiple){
-                    $.each(data.data.response.conciliadores_audiencias,function(index,element){
-                        table +='<tr>';
-                        if(element.solicitante){
-                            table +='   <td>Solicitante(s)</td>';
-                        }else{
-                            table +='   <td>Citado(s)</td>';
-                        }
-                        table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
-                        $.each(data.data.response.salas_audiencias,function(index2,element2){
-                            if(element2.solicitante == element.solicitante){
-                                table +='<td>'+element2.sala.sala+'</td>';
+                try{
+                    $("#spanFolio").text(data.data.response.folio+"/"+data.data.response.anio);
+                    $("#spanFechaAudiencia").text(dateFormat(data.data.response.fecha_audiencia,4));
+                    $("#spanHoraInicio").text(data.data.response.hora_inicio);
+                    $("#spanHoraFin").text(data.data.response.hora_fin);
+                    var table="";
+                    if(data.data.response.multiple){
+                        $.each(data.data.response.conciliadores_audiencias,function(index,element){
+                            table +='<tr>';
+                            if(element.solicitante){
+                                table +='   <td>Solicitante(s)</td>';
+                            }else{
+                                table +='   <td>Citado(s)</td>';
                             }
+                            table +='   <td>'+element.conciliador.persona.nombre+' '+element.conciliador.persona.primer_apellido+' '+element.conciliador.persona.segundo_apellido+'</td>';
+                            $.each(data.data.response.salas_audiencias,function(index2,element2){
+                                if(element2.solicitante == element.solicitante){
+                                    table +='<td>'+element2.sala.sala+'</td>';
+                                }
+                            });
+                            table +='</tr>';
                         });
+                    }else{
+                        table +='<tr>';
+                        table +='   <td>Solicitante(s) y citado(s)</td>';
+                        table +='   <td>'+data.data.response.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
+                        table +='   <td>'+data.data.response.salas_audiencias[0].sala.sala+'</td>';
                         table +='</tr>';
-                    });
-                }else{
-                    table +='<tr>';
-                    table +='   <td>Solicitante(s) y citado(s)</td>';
-                    table +='   <td>'+data.data.response.conciliadores_audiencias[0].conciliador.persona.nombre+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.primer_apellido+' '+data.data.response.conciliadores_audiencias[0].conciliador.persona.segundo_apellido+'</td>';
-                    table +='   <td>'+data.data.response.salas_audiencias[0].sala.sala+'</td>';
-                    table +='</tr>';
+                    }
+                    $("#tableAudienciaSuccess tbody").html(table);
+                    $("#modalRatificacion").modal("hide");
+                    $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                }catch(error){
+                    console.log(error);
                 }
-                $("#tableAudienciaSuccess tbody").html(table);
-                $("#modalRatificacion").modal("hide");
-                $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
             }
         });
     }
@@ -2020,64 +2041,67 @@
             type:"GET",
             dataType:"json",
             success:function(data){
-                
-                if(data.length > 0){
-                    $("#parte_solicitante_id").empty();
-                    $("#parte_solicitado_id").empty();
-                    var html="<table class='table table-bordered table-striped table-hover'>";
-                    var htmlSolicitantes = "<option value=''>Seleccione una opci&oacute;n</option>";
-                    var htmlCitados = "<option value=''>Seleccione una opci&oacute;n</option>";
-                    html +='<tr>';
-                    html +='    <th>Tipo de parte</th>';
-                    html +='    <th>Nombre</th>';
-                    html +='    <th>Curp</th>';
-                    html +='    <th>Es representante</th>';
-                    html +='</tr>';
-                    $.each(data,function(index,element){
+                try{
+                    if(data.length > 0){
+                        $("#parte_solicitante_id").empty();
+                        $("#parte_solicitado_id").empty();
+                        var html="<table class='table table-bordered table-striped table-hover'>";
+                        var htmlSolicitantes = "<option value=''>Seleccione una opci&oacute;n</option>";
+                        var htmlCitados = "<option value=''>Seleccione una opci&oacute;n</option>";
                         html +='<tr>';
-                        html +='    <td>'+element.parte.tipoParte+'</td>';
-                        html +='    <td>'+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+'</td>';
-                        html +='    <td>'+element.parte.curp+'</td>';
-                        if(element.parte.tipo_parte_id == 1){
-                            htmlSolicitantes += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
-                        }else if(element.parte.tipo_parte_id == 2){
-                            htmlCitados += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
-                        }
-
-                        if(element.parte.tipo_parte_id == 3 && element.parte.parte_representada_id != null){
-                            if(element.parte.parteRepresentada.tipo_parte_id == 1){
+                        html +='    <th>Tipo de parte</th>';
+                        html +='    <th>Nombre</th>';
+                        html +='    <th>Curp</th>';
+                        html +='    <th>Es representante</th>';
+                        html +='</tr>';
+                        $.each(data,function(index,element){
+                            html +='<tr>';
+                            html +='    <td>'+element.parte.tipoParte+'</td>';
+                            html +='    <td>'+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+'</td>';
+                            html +='    <td>'+element.parte.curp+'</td>';
+                            if(element.parte.tipo_parte_id == 1){
                                 htmlSolicitantes += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
-                            }else{
+                            }else if(element.parte.tipo_parte_id == 2){
                                 htmlCitados += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
                             }
-                            if(element.parte.parteRepresentada.tipo_persona_id == 1){
-                                html +='<td>Si ('+element.parte.parteRepresentadanombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')</td>';
-                                
+
+                            if(element.parte.tipo_parte_id == 3 && element.parte.parte_representada_id != null){
+                                if(element.parte.parteRepresentada.tipo_parte_id == 1){
+                                    htmlSolicitantes += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                                }else{
+                                    htmlCitados += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                                }
+                                if(element.parte.parteRepresentada.tipo_persona_id == 1){
+                                    html +='<td>Si ('+element.parte.parteRepresentadanombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')</td>';
+                                    
+                                }else{
+                                    html +='<td>Si ('+element.parte.parteRepresentada.nombre_comercial+')</td>';
+                                    
+                                }
                             }else{
-                                html +='<td>Si ('+element.parte.parteRepresentada.nombre_comercial+')</td>';
-                                
+                                html +='<td>No</td>';
                             }
+                            html +='</tr>';
+                        });
+                        html +='</table>';
+                        $("#contentCompareciente").html(html);
+                        $("#parte_solicitante_id").html(htmlSolicitantes);
+                        $("#parte_solicitado_id").html(htmlCitados);
+                        $("#divAudienciaColectiva").show();
+                        $("#btnCargarComparecientes").hide();
+                        if(data[0].citados && data[0].solicitantes){
+                            $("#divAudiencia").show();
                         }else{
-                            html +='<td>No</td>';
-                        }
-                        html +='</tr>';
-                    });
-                    html +='</table>';
-                    $("#contentCompareciente").html(html);
-                    $("#parte_solicitante_id").html(htmlSolicitantes);
-                    $("#parte_solicitado_id").html(htmlCitados);
-                    $("#divAudienciaColectiva").show();
-                    $("#btnCargarComparecientes").hide();
-                    if(data[0].citados && data[0].solicitantes){
-                        $("#divAudiencia").show();
-                    }else{
-                        if(!data[0].solicitantes){
-                            noComparece = true;
-                            $("#divNoComparece").show();
-                        }else{
-                            window.location = "/audiencias/{{ $audiencia->id }}/edit";
+                            if(!data[0].solicitantes){
+                                noComparece = true;
+                                $("#divNoComparece").show();
+                            }else{
+                                window.location = "/audiencias/{{ $audiencia->id }}/edit";
+                            }
                         }
                     }
+                }catch(error){
+                    console.log(error);
                 }
             }
         });
@@ -2103,34 +2127,38 @@
             type:"GET",
             dataType:"json",
             success:function(data){
-                var table = "";
-                var options = "<option value=''>Seleccione una opci&oacute;n</option>";
-                $.each(data, function(index,element){
-                    table +='<tr>';
-                    table +='   <td>'+element.tipo_parte.nombre+'</td>';
-                    table +='   <td>'+element.nombre+'</td>';
-                    table +='   <td>'+element.primer_apellido+'</td>';
-                    table +='   <td>'+(element.segundo_apellido || "")+'</td>';
-                    if(element.documentos.length >= 1){
-                        table +='   <td>';
-                        table +='       <div class="col-md-2">';
-                        table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
-                        table +='</div>';
-                    }else{
-                        table +='   <td>Sin identificación</td>';
-                    }
-                    table +='   </td>';
-                    table +='</tr>';
-                    options += '<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</option>';
-                });
-                $("#parte_relacionada").empty();
-                $("#parte_relacionada").html(options);
-                $("#tbodyPartesFisicas").html(table);
-                $("#resolucionVarias").hide();
-                $("#btnCancelarVarias").hide();
-                $("#btnConfigurarResoluciones").show();
-                $("#btnGuardarResolucionUna").show();
-                $("#modal-comparecientes").modal("show");
+                try{
+                    var table = "";
+                    var options = "<option value=''>Seleccione una opci&oacute;n</option>";
+                    $.each(data, function(index,element){
+                        table +='<tr>';
+                        table +='   <td>'+element.tipo_parte.nombre+'</td>';
+                        table +='   <td>'+element.nombre+'</td>';
+                        table +='   <td>'+element.primer_apellido+'</td>';
+                        table +='   <td>'+(element.segundo_apellido || "")+'</td>';
+                        if(element.documentos.length >= 1){
+                            table +='   <td>';
+                            table +='       <div class="col-md-2">';
+                            table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
+                            table +='</div>';
+                        }else{
+                            table +='   <td>Sin identificación</td>';
+                        }
+                        table +='   </td>';
+                        table +='</tr>';
+                        options += '<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+element.segundo_apellido+'</option>';
+                    });
+                    $("#parte_relacionada").empty();
+                    $("#parte_relacionada").html(options);
+                    $("#tbodyPartesFisicas").html(table);
+                    $("#resolucionVarias").hide();
+                    $("#btnCancelarVarias").hide();
+                    $("#btnConfigurarResoluciones").show();
+                    $("#btnGuardarResolucionUna").show();
+                    $("#modal-comparecientes").modal("show");
+                }catch(error){
+                    console.log(error);
+                }
             }
         });
     }
@@ -2140,62 +2168,66 @@
             type:"GET",
             dataType:"json",
             success:function(data){
-                if(data != null && data != ""){
-                    data = data[0];
-                    $("#id_representante").val(data.id);
-                    $("#curp").val(data.curp);
-                    $("#nombre").val(data.nombre);
-                    $("#primer_apellido").val(data.primer_apellido);
-                    $("#segundo_apellido").val(data.segundo_apellido);
-                    $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
-                    $("#genero_id").val(data.genero_id).trigger("change");
-                    $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).trigger('change');
-                    $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
-                    $("#detalle_instrumento").val(data.detalle_instrumento);
-                    $("#parte_id").val(data.id);
-                    listaContactos = data.contactos;
-                    if(data.documentos && data.documentos.length > 0){
-                        $.each(data.documentos,function(index,doc){
-                            if(doc.tipo_archivo == 1){
-                                if(doc.clasificacion_archivo_id == 3){
-                                    $("#labelCedula").html("Cedula Profesional Capturada");
+                try{
+                    if(data != null && data != ""){
+                        data = data[0];
+                        $("#id_representante").val(data.id);
+                        $("#curp").val(data.curp);
+                        $("#nombre").val(data.nombre);
+                        $("#primer_apellido").val(data.primer_apellido);
+                        $("#segundo_apellido").val(data.segundo_apellido);
+                        $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
+                        $("#genero_id").val(data.genero_id).trigger("change");
+                        $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).trigger('change');
+                        $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
+                        $("#detalle_instrumento").val(data.detalle_instrumento);
+                        $("#parte_id").val(data.id);
+                        listaContactos = data.contactos;
+                        if(data.documentos && data.documentos.length > 0){
+                            $.each(data.documentos,function(index,doc){
+                                if(doc.tipo_archivo == 1){
+                                    if(doc.clasificacion_archivo_id == 3){
+                                        $("#labelCedula").html("Cedula Profesional Capturada");
+                                    }else{
+                                        $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                        $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                                    }
                                 }else{
-                                    $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
-                                    $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                                    $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                    $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
                                 }
-                            }else{
-                                $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
-                                $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
-                            }
-                        });
-                        
+                            });
+                            
+                        }else{
+                            $("#tipo_documento_id").val("").trigger("change");
+                            $("#labelIdentifRepresentante").html("");
+                            $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                            $("#labelInstrumentoRepresentante").html("");
+                        }
                     }else{
+                        $("#id_representante").val("");
+                        $("#curp").val("");
+                        $("#nombre").val("");
+                        $("#primer_apellido").val("");
+                        $("#segundo_apellido").val("");
+                        $("#fecha_nacimiento").val("");
+                        $("#genero_id").val("").trigger("change");
+                        $("#clasificacion_archivo_id_representante").val("").change();
+                        $("#feha_instrumento").val("");
+                        $("#detalle_instrumento").val("");
+                        $("#parte_id").val("");
                         $("#tipo_documento_id").val("").trigger("change");
                         $("#labelIdentifRepresentante").html("");
-                        $("#clasificacion_archivo_id_representante").val("").trigger('change');
-                        $("#labelInstrumentoRepresentante").html("");
+                        listaContactos = [];
                     }
-                }else{
-                    $("#id_representante").val("");
-                    $("#curp").val("");
-                    $("#nombre").val("");
-                    $("#primer_apellido").val("");
-                    $("#segundo_apellido").val("");
-                    $("#fecha_nacimiento").val("");
-                    $("#genero_id").val("").trigger("change");
-                    $("#clasificacion_archivo_id_representante").val("").change();
-                    $("#feha_instrumento").val("");
-                    $("#detalle_instrumento").val("");
-                    $("#parte_id").val("");
-                    $("#tipo_documento_id").val("").trigger("change");
-                    $("#labelIdentifRepresentante").html("");
-                    listaContactos = [];
+                    $("#tipo_contacto_id").val("").trigger("change");
+                    $("#contacto").val("");
+                    $("#parte_representada_id").val(parte_id);
+                    cargarContactos();
+                    $("#modal-representante").modal("show");
+                }catch(error){
+                    console.log(error);
                 }
-                $("#tipo_contacto_id").val("").trigger("change");
-                $("#contacto").val("");
-                $("#parte_representada_id").val(parte_id);
-                cargarContactos();
-                $("#modal-representante").modal("show");
             }
         });
     }
@@ -2205,88 +2237,92 @@
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    if(data != null && data != ""){
-                        var html="";
-                        $('#fileupload').fileupload({
-                            uploadTemplate: function (o) {
-                                var rows = $();
-                                $.each(o.files, function (index, file) {
+                    try{
+                        if(data != null && data != ""){
+                            var html="";
+                            $('#fileupload').fileupload({
+                                uploadTemplate: function (o) {
+                                    var rows = $();
+                                    $.each(o.files, function (index, file) {
 
-                                    var html= '<tr class="template-upload fade show">'+
-                                    '    <td>'+
-                                    '        <span class="preview"></span>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <div class="bg-light rounded p-10 mb-2">'+
-                                    '            <dl class="m-b-0">'+
-                                    '                <dt class="text-inverse">Nombre del documento:</dt>'+
-                                    '                <dd class="name">'+file.name+'</dd>'+
-                                    '                <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo::</dt>'+
-                                    '                <dd class="size">Processing...</dd>'+
-                                    '            </dl>'+
-                                    '        </div>'+
-                                    '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
-                                    '            <option value="">Seleccione una opci&oacute;n</option>'+
-                                    '            @if(isset($clasificacion_archivo))'+
-                                    '                @foreach($clasificacion_archivo as $clasificacion)'+
-                                    '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
-                                    '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
-                                    '                    @endif'+
-                                    '                @endforeach'+
-                                    '            @endif'+
-                                    '        </select>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
-                                    '            <option value="">Seleccione una opci&oacute;n</option>'+
-                                    '            @if(isset($solicitud_id))';
-                                    $.each(data, function(index,element){
-                                        if(element.tipo_persona_id == 1){
-                                            html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</option>';
+                                        var html= '<tr class="template-upload fade show">'+
+                                        '    <td>'+
+                                        '        <span class="preview"></span>'+
+                                        '    </td>'+
+                                        '    <td>'+
+                                        '        <div class="bg-light rounded p-10 mb-2">'+
+                                        '            <dl class="m-b-0">'+
+                                        '                <dt class="text-inverse">Nombre del documento:</dt>'+
+                                        '                <dd class="name">'+file.name+'</dd>'+
+                                        '                <dt class="text-inverse m-t-10">Tama&ntilde;o del archivo::</dt>'+
+                                        '                <dd class="size">Processing...</dd>'+
+                                        '            </dl>'+
+                                        '        </div>'+
+                                        '        <strong class="error text-danger h-auto d-block text-left"></strong>'+
+                                        '    </td>'+
+                                        '    <td>'+
+                                        '        <select class="form-control catSelectFile" name="tipo_documento_id[]">'+
+                                        '            <option value="">Seleccione una opci&oacute;n</option>'+
+                                        '            @if(isset($clasificacion_archivo))'+
+                                        '                @foreach($clasificacion_archivo as $clasificacion)'+
+                                        '                    @if($clasificacion->tipo_archivo_id == 1 || $clasificacion->tipo_archivo_id == 9)'+
+                                        '                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>'+
+                                        '                    @endif'+
+                                        '                @endforeach'+
+                                        '            @endif'+
+                                        '        </select>'+
+                                        '    </td>'+
+                                        '    <td>'+
+                                        '        <select class="form-control catSelectFile parteClass" name="parte[]">'+
+                                        '            <option value="">Seleccione una opci&oacute;n</option>'+
+                                        '            @if(isset($solicitud_id))';
+                                        $.each(data, function(index,element){
+                                            if(element.tipo_persona_id == 1){
+                                                html +='<option value="'+element.id+'">'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</option>';
+                                            }
+                                            // else{
+                                            //     html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                                            //     // html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
+                                            // }
+                                        });
+                                        html +='    @endif'+
+                                        '        </select>'+
+                                        '    </td>'+
+                                        '    <td>'+
+                                        '        <dl>'+
+                                        '            <dt class="text-inverse m-t-3">Progress:</dt>'+
+                                        '            <dd class="m-t-5">'+
+                                        '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
+                                        '            </dd>'+
+                                        '        </dl>'+
+                                        '    </td>'+
+                                        '    <td nowrap>'+
+                                        '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
+                                        '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
+                                        '                <span>Guardar</span>'+
+                                        '            </button>'+
+                                        '    </td>'+
+                                        '    <td nowrap>'+
+                                        '            <button class="btn btn-default cancel width-100 p-r-20">'+
+                                        '                <i class="fa fa-trash fa-fw text-muted"></i>'+
+                                        '                <span>Cancelar</span>'+
+                                        '            </button>'+
+                                        '    </td>'+
+                                        '</tr>';
+                                        var row = $(html);
+                                        if (file.error) {
+                                            row.find('.error').text(file.error);
                                         }
-                                        // else{
-                                        //     html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
-                                        //     // html +='<option value="'+element.id+'">'+element.nombre_comercial+'</option>';
-                                        // }
+                                        rows = rows.add(row);
                                     });
-                                    html +='    @endif'+
-                                    '        </select>'+
-                                    '    </td>'+
-                                    '    <td>'+
-                                    '        <dl>'+
-                                    '            <dt class="text-inverse m-t-3">Progress:</dt>'+
-                                    '            <dd class="m-t-5">'+
-                                    '                <div class="progress progress-sm progress-striped active rounded-corner"><div class="progress-bar progress-bar-primary" style="width:0%; min-width: 0px;">0%</div></div>'+
-                                    '            </dd>'+
-                                    '        </dl>'+
-                                    '    </td>'+
-                                    '    <td nowrap>'+
-                                    '            <button class="btn btn-primary start width-100 p-r-20 m-r-3" disabled>'+
-                                    '                <i class="fa fa-upload fa-fw text-inverse"></i>'+
-                                    '                <span>Guardar</span>'+
-                                    '            </button>'+
-                                    '    </td>'+
-                                    '    <td nowrap>'+
-                                    '            <button class="btn btn-default cancel width-100 p-r-20">'+
-                                    '                <i class="fa fa-trash fa-fw text-muted"></i>'+
-                                    '                <span>Cancelar</span>'+
-                                    '            </button>'+
-                                    '    </td>'+
-                                    '</tr>';
-                                    var row = $(html);
-                                    if (file.error) {
-                                        row.find('.error').text(file.error);
-                                    }
-                                    rows = rows.add(row);
-                                });
-                            return rows;
-                        }
-                    });
-                }else{
-                    swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                                return rows;
+                            }
+                        });
+                    }else{
+                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                    }
+                }catch(error){
+                    console.log(error);
                 }
             }
         });
@@ -2310,15 +2346,21 @@
         $.ajax({
             url:"/generos",
             type:"GET",
+            global:false,
             dataType:"json",
             success:function(data){
-                $("#genero_id").html("<option value=''>-- Selecciona un género</option>");
-                if(data.data.length > 0){
-                    $.each(data.data,function(index,element){
-                        $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
-                    });
+                try{
+
+                    $("#genero_id").html("<option value=''>-- Selecciona un género</option>");
+                    if(data.data.length > 0){
+                        $.each(data.data,function(index,element){
+                            $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                        });
+                    }
+                    $("#genero_id").trigger("change");
+                }catch(error){
+                    console.log(error);
                 }
-                $("#genero_id").trigger("change");
             }
         });
     }
@@ -2326,17 +2368,22 @@
         $.ajax({
             url:"/tipos_contactos",
             type:"GET",
+            global:false,
             dataType:"json",
             success:function(data){
-                if(data.data.total > 0){
-                    $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
-                    $.each(data.data.data,function(index,element){
-                        $("#tipo_contacto_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
-                    });
-                }else{
-                    $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                try{
+                    if(data.data.total > 0){
+                        $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                        $.each(data.data.data,function(index,element){
+                            $("#tipo_contacto_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
+                        });
+                    }else{
+                        $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                    }
+                    $("#tipo_contacto_id").trigger("change");
+                }catch(error){
+                    console.log(error);
                 }
-                $("#tipo_contacto_id").trigger("change");
             }
         });
     }
@@ -2370,6 +2417,7 @@
                     url:"/partes/representante/contacto",
                     type:"POST",
                     dataType:"json",
+                    global:false,
                     data:{
                         tipo_contacto_id:$("#tipo_contacto_id").val(),
                         contacto:$("#contacto").val(),
@@ -2476,6 +2524,51 @@
             //     _token:"{{ csrf_token() }}"
             // }
             $.ajax({
+                xhr: function() {
+                    var xhr = new window.XMLHttpRequest();
+                    var progreso = 0;
+                     // Download progress
+                     xhr.addEventListener("progress", function(evt){
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            // Do something with download progress
+                            console.log(percentComplete);
+                            $('#progress-bar').show();
+                            var percent = parseInt(percentComplete * 100)
+                            $("#progressbar-ajax-value").text(percent+"%");;
+                            $('#progressbar-ajax').css({
+                                width: percent + '%'
+                            });
+                            if (percentComplete === 1) {
+                                $('#progress-bar').hide();
+                                $('#progressbar-ajax').css({
+                                    width: '0%'
+                                });
+                            }
+                        }
+                    }, false);
+                    // Upload progress
+                    xhr.upload.addEventListener("progress", function(evt){
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            //Do something with upload progress
+                            console.log(percentComplete);
+                            $('#progress-bar').show();
+                            var percent = parseInt(percentComplete * 100)
+                            $("#progressbar-ajax-value").text(percent+"%");;
+                            $('#progressbar-ajax').css({
+                                width: percent + '%'
+                            });
+                            if (percentComplete === 1) {
+                                $('#progress-bar').hide();
+                                $('#progressbar-ajax').css({
+                                    width: '0%'
+                                });
+                            }
+                        }
+                    }, false);
+                    return xhr;
+                },
                 url:"/partes/representante",
                 type:"POST",
                 dataType:"json",
@@ -2483,12 +2576,16 @@
                 contentType: false,
                 data:formData,
                 success:function(data){
-                    if(data != null && data != ""){
-                        swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
-                        actualizarPartes();
-                        $("#modal-representante").modal("hide");
-                    }else{
-                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                    try{
+                        if(data != null && data != ""){
+                            swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
+                            actualizarPartes();
+                            $("#modal-representante").modal("hide");
+                        }else{
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -2565,43 +2662,47 @@
             type:"GET",
             dataType:"json",
             success:function(data){
-                if(data != null && data != ""){
-                    $("#dato_laboral_id").val(data.id);
-                    // getGiroEditar("solicitante");
-                    $("#ocupacion_id").val(data.ocupacion_id);
-                    $("#nss").val(data.nss);
-                    //$("#no_issste").val(data.no_issste);
-                    $("#remuneracion").val(data.remuneracion);
-                    $("#periodicidad_id").val(data.periodicidad_id);
-                    if(data.labora_actualmente != $("#labora_actualmente").is(":checked")){
-                        $("#labora_actualmente").click();
-                        $("#labora_actualmente").trigger("change");
-                    }
-                    $("#puesto").val(data.puesto);
-                    $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
-                    $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
-                    // console.log(data.jornada_id);
-                    $("#jornada_id").val(data.jornada_id);
-                    $("#horas_semanales").val(data.horas_semanales);
-                    $("#resolucion_dato_laboral").val(data.resolucion);
-                    $(".catSelect").trigger('change');
+                try{
+                    if(data != null && data != ""){
+                        $("#dato_laboral_id").val(data.id);
+                        // getGiroEditar("solicitante");
+                        $("#ocupacion_id").val(data.ocupacion_id);
+                        $("#nss").val(data.nss);
+                        //$("#no_issste").val(data.no_issste);
+                        $("#remuneracion").val(data.remuneracion);
+                        $("#periodicidad_id").val(data.periodicidad_id);
+                        if(data.labora_actualmente != $("#labora_actualmente").is(":checked")){
+                            $("#labora_actualmente").click();
+                            $("#labora_actualmente").trigger("change");
+                        }
+                        $("#puesto").val(data.puesto);
+                        $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
+                        $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
+                        // console.log(data.jornada_id);
+                        $("#jornada_id").val(data.jornada_id);
+                        $("#horas_semanales").val(data.horas_semanales);
+                        $("#resolucion_dato_laboral").val(data.resolucion);
+                        $(".catSelect").trigger('change');
 
-                    //datos laborales extra
-                    $("#horario_laboral").val(data.horario_laboral);
-                    $("#horario_comida").val(data.horario_comida);
-                    $("#comida_dentro").val(data.comida_dentro);
-                    $("#dias_descanso").val(data.dias_descanso);
-                    $("#dias_vacaciones").val(data.dias_vacaciones);
-                    $("#dias_aguinaldo").val(data.dias_aguinaldo);
-                    $("#prestaciones_adicionales").val(data.prestaciones_adicionales);
-                }
-                $("#modal-dato-laboral").modal("show");
-                if(extra){
-                    $('#datosBasicos').hide();
-                    $('#datosExtras').show();
-                }else{
-                    $('#datosBasicos').show();
-                    $('#datosExtras').hide();
+                        //datos laborales extra
+                        $("#horario_laboral").val(data.horario_laboral);
+                        $("#horario_comida").val(data.horario_comida);
+                        $("#comida_dentro").val(data.comida_dentro);
+                        $("#dias_descanso").val(data.dias_descanso);
+                        $("#dias_vacaciones").val(data.dias_vacaciones);
+                        $("#dias_aguinaldo").val(data.dias_aguinaldo);
+                        $("#prestaciones_adicionales").val(data.prestaciones_adicionales);
+                    }
+                    $("#modal-dato-laboral").modal("show");
+                    if(extra){
+                        $('#datosBasicos').hide();
+                        $('#datosExtras').show();
+                    }else{
+                        $('#datosBasicos').show();
+                        $('#datosExtras').hide();
+                    }
+                }catch(error){
+                    console.log(error);
                 }
             }
         });
@@ -2767,28 +2868,38 @@
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
-                    if(data != null && data != ""){
-                        getDatosLaboralesParte($("#parte_id").val());
-                        swal({title: 'ÉXITO',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
-                        $("#modal-dato-laboral").modal("hide");
-                    }else{
-                        swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                    try{
+
+                        if(data != null && data != ""){
+                            getDatosLaboralesParte($("#parte_id").val());
+                            swal({title: 'ÉXITO',text: 'Se modificaron los datos laborales correctamente',icon: 'success'});
+                            $("#modal-dato-laboral").modal("hide");
+                        }else{
+                            swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 },error:function(data){
                     // console.log(data);
-                    var mensajes = "";
-                    $.each(data.responseJSON.errors, function (key, value) {
-                        // console.log(key.split("."));
-                        // console.log(value);
-                        var origen = key.split(".");
+                    try{
 
-                        mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
-                    });
-                    swal({
-                        title: 'Error',
-                        text: 'Es necesario validar los siguientes campos \n'+mensajes,
-                        icon: 'error'
-                    });
+                        var mensajes = "";
+                        $.each(data.responseJSON.errors, function (key, value) {
+                            // console.log(key.split("."));
+                            // console.log(value);
+                            var origen = key.split(".");
+                            
+                            mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
+                        });
+                        swal({
+                            title: 'Error',
+                            text: 'Es necesario validar los siguientes campos \n'+mensajes,
+                            icon: 'error'
+                        });
+                    }catch(error){
+                        console.log(error);
+                    }
                 }
             });
         }
@@ -3093,61 +3204,65 @@
                 // solicitante_id:$("#parte_solicitante_id").val()
             },
             success:function(datos){
-                let dato = datos.data;
-                listaPropuestas[dato.idParte]= [];
-                listaPropuestas[dato.idParte]['completa'] = [];
-                listaPropuestas[dato.idParte]['al50'] = [];
-                $.each(dato.propuestaCompleta,function(index,propuesta){
-                    listaPropuestas[propuesta.idSolicitante]['completa'].push({
-                        'idSolicitante':propuesta.idSolicitante,
-                        'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
-                        'dias':propuesta.dias,
-                        'monto':propuesta.monto,
-                        'otro':''
+                try{
+                    let dato = datos.data;
+                    listaPropuestas[dato.idParte]= [];
+                    listaPropuestas[dato.idParte]['completa'] = [];
+                    listaPropuestas[dato.idParte]['al50'] = [];
+                    $.each(dato.propuestaCompleta,function(index,propuesta){
+                        listaPropuestas[propuesta.idSolicitante]['completa'].push({
+                            'idSolicitante':propuesta.idSolicitante,
+                            'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
+                            'dias':propuesta.dias,
+                            'monto':propuesta.monto,
+                            'otro':''
+                        });
                     });
-                });
-                $.each(dato.propuestaAl50,function(index,propuesta){
-                    listaPropuestas[propuesta.idSolicitante]['al50'].push({
-                        'idSolicitante':propuesta.idSolicitante,
-                        'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
-                        'dias':propuesta.dias,
-                        'monto':propuesta.monto,
-                        'otro':''
+                    $.each(dato.propuestaAl50,function(index,propuesta){
+                        listaPropuestas[propuesta.idSolicitante]['al50'].push({
+                            'idSolicitante':propuesta.idSolicitante,
+                            'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
+                            'dias':propuesta.dias,
+                            'monto':propuesta.monto,
+                            'otro':''
+                        });
                     });
-                });
 
-                $('#remuneracionDiaria').val(dato.remuneracionDiaria);
-                $('#salarioMinimo').val(dato.salarioMinimo);
-                $('#antiguedad').val(dato.antiguedad);
-                $('#tiempoVencido').val(dato.tiempoVencido);
-                $('#idSolicitante').val(dato.idParte);
+                    $('#remuneracionDiaria').val(dato.remuneracionDiaria);
+                    $('#salarioMinimo').val(dato.salarioMinimo);
+                    $('#antiguedad').val(dato.antiguedad);
+                    $('#tiempoVencido').val(dato.tiempoVencido);
+                    $('#idSolicitante').val(dato.idParte);
 
-                $('#salario').html(" Remuneraci&oacute;n "+ dato.salario);
-                $('#fechaIngreso').html(" Fecha de ingreso: " + dato.fechaIngreso);
-                $('#fechaSalida').html(" Fecha de salida: " + dato.fechaSalida);
+                    $('#salario').html(" Remuneraci&oacute;n "+ dato.salario);
+                    $('#fechaIngreso').html(" Fecha de ingreso: " + dato.fechaIngreso);
+                    $('#fechaSalida').html(" Fecha de salida: " + dato.fechaSalida);
 
-                let table = "";
-                table+=" <tr>";
-                table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td><td class="amount" > $'+ (dato.al50.indemnizacion).toLocaleString("en-US") +'</td>';
-                table+=" </tr>";
-                table+=" <tr>";
-                table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.aguinaldo).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
-                table+=" </tr>";
-                table+=" <tr>";
-                table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.vacaciones).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
-                table+=" </tr>";
-                table+=" <tr>";
-                table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_vacacional).toLocaleString("en-US") +"</td>";
-                table+=" </tr>";
-                table+=" <tr>";
-                table+=' <th>Prima antigüedad</th><td class="amount"> $'+ (dato.completa.prima_antiguedad ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_antiguedad).toLocaleString("en-US") +"</td>";
-                table+=" </tr>";
-                table+=" <tr>";
-                table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (dato.completa.total ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.total).toLocaleString("en-US") +"</td>";
-                table+=" </tr>";
-                $('#totalCompleta').val(dato.completa.total);
-                $('#totalAl50').val(dato.al50.total);
-                $('#tbodyPropuestas'+dato.idParte).html(table);
+                    let table = "";
+                    table+=" <tr>";
+                    table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td><td class="amount" > $'+ (dato.al50.indemnizacion).toLocaleString("en-US") +'</td>';
+                    table+=" </tr>";
+                    table+=" <tr>";
+                    table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.aguinaldo).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
+                    table+=" </tr>";
+                    table+=" <tr>";
+                    table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.vacaciones).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
+                    table+=" </tr>";
+                    table+=" <tr>";
+                    table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_vacacional).toLocaleString("en-US") +"</td>";
+                    table+=" </tr>";
+                    table+=" <tr>";
+                    table+=' <th>Prima antigüedad</th><td class="amount"> $'+ (dato.completa.prima_antiguedad ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_antiguedad).toLocaleString("en-US") +"</td>";
+                    table+=" </tr>";
+                    table+=" <tr>";
+                    table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (dato.completa.total ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.total).toLocaleString("en-US") +"</td>";
+                    table+=" </tr>";
+                    $('#totalCompleta').val(dato.completa.total);
+                    $('#totalAl50').val(dato.al50.total);
+                    $('#tbodyPropuestas'+dato.idParte).html(table);
+                }catch(error){
+                    console.log(error);
+                }
             }
         });
     }
@@ -3439,6 +3554,7 @@
                 url:"/audiencia/resolucion",
                 type:"POST",
                 dataType:"json",
+                global:true,
                 data:{
                     audiencia_id:'{{ $audiencia->id }}',
                     convenio:$("#convenio").val(),
@@ -3451,14 +3567,19 @@
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
-                    if(data != null && data != ""){
-                        window.location = "/audiencias/"+data.id+"/edit"
-                    }else{
-                        swal({
-                            title: 'Algo salió mal',
-                            text: 'No se guardo el registro',
-                            icon: 'warning'
-                        });
+                    try{
+
+                        if(data != null && data != ""){
+                            window.location = "/audiencias/"+data.id+"/edit"
+                        }else{
+                            swal({
+                                title: 'Algo salió mal',
+                                text: 'No se guardo el registro',
+                                icon: 'warning'
+                            });
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -3514,12 +3635,16 @@
                 },
                 async:true,
                 success:function(data){
-                    if(data != null && data != ""){
-                        $("#nombre").val(data.nombre);
-                        $("#primer_apellido").val(data.primer_apellido);
-                        $("#segundo_apellido").val(data.segundo_apellido);
-                        $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
-                        $("#genero_id").val(data.genero_id).trigger("change");
+                    try{
+                        if(data != null && data != ""){
+                            $("#nombre").val(data.nombre);
+                            $("#primer_apellido").val(data.primer_apellido);
+                            $("#segundo_apellido").val(data.segundo_apellido);
+                            $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
+                            $("#genero_id").val(data.genero_id).trigger("change");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });

@@ -237,33 +237,38 @@
                 type:"GET",
                 dataType:"json",
                 success:function(data){
-                    if(data != null && data != ""){
-                        $("#dato_laboral_id").val(data.id);
-                        // getGiroEditar("solicitante");
+                    try{
 
-                        $("#ocupacion_id").val(data.ocupacion_id);
-                        $("#nss").val(data.nss);
-                        $("#no_issste").val(data.no_issste);
-                        $("#remuneracion").val(data.remuneracion);
-                        $("#periodicidad_id").val(data.periodicidad_id);
-                        if(data.labora_actualmente != $("#labora_actualmente").is(":checked")){
-                            $("#labora_actualmente").click();
-                            $("#labora_actualmente").trigger("change");
+                        if(data != null && data != ""){
+                            $("#dato_laboral_id").val(data.id);
+                            // getGiroEditar("solicitante");
+                            
+                            $("#ocupacion_id").val(data.ocupacion_id);
+                            $("#nss").val(data.nss);
+                            $("#no_issste").val(data.no_issste);
+                            $("#remuneracion").val(data.remuneracion);
+                            $("#periodicidad_id").val(data.periodicidad_id);
+                            if(data.labora_actualmente != $("#labora_actualmente").is(":checked")){
+                                $("#labora_actualmente").click();
+                                $("#labora_actualmente").trigger("change");
+                            }
+                            $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
+                            $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
+                            console.log(data.jornada_id);
+                            $("#jornada_id").val(data.jornada_id);
+                            $("#horas_semanales").val(data.horas_semanales);
+                            $("#resolucion_dato_laboral").val(data.resolucion);
+                            $(".catSelect").trigger('change')
+                            $("#modal-dato-laboral").modal("show");
+                        }else{
+                            swal({
+                                title: 'Aviso',
+                                text: 'No hay datos laborales registrados',
+                                icon: 'info'
+                            });
                         }
-                        $("#fecha_ingreso").val(dateFormat(data.fecha_ingreso,4));
-                        $("#fecha_salida").val(dateFormat(data.fecha_salida,4));
-                        console.log(data.jornada_id);
-                        $("#jornada_id").val(data.jornada_id);
-                        $("#horas_semanales").val(data.horas_semanales);
-                        $("#resolucion_dato_laboral").val(data.resolucion);
-                        $(".catSelect").trigger('change')
-                        $("#modal-dato-laboral").modal("show");
-                    }else{
-                        swal({
-                            title: 'Aviso',
-                            text: 'No hay datos laborales registrados',
-                            icon: 'info'
-                        });
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -274,65 +279,69 @@
             type:"GET",
             dataType:"json",
             success:function(data){
-                if(data != null && data != ""){
-                    data = data[0];
-                    $("#tieneRepresentante"+parte_id).html("<i class='fa fa-check'></i> ");
-                    $("#btnaddRep"+parte_id).html("Ver Representante");
-                    $("#curpRep").val(data.curp);
-                    $("#nombreRep").val(data.nombre);
-                    $("#primer_apellidoRep").val(data.primer_apellido);
-                    $("#segundo_apellidoRep").val((data.segundo_apellido|| ""));
-                    $("#fecha_nacimientoRep").val(dateFormat(data.fecha_nacimiento,4));
-                    $("#genero_idRep").val(data.genero_id).trigger("change");
-                    $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).trigger('change');
-                    $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
-                    $("#detalle_instrumento").val(data.detalle_instrumento);
-                    $("#parte_id").val(data.id);
-                    listaContactos = data.contactos;
-                    if(data.documentos && data.documentos.length > 0){
-                        $.each(data.documentos,function(index,doc){
-                            if(doc.tipo_archivo == 1){
-                                $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
-                                $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
-                            }else{
-                                $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
-                                $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
-                            }
-                        });
-                        
+                try{
+                    if(data != null && data != ""){
+                        data = data[0];
+                        $("#tieneRepresentante"+parte_id).html("<i class='fa fa-check'></i> ");
+                        $("#btnaddRep"+parte_id).html("Ver Representante");
+                        $("#curpRep").val(data.curp);
+                        $("#nombreRep").val(data.nombre);
+                        $("#primer_apellidoRep").val(data.primer_apellido);
+                        $("#segundo_apellidoRep").val((data.segundo_apellido|| ""));
+                        $("#fecha_nacimientoRep").val(dateFormat(data.fecha_nacimiento,4));
+                        $("#genero_idRep").val(data.genero_id).trigger("change");
+                        $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).trigger('change');
+                        $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
+                        $("#detalle_instrumento").val(data.detalle_instrumento);
+                        $("#parte_id").val(data.id);
+                        listaContactos = data.contactos;
+                        if(data.documentos && data.documentos.length > 0){
+                            $.each(data.documentos,function(index,doc){
+                                if(doc.tipo_archivo == 1){
+                                    $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                    $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                                }else{
+                                    $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                    $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
+                                }
+                            });
+                            
+                        }else{
+                            $("#tipo_documento_id").val("").trigger("change");
+                            $("#labelIdentifRepresentante").html("");
+                            $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                            $("#labelInstrumentoRepresentante").html("");
+                        }
                     }else{
+                        $("#curpRep").val("");
+                        $("#nombreRep").val("");
+                        $("#primer_apellidoRep").val("");
+                        $("#segundo_apellidoRep").val("");
+                        $("#fecha_nacimientoRep").val("");
+                        $("#genero_idRep").val("").trigger("change");
+                        $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                        $("#feha_instrumento").val("");
+                        $("#detalle_instrumento").val("");
+                        $("#parte_id").val("");
                         $("#tipo_documento_id").val("").trigger("change");
                         $("#labelIdentifRepresentante").html("");
-                        $("#clasificacion_archivo_id_representante").val("").trigger('change');
-                        $("#labelInstrumentoRepresentante").html("");
+                        listaContactos = [];
                     }
-                }else{
-                    $("#curpRep").val("");
-                    $("#nombreRep").val("");
-                    $("#primer_apellidoRep").val("");
-                    $("#segundo_apellidoRep").val("");
-                    $("#fecha_nacimientoRep").val("");
-                    $("#genero_idRep").val("").trigger("change");
-                    $("#clasificacion_archivo_id_representante").val("").trigger('change');
-                    $("#feha_instrumento").val("");
-                    $("#detalle_instrumento").val("");
-                    $("#parte_id").val("");
-                    $("#tipo_documento_id").val("").trigger("change");
-                    $("#labelIdentifRepresentante").html("");
-                    listaContactos = [];
+                    $("#tipo_contacto_id").val("").trigger("change");
+                    $("#contacto").val("");
+                    $("#parte_representada_id").val(parte_id);
+                    if(tipoRepresentante == 1){
+                        $("#menorAlert").show();
+                        $("#representanteMoral").hide();
+                    }else{
+                        $("#menorAlert").hide();
+                        $("#representanteMoral").show();
+                    }
+                    cargarContactos();
+                    $("#modal-representante").modal("show");
+                }catch(error){
+                    console.log(error);
                 }
-                $("#tipo_contacto_id").val("").trigger("change");
-                $("#contacto").val("");
-                $("#parte_representada_id").val(parte_id);
-                if(tipoRepresentante == 1){
-                    $("#menorAlert").show();
-                    $("#representanteMoral").hide();
-                }else{
-                    $("#menorAlert").hide();
-                    $("#representanteMoral").show();
-                }
-                cargarContactos();
-                $("#modal-representante").modal("show");
             }
         });
     }
@@ -343,29 +352,33 @@
                 dataType:"json",
                 async:true,
                 success:function(data){
-                    if(data != null && data != ""){
-                        var table = "";
-                        var div = "";
-                        $.each(data, function(index,element){
-                            table +='<tr>';
-                            table +='   <td>'+element.nombre_original+'</td>';
-                            table +='   <td>'+element.clasificacionArchivo.nombre+'</td>';
-                            table +='   <td>'+element.created_at+'</td>';
-                            table +='   <td>';
-                            table +='       <button onclick="" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Ver documento">';
-                            table +='        <i class="fa fa-file"></i>';
-                            table +='    </button>';
-                            table +='   </td>';
-                            table +='</tr>';
-                        });
-                        $("#table_documentos tbody").html(table);
-                        $("#modal-documentos").modal("show");
-                    }else{
-                        swal({
-                            title: 'Aviso',
-                            text: 'No hay datos generados para la audiencia',
-                            icon: 'info'
-                        });
+                    try{
+                        if(data != null && data != ""){
+                            var table = "";
+                            var div = "";
+                            $.each(data, function(index,element){
+                                table +='<tr>';
+                                table +='   <td>'+element.nombre_original+'</td>';
+                                table +='   <td>'+element.clasificacionArchivo.nombre+'</td>';
+                                table +='   <td>'+element.created_at+'</td>';
+                                table +='   <td>';
+                                table +='       <button onclick="" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Ver documento">';
+                                table +='        <i class="fa fa-file"></i>';
+                                table +='    </button>';
+                                table +='   </td>';
+                                table +='</tr>';
+                            });
+                            $("#table_documentos tbody").html(table);
+                            $("#modal-documentos").modal("show");
+                        }else{
+                            swal({
+                                title: 'Aviso',
+                                text: 'No hay datos generados para la audiencia',
+                                icon: 'info'
+                            });
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -374,6 +387,7 @@
             $.ajax({
                 url:"/api/getDomicilioParte/"+id,
                 type:"GET",
+                global:false,
                 dataType:"json",
                 success:function(data){
                     if(data != null && data != ""){
@@ -394,14 +408,19 @@
                         domicilio:domicilioObj2.getDomicilio(),
                     },
                     success:function(data){
-                        if(data != null && data != ""){
-                            $('#modal-domicilio').modal('hide');
-                            domicilioObj2.limpiarDomicilios();
-                            swal({
-                                title: 'Éxito',
-                                text: 'Se cambio el domicilio',
-                                icon: 'success'
-                            });
+                        try{
+
+                            if(data != null && data != ""){
+                                $('#modal-domicilio').modal('hide');
+                                domicilioObj2.limpiarDomicilios();
+                                swal({
+                                    title: 'Éxito',
+                                    text: 'Se cambio el domicilio',
+                                    icon: 'success'
+                                });
+                            }
+                        }catch(error){
+                            console.log(error);
                         }
                     }
                 });
