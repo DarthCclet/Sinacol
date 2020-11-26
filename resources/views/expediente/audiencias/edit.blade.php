@@ -367,7 +367,7 @@
                                                                     
                                                                         @foreach($audiencia->pagosDiferidos as $fechaPago)
                                                                             <tr>
-                                                                                <td>{{ Carbon\Carbon::createFromFormat('Y-m-d H:m:s',$fechaPago->fecha_pago)->format('d/m/Y')}}</td>
+                                                                                <td>{{ Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$fechaPago->fecha_pago)->format('d/m/Y')}}</td>
                                                                                 <td>{{$fechaPago->monto}}</td>
                                                                                 <td>
 

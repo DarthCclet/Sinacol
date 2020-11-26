@@ -689,7 +689,7 @@ trait GenerateDocument
                         
                         $totalPagosDiferidos=0;
                         foreach ($resolucion_pagos as $pago ) {
-                            $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:m:s',$pago->fecha_pago)->format('d/m/Y').' </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
+                            $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y').' </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
                             $totalPagosDiferidos +=1;
                         }
                         $tablaPagosDiferidos .= '</tbody>';
