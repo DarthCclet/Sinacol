@@ -1876,52 +1876,6 @@
                                         className: 'btn btn-danger',
                                         closeModal: true
                         }
-                        $("#tableAudienciaSuccess tbody").html(table);
-                        $("#modalRatificacion").modal("hide");
-                        $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
-                    }else if(data.data.tipo == 4){
-                        swal({
-                            title: 'Éxito',
-                            text: 'Se han registrado los comparecientes',
-                            icon: 'success'
-                        });
-                        cargarComparecientes();
-                        startTimer();
-                        nextStep(1);
-                    }else if(data.data.tipo == 5){
-                        swal({
-                            title: '¿Qué desea hacer?',
-                            text: 'Detectamos que no todos los citados comparecieron, ¿Desea continuar con el proceso de audiencia?, de indicar que no, se generará una nueva audiencia',
-                            icon: 'info',
-                            buttons: {
-                                cancel: {
-                                    text: 'Cancelar',
-                                    value: null,
-                                    visible: true,
-                                    className: 'btn btn-default',
-                                    closeModal: true,
-                                },roll: {
-                                    text: "No",
-                                    value: 2,
-                                    className: 'btn btn-warning',
-                                    visible: true,
-                                    closeModal: true
-                                },confirm: {
-                                    text: 'Si',
-                                    value: 1,
-                                    visible: true,
-                                    className: 'btn btn-danger',
-                                    closeModal: true
-                    }
-                            }
-                        }).then(function(tipo){
-                            if(tipo != null){
-                                if(tipo == 1){
-                                    cargarComparecientes();
-                                    startTimer();
-                                    nextStep(1);
-                                }else if(tipo == 2){
-                                    SolicitarNuevaAudiencia();
                                 }
                             }).then(function(tipo){
                                 if(tipo != null){
