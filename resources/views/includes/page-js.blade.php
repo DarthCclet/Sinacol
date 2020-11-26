@@ -221,6 +221,22 @@ $(".numero").limitKeyPress('1234567890.');
         return false;
     }
 
+
+    $(document).ajaxStart(function() {
+        $('#loading').addClass('loading');
+        $('#loading-content').addClass('loading-content');
+    });
+
+        /**
+         * Hide spinner
+         */
+
+    $(document).ajaxStop(function() {
+        $('#loading').removeClass('loading');
+        $('#loading-content').removeClass('loading-content');
+
+    });
+
 </script>
 <!-- ================== END BASE JS ================== -->
 
