@@ -2710,7 +2710,7 @@
             $.each(listaPropuestaConceptos, function (key, propuestaConcepto) {
                 $.each(propuestaConcepto, function (key, concepto) {
                     if(concepto.concepto_pago_resoluciones_id != 9 ){
-                        totalConceptosPago += concepto.monto;
+                        totalConceptosPago += parseFloat(concepto.monto);
                     }
                 });
             });
