@@ -1724,7 +1724,6 @@
             success:function(data){
                 try{
                 // console.log(data.pasa);
-<<<<<<< HEAD
                     if(data.pasa){
                         getPersonasComparecer();
                     }else{
@@ -1748,30 +1747,6 @@
                                     className: 'btn btn-warning',
                                     closeModal: true
                                 }
-=======
-                if(data.pasa){
-                    getPersonasComparecer();
-                }else{
-                    swal({
-                        title: '¿Ya se han capturado todos los representantes?',
-                        text: 'Recuerde capturar a los representantes legales comparecientes para que aparezcan en la lista',
-                        icon: '',
-                        // showCancelButton: true,
-                        buttons: {
-                            cancel: {
-                                text: 'No',
-                                value: null,
-                                visible: true,
-                                className: 'btn btn-default',
-                                closeModal: true
-                            },
-                            confirm: {
-                                text: 'Sí',
-                                value: true,
-                                visible: true,
-                                className: 'btn btn-warning',
-                                closeModal: true
->>>>>>> f6f7f81624c34f6b57c7bcc8e569567b7feb2a53
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
@@ -1901,8 +1876,6 @@
                                         className: 'btn btn-danger',
                                         closeModal: true
                         }
-<<<<<<< HEAD
-=======
                         $("#tableAudienciaSuccess tbody").html(table);
                         $("#modalRatificacion").modal("hide");
                         $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
@@ -1949,7 +1922,6 @@
                                     nextStep(1);
                                 }else if(tipo == 2){
                                     SolicitarNuevaAudiencia();
->>>>>>> f6f7f81624c34f6b57c7bcc8e569567b7feb2a53
                                 }
                             }).then(function(tipo){
                                 if(tipo != null){
@@ -2981,7 +2953,6 @@
                     }
                 },error:function(data){
                     // console.log(data);
-<<<<<<< HEAD
                     try{
 
                         var mensajes = "";
@@ -3000,19 +2971,6 @@
                     }catch(error){
                         console.log(error);
                     }
-=======
-                    var mensajes = "";
-                    $.each(data.responseJSON.errors, function (key, value) {
-                        var origen = key.split(".");
-
-                        mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
-                    });
-                    swal({
-                        title: 'Error',
-                        text: 'Es necesario validar los siguientes campos \n'+mensajes,
-                        icon: 'error'
-                    });
->>>>>>> f6f7f81624c34f6b57c7bcc8e569567b7feb2a53
                 }
             });
         }
@@ -3351,40 +3309,6 @@
                         });
                     });
 
-<<<<<<< HEAD
-                $('#remuneracionDiaria').val(dato.remuneracionDiaria);
-                $('#salarioMinimo').val(dato.salarioMinimo);
-                $('#antiguedad').val(dato.antiguedad);
-                $('#tiempoVencido').val(dato.tiempoVencido);
-                $('#idSolicitante').val(dato.idParte);
-
-                $('#salario'+dato.idParte).html(" Remuneraci&oacute;n "+ dato.salario);
-                $('#fechaIngreso'+dato.idParte).html(" Fecha de ingreso: " + dato.fechaIngreso);
-                $('#fechaSalida'+dato.idParte).html(" Fecha de salida: " + dato.fechaSalida);
-
-                let table = "";
-                table+=" <tr>";
-                table+=' <th>Indemnización constitucional</th><td class="amount"> $'+ (dato.completa.indemnizacion).toLocaleString("en-US")+'</td><td class="amount" > $'+ (dato.al50.indemnizacion).toLocaleString("en-US") +'</td>';
-                table+=" </tr>";
-                table+=" <tr>";
-                table+=' <th>Aguinaldo</th><td class="amount"> $'+ (dato.completa.aguinaldo ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.aguinaldo).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
-                table+=" </tr>";
-                table+=" <tr>";
-                table+=' <th>Vacaciones</th><td class="amount"> $'+ (dato.completa.vacaciones).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.vacaciones).toLocaleString("en-US").toLocaleString("en-US") +"</td>";
-                table+=" </tr>";
-                table+=" <tr>";
-                table+=' <th>Prima vacacional</th><td class="amount"> $'+ (dato.completa.prima_vacacional ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_vacacional).toLocaleString("en-US") +"</td>";
-                table+=" </tr>";
-                table+=" <tr>";
-                table+=' <th>Prima antigüedad</th><td class="amount"> $'+ (dato.completa.prima_antiguedad ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.prima_antiguedad).toLocaleString("en-US") +"</td>";
-                table+=" </tr>";
-                table+=" <tr>";
-                table+=' <th style=> TOTAL PRESTACIONES LEGALES</th><td class="amount"> $'+ (dato.completa.total ).toLocaleString("en-US") +'</td><td class="amount"> $'+ (dato.al50.total).toLocaleString("en-US") +"</td>";
-                table+=" </tr>";
-                $('#totalCompleta').val(dato.completa.total);
-                $('#totalAl50').val(dato.al50.total);
-                $('#tbodyPropuestas'+dato.idParte).html(table);
-=======
                     $('#remuneracionDiaria').val(dato.remuneracionDiaria);
                     $('#salarioMinimo').val(dato.salarioMinimo);
                     $('#antiguedad').val(dato.antiguedad);
@@ -3420,7 +3344,6 @@
                 }catch(error){
                     console.log(error);
                 }
->>>>>>> PA-centro-multisede
             }
         });
     }
