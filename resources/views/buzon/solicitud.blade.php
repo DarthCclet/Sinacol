@@ -92,15 +92,20 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
-                        data = data[0];
-                        if(data.correo){
-                            swal({
-                                title: 'Correcto',
-                                text: data.mensaje,
-                                icon: 'success'
-                            });
-                        }else{
-                            $("#modal-acceso").modal("show");
+                        try{
+
+                            data = data[0];
+                            if(data.correo){
+                                swal({
+                                    title: 'Correcto',
+                                    text: data.mensaje,
+                                    icon: 'success'
+                                });
+                            }else{
+                                $("#modal-acceso").modal("show");
+                            }
+                        }catch(error){
+                            console.log(error);
                         }
                     },error:function(data){
                         var mensajes = "";

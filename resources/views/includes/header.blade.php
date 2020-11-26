@@ -74,88 +74,92 @@
             dataType:"json",
             async:true,
             success:function(data){
-                var div="";
-                var centro = $("#centro_nombre").val();
-                $.each(data.menu,function(index,element){
-                    if(element.hijos.length == 0){
-                        var agenda = element.name;
-                        if(centro != "Oficina Central del CFCRL" && element.name != "Calendario colectivo"){
-                            if(element.name == "Agenda de conciliador"){
-                                agenda = "Agenda";
-                            }else if(element.name == "Calendario de audiencias"){
-                                agenda = "Calendario";
-                            }
-                            div +='<li class="nav-item"> <a class="nav-link" href="'+element.ruta+'">'+agenda+'</a> </li>';
-                        }else if(centro == "Oficina Central del CFCRL" && element.name != "Calendario de audiencias"){
-                            if(element.name == "Agenda de conciliador"){
-                                agenda = "Agenda";
-                            }else if(element.name == "Calendario colectivo"){
-                                agenda = "Calendario";
-                            }
-                            div +='<li class="nav-item"> <a class="nav-link" href="'+element.ruta+'">'+agenda+'</a> </li>';
-                        }
-                    }else{
-                        div +='<li class="nav-item dropdown">';
-                        div +='    <a class="nav-link dropdown-toggle" href="'+element.ruta+'" data-toggle="dropdown">'+element.name+'  <b class="caret"></b></a>';
-                        div +='    <ul class="dropdown-menu">';
-                        div +=          construirMenu(element.hijos);
-                        div +='    </ul>';
-                        div +='</li>';
-                    }
-                });
                 try{
-                    if(expedientee){
-                        div +='<li class="nav-item"> <a class="nav-link" href="/oficio-documentos/'+expediente_id+'">Oficios</a> </li>';
-                    }
-                }catch(err){}
-                $("#divMenu").html(div);
-                div="";
-                div +='<li class="nav-item dropdown">';
-                div +='    <a class="nav-link dropdown-toggle" data-toggle="dropdown">';
-                div +='         <i class="fa fa-user"></i>';
-                div +='         <span class="d-none d-md-inline">'+data.nombre+'</span><b class="caret"></b>';
-                div +='    </a>';
-                div +='    <ul class="dropdown-menu">';
+                    var div="";
+                    var centro = $("#centro_nombre").val();
+                    $.each(data.menu,function(index,element){
+                        if(element.hijos.length == 0){
+                            var agenda = element.name;
+                            if(centro != "Oficina Central del CFCRL" && element.name != "Calendario colectivo"){
+                                if(element.name == "Agenda de conciliador"){
+                                    agenda = "Agenda";
+                                }else if(element.name == "Calendario de audiencias"){
+                                    agenda = "Calendario";
+                                }
+                                div +='<li class="nav-item"> <a class="nav-link" href="'+element.ruta+'">'+agenda+'</a> </li>';
+                            }else if(centro == "Oficina Central del CFCRL" && element.name != "Calendario de audiencias"){
+                                if(element.name == "Agenda de conciliador"){
+                                    agenda = "Agenda";
+                                }else if(element.name == "Calendario colectivo"){
+                                    agenda = "Calendario";
+                                }
+                                div +='<li class="nav-item"> <a class="nav-link" href="'+element.ruta+'">'+agenda+'</a> </li>';
+                            }
+                        }else{
+                            div +='<li class="nav-item dropdown">';
+                            div +='    <a class="nav-link dropdown-toggle" href="'+element.ruta+'" data-toggle="dropdown">'+element.name+'  <b class="caret"></b></a>';
+                            div +='    <ul class="dropdown-menu">';
+                            div +=          construirMenu(element.hijos);
+                            div +='    </ul>';
+                            div +='</li>';
+                        }
+                    });
+                    try{
+                        if(expedientee){
+                            div +='<li class="nav-item"> <a class="nav-link" href="/oficio-documentos/'+expediente_id+'">Oficios</a> </li>';
+                        }
+                    }catch(err){}
+                    $("#divMenu").html(div);
+                    div="";
+                    div +='<li class="nav-item dropdown">';
+                    div +='    <a class="nav-link dropdown-toggle" data-toggle="dropdown">';
+                    div +='         <i class="fa fa-user"></i>';
+                    div +='         <span class="d-none d-md-inline">'+data.nombre+'</span><b class="caret"></b>';
+                    div +='    </a>';
+                    div +='    <ul class="dropdown-menu">';
 
-                div +='         <li><a class="dropdown-item" href="#">Perfil</a>';
-                div +='             <ul class="submenu dropdown-menu derecha">';
-                $.each(data.roles,function(i,e){
-                    var selected='';
-                    if(e.id === data.rolActual.id){
-                          selected = '<i class="fa fa-check-circle" style="color:#9d2449;"></i>';
-                    }
-                div +='                 <li><a class="dropdown-item rolChange" data-rol="'+e.id+'" href="#">'+e.name+selected+'</a>';
-                });
-                div +='             </ul>';
-                div +='         </li>';
+                    div +='         <li><a class="dropdown-item" href="#">Perfil</a>';
+                    div +='             <ul class="submenu dropdown-menu derecha">';
+                    $.each(data.roles,function(i,e){
+                        var selected='';
+                        if(e.id === data.rolActual.id){
+                            selected = '<i class="fa fa-check-circle" style="color:#9d2449;"></i>';
+                        }
+                    div +='                 <li><a class="dropdown-item rolChange" data-rol="'+e.id+'" href="#">'+e.name+selected+'</a>';
+                    });
+                    div +='             </ul>';
+                    div +='         </li>';
 
-                div +='         <li><a class="dropdown-item" href="#">Centro</a>';
-                div +='             <ul class="submenu dropdown-menu derecha">';
-                $.each(data.centros,function(i,e){
-                    var selected='';
-                    if(e.id === data.centroActual){
-                          selected = '<i class="fa fa-check-circle" style="color:#9d2449;"></i>';
-                    }
-                div +='                 <li><a class="dropdown-item centroChange" data-id="'+e.usuario_centro_id+'" data-centro_id="'+e.id+'" href="#">'+e.nombre+selected+'</a>';
-                });
-                div +='             </ul>';
-                div +='         </li>';
+                    div +='         <li><a class="dropdown-item" href="#">Centro</a>';
+                    div +='             <ul class="submenu dropdown-menu derecha">';
+                    $.each(data.centros,function(i,e){
+                        var selected='';
+                        if(e.id === data.centroActual){
+                            selected = '<i class="fa fa-check-circle" style="color:#9d2449;"></i>';
+                        }
+                    div +='                 <li><a class="dropdown-item centroChange" data-id="'+e.usuario_centro_id+'" data-centro_id="'+e.id+'" href="#">'+e.nombre+selected+'</a>';
+                    });
+                    div +='             </ul>';
+                    div +='         </li>';
 
-                var ruta_impersonate = "impersonate_leave";
-                @if(SESSION('impersonated_by'))
-                div +='         <li><a class="dropdown-item" href="{{route('impersonate_leave')}}">Regresar al perfil</a> </li>';
-                @endif
-                div +='         <li>';
-                var form =  'logout-formm';
-                div +='         <li>';
-                div +='             <a class="dropdown-item" href="#" onclick="cerrarSesion(event)">';
-                div +='                 Salir';
-                div +='             </a>';
-                div +='         </li>';
-                div +='     </ul>';
-                div +=' </li>';
-                rol_id = data.rolActual.id;
-                $("#divUser").html(div);
+                    var ruta_impersonate = "impersonate_leave";
+                    @if(SESSION('impersonated_by'))
+                    div +='         <li><a class="dropdown-item" href="{{route('impersonate_leave')}}">Regresar al perfil</a> </li>';
+                    @endif
+                    div +='         <li>';
+                    var form =  'logout-formm';
+                    div +='         <li>';
+                    div +='             <a class="dropdown-item" href="#" onclick="cerrarSesion(event)">';
+                    div +='                 Salir';
+                    div +='             </a>';
+                    div +='         </li>';
+                    div +='     </ul>';
+                    div +=' </li>';
+                    rol_id = data.rolActual.id;
+                    $("#divUser").html(div);
+                }catch(error){
+                        console.log(error);
+                    }
             }
         });
     }

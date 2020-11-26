@@ -295,20 +295,24 @@
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
-                    console.log(data);
-                    if(data != null){
-                        $("#id").val(data.id);
-                        $("#nombreSala").text(data.nombre);
-                        limpiarModal();
-                        $.each(data.disponibilidades,function(index,data){
-                            var elm = $("#switch"+data.dia);
-                            $(elm).trigger('click');
-                            $(elm).prev().val(data.id);
-                            $(elm).parent().next().children().next().val(data.hora_inicio);
-                            $(elm).parent().next().next().children().next().val(data.hora_fin);
-                        });
-                        $("#modal-disponinbilidad").modal("show");
-                    }
+                    try{
+                        console.log(data);
+                        if(data != null){
+                            $("#id").val(data.id);
+                            $("#nombreSala").text(data.nombre);
+                            limpiarModal();
+                            $.each(data.disponibilidades,function(index,data){
+                                var elm = $("#switch"+data.dia);
+                                $(elm).trigger('click');
+                                $(elm).prev().val(data.id);
+                                $(elm).parent().next().children().next().val(data.hora_inicio);
+                                $(elm).parent().next().next().children().next().val(data.hora_fin);
+                            });
+                            $("#modal-disponinbilidad").modal("show");
+                        }
+                    }catch(error){
+                        console.log(error);
+                    }}
                 }
             });
         }
@@ -415,44 +419,48 @@
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
-                    console.log(data);
-                    if(data != null){
-                        $("#id").val(data.id);
-                        $("#nombreSalaIncidencia").text(data.nombre);
-                        limpiarModalIncidencia();
-                        var table = `
-                            <table id="data-table-incidencias" class="table table-striped table-bordered table-condensed table-td-valign-middle">
-                                <thead>
-                                <tr>
-                                    <th class="text-nowrap">Justificación</th>
-                                    <th class="text-nowrap">Fecha y hora de inicio</th>
-                                    <th class="text-nowrap">Fecha y hora fin</th>
-                                    <th class="text-nowrap all">Acciones</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                        `;
-                        $.each(data.incidencias,function(index,data){
-                            table +='<tr>';
-                            table +='   <td>'+data.justificacion+'</td>';
-                            table +='   <td>'+data.fecha_inicio+'</td>';
-                            table +='   <td>'+data.fecha_fin+'</td>';
-                            table +='   <td>';
-                            table +='       <a class="btn btn-xs btn-primary incidencia" onclick="cargarIncidencia('+data.id+')">';
-                            table +='           <i class="fa fa-edit"></i>';
-                            table +='       </a>';
-                            table +='       <a class="btn btn-xs btn-warning incidencia" onclick="eliminarIncidencia('+data.id+')">';
-                            table +='           <i class="fa fa-trash"></i>';
-                            table +='       </a>';
-                            table +='   </td>';
-                            table +='</tr>';
-                        });
-                        table +='</tbody>';
-                        table +='</table>';
-                        $("#table_incidencias").html(table);
-                        $('#data-table-incidencias').DataTable();
-                        cambiarDivIncidencias(1);
-                        $("#modal-incidencias").modal("show");
+                    try{
+                        console.log(data);
+                        if(data != null){
+                            $("#id").val(data.id);
+                            $("#nombreSalaIncidencia").text(data.nombre);
+                            limpiarModalIncidencia();
+                            var table = `
+                                <table id="data-table-incidencias" class="table table-striped table-bordered table-condensed table-td-valign-middle">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-nowrap">Justificación</th>
+                                        <th class="text-nowrap">Fecha y hora de inicio</th>
+                                        <th class="text-nowrap">Fecha y hora fin</th>
+                                        <th class="text-nowrap all">Acciones</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                            `;
+                            $.each(data.incidencias,function(index,data){
+                                table +='<tr>';
+                                table +='   <td>'+data.justificacion+'</td>';
+                                table +='   <td>'+data.fecha_inicio+'</td>';
+                                table +='   <td>'+data.fecha_fin+'</td>';
+                                table +='   <td>';
+                                table +='       <a class="btn btn-xs btn-primary incidencia" onclick="cargarIncidencia('+data.id+')">';
+                                table +='           <i class="fa fa-edit"></i>';
+                                table +='       </a>';
+                                table +='       <a class="btn btn-xs btn-warning incidencia" onclick="eliminarIncidencia('+data.id+')">';
+                                table +='           <i class="fa fa-trash"></i>';
+                                table +='       </a>';
+                                table +='   </td>';
+                                table +='</tr>';
+                            });
+                            table +='</tbody>';
+                            table +='</table>';
+                            $("#table_incidencias").html(table);
+                            $('#data-table-incidencias').DataTable();
+                            cambiarDivIncidencias(1);
+                            $("#modal-incidencias").modal("show");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -497,12 +505,17 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
-                        getSalaIncidencias($("#id").val());
-                        swal({
-                            title: 'Éxito',
-                            text: 'Se guardarón los datos de la disponibilidad',
-                            icon: 'success'
-                        });
+                        try{
+
+                            getSalaIncidencias($("#id").val());
+                            swal({
+                                title: 'Éxito',
+                                text: 'Se guardarón los datos de la disponibilidad',
+                                icon: 'success'
+                            });
+                        }catch(error){
+                            console.log(error);
+                        }
                     }
                 });
             }else{
@@ -541,19 +554,23 @@
                 dataType:"json",
                 async:true,
                 success:function(data){
-                    if(data != null && data != ""){
-                        limpiarModalIncidencia();
-                        $("#incidencia_id").val(data.id);
-                        $("#justificacion").val(data.justificacion);
-                        $("#fecha_inicio").val(data.fecha_inicio);
-                        $("#fecha_fin").val(data.fecha_fin);
-                        cambiarDivIncidencias(2);
-                    }else{
-                        swal({
-                            title: 'Algo salió mal',
-                            text: 'No pudimos traer la información',
-                            icon: 'warning'
-                        });
+                    try{
+                        if(data != null && data != ""){
+                            limpiarModalIncidencia();
+                            $("#incidencia_id").val(data.id);
+                            $("#justificacion").val(data.justificacion);
+                            $("#fecha_inicio").val(data.fecha_inicio);
+                            $("#fecha_fin").val(data.fecha_fin);
+                            cambiarDivIncidencias(2);
+                        }else{
+                            swal({
+                                title: 'Algo salió mal',
+                                text: 'No pudimos traer la información',
+                                icon: 'warning'
+                            });
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
@@ -590,14 +607,18 @@
                             _token:"{{ csrf_token() }}"
                         },
                         success:function(data){
-                            if(data != null && data != ""){
-                                getSalaIncidencias($("#id").val());
-                            }else{
-                                swal({
-                                    title: 'Algo salió mal',
-                                    text: 'No pudimos traer la información',
-                                    icon: 'warning'
-                                });
+                            try{
+                                if(data != null && data != ""){
+                                    getSalaIncidencias($("#id").val());
+                                }else{
+                                    swal({
+                                        title: 'Algo salió mal',
+                                        text: 'No pudimos traer la información',
+                                        icon: 'warning'
+                                    });
+                                }
+                            }catch(error){
+                                console.log(error);
                             }
                         }
                     });

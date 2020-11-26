@@ -360,10 +360,15 @@
               },
               dataType:"json",
               success:function(data){
+                try{
+
                   if(data != null && data != ""){
                     tinymce.execCommand('mceRemoveEditor', true, "plantilla-body");
                     tinymce.init(config_tmce('#plantilla-body',data));
                   }
+                }catch(error){
+                  console.log(error);
+                }
               }
           });
         });

@@ -158,6 +158,7 @@
                 url:"/giros_comerciales/cambiar_ambito",
                 type:"POST",
                 dataType:"json",
+                global:false,
                 data:{
                     id:id,
                     ambito_id:ambito_id,
@@ -202,15 +203,19 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
-                        if(data != "" && data != null){
-                            $("#spanNombre"+$("#id").val()).text(data.nombre);
-                            $("#modal-cambio").modal("hide");
-                        }else{
-                            swal({
-                                title: 'Error',
-                                text: 'No se logro cambiar el nombre del giro',
-                                icon: 'error'
-                            });
+                        try{
+                            if(data != "" && data != null){
+                                $("#spanNombre"+$("#id").val()).text(data.nombre);
+                                $("#modal-cambio").modal("hide");
+                            }else{
+                                swal({
+                                    title: 'Error',
+                                    text: 'No se logro cambiar el nombre del giro',
+                                    icon: 'error'
+                                });
+                            }
+                        }catch(error){
+                            console.log(error);
                         }
                     }
                 });

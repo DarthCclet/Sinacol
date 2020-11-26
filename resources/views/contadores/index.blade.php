@@ -109,19 +109,23 @@
                     id:id
                 },
                 success:function(data){
-                    console.log(data);
-                    if(data != null){
-                        $("#id").val(data.id);
-                        $("#nombreSala").text(data.nombre);
-                        limpiarModal();
-                        $.each(data.disponibilidades,function(index,data){
-                            var elm = $("#switch"+data.dia);
-                            $(elm).trigger('click');
-                            $(elm).prev().val(data.id);
-                            $(elm).parent().next().children().next().val(data.hora_inicio);
-                            $(elm).parent().next().next().children().next().val(data.hora_fin);
-                        });
-                        $("#modal-disponinbilidad").modal("show");
+                    try{
+                        console.log(data);
+                        if(data != null){
+                            $("#id").val(data.id);
+                            $("#nombreSala").text(data.nombre);
+                            limpiarModal();
+                            $.each(data.disponibilidades,function(index,data){
+                                var elm = $("#switch"+data.dia);
+                                $(elm).trigger('click');
+                                $(elm).prev().val(data.id);
+                                $(elm).parent().next().children().next().val(data.hora_inicio);
+                                $(elm).parent().next().next().children().next().val(data.hora_fin);
+                            });
+                            $("#modal-disponinbilidad").modal("show");
+                        }
+                    }catch(error){
+                        console.log(error);
                     }
                 }
             });
