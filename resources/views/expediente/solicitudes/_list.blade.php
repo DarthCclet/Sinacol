@@ -1406,28 +1406,6 @@
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
-<<<<<<< HEAD
-                        if(data != null && data != ""){
-                            $("#modal-aviso-resolucion-inmediata").modal("hide");
-                            $("#modalRatificacion").modal("hide");
-                            swal({
-                                title: 'Correcto',
-                                text: 'Solicitud ratificada correctamente',
-                                icon: 'success'
-                            });
-                            if(data.tipo_solicitud_id == 1 || data.tipo_solicitud_id == 2){
-                                window.location.href = "/guiaAudiencia/"+data.id;
-                            }else{
-                                window.location.href = "/resolucionColectiva/"+data.id;
-                                
-                            }
-                        }else{
-                            swal({
-                                title: 'Error',
-                                text: 'No se pudo ratificar',
-                                icon: 'error'
-                            });
-=======
                         try{
 
                             if(data != null && data != ""){
@@ -1448,7 +1426,6 @@
                             }
                         }catch(error){
                             console.log(error);
->>>>>>> PA-centro-multisede
                         }
                     },error:function(data){
                         swal({
