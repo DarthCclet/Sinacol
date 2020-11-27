@@ -1556,14 +1556,16 @@ class SolicitudController extends Controller {
                     foreach($solicitud->expediente->audiencia as $audiencia){
                         $notificar = false;
                         foreach($audiencia->audienciaParte as $parte){
-                            if($parte->parte->tipo_parte_id != 1){
+                            if($parte->parte && $parte->parte->tipo_parte_id != 1){
                                 if($parte->tipo_notificacion_id != 1 && $parte->tipo_notificacion_id != null){
                                     $notificar = true;
                                 }
+                            }else{
+                                var_dump("No hay parte. revisar de que se trata: SID:".$solicitud->id."\n");
                             }
                         }
                         if($notificar){
-                            event(new RatificacionRealizada($audiencia->id,"citatorio"));
+                            event(new RatificacionRealizada($audiencia->id, "citatorio"));
                             $enviadas++;
                         }
                         var_dump("se notifica la audiencia: ".$audiencia->id.": ".$audiencia->folio."/".$audiencia->anio."\n");
