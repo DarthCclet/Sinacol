@@ -19,7 +19,7 @@
             <td class="all">{{$user->persona->nombre}} {{$user->persona->primer_apellido}} {{$user->persona->segundo_apellido}}</td>
             <td class="all">{{$user->centro ? $user->centro->abreviatura : ''}}</td>
             <td class="all">{{$user->roles ? $user->getRoleNames()->implode(", ") : ''}}</td>
-            <td class="all">
+            <td class="all" nowrap="nowrap">
                 {!! Form::open(['action' => ['UserController@destroy', $user->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
                     <a href="{{route('users.edit',[$user])}}" class="btn btn-xs btn-primary">
