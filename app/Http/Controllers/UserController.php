@@ -37,7 +37,7 @@ class UserController extends Controller
     public function index()
     {
 
-        User::with('persona')->get();
+        User::with('persona')->with('centro')->get();
 
         // Filtramos los usuarios con los parametros que vengan en el request
         $users = (new UserFilter(User::query(), $this->request))
@@ -52,7 +52,7 @@ class UserController extends Controller
 //        if ($this->request->get('all')) {
 //            $users = $users->get();
 //        } else {
-            $users = $users->paginate($this->request->get('per_page', 10));
+            $users = $users->paginate($this->request->get('per_page', $this->request->get('per_page',10)));
 //        }
 
         // Para cada objeto obtenido cargamos sus relaciones.

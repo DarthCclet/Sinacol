@@ -5,6 +5,8 @@
         <th class="text-nowrap">User</th>
         <th class="text-nowrap">Email</th>
         <th class="text-nowrap">Nombre</th>
+        <th class="text-nowrap">Centro</th>
+        <th class="text-nowrap">Roles</th>
         <th class="text-nowrap all">Acciones</th>
     </tr>
     </thead>
@@ -15,6 +17,8 @@
             <td class="all">{{$user->name}}</td>
             <td class="all">{{$user->email}}</td>
             <td class="all">{{$user->persona->nombre}} {{$user->persona->primer_apellido}} {{$user->persona->segundo_apellido}}</td>
+            <td class="all">{{$user->centro ? $user->centro->abreviatura : ''}}</td>
+            <td class="all">{{$user->roles ? $user->getRoleNames()->implode(", ") : ''}}</td>
             <td class="all">
                 {!! Form::open(['action' => ['UserController@destroy', $user->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">
