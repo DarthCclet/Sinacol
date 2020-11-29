@@ -10,6 +10,14 @@
 
 @stack('css')
 <style>
+    @if( strpos(env('APP_URL'), 'lxl') )
+    body {
+        background-color: #ffb3b3;
+        background-image: url("/assets/img/logo/sistemadeprueba.svg");
+        background-size: 200px;
+        background-repeat: repeat;
+    }
+    @endif
     .sw-main.sw-theme-default .step-anchor > li.active > a small {
         color: #B38E5D;
     }
@@ -67,7 +75,7 @@
         left:50%;
         animation: spin 2s linear infinite;
     }
-	
+
 	@keyframes spin {
 		0% { transform: rotate(0deg); }
 		100% { transform: rotate(360deg); }
