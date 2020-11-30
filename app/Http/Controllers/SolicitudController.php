@@ -729,7 +729,7 @@ class SolicitudController extends Controller {
             
             $documentos = $doc->sortBy('id');
             //termina consulta de documentos
-            return view('expediente.solicitudes.consultar', compact('solicitud','documentos'));
+            return view('expediente.solicitudes.consultar', compact('solicitud','audiencias','documentos'));
         } catch (\Throwable $e) {
             return redirect('solicitudes');
         }

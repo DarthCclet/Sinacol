@@ -2598,13 +2598,6 @@
                         console.log(error);
                         swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
                     }
-                },error:function(data){
-                    // console.log(data);
-                    try{
-                        swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
-                    }catch(error){
-                        console.log(error);
-                    }
                 },
                 error: function(){
                     swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayo a 10M ',icon: 'warning'});
