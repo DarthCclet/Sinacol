@@ -405,27 +405,27 @@ class AudienciaController extends Controller {
                         $pasa = true;
                     }
                 }
-            } else {
-                $pasa = false;
+//            } else {
+//                $pasa = false;
             }
-            if ($pasa) {
-                foreach ($conciliador->incidencias as $inci) {
-                    if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
-                        $pasa = false;
-                    }
-                }
-                if ($pasa) {
-                    $conciliadoresAudiencia = array();
-                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
-                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
-                            //Buscamos que la hora inicio no este entre una audiencia
-                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
-                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
-                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-                        }
-                    }
-                }
-            }
+//            if ($pasa) {
+//                foreach ($conciliador->incidencias as $inci) {
+//                    if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
+//                        $pasa = false;
+//                    }
+//                }
+//                if ($pasa) {
+//                    $conciliadoresAudiencia = array();
+//                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
+//                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
+//                            //Buscamos que la hora inicio no este entre una audiencia
+//                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
+//                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
+//                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
+//                        }
+//                    }
+//                }
+//            }
             if ($pasa) {
                 $conciliador->persona = $conciliador->persona;
                 $conciliadoresResponse[] = $conciliador;
@@ -644,7 +644,6 @@ class AudienciaController extends Controller {
 
         // Guardamos todas las Partes en la audiencia
         $partes = $audiencia->expediente->solicitud->partes;
-        $expediente = Expediente::find($request->expediente_id);
         foreach ($partes as $parte) {
             $tipo_notificacion_id = null;
             foreach ($request->listaNotificaciones as $notificaciones) {
@@ -653,11 +652,10 @@ class AudienciaController extends Controller {
                 }
             }
             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
-            //Generar citatorio de audiencia
-            if($parte->tipo_parte_id == 2){
-                event(new GenerateDocumentResolution($audiencia->id, $expediente->solicitud_id, 14, 4,null,$parte->id));
-            }
         }
+        $expediente = Expediente::find($request->expediente_id);
+        //Se genera citatorio de audiencia
+        event(new GenerateDocumentResolution($audiencia->id, $expediente->solicitud_id, 14, 4));
         return $audiencia;
     }
     /**
@@ -1474,8 +1472,6 @@ class AudienciaController extends Controller {
             if ($pasaSolicitado) {
                 $arregloPartesAgregadas[] = $relacion["parte_solicitada_id"];
                 AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $relacion["parte_solicitada_id"]]);
-                //generar citatorio de audiencia
-                event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,14,4,null,$relacion["parte_solicitada_id"]));
                 // buscamos representantes legales de esta parte
                 $parte = $audiencia->expediente->solicitud->partes()->where("parte_representada_id",$relacion["parte_solicitada_id"])->first();
                 if($parte != null){
@@ -1485,8 +1481,9 @@ class AudienciaController extends Controller {
             $resolucion = ResolucionPartes::find($relacion["id"]);
             $resolucion->update(["nuevaAudiencia" => true]);
         }
-        //$expediente = Expediente::find($audiencia->expediente_id);
-        //event(new GenerateDocumentResolution($audiencia->id, $expediente->solicitud_id, 14, 4));
+        $expediente = Expediente::find($audiencia->expediente_id);
+        //Se genera citatorio de audiencia
+        event(new GenerateDocumentResolution($audiencia->id, $expediente->solicitud_id, 14, 4));
         DB::commit();
         return $audienciaN;
         
@@ -2100,9 +2097,14 @@ class AudienciaController extends Controller {
             $audiencia = Audiencia::find($this->request->audiencia_id);
             $fecha = new \Carbon\Carbon($this->request->fecha_audiencia);
             $audiencia->update(["fecha_audiencia" =>$fecha->format("Y-m-d"), "hora_inicio" => $this->request->hora_inicio, "hora_fin" => $this->request->hora_fin, "cancelacion_atendida" => true,"encontro_audiencia" => true]);
+            //Se genera citatorio de audiencia
+            //
             if(isset($this->request->agregarConciliador)){
                 if($this->request->agregarConciliador == 'noEncontrados'){
                     $id_conciliador = null;
+                    foreach($audiencia->conciliadoresAudiencias as $conciliador){
+                        $conciliador->delete();
+                    }
                     foreach ($this->request->asignacion as $value) {
                         if ($value["resolucion"]) {
                             $id_conciliador = $value["conciliador"];
@@ -2113,15 +2115,7 @@ class AudienciaController extends Controller {
                     $audiencia->update(["conciliador_id" => $id_conciliador]);
                 }
             }
-            // generar citatorio de conciliacion
-            $partes = $audiencia->expediente->solicitud->partes;
-            foreach($partes as $parte){
-                AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
-                if($parte->tipo_parte_id == 2){
-                    event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,14,4,null,$parte->id));
-                }
-            }
-            //event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 14, 4));
+            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 14, 4));
             //Buscamos un correo electronico de las partes solicitadas
             $contactados = array();
             $sin_contactar = array();
@@ -2157,7 +2151,7 @@ class AudienciaController extends Controller {
             return array("sin_contactar" => $sin_contactar);
         } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
-                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Algo salio mal al tratar de reagendar', 'Error');
