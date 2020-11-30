@@ -583,7 +583,7 @@
                     </div>
                     <div class="col-md-12 row">
                         <div class="col-md-6">
-                            <label class=" needed">Documento de identificaci&oacute;n</label>
+                            <label id="labelIdentificacion" class=" needed">Documento de identificaci&oacute;n</label>
                             <span class="btn btn-primary fileinput-button m-r-3">
                                 <i class="fa fa-fw fa-plus"></i>
                                 <span>Seleccionar identificaci&oacute;n</span>
@@ -630,7 +630,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label class="needed">Documento de Instrumento</label> 
+                        <label id="labelInstrumento" class="needed">Documento de Instrumento</label> 
                         <span class="btn btn-primary fileinput-button m-r-3">
                             <i class="fa fa-fw fa-plus"></i>
                             <span>Seleccionar instrumento</span>
@@ -2647,14 +2647,21 @@
                 error = true;
             }
         }
+        if($("#parte_id").val() == ""){
+            if($("#fileIdentificacion").val() == "" ){
+                $("#labelIdentificacion").css("color","red");
+                error = true;
+            }
+            if($("#fileInstrumento").val() == ""){
+                $("#labelInstrumento").css("color","red");
+                error = true;
+            }
+        }
         if($("#fileInstrumento").val() != ""){
             if($("#clasificacion_archivo_id_representante").val() == "" ){
                 $("#clasificacion_archivo_id_representante").prev().css("color","red");
                 error = true;
             }
-            // if($("#fileInstrumento")[0].files[0].size> ("#fileInstrumento").data('max-size')){
-                // error = true;
-            // }
         }
         if($("#feha_instrumento").val() == ""){
             $("#feha_instrumento").prev().css("color","red");
