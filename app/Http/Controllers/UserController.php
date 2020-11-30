@@ -37,10 +37,8 @@ class UserController extends Controller
     public function index()
     {
 
-        User::with('persona')->get();
-
         // Filtramos los usuarios con los parametros que vengan en el request
-        $users = (new UserFilter(User::query(), $this->request))
+        $users = (new UserFilter(User::query()->with('persona')->with('roles')->with('centro'), $this->request))
             ->searchWith(User::class)
             ->filter();
         if(!auth()->user()->hasRole('Super Usuario')){
@@ -49,11 +47,11 @@ class UserController extends Controller
 
         // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
-//        if ($this->request->get('all')) {
-//            $users = $users->get();
-//        } else {
-            $users = $users->paginate($this->request->get('per_page', 10));
-//        }
+        if (!$this->request->get('per_page')) {
+            $users = $users->paginate(500);
+        } else {
+            $users = $users->paginate($this->request->get('per_page', $this->request->get('per_page',10)));
+        }
 
         // Para cada objeto obtenido cargamos sus relaciones.
         $users = tap($users)->each(function ($user) {

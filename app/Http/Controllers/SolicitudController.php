@@ -31,6 +31,7 @@ use App\Parte;
 use App\Periodicidad;
 use App\ResolucionParteExcepcion;
 use App\Rules\Curp;
+use App\Rules\RFC;
 use App\TipoAsentamiento;
 use App\TipoContacto;
 use App\TipoVialidad;
@@ -109,7 +110,7 @@ class SolicitudController extends Controller {
                     });
                     $filtrarCentro = false;
                 }
-            
+
                 if ($this->request->get('nombre')) {
                     $nombre = $this->request->get('nombre');
                     $nombre = trim($nombre);
@@ -119,7 +120,7 @@ class SolicitudController extends Controller {
                         $query->where('tipo_parte_id',1)->whereRaw("to_tsvector('spanish', unaccent(trim(coalesce(nombre_comercial,' ')||' '||coalesce(nombre,' ')||' '||coalesce(primer_apellido,' ')||' '||coalesce(segundo_apellido,' ')))) @@ to_tsquery('spanish', unaccent(?))", [$nombre]);
                     });
                 }
-                
+
                 if ($this->request->get('anio')) {
                     $solicitud->where('anio', $this->request->get('anio'));
                 }
@@ -182,7 +183,7 @@ class SolicitudController extends Controller {
                     }else{
                         $total = Solicitud::count();
                     }
-                    
+
                     $draw = $this->request->get('draw');
                     return $this->sendResponseDatatable($total, $filtered, $draw, $solicitud, null);
                 }
@@ -234,7 +235,7 @@ class SolicitudController extends Controller {
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         $periodicidades = $this->cacheModel('periodicidades',Periodicidad::class);
         $motivo_excepcion = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
-        
+
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $giros = GiroComercial::where("parent_id",1)->orderBy('nombre')->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
@@ -275,6 +276,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -286,6 +288,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
@@ -298,6 +301,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -308,11 +312,12 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
                 'solicitados.*.domicilios' => 'required'
-            ]); 
+            ]);
         }
 
         DB::beginTransaction();
@@ -547,7 +552,7 @@ class SolicitudController extends Controller {
             $parte->domicilios = $parte->domicilios()->first();
             $partes[$key] = $parte;
         }
-        
+
         $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ?$solicitud->tipo_solicitud_id : 1;
         if($tipo_solicitud_id == 1){
             $tipo_objeto_solicitudes_id = 1;
@@ -576,14 +581,14 @@ class SolicitudController extends Controller {
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
-        
+
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
         $giros = GiroComercial::where("parent_id",1)->orderBy('nombre')->get();
         // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
 
         // consulta de documentos
-        
-        
+
+
         return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante','giros'));
     }
     /**
@@ -594,7 +599,7 @@ class SolicitudController extends Controller {
      */
     public function consulta($id) {
         $doc= collect();
-        
+
         //Consulta de solicitud con relaciones
         $solicitud = Solicitud::find($id);
         $parte = Parte::all()->where('solicitud_id', $solicitud->id);
@@ -664,7 +669,7 @@ class SolicitudController extends Controller {
                 $doc->push($documento);
             }
         }
-        
+
         $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ?$solicitud->tipo_solicitud_id : 1;
         if($tipo_solicitud_id == 1){
             $tipo_objeto_solicitudes_id = 1;
@@ -693,15 +698,15 @@ class SolicitudController extends Controller {
         $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
-        
+
         // dd(Conciliador::all()->persona->full_name());
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
         // dd($conciliador);
         // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
 
         // consulta de documentos
-        
-        
+
+
         $documentos = $solicitud->documentos;
         foreach ($documentos as $documento) {
             $documento->id = $documento->id;
@@ -724,7 +729,7 @@ class SolicitudController extends Controller {
                 }
             }
         }
-        
+
         $documentos = $doc->sortBy('id');
         //termina consulta de documentos
         return view('expediente.solicitudes.consultar', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante','documentos'));
@@ -745,6 +750,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -756,6 +762,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
@@ -768,6 +775,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.rfc' => ['nullable', new RFC],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -778,11 +786,12 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
+                'solicitados.*.rfc' => ['nullable', new RFC],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
                 'solicitados.*.domicilios' => 'required'
-            ]); 
+            ]);
         }
         $solicitud = $request->input('solicitud');
         DB::beginTransaction();
@@ -828,7 +837,7 @@ class SolicitudController extends Controller {
 
 
                     if (!isset($value["id"]) || $value["id"] == "") {
-                        if(isset($dato_laboral)){   
+                        if(isset($dato_laboral)){
                             $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
                         }
                         // foreach ($domicilios as $key => $domicilio) {
@@ -845,7 +854,7 @@ class SolicitudController extends Controller {
                         $parteSaved = Parte::find($value['id']);
                         $parteUpdated = $parteSaved->update($value);
                         $parteSaved = Parte::find($value['id']);
-                        if(isset($dato_laboral)){   
+                        if(isset($dato_laboral)){
                             if (isset($dato_laboral["id"]) && $dato_laboral["id"] != "") {
                                 $dato_laboralUp = DatoLaboral::find($dato_laboral["id"]);
                                 $dato_laboralUp->update($dato_laboral);
@@ -1005,7 +1014,7 @@ class SolicitudController extends Controller {
                 }
             }
             $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
-            
+
             // Obtenemos la sala virtual
             $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
             if($sala == null){
@@ -1034,7 +1043,7 @@ class SolicitudController extends Controller {
                 DB::rollBack();
                 return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
             }
-            
+
             // Registramos la audiencia
             //Obtenemos el contador
             $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
@@ -1043,7 +1052,7 @@ class SolicitudController extends Controller {
                 "expediente_id" => $expediente->id,
                 "multiple" => false,
                 "fecha_audiencia" => now()->format('Y-m-d'),
-                "hora_inicio" => now()->format('H:i:s'), 
+                "hora_inicio" => now()->format('H:i:s'),
                 "hora_fin" => \Carbon\Carbon::now()->addHours(1)->format('H:i:s'),
                 "conciliador_id" =>  $conciliador->id,
                 "numero_audiencia" => 1,
@@ -1051,7 +1060,7 @@ class SolicitudController extends Controller {
                 "anio" => $folioAudiencia->anio,
                 "folio" => $folioAudiencia->contador
             ]);
-            
+
             // guardamos la sala y el conciliador a la audiencia
             ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id,"solicitante" => true]);
             SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
@@ -1109,27 +1118,41 @@ class SolicitudController extends Controller {
                     return $this->sendError('No hay salas virtuales disponibles', 'Error');
                 }
                 $sala_id = $sala->id;
-                //obtenemos al conciliador disponible
-                $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
-                $conciliadoresDisponibles = array();
-                foreach($conciliadores as $conciliador){
-                    $conciliadorDisponible = false;
-                    foreach($conciliador->rolesConciliador as $roles){
-                        if($roles->rol_atencion_id == 2){
-                            $conciliadorDisponible = true;
-                        }
-                    }
-                    if($conciliadorDisponible){
-                        $conciliadoresDisponibles[]=$conciliador;
-                    }
-                }
-                $conciliador_id = null;
-                if(count($conciliadoresDisponibles) > 0){
-                    $conciliador = Arr::random($conciliadoresDisponibles);
-                }else{
+//                Validamos que el que ratifica sea conciliador
+                if(!auth()->user()->hasRole('Personal conciliador')){
                     DB::rollBack();
-                    return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
+                    return $this->sendError('La solicitud con convenio solo puede ser ratificada por personal conciliador', 'Error');
+                }else{
+                    //Buscamos el conciliador del usuario
+                    if(isset(auth()->user()->persona->conciliador)){
+                        $conciliador = auth()->user()->persona->conciliador;
+                    }else{
+                        DB::rollBack();
+                        return $this->sendError('El usuario no esta dado de alta en la lista de conciliadores', 'Error');
+                    }
                 }
+
+                //obtenemos al conciliador disponible
+//                $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
+//                $conciliadoresDisponibles = array();
+//                foreach($conciliadores as $conciliador){
+//                    $conciliadorDisponible = false;
+//                    foreach($conciliador->rolesConciliador as $roles){
+//                        if($roles->rol_atencion_id == 2){
+//                            $conciliadorDisponible = true;
+//                        }
+//                    }
+//                    if($conciliadorDisponible){
+//                        $conciliadoresDisponibles[]=$conciliador;
+//                    }
+//                }
+//                $conciliador_id = null;
+//                if(count($conciliadoresDisponibles) > 0){
+//                    $conciliador = Arr::random($conciliadoresDisponibles);
+//                }else{
+//                    DB::rollBack();
+//                    return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
+//                }
                 // Registramos la audiencia
                 //Obtenemos el contador
                 $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
@@ -1144,7 +1167,7 @@ class SolicitudController extends Controller {
                     "expediente_id" => $expediente->id,
                     "multiple" => false,
                     "fecha_audiencia" => now()->format('Y-m-d'),
-                    "hora_inicio" => now()->format('H:i:s'), 
+                    "hora_inicio" => now()->format('H:i:s'),
                     "hora_fin" => \Carbon\Carbon::now()->addHours(1)->format('H:i:s'),
                     "conciliador_id" =>  $conciliador->id,
                     "numero_audiencia" => 1,
@@ -1153,7 +1176,7 @@ class SolicitudController extends Controller {
                     "folio" => $folioAudiencia->contador,
                     "fecha_cita" => $fecha_cita
                 ]);
-                
+
                 // guardamos la sala y el conciliador a la audiencia
                 ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id,"solicitante" => true]);
                 SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
@@ -1205,7 +1228,7 @@ class SolicitudController extends Controller {
                 if((int)$request->tipo_notificacion_id == 2){
                     $fecha_notificacion = self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$datos_audiencia["fecha_audiencia"]);
                 }
-                
+
                 //Obtenemos el contador
                 $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                 //creamos el registro de la audiencia
@@ -1220,7 +1243,7 @@ class SolicitudController extends Controller {
                     "multiple" => $multiple,
                     "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
                     "fecha_limite_audiencia" => $fecha_notificacion,
-                    "hora_inicio" => $datos_audiencia["hora_inicio"], 
+                    "hora_inicio" => $datos_audiencia["hora_inicio"],
                     "hora_fin" => $datos_audiencia["hora_fin"],
                     "conciliador_id" =>  $datos_audiencia["conciliador_id"],
                     "numero_audiencia" => 1,
@@ -1241,7 +1264,7 @@ class SolicitudController extends Controller {
                     }
                 }
                 // Guardamos todas las Partes en la audiencia
-                
+
 //                dd($partes);
                 $tipo_notificacion_id = null;
                 foreach($partes as $parte){
@@ -1258,7 +1281,7 @@ class SolicitudController extends Controller {
                 }
                 $expediente = Expediente::find($request->expediente_id);
             }
-            
+
             $salas = [];
             foreach($audiencia->salasAudiencias as $sala){
                 $sala->sala;
@@ -1380,7 +1403,7 @@ class SolicitudController extends Controller {
             $documentos = $solicitud->documentos;
             foreach ($documentos as $documento) {
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-                if($documento->clasificacionArchivo->id == 40){    
+                if($documento->clasificacionArchivo->id == 40){
                     $documento->tipo = pathinfo($documento->ruta)['extension'];
                     array_push($doc,$documento);
                 }
@@ -1518,7 +1541,12 @@ class SolicitudController extends Controller {
     public function ReenviarNotificacion(){
         //Buscamos las solicitudes que no tengan fecha_peticion_notificacion
         try{
-            $solicitudes = Solicitud::where("fecha_peticion_notificacion",null)->get();
+            $query = Solicitud::where("fecha_peticion_notificacion",null);
+            if($this->request->get('centro_id')){
+                $query->where('centro_id', $this->request->get('centro_id'));
+            }
+            $solicitudes = $query->get();
+
             var_dump("La transaccion inicia a las: ".date("H:i:s")."\n");
             $enviadas = 0;
             foreach($solicitudes as $solicitud){
@@ -1528,14 +1556,16 @@ class SolicitudController extends Controller {
                     foreach($solicitud->expediente->audiencia as $audiencia){
                         $notificar = false;
                         foreach($audiencia->audienciaParte as $parte){
-                            if($parte->parte->tipo_parte_id != 1){
+                            if($parte->parte && $parte->parte->tipo_parte_id != 1){
                                 if($parte->tipo_notificacion_id != 1 && $parte->tipo_notificacion_id != null){
                                     $notificar = true;
                                 }
+                            }else{
+                                var_dump("No hay parte. revisar de que se trata: SID:".$solicitud->id."\n");
                             }
                         }
                         if($notificar){
-                            event(new RatificacionRealizada($audiencia->id,"citatorio"));
+                            event(new RatificacionRealizada($audiencia->id, "citatorio"));
                             $enviadas++;
                         }
                         var_dump("se notifica la audiencia: ".$audiencia->id.": ".$audiencia->folio."/".$audiencia->anio."\n");
