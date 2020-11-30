@@ -105,6 +105,7 @@
                         }
                     });
                     try{
+                        console.log(expedientee);
                         if(expedientee){
                             div +='<li class="nav-item"> <a class="nav-link" href="/oficio-documentos/'+expediente_id+'">Oficios</a> </li>';
                         }

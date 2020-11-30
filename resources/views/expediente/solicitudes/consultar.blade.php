@@ -407,6 +407,9 @@
                     // arrayObjetoSolicitudes = data.objeto_solicitudes;
                     // formarTablaObjetoSol();
                     solicitudObj.ratificada = data.ratificada;
+                    if(data.ratificada){
+                        expedientee = true;
+                    }
                     solicitudObj.estatus_solicitud = data.estatusSolicitud.nombre;
                     solicitudObj.fecha_ratificacion = dateFormat(data.fecha_ratificacion,2);
                     solicitudObj.fecha_recepcion = dateFormat(data.fecha_recepcion,2);
