@@ -63,7 +63,7 @@ class CentroController extends Controller
         }
         $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
         $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
-        $estados = $this->cacheModel('estados',Estado::class);
+        $estados = Estado::all();
         return view('centros.centros.index', compact('centros','estados','tipos_asentamientos','tipos_vialidades'));
     }
 
@@ -76,7 +76,7 @@ class CentroController extends Controller
     {
         $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
         $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
-        $estados = array_pluck(Estado::all(),'nombre','id');
+        $estados = Estado::all();
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         return view('centros.centros.create', compact('estados','tipos_asentamientos','tipos_vialidades','municipios'));
     }
@@ -117,7 +117,7 @@ class CentroController extends Controller
         $municipio_id = "";
         $tipos_vialidades = array_pluck(TipoVialidad::all(),'nombre','id');
         $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
-        $estados = array_pluck(Estado::all(),'nombre','id');
+        $estados = Estado::all();
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         if($centro->domicilio){
             $municipio_nombre = mb_strtoupper($centro->domicilio->municipio);

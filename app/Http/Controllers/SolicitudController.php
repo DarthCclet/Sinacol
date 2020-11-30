@@ -50,6 +50,7 @@ use App\Services\FechaAudienciaService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use App\Events\RatificacionRealizada;
+use App\TipoSolicitud;
 use Carbon\Carbon;
 use App\Traits\FechaNotificacion;
 use Illuminate\Support\Arr;
@@ -83,6 +84,7 @@ class SolicitudController extends Controller {
             if ($this->request->get('all')) {
                 $solicitud = $solicitud->get();
             } else {
+                $centro_id = Auth::user()->centro_id;
                 $filtrarCentro = true;
                 $length = $this->request->get('length');
                 $start = $this->request->get('start');
@@ -155,8 +157,16 @@ class SolicitudController extends Controller {
                         });
                     }
                 }
+                if($this->request->get('conciliador_id')){
+                    $conciliador_id = $this->request->get('conciliador_id');
+                    $solicitud->whereHas('expediente.audiencia', function($q) use($conciliador_id){
+                        $q->where('conciliador_id', $conciliador_id);
+                    });
+                }
+                if($this->request->get('tipo_solicitud_id')){
+                    $solicitud->where('tipo_solicitud_id', $this->request->get('tipo_solicitud_id'));
+                }
                 if($filtrarCentro){
-                    $centro_id = Auth::user()->centro_id;
                     $solicitud->where('centro_id',$centro_id);
                 }
                 $filtered = $solicitud->count();
@@ -178,7 +188,7 @@ class SolicitudController extends Controller {
                     return $this->sendResponse($solicitud, 'SUCCESS');
                 } else {
                     if($filtrarCentro){
-                        $centro_id = Auth::user()->centro_id;
+                        
                         $total = Solicitud::where('centro_id',$centro_id)->count();
                     }else{
                         $total = Solicitud::count();
@@ -190,7 +200,9 @@ class SolicitudController extends Controller {
             }
             $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
             $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
-            return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes','clasificacion_archivos_Representante','clasificacion_archivo'));
+            $tipo_solicitud = array_pluck(TipoSolicitud::all(),'nombre','id');
+            $conciliadores = Conciliador::where('centro_id',$centro_id)->with('persona')->get()->pluck('persona.FullName','id');
+            return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes','clasificacion_archivos_Representante','clasificacion_archivo','tipo_solicitud','conciliadores'));
         } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                     " Se emitió el siguiente mensale: ". $e->getMessage().
@@ -200,7 +212,10 @@ class SolicitudController extends Controller {
             }
             $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
             $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
-            return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes','clasificacion_archivos_Representante','clasificacion_archivo'));
+            $tipo_solicitud = array_pluck(TipoSolicitud::all(),'nombre','id');
+            $centro_id = Auth::user()->centro_id;
+            $conciliadores = Conciliador::where('centro_id',$centro_id)->with('persona')->get()->pluck('persona.FullName','id');
+            return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes','clasificacion_archivos_Representante','clasificacion_archivo','tipo_solicitud','conciliadores'));
         }
     }
 
@@ -224,7 +239,7 @@ class SolicitudController extends Controller {
         $estatus_solicitudes = $this->cacheModel('estatus_solicitudes',EstatusSolicitud::class);
         $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
         $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
-        $estados = $this->cacheModel('estados',Estado::class);
+        $estados = Estado::all();//$this->cacheModel('estados',Estado::class);
         $jornadas = $this->cacheModel('jornadas',Jornada::class);
         $nacionalidades = $this->cacheModel('nacionalidades',Nacionalidad::class);
         $giros_comerciales = $this->cacheModel('giros_comerciales',GiroComercial::class);
@@ -567,7 +582,7 @@ class SolicitudController extends Controller {
         $giros_comerciales = $this->cacheModel('giros_comerciales', GiroComercial::class);
         $tipos_vialidades = $this->cacheModel('tipos_vialidades', TipoVialidad::class);
         $tipos_asentamientos = $this->cacheModel('tipos_asentamientos', TipoAsentamiento::class);
-        $estados = $this->cacheModel('estados', Estado::class);
+        $estados = Estado::all();//$this->cacheModel('estados',Estado::class);
         $jornadas = $this->cacheModel('jornadas', Jornada::class);
         $generos = $this->cacheModel('generos', Genero::class);
         $nacionalidades = $this->cacheModel('nacionalidades', Nacionalidad::class);
@@ -598,141 +613,126 @@ class SolicitudController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function consulta($id) {
-        $doc= collect();
+        try{
+            $doc= collect();
+            
+            //Consulta de solicitud con relaciones
+            $solicitud = Solicitud::find($id);
+            $parte = Parte::all()->where('solicitud_id', $solicitud->id);
 
-        //Consulta de solicitud con relaciones
-        $solicitud = Solicitud::find($id);
-        $parte = Parte::all()->where('solicitud_id', $solicitud->id);
+            $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
 
-        $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
+            $solicitantes = $partes->where('tipo_parte_id', 1);
 
-        $solicitantes = $partes->where('tipo_parte_id', 1);
+            foreach ($solicitantes as $key => $value) {
+                $value->dato_laboral;
+                $value->domicilios;
+                $value->contactos;
+                $solicitantes[$key]["activo"] = 1;
+            }
+            $solicitados = $partes->where('tipo_parte_id', 2);
+            foreach ($solicitados as $key => $value) {
+                $value->domicilios;
+                $value->contactos;
+                $solicitados[$key]["activo"] = 1;
+            }
+            $solicitud->objeto_solicitudes;
+            $solicitud["solicitados"] = $solicitados;
+            $solicitud["solicitantes"] = $solicitantes;
+            $solicitud->expediente = $solicitud->expediente;
+            $solicitud->giroComercial = $solicitud->giroComercial;
+            if($solicitud->giroComercial){
+                $solicitud->giroComercial->ambito;
+            }
+            //Consulta de solicitud con relaciones
 
-        foreach ($solicitantes as $key => $value) {
-            $value->dato_laboral;
-            $value->domicilios;
-            $value->contactos;
-            $solicitantes[$key]["activo"] = 1;
-        }
-        $solicitados = $partes->where('tipo_parte_id', 2);
-        foreach ($solicitados as $key => $value) {
-            $value->domicilios;
-            $value->contactos;
-            $solicitados[$key]["activo"] = 1;
-        }
-        $solicitud->objeto_solicitudes;
-        $solicitud["solicitados"] = $solicitados;
-        $solicitud["solicitantes"] = $solicitantes;
-        $solicitud->expediente = $solicitud->expediente;
-        $solicitud->giroComercial = $solicitud->giroComercial;
-        if($solicitud->giroComercial){
-            $solicitud->giroComercial->ambito;
-        }
-        //Consulta de solicitud con relaciones
-
-        $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
-        if (count($expediente) > 0) {
-            $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->withCount('etapasResolucionAudiencia')->get();
-            foreach($audiencias as $audiencia){
-                foreach($audiencia->audienciaParte as $parte){
-                    $documentos = $parte->documentos;
-                    foreach ($documentos as $documento) {
-                        $documento->id = $documento->id;
-                        $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-                        $documento->tipo = pathinfo($documento->ruta)['extension'];
-                        if($parte->parte->tipo_persona_id == 1){
-                            $documento->audiencia = $parte->parte->nombre. " ".$parte->parte->primer_apellido." ".$parte->parte->segundo_apellido;
-                        }else{
-                            $documento->audiencia = $parte->parte->nombre_comercial;
+            $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
+            if (count($expediente) > 0) {
+                $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->withCount('etapasResolucionAudiencia')->get();
+                foreach($audiencias as $audiencia){
+                    foreach($audiencia->audienciaParte as $parte){
+                        $documentos = $parte->documentos;
+                        foreach ($documentos as $documento) {
+                            $documento->id = $documento->id;
+                            $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                            $documento->tipo = pathinfo($documento->ruta)['extension'];
+                            if($parte->parte->tipo_persona_id == 1){
+                                $documento->audiencia = $parte->parte->nombre. " ".$parte->parte->primer_apellido." ".$parte->parte->segundo_apellido;
+                            }else{
+                                $documento->audiencia = $parte->parte->nombre_comercial;
+                            }
+                            $documento->tipo_doc = 3;
+                            $doc->push($documento);
                         }
-                        $documento->tipo_doc = 3;
-                        $doc->push($documento);
                     }
                 }
+            } else {
+                $audiencias = array();
             }
-        } else {
-            $audiencias = array();
-        }
-        $partes = array();
-        foreach($solicitud->partes as $key => $parte){
-            $parte->tipoParte = $parte->tipoParte;
-            $parte->domicilios = $parte->domicilios()->first();
-//            dd($parte);
-            $partes[$key] = $parte;
-            $documentos = $parte->documentos;
-            foreach ($documentos as $documento) {
-                $documento->id = $documento->id;
-                $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-                $documento->tipo = pathinfo($documento->ruta)['extension'];
-                $documento->parte = $parte->nombre. " ".$parte->primer_apellido." ".$parte->segundo_apellido;
-                $documento->tipo_doc = 2;
-                $doc->push($documento);
-            }
-        }
-
-        $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ?$solicitud->tipo_solicitud_id : 1;
-        if($tipo_solicitud_id == 1){
-            $tipo_objeto_solicitudes_id = 1;
-        }else if($tipo_solicitud_id == 2){
-            $tipo_objeto_solicitudes_id = 2;
-        }else{
-            $tipo_objeto_solicitudes_id = 3;
-
-        }
-        $objeto_solicitudes = array_pluck(ObjetoSolicitud::where('tipo_objeto_solicitudes_id',$tipo_objeto_solicitudes_id)->get(),'nombre','id');
-        $estatus_solicitudes = $this->cacheModel('estatus_solicitudes', EstatusSolicitud::class);
-        $giros_comerciales = $this->cacheModel('giros_comerciales', GiroComercial::class);
-        $tipos_vialidades = $this->cacheModel('tipos_vialidades', TipoVialidad::class);
-        $tipos_asentamientos = $this->cacheModel('tipos_asentamientos', TipoAsentamiento::class);
-        $estados = $this->cacheModel('estados', Estado::class);
-        $jornadas = $this->cacheModel('jornadas', Jornada::class);
-        $generos = $this->cacheModel('generos', Genero::class);
-        $nacionalidades = $this->cacheModel('nacionalidades', Nacionalidad::class);
-        $ocupaciones = $this->cacheModel('ocupaciones', Ocupacion::class);
-        $grupo_prioritario = $this->cacheModel('grupo_prioritario', GrupoPrioritario::class);
-        $lengua_indigena = $this->cacheModel('lengua_indigena', LenguaIndigena::class);
-        $tipo_contacto = $this->cacheModel('tipo_contacto', TipoContacto::class);
-        $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
-        $audits = $this->getAcciones($solicitud, $solicitud->partes, $audiencias,$expediente);
-        $municipios = array_pluck(Municipio::all(),'municipio','id');
-        $motivo_excepciones = $this->cacheModel('motivo_excepcion',MotivoExcepcion::class);
-        $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
-        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id",9)->orWhere("tipo_archivo_id",10)->get();
-
-        // dd(Conciliador::all()->persona->full_name());
-        $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
-        // dd($conciliador);
-        // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
-
-        // consulta de documentos
-
-
-        $documentos = $solicitud->documentos;
-        foreach ($documentos as $documento) {
-            $documento->id = $documento->id;
-            $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-            $documento->tipo = pathinfo($documento->ruta,PATHINFO_EXTENSION);
-            $documento->tipo_doc = 1;
-            $doc->push($documento);
-        }
-        if($solicitud->expediente && $solicitud->expediente->audiencia){
-            foreach($solicitud->expediente->audiencia as $audiencia){
-                $documentos = $audiencia->documentos;
+            $partes = array();
+            foreach($solicitud->partes as $key => $parte){
+                $parte->tipoParte = $parte->tipoParte;
+                $parte->domicilios = $parte->domicilios()->first();
+    //            dd($parte);
+                $partes[$key] = $parte;
+                $documentos = $parte->documentos;
                 foreach ($documentos as $documento) {
                     $documento->id = $documento->id;
                     $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                     $documento->tipo = pathinfo($documento->ruta)['extension'];
-                    $documento->tipo_doc = 3;
-                    $documento->audiencia = $audiencia->folio."/".$audiencia->anio;
-                    $documento->audiencia_id = $audiencia->id;
+                    $documento->parte = $parte->nombre. " ".$parte->primer_apellido." ".$parte->segundo_apellido;
+                    $documento->tipo_doc = 2;
                     $doc->push($documento);
                 }
             }
-        }
+            
+            $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ?$solicitud->tipo_solicitud_id : 1;
+            if($tipo_solicitud_id == 1){
+                $tipo_objeto_solicitudes_id = 1;
+            }else if($tipo_solicitud_id == 2){
+                $tipo_objeto_solicitudes_id = 2;
+            }else{
+                $tipo_objeto_solicitudes_id = 3;
 
-        $documentos = $doc->sortBy('id');
-        //termina consulta de documentos
-        return view('expediente.solicitudes.consultar', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante','documentos'));
+            }
+            
+            // dd(Conciliador::all()->persona->full_name());
+            $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
+            // dd($conciliador);
+            // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
+
+            // consulta de documentos
+            
+            
+            $documentos = $solicitud->documentos;
+            foreach ($documentos as $documento) {
+                $documento->id = $documento->id;
+                $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                $documento->tipo = pathinfo($documento->ruta,PATHINFO_EXTENSION);
+                $documento->tipo_doc = 1;
+                $doc->push($documento);
+            }
+            if($solicitud->expediente && $solicitud->expediente->audiencia){
+                foreach($solicitud->expediente->audiencia as $audiencia){
+                    $documentos = $audiencia->documentos;
+                    foreach ($documentos as $documento) {
+                        $documento->id = $documento->id;
+                        $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                        $documento->tipo = pathinfo($documento->ruta)['extension'];
+                        $documento->tipo_doc = 3;
+                        $documento->audiencia = $audiencia->folio."/".$audiencia->anio;
+                        $documento->audiencia_id = $audiencia->id;
+                        $doc->push($documento);
+                    }
+                }
+            }
+            
+            $documentos = $doc->sortBy('id');
+            //termina consulta de documentos
+            return view('expediente.solicitudes.consultar', compact('solicitud','documentos'));
+        } catch (\Throwable $e) {
+            return redirect('solicitudes');
+        }
     }
 
     /**

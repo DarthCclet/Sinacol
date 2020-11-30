@@ -80,7 +80,12 @@
                         <p class="help-block">Nacionalidad</p>
                     </div>
                     <div class="col-md-4 personaFisicaCitadoNO">
-                        {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                        <select id="estado_id" required="" class="form-control catSelect " name="domicilio[estado_id]" >
+                            <option value="">Seleccione una opción</option>
+                            @foreach ($estados as $estado)
+                                <option value="{{$estado->id}}">{{$estado->nombre}}</option>
+                            @endforeach
+                        </select>
                         {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
                         <p class="help-block">Estado de nacimiento</p>
                     </div>

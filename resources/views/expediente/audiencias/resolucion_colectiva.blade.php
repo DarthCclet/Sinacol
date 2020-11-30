@@ -1073,6 +1073,13 @@
                     }catch(error){
                         console.log(error);
                     }
+                },
+                error:function(data){
+                    swal({
+                        title: 'Error',
+                        text: 'Error al cargar documentos',
+                        icon: 'error'
+                    });
                 }
             });
         }
@@ -1119,6 +1126,13 @@
                 }catch(error){
                     console.log(error);
                 }
+            },
+            error:function(data){
+                swal({
+                    title: 'Error',
+                    text: 'Error al cargar comparecientes',
+                    icon: 'error'
+                });
             }
         });
     });
@@ -1427,6 +1441,13 @@
                 }catch(error){
                     console.log(error);
                 }
+            },
+            error:function(data){
+                swal({
+                    title: 'Error',
+                    text: 'No se pudieron cargar los comparecientes',
+                    icon: 'error'
+                });
             }
         });
     }
@@ -1485,6 +1506,13 @@
                 }catch(error){
                     console.log(error);
                 }
+            },
+            error:function(data){
+                swal({
+                    title: 'Error',
+                    text: 'No se pudieron cargar los comparecietnes',
+                    icon: 'error'
+                });
             }
         });
     }
@@ -1560,6 +1588,13 @@
                 }catch(error){
                     console.log(error);
                 }
+            },
+            error:function(data){
+                swal({
+                    title: 'Error',
+                    text: 'No se pudo cargar el representante',
+                    icon: 'error'
+                });
             }
         });
     }
@@ -1657,6 +1692,13 @@
                 }catch(error){
                     console.log(error);
                 }
+            },
+            error:function(data){
+                swal({
+                    title: 'Error',
+                    text: 'error al actualizar partes',
+                    icon: 'error'
+                });
             }
         });
     }
@@ -1689,6 +1731,13 @@
                     });
                 }
                 $("#genero_id").trigger("change");
+            },
+            error:function(data){
+                swal({
+                    title: 'Error',
+                    text: 'No se pudieron cargar generos',
+                    icon: 'error'
+                });
             }
         });
     }
@@ -1708,6 +1757,13 @@
                     $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
                 }
                 $("#tipo_contacto_id").trigger("change");
+            },
+            error:function(data){
+                swal({
+                    title: 'Error',
+                    text: 'No se pudieron cargar tipos de contacto',
+                    icon: 'error'
+                });
             }
         });
     }
@@ -1755,6 +1811,13 @@
                         }else{
                             swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
                         }
+                    },
+                    error:function(data){
+                        swal({
+                            title: 'Error',
+                            text: 'Error al obtener contacto',
+                            icon: 'error'
+                        });
                     }
                 });
             }else{
@@ -1903,13 +1966,6 @@
                     }catch(error){
                         console.log(error);
                     }
-                },error:function(data){
-                    // console.log(data);
-                    try{
-                        swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
-                    }catch(error){
-                        console.log(error);
-                    }
                 },
                 error: function(){
                     swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayo a 10M ',icon: 'warning'});
@@ -1995,6 +2051,8 @@
                     }catch(error){
                         console.log(error);
                     }
+                },
+                error:function(data){
                 }
             });
         }
@@ -2191,6 +2249,13 @@
                                 icon: 'warning'
                             });
                         }
+                    },
+                    error:function(data){
+                        swal({
+                            title: 'Error',
+                            text: ' No se pudo guardar la audiencia ',
+                            icon: 'error'
+                        });
                     }
                 });
             }else{ 
@@ -2259,6 +2324,13 @@
                 }catch(error){
                     console.log(error);
                 }
+            },
+            error:function(data){
+                swal({
+                    title: 'Error',
+                    text: 'No se pudo guardar la audiencia',
+                    icon: 'error'
+                });
             }
         });
     }

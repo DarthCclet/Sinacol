@@ -75,6 +75,16 @@
                 <p class="help-block needed">Estatus de la solicitud</p>
             </div>
             <div class="col-md-4">
+                {!! Form::select('tipo_solicitud_id', isset($tipo_solicitud) ? $tipo_solicitud : [] , null, ['id'=>'tipo_solicitud_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect filtros']);  !!}
+                {!! $errors->first('tipo_solicitud_id', '<span class=text-danger>:message</span>') !!}
+                <p class="help-block needed">Tipo de solicitud</p>
+            </div>
+            <div class="col-md-4">
+                {!! Form::select('conciliador_id', isset($conciliadores) ? $conciliadores : [] , null, ['id'=>'conciliador_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect filtros']);  !!}
+                {!! $errors->first('conciliador_id', '<span class=text-danger>:message</span>') !!}
+                <p class="help-block needed">Conciliador</p>
+            </div>
+            <div class="col-md-4">
                 <button class="btn btn-danger" type="button" id="limpiarFiltros" > <i class="fa fa-eraser"></i> Limpiar filtros</button>
             </div>
         </div>

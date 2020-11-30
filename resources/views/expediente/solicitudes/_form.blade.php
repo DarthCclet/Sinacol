@@ -36,6 +36,9 @@
     .ui-datepicker.ui-widget-content{
         z-index: 9000 !important;
     }
+    .no_enVigor {
+        display: none;
+    }
 
 </style>
 @if(auth()->user())
@@ -296,7 +299,12 @@
                                             <p class="help-block needed">Nacionalidad</p>
                                         </div>
                                         <div class="col-md-4 personaFisicaSolicitante">
-                                            {!! Form::select('entidad_nacimiento_id_solicitante', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitante','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
+                                            <select id="estado_id" required="" class="form-control catSelect" >
+                                                <option value="">Seleccione una opción</option>
+                                                @foreach ($estados as $estado)
+                                                    <option  value="{{$estado->id}}">{{$estado->nombre}}</option>
+                                                @endforeach
+                                            </select>
                                             {!! $errors->first('entidad_nacimiento_id_solicitante', '<span class=text-danger>:message</span>') !!}
                                             <p id="labelEstadoNacimiento" class="help-block needed">Estado de nacimiento</p>
                                         </div>
@@ -372,7 +380,7 @@
                                 {{-- end seccion de contactos citados --}}
                                 <!-- seccion de domicilios solicitante -->
                                 <div id="divMapaSolicitante" data-parsley-validate="true" style="display:none">
-                                    @include('includes.component.map',['identificador' => 'solicitante','needsMaps'=>"false", 'instancia' => '1'])
+                                    @include('includes.component.map',['identificador' => 'solicitante','needsMaps'=>"false", 'instancia' => '1', 'tipo_solicitud' => $tipo_solicitud_id])
                                     <div class="col-md-12 pasoSolicitante"id="continuar3">
                                         <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitante(3)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
                                     </div>
@@ -620,7 +628,12 @@
                                             <p class="help-block">Nacionalidad</p>
                                         </div>
                                         <div class="col-md-4 personaFisicaSolicitadoNO">
-                                            {!! Form::select('entidad_nacimiento_id_solicitado', isset($estados) ? $estados : [] , null, ['id'=>'entidad_nacimiento_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                            <select id="estado_id" required="" class="form-control catSelect" >
+                                                <option value="">Seleccione una opción</option>
+                                                @foreach ($estados as $estado)
+                                                    <option  value="{{$estado->id}}">{{$estado->nombre}}</option>
+                                                @endforeach
+                                            </select>
                                             {!! $errors->first('entidad_nacimiento_id_solicitado', '<span class=text-danger>:message</span>') !!}
                                             <p class="help-block">Estado de nacimiento</p>
                                         </div>
@@ -696,7 +709,7 @@
                                             <hr class="red">
                                             {{-- <a style="margin-left:1%;" onclick="$('#modal-domicilio').modal('show');"> <i style="font-size:large; color:#49b6d6;" class="fa fa-plus-circle"></i> Oprima + para llenar los datos del domicilio y visualizar el mapa</a> --}}
                                         </div>
-                                        @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"true", 'instancia' => 2])
+                                        @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"true", 'instancia' => 2, 'tipo_solicitud' => $tipo_solicitud_id])
                                         <div style="margin-top: 2%;" class="col-md-12">
 
                                             {{-- <button class="btn btn-primary btn-sm m-l-5" onclick="agregarDomicilio()"><i class="fa fa-save"></i> Guardar Domicilio</button> --}}
@@ -1150,7 +1163,11 @@
 
                         arraySolicitantes[key] = solicitante;
                     }
-
+                    if(($("#tipo_solicitud_id").val() == 3 || $("#tipo_solicitud_id").val() == 2)){
+                            $(".no_enVigor").show();
+                            $(".estadoSelectsolicitante").select2({width: '100%'});
+                            $(".estadoSelectsolicitado").select2({width: '100%'});
+                    }
                     limpiarSolicitante();
                     formarTablaSolicitante();
 
@@ -1251,6 +1268,11 @@
                         }else{
 
                             arraySolicitados[key] = solicitado;
+                        }
+                        if(($("#tipo_solicitud_id").val() == 4 || $("#tipo_solicitud_id").val() == 1)){
+                            $(".no_enVigor").show();
+                            $(".estadoSelectsolicitante").select2({width: '100%'});
+                            $(".estadoSelectsolicitado").select2({width: '100%'});
                         }
                         formarTablaSolicitado();
                         limpiarSolicitado();
@@ -1441,21 +1463,25 @@
         }
         // getGironivel("",1,"girosNivel1solicitante");
         if($("#tipo_solicitud_id").val() == 4){
-            $("#labelTipoSolicitante").text("Sindicato")
-            $("#labelTipoSolicitud").text("Sindicato")
+            $("#labelTipoSolicitante").text("Sindicato");
+            $("#labelTipoSolicitud").text("Sindicato");
             $("#divTipoPersona").hide();
             $("#tipo_persona_moral_solicitante").prop("checked", true).trigger('change');
             $(".sindicato").show();
             $("#registro_sindical").attr("required",true);
+            $(".estadoSelectsolicitante").select2({width: '100%'});
         }else if($("#tipo_solicitud_id").val() == 3){
-            $("#labelTipoSolicitante").text("Patrón (colectiva)")
-            $("#labelTipoSolicitud").text("Patrón (colectiva)")
+            $("#labelTipoSolicitante").text("Patrón (colectiva)");
+            $("#labelTipoSolicitud").text("Patrón (colectiva)");
+            $(".estadoSelectsolicitado").select2({width: '100%'});
         }else if($("#tipo_solicitud_id").val() == 2){
-            $("#labelTipoSolicitante").text("Patrón (individual)")
-            $("#labelTipoSolicitud").text("Patrón (individual)")
+            $("#labelTipoSolicitante").text("Patrón (individual)");
+            $("#labelTipoSolicitud").text("Patrón (individual)");
+            $(".estadoSelectsolicitado").select2({width: '100%'});
         }else if($("#tipo_solicitud_id").val() == 1){
-            $("#labelTipoSolicitante").text("Trabajador")
-            $("#labelTipoSolicitud").text("Trabajador")
+            $("#labelTipoSolicitante").text("Trabajador");
+            $("#labelTipoSolicitud").text("Trabajador");
+            $(".estadoSelectsolicitante").select2({width: '100%'});
         }
     });
     // function exepcionConciliacion(){

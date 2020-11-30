@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Estado;
 use Illuminate\Http\Request;
 use App\Parte;
 use App\Solicitud;
@@ -80,7 +81,7 @@ class BuzonController extends Controller
                 }
             }
             $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
-            $estados = $this->cacheModel('estados',Estado::class);
+            $estados = Estado::all();
             $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
             $municipios = array_pluck(Municipio::all(),'municipio','id');
            
@@ -114,7 +115,7 @@ class BuzonController extends Controller
                         }
                     }
                     $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
-                    $estados = $this->cacheModel('estados',Estado::class);
+                    $estados = Estado::all();
                     $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
                     $municipios = array_pluck(Municipio::all(),'municipio','id');
                     return view("buzon.buzon", compact('solicitudes','tipos_asentamientos','estados','tipos_vialidades','municipios'));

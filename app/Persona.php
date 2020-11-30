@@ -48,4 +48,13 @@ class Persona extends Model implements AuditableContract
     public function conciliador(){
     	return $this->hasOne(Conciliador::class);
     }
+
+    /**
+     * Get the persona's full name.
+     *
+     * @return string
+     */    
+    public function getFullNameAttribute(){
+        return "{$this->nombre} {$this->primer_apellido} {$this->segundo_apellido}";
+    }
 }

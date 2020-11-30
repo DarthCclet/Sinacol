@@ -36,7 +36,9 @@
         <h4>Domicilio</h4>
 
         <hr class="red">
-	</div>
+    </div>
+    
+	<input type="hidden" value="{{isset($tipo_solicitud) ? $tipo_solicitud : '' }}" id="tipo_solicitud{{$identificador}}">
 	<input type="hidden" name="domicilio[id]" value="{{isset($domicilio->id) ? $domicilio->id : '' }}" id="domicilio_id{{$identificador}}">
 	<input type="hidden" id="direccion_marker{{$identificador}}">
     <input type="hidden" name="domicilio[latitud]" value="{{isset($domicilio->latitud) ? $domicilio->latitud : '' }}" id="latitud{{$identificador}}">
@@ -47,12 +49,29 @@
     <input type="hidden" id="estado{{$identificador}}" value="{{isset($domicilio->estado) ? $domicilio->estado : '' }}" name="domicilio[estado]">
     <input type="hidden" id="georeferenciable{{$identificador}}" value="{{isset($domicilio->georeferenciable) ? $domicilio->georeferenciable : 'false' }}" name="domicilio[georeferenciable]">
 
-
-    <div class="col-md-3" title="Especifica el Estado o Entidad Federativa donde se encuentra el domicilio." data-toggle="tooltip" data-placement="top">
-        {!! Form::select('domicilio[estado_id]', isset($estados) ? $estados : [] , isset($domicilio->estado_id) ? $domicilio->estado_id : 0, ['id'=>'estado_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control estadoSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
-        {!! $errors->first('domicilio[estado_id]', '<span class=text-danger>:message</span>') !!}
-        <p class="help-block needed">Estado </p>
-    </div>
+    @if( isset($tipo_solicitud) && ((($tipo_solicitud == 1 || $tipo_solicitud == 3) && $instancia == 1) || (($tipo_solicitud == 2 || $tipo_solicitud == 4) && $instancia == 2)) )
+        <div class="col-md-3" title="Especifica el Estado o Entidad Federativa donde se encuentra el domicilio." data-toggle="tooltip" data-placement="top">
+            <select id="estado_id{{$identificador}}" required="" class="form-control estadoSelect{{$identificador}} direccionUpd{{$identificador}} " name="domicilio[estado_id]" >
+                <option value="">Seleccione una opción</option>
+                @foreach ($estados as $estado)
+                    <option value="{{$estado->id}}">{{$estado->nombre}}</option>
+                @endforeach
+            </select>
+            {!! $errors->first('domicilio[estado_id]', '<span class=text-danger>:message</span>') !!}
+            <p class="help-block needed">Estado </p>    
+        </div>
+    @else
+        <div class="col-md-3" title="Especifica el Estado o Entidad Federativa donde se encuentra el domicilio." data-toggle="tooltip" data-placement="top">
+            <select id="estado_id{{$identificador}}" required="" class="form-control estadoSelect{{$identificador}} direccionUpd{{$identificador}} " name="domicilio[estado_id]" >
+                <option value="">Seleccione una opción</option>
+                @foreach ($estados as $estado)
+                    <option class="{{ $estado->en_vigor ? '' : 'no_enVigor'}}" value="{{$estado->id}}">{{$estado->nombre}}</option>
+                @endforeach
+            </select>
+            {!! $errors->first('domicilio[estado_id]', '<span class=text-danger>:message</span>') !!}
+            <p class="help-block needed">Estado </p>    
+        </div>
+    @endif
 
     <div class="col-md-3 " title="Especifica si se trata de una calle, avenida, calzada, etc. Por ejemplo, en Avenida Insurgentes, el tipo de vialidad es Avenida" data-toggle="tooltip" data-placement="top" >
         {!! Form::select('domicilio[tipo_vialidad_id]', isset($tipos_vialidades) ? $tipos_vialidades : [] , isset($domicilio->tipo_vialidad_id) ? $domicilio->tipo_vialidad_id : 0, ['id'=>'tipo_vialidad_id'.$identificador,'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
@@ -380,7 +399,7 @@
             $("#municipioText"+identifier).val($("#municipio"+identifier+" :selected").text());
         });
         $(".catSelect"+identifier).select2({width: '100%'});
-        $(".estadoSelect"+identifier).select2({width: '100%'});
+        //$(".estadoSelect"+identifier).select2({width: '100%'});
         $("#municipio"+identifier).select2({width: '100%'});
         $("#estado_id"+identifier).change(function(){
             $("#estado"+identifier).val($("#estado_id"+identifier+" :selected").text());
