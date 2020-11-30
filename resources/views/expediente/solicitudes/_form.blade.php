@@ -299,7 +299,7 @@
                                             <p class="help-block needed">Nacionalidad</p>
                                         </div>
                                         <div class="col-md-4 personaFisicaSolicitante">
-                                            <select id="estado_id" required="" class="form-control catSelect" >
+                                            <select id="estado_id" class="form-control catSelect" >
                                                 <option value="">Seleccione una opción</option>
                                                 @foreach ($estados as $estado)
                                                     <option  value="{{$estado->id}}">{{$estado->nombre}}</option>
@@ -628,7 +628,7 @@
                                             <p class="help-block">Nacionalidad</p>
                                         </div>
                                         <div class="col-md-4 personaFisicaSolicitadoNO">
-                                            <select id="estado_id" required="" class="form-control catSelect" >
+                                            <select id="estado_id" class="form-control catSelect" >
                                                 <option value="">Seleccione una opción</option>
                                                 @foreach ($estados as $estado)
                                                     <option  value="{{$estado->id}}">{{$estado->nombre}}</option>
