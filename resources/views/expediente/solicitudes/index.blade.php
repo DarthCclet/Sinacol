@@ -80,8 +80,8 @@
                 <p class="help-block needed">Tipo de solicitud</p>
             </div>
             <div class="col-md-4">
-                {!! Form::select('conciliador_id', isset($conciliadores) ? $conciliadores : [] , null, ['id'=>'conciliador_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect filtros']);  !!}
-                {!! $errors->first('conciliador_id', '<span class=text-danger>:message</span>') !!}
+                {!! Form::select('conciliador_filter_id', isset($conciliadores) ? $conciliadores : [] , null, ['id'=>'conciliador_filter_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect filtros']);  !!}
+                {!! $errors->first('conciliador_filter_id', '<span class=text-danger>:message</span>') !!}
                 <p class="help-block needed">Conciliador</p>
             </div>
             <div class="col-md-4">

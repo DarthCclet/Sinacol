@@ -686,7 +686,7 @@
                         d.curp = $("#curp").val(),
                         d.nombre = $("#nombre").val(),
                         d.tipo_solicitud_id = $("#tipo_solicitud_id").val(),
-                        d.conciliador_id = $("#conciliador_id").val(),
+                        d.conciliador_id = $("#conciliador_filter_id").val(),
                         d.IsDatatableScroll = true,
                         d.loadPartes = true
                         // d.objeto_solicitud_id = $("#objeto_solicitud_id").val()
