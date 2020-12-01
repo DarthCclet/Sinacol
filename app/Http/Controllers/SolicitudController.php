@@ -339,7 +339,7 @@ class SolicitudController extends Controller {
         $domiciliop ="";
         try {
             // Solicitud
-            $solicitud['user_id'] = 1;
+            $solicitud['user_id'] = User::first()->id;
             $solicitud['estatus_solicitud_id'] = 1;
             if(!isset($solicitud['tipo_solicitud_id'])){
                 $solicitud['tipo_solicitud_id'] = 1;
