@@ -95,7 +95,7 @@
                                     <td align="center">{{$conciliador->conciliador->persona->nombre}} {{$conciliador->conciliador->persona->primer_apellido}} {{$conciliador->conciliador->persona->segundo_apellido}}</td>
                                     @foreach($audiencia->salasAudiencias as $salas)
                                         @if($salas->solicitante == $conciliador->solicitante){
-                                            <td align="center">{{$sala->sala->sala}}</td>
+                                            <td align="center">{{$salas->sala->sala}}</td>
                                         @endif
                                     @endforeach
                                     </tr>
