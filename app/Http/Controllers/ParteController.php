@@ -217,7 +217,7 @@ class ParteController extends Controller
                 foreach($representante->contactos as $key2 => $contactos){
                     $representantes[$key]->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
                     $documentos = $representantes[$key]->documentos;
-                    foreach ($documentos as $key => $documento) {
+                    foreach ($documentos as $documento) {
                         $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
                     }
                     
