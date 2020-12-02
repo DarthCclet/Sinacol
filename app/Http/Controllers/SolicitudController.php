@@ -31,7 +31,6 @@ use App\Parte;
 use App\Periodicidad;
 use App\ResolucionParteExcepcion;
 use App\Rules\Curp;
-use App\Rules\RFC;
 use App\TipoAsentamiento;
 use App\TipoContacto;
 use App\TipoVialidad;
@@ -291,7 +290,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-                'solicitantes.*.rfc' => ['nullable', new RFC],
+                'solicitantes.*.rfc' => ['nullable'],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -303,7 +302,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-                'solicitados.*.rfc' => ['nullable', new RFC],
+                'solicitados.*.rfc' => ['nullable'],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
@@ -316,7 +315,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-                'solicitantes.*.rfc' => ['nullable', new RFC],
+                'solicitantes.*.rfc' => ['nullable'],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -327,7 +326,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-                'solicitados.*.rfc' => ['nullable', new RFC],
+                'solicitados.*.rfc' => ['nullable'],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
@@ -750,7 +749,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-                'solicitantes.*.rfc' => ['nullable', new RFC],
+                'solicitantes.*.rfc' => ['nullable'],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -762,7 +761,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-                'solicitados.*.rfc' => ['nullable', new RFC],
+                'solicitados.*.rfc' => ['nullable'],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
@@ -775,7 +774,7 @@ class SolicitudController extends Controller {
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-                'solicitantes.*.rfc' => ['nullable', new RFC],
+                'solicitantes.*.rfc' => ['nullable'],
                 'solicitantes.*.tipo_parte_id' => 'required',
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
@@ -786,7 +785,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.domicilios' => 'required',
                 'solicitados.*.nombre' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
                 'solicitados.*.primer_apellido' => 'exclude_if:solicitados.*.tipo_persona_id,2|required',
-                'solicitados.*.rfc' => ['nullable', new RFC],
+                'solicitados.*.rfc' => ['nullable'],
                 'solicitados.*.tipo_parte_id' => 'required',
                 'solicitados.*.tipo_persona_id' => 'required',
                 'solicitados.*.curp' => ['exclude_if:solicitados.*.tipo_persona_id,2|nullable', new Curp],
