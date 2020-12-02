@@ -293,10 +293,12 @@
 
                                                                                 @endif  
                                                                             @endforeach
-                                                                            <tr>
-                                                                                <th>TOTAL</th>
-                                                                                <th colspan="3" style="text-align: right">${{number_format($concepto_pago['totalConceptos'],2)}}</th>
-                                                                            </tr>
+                                                                            @if($solicitante->parte->id == $concepto_pago['conceptos'][0]->idSolicitante)
+                                                                                <tr>
+                                                                                    <th>TOTAL</th>
+                                                                                    <th colspan="3" style="text-align: right">${{number_format($concepto_pago['totalConceptos'],2)}}</th>
+                                                                                </tr>
+                                                                            @endif
                                                                         @endforeach
                                                                         
                                                                     </tbody>
