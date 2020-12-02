@@ -133,6 +133,7 @@ class SendNotificacion
         if($baseURL != null){
             $response = $client->request('POST',$baseURL ,[
                 'headers' => ['foo' => 'bar'],
+                'verify' => false,
                 // array de datos del formulario
                 'body' => json_encode($arreglo),
     //            'http_errors' => false
