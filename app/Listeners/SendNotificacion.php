@@ -136,6 +136,7 @@ class SendNotificacion
             if($baseURL != null){
                 $response = $client->request('POST',$baseURL ,[
                     'headers' => ['foo' => 'bar'],
+                'verify' => false,
                     // array de datos del formulario
                     'body' => json_encode($arreglo),
         //            'http_errors' => false
@@ -156,7 +157,7 @@ class SendNotificacion
                        " Se emitió el siguiente mensale: ". $e->getMessage().
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
         }
-        
+
     }
     /**
      * Funcion para obtener las partes involucradas en una audiencia de tipo solicitante
