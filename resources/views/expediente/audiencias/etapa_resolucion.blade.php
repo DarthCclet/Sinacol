@@ -306,7 +306,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="form-group col-md-2 offset-10" style="display: none" id="btnConfig">
+                                                <div class="form-group col-md-2 offset-10" style="" id="btnConfig">
                                                     <a onclick="cargarConfigConceptos();" class="btn btn-primary">Configurar</a>
                                                 </div>
                                                 <table class="table table-bordered" >

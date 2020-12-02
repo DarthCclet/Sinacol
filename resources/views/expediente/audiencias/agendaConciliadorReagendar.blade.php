@@ -50,7 +50,7 @@
                     maxTime: arregloGeneral.maxTime,
                     select: function(start, end,a,b) {
                         var ahora = new Date();
-                        end=moment(end).add(1, 'hours').add(30,'minutes').format('Y-MM-DD HH:mm:ss');
+                        end=moment(end).add(30,'minutes').format('Y-MM-DD HH:mm:ss');
                         console.log(end);
                         start=moment(start).format('Y-MM-DD HH:mm:ss');
                         var startVal = new Date(start);
