@@ -2565,7 +2565,6 @@
     $('#fecha_salida').datepicker({
         format: "dd/mm/yyyy",
         language: "es",
-        maxDate:0,
         yearRange: "c-80:",
         changeMonth: true,
         changeYear: true,
