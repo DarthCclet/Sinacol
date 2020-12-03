@@ -1012,7 +1012,7 @@ class SolicitudController extends Controller {
                     $parte->update();
                 }
             }
-            $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
+            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
 
             // Obtenemos la sala virtual
             $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
