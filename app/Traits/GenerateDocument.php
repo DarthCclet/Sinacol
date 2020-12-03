@@ -567,11 +567,12 @@ trait GenerateDocument
                     $dom_centro = json_decode($dom_centro->content(),true);
                     $centro['domicilio'] = Arr::except($dom_centro, ['id','updated_at','created_at','deleted_at','domiciliable_id','domiciliable_type']); 
                     $tipo_vialidad =  ($dom_centro['tipo_vialidad'] !== null)? $dom_centro['tipo_vialidad'] :"";
-                    $vialidad =  ($dom_centro['vialidad'] !== null)? $dom_centro['vialidad'] :"";
+                    $vialidad =  ($dom_centro['vialidad'] !== null)? $dom_centro['tipo_vialidad']." ". $dom_centro['vialidad'] :"";
                     $num_ext =  ($dom_centro['num_ext'] !== null)? " No. " . $dom_centro['num_ext'] :"";
                     $num_int =  ($dom_centro['num_int'] !== null)? " Int. " . $dom_centro['num_int'] :"";
                     $num = $num_ext . $num_int;
-                    $municipio =  ($dom_centro['municipio'] !== null)? $dom_centro['municipio'] :"";
+                    $colonia =  ($dom_centro['asentamiento'] !== null)? $dom_centro['tipo_asentamiento']." ". $dom_centro['asentamiento']." "  :"";
+                    $municipio =  ($dom_centro['municipio'] !== null)? $colonia . $dom_centro['municipio'] :"";
                     $estado =  ($dom_centro['estado'] !== null)? $dom_centro['estado'] :"";
                     $centro['domicilio_completo'] = mb_strtoupper($tipo_vialidad.' '.$vialidad. $num.', '.$municipio.', '.$estado);
                     //Disponibilidad del centro horarios y dias
@@ -616,7 +617,7 @@ trait GenerateDocument
                         $pagoVacaciones = $propVacaciones * $diasVacaciones * $remuneracionDiaria;
                         $salarioTopado = ($remuneracionDiaria > (2*$salarioMinimo) ? (2*$salarioMinimo) : $remuneracionDiaria);
 
-                        //Propuesta de convenio al 100%
+                        //Propuesta de convenio al 100% y 50%
                         $prouestas = [];
                         array_push($prouestas,array("concepto_pago"=> 'Indemnización constitucional', "montoCompleta"=>round($remuneracionDiaria * 90,2), "montoAl50"=>round($remuneracionDiaria * 45,2) )); //Indemnizacion constitucional = gratificacion A
                         array_push($prouestas,array("concepto_pago"=> 'Aguinaldo', "montoCompleta"=>round($remuneracionDiaria * 15 * $propAguinaldo,2) ,  "montoAl50"=>round($remuneracionDiaria * 15 * $propAguinaldo,2) )); //Aguinaldo = dias de aguinaldo
