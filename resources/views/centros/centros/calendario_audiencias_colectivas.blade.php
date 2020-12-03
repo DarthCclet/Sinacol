@@ -234,6 +234,15 @@
                         try{
                             console.log(data);
                             if(data != null && data != ""){
+                                if(data.finalizada){
+                                    $("#btnFinalizarRatificacion").hide();
+                                    $("#btnCambiarConciliador").hide();
+                                    $("#labelFinalizada").show();
+                                }else{
+                                    $("#btnFinalizarRatificacion").show();
+                                    $("#btnCambiarConciliador").show();
+                                    $("#labelFinalizada").hide();
+                                }
                                 $("#audiencia_id").val(audiencia_id);
                                 $("#spanFolio").text(data.folio+"/"+data.anio);
                                 if(fuente == "NoCalendarizada"){
