@@ -3349,8 +3349,8 @@
             case '10':    //Salarios vencidos
                 monto = (tiempoVencido * pagoDia).toFixed(2);
                 //$('#monto').val(monto);
-                $('#monto').attr('disabled',true);
-                $('#dias').attr('disabled',true);
+                //$('#monto').attr('disabled',true);
+                // $('#dias').attr('disabled',true);
                 $('#otro').attr('disabled',true);
                 break;
             default: //Dias de sueldo, Dias de vacaciones
