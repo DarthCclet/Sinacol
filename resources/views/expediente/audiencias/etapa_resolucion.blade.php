@@ -3494,8 +3494,8 @@
             $("#parte_solicitante_id").val("").trigger("change");
             $("#parte_solicitado_id").val("").trigger("change");
             $("#motivo_archivado_id").val("").trigger("change");
-//                limpiarConcepto();
-//                cargarTablaConcepto();
+               limpiarConcepto();
+               cargarTablaConcepto();
             cargarTablaResolucionesIndividuales();
         }
     });
