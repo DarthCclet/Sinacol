@@ -938,7 +938,7 @@ class AudienciaController extends Controller {
      * @return array
      */
     public function getTodasAudienciasIndividuales() {
-        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[1])->get();
+        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[1,2])->get();
         $audiencias = [];
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
@@ -962,7 +962,7 @@ class AudienciaController extends Controller {
      * @return array
      */
     public function getTodasAudienciasColectivas() {
-        $solicitudes = Solicitud::whereIn("tipo_solicitud_id", [2,3,4])->where("ratificada",true)->get();
+        $solicitudes = Solicitud::whereIn("tipo_solicitud_id", [3,4])->where("ratificada",true)->get();
         $audiencias = [];
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
@@ -2138,39 +2138,8 @@ class AudienciaController extends Controller {
                     event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,14,4,null,$parte->id));
                 }
             }
-            //event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 14, 4));
-            //Buscamos un correo electronico de las partes solicitadas
-            $contactados = array();
-            $sin_contactar = array();
-            foreach($audiencia->audienciaParte as $parte){
-                if($parte->parte->contactos != null){
-                    $envio = false;
-                    foreach($parte->parte->contactos as $contacto){
-                        $tipo_mail = TipoContacto::where("nombre","EMAIL")->first();
-                        if($contacto->tipo_contacto_id == $tipo_mail->id){
-//                            Se envia la notificación por correo electronico
-                            Mail::to($contacto->contacto)->send(new CambioFecha($audiencia,$parte->parte));
-                            $envio = true;
-                        }
-                    }
-                    if($envio){
-                        array_push($contactados,$parte->parte);
-                    }else{
-                        $parte->parte->contactos = $parte->parte->contactos;
-                        foreach($parte->parte->contactos as $contactos){
-                            $contactos->tipo_contacto = $contactos->tipo_contacto;
-                        }
-                        array_push($sin_contactar,$parte->parte);
-                    }
-                }else{
-                    $parte->parte->contactos = $parte->parte->contactos;
-                    foreach($parte->parte->contactos as $contactos){
-                        $contactos->tipo_contacto = $contactos->tipo_contacto;
-                    }
-                    array_push($sin_contactar,$parte->parte);
-                }
-            }
             DB::commit();
+            $sin_contactar = self::NotificarCambioFecha($audiencia);
             return array("sin_contactar" => $sin_contactar);
         } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
@@ -2178,6 +2147,43 @@ class AudienciaController extends Controller {
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Algo salio mal al tratar de reagendar', 'Error');
+        }
+    }
+    public function NotificarCambioFecha($audiencia){
+        //event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 14, 4));
+        //Buscamos un correo electronico de las partes solicitadas
+        $contactados = array();
+        $sin_contactar = array();
+        try{
+            foreach($audiencia->audienciaParte as $parte){
+                    if($parte->parte->contactos != null){
+                        $envio = false;
+                        foreach($parte->parte->contactos as $contacto){
+                            $tipo_mail = TipoContacto::where("nombre","EMAIL")->first();
+                            if($contacto->tipo_contacto_id == $tipo_mail->id){
+    //                            Se envia la notificación por correo electronico
+                                Mail::to($contacto->contacto)->send(new CambioFecha($audiencia,$parte->parte));
+                                $envio = true;
+                            }
+                        }
+                        if(!$envio){
+                            $parte->parte->contactos = $parte->parte->contactos;
+                            foreach($parte->parte->contactos as $contactos){
+                                $contactos->tipo_contacto = $contactos->tipo_contacto;
+                            }
+                            array_push($sin_contactar,$parte->parte);
+                        }
+                    }else{
+                        $parte->parte->contactos = $parte->parte->contactos;
+                        foreach($parte->parte->contactos as $contactos){
+                            $contactos->tipo_contacto = $contactos->tipo_contacto;
+                        }
+                        array_push($sin_contactar,$parte->parte);
+                    }
+            }
+            return $sin_contactar;
+        }catch(\Throwable $e){
+            return $sin_contactar;
         }
     }
 
