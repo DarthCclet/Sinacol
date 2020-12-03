@@ -1184,17 +1184,17 @@ class AudienciaController extends Controller {
                             }
                         }
                     }
-                    if (isset($listaFechasPago)) { //se registran pagos diferidos
-                        if (count($listaFechasPago) > 0) {
-                            foreach ($listaFechasPago as $key => $fechaPago) {
-                                ResolucionPagoDiferido::create([
-                                    "audiencia_id" => $audiencia->id,
-                                    "monto" => $fechaPago["monto_pago"],
-                                    "fecha_pago" => Carbon::createFromFormat('d/m/Y',$fechaPago["fecha_pago"])->format('Y-m-d')
-                                ]);
-                            }
-                        }
-                    }
+                    // if (isset($listaFechasPago)) { //se registran pagos diferidos
+                    //     if (count($listaFechasPago) > 0) {
+                    //         foreach ($listaFechasPago as $key => $fechaPago) {
+                    //             ResolucionPagoDiferido::create([
+                    //                 "audiencia_id" => $audiencia->id,
+                    //                 "monto" => $fechaPago["monto_pago"],
+                    //                 "fecha_pago" => Carbon::createFromFormat('d/m/Y',$fechaPago["fecha_pago"])->format('Y-m-d')
+                    //             ]);
+                    //         }
+                    //     }
+                    // }
                     if ($terminacion == 3) {
                         $huboConvenio = true;
                         //Se consulta comparecencia de citado
@@ -1235,6 +1235,17 @@ class AudienciaController extends Controller {
         }
         // Termina consulta de comparecencia de solicitante
         if($huboConvenio){
+            if (isset($listaFechasPago)) { //se registran pagos diferidos
+                if (count($listaFechasPago) > 0) {
+                    foreach ($listaFechasPago as $key => $fechaPago) {
+                        ResolucionPagoDiferido::create([
+                            "audiencia_id" => $audiencia->id,
+                            "monto" => $fechaPago["monto_pago"],
+                            "fecha_pago" => Carbon::createFromFormat('d/m/Y',$fechaPago["fecha_pago"])->format('Y-m-d')
+                        ]);
+                    }
+                }
+            }
             foreach ($solicitantes as $solicitante) {
                 $convenio = ResolucionPartes::where('parte_solicitante_id',$solicitante->parte_id)->where('terminacion_bilateral_id',3)->first();
                 if($convenio != null){
