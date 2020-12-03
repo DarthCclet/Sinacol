@@ -938,7 +938,7 @@ class AudienciaController extends Controller {
      * @return array
      */
     public function getTodasAudienciasIndividuales() {
-        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[1])->get();
+        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[1,2])->get();
         $audiencias = [];
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
@@ -962,7 +962,7 @@ class AudienciaController extends Controller {
      * @return array
      */
     public function getTodasAudienciasColectivas() {
-        $solicitudes = Solicitud::whereIn("tipo_solicitud_id", [2,3,4])->where("ratificada",true)->get();
+        $solicitudes = Solicitud::whereIn("tipo_solicitud_id", [3,4])->where("ratificada",true)->get();
         $audiencias = [];
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
