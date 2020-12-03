@@ -1418,7 +1418,7 @@
                                 text: 'Solicitud ratificada correctamente',
                                 icon: 'success'
                             });
-                            if(data.tipo_solicitud_id == 1 || data.tipo_solicitud_id == 2){
+                            if(data.tipo_solicitud_id == 1){
                                 window.location.href = "/guiaAudiencia/"+data.id;
                             }else{
                                 window.location.href = "/resolucionColectiva/"+data.id;   

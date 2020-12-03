@@ -84,6 +84,7 @@
             </div>
             <div class="modal-footer">
                 <div class="text-right">
+                    <label id="labelFinalizada" style="color: red;font-size: 1.2em;">Esta audiencia ya fue finalizada</label>
                     <button class="btn btn-primary btn-sm m-l-5" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-arrow-down"></i> Cerrar</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnCambiarConciliador"><i class="fa fa-user-friends"></i> Cambiar Conciliador</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnFinalizarRatificacion"><i class="fa fa-calendar"></i> Reprogramar</button>
@@ -314,6 +315,15 @@
                         try{
                             console.log(data);
                             if(data != null && data != ""){
+                                if(data.finalizada){
+                                    $("#btnFinalizarRatificacion").hide();
+                                    $("#btnCambiarConciliador").hide();
+                                    $("#labelFinalizada").show();
+                                }else{
+                                    $("#btnFinalizarRatificacion").show();
+                                    $("#btnCambiarConciliador").show();
+                                    $("#labelFinalizada").hide();
+                                }
                                 if(!data.multiple){
                                     $("#divAsignarUnoCambiar").show();
                                     $("#divAsignarDosCambiar").hide();
