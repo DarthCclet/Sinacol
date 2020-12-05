@@ -30,7 +30,9 @@ class SalaController extends Controller
         $salas = (new CatalogoFilter(Sala::query(), $this->request))
             ->searchWith(Sala::class)
             ->filter();
-
+        if(!auth()->user()->hasRole('Super Usuario')){
+            $salas->where("centro_id",auth()->user()->centro_id);
+        }
         // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
         if ($this->request->get('all')) {
