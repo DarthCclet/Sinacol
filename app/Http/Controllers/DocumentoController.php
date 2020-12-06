@@ -385,7 +385,7 @@ class DocumentoController extends Controller
             $solicitud = Solicitud::find($request->solicitud_id );
             $archivo = $request->fileDocumento;
             $clasificacion_archivo= 37;
-            $directorio = 'expedientes/' . $solicitud->expediente->id . '/solicitud/' . $solicitud->id;
+            $directorio = '/solicitud/' . $solicitud->id;
             Storage::makeDirectory($directorio);
             $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
             
