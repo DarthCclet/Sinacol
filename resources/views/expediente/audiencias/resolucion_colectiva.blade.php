@@ -88,7 +88,7 @@
                         <td class="text-nowrap">{{ $parte->nombre_comercial }}</td>
                     @endif
                     <td>
-                        @if(($parte->tipo_persona_id == 2) || ($parte->tipo_parte_id == 2 && $parte->tipo_persona_id == 1))
+                        @if(($parte->tipo_persona_id == 2) || ( $parte->edad && $parte->edad < 15))
                         <div class="md-2" style="display: inline-block;">
                             <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante" data-toggle="tooltip" data-placement="top">
                                 <i class="fa fa-plus"></i>
@@ -105,11 +105,22 @@
 </div>
 @if($audiencia->finalizada == false)
 <div style="display: none;" id="divAudienciaColectiva">
-    <div id="divAudiencia" style="display: none">
-        <h2>Audiencia</h2>
+    <div id="divAudiencia" >
+        <h2>Acta de Audiencia</h2>
+        <div class="row col-md-12" style="margin-top: 1%;">
+            <div class="col-md-1"></div>
+            <div class="radio radio-css radio-inline">
+                <input checked="checked" name="carga_audiencia" type="radio" id="editor_audiencia" value="1"/>
+                <label for="editor_audiencia">Captura en editor</label>
+            </div>
+            <div class="radio radio-css radio-inline">
+                <input type="radio" name="carga_audiencia" id="file_upload_audiencia" value="2"/>
+                <label for="file_upload_audiencia">Carga de documento</label>
+            </div>
+        </div>
         <input type="hidden"  name='audiencia_id' value='{{(isset($audiencia->id))? $audiencia->id:''}}' />
         <input type="hidden" name='solicitud_id' value='{{(isset($solicitud->id))? $solicitud->id:''}}' />
-        <div class="row" style="margin-top: 5%;">
+        <div class="row" style="margin-top: 1%;" id="divEditorAudiencia">
             <div class="col-md-1"></div>
             <div class="col-md-10">
                 <table style="width: 100%; border-collapse: collapse; margin-left: auto; margin-right: auto;" border="0">
@@ -128,18 +139,40 @@
             </div>
             <div class="col-md-2"></div>
         </div> 
-        <div class="col-md-offset-3 col-md-6 ">
-            <div class="form-group">
-                <label for="resolucion_id" class="col-sm-6 control-label">Resolución</label>
-                <div class="col-sm-10">
-                    {!! Form::select('resolucion_id', isset($resoluciones) ? $resoluciones : [] ,isset($audiencia->resolucion_id) ? $audiencia->resolucion_id :null , ['id'=>'resolucion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                </div>
+        <div class="row" style="margin-top: 5%; display:none;" id="divUploadAudiencia" >
+            <div class="col-md-1"></div>
+            <div class="col-md-6">
+                <span class="btn btn-primary fileinput-button m-r-3">
+                    <i class="fa fa-fw fa-plus"></i>
+                    <span>Seleccionar Acta de audiencia</span>
+                    <input type="file" id="fileActaAudiencia" accept=".pdf" name="files">
+                </span>
+                <h5 style="margin-top: 1%;" id="labelActaAudiencia"></h5>
             </div>
         </div>
     </div> 
+    <div class="col-md-offset-3 col-md-6 ">
+        <div class="form-group">
+            <label for="resolucion_id" class="col-sm-6 control-label">Resolución</label>
+            <div class="col-sm-10">
+                {!! Form::select('resolucion_id', isset($resoluciones) ? $resoluciones : [] ,isset($audiencia->resolucion_id) ? $audiencia->resolucion_id :null , ['id'=>'resolucion_id', 'required','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+            </div>
+        </div>
+    </div>
     <div id="divHuboConvenio" style="display: none">
         <h2>Convenio</h2>
-        <div class="row" style="margin-top: 5%;">
+        <div class="row col-md-12" style="margin-top: 1%;">
+            <div class="col-md-1"></div>
+            <div class="radio radio-css radio-inline">
+                <input checked="checked" name="carga_convenio" type="radio" id="editor_convenio" value="1"/>
+                <label for="editor_convenio">Captura en editor</label>
+            </div>
+            <div class="radio radio-css radio-inline">
+                <input type="radio" id="file_upload" name="carga_convenio" value="2"/>
+                <label for="file_upload">Carga de documento</label>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 1%;" id="divConvenio">
             <div class="col-md-1"></div>
             <div class="col-md-10">
                 <table style="width: 100%; border-collapse: collapse; margin-left: auto; margin-right: auto;" border="0">
@@ -158,6 +191,17 @@
             </div>
             <div class="col-md-2"></div>
         </div> 
+        <div class="row" style="margin-top: 5%; display:none;" id="divUploadConvenio" >
+            <div class="col-md-1"></div>
+            <div class="col-md-6">
+                <span class="btn btn-primary fileinput-button m-r-3">
+                    <i class="fa fa-fw fa-plus"></i>
+                    <span>Seleccionar Convenio</span>
+                    <input type="file" id="fileConvenio" accept=".pdf" name="files">
+                </span>
+                <h5 style="margin-top: 1%;" id="labelConvenio"></h5>
+            </div>
+        </div>
     </div>
 
     <div id="divNoComparece" style="display: none">
@@ -1851,6 +1895,13 @@
     $("#fileIdentificacion").change(function(e){
         $("#labelIdentifRepresentante").html("<b>Archivo: </b>"+e.target.files[0].name+"");
     });
+    
+    $("#fileActaAudiencia").change(function(e){
+        $("#labelActaAudiencia").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+    });
+    $("#fileConvenio").change(function(e){
+        $("#labelConvenio").html("<b>Archivo: </b>"+e.target.files[0].name+"");
+    });
     $("#fileCedula").change(function(e){
         $("#labelCedula").html("<b>Archivo: </b>"+e.target.files[0].name+"");
     });
@@ -2217,28 +2268,119 @@
         }
     }
 
-    
+    $("input[name='carga_audiencia']").change(function(){
+        if($(this).val() == 1){
+            $("#divEditorAudiencia").show();
+            $("#divUploadAudiencia").hide();
+        }else{
+            $("#divUploadAudiencia").show();
+            $("#divEditorAudiencia").hide();
+
+        }
+    });
+    $("input[name='carga_convenio']").change(function(){
+        if($(this).val() == 1){
+            $("#divConvenio").show();
+            $("#divUploadConvenio").hide();
+        }else{
+            $("#divUploadConvenio").show();
+            $("#divConvenio").hide();
+        }
+    });
     $("#btnGuardarResolucionMuchas").on("click",function(){
         let listaPropuestaConceptos = {};
         error =false;
         
         console.log(listaPropuestaConceptos);
         if($("#resolucion_id").val() != ""){
+            var formData = new FormData(); // Currently empty
+            formData.append('audiencia_id', $("#audiencia_id").val());
+            formData.append('solicitud_id', $("#solicitud_id").val());
+            formData.append('no_comparece_body', tinyMCE.get('no_comparece_body').getContent());
+            formData.append('resolucion_id', $("#resolucion_id").val());
+            formData.append('listaRelacion', listaResolucionesIndividuales);
+            formData.append('_token', "{{ csrf_token() }}");
+            if($("input[name='carga_audiencia']:checked").val() == 1){
+                formData.append('audiencia_body', tinyMCE.get('audiencia_body').getContent());
+            }else{
+                if($("#fileActaAudiencia").val() != ""){
+                    formData.append('fileActaAudiencia', $("#fileActaAudiencia")[0].files[0]);
+                }else{
+                    swal({
+                        title: '',
+                        text: 'No se cargo el documento de acta de audiencia',
+                        icon: 'warning'
+                    });
+                    return false;
+                }
+            }
+            if($("input[name='carga_convenio']:checked").val() == 1){
+                formData.append('convenio_body', tinyMCE.get('convenio_body').getContent());
+            }else{
+                if($("#fileConvenio").val() != ""){
+                    formData.append('fileConvenio', $("#fileConvenio")[0].files[0]);
+                }else{
+                    swal({
+                        title: '',
+                        text: 'No se cargo el documento de Convenio',
+                        icon: 'warning'
+                    });
+                    return false;
+                }
+            }
             if(!error){
                 $.ajax({
+                    xhr: function() {
+                    var xhr = new window.XMLHttpRequest();
+                    var progreso = 0;
+                     // Download progress
+                     xhr.addEventListener("progress", function(evt){
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            // Do something with download progress
+                            console.log(percentComplete);
+                            $('#progress-bar').show();
+                            var percent = parseInt(percentComplete * 100)
+                            $("#progressbar-ajax-value").text(percent+"%");;
+                            $('#progressbar-ajax').css({
+                                width: percent + '%'
+                            });
+                            if (percentComplete === 1) {
+                                $('#progress-bar').hide();
+                                $('#progressbar-ajax').css({
+                                    width: '0%'
+                                });
+                            }
+                        }
+                    }, false);
+                    // Upload progress
+                    xhr.upload.addEventListener("progress", function(evt){
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            //Do something with upload progress
+                            console.log(percentComplete);
+                            $('#progress-bar').show();
+                            var percent = parseInt(percentComplete * 100)
+                            $("#progressbar-ajax-value").text(percent+"%");;
+                            $('#progressbar-ajax').css({
+                                width: percent + '%'
+                            });
+                            if (percentComplete === 1) {
+                                $('#progress-bar').hide();
+                                $('#progressbar-ajax').css({
+                                    width: '0%'
+                                });
+                            }
+                        }
+                    }, false);
+                    return xhr;
+                },
                     url:"/audiencia/guardarAudienciaColectiva",
                     type:"POST",
                     dataType:"json",
-                    data:{
-                        audiencia_id:'{{ $audiencia->id }}',
-                        solicitud_id:'{{ $solicitud->id }}',
-                        audiencia_body:tinyMCE.get('audiencia_body').getContent(),
-                        convenio_body:tinyMCE.get('convenio_body').getContent(),
-                        no_comparece_body:tinyMCE.get('no_comparece_body').getContent(),
-                        resolucion_id:$("#resolucion_id").val(),
-                        listaRelacion:listaResolucionesIndividuales,
-                        _token:"{{ csrf_token() }}"
-                    },
+                    data:formData,
+                    processData: false,
+                    contentType: false,
                     success:function(data){
                         if(data != null && data != ""){
                             window.location = "/audiencias/"+data.id+"/edit"
