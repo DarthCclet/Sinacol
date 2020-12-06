@@ -38,6 +38,9 @@ class CentroController extends Controller
         $centros = (new CatalogoFilter(Centro::query(), $this->request))
             ->searchWith(Centro::class)
             ->filter(false);
+        if(!auth()->user()->hasRole('Super Usuario')){
+            $centros->where("id",auth()->user()->centro_id);
+        }
         //Evaluamos si es una consulta de la ruta de catálogos entonces regresamos CSV
         if ($this->request->is('catalogos/*')){
             $archivo_csv = 'CatalogoCentros.csv';
