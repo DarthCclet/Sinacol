@@ -14,8 +14,10 @@ use App\Parte;
 use App\Traits\GenerateDocument;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Validator as ValidationValidator;
+
 class DocumentoController extends Controller
 {
     use GenerateDocument;
@@ -341,6 +343,57 @@ class DocumentoController extends Controller
                 'success' => false,
                 'message' => 'ERROR:'.$e,
             ], 200);
+        }
+    }
+
+    public function storeDocument(Request $request){
+        $validator = Validator::make($request->all(), [
+            'descripcion' => 'required',
+            'nombre_documento' => 'required',
+            'solicitud_id' => 'integer|required',               
+            'fileDocumento' => 'max:10000|mimes:pdf',               
+        ],[
+            'fileDocumento.max' => 'El documento no puede ser de tamaño mayor a :max Kb.',
+            'descripcion.required' => 'El campo :required es requerido.',
+            'nombre_documento.required' => 'El campo :required es requerido.',
+            'solicitud_id.required' => 'El campo :required es requerido.',
+        ]);
+        if ($validator->fails()) {
+            $error = "";
+            foreach ($validator->errors()->all() as $key => $value) {
+                $error .= " - ".$value;   
+            }
+            return response()->json(['success' => false, 'message' => 'Por favor verifica tus datos: '.$error, 'data' => null], 200);
+        }
+        try{
+            $solicitud = Solicitud::find($request->solicitud_id );
+            $archivo = $request->fileDocumento;
+            $clasificacion_archivo= 37;
+            $directorio = 'expedientes/' . $solicitud->expediente->id . '/solicitud/' . $solicitud->id;
+            Storage::makeDirectory($directorio);
+            $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+            
+            $path = $archivo->store($directorio);
+            if($solicitud && $archivo ){
+
+                $documento = $solicitud->documentos()->create([
+                    "nombre" => $request->nombre_documento,
+                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                    "descripcion" => $request->descripcion,
+                    "ruta" => $path,
+                    "tipo_almacen" => "local",
+                    "uri" => $path,
+                    "longitud" => round(Storage::size($path) / 1024, 2),
+                    "firmado" => "false",
+                    "clasificacion_archivo_id" => $tipoArchivo->id ,
+                ]);
+                if($documento != null){
+                    return response()->json(['success' => true, 'message' => 'Se guardo correctamente', 'data' => $documento], 200);
+                }
+            }
+        }catch(Exception $e){
+            return response()->json(['success' => false, 'message' => 'No se pudo guardar el documento', 'data' => null], 200);
         }
     }
     

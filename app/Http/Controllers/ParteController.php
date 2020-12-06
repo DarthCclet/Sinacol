@@ -501,7 +501,7 @@ class ParteController extends Controller
                     "solicitud_id" => $parte_representada->solicitud->id,
                     "tipo_parte_id" => 3,
                     "tipo_persona_id" => 1,
-                    "rfc" => "NOAPLICA",
+                    "rfc" => "",
                     "curp" => $request->curp,
                     "nombre" => $request->nombre,
                     "primer_apellido" => $request->primer_apellido,
