@@ -2826,11 +2826,11 @@
         });
         let totalConceptos = parseInt(totalConceptosPago);
         let totalDiferidos = parseInt($("#totalPagosDiferidos").val());
-        if(totalConceptos == totalDiferidos ){
-        }else{
-            error =true;
-            swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
-        }
+        // if(totalConceptos == totalDiferidos ){
+        // }else{
+        //     error =true;
+        //     swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
+        // }
         return error;
     }
 
@@ -3394,9 +3394,9 @@
     });
 
     $("#btnAgregarFechaPago").on("click",function(){
-        if(listaConfigFechas.length < 5){  
+        if(listaConfigFechas.length < 6){  
             var hoy = new Date();
-            var _45dias = hoy.setDate(hoy.getDate() + 45);
+            var _45dias = hoy.setDate(hoy.getDate() + 180);
             // var unMes = hoy.setMonth(hoy.getMonth() + 1);
             let fechaP = $("#fecha_pago").val().split("/");
             var fpago = new Date(fechaP[1]+'/'+fechaP[0]+'/'+fechaP[2]);
@@ -3609,7 +3609,11 @@
                     try{
 
                         if(data != null && data != ""){
-                            window.location = "/audiencias/"+data.id+"/edit"
+                            if($("#resolucion_id").val() == 2){
+                                window.location = "/audiencias/"+data.id+"/edit#default-tab-4"
+                            }else{
+                                window.location = "/audiencias/"+data.id+"/edit"
+                            }
                         }else{
                             swal({
                                 title: 'Algo salió mal',

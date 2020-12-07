@@ -293,6 +293,7 @@ class AudienciaController extends Controller {
         $partes = array();
         $solicitud =$audiencia->expediente->solicitud;
         $solicitud_id = $solicitud->id;
+        $estatus_solicitud_id = $solicitud->estatus_solicitud_id;
         $solicitudPartes = $solicitud->partes;
         foreach($solicitudPartes as $key => $parte){
             $documentos = $parte->documentos;
@@ -327,7 +328,7 @@ class AudienciaController extends Controller {
             }
         }
         $documentos = $doc->sortBy('id');
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id'));
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id','estatus_solicitud_id'));
     }
 
     /**
@@ -1606,9 +1607,33 @@ class AudienciaController extends Controller {
             $audiencia = Audiencia::find($idAudiencia);
             $solicitud = $audiencia->expediente->solicitud;
             if($request->resolucion_id != ""){
-                $html = $request['audiencia_body'];
-                $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
-                $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,15);
+                if($request->fileActaAudiencia){
+                    $archivo = $request->fileActaAudiencia;
+                    $clasificacion_archivo= 15;
+                    $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $idAudiencia;
+                    Storage::makeDirectory($directorio);
+                    $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                    
+                    $path = $archivo->store($directorio);
+                    
+                    $documento = $audiencia->documentos()->create([
+                        "nombre" => str_replace($directorio."/", '',$path),
+                        "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                        // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                        "descripcion" => $tipoArchivo->nombre,
+                        "ruta" => $path,
+                        "tipo_almacen" => "local",
+                        "uri" => $path,
+                        "longitud" => round(Storage::size($path) / 1024, 2),
+                        "firmado" => "false",
+                        "clasificacion_archivo_id" => $tipoArchivo->id ,
+                    ]);
+                }else{
+                    $html = $request['audiencia_body'];
+                    $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
+                    $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,15);
+                }
+
                 $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true));
                 if($request->resolucion_id != 2){
                     $solicitud = $audiencia->expediente->solicitud;
@@ -1662,10 +1687,33 @@ class AudienciaController extends Controller {
                 }
                 //guardar conceptos de pago para Convenio
                 if ($audiencia->resolucion_id == 1 ) { //Hubo conciliacion
-                    //Se genera el convenio
-                    $html = $request['convenio_body'];
-                    $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
-                    $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,16);
+                    if($request->fileConvenio){
+                        $archivo = $request->fileConvenio;
+                        $clasificacion_archivo= 16;
+                        $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $idAudiencia;
+                        Storage::makeDirectory($directorio);
+                        $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                        
+                        $path = $archivo->store($directorio);
+                        
+                        $documento = $audiencia->documentos()->create([
+                            "nombre" => str_replace($directorio."/", '',$path),
+                            "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                            // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                            "descripcion" => $tipoArchivo->nombre,
+                            "ruta" => $path,
+                            "tipo_almacen" => "local",
+                            "uri" => $path,
+                            "longitud" => round(Storage::size($path) / 1024, 2),
+                            "firmado" => "false",
+                            "clasificacion_archivo_id" => $tipoArchivo->id ,
+                        ]);
+                    }else{
+                        //Se genera el convenio
+                        $html = $request['convenio_body'];
+                        $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
+                        $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,16);
+                    }
                 }
             }else{
                 $html = $request['no_comparece_body'];

@@ -32,12 +32,14 @@
                 <span class="d-sm-block d-none">Roles</span>
             </a>
         </li>
+        @if(auth()->user()->hasRole('Super Usuario'))
         <li class="nav-item">
             <a href="#default-tab-3" data-toggle="tab" class="nav-link">
                 <span class="d-sm-none">Cen</span>
                 <span class="d-sm-block d-none">Centros</span>
             </a>
         </li>
+        @endif
     </ul>
     <div class="tab-content" style="background: #f2f3f4 !important;">
         <div class="tab-pane fade active show" id="default-tab-1">
@@ -59,7 +61,9 @@
                                 <select class="selectRol form-control" name="rol" id="rol">
                                     <option value="">-- Seleccione el rol</option>
                                     @foreach($roles as $rol)
+                                    @if($rol->name != 'Super Usuario')
                                     <option value="{{$rol->name}}">{{$rol->name}}</option>
+                                    @endif
                                     @endforeach
                                 </select>
                                 {!! $errors->first('rol', '<span class=text-danger>:message</span>') !!}
@@ -85,6 +89,7 @@
                 </div>
             </fieldset>
         </div>
+        @if(auth()->user()->hasRole('Super Usuario'))
         <div class="tab-pane fade show" id="default-tab-3">
             <fieldset>
             <div class="row">
@@ -118,6 +123,7 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
 
     

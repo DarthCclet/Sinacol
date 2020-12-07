@@ -432,6 +432,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'total_percepciones_letra');
                 array_push($columnNames,'propuestas_conceptos');
                 array_push($columnNames,'propuesta_configurada');
+                array_push($columnNames,'propuestas_trabajadores');
                 array_push($columnNames,'pagos_diferidos');
                 array_push($columnNames,'total_diferidos');
                 array_push($columnNames,'justificacion_propuesta');
