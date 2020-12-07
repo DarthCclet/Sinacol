@@ -337,7 +337,7 @@
             <div class="modal-footer">
                 <div class="text-right">
                     <a class="btn btn-primary btn-sm" data-dismiss="modal" onclick="continuarComparecencia()"><i class="fa fa-sign-out"></i> Continuar a Comparecencias</a>
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-sign-out"></i> Cerrar</a>
+                    <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="continuarComparecencia()"><i class="fa fa-sign-out"></i> Cerrar</a>
                 </div>
             </div>
         </div>
