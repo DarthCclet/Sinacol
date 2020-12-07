@@ -290,10 +290,9 @@
                                                                                         <td style="text-align: right">${{ number_format($concepto->monto,2)}}</td>
                                                                                         <th>{{$concepto->otro}}</th>
                                                                                     </tr>
-
                                                                                 @endif  
                                                                             @endforeach
-                                                                            @if( isset($concepto_pago['conceptos']) )
+                                                                            @if( sizeof($concepto_pago['conceptos']) > 0 )
                                                                                 @if( $solicitante->parte->id == $concepto_pago['conceptos'][0]->idSolicitante)
                                                                                     <tr>
                                                                                         <th>TOTAL</th>
@@ -302,7 +301,6 @@
                                                                                 @endif
                                                                             @endif
                                                                         @endforeach
-                                                                        
                                                                     </tbody>
                                                                 </table>
                                                             </div>
