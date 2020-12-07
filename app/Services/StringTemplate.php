@@ -94,10 +94,9 @@ class StringTemplate
             }
           }
         }
-
         if (isset($vars['solicitado_tipo_notificacion'])){
           if ($countTipoNotificacion >0 ){
-            if($vars['solicitado_tipo_notificacion'] != null){
+            if($vars['solicitado_tipo_notificacion'] != null && $vars['solicitado_tipo_notificacion'] != "--"){
               for ($i=0; $i < $countTipoNotificacion; $i++) {
                 $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
                 $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
@@ -125,7 +124,8 @@ class StringTemplate
             }else{
               $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
               $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-              $string = $htmlA . $htmlB;
+              $sliceNotificacion = "Las partes se presentan de manera voluntaria ante esta autoridad conciliatoria.";
+              $string = $htmlA . $sliceNotificacion . $htmlB;
             }
           }
         }
