@@ -731,6 +731,9 @@ class SolicitudController extends Controller {
             //termina consulta de documentos
             return view('expediente.solicitudes.consultar', compact('solicitud','audiencias','documentos','estatus_solicitud_id'));
         } catch (\Throwable $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             return redirect('solicitudes');
         }
     }
