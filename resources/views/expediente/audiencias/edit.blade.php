@@ -45,7 +45,6 @@
         <li class="breadcrumb-item"><a href="javascript:;">Inicio</a></li>
         <li class="breadcrumb-item active"><a href="{!! route("audiencias.index") !!}">Audiencia</a></li>
         <li class="breadcrumb-item active"><a href="javascript:;">Editar Audiencia</a></li>
-
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->
@@ -290,10 +289,9 @@
                                                                                         <td style="text-align: right">${{ number_format($concepto->monto,2)}}</td>
                                                                                         <th>{{$concepto->otro}}</th>
                                                                                     </tr>
-
                                                                                 @endif  
                                                                             @endforeach
-                                                                            @if( isset($concepto_pago['conceptos']) )
+                                                                            @if( sizeof($concepto_pago['conceptos']) > 0 )
                                                                                 @if( $solicitante->parte->id == $concepto_pago['conceptos'][0]->idSolicitante)
                                                                                     <tr>
                                                                                         <th>TOTAL</th>
@@ -302,7 +300,6 @@
                                                                                 @endif
                                                                             @endif
                                                                         @endforeach
-                                                                        
                                                                     </tbody>
                                                                 </table>
                                                             </div>
@@ -1333,6 +1330,7 @@
 </div>
     <input type="hidden" id="parte_id">
     <input type="hidden" id="parte_representada_id">
+    <input type="hidden" id="solicitud_id" value="{{$solicitud_id}}"/>
 @endsection
 @push('scripts')
     <script>
@@ -1341,6 +1339,15 @@
         var finalizada=false;
         var listaResolucionesIndividuales=[];
         var origen = 'audiencias';
+        var url = document.location.toString();
+        if (url.match('#')) {
+            $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
+        } 
+
+        // Change hash for page-reload
+        $('.nav-tabs a').on('shown.bs.tab', function (e) {
+            window.location.hash = e.target.hash;
+        })
         $(document).ready(function() {
             $("#audiencia_id").val('{{ $audiencia->id }}');
             finalizada = '{{ $audiencia->finalizada }}';

@@ -640,6 +640,7 @@ class SolicitudController extends Controller {
             $solicitud["solicitantes"] = $solicitantes;
             $solicitud->expediente = $solicitud->expediente;
             $solicitud->giroComercial = $solicitud->giroComercial;
+            $estatus_solicitud_id = $solicitud->estatus_solicitud_id;
             if($solicitud->giroComercial){
                 $solicitud->giroComercial->ambito;
             }
@@ -728,7 +729,7 @@ class SolicitudController extends Controller {
             
             $documentos = $doc->sortBy('id');
             //termina consulta de documentos
-            return view('expediente.solicitudes.consultar', compact('solicitud','audiencias','documentos'));
+            return view('expediente.solicitudes.consultar', compact('solicitud','audiencias','documentos','estatus_solicitud_id'));
         } catch (\Throwable $e) {
             return redirect('solicitudes');
         }
@@ -1183,7 +1184,7 @@ class SolicitudController extends Controller {
                 // Guardamos todas las Partes en la audiencia
                 $partes = $solicitud->partes;
                 foreach($partes as $parte){
-                    AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
+                    AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => null]);
                     if($parte->tipo_parte_id == 2){
                         // generar citatorio de conciliacion
                         event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
