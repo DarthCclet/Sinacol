@@ -28,9 +28,9 @@
                     <a class="btn btn-xs btn-primary" href="{{route('impersonate',$user->id)}}">
                         <i class="fa fa-eye"></i>
                     </a>
-                    <button class="btn btn-xs btn-warning btn-borrar">
+<!--                    <button class="btn btn-xs btn-warning btn-borrar">
                         <i class="fa fa-trash btn-borrar"></i>
-                    </button>
+                    </button>-->
                 </div>
                 {!! Form::close() !!}
             </td>

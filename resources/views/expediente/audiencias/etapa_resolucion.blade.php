@@ -3609,7 +3609,11 @@
                     try{
 
                         if(data != null && data != ""){
-                            window.location = "/audiencias/"+data.id+"/edit"
+                            if($("#resolucion_id").val() == 2){
+                                window.location = "/audiencias/"+data.id+"/edit#default-tab-4"
+                            }else{
+                                window.location = "/audiencias/"+data.id+"/edit"
+                            }
                         }else{
                             swal({
                                 title: 'Algo salió mal',
