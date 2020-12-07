@@ -640,6 +640,7 @@ class SolicitudController extends Controller {
             $solicitud["solicitantes"] = $solicitantes;
             $solicitud->expediente = $solicitud->expediente;
             $solicitud->giroComercial = $solicitud->giroComercial;
+            $estatus_solicitud_id = $solicitud->estatus_solicitud_id;
             if($solicitud->giroComercial){
                 $solicitud->giroComercial->ambito;
             }
@@ -728,7 +729,7 @@ class SolicitudController extends Controller {
             
             $documentos = $doc->sortBy('id');
             //termina consulta de documentos
-            return view('expediente.solicitudes.consultar', compact('solicitud','audiencias','documentos'));
+            return view('expediente.solicitudes.consultar', compact('solicitud','audiencias','documentos','estatus_solicitud_id'));
         } catch (\Throwable $e) {
             return redirect('solicitudes');
         }

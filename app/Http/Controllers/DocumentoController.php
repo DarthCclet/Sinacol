@@ -14,8 +14,10 @@ use App\Parte;
 use App\Traits\GenerateDocument;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Validator as ValidationValidator;
+
 class DocumentoController extends Controller
 {
     use GenerateDocument;
@@ -120,28 +122,37 @@ class DocumentoController extends Controller
     }
     public function postAudiencia(Request $request)
     {
-        $audiencia = Audiencia::find($request->audiencia_id[0]);
-        if($audiencia != null){
-            $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$request->audiencia_id[0];
-            Storage::makeDirectory($directorio);
-            $archivos = $request->file('files');
-            $tipoArchivo = ClasificacionArchivo::find($request->tipo_documento_id[0]);
-            foreach($archivos as $archivo) {
-                $path = $archivo->store($directorio);
-                $audiencia->documentos()->create([
-                    "nombre" => str_replace($directorio."/", '',$path),
-                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                    "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
-                    "ruta" => $path,
-                    "tipo_almacen" => "local",
-                    "uri" => $path,
-                    "longitud" => round(Storage::size($path) / 1024, 2),
-                    "firmado" => "false",
-                    "clasificacion_archivo_id" => $tipoArchivo->id ,
-                ]);
+        try{
+
+            $audiencia = Audiencia::find($request->audiencia_id[0]);
+            if($audiencia != null){
+                $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$request->audiencia_id[0];
+                Storage::makeDirectory($directorio);
+                $archivos = $request->file('files');
+                $tipoArchivo = ClasificacionArchivo::find($request->tipo_documento_id[0]);
+                foreach($archivos as $archivo) {
+                    $path = $archivo->store($directorio);
+                    $audiencia->documentos()->create([
+                        "nombre" => str_replace($directorio."/", '',$path),
+                        "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                        "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
+                        "ruta" => $path,
+                        "tipo_almacen" => "local",
+                        "uri" => $path,
+                        "longitud" => round(Storage::size($path) / 1024, 2),
+                        "firmado" => "false",
+                        "clasificacion_archivo_id" => $tipoArchivo->id ,
+                    ]);
+                }
             }
+            return 'Product saved successfully';
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return 'Product saved successfully';
+
         }
-        return 'Product saved successfully';
     }
     public function solicitud(Request $request)
     {
@@ -186,7 +197,9 @@ class DocumentoController extends Controller
             }
             
         }catch(Exception $e){
-
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             return '{ "files": [ { "error": "No se pudo guardar el archivo", "name": "thumb2.jpg" } ] }';
         }
         return '{ "files": [ { "error": "No se capturó solicitud", "name": "thumb2.jpg" } ] }';
@@ -233,7 +246,9 @@ class DocumentoController extends Controller
             }
             
         }catch(Exception $e){
-
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             return '{ "files": [ { "error": "No se pudo guardar el archivo", "name": "thumb2.jpg" } ] }';
         }
         return '{ "files": [ { "error": "No se capturó solicitud", "name": "thumb2.jpg" } ] }';
@@ -276,6 +291,9 @@ class DocumentoController extends Controller
                 echo $html; exit;
             }
         } catch (\Throwable $th) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             //throw $th;
         }
     }
@@ -341,6 +359,60 @@ class DocumentoController extends Controller
                 'success' => false,
                 'message' => 'ERROR:'.$e,
             ], 200);
+        }
+    }
+
+    public function storeDocument(Request $request){
+        $validator = Validator::make($request->all(), [
+            'descripcion' => 'required',
+            'nombre_documento' => 'required',
+            'solicitud_id' => 'integer|required',               
+            'fileDocumento' => 'max:10000|mimes:pdf',               
+        ],[
+            'fileDocumento.max' => 'El documento no puede ser de tamaño mayor a :max Kb.',
+            'descripcion.required' => 'El campo :required es requerido.',
+            'nombre_documento.required' => 'El campo :required es requerido.',
+            'solicitud_id.required' => 'El campo :required es requerido.',
+        ]);
+        if ($validator->fails()) {
+            $error = "";
+            foreach ($validator->errors()->all() as $key => $value) {
+                $error .= " - ".$value;   
+            }
+            return response()->json(['success' => false, 'message' => 'Por favor verifica tus datos: '.$error, 'data' => null], 200);
+        }
+        try{
+            $solicitud = Solicitud::find($request->solicitud_id );
+            $archivo = $request->fileDocumento;
+            $clasificacion_archivo= 37;
+            $directorio = '/solicitud/' . $solicitud->id;
+            Storage::makeDirectory($directorio);
+            $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+            
+            $path = $archivo->store($directorio);
+            if($solicitud && $archivo ){
+
+                $documento = $solicitud->documentos()->create([
+                    "nombre" => $request->nombre_documento,
+                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                    "descripcion" => $request->descripcion,
+                    "ruta" => $path,
+                    "tipo_almacen" => "local",
+                    "uri" => $path,
+                    "longitud" => round(Storage::size($path) / 1024, 2),
+                    "firmado" => "false",
+                    "clasificacion_archivo_id" => $tipoArchivo->id ,
+                ]);
+                if($documento != null){
+                    return response()->json(['success' => true, 'message' => 'Se guardo correctamente', 'data' => $documento], 200);
+                }
+            }
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => 'No se pudo guardar el documento', 'data' => null], 200);
         }
     }
     

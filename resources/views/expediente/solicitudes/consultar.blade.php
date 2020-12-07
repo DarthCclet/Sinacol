@@ -4,6 +4,7 @@
 
 @include('includes.component.datatables')
 @include('includes.component.pickers')
+@include('includes.component.dropzone')
 
 
 @section('content')
@@ -151,23 +152,24 @@
                                     <td></td>
                                 @endif
                                 @if($audiencia->conciliador)
-                                    @if($audiencia->conciliador->persona->tipo_persona_id == 1)
-                                        <td>{{$audiencia->conciliador->persona->nombre}} {{$audiencia->conciliador->persona->primer_apellido}} {{$audiencia->conciliador->persona->segundo_apellido}}</td>
+                                    @if($audiencia->conciliador->persona)
+                                        @if($audiencia->conciliador->persona->tipo_persona_id == 1)
+                                            <td>{{$audiencia->conciliador->persona->nombre}} {{$audiencia->conciliador->persona->primer_apellido}} {{$audiencia->conciliador->persona->segundo_apellido}}</td>
+                                        @else
+                                            <td>{{isset($audiencia->conciliador->persona->nombre_comercial)}}</td>
+                                        @endif
                                     @else
-                                    <td>{{isset($audiencia->conciliador->persona->nombre_comercial)}}</td>
+                                        <td></td>
                                     @endif
-                                    @else
-                                    
+                                @else
                                     <td></td>
                                 @endif
 
                                 <td>{{$audiencia->finalizada ? "Concluida":"Pendiente"}}</td>
                                 <td class="all">
                                     <div style="display: inline-block;">
-                                        @if($audiencia->etapas_resolucion_audiencia_count > 0)
-                                            <div style="display: inline-block;" class="m-2"><a title="Detalle" href="{!! route("audiencias.edit",$audiencia->id) !!}" class="btn btn-xs btn-primary"><i class="fa fa-gavel"></i></a></div>
-                                        @endif
-                                        @if($audiencia->finalizada == false)
+                                        <div style="display: inline-block;" class="m-2"><a title="Detalle" href="{!! route("audiencias.edit",$audiencia->id) !!}" class="btn btn-xs btn-primary"><i class="fa fa-gavel"></i></a></div>
+                                        @if($audiencia->finalizada == false && $audiencia->conciliador_id != null && $audiencia->fecha_audiencia != null)
                                             @if(auth()->user()->hasRole("Personal conciliador"))
                                                 @if($solicitud->tipo_solicitud_id == 1)
                                                     <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaAudiencia",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
@@ -194,6 +196,7 @@
         @endif
     </div>
 </div>
+
 <!-- end wizard -->
 
 <!-- inicio Modal Domicilio-->
@@ -334,6 +337,8 @@
 
 <!--Fin de modal de representante legal-->
 <input type="hidden" id="expediente_id">
+<input type="hidden" id="solicitud_id" value="{{$solicitud->id ?? ""}}"/>
+<input type="hidden" id="estatus_solicitud_id" value="{{$solicitud->estatus_solicitud_id ?? ""}}"/>
 <!--</div>-->
 @push('scripts')
 

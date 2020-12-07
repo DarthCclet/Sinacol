@@ -45,7 +45,6 @@
         <li class="breadcrumb-item"><a href="javascript:;">Inicio</a></li>
         <li class="breadcrumb-item active"><a href="{!! route("audiencias.index") !!}">Audiencia</a></li>
         <li class="breadcrumb-item active"><a href="javascript:;">Editar Audiencia</a></li>
-
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->
@@ -1331,6 +1330,7 @@
 </div>
     <input type="hidden" id="parte_id">
     <input type="hidden" id="parte_representada_id">
+    <input type="hidden" id="solicitud_id" value="{{$solicitud_id}}"/>
 @endsection
 @push('scripts')
     <script>

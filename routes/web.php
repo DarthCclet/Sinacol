@@ -144,6 +144,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('giros_comerciales/cambiar_padre','GiroComercialController@CambiarPadre');
     Route::Post('giros_comerciales/cambiar_ambito','GiroComercialController@CambiarAmbito');
     Route::resource('documento','DocumentoController');
+    Route::post('guardar_documento','DocumentoController@storeDocument');
 
     Route::resource('permisos','PermissionController');
     Route::resource('roles','RoleController');
