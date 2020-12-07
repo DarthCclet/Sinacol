@@ -1780,6 +1780,9 @@ class AudienciaController extends Controller {
             $audiencia_id = $this->request->audiencia_id;
             $audiencia = Audiencia::find($audiencia_id);
             $response = array("tipo" => 6,"response" => null);
+            $notificar = false;
+            $citatorio = false;
+            $audiencia_notificar_id = null;
             if (!$audiencia->finalizada) {
                 $totalCitados = 0;
                 foreach($audiencia->audienciaParte as $parte){
@@ -1875,6 +1878,9 @@ class AudienciaController extends Controller {
                                 }
                             }
                         }
+                        $citatorio = false;
+                        $notificar = true;
+                        $audiencia_notificar_id = $audiencia->id;
                         $response = array("tipo" => 2,"response" => $audiencia);
                     }else{
                         /*
@@ -1939,6 +1945,9 @@ class AudienciaController extends Controller {
                         foreach($audienciaN->conciliadoresAudiencias as $conciliador){
                             $conciliador->conciliador->persona;
                         }
+                        $audiencia_notificar_id = $audienciaN->id;
+                        $notificar = true;
+                        $citatorio = true;
                         $response = array("tipo" => 3,"response" => $audienciaN);
                     }
                 }
@@ -1973,6 +1982,13 @@ class AudienciaController extends Controller {
             }
 
             DB::commit();
+            if($notificar){
+                if($citatorio){
+                    event(new RatificacionRealizada($audiencia_notificar_id,"citatorio"));
+                }else{
+                    event(new RatificacionRealizada($audiencia_notificar_id,"multa"));
+                }
+            }
             return $this->sendResponse($response, 'SUCCESS');
         } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
