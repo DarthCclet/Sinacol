@@ -1187,7 +1187,7 @@ class SolicitudController extends Controller {
                 // Guardamos todas las Partes en la audiencia
                 $partes = $solicitud->partes;
                 foreach($partes as $parte){
-                    AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
+                    AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => null]);
                     if($parte->tipo_parte_id == 2){
                         // generar citatorio de conciliacion
                         event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
