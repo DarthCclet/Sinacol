@@ -183,7 +183,7 @@
             <div class="modal-body">
                 <div style="overflow:scroll" class="col-md-12">
                     <div id="divNeedRepresentante" style="display: none;">
-                        <h5>Representantes</h5>
+                        <h5>Representante legal (solo si hay representante)</h5>
                         <hr class="red">
                         <div class="alert alert-muted" style="display: none;" id="menorAlert" >
                             <strong>Menor de edad:</strong> Detectamos que al menos un solicitante no es mayor de edad, para poder continuar con la solicitud es necesario agregar al representante del menor y la identificación oficial de dicho representante.
@@ -204,7 +204,7 @@
                     <div style="margin: 2%;">
                         <a class="btn btn-primary btn-sm" style="float: right;" data-dismiss="modal" onclick="$('#modal-archivos').modal('show');" ><i class="fa fa-plus"></i> Agregar Documentos</a>
                     </div>
-                    <h5>Identificaciones</h5>
+                    <h5>Identificaciones oficiales (solo si no hay representante legal)</h5>
                     <hr class="red">
                     <table class="table table-striped table-bordered table-hover">
                         <thead>

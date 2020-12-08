@@ -2143,7 +2143,7 @@
                             table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
                             table +='</div>';
                         }else{
-                            table +='   <td>Sin identificación</td>';
+                            table +='   <td>Falta identificación</td>';
                         }
                         table +='   </td>';
                         table +='</tr>';

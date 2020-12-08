@@ -43,7 +43,7 @@
             </div>
             <div class="col-md-4">
                 <input class="form-control filtros" id="nombre" placeholder="Nombre completo" type="text" value="">
-                <p class="help-block needed">Nombre</p>
+                <p class="help-block needed">Nombre del solicitante</p>
             </div>
             <div class="col-md-4">
                 <input class="form-control filtros numero" id="folio" placeholder="Folio" type="text" value="">
