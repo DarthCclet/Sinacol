@@ -667,7 +667,7 @@ class ParteController extends Controller
     }
     public function getPartesComboDocumentos() {
         $solicitud = Solicitud::find($this->request->solicitud_id);
-        $partes = $solicitud->partes()->whereIn("tipo_parte_id",[1,3])->get();
+        $partes = $solicitud->partes()->whereIn("tipo_parte_id",[1,2,3])->get();
         return $partes;
     }
 }
