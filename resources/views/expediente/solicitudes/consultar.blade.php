@@ -336,7 +336,7 @@
 
 
 <!--Fin de modal de representante legal-->
-<input type="hidden" id="expediente_id">
+<input type="hidden" id="expediente_id" value='{{$expediente_id  ?? ""}}'>
 <input type="hidden" id="solicitud_id" value="{{$solicitud->id ?? ""}}"/>
 <input type="hidden" id="estatus_solicitud_id" value="{{$solicitud->estatus_solicitud_id ?? ""}}"/>
 <!--</div>-->
@@ -355,6 +355,7 @@
     // var arraySolicitanteExcepcion = {}; // Array de solicitante excepción
     var ratifican = false;; // Array de solicitante excepción
     var listaContactos=[];
+    var expediente_id = '';
 
     $(document).ready(function() {
         
@@ -414,6 +415,7 @@
                     solicitudObj.ratificada = data.ratificada;
                     if(data.ratificada){
                         expedientee = true;
+                        expediente_id = $('#expediente_id').val();
                     }
                     solicitudObj.estatus_solicitud = data.estatusSolicitud.nombre;
                     solicitudObj.fecha_ratificacion = dateFormat(data.fecha_ratificacion,2);
