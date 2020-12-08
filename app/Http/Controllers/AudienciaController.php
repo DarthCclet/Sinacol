@@ -1443,11 +1443,11 @@ class AudienciaController extends Controller {
         ]);
         ## si la audiencia se calendariza se deben guardar los datos recibidos en el arreglo, si no se copian los de la audiencia origen
         if ($request->nuevaCalendarizacion == "S") {
-            $id_conciliador = null;
+//            $id_conciliador = null;
             foreach ($request->asignacion as $value) {
                 SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $value["sala"], "solicitante" => $value["resolucion"]]);
             }
-            $audienciaN->update(["conciliador_id" => $id_conciliador]);
+//            $audienciaN->update(["conciliador_id" => $id_conciliador]);
         } else {
             foreach ($audiencia->salasAudiencias as $sala) {
                 SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $sala->sala_id, "solicitante" => $sala->solicitante]);

@@ -646,8 +646,10 @@ class SolicitudController extends Controller {
             }
             //Consulta de solicitud con relaciones
 
+            $expediente_id = '';
             $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
             if (count($expediente) > 0) {
+                $expediente_id = $expediente[0]->id;
                 $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->withCount('etapasResolucionAudiencia')->get();
                 foreach($audiencias as $audiencia){
                     foreach($audiencia->audienciaParte as $parte){
@@ -729,7 +731,7 @@ class SolicitudController extends Controller {
             
             $documentos = $doc->sortBy('id');
             //termina consulta de documentos
-            return view('expediente.solicitudes.consultar', compact('solicitud','audiencias','documentos','estatus_solicitud_id'));
+            return view('expediente.solicitudes.consultar', compact('solicitud','audiencias','documentos','estatus_solicitud_id','expediente_id'));
         } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensale: ". $e->getMessage().
