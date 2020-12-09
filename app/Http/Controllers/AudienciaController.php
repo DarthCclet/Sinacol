@@ -1076,7 +1076,7 @@ class AudienciaController extends Controller {
                         } else {
 
                             $bandera = false;
-                            $terminacion = 5;
+                            $terminacion = 4;
                         }
                         $resolucionParte = ResolucionPartes::create([
                                     "audiencia_id" => $audiencia->id,
@@ -1101,16 +1101,20 @@ class AudienciaController extends Controller {
                       }
                       //Se consulta comparecencia de citado
                       $parte = $solicitado->parte;
-                      if ($parte->tipo_persona_id == 2) {
-                          $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
-                          if ($compareciente_parte != null) {
-                              $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
-                          } else {
-                              $comparecienteCit = null;
-                          }
-                      } else {
-                          $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+                      $comparecienteCit = null;
+                      if($parte->tipo_persona_id == 1){
+                        $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
                       }
+                      if(!$comparecienteCit){
+                        if ($parte->tipo_persona_id == 2) {
+                            $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
+                            if ($compareciente_parte != null) {
+                                $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                            } else {
+                                $comparecienteCit = null;
+                            }
+                        }
+                    }
 
                     $terminacion = 1;
                     if ($audiencia->resolucion_id == 3) {
