@@ -1857,13 +1857,7 @@
                                 text: 'Detectamos que no todos los citados comparecieron, ¿Deseas continuar con el proceso de audiencia?, de indicar que no, se generará una nueva audiencia',
                                 icon: 'info',
                                 buttons: {
-                                    cancel: {
-                                        text: 'Cancelar',
-                                        value: null,
-                                        visible: true,
-                                        className: 'btn btn-default',
-                                        closeModal: true,
-                                    },roll: {
+                                    roll: {
                                         text: "No",
                                         value: 2,
                                         className: 'btn btn-warning',
