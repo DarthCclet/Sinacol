@@ -182,6 +182,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
     
     Route::get('get_personas','PersonaController@GetPersonaCentro');
+    
+    /**
+     * Notificaciones
+     */
+    Route::get('notificaciones','CentroController@notificaciones');
+    
 });
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 
