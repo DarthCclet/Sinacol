@@ -440,6 +440,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'segunda_manifestacion');
 
                 array_push($columnNames,'citados_convenio');
+                array_push($columnNames,'citados_comparecientes');
                 array_push($columnNames,'segunda_declaracion_convenio');
               }
 
