@@ -110,8 +110,27 @@
                         async:true,
                         success:function(data){
                             try{
-                                
+                                if(data.fecha_peticion_notificacion != null && data.fecha_peticion_notificacion != ""){
+                                    swal({
+                                        title: 'Éxito',
+                                        text: 'Se Envio la notificación',
+                                        icon: 'success'
+                                    });
+                                    location.reload();
+                                }else{
+                                    swal({
+                                        title: 'Error',
+                                        text: 'No se Envio la notificación',
+                                        icon: 'success'
+                                    });
+                                    
+                                }
                             }catch(error){
+                                swal({
+                                    title: 'Error',
+                                    text: 'Algo salio mal con la solicitud',
+                                    icon: 'success'
+                                });
                                 
                             }
                         }
