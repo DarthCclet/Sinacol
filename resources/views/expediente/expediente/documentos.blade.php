@@ -3,11 +3,9 @@
     <!-- begin page-header -->
     <div class=" col-md-12 row">
         <h1 class="page-header col-md-6">Documentos del expediente</h1>
-        @if($estatus_solicitud_id < 3)
-            <div class="float-right col-md-6">
-                <button class="btn btn-primary" style="float: right;" onclick="$('#modal_cargar_documento').modal('show')"><i class="fa fa-plus"></i> Agregar Documento</button>
-            </div>
-        @endif
+        <div class="float-right col-md-6">
+            <button class="btn btn-primary" style="float: right;" onclick="$('#modal_cargar_documento').modal('show')"><i class="fa fa-plus"></i> Agregar Documento</button>
+        </div>
     </div>
     <!-- end page-header -->
     <!-- begin panel -->
@@ -72,43 +70,41 @@
     </div>
 
 {{-- @endsection --}}
-@if($estatus_solicitud_id < 3)
-    {{-- Modal confirma falta de correo --}}
-    <div class="modal" id="modal_cargar_documento" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
-        <div class="modal-dialog ">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h5>Agregar Documento</h5>
+{{-- Modal confirma falta de correo --}}
+<div class="modal" id="modal_cargar_documento" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h5>Agregar Documento</h5>
+                <div>
+                    <div class="col-md-6">
+                        <span class="btn btn-primary fileinput-button m-r-3">
+                            <i class="fa fa-fw fa-plus"></i>
+                            <span>Seleccionar Documento</span>
+                            <input type="file" id="fileDocumento" accept=".pdf" name="files">
+                        </span>
+                        <p style="margin-top: 1%;" id="labelDocumento"></p>
+                    </div>
+                    <div class="col-md-8 ">
+                        <input class="form-control" id="nombre_documento" placeholder="Nombre del documento" type="text" value="">
+                        <p class="help-block needed">Nombre del documento</p>
+                    </div>
                     <div>
-                        <div class="col-md-6">
-                            <span class="btn btn-primary fileinput-button m-r-3">
-                                <i class="fa fa-fw fa-plus"></i>
-                                <span>Seleccionar Documento</span>
-                                <input type="file" id="fileDocumento" accept=".pdf" name="files">
-                            </span>
-                            <p style="margin-top: 1%;" id="labelDocumento"></p>
-                        </div>
-                        <div class="col-md-8 ">
-                            <input class="form-control" id="nombre_documento" placeholder="Nombre del documento" type="text" value="">
-                            <p class="help-block needed">Nombre del documento</p>
-                        </div>
-                        <div>
-                            <textarea rows="4" class="form-control" id="descripcion" ></textarea>
-                            <p class="help-block needed">Justificaci&oacute;n</p>
-                        </div>
+                        <textarea rows="4" class="form-control" id="descripcion" ></textarea>
+                        <p class="help-block needed">Justificaci&oacute;n</p>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <div class="text-right">
-                        <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
-                        <button class="btn btn-primary btn-sm m-l-5" onclick="guardarDocumento();"  ><i class="fa fa-save"></i> Guardar</button>
-                    </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" onclick="guardarDocumento();"  ><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
     </div>
-@endif
+</div>
 @push('scripts')
     <script>
         $("#fileDocumento").change(function(e){
