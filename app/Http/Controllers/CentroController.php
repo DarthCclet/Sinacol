@@ -266,4 +266,31 @@ class CentroController extends Controller
             dd($e);
         }
     }
+    
+    
+    /**
+     * Aqui comienzan las funciones de notificaciones
+     */
+    public function notificaciones(){
+        $solicitudesTodas = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->get();
+        $solicitudes = [];
+        $tipo_parte = \App\TipoParte::where("nombre","ilike","CITADO")->first();
+        foreach($solicitudesTodas as $solicitud){
+            $pasa = false;
+            foreach($solicitud->expediente->audiencia as $audiencia){
+                if($audiencia->encontro_audiencia){
+                    foreach($audiencia->audienciaParte as $parte){
+                        if($parte->parte->tipo_parte_id == $tipo_parte->id && ($parte->tipo_notificacion_id == 2 || $parte->tipo_notificacion_id == 3)){ 
+                            $pasa = true;
+                        }
+                    }
+                }
+            }
+            if($pasa){
+                $solicitudes[] = $solicitud;
+            }
+        }
+//        dd($solicitudes);
+        return view('centros.centros.notificaciones',compact('solicitudes'));
+    }
 }
