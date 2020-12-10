@@ -280,8 +280,10 @@ class CentroController extends Controller
             foreach($solicitud->expediente->audiencia as $audiencia){
                 if($audiencia->encontro_audiencia){
                     foreach($audiencia->audienciaParte as $parte){
-                        if($parte->parte->tipo_parte_id == $tipo_parte->id && ($parte->tipo_notificacion_id == 2 || $parte->tipo_notificacion_id == 3)){ 
-                            $pasa = true;
+                        if($parte->parte != null){
+                            if($parte->parte->tipo_parte_id == $tipo_parte->id && ($parte->tipo_notificacion_id == 2 || $parte->tipo_notificacion_id == 3)){ 
+                                $pasa = true;
+                            }
                         }
                     }
                 }

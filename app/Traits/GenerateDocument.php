@@ -600,11 +600,13 @@ trait GenerateDocument
                         $tablaConceptos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $tablaConceptosActa = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                        $parteID= "";
                         foreach ($resoluciones_partes as $key => $resolucion_partes) {
+                          if($resolucion_partes->parte_solicitante_id != $parteID){
                           $resolucionParteId = $resolucion_partes->id;
-                          $parteId = $resolucion_partes->parte_solicitante_id;
+                          $parteID = $resolucion_partes->parte_solicitante_id;
                           //datos laborales del solicitante
-                          $datoLaborales = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
+                          $datoLaborales = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteID)->get();
                           $hayDatosLaborales = count($datoLaborales);
                           if($hayDatosLaborales>1){
                             $datoLaborales =$datoLaborales->where('resolucion',true)->first();
@@ -665,7 +667,7 @@ trait GenerateDocument
                             $tablaConceptosConvenio .= '<table class="tbl">';
                             $tablaConceptosConvenio .= '<tbody>';
                             $tablaConceptosActa .= '';
-                            $parte = Parte::find($parteId);
+                            $parte = Parte::find($parteID);
                             $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
                             $tablaConceptosActa .= ' Propuesta para '.$nombreParte;
                             $tablaConceptosActa .= '<table class="tbl">';
@@ -675,7 +677,7 @@ trait GenerateDocument
                               $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
                               if($concepto->concepto_pago_resoluciones_id != 9){
                                 $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
-                                if($parteId == $idSolicitante){ //si resolucion pertenece al solicitante
+                                if($parteID == $idSolicitante){ //si resolucion pertenece al solicitante
                                   $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
                                 }
                                 $tablaConceptosActa .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
@@ -684,7 +686,7 @@ trait GenerateDocument
                                 //$tablaConceptosEActa .= $concepto->otro.' ';
                               }
                             }
-                            $tablaConceptosConvenio .= ($parteId == $idSolicitante)?'<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>':"";
+                            $tablaConceptosConvenio .= ($parteID == $idSolicitante)?'<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>':"";
                             $tablaConceptosConvenio .= '</tbody>';
                             $tablaConceptosConvenio .= '</table>';
                             $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
@@ -697,6 +699,7 @@ trait GenerateDocument
                             
                           }
                         }
+                      }
                         // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                         $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
                         $totalPercepcion = explode('.', $totalPercepciones);
