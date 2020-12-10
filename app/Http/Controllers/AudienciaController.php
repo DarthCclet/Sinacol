@@ -1020,16 +1020,16 @@ class AudienciaController extends Controller {
                         "estatus_solicitud_id" => 3
                     ]);
                 }
-                DB::commit();
                 $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago );
-                $etapaAudiencia = EtapaResolucionAudiencia::create([
-                            "etapa_resolucion_id" => 6,
-                            "audiencia_id" => $audiencia->id,
-                            "evidencia" => true
-                ]);
-                
+                // $etapaAudiencia = EtapaResolucionAudiencia::create([
+                //     "etapa_resolucion_id" => 6,
+                //     "audiencia_id" => $audiencia->id,
+                //     "evidencia" => true
+                // ]);
+                    
             }
-            
+                
+            DB::commit();
             return $audiencia;
         } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
@@ -1149,10 +1149,8 @@ class AudienciaController extends Controller {
                             $terminacion = 3;
                             $huboConvenio = true;
                         }else if($comparecienteSol != null){
-                            $huboConvenio = false;
                             $terminacion = 4;
                         }else{
-                            $huboConvenio = false;
                             $terminacion = 1;
                         }
                     } else if ($audiencia->resolucion_id == 2) {
