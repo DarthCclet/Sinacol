@@ -365,6 +365,64 @@
         }
 
     }
+    function limpiarContactoSolicitado(){
+        $("#tipo_contacto_id_solicitado").val("");
+        $("#tipo_contacto_id_solicitado").trigger('change');
+        $("#contacto_solicitado").val("");
+    }
+    function formarTablaContacto(solicitante=false){
+        try{
+            var arrayS = [];
+            if(solicitante){
+                arrayS = arrayContactoSolicitantes;
+                $("#tbodyContactoSolicitante").html("");
+            }else{
+                arrayS = arrayContactoSolicitados;
+                $("#tbodyContactoSolicitado").html("");
+            }
+            var html = "";
+
+            $.each(arrayS, function (key, value) {
+                if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined")){
+                    html += "<tr>";
+                    $("#tipo_contacto_id_solicitante").val(value.tipo_contacto_id);
+                    html += "<td> " + $("#tipo_contacto_id_solicitante :selected").text(); + " </td>";
+                    html += "<td> " + value.contacto + " </td>";
+                    html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarContactoSol("+key+","+solicitante+")' ><i class='fa fa-trash'></i></a></td>";
+                    html += "</tr>";
+                }
+            });
+            $("#tipo_contacto_id_solicitante").val("");
+            if(solicitante){
+                $("#tbodyContactoSolicitante").html(html);
+            }else{
+                $("#tbodyContactoSolicitado").html(html);
+            }
+        }catch(error){
+            console.log(error);
+        }
+    }
+    function eliminarContactoSol(key, solicitante){
+        try{
+
+            if(solicitante){
+                if(arrayContactoSolicitantes[key].id == ""){
+                    arrayContactoSolicitantes.splice(key,1);
+                }else{
+                    arrayContactoSolicitantes[key].activo = 0;
+                }
+            }else{
+                if(arrayContactoSolicitados[key].id == ""){
+                    arrayContactoSolicitados.splice(key,1);
+                }else{
+                    arrayContactoSolicitados    [key].activo = 0;
+                }
+            }
+            formarTablaContacto(solicitante);
+        }catch(error){
+            console.log(error);
+        }
+    }
     $("input[name='tipo_persona_citado']").change(function(){
         if($("input[name='tipo_persona_citado']:checked").val() == 1){
             $(".personaFisicaCitado input").attr("required","");

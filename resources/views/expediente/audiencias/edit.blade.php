@@ -2209,6 +2209,7 @@
                         $.ajax({
                             url:"/audiencia/nuevaAudiencia",
                             type:"POST",
+                            global:true,
                             dataType:"json",
                             data:{
                                 audiencia_id:'{{ $audiencia->id }}',
