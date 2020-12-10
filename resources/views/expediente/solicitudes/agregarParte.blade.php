@@ -314,6 +314,57 @@
             });
         }
     });
+    function agregarContactoCitado(){
+        if($("#contacto_solicitado").val() != "" && $("#tipo_contacto_id_solicitado").val() != ""){
+            var contactoVal = $("#contacto_solicitado").val();
+            if($("#tipo_contacto_id_solicitado").val() == 3){
+
+                if(!validateEmail(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El correo no tiene la estructura correcta',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+            }else{
+                if(!/^[0-9]{10}$/.test(contactoVal)){
+                    swal({
+                        title: 'Error',
+                        text: 'El contacto debe tener 10 digitos de tipo numero',
+                        icon: 'error',
+
+                    });
+                    return false;
+                }
+            }
+
+            var contacto = {};
+            idContacto = $("#contacto_id_solicitado").val();
+            contacto.id = idContacto;
+            contacto.activo = 1;
+            contacto.contacto = $("#contacto_solicitado").val();
+            contacto.tipo_contacto_id = $("#tipo_contacto_id_solicitado").val();
+            if(idContacto == ""){
+                arrayContactoSolicitados.push(contacto);
+            }else{
+
+                arrayContactoSolicitados[idContacto] = contacto;
+            }
+
+            formarTablaContacto();
+            limpiarContactoSolicitado();
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Los campos Tipo de contact y Contacto son obligatorios',
+                icon: 'error',
+
+            });
+        }
+
+    }
     $("input[name='tipo_persona_citado']").change(function(){
         if($("input[name='tipo_persona_citado']:checked").val() == 1){
             $(".personaFisicaCitado input").attr("required","");
