@@ -517,7 +517,8 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'expediente', $expediente );
 
                     // $objeto = $model_name::with('conciliador')->findOrFail(1);
-                    $audiencias = $model_name::where('expediente_id',$expedienteId)->get();
+                    //$audiencias = $model_name::where('expediente_id',$expedienteId)->get();
+                    $audiencias = $model_name::where('id',$audienciaId)->get();
                     $conciliadorId = $audiencias[0]->conciliador_id;
                     $objeto = new JsonResponse($audiencias);
                     $audiencias = json_decode($objeto->content(),true);
@@ -751,11 +752,12 @@ trait GenerateDocument
                         $nombreCitadoConvenio = "";
                         //citados convenio
                         $parteC = $parteConvenio->parte;
-                        // if($key==2){
+                        if($parteC->tipo_parte_id == 1){
+                          $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitante_id',$parteC->id)->first();
+                        }else if($parteC->tipo_parte_id == 2){
+                          $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parteC->id)->first();
+                        }
 
-                        // dd($parteC);
-                        // }
-                        //$parteC = $parteConvenio->parteSolicitada;
                         if($parteC->id != $idParteCitada){
                           $idParteCitada = $parteC->id;
                           if($parteC->tipo_persona_id == 1){//fisica
@@ -779,13 +781,13 @@ trait GenerateDocument
                                   }
                                 }
                               }
-                              if($parteRepresentada->terminacion_bilateral_id ==3){
+                              if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
                                 $nombreCitadoConvenio = $parteRepresentada['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
                               }
                               //$nombreCitadoComparecientes = $parteRepresentada['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
-                              $nombreCitadoComparecientes = $nombreRepresentanteLegal. $representanteIdentificacion .', en su carácter de representante legal de '. $parteRepresentada['nombre_comercial'] . $representanteInstrumento ; 
+                              $nombreCitadoComparecientes = $nombreRepresentanteLegal .', en su carácter de representante legal de '. $parteRepresentada['nombre_comercial'] . $representanteInstrumento .", ".$representanteIdentificacion; 
                               $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteRepresentada['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
-                                          }else{
+                            }else{
                               if($parteC->tipo_parte_id == 2){
                                 foreach ($parteC->documentos as $k => $docu) {
                                   if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
@@ -815,7 +817,7 @@ trait GenerateDocument
                                 }
                               }
                             }
-                            if($parteC->terminacion_bilateral_id ==3){
+                            if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
                               $nombreCitadoConvenio = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
                             }
                             $nombreCitadoComparecientes = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal' ; //$parteIdentificacion 
