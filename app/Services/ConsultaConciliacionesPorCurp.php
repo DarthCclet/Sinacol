@@ -44,7 +44,7 @@ class ConsultaConciliacionesPorCurp
                         if(strtoupper($parteCat->nombre) == 'SOLICITANTE'){
                             $parte_actora = $this->partesTransformer($parte, 'solicitante',false);
                             $parte_demandada = $this->partesTransformer($exp->partes, 'citado',true);
-                        }else if(strtoupper($parteCat->nombre) == 'SOLICITADO'){
+                        }else if(strtoupper($parteCat->nombre) == 'CITADO'){
                             $parte_actora = $this->partesTransformer($exp->partes, 'solicitante',true);
                             $parte_demandada = $this->partesTransformer($parte, 'citado',false);
                         }
