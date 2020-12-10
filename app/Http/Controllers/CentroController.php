@@ -290,7 +290,28 @@ class CentroController extends Controller
                 $solicitudes[] = $solicitud;
             }
         }
-//        dd($solicitudes);
         return view('centros.centros.notificaciones',compact('solicitudes'));
+    }
+    public function EnviarNotificacion(){
+        $solicitud = Solicitud::find($this->request->solicitud_id);
+        if(isset($solicitud->expediente->audiencia)){
+            //Obtenemos la audiencia
+            foreach($solicitud->expediente->audiencia as $audiencia){
+                $notificar = false;
+                foreach($audiencia->audienciaParte as $parte){
+                    if($parte->parte && $parte->parte->tipo_parte_id != 1){
+                        if($parte->tipo_notificacion_id != 1 && $parte->tipo_notificacion_id != null){
+                            $notificar = true;
+                        }
+                    }
+                }
+//                dd($notificar);
+                if($notificar){
+                    event(new RatificacionRealizada($audiencia->id, "citatorio"));
+                }
+            }
+        }
+        $solicitud = Solicitud::find($this->request->solicitud_id);
+        return $solicitud;
     }
 }

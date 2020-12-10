@@ -136,26 +136,41 @@ class SendNotificacion
             if($baseURL != null){
                 $response = $client->request('POST',$baseURL ,[
                     'headers' => ['foo' => 'bar'],
-                'verify' => false,
+                    'verify' => false,
                     // array de datos del formulario
                     'body' => json_encode($arreglo),
         //            'http_errors' => false
                 ]);
+//                dd($response);
+//                if ($response->getBody()) {
+                    // JSON string: { ... }
+//                }
             }
     //        Cambiamos el estatus de notificación
             $solicitud = $audiencia->expediente->solicitud;
             $solicitud->update(["fecha_peticion_notificacion" => now()]);
             DB::commit();
-        }catch (\Throwable $e) {
-            DB::rollBack();
-            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
-                       " Se emitió el siguiente mensale: ". $e->getMessage().
-                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+//        }catch (\Throwable $e) {
+//            DB::rollBack();
+//            Log::error('En scriptt:'.$e->getFile()." En línea: ".$e->getLine().
+//                       " Se emitió el siguiente mensale: ". $e->getMessage().
+//                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
         }catch (\GuzzleHttp\Exception\ClientException $e) {
-            DB::rollBack();
-            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
-                       " Se emitió el siguiente mensale: ". $e->getMessage().
-                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            $response = $e->getResponse();
+            $respuesta = $response->getBody()->getContents();
+            if($respuesta == '{"error":"La notificaci\u00f3n ya existe en el sistema ","detalle":"Se ha actualizado la informaci\u00f3n del expediente."}'){
+                $solicitud = $audiencia->expediente->solicitud;
+                $solicitud->update(["fecha_peticion_notificacion" => now()]);
+                DB::commit();
+                Log::warning('En scripts:'.$e->getFile()." En línea: ".$e->getLine().
+                           " Se emitió el siguiente mensale: ". $respuesta.
+                           " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            }else{
+                DB::rollBack();
+                Log::error('En scripts:'.$e->getFile()." En línea: ".$e->getLine().
+                           " Se emitió el siguiente mensale: ". $respuesta.
+                           " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            }
         }
 
     }
