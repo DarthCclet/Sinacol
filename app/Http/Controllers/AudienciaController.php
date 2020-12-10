@@ -48,7 +48,11 @@ use App\Services\FechaAudienciaService;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\FechaNotificacion;
 use App\Events\RatificacionRealizada;
+use App\Genero;
+use App\LenguaIndigena;
 use App\Mail\CambioFecha;
+use App\TipoAsentamiento;
+use App\TipoVialidad;
 use Illuminate\Support\Facades\Mail;
 
 class AudienciaController extends Controller {
