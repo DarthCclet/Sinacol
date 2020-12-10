@@ -1577,7 +1577,10 @@ class AudienciaController extends Controller {
         $estados = Estado::all();
         $tipos_vialidades = $this->cacheModel('tipos_vialidades', TipoVialidad::class);
         $tipos_asentamientos = $this->cacheModel('tipos_asentamientos', TipoAsentamiento::class);
-        return view('expediente.audiencias.etapa_resolucion', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id','conciliador','estados','tipos_vialidades','tipos_asentamientos'));
+        $lengua_indigena = $this->cacheModel('lengua_indigena',LenguaIndigena::class);
+        $generos = $this->cacheModel('generos',Genero::class);
+        $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
+        return view('expediente.audiencias.etapa_resolucion', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id','conciliador','estados','tipos_vialidades','tipos_asentamientos','lengua_indigena','generos','tipo_contacto'));
     }
 
     public function resolucionColectiva($id) {
