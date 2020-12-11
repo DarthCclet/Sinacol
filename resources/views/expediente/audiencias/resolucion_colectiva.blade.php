@@ -120,6 +120,21 @@
         </div>
         <input type="hidden"  name='audiencia_id' value='{{(isset($audiencia->id))? $audiencia->id:''}}' />
         <input type="hidden" name='solicitud_id' value='{{(isset($solicitud->id))? $solicitud->id:''}}' />
+        @if(env('INSTACIA') && env('INSTACIA') == 'federal')
+        <div class="col-md-12 row" style="margin-top: 2%">
+            <div class="col-md-3"></div>
+            <div class="col-md-6" style="border:1px solid red">
+                <h1 style="text-align: center">
+                    Advertencia
+                </h1>
+                <hr>
+                <p style="font-size: medium;">
+                    Recuerde que NUNCA debe subir escaneado o copiar y pegar en el espacio abierto un acta o un convenio elaborado por usuarios externos, todo acta o convenio debe ser elaborado en los formatos autorizados del CFCRL
+                </p>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+        @endif
         <div class="row" style="margin-top: 1%;" id="divEditorAudiencia">
             <div class="col-md-1"></div>
             <div class="col-md-10">
@@ -172,6 +187,21 @@
                 <label for="file_upload">Carga de documento</label>
             </div>
         </div>
+        @if(env('INSTACIA') && env('INSTACIA') == 'federal')
+        <div class="col-md-12 row" style="margin-top: 2%">
+            <div class="col-md-3"></div>
+            <div class="col-md-6" style="border:1px solid red">
+                <h1 style="text-align: center">
+                    Advertencia
+                </h1>
+                <hr>
+                <p style="font-size: medium;">
+                    Recuerde que NUNCA debe subir escaneado o copiar y pegar en el espacio abierto un acta o un convenio elaborado por usuarios externos, todo acta o convenio debe ser elaborado en los formatos autorizados del CFCRL
+                </p>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+        @endif
         <div class="row" style="margin-top: 1%;" id="divConvenio">
             <div class="col-md-1"></div>
             <div class="col-md-10">
