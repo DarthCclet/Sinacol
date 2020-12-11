@@ -338,6 +338,12 @@ class SolicitudController extends Controller {
         $domiciliop ="";
         try {
             // Solicitud
+            $userAuth = Auth::user();
+            if($userAuth){
+                $user_id = Auth::user()->id;
+            }else{
+                $user_id = User::first()->id;
+            }
             $solicitud['user_id'] = User::first()->id;
             $solicitud['estatus_solicitud_id'] = 1;
             if(!isset($solicitud['tipo_solicitud_id'])){
@@ -1018,7 +1024,8 @@ class SolicitudController extends Controller {
                     $parte->update();
                 }
             }
-            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
+            $user_id = Auth::user()->id;
+            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
 
             // Obtenemos la sala virtual
             $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
@@ -1116,7 +1123,8 @@ class SolicitudController extends Controller {
             }
             $tipo_notificacion_id = null;
             if($request->inmediata == "true"){
-                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => true]);
+                $user_id = Auth::user()->id;
+                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => true,'user_id'=>$user_id]);
                 // Obtenemos la sala virtual
                 $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
                 if($sala == null){
@@ -1217,7 +1225,8 @@ class SolicitudController extends Controller {
                         break;
                     }
                 }
-                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
+                $user_id = Auth::user()->id;
+                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
                 $centroResponsable = auth()->user()->centro;
                 if($solicitud->tipo_solicitud_id == 3 || $solicitud->tipo_solicitud_id == 4){
                     $centroResponsable = Centro::where("nombre","Oficina Central del CFCRL")->first();

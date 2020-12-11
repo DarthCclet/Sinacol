@@ -1140,10 +1140,14 @@ class AudienciaController extends Controller {
                         }
                         // Si no es compareciente se genera multa
                         if ($compareciente == null) {
-                            if(array_search($solicitado->parte_id,$arrayMultado) === false){
-                                // Se genera archivo de acta de multa
-                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
-                                array_push($arrayMultado,$solicitado->parte_id);
+                            $multable = false;
+                            $audienciaParte = AudienciaParte::where('audiencia_id',$audiencia->id)->where('parte_id',$solicitado->parte_id)->first();
+                            if( $audienciaParte && $audienciaParte->finalizado ==  "FINALIZADO EXITOSAMENTE"){
+                                if(array_search($solicitado->parte_id,$arrayMultado) === false){
+                                    // Se genera archivo de acta de multa
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
+                                    array_push($arrayMultado,$solicitado->parte_id);
+                                }
                             }
                             // Se genera multa
 
@@ -1879,11 +1883,14 @@ class AudienciaController extends Controller {
                                 ]);
                                 //Se genera constancia de no conciliacion
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
-
+                                $multable = false;
+                                $audienciaParte = AudienciaParte::where('audiencia_id',$audiencia->id)->where('parte_id',$solicitado->parte_id)->first();
+                                if( $audienciaParte && $audienciaParte->finalizado ==  "FINALIZADO EXITOSAMENTE"){
                                     if(array_search($solicitado->parte_id,$arrayMultado) === false && $audiencia->expediente->solicitud->tipo_solicitud_id == 1){
-                                    // Se genera archivo de acta de multa
-                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
-                                    array_push($arrayMultado,$solicitado->parte_id);
+                                        // Se genera archivo de acta de multa
+                                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
+                                        array_push($arrayMultado,$solicitado->parte_id);
+                                    }
                                 }
                             }
                         }
