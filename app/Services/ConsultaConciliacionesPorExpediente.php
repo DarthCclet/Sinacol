@@ -108,23 +108,70 @@ class ConsultaConciliacionesPorExpediente
                 ];
             }
         }else{
-            $contents = base64_encode(Storage::get('Prueba.pdf'));
-            $info = pathinfo('Prueba.pdf');
-            $size = Storage::size('Prueba.pdf');
-            return [
-                'data' => $res,
-                'documento' => [
-                    'documento_id' => 1553,
-                    'nombre' => $info["basename"],
-                    'extension' => $info["extension"],
-                    'filebase64'=> $contents,
-                    'longitud' => $size,
-                    'firmado' => 0,
-                    'pkcs7base64' => "",
-                    'fecha_firmado' => '',
-                    'clasificacion_archivo' => 1
-                ]
-            ];
+            if($resolucion_id == 3){
+                $clasificacion_archivo = "Constancia de no conciliación";
+            }else{
+                $clasificacion_archivo = "Convenio";
+            }
+            $clasificacion = ClasificacionArchivo::where("nombre",$clasificacion_archivo)->first();
+            $documento=$audiencia->documentos()->where('clasificacion_archivo_id',$clasificacion->id)->first();
+            if($documento != null){
+                if(Storage::disk('local')->exists($documento->ruta)){
+                    $contents = base64_encode(Storage::get($documento->ruta));
+                    $info = pathinfo($documento->ruta);
+                    $size = Storage::size($documento->ruta);
+                    return [
+                        'data' => $res,
+                        'documento' => [
+                            'documento_id' => $documento->id,
+                            'nombre' => $info["basename"],
+                            'extension' => $info["extension"],
+                            'filebase64'=> $contents,
+                            'longitud' => $size,
+                            'firmado' => 0,
+                            'pkcs7base64' => "",
+                            'fecha_firmado' => '',
+                            'clasificacion_archivo' => 1
+                        ]
+                    ];
+                }else{
+                    $contents = base64_encode(Storage::get('Prueba.pdf'));
+                    $info = pathinfo('Prueba.pdf');
+                    $size = Storage::size('Prueba.pdf');
+                    return [
+                        'data' => $res,
+                        'documento' => [
+                            'documento_id' => 1553,
+                            'nombre' => $info["basename"],
+                            'extension' => $info["extension"],
+                            'filebase64'=> $contents,
+                            'longitud' => $size,
+                            'firmado' => 0,
+                            'pkcs7base64' => "",
+                            'fecha_firmado' => '',
+                            'clasificacion_archivo' => 1
+                        ]
+                    ];
+                }
+            }else{
+                $contents = base64_encode(Storage::get('Prueba.pdf'));
+                $info = pathinfo('Prueba.pdf');
+                $size = Storage::size('Prueba.pdf');
+                return [
+                    'data' => $res,
+                    'documento' => [
+                        'documento_id' => 1553,
+                        'nombre' => $info["basename"],
+                        'extension' => $info["extension"],
+                        'filebase64'=> $contents,
+                        'longitud' => $size,
+                        'firmado' => 0,
+                        'pkcs7base64' => "",
+                        'fecha_firmado' => '',
+                        'clasificacion_archivo' => 1
+                    ]
+                ];
+            }
         }
     }
 

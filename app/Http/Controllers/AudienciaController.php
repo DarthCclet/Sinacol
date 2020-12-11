@@ -2201,7 +2201,7 @@ class AudienciaController extends Controller {
                         ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $value["conciliador"], "solicitante" => $value["resolucion"]]);
                         SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $value["sala"], "solicitante" => $value["resolucion"]]);
                     }
-                    $audiencia->update(["conciliador_id" => $id_conciliador]);
+                    $audiencia->update(["conciliador_id" => $id_conciliador,"reprogramada" => true]);
                 }
             }
             // generar citatorio de conciliacion
