@@ -287,6 +287,7 @@ class CentroController extends Controller
                                 $pasa = true;
                                 $tipo_notificacion_id = $parte->tipo_notificacion_id;
                                 $reprogramada = $audiencia->reprogramada;
+                                $etapa_notificacion_id = $audiencia->etapa_notificacion_id;
                             }
                         }
                     }
@@ -296,6 +297,11 @@ class CentroController extends Controller
                 $tipo_notificacion = TipoNotificacion::find($tipo_notificacion_id);
                 $solicitud["tipo_notificacion"] = $tipo_notificacion->nombre;
                 $solicitud["reprogramada"] = $reprogramada;
+                if($etapa_notificacion_id != null){
+                    $solicitud["etapa_notificacion"] = \App\EtapaNotificacion::find($etapa_notificacion_id)->etapa;
+                }else{
+                    $solicitud["etapa_notificacion"] = "Desconocido";
+                }
                 $solicitudes[] = $solicitud;
             }
         }

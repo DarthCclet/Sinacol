@@ -1244,6 +1244,9 @@ class SolicitudController extends Controller {
                     $fechaC = explode("/", $request->fecha_cita);
                     $fecha_cita = $fechaC["2"]."-".$fechaC["1"]."-".$fechaC["0"];
                 }
+                //Agregamos el la etapa de notificación
+                $etapa = \App\EtapaNotificacion::where("etapa","ilike","%Ratificación%")->first();
+                
                 $audiencia = Audiencia::create([
                     "expediente_id" => $expediente->id,
                     "multiple" => $multiple,
@@ -1257,9 +1260,9 @@ class SolicitudController extends Controller {
                     "anio" => $folioAudiencia->anio,
                     "folio" => $folioAudiencia->contador,
                     "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
-                    "fecha_cita" => $fecha_cita
+                    "fecha_cita" => $fecha_cita,
+                    "etapa_notificacion_id" => $etapa->id,
                 ]);
-//                dd($audiencia);
                 if($datos_audiencia["encontro_audiencia"]){
                     // guardamos la sala y el consiliador a la audiencia
                     ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $datos_audiencia["conciliador_id"],"solicitante" => true]);
