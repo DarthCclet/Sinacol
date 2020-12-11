@@ -31,9 +31,10 @@
                         <th>Solicitud</th>
                         <th>Expediente</th>
                         <th>Partes a notificar</th>
-                        <th>Fecha de ratificación</th>
                         <th>Envio de petición</th>
                         <th>Fecha de petición</th>
+                        <th>Tipo de notificación</th>
+                        <th>Audiencia</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -53,13 +54,18 @@
                                 @endif
                             @endforeach
                         </td>
-                        <td>{{\Carbon\Carbon::parse($solicitud->fecha_ratificacion)->format('d/m/Y H:i')}}</td>
                         @if($solicitud->fecha_peticion_notificacion != null)
                             <td>Enviada</td>
                         @else
                             <td>Pendiente</td>
                         @endif
                         <td>{{$solicitud->fecha_peticion_notificacion ?? 'No enviada'}}</td>
+                        <td>{{$solicitud->tipo_notificacion}}</td>
+                        @if(!$solicitud->reprogramada)
+                        <td>Ratificación</td>
+                        @else
+                        <td>reprogramada</td>
+                        @endif
                         <td>
                         @if($solicitud->fecha_peticion_notificacion == null)
                             <button onclick="enviar_notificacion({{$solicitud->id}})" class="btn btn-xs btn-primary incidencia" title="Enviar notificación">
