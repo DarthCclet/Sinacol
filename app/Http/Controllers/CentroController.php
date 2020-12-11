@@ -15,6 +15,7 @@ use App\Audiencia;
 use App\CentroMunicipio;
 use App\Domicilio;
 use App\Solicitud;
+use App\TipoNotificacion;
 use App\Events\RatificacionRealizada;
 use Illuminate\Support\Facades\Cache;
 
@@ -277,18 +278,30 @@ class CentroController extends Controller
         $tipo_parte = \App\TipoParte::where("nombre","ilike","CITADO")->first();
         foreach($solicitudesTodas as $solicitud){
             $pasa = false;
+            $tipo_notificacion_id = null;
             foreach($solicitud->expediente->audiencia as $audiencia){
                 if($audiencia->encontro_audiencia){
                     foreach($audiencia->audienciaParte as $parte){
                         if($parte->parte != null){
                             if($parte->parte->tipo_parte_id == $tipo_parte->id && ($parte->tipo_notificacion_id == 2 || $parte->tipo_notificacion_id == 3)){ 
                                 $pasa = true;
+                                $tipo_notificacion_id = $parte->tipo_notificacion_id;
+                                $reprogramada = $audiencia->reprogramada;
+                                $etapa_notificacion_id = $audiencia->etapa_notificacion_id;
                             }
                         }
                     }
                 }
             }
             if($pasa){
+                $tipo_notificacion = TipoNotificacion::find($tipo_notificacion_id);
+                $solicitud["tipo_notificacion"] = $tipo_notificacion->nombre;
+                $solicitud["reprogramada"] = $reprogramada;
+                if($etapa_notificacion_id != null){
+                    $solicitud["etapa_notificacion"] = \App\EtapaNotificacion::find($etapa_notificacion_id)->etapa;
+                }else{
+                    $solicitud["etapa_notificacion"] = "Desconocido";
+                }
                 $solicitudes[] = $solicitud;
             }
         }

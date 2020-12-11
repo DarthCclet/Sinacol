@@ -1887,6 +1887,8 @@ class AudienciaController extends Controller {
                                 }
                             }
                         }
+                        $etapa = \App\EtapaNotificacion::where("etapa","ilike","Multa")->first();
+                        $audiencia->update(["etapa_notificacion_id" => $etapa->id]);
                         $citatorio = false;
                         $notificar = true;
                         $audiencia_notificar_id = $audiencia->id;
@@ -1912,6 +1914,7 @@ class AudienciaController extends Controller {
                         //Obtenemos el contador
                         $ContadorController = new ContadorController();
                         $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+                        $etapa = \App\EtapaNotificacion::where("etapa","ilike","No comparecio el citado")->first();
                         //creamos el registro de la audiencia
                         $audienciaN = Audiencia::create([
                             "expediente_id" => $audiencia->expediente_id,
@@ -1924,7 +1927,8 @@ class AudienciaController extends Controller {
                             "reprogramada" => false,
                             "anio" => $folioAudiencia->anio,
                             "folio" => $folioAudiencia->contador,
-                            "encontro_audiencia" => $datos_audiencia["encontro_audiencia"]
+                            "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
+                            "etapa_notificacion_id" => $etapa->id
                         ]);
                         if($datos_audiencia["encontro_audiencia"]){
                             // guardamos la sala y el consiliador a la audiencia
@@ -2201,7 +2205,9 @@ class AudienciaController extends Controller {
                         ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $value["conciliador"], "solicitante" => $value["resolucion"]]);
                         SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $value["sala"], "solicitante" => $value["resolucion"]]);
                     }
-                    $audiencia->update(["conciliador_id" => $id_conciliador]);
+                    //Agregamos el la etapa de notificación
+                    $etapa = \App\EtapaNotificacion::where("etapa","ilike","Cambio de Fecha")->first();
+                    $audiencia->update(["conciliador_id" => $id_conciliador,"reprogramada" => true,"etapa_notificacion_id" => $etapa->id]);
                 }
             }
             // generar citatorio de conciliacion
