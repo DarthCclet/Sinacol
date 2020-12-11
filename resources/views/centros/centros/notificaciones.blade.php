@@ -61,11 +61,7 @@
                         @endif
                         <td>{{$solicitud->fecha_peticion_notificacion ?? 'No enviada'}}</td>
                         <td>{{$solicitud->tipo_notificacion}}</td>
-                        @if(!$solicitud->reprogramada)
-                        <td>Ratificación</td>
-                        @else
-                        <td>reprogramada</td>
-                        @endif
+                        <td>{{$solicitud->etapa_notificacion}}</td>
                         <td>
                         @if($solicitud->fecha_peticion_notificacion == null)
                             <button onclick="enviar_notificacion({{$solicitud->id}})" class="btn btn-xs btn-primary incidencia" title="Enviar notificación">
