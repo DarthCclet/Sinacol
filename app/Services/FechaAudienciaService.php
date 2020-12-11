@@ -41,12 +41,13 @@ class FechaAudienciaService{
                         if($d->weekday() == $disponibilidad->dia){
                             $hora_inicio_sala = $disponibilidad->hora_inicio;
                             $hora_fin_sala = $disponibilidad->hora_fin;
-
+//                            $diaHabilCentro["dia"] = "2020-12-03";
     //                        Obtenemos las audiencias que pertenecen a la sala en la fecha
                             $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
                                 ->select('audiencias.*')
                                 ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
                                 ->where("salas_audiencias.sala_id",$sala->id)
+                                ->orderBy('audiencias.hora_fin', 'asc')
                                 ->get();
 
                             if(count($audiencias) > 0){
@@ -81,6 +82,7 @@ class FechaAudienciaService{
                                 ->select('audiencias.*')
                                 ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
                                 ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                ->orderBy('audiencias.hora_fin', 'asc')
                                 ->get();
                             if(count($audiencias) > 0){
                                 $choca_audiencia = false;
@@ -154,6 +156,7 @@ class FechaAudienciaService{
                                 ->select('audiencias.*')
                                 ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
                                 ->where("salas_audiencias.sala_id",$sala->id)
+                                ->orderBy('audiencias.hora_fin', 'asc')
                                 ->get();                        
 
                             if(count($audiencias) > 0){
@@ -201,6 +204,7 @@ class FechaAudienciaService{
                                 ->select('audiencias.*')
                                 ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
                                 ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                ->orderBy('audiencias.hora_fin', 'asc')
                                 ->get();
                             if(count($audiencias) > 0){
                                 $choca_audiencia = false;
