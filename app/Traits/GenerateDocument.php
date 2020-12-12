@@ -350,7 +350,7 @@ trait GenerateDocument
                     }
                     $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
                     $obj['prescripcion'] = $this->calcularPrescripcion($solicitud->objeto_solicitudes, $solicitud->fecha_conflicto,$solicitud->fecha_ratificacion);
-                    $obj['fecha_maxima_ratificacion'] = $this->calcularFechaMaximaRatificacion($solicitud->fecha_recepcion,15);
+                    $obj['fecha_maxima_ratificacion'] = $this->calcularFechaMaximaRatificacion($solicitud->fecha_recepcion,$centroId);
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
                     if($idSolicitante != "" && $idSolicitado != ""){
@@ -923,7 +923,9 @@ trait GenerateDocument
       try {
         $ndia=0;
         $diasDisponibilidad = [];
-        $disponibilidad_centro = Disponibilidad::select('dia')->where('disponibilidad_type','App\\Centro')->where('disponibilidad_id',$centroId)->get();
+        $centro = Centro::find($centroId);
+        $disponibilidad_centro = $centro->disponibilidades;
+        $incidencias_centro = $centro->incidencias;
         foreach ($disponibilidad_centro as $disponibilidad) { //dias de disponibilidad del centro
           array_push($diasDisponibilidad,$disponibilidad->dia);
         }
@@ -933,8 +935,11 @@ trait GenerateDocument
             $fechaRecepcion = $fechaRecepcion->addDay();//sumar dia a fecha recepcion
             $dayOfTheWeek = $fechaRecepcion->dayOfWeek; //dia de la semana de la fecha de recepcion
           }
-          $k = array_search($dayOfTheWeek, $diasDisponibilidad);
-          if (false !== $k) { //si dia agregado es dia disponble en centro
+          $diaHabil = array_search($dayOfTheWeek, $diasDisponibilidad);
+          foreach ($incidencias_centro as $incidencia) {         
+            $diaConIncidencia = $fechaRecepcion->between($incidencia->fecha_inicio,$incidencia->fecha_fin);
+          }
+          if (false !== $diaHabil && !$diaConIncidencia) { //si dia agregado es dia disponble en centro y no tiene incidencia
             $ndia+=1;
           }
         }
