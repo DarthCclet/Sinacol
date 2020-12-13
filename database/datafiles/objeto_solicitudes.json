@@ -99,8 +99,6 @@
             "id": "20",
             "nombre": "Comisiones mixtas seguridad e higiene, etc. (153-E,509)",
             "tipo_objeto_solicitudes_id": "3"
-<<<<<<< Updated upstream
-=======
         },
         {
             "id": "21",
@@ -116,7 +114,6 @@
             "id": "23",
             "nombre": "Terminación voluntaria de la relación de trabajo",
             "tipo_objeto_solicitudes_id": "1"
->>>>>>> Stashed changes
         }
     ],
     "numReg": 20
