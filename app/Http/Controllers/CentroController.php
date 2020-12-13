@@ -282,6 +282,7 @@ class CentroController extends Controller
             $tipo_notificacion_id = null;
             foreach($solicitud->expediente->audiencia as $audiencia){
                 if($audiencia->encontro_audiencia){
+                    $notificada = true;
                     foreach($audiencia->audienciaParte as $parte){
                         if($parte->parte != null){
                             if($parte->parte->tipo_parte_id == $tipo_parte->id && ($parte->tipo_notificacion_id == 2 || $parte->tipo_notificacion_id == 3)){ 
@@ -290,6 +291,9 @@ class CentroController extends Controller
                                 $reprogramada = $audiencia->reprogramada;
                                 $etapa_notificacion = $audiencia->etapa_notificacion->etapa;
                                 $audienciaFolio = $audiencia->folio."/".$audiencia->anio;
+                                if($parte->fecha_notificacion == null){
+                                    $notificada = false;
+                                }
                             }
                         }
                     }
@@ -299,11 +303,8 @@ class CentroController extends Controller
                 $solicitud["tipo_notificacion"] = $tipo_notificacion;
                 $solicitud["reprogramada"] = $reprogramada;
                 $solicitud["audiencia"] = $audienciaFolio;
-//                if($etapa_notificacion_id != null){
-                    $solicitud["etapa_notificacion"] = $etapa_notificacion;
-//                }else{
-//                    $solicitud["etapa_notificacion"] = "N/A";
-//                }
+                $solicitud["etapa_notificacion"] = $etapa_notificacion;
+                $solicitud["notificada"] = $notificada;
                 $solicitudes[] = $solicitud;
             }
         }
