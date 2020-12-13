@@ -14,7 +14,7 @@
     }
 </style>
 
-<input type="hidden" id="instancia" value="{{ env('INSTACIA') ? env('INSTACIA') : 'federal'}}">
+<input type="hidden" id="instancia" value="{{ env('INSTANCIA','federal')}}">
 <input type="hidden" id="ruta" value="{!! route("solicitudes.edit",1) !!}">
 <input type="hidden" id="rutaConsulta" value="{!! route("solicitudes.consulta",'-rutaConsulta') !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">

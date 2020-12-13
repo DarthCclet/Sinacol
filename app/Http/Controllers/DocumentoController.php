@@ -415,5 +415,19 @@ class DocumentoController extends Controller
             return response()->json(['success' => false, 'message' => 'No se pudo guardar el documento', 'data' => null], 200);
         }
     }
+
+    public function generar_documento(){
+        
+        try{
+            
+            $clasificacion_archivos = array_pluck(ClasificacionArchivo::whereIn('id',[13,14,15,16,17,18,40])->get(),'nombre','id');
+            return view('herramientas.regenerar_documentos', compact('clasificacion_archivos'));
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+                       return view('herramientas.regenerar_documentos');
+        }
+    }
     
 }
