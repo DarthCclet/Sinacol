@@ -14,9 +14,9 @@ class AddSolicitanteToResolucionParteConceptosTable extends Migration
     public function up()
     {
         Schema::table('resolucion_parte_conceptos', function (Blueprint $table) {
-            $table->unsignedBigInteger('parte_id')->nullable()->comment('Llave foránea que relaciona con parte solicitante');
+            $table->unsignedBigInteger('audiencia_parte_id')->nullable()->comment('Llave foránea que relaciona con audiencia parte solicitante');
             $table->unsignedBigInteger('resolucion_partes_id')->nullable()->comment('Indica la resolucion parte de audiencia')->change();
-            $table->foreign('parte_id')->references('id')->on('partes');
+            $table->foreign('audiencia_parte_id')->references('id')->on('audiencias_partes');
         });
     }
 
@@ -28,8 +28,8 @@ class AddSolicitanteToResolucionParteConceptosTable extends Migration
     public function down()
     {
         Schema::table('resolucion_parte_conceptos', function (Blueprint $table) {
-            $table->dropForeign(['parte_id']);
-            $table->dropColumn("parte_id");
+            $table->dropForeign(['audiencia_parte_id']);
+            $table->dropColumn("audiencia_parte_id");
         });
     }
 }
