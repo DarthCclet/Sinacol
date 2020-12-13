@@ -129,4 +129,7 @@ class Audiencia extends Model implements Auditable
     public function pagosDiferidos(){
         return $this->hasMany(ResolucionPagoDiferido::class)->orderBy('fecha_pago');
     }
+    public function etapa_notificacion(){
+        return $this->belongsTo(EtapaNotificacion::class)->withDefault(["etapa" => "N/A"]);
+    }
 }
