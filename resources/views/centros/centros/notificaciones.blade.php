@@ -33,6 +33,7 @@
                         <th>Tipo de notificación</th>
                         <th>Evento origén</th>
                         <th>Fecha de petición</th>
+                        <th>Notificada</th>
                         <th>Envio de petición</th>
                     </tr>
                 </thead>
@@ -62,6 +63,11 @@
                         <td>{{$solicitud->tipo_notificacion}}</td>
                         <td>{{$solicitud->etapa_notificacion}}</td>
                         <td>{{$solicitud->fecha_peticion_notificacion ?? 'No enviada'}}</td>
+                        @if($solicitud->notificada)
+                            <td>Si</td>
+                        @else
+                            <td>No</td>
+                        @endif
                         @if($solicitud->fecha_peticion_notificacion != null)
                             <td>Enviada
                             <button onclick="enviar_notificacion({{$solicitud->id}})" class="btn btn-xs btn-primary incidencia" title="Reenviar notificación">
