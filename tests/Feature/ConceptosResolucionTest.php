@@ -271,7 +271,8 @@ class ConceptosResolucionTest extends TestCase
                     $descConcepto = "";
                 }
                 $resolucion_parte_concepto=factory(ResolucionParteConcepto::class)->create([
-                    "resolucion_partes_id" => $resolucion_partes->id,
+                    "resolucion_partes_id" => null,
+                    "audiencia_parte_id" => $audiencia_parte_solicitante->id,
                     "concepto_pago_resoluciones_id" => $concepto->id,
                     "dias" => $numero_dias,
                     "monto" => $monto,

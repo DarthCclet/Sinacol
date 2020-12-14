@@ -10,8 +10,9 @@ $factory->define(ResolucionParteConcepto::class, function (Faker $faker) {
     $concepto_pago_resoluciones = ConceptoPagoResolucion::inRandomOrder()->first();
     $numero_dias = $faker->randomNumber(2);
     return [
-        "resolucion_partes_id" => function () {
-            return factory(App\ResolucionPartes::class)->create()->id;
+        "resolucion_partes_id" => null,
+        "audiencia_parte_id" => function () {
+            return factory(App\AudienciaParte::class)->create()->id;
         },
         "concepto_pago_resoluciones_id"=> $concepto_pago_resoluciones->id,
         "dias"=>$numero_dias,

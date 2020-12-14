@@ -318,7 +318,7 @@ class Parte extends Model implements Auditable
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function compareciente(){
-      return $this->hasMany(Compareciente::class)->withDefault();
+      return $this->hasMany(Compareciente::class);
     }
     /**
      * Relación con audienciaParte
