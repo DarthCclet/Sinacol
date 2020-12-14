@@ -552,6 +552,44 @@ class SolicitudController extends Controller {
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @param  Solicitud  $solicitud
+     * @return \Illuminate\Http\Response
+     */
+    public function getSolicitudByFolio(Request $request) {
+        $solicitud = Solicitud::where('folio',$request->folio)->where('anio',$request->anio)->first();;
+
+        $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
+
+        $solicitantes = $partes->where('tipo_parte_id', 1);
+
+        foreach ($solicitantes as $key => $value) {
+            $value->dato_laboral;
+            $value->domicilios;
+            $value->contactos;
+            $value->lenguaIndigena;
+            $solicitantes[$key]["activo"] = 1;
+        }
+        $solicitados = $partes->where('tipo_parte_id', 2);
+        foreach ($solicitados as $key => $value) {
+            $value->domicilios;
+            $value->contactos;
+            $solicitados[$key]["activo"] = 1;
+        }
+        $solicitud->objeto_solicitudes;
+        $solicitud["solicitados"] = $solicitados;
+        $solicitud["solicitantes"] = $solicitantes;
+        $solicitud->expediente = $solicitud->expediente;
+        $solicitud->giroComercial = $solicitud->giroComercial;
+        $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
+        $solicitud->centro = $solicitud->centro;
+        if($solicitud->giroComercial){
+            $solicitud->giroComercial->ambito;
+        }
+        return $solicitud;
+    }
+    /**
      * Show the form for editing the specified resource.
      *
      * @param  Solicitud  $solicitud
@@ -623,7 +661,6 @@ class SolicitudController extends Controller {
             
             //Consulta de solicitud con relaciones
             $solicitud = Solicitud::find($id);
-            $parte = Parte::all()->where('solicitud_id', $solicitud->id);
 
             $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
 
