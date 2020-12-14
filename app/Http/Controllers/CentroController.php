@@ -273,7 +273,8 @@ class CentroController extends Controller
      * Aqui comienzan las funciones de notificaciones
      */
     public function notificaciones(){
-        $solicitudesTodas = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->get();
+        $solicitudesTodas = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->with(['partes','expediente','expediente.audiencia','expediente.audiencia.audienciaParte','expediente.audiencia.etapa_notificacion','expediente.audiencia.audienciaParte.parte','expediente.audiencia.audienciaParte.tipo_notificacion'])->get();
+//        dd($solicitudesTodas);
         $solicitudes = [];
         $tipo_parte = \App\TipoParte::where("nombre","ilike","CITADO")->first();
         foreach($solicitudesTodas as $solicitud){
@@ -281,27 +282,29 @@ class CentroController extends Controller
             $tipo_notificacion_id = null;
             foreach($solicitud->expediente->audiencia as $audiencia){
                 if($audiencia->encontro_audiencia){
+                    $notificada = true;
                     foreach($audiencia->audienciaParte as $parte){
                         if($parte->parte != null){
                             if($parte->parte->tipo_parte_id == $tipo_parte->id && ($parte->tipo_notificacion_id == 2 || $parte->tipo_notificacion_id == 3)){ 
                                 $pasa = true;
-                                $tipo_notificacion_id = $parte->tipo_notificacion_id;
+                                $tipo_notificacion = $parte->tipo_notificacion->nombre;
                                 $reprogramada = $audiencia->reprogramada;
-                                $etapa_notificacion_id = $audiencia->etapa_notificacion_id;
+                                $etapa_notificacion = $audiencia->etapa_notificacion->etapa;
+                                $audienciaFolio = $audiencia->folio."/".$audiencia->anio;
+                                if($parte->fecha_notificacion == null){
+                                    $notificada = false;
+                                }
                             }
                         }
                     }
                 }
             }
             if($pasa){
-                $tipo_notificacion = TipoNotificacion::find($tipo_notificacion_id);
-                $solicitud["tipo_notificacion"] = $tipo_notificacion->nombre;
+                $solicitud["tipo_notificacion"] = $tipo_notificacion;
                 $solicitud["reprogramada"] = $reprogramada;
-                if($etapa_notificacion_id != null){
-                    $solicitud["etapa_notificacion"] = \App\EtapaNotificacion::find($etapa_notificacion_id)->etapa;
-                }else{
-                    $solicitud["etapa_notificacion"] = "Desconocido";
-                }
+                $solicitud["audiencia"] = $audienciaFolio;
+                $solicitud["etapa_notificacion"] = $etapa_notificacion;
+                $solicitud["notificada"] = $notificada;
                 $solicitudes[] = $solicitud;
             }
         }
