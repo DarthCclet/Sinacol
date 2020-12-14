@@ -14,8 +14,7 @@ class DeleteDuplicatedToResolucionParteConceptosTable extends Migration
      */
     public function up()
     {
-        unlink('/vagrant/deleted.txt');
-        $deletedFile = fopen("/vagrant/deleted.txt", 'w');
+        $deletedFile = fopen(__DIR__."/../datafiles/deleted.txt", 'w');
         $arrayRPC = collect();
         $toDelete = collect();
         $resolucionesParteConceptos = ResolucionParteConcepto::all();
@@ -42,7 +41,7 @@ class DeleteDuplicatedToResolucionParteConceptosTable extends Migration
      */
     public function down()
     {
-        $deletes = file_get_contents('/vagrant/deleted.txt');
+        $deletes = file_get_contents(__DIR__.'/../datafiles/deleted.txt');
         $deletedArray = json_decode($deletes);
         foreach ($deletedArray as $key => $value) {
             $rpc = ResolucionParteConcepto::withTrashed()->find($value)->restore();

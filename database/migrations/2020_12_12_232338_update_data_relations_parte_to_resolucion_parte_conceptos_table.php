@@ -20,10 +20,12 @@ class UpdateDataRelationsParteToResolucionParteConceptosTable extends Migration
 
         foreach($resolucionesParteConceptos as $rpc){
             $resolucionParte = ResolucionPartes::find($rpc->resolucion_partes_id);
-            $audienciaParte = AudienciaParte::where('audiencia_id',$resolucionParte->audiencia_id)->where('parte_id',$resolucionParte->parte_solicitante_id)->first();
-            if($audienciaParte){
-                $rpc->audiencia_parte_id = $audienciaParte->id;
-                $rpc->save();
+            if($resolucionParte){
+                $audienciaParte = AudienciaParte::where('audiencia_id',$resolucionParte->audiencia_id)->where('parte_id',$resolucionParte->parte_solicitante_id)->first();
+                if($audienciaParte){
+                    $rpc->audiencia_parte_id = $audienciaParte->id;
+                    $rpc->save();
+                }
             }
         }
 
