@@ -48,7 +48,7 @@ class ResolucionPartes extends Model
     }
 
     /**
-     * Relacion con pagosDiferidos
+     * Relacion con Conceptos pagos
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function parteConceptos(){

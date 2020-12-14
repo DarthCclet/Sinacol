@@ -3263,9 +3263,9 @@
                     $('#tiempoVencido').val(dato.tiempoVencido);
                     $('#idSolicitante').val(dato.idParte);
 
-                    $('#salario').html(" Remuneraci&oacute;n "+ dato.salario);
-                    $('#fechaIngreso').html(" Fecha de ingreso: " + dato.fechaIngreso);
-                    $('#fechaSalida').html(" Fecha de salida: " + dato.fechaSalida);
+                    $('#salario'+idParte).html(" Remuneraci&oacute;n "+ dato.salario);
+                    $('#fechaIngreso'+idParte).html(" Fecha de ingreso: " + dato.fechaIngreso);
+                    $('#fechaSalida'+idParte).html(" Fecha de salida: " + dato.fechaSalida);
 
                     let table = "";
                     table+=" <tr>";
