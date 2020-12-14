@@ -673,14 +673,13 @@ trait GenerateDocument
                             $tablaConceptosActa .= ' Propuesta para '.$nombreParte;
                             $tablaConceptosActa .= '<table class="tbl">';
                             $tablaConceptosActa .= '<tbody>';
-                            if($parteID == $idSolicitante){
+                            
                               $totalPercepciones = 0;
-                            }
                             foreach ($resolucion_conceptos as $concepto ) {
                               $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
                               if($concepto->concepto_pago_resoluciones_id != 9){
+                                $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
                                 if($parteID == $idSolicitante){ //si resolucion pertenece al solicitante
-                                  $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
                                   $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
                                 }
                                 $tablaConceptosActa .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
@@ -706,6 +705,10 @@ trait GenerateDocument
                             $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
                             $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
                             $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
+                            if($parteID == $idSolicitante ){
+                            $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
+                            $datosResolucion['total_percepciones_letra']= $cantidadTextual;
+                            }
                           }
                         }
                       }
@@ -713,8 +716,6 @@ trait GenerateDocument
                         // $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
                         // $cantidadTextual = str_replace("uno","un",$cantidadTextual);
                         // $cantidadTextual = str_replace("coma","punto",$cantidadTextual);
-                        $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
-                        $datosResolucion['total_percepciones_letra']= $cantidadTextual;
                         $datosResolucion['propuestas_conceptos']= $tablaConceptos;
                         $datosResolucion['propuestas_trabajadores']= $tablaConceptosActa;
                         $datosResolucion['propuesta_configurada']= $tablaConceptosConvenio;

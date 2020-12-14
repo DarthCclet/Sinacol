@@ -226,9 +226,9 @@
 
                                                     <div id="collapse{{$solicitante->parte->id}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
                                                         <div class="card-body">
-                                                            <input type="hidden" id="remuneracionDiaria" />
-                                                            <input type="hidden" id="salarioMinimo"/>
-                                                            <input type="hidden" id="antiguedad"/>
+                                                            <input type="hidden" id="remuneracionDiaria{{$solicitante->parte->id}}" />
+                                                            <input type="hidden" id="salarioMinimo{{$solicitante->parte->id}}"/>
+                                                            <input type="hidden" id="antiguedad{{$solicitante->parte->id}}"/>
                                                             <input type="hidden" id="idSolicitante"/>
                                                             <div>
                                                                 {{-- <div>
@@ -282,7 +282,7 @@
                                                                     <tbody id="tbodyConceptoPrincipal{{$solicitante->parte->id}}">
                                                                         @foreach($conceptos_pago as $concepto_pago)
                                                                             @foreach($concepto_pago['conceptos'] as $concepto)
-                                                                                @if($solicitante->parte->id == $concepto->idSolicitante)
+                                                                                @if($solicitante->parte->id == $concepto_pago['idSolicitante'])
                                                                                     <tr>
                                                                                         <td>{{$concepto->nombre}}</td>
                                                                                         <td>{{$concepto->dias}}</td>
@@ -292,7 +292,7 @@
                                                                                 @endif  
                                                                             @endforeach
                                                                             @if( sizeof($concepto_pago['conceptos']) > 0 )
-                                                                                @if( $solicitante->parte->id == $concepto_pago['conceptos'][0]->idSolicitante)
+                                                                                @if( $solicitante->parte->id == $concepto_pago['idSolicitante'])
                                                                                     <tr>
                                                                                         <th>TOTAL</th>
                                                                                         <th colspan="3" style="text-align: right">${{number_format($concepto_pago['totalConceptos'],2)}}</th>
@@ -2580,9 +2580,9 @@
                 success:function(datos){
                     try{
                         let dato = datos.data;
-                        $('#remuneracionDiaria').val(dato.remuneracionDiaria);
-                        $('#salarioMinimo').val(dato.salarioMinimo);
-                        $('#antiguedad').val(dato.antiguedad);
+                        $('#remuneracionDiaria'+idParte).val(dato.remuneracionDiaria);
+                        $('#salarioMinimo'+idParte).val(dato.salarioMinimo);
+                        $('#antiguedad'+idParte).val(dato.antiguedad);
                         $('#idSolicitante').val(dato.idParte);
                         let table = "";
                         table+=" <tr>";
