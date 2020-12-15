@@ -109,7 +109,7 @@ class UserController extends Controller
         $user->remember_token = Str::random(10);;
         $user->save();
         UsuarioCentro::create(["user_id" => $user->id,"centro_id" => $user->centro_id]);
-        if (auth()->user()->centro->nombre == "Oficina Central del CFCRL") {
+        if (auth()->user()->centro->abreviatura == "OCCFCRL") {
             $user->assignRole("Orientador Central");
         }
         if ($this->request->wantsJson()) {
