@@ -100,7 +100,7 @@ class User extends Authenticatable implements AuditableContract
     public function centro()
     {
         return $this->belongsTo(Centro::class)
-            ->withDefault(['nombre'=>'No asignado']);
+            ->withDefault(['nombre'=>'No asignado','abreviatura' => "N/A"]);
     }
     /**
      * Una cuenta pertenece a una persona
