@@ -37,4 +37,11 @@ class AudienciaParte extends Model implements AuditableContract
     public function documentos(){
         return $this->morphMany(Documento::class,'documentable');
     }
+    /**
+     * Relacion con concepto pagos
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function parteConceptos(){
+        return $this->hasMany(ResolucionParteConcepto::class);
+    }
 }

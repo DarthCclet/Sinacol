@@ -46,7 +46,7 @@
 @else
     <input type="hidden" id="externo" value="1">
 @endif
-<input type="hidden" id="instancia" value="{{ env('INSTACIA') ? env('INSTACIA') : 'federal'}}">
+<input type="hidden" id="instancia" value="{{ env('INSTANCIA','federal')}}">
 <div class="tab-content" style="background: #f2f3f4 !important;">
 <div class="tab-pane fade active show" id="default-tab-1">
     <div id="wizard" class="col-md-12" >
@@ -80,6 +80,8 @@
                     </span>
                 </a>
             </li>
+
+
 
 
 

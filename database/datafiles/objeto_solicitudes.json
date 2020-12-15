@@ -99,6 +99,21 @@
             "id": "20",
             "nombre": "Comisiones mixtas seguridad e higiene, etc. (153-E,509)",
             "tipo_objeto_solicitudes_id": "3"
+        },
+        {
+            "id": "21",
+            "nombre": "Pago de prestaciones",
+            "tipo_objeto_solicitudes_id": "2"
+        },
+        {
+            "id": "22",
+            "nombre": "Terminación voluntaria de la relación de trabajo",
+            "tipo_objeto_solicitudes_id": "2"
+        },
+        {
+            "id": "23",
+            "nombre": "Terminación voluntaria de la relación de trabajo",
+            "tipo_objeto_solicitudes_id": "1"
         }
     ],
     "numReg": 20

@@ -350,7 +350,7 @@ trait GenerateDocument
                     }
                     $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
                     $obj['prescripcion'] = $this->calcularPrescripcion($solicitud->objeto_solicitudes, $solicitud->fecha_conflicto,$solicitud->fecha_ratificacion);
-                    $obj['fecha_maxima_ratificacion'] = $this->calcularFechaMaximaRatificacion($solicitud->fecha_recepcion,15);
+                    $obj['fecha_maxima_ratificacion'] = $this->calcularFechaMaximaRatificacion($solicitud->fecha_recepcion,$centroId);
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
                     if($idSolicitante != "" && $idSolicitado != ""){
@@ -518,9 +518,9 @@ trait GenerateDocument
 
                     // $objeto = $model_name::with('conciliador')->findOrFail(1);
                     //$audiencias = $model_name::where('expediente_id',$expedienteId)->get();
-                    $audiencias = $model_name::where('id',$audienciaId)->get();
-                    $conciliadorId = $audiencias[0]->conciliador_id;
-                    $objeto = new JsonResponse($audiencias);
+                    $audiencia = $model_name::where('id',$audienciaId)->get();
+                    $conciliadorId = $audiencia[0]->conciliador_id;
+                    $objeto = new JsonResponse($audiencia);
                     $audiencias = json_decode($objeto->content(),true);
                     $Audiencias = [];
                     foreach ($audiencias as $audiencia ) {
@@ -591,7 +591,7 @@ trait GenerateDocument
                     $objeto = new JsonResponse($etapas_resolucion);
                     $etapas_resolucion = json_decode($objeto->content(),true);
                     $datosResolucion['resolucion']= $objetoResolucion->nombre;
-                    $resoluciones_partes = ResolucionPartes::where('audiencia_id',$audienciaId)->get();
+                    $audiencia_partes = Audiencia::find($audienciaId)->audienciaParte;
                     foreach ($etapas_resolucion as $asd => $etapa ) {
                       if($etapa['etapa_resolucion_id'] == 3){
                         $datosResolucion['primera_manifestacion']= $etapa['evidencia'];
@@ -600,11 +600,12 @@ trait GenerateDocument
                         $tablaConceptos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $tablaConceptosActa = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                        $totalPercepciones = 0;
                         $parteID= "";
-                        foreach ($resoluciones_partes as $key => $resolucion_partes) {
-                          if($resolucion_partes->parte_solicitante_id != $parteID){
-                          $resolucionParteId = $resolucion_partes->id;
-                          $parteID = $resolucion_partes->parte_solicitante_id;
+                        foreach ($audiencia_partes as $key => $audiencia_parte) {
+                          if ($audiencia_parte->parte->tipo_parte_id == 1) {
+                            $parteID = $audiencia_parte->parte->id;
+
                           //datos laborales del solicitante
                           $datoLaborales = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteID)->get();
                           $hayDatosLaborales = count($datoLaborales);
@@ -661,7 +662,7 @@ trait GenerateDocument
 
                             //Conceptos resolucion
                             // $tablaConceptos .= '<h4>Propuesta Configurada </h4>';
-                            $resolucion_conceptos = ResolucionParteConcepto::where('resolucion_partes_id',$resolucionParteId)->get();
+                            $resolucion_conceptos = ResolucionParteConcepto::where('audiencia_parte_id',$audiencia_parte->id)->get();
                             $tablaConceptosEConvenio = '';
                             //$tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                             $tablaConceptosConvenio .= '<table class="tbl">';
@@ -672,7 +673,8 @@ trait GenerateDocument
                             $tablaConceptosActa .= ' Propuesta para '.$nombreParte;
                             $tablaConceptosActa .= '<table class="tbl">';
                             $tablaConceptosActa .= '<tbody>';
-                            $totalPercepciones = 0;
+                            
+                              $totalPercepciones = 0;
                             foreach ($resolucion_conceptos as $concepto ) {
                               $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
                               if($concepto->concepto_pago_resoluciones_id != 9){
@@ -683,36 +685,37 @@ trait GenerateDocument
                                 $tablaConceptosActa .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
                               }else{
                                 $tablaConceptosEConvenio .= $concepto->otro.' ';
-                                //$tablaConceptosEActa .= $concepto->otro.' ';
                               }
                             }
                             $tablaConceptosConvenio .= ($parteID == $idSolicitante)?'<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>':"";
                             $tablaConceptosConvenio .= '</tbody>';
                             $tablaConceptosConvenio .= '</table>';
                             $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
-                            
+
                             $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
                             $tablaConceptosActa .= '</tbody>';
                             $tablaConceptosActa .= '</table>';
                             $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
-                            $tablaConceptosActa .= '<br>';
-                            
+                            $tablaConceptosActa .= '<br>';  
+
+                            $totalPercepciones = number_format($totalPercepciones, 2, '.', '');
+                            $totalPercepcion = explode('.', $totalPercepciones);
+                            $intTotalPercepciones = $totalPercepcion[0];
+                            $decTotalPercepciones = $totalPercepcion[1];
+                            $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
+                            $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
+                            $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
+                            if($parteID == $idSolicitante ){
+                            $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
+                            $datosResolucion['total_percepciones_letra']= $cantidadTextual;
+                            }
                           }
                         }
                       }
                         // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
-                        $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
-                        $totalPercepcion = explode('.', $totalPercepciones);
-                        $intTotalPercepciones = $totalPercepcion[0];
-                        $decTotalPercepciones = $totalPercepcion[1];
-                        $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
-                        $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
-                        $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
                         // $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
                         // $cantidadTextual = str_replace("uno","un",$cantidadTextual);
                         // $cantidadTextual = str_replace("coma","punto",$cantidadTextual);
-                        $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
-                        $datosResolucion['total_percepciones_letra']= $cantidadTextual;
                         $datosResolucion['propuestas_conceptos']= $tablaConceptos;
                         $datosResolucion['propuestas_trabajadores']= $tablaConceptosActa;
                         $datosResolucion['propuesta_configurada']= $tablaConceptosConvenio;
@@ -798,9 +801,9 @@ trait GenerateDocument
                                   }
                                 }
                                 $segundo_apellido_citado = ($parteC['segundo_apellido']!="")?' '.$parteC['segundo_apellido']:"";
-                                // if($parteC->terminacion_bilateral_id ==3){
-                                // 	$nombreCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado;
-                                // }
+                                if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
+                                	$nombreCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado;
+                                }
                                 $nombreCitadoComparecientes = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado;
                                 $clausulaCitadosConvenio .= $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
                               }
@@ -923,7 +926,9 @@ trait GenerateDocument
       try {
         $ndia=0;
         $diasDisponibilidad = [];
-        $disponibilidad_centro = Disponibilidad::select('dia')->where('disponibilidad_type','App\\Centro')->where('disponibilidad_id',$centroId)->get();
+        $centro = Centro::find($centroId);
+        $disponibilidad_centro = $centro->disponibilidades;
+        $incidencias_centro = $centro->incidencias;
         foreach ($disponibilidad_centro as $disponibilidad) { //dias de disponibilidad del centro
           array_push($diasDisponibilidad,$disponibilidad->dia);
         }
@@ -933,8 +938,11 @@ trait GenerateDocument
             $fechaRecepcion = $fechaRecepcion->addDay();//sumar dia a fecha recepcion
             $dayOfTheWeek = $fechaRecepcion->dayOfWeek; //dia de la semana de la fecha de recepcion
           }
-          $k = array_search($dayOfTheWeek, $diasDisponibilidad);
-          if (false !== $k) { //si dia agregado es dia disponble en centro
+          $diaHabil = array_search($dayOfTheWeek, $diasDisponibilidad);
+          foreach ($incidencias_centro as $incidencia) {         
+            $diaConIncidencia = $fechaRecepcion->between($incidencia->fecha_inicio,$incidencia->fecha_fin);
+          }
+          if (false !== $diaHabil && !$diaConIncidencia) { //si dia agregado es dia disponble en centro y no tiene incidencia
             $ndia+=1;
           }
         }

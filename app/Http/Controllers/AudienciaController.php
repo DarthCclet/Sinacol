@@ -258,18 +258,30 @@ class AudienciaController extends Controller {
         // $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
         $audiencia->pagosDiferidos;
         // $audiencia->resolucionPartes->conceptoPagoResolucion;
-        foreach ($audiencia->resolucionPartes as $resolucionParte) {
+        foreach ($audiencia->solicitantes as $audienciaParte) {
             $totalConceptos = 0;
             $conceptos =[];
-            foreach ($resolucionParte->parteConceptos as $concepto){
+            foreach ($audienciaParte->parteConceptos as $concepto){
                 $totalConceptos += floatval($concepto->monto);
                 $conceptosP = $concepto;
                 $conceptosP->nombre = $concepto->ConceptoPagoResolucion->nombre;
-                $conceptosP->idSolicitante = $resolucionParte->parteSolicitante->id;
+                $conceptosP->idSolicitante = $audienciaParte->solicitante_id;
                 array_push($conceptos,$conceptosP);   
             }
-            array_push($conceptos_pago,['idSolicitante'=>$resolucionParte->parteSolicitante->id, 'conceptos'=>$conceptos, 'totalConceptos'=>$totalConceptos]);
+            array_push($conceptos_pago,['idSolicitante'=>$audienciaParte->parte_id, 'conceptos'=>$conceptos, 'totalConceptos'=>$totalConceptos]);
         }
+        // foreach ($audiencia->resolucionPartes as $resolucionParte) {
+        //     $totalConceptos = 0;
+        //     $conceptos =[];
+        //     foreach ($resolucionParte->parteConceptos as $concepto){
+        //         $totalConceptos += floatval($concepto->monto);
+        //         $conceptosP = $concepto;
+        //         $conceptosP->nombre = $concepto->ConceptoPagoResolucion->nombre;
+        //         $conceptosP->idSolicitante = $resolucionParte->parteSolicitante->id;
+        //         array_push($conceptos,$conceptosP);   
+        //     }
+        //     array_push($conceptos_pago,['idSolicitante'=>$resolucionParte->parteSolicitante->id, 'conceptos'=>$conceptos, 'totalConceptos'=>$totalConceptos]);
+        // }
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
         $ocupaciones = $this->cacheModel('ocupaciones', Ocupacion::class);
         $jornadas = $this->cacheModel('jornadas', Jornada::class);
@@ -1176,33 +1188,23 @@ class AudienciaController extends Controller {
                 //guardar conceptos de pago para Convenio
                 if ( isset($resolucionParte)) { //Hubo conciliacion
                     // if($audiencia->resolucion_id == 1 ){ //Hubo conciliacion
-                    if (isset($listaConceptos)) {
-                        if (count($listaConceptos) > 0) {
-                            foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
-                                // foreach($conceptosSolicitante as $ke=>$conceptosPago){//conceptos por solicitante
-                                if ($key == $solicitante->parte_id) {
-                                    foreach ($conceptosSolicitante as $k => $concepto) {
-                                        ResolucionParteConcepto::create([
-                                            "resolucion_partes_id" => $resolucionParte->id,
-                                            "concepto_pago_resoluciones_id" => $concepto["concepto_pago_resoluciones_id"],
-                                            "dias" => intval($concepto["dias"]),
-                                            "monto" => $concepto["monto"],
-                                            "otro" => $concepto["otro"]
-                                        ]);
-                                    }
-                                }
-                                // }
-                            }
-                        }
-                    }
-                    // if (isset($listaFechasPago)) { //se registran pagos diferidos
-                    //     if (count($listaFechasPago) > 0) {
-                    //         foreach ($listaFechasPago as $key => $fechaPago) {
-                    //             ResolucionPagoDiferido::create([
-                    //                 "audiencia_id" => $audiencia->id,
-                    //                 "monto" => $fechaPago["monto_pago"],
-                    //                 "fecha_pago" => Carbon::createFromFormat('d/m/Y',$fechaPago["fecha_pago"])->format('Y-m-d')
-                    //             ]);
+                    // if (isset($listaConceptos)) {
+                    //     if (count($listaConceptos) > 0) {
+                    //         foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
+                    //             // foreach($conceptosSolicitante as $ke=>$conceptosPago){//conceptos por solicitante
+                    //             if ($key == $solicitante->parte_id) {
+                    //                 foreach ($conceptosSolicitante as $k => $concepto) {
+                    //                     ResolucionParteConcepto::create([
+                    //                         "resolucion_partes_id" => $resolucionParte->id,
+                    //                         "parte_id" => $solicitante->parte_id,
+                    //                         "concepto_pago_resoluciones_id" => $concepto["concepto_pago_resoluciones_id"],
+                    //                         "dias" => intval($concepto["dias"]),
+                    //                         "monto" => $concepto["monto"],
+                    //                         "otro" => $concepto["otro"]
+                    //                     ]);
+                    //                 }
+                    //             }
+                    //             // }
                     //         }
                     //     }
                     // }
@@ -1210,10 +1212,6 @@ class AudienciaController extends Controller {
                         $huboConvenio = true;
                         //Se consulta comparecencia de citado
                         $parte = $solicitado->parte;
-                        // if($parte->id == 84){
-                            
-                        //     dd($solicitante->parte);
-                        // }
                         if ($parte->tipo_persona_id == 2) {
                             $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
                             if ($compareciente_parte != null) {
@@ -1243,6 +1241,28 @@ class AudienciaController extends Controller {
                     }
                 }
             }
+            $solicitanteComparecio = $solicitante->parte->compareciente->where('audiencia_id',$audiencia->id)->first();
+            if($solicitanteComparecio != null){
+                if (isset($listaConceptos)) {
+                    if (count($listaConceptos) > 0) {
+                        foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
+                            if ($key == $solicitante->parte_id) {
+                                foreach ($conceptosSolicitante as $k => $concepto) {
+                                    ResolucionParteConcepto::create([
+                                        "resolucion_partes_id" => null,//$resolucionParte->id,
+                                        "audiencia_parte_id" => $solicitante->id,
+                                        "concepto_pago_resoluciones_id" => $concepto["concepto_pago_resoluciones_id"],
+                                        "dias" => intval($concepto["dias"]),
+                                        "monto" => $concepto["monto"],
+                                        "otro" => $concepto["otro"]
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
         }
         // Termina consulta de comparecencia de solicitante
         if($huboConvenio){

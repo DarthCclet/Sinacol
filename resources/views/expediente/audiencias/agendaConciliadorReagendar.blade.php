@@ -150,7 +150,7 @@
                             $("#sala_cambio_fecha_id").select2();
                         }catch(error){
                             console.log(error);
-                        }}
+                        }
                     }
                 });
             }

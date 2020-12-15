@@ -29,20 +29,26 @@
                 <thead>
                     <tr>
                         <th>Solicitud</th>
-                        <th>Expediente</th>
                         <th>Partes a notificar</th>
-                        <th>Envio de petición</th>
-                        <th>Fecha de petición</th>
                         <th>Tipo de notificación</th>
-                        <th>Audiencia</th>
-                        <th>Acciones</th>
+                        <th>Evento origén</th>
+                        <th>Fecha de petición</th>
+                        <th>Notificada</th>
+                        <th>Envio de petición</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($solicitudes as $solicitud)
+                    @if($solicitud->fecha_peticion_notificacion != null)
                     <tr>
-                        <td>{{$solicitud->folio}}/{{$solicitud->anio}}</td>
-                        <td>{{$solicitud->expediente->folio}}</td>
+                    @else
+                    <tr style="background-color: rgb(157 36 73 / 0.28);">
+                    @endif
+                        <td>
+                            <strong>Solicitud: </strong>{{$solicitud->folio}}/{{$solicitud->anio}}<br>
+                            <strong>Expediente: </strong>{{$solicitud->expediente->folio}}<br>
+                            <strong>Audiencia: </strong>{{$solicitud->audiencia}}<br>
+                        </td>
                         <td>
                             @foreach($solicitud->partes as $parte)
                                 @if($parte->tipo_parte_id == 2)
@@ -54,21 +60,27 @@
                                 @endif
                             @endforeach
                         </td>
-                        @if($solicitud->fecha_peticion_notificacion != null)
-                            <td>Enviada</td>
-                        @else
-                            <td>Pendiente</td>
-                        @endif
-                        <td>{{$solicitud->fecha_peticion_notificacion ?? 'No enviada'}}</td>
                         <td>{{$solicitud->tipo_notificacion}}</td>
                         <td>{{$solicitud->etapa_notificacion}}</td>
-                        <td>
-                        @if($solicitud->fecha_peticion_notificacion == null)
-                            <button onclick="enviar_notificacion({{$solicitud->id}})" class="btn btn-xs btn-primary incidencia" title="Enviar notificación">
-                                <i class="fa fa-plane"></i>
-                            </button>
+                        <td>{{$solicitud->fecha_peticion_notificacion ?? 'No enviada'}}</td>
+                        @if($solicitud->notificada)
+                            <td>Si</td>
+                        @else
+                            <td>No</td>
                         @endif
-                        </td>
+                        @if($solicitud->fecha_peticion_notificacion != null)
+                            <td>Enviada
+                            <button onclick="enviar_notificacion({{$solicitud->id}})" class="btn btn-xs btn-primary incidencia" title="Reenviar notificación">
+                                <i class="fa fa-share-square"></i>
+                            </button>
+                            </td>
+                        @else
+                            <td>Pendiente
+                            <button onclick="enviar_notificacion({{$solicitud->id}})" class="btn btn-xs btn-primary incidencia" title="Enviar notificación">
+                                <i class="fa fa-paper-plane"></i>
+                            </button>
+                            </td>
+                        @endif
                     </tr>
                     @endforeach
                 </tbody>
