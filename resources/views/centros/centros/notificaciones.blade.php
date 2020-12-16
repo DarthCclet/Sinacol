@@ -29,7 +29,7 @@
                 <thead>
                     <tr>
                         <th>Solicitud</th>
-                        <th>Partes a notificar</th>
+                        <th>Partes a notificar <small>(fecha de notificacion)</small></th>
                         <th>Tipo de notificación</th>
                         <th>Evento origén</th>
                         <th>Fecha de petición</th>
@@ -50,12 +50,12 @@
                             <strong>Audiencia: </strong>{{$solicitud->audiencia}}<br>
                         </td>
                         <td>
-                            @foreach($solicitud->partes as $parte)
+                            @foreach($solicitud->partes_audiencias as $parte)
                                 @if($parte->tipo_parte_id == 2)
                                     @if($parte->tipo_persona_id == 1)
-                                    - {{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}<br>
+                                    - {{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}} <small>({{$parte->fecha_notificacion ?? 'pendiente'}})</small><br>
                                     @else
-                                        - {{$parte->nombre_comercial}}<br>
+                                        - {{$parte->nombre_comercial}} <small>({{$parte->fecha_notificacion ?? 'pendiente'}})</small><br>
                                     @endif
                                 @endif
                             @endforeach
