@@ -1282,7 +1282,7 @@ class SolicitudController extends Controller {
                 $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
                 $centroResponsable = auth()->user()->centro;
                 if($solicitud->tipo_solicitud_id == 3 || $solicitud->tipo_solicitud_id == 4){
-                    $centroResponsable = Centro::where("nombre","Oficina Central del CFCRL")->first();
+                    $centroResponsable = Centro::where("abreviatura","OCCFCRL")->first();
                 }
                 if($request->separados == "true"){
                     $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax);

@@ -465,7 +465,7 @@ class AudienciaController extends Controller {
         $fechaFin = $request->fechaFin;
         $fechaFinSola = date('Y-m-d', strtotime($request->fechaFin));
         $horaFin = date('H:i:s', strtotime($request->fechaFin));
-        $centro = Centro::where("nombre","Oficina Central del CFCRL")->first();
+        $centro = Centro::where("abreviatura","OCCFCRL")->first();
 
         $conciliadores = Conciliador::where("centro_id", $centro->id)->get();
         $conciliadoresResponse = [];
@@ -577,7 +577,7 @@ class AudienciaController extends Controller {
         $fechaFinSola = date('Y-m-d', strtotime($request->fechaFin));
         $horaFin = date('H:i:s', strtotime($request->fechaFin));
         ## Obtenemos las salas -> en el futuro seran filtradas por el centro de la sesión
-        $centro = Centro::where("nombre","Oficina Central del CFCRL")->first();
+        $centro = Centro::where("abreviatura","OCCFCRL")->first();
         $salas = Sala::where("centro_id", $centro->id)->get();
         $salasResponse = [];
         ## Recorremos las salas para la audiencia
@@ -842,7 +842,7 @@ class AudienciaController extends Controller {
      */
     public function getCalendarioCentral(Request $request) {
         // inicio obtenemos los datos del centro donde no trabajará
-        $centro = Centro::where("nombre","Oficina Central del CFCRL")->first();
+        $centro = Centro::where("abreviatura","OCCFCRL")->first();
         $centroDisponibilidad = $centro->disponibilidades;
         $laboresCentro = array();
         foreach ($centroDisponibilidad as $key => $value) {

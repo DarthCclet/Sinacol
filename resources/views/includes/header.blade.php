@@ -6,7 +6,7 @@
 @endphp
 <!-- begin #header -->
 <div id="header" class="header {{ $headerClass }}">
-    <input type="hidden" id="centro_nombre" value="{{ isset(auth()->user()->centro->nombre) ? auth()->user()->centro->nombre : ''}}">
+    <input type="hidden" id="centro_nombre" value="{{ isset(auth()->user()->centro->abreviatura) ? auth()->user()->centro->abreviatura : ''}}">
     <nav class="navbar navbar-expand-lg navbar-dark" style="width: 100%;">
     <div class="navbar-header">
         <a href="/" class="navbar-brand"><span class=""><img src="{{asset('assets/img/logo/LogoEncabezado.png')}}"></span></a>
@@ -80,14 +80,14 @@
                     $.each(data.menu,function(index,element){
                         if(element.hijos.length == 0){
                             var agenda = element.name;
-                            if(centro != "Oficina Central del CFCRL" && element.name != "Calendario colectivo"){
+                            if(centro != "OCCFCRL" && element.name != "Calendario colectivo"){
                                 if(element.name == "Agenda de conciliador"){
                                     agenda = "Agenda";
                                 }else if(element.name == "Calendario de audiencias"){
                                     agenda = "Calendario";
                                 }
                                 div +='<li class="nav-item"> <a class="nav-link" href="'+element.ruta+'">'+agenda+'</a> </li>';
-                            }else if(centro == "Oficina Central del CFCRL" && element.name != "Calendario de audiencias"){
+                            }else if(centro == "OCCFCRL" && element.name != "Calendario de audiencias"){
                                 if(element.name == "Agenda de conciliador"){
                                     agenda = "Agenda";
                                 }else if(element.name == "Calendario colectivo"){
