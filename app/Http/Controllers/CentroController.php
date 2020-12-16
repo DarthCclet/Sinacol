@@ -277,12 +277,19 @@ class CentroController extends Controller
 //        dd($solicitudesTodas);
         $solicitudes = [];
         $tipo_parte = \App\TipoParte::where("nombre","ilike","CITADO")->first();
+        $rolActual = session('rolActual')->name;
+        //En caso de ser conciliador buscamos el registro
+        $conciliador_id = null;
+        if($rolActual == "Personal conciliador"){
+            $conciliador_id = auth()->user()->persona->conciliador->id;
+        }
         foreach($solicitudesTodas as $solicitud){
             $pasa = false;
             $tipo_notificacion_id = null;
             foreach($solicitud->expediente->audiencia as $audiencia){
                 if($audiencia->encontro_audiencia){
                     $notificada = true;
+                    $partes = [];
                     foreach($audiencia->audienciaParte as $parte){
                         if($parte->parte != null){
                             if($parte->parte->tipo_parte_id == $tipo_parte->id && ($parte->tipo_notificacion_id == 2 || $parte->tipo_notificacion_id == 3)){ 
@@ -291,6 +298,9 @@ class CentroController extends Controller
                                 $reprogramada = $audiencia->reprogramada;
                                 $etapa_notificacion = $audiencia->etapa_notificacion->etapa;
                                 $audienciaFolio = $audiencia->folio."/".$audiencia->anio;
+                                $conciliador_Audiencia = $audiencia->conciliador_id;
+                                $parte->parte->fecha_notificacion = $parte->fecha_notificacion;
+                                $partes[]=$parte->parte;
                                 if($parte->fecha_notificacion == null){
                                     $notificada = false;
                                 }
@@ -300,12 +310,25 @@ class CentroController extends Controller
                 }
             }
             if($pasa){
-                $solicitud["tipo_notificacion"] = $tipo_notificacion;
-                $solicitud["reprogramada"] = $reprogramada;
-                $solicitud["audiencia"] = $audienciaFolio;
-                $solicitud["etapa_notificacion"] = $etapa_notificacion;
-                $solicitud["notificada"] = $notificada;
-                $solicitudes[] = $solicitud;
+                if($rolActual != "Personal conciliador"){
+                    $solicitud["tipo_notificacion"] = $tipo_notificacion;
+                    $solicitud["reprogramada"] = $reprogramada;
+                    $solicitud["audiencia"] = $audienciaFolio;
+                    $solicitud["etapa_notificacion"] = $etapa_notificacion;
+                    $solicitud["notificada"] = $notificada;
+                    $solicitud["partes_audiencias"] = $partes;
+                    $solicitudes[] = $solicitud;
+                }else{
+                    if($conciliador_Audiencia == $conciliador_id){
+                        $solicitud["tipo_notificacion"] = $tipo_notificacion;
+                        $solicitud["reprogramada"] = $reprogramada;
+                        $solicitud["audiencia"] = $audienciaFolio;
+                        $solicitud["etapa_notificacion"] = $etapa_notificacion;
+                        $solicitud["notificada"] = $notificada;
+                        $solicitud["partes_audiencias"] = $partes;
+                        $solicitudes[] = $solicitud;
+                    }
+                }
             }
         }
         return view('centros.centros.notificaciones',compact('solicitudes'));
