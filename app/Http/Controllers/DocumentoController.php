@@ -420,13 +420,34 @@ class DocumentoController extends Controller
         
         try{
             
-            $clasificacion_archivos = array_pluck(ClasificacionArchivo::whereIn('id',[13,14,15,16,17,18,40])->get(),'nombre','id');
+            $clasificacion_archivos = array_pluck(ClasificacionArchivo::whereIn('id',[13,14,15,16,17,18,40])->orderBy('nombre')->get(),'nombre','id');
             return view('herramientas.regenerar_documentos', compact('clasificacion_archivos'));
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensaje: ". $e->getMessage().
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
                        return view('herramientas.regenerar_documentos');
+        }
+    }
+    
+    public function storeRegenerarDocumento(Request $request){
+        
+        try{
+            $arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10];
+            $idSolicitud = $request->get('solicitud_id',1);
+            $idAudiencia = $request->get('audiencia_id');
+            $clasificacion_archivo_id = $request->get('clasificacion_archivo_id');
+            $idSolicitante = $request->get('solicitante_id');
+            $idSolicitado = $request->get('solicitado_id');
+            $plantilla_id = $arrayPlantilla[$clasificacion_archivo_id];
+            event(new GenerateDocumentResolution($idAudiencia, $idSolicitud, $clasificacion_archivo_id, $plantilla_id, $idSolicitante, $idSolicitado));
+            return response()->json(['success' => true, 'message' => 'Se genero el documento correctamente', 'data' => null], 200);
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+            " Se emitió el siguiente mensaje: ". $e->getMessage().
+            " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => 'No se genero el documento correctamente', 'data' => null], 200);
+            
         }
     }
     

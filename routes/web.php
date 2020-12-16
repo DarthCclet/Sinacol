@@ -55,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('incidencia','IncidenciaController');
     Route::resource('solicitudes','SolicitudController');
     Route::get('solicitudes/consulta/{id}','SolicitudController@consulta')->name('solicitudes.consulta');
+    Route::post('solicitudes/folio','SolicitudController@getSolicitudByFolio');
     Route::POST('solicitud/ratificar','SolicitudController@Ratificar');
     Route::POST('solicitud/ratificarIncompetencia','SolicitudController@ratificarIncompetencia');
     Route::POST('solicitud/excepcion','SolicitudController@ExcepcionConciliacion');
@@ -64,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('expedientes','ExpedienteController');
     Route::resource('audiencias','AudienciaController');
     Route::resource('audiencia','AudienciaController');
+    Route::post('audiencia/folio','AudienciaController@getAudienciaByFolio');
     Route::Post('audiencia/ConciliadoresDisponibles','AudienciaController@ConciliadoresDisponibles');
     Route::Post('audiencia/ConciliadoresDisponiblesCentral','AudienciaController@ConciliadoresDisponiblesCentral');
     Route::Post('audiencia/SalasDisponiblesCentral','AudienciaController@SalasDisponiblesCentral');
@@ -81,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencia/generarConstanciaNoPago','AudienciaController@generarConstanciaNoPago');
 
     Route::get('debug','HeaderFooterTemplatesController@debug');
+    Route::post('preview','HeaderFooterTemplatesController@preview');
 
     Route::Get('audiencia/documentos/{audiencia_id}','AudienciaController@getDocumentosAudiencia');
     Route::Get('audiencia/fisicas/{id}','AudienciaController@GetPartesFisicas');
@@ -146,6 +149,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('documento','DocumentoController');
     Route::post('guardar_documento','DocumentoController@storeDocument');
     Route::get('regenerar_documento','DocumentoController@generar_documento');
+    Route::post('store_regenerar_documento','DocumentoController@storeRegenerarDocumento');
 
     Route::resource('permisos','PermissionController');
     Route::resource('roles','RoleController');

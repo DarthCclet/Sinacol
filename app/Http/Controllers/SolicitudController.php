@@ -52,6 +52,7 @@ use App\Events\RatificacionRealizada;
 use App\TipoSolicitud;
 use Carbon\Carbon;
 use App\Traits\FechaNotificacion;
+use Exception;
 use Illuminate\Support\Arr;
 
 class SolicitudController extends Controller {
@@ -558,36 +559,51 @@ class SolicitudController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function getSolicitudByFolio(Request $request) {
-        $solicitud = Solicitud::where('folio',$request->folio)->where('anio',$request->anio)->first();;
+        try{
 
-        $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
-
-        $solicitantes = $partes->where('tipo_parte_id', 1);
-
-        foreach ($solicitantes as $key => $value) {
-            $value->dato_laboral;
-            $value->domicilios;
-            $value->contactos;
-            $value->lenguaIndigena;
-            $solicitantes[$key]["activo"] = 1;
+            $solicitud = Solicitud::where('folio',$request->folio)->where('anio',$request->anio)->first();;
+            
+            $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
+            
+            $solicitantes = $partes->where('tipo_parte_id', 1);
+            
+            foreach ($solicitantes as $key => $value) {
+                $value->dato_laboral;
+                $value->domicilios;
+                $value->contactos;
+                $value->lenguaIndigena;
+                $solicitantes[$key]["activo"] = 1;
+            }
+            $solicitados = $partes->where('tipo_parte_id', 2);
+            foreach ($solicitados as $key => $value) {
+                $value->domicilios;
+                $value->contactos;
+                $solicitados[$key]["activo"] = 1;
+            }
+            $solicitud->objeto_solicitudes;
+            $solicitud["solicitados"] = $solicitados;
+            $solicitud["solicitantes"] = $solicitantes;
+            $solicitud->expediente = $solicitud->expediente;
+            $solicitud->giroComercial = $solicitud->giroComercial;
+            $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
+            $solicitud->centro = $solicitud->centro;
+            $solicitud->tipoSolicitud = $solicitud->tipoSolicitud;
+            if($solicitud->expediente){
+                $solicitud->audiencias = $solicitud->expediente->audiencia;
+                foreach($solicitud->audiencias as $audiencia){
+                    $audiencia->conciliador->persona;
+                }
+            }
+            if($solicitud->giroComercial){
+                $solicitud->giroComercial->ambito;
+            }
+            return response()->json(['success' => true, 'message' => 'Se genero el documento correctamente', 'data' => $solicitud], 200);
+        }catch(Exception $e ){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => 'No se encontraron datos relacionados', 'data' => null], 200);
         }
-        $solicitados = $partes->where('tipo_parte_id', 2);
-        foreach ($solicitados as $key => $value) {
-            $value->domicilios;
-            $value->contactos;
-            $solicitados[$key]["activo"] = 1;
-        }
-        $solicitud->objeto_solicitudes;
-        $solicitud["solicitados"] = $solicitados;
-        $solicitud["solicitantes"] = $solicitantes;
-        $solicitud->expediente = $solicitud->expediente;
-        $solicitud->giroComercial = $solicitud->giroComercial;
-        $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
-        $solicitud->centro = $solicitud->centro;
-        if($solicitud->giroComercial){
-            $solicitud->giroComercial->ambito;
-        }
-        return $solicitud;
     }
     /**
      * Show the form for editing the specified resource.
