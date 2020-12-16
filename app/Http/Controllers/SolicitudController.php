@@ -424,7 +424,7 @@ class SolicitudController extends Controller {
                     unset($value['domicilios']);
                     if($key == 0 && ($tipo_solicitud_id == 1 ||$tipo_solicitud_id == 4 )){
                         $domiciliop = $domicilios[0]["estado_id"];
-                        $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilios['municipio']);
+                        $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilios[0]['municipio']);
                     }
                 }
                 if (isset($value["contactos"])) {
