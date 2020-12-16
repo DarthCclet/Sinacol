@@ -424,7 +424,7 @@ class SolicitudController extends Controller {
                     unset($value['domicilios']);
                     if($key == 0 && ($tipo_solicitud_id == 1 ||$tipo_solicitud_id == 4 )){
                         $domiciliop = $domicilios[0]["estado_id"];
-                        $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilio['municipio']);
+                        $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilios['municipio']);
                     }
                 }
                 if (isset($value["contactos"])) {
@@ -490,6 +490,7 @@ class SolicitudController extends Controller {
                 if($centro_municipio != null){
                     $centro = Centro::find($centro_municipio->centro_id);
                 }
+                Log::debug("El estado asignado tiene multiples sedes, el municipio asignado es". $municipio. ",  se busca el centro que respalda ese municipio, se encuentra el siguiente: ".print_r($centro_municipio,true)." Se asigno el centro". print_r($centro,true));
             }
         }else{
             $centro = Centro::inRandomOrder()->first();
@@ -1655,6 +1656,17 @@ class SolicitudController extends Controller {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                " Se emitió el siguiente mensale: ". $e->getMessage().
                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+        }
+    }
+
+    public function incidencias_solicitudes(){
+        try{
+            return view('herramientas.incidencias_solicitudes');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+                       return view('herramientas.incidencias_solicitudes');
         }
     }
 }
