@@ -54,6 +54,7 @@ use Carbon\Carbon;
 use App\Traits\FechaNotificacion;
 use Exception;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class SolicitudController extends Controller {
     use FechaNotificacion;
@@ -1417,12 +1418,13 @@ class SolicitudController extends Controller {
                 Storage::makeDirectory($directorio);
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                 $path = $archivo->store($directorio);
-
+                $uuid = Str::uuid();
                 $parte->documentos()->create([
                     "nombre" => str_replace($directorio."/", '',$path),
                     "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                     "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
                     "ruta" => $path,
+                    "uuid" => $uuid,
                     "tipo_almacen" => "local",
                     "uri" => $path,
                     "longitud" => round(Storage::size($path) / 1024, 2),

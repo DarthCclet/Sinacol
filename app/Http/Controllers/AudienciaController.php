@@ -54,6 +54,7 @@ use App\Mail\CambioFecha;
 use App\TipoAsentamiento;
 use App\TipoVialidad;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class AudienciaController extends Controller {
 
@@ -1648,7 +1649,7 @@ class AudienciaController extends Controller {
                     $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                     
                     $path = $archivo->store($directorio);
-                    
+                    $uuid = Str::uuid();
                     $documento = $audiencia->documentos()->create([
                         "nombre" => str_replace($directorio."/", '',$path),
                         "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
@@ -1657,6 +1658,7 @@ class AudienciaController extends Controller {
                         "ruta" => $path,
                         "tipo_almacen" => "local",
                         "uri" => $path,
+                        "uuid" => $uuid,
                         "longitud" => round(Storage::size($path) / 1024, 2),
                         "firmado" => "false",
                         "clasificacion_archivo_id" => $tipoArchivo->id ,
@@ -1728,7 +1730,7 @@ class AudienciaController extends Controller {
                         $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                         
                         $path = $archivo->store($directorio);
-                        
+                        $uuid = Str::uuid();
                         $documento = $audiencia->documentos()->create([
                             "nombre" => str_replace($directorio."/", '',$path),
                             "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
@@ -1737,6 +1739,7 @@ class AudienciaController extends Controller {
                             "ruta" => $path,
                             "tipo_almacen" => "local",
                             "uri" => $path,
+                            "uuid" => $uuid,
                             "longitud" => round(Storage::size($path) / 1024, 2),
                             "firmado" => "false",
                             "clasificacion_archivo_id" => $tipoArchivo->id ,
@@ -1780,7 +1783,8 @@ class AudienciaController extends Controller {
     public function guardarDocumento($idAudiencia,$html,$htmlHeader,$tipo_archivo_id){
         $audiencia = Audiencia::find($idAudiencia);
         $tipoArchivo = ClasificacionArchivo::find($tipo_archivo_id);
-        $archivo = $audiencia->documentos()->create(["descripcion" => "".$tipoArchivo->nombre ]);
+        $uuid = Str::uuid();
+        $archivo = $audiencia->documentos()->create(["descripcion" => "".$tipoArchivo->nombre ,'uuid'=> $uuid]);
 
         $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $idAudiencia;
 
@@ -2164,11 +2168,13 @@ class AudienciaController extends Controller {
 //            dd($archivos);
 //            foreach($archivos as $archivo) {
             $path = $archivo->store($directorio);
+            $uuid = Str::uuid();
             $audiencia->documentos()->create([
                 "nombre" => str_replace($directorio . "/", '', $path),
                 "nombre_original" => str_replace($directorio, '', $archivo->getClientOriginalName()),
                 "descripcion" => "Justificante " . $tipoArchivo->nombre,
                 "ruta" => $path,
+                "uuid" => $uuid,
                 "tipo_almacen" => "local",
                 "uri" => $path,
                 "longitud" => round(Storage::size($path) / 1024, 2),

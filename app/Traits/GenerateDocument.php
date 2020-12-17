@@ -34,6 +34,7 @@ use NumberFormatter;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Events\RatificacionRealizada;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 trait GenerateDocument
 {
@@ -54,7 +55,8 @@ trait GenerateDocument
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
 
                 //Creamos el registro
-                $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre]);
+                $uuid = Str::uuid();
+                $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid]);
                 //generamos html del archivo
                 $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
                 $firmantes = substr_count($html, 'class="qr"');
@@ -94,7 +96,8 @@ trait GenerateDocument
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
 
                 //Creamos el registro
-                $archivo = $padre->documentos()->create(["descripcion" => "Documento de solicitud " . $tipoArchivo->nombre]);
+                $uuid = Str::uuid();
+                $archivo = $padre->documentos()->create(["descripcion" => "Documento de solicitud " . $tipoArchivo->nombre,"uuid"=>$uuid]);
                 $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
                 $firmantes = substr_count($html, 'class="qr"');
                 $plantilla = PlantillaDocumento::find($plantilla->id);

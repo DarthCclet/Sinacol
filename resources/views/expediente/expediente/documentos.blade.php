@@ -34,11 +34,11 @@
                         @if ($documento->tipo_doc == 1 || $documento->tipo_doc == 2 )    
                             @if($documento->clasificacion_archivo_id == 37)
                                 <tr>
-                                    <td>{{$documento->nombre}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->id}}" target="_blank">Descargar</a></td>
+                                    <td>{{$documento->nombre}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">Descargar</a></td>
                                 </tr>
                             @else
                                 <tr>
-                                    <td><b>{{isset($documento->parte) ? $documento->parte."- ":""  }}</b>{{$documento->clasificacionArchivo->nombre}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->id}}" target="_blank">Descargar</a></td>
+                                    <td><b>{{isset($documento->parte) ? $documento->parte."- ":""  }}</b>{{$documento->clasificacionArchivo->nombre}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">Descargar</a></td>
                                 </tr>
                             @endif
 
@@ -59,7 +59,7 @@
                         @foreach ($documentos as $documento)
                             @if ($documento->tipo_doc == 3)    
                                 <tr>
-                                    <td><b>{{isset($documento->audiencia_id) ? "".$documento->audiencia."- ":""  }}</b>{{$documento->clasificacionArchivo->nombre}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->id}}" target="_blank">Descargar</a></td>
+                                    <td><b>{{isset($documento->audiencia_id) ? "".$documento->audiencia."- ":""  }}</b>{{$documento->clasificacionArchivo->nombre}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">Descargar</a></td>
                                 </tr>
                             @endif
                         @endforeach

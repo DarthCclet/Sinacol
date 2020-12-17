@@ -1570,14 +1570,14 @@
                                 div += '<div class="image gallery-group-1">';
                                 div += '    <div class="image-inner" style="position: relative;">';
                                 if(element.tipo == 'pdf' || element.tipo == 'PDF'){
-                                    div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
+                                    div += '            <a href="/api/documentos/getFile/'+element.uuid+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
                                     div += '                <div class="img" align="center">';
                                     div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
                                     div += '                </div>';
                                     div += '            </a>';
                                 }else{
-                                    div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
-                                    div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
+                                    div += '            <a href="/api/documentos/getFile/'+element.uuid+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
+                                    div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.uuid+'\')"></div>';
                                     div += '            </a>';
                                 }
                                 div += '            <p class="image-caption">';

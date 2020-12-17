@@ -301,14 +301,14 @@
         $.each(arraySolicitantes,function(key, value){
             html += "<div class='col-md-10 card' style='margin:1%;' >";
                 html+='<div >';
-                html+='<h6>';
-                            if(value.tipo_persona_id == 1){
-                                html+=' '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "");
-                            }else{
-                                html+=' '+value.nombre_comercial;
-                            }
-                        html+='</h6>';
-                    html+='</div>';
+                    html+='<h4>';
+                        if(value.tipo_persona_id == 1){
+                            html+=' - '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "");
+                        }else{
+                            html+=' - '+value.nombre_comercial;
+                        }
+                    html+='</h4>';
+                html+='</div>';
 
                     html+='<div ';
                         html+='<div >';
@@ -362,13 +362,13 @@
         $.each(arraySolicitados,function(key, value){
             html += "<div class='col-md-10 card' style='margin:1%;' >";
             html += "<div >";
-                html+='<h6>';
+                html+='<h4>';
                     if(value.tipo_persona_id == 1){
                         html+=' '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "");
                     }else{
                         html+=' '+value.nombre_comercial;
                     }
-                html+='</h6>';
+                html+='</h4>';
             html+='</div>';
                 html+='<div >';
                     html+='<div>';
