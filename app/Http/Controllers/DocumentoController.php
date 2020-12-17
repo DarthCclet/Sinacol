@@ -278,9 +278,8 @@ class DocumentoController extends Controller
     }
     public function aviso_privacidad(){
         try{
-            $file = Storage::get("aviso_privacidad/aviso-privacidad.pdf");
-            $fileMime = Storage::mimeType("aviso_privacidad/aviso-privacidad.pdf");
-            return response($file, 200)->header('Content-Type', $fileMime);
+            $path = public_path('/assets/img/asesoria/aviso-privacidad.pdf');
+            return response()->file($path);
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensaje: ". $e->getMessage().

@@ -22,6 +22,7 @@ Route::get('/asesoria/{accion}', 'AsesoriaController@index');
 Route::get('/solicitudes/create-public','SolicitudController@create');
 Route::post('/solicitudes/store-public','SolicitudController@store');
 Route::Get('solicitudes/documentos/{solicitud_id}/acuse','SolicitudController@getAcuseSolicitud');
+Route::get('/aviso-privacidad','DocumentoController@aviso_privacidad');
 Route::middleware(['auth'])->group(function () {
 
 

@@ -913,6 +913,63 @@
 </div>
 <!-- Fin Modal de Domicilio-->
 
+<!-- inicio Modal Aviso privacidad-->
+
+<div class="modal" id="modal-aviso-privacidad" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="col-md-12">
+                    <h2 style="text-align: center; ">Aviso de Privacidad Simplificado</h2>
+                </div>
+            </div>
+            <div class="modal-body" >
+                <div class="col-md-12">
+                    <p>
+                        La Coordinación General de Conciliación Individual del Centro Federal de Conciliación y Registro Laboral (CFCRL), hace saber que sus datos personales aquí recabados son tratados de forma estrictamente confidencial.
+                    </p>
+                    <p>
+                        Los datos personales que se recaban podrán ser transferidos con fundamento en el artículo 22; 66 y 70 de la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados. 
+                    </p>
+                    <p>
+                        Usted puede manifestar su negativa para el tratamiento de sus datos personales para aquellas finalidades que no sean necesarias, mediante comparecencia en la Unidad de Transparencia o a través de una solicitud por escrito debidamente firmada y enviada a la cuenta de correo electrónico <a href = "mailto: transparencia@centrolaboral.gob.mx">transparencia@centrolaboral.gob.mx </a>
+                    </p>
+                        La información personal será utilizada con fines de identificación para llevar a cabo la Conciliación Prejudicial. Para más información sobre el uso de sus datos personales y de los derechos que puede hacer valer, puede consultar o acceder a nuestro aviso de privacidad en nuestra página en <a href="/aviso-privacidad"  target="_blank">http://conciliacion.centrolaboral.gob.mx/aviso-privacidad </a>  o enviarnos un correo electrónico a la siguiente dirección: <a href = "mailto: transparencia@centrolaboral.gob.mx">transparencia@centrolaboral.gob.mx </a> 
+                    </p>
+                    <strong style="text-align: center;">
+                        <p>
+                            Atentamente
+                        </p>
+                        <p>
+                            Coordinación General de Conciliación Individual 
+                        </p>
+                        </strong>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12 row">
+
+                    <div class="row col-md-9">
+                        <div class="col-md-4" ></div>
+                        <div class="custom-control custom-radio col-md-4" >
+                            <input type="radio" id="radioAviso1" name="radioAviso" value="1" class="custom-control-input">
+                            <label class="custom-control-label" for="radioAviso1">Si acepto</label>
+                        </div>
+                        <div class="custom-control custom-radio col-md-4">
+                            <input type="radio" id="radioAviso2" name="radioAviso" value="2" class="custom-control-input">
+                            <label class="custom-control-label" for="radioAviso2">No acepto</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-right">
+                        <button class="btn btn-primary m-l-5" onclick="aceptarAviso()"> Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal de Domicilio-->
+
 <!-- inicio Modal Alerta Giro-->
 
 <div class="modal" id="modal-giro" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
@@ -1054,6 +1111,9 @@
     var municipiosCede = []; //Lista de citados
 
     $(document).ready(function() {
+        if($("#instancia").val() == "federal"){
+            $("#modal-aviso-privacidad").modal('show');
+        }
         $('#wizard').smartWizard({
             selected: 0,
             keyNavigation: false,
@@ -2816,6 +2876,39 @@
     window.onpopstate = function () {
         history.go(1);
     };
+    function aceptarAviso(){
+        if($('#radioAviso1').is(":checked")){
+            $("#modal-aviso-privacidad").modal('hide');
+        }else if($('#radioAviso2').is(":checked")){
+            swal({
+                title: '¿Estas seguro? ',
+                text: 'Si no aceptas el aviso de privacidad no podrás capturar una solicitud',
+                icon: '',
+                buttons: {
+                    cancel: {
+                        text: 'Cancelar',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-primary',
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: "Aceptar",
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-primary',
+                        closeModal: true
+                    }
+                }
+            }).then(function(isConfirm){
+                if(isConfirm){
+                    window.location.href = "https://centrolaboral.gob.mx/";
+                }
+            });
+        }else{
+            
+        }
+    }
 </script>
 
 
