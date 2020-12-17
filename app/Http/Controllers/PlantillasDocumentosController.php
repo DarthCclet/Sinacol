@@ -410,6 +410,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'nombre_completo');
                 array_push($columnNames,'qr_firma');
                 array_push($columnNames,'fecha_notificacion');
+                array_push($columnNames,'asistencia');
 
               }
               if($value->nombre =='Conciliador'){
