@@ -378,25 +378,25 @@
                 $("#tbodyContactoSolicitante").html("");
             }else{
                 arrayS = arrayContactoSolicitados;
-                $("#tbodyContactoSolicitado").html("");
+                $("#tbodyContactoCitado").html("");
             }
             var html = "";
 
             $.each(arrayS, function (key, value) {
                 if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined")){
                     html += "<tr>";
-                    $("#tipo_contacto_id_solicitante").val(value.tipo_contacto_id);
-                    html += "<td> " + $("#tipo_contacto_id_solicitante :selected").text(); + " </td>";
+                    $("#tipo_contacto_id_solicitado").val(value.tipo_contacto_id);
+                    html += "<td> " + $("#tipo_contacto_id_solicitado :selected").text(); + " </td>";
                     html += "<td> " + value.contacto + " </td>";
                     html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarContactoSol("+key+","+solicitante+")' ><i class='fa fa-trash'></i></a></td>";
                     html += "</tr>";
                 }
             });
-            $("#tipo_contacto_id_solicitante").val("");
+            $("#tipo_contacto_id_solicitado").val("");
             if(solicitante){
                 $("#tbodyContactoSolicitante").html(html);
             }else{
-                $("#tbodyContactoSolicitado").html(html);
+                $("#tbodyContactoCitado").html(html);
             }
         }catch(error){
             console.log(error);
