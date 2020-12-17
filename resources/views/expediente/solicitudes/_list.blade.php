@@ -799,10 +799,10 @@
                         "targets": -2,
                         "render": function (data, type, row) {
                                 // console.log(row[0]);
-                                if(row[1] == "2" && row[4] != null){
+                                if(row[1] == "2" && row[5] != null){
                                     var d = new Date();
                                     var dateToday = d.getFullYear()+"-"+String(d.getMonth() + 1).padStart(2, '0')+"-"+String(d.getDate()).padStart(2, '0');
-                                    var date1 = new Date(row[4].split(" ")[0]);
+                                    var date1 = new Date(row[5].split(" ")[0]);
                                     var date2 = new Date(dateToday);
                                     var dias = date2 - date1;
                                     dias = (dias/ (1000 * 3600 * 24));

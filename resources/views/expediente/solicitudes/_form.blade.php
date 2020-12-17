@@ -2609,7 +2609,7 @@
                         }else{
                             swal({title: 'ÉXITO',text: 'Solicitud Guardada correctamente',icon: 'success'});
                         }
-                        $("#btnAcuse").attr("href","/api/documentos/getFile/"+data[0].id)
+                        $("#btnAcuse").attr("href","/api/documentos/getFile/"+data[0].uuid)
                         $("#btnGetAcuse").show();
                     }
                 }catch(error){
