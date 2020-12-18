@@ -129,7 +129,7 @@
                     <div class="row" id="form">
                         <div class="col-xl-10 offset-xl-1">
                             <div class="col-md-12 row">
-                                <div class="col-md-6"> 
+                                <div class="col-md-6">
                                     <h1>Solicitud de <span id="labelTipoSolicitud"></span></h1>
                                 </div>
                                 <div class="col-md-6 text-right">
@@ -137,7 +137,7 @@
                                     <div class="col-md-12 row text-center" >
                                         <div class="col-md-2"></div>
                                         <div style="border:1px solid red; padding: 2% 2% 2% 2%;">
-                                            <a href="/aviso-privacidad" target="_blank" class="btn btn-link" style="color:black;">
+                                            <a href="/aviso-privacidad" target="_blank" rel="noopener noreferrer" class="btn btn-link" style="color:black;">
                                             <h5 style="text-align: center">
                                                 Aviso de privacidad integral
                                             </h5>
@@ -511,7 +511,7 @@
                                 <div id="editandoSolicitado"></div>
                             </div>
                             <div  id="divSolicitado">
-                               @if($tipo_solicitud_id == 1) 
+                               @if($tipo_solicitud_id == 1)
                                 <div id="divAyudaCitado" style="margin-top: 2%; margin-bottom: 2%;">
                                     <div>
                                         <p>
@@ -947,19 +947,19 @@
                         La Coordinación General de Conciliación Individual del Centro Federal de Conciliación y Registro Laboral (CFCRL), hace saber que sus datos personales aquí recabados son tratados de forma estrictamente confidencial.
                     </p>
                     <p>
-                        Los datos personales que se recaban podrán ser transferidos con fundamento en el artículo 22; 66 y 70 de la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados. 
+                        Los datos personales que se recaban podrán ser transferidos con fundamento en el artículo 22; 66 y 70 de la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados.
                     </p>
                     <p>
                         Usted puede manifestar su negativa para el tratamiento de sus datos personales para aquellas finalidades que no sean necesarias, mediante comparecencia en la Unidad de Transparencia o a través de una solicitud por escrito debidamente firmada y enviada a la cuenta de correo electrónico <a href = "mailto: transparencia@centrolaboral.gob.mx">transparencia@centrolaboral.gob.mx </a>
                     </p>
-                        La información personal será utilizada con fines de identificación para llevar a cabo la Conciliación Prejudicial. Para más información sobre el uso de sus datos personales y de los derechos que puede hacer valer, puede consultar o acceder a nuestro aviso de privacidad en nuestra página en <a href="/aviso-privacidad"  target="_blank">http://conciliacion.centrolaboral.gob.mx/aviso-privacidad </a>  o enviarnos un correo electrónico a la siguiente dirección: <a href = "mailto: transparencia@centrolaboral.gob.mx">transparencia@centrolaboral.gob.mx </a> 
+                        La información personal será utilizada con fines de identificación para llevar a cabo la Conciliación Prejudicial. Para más información sobre el uso de sus datos personales y de los derechos que puede hacer valer, puede consultar o acceder a nuestro aviso de privacidad en nuestra página en <a href="/aviso-privacidad"  target="_blank">http://conciliacion.centrolaboral.gob.mx/aviso-privacidad </a>  o enviarnos un correo electrónico a la siguiente dirección: <a href = "mailto: transparencia@centrolaboral.gob.mx">transparencia@centrolaboral.gob.mx </a>
                     </p>
                     <strong style="text-align: center;">
                         <p>
                             Atentamente
                         </p>
                         <p>
-                            Coordinación General de Conciliación Individual 
+                            Coordinación General de Conciliación Individual
                         </p>
                         </strong>
                 </div>
@@ -2399,14 +2399,14 @@
                                     //     title: 'Correcto',
                                     //     text: 'Solicitud guardada correctamente',
                                     //     icon: 'success',
-                                    
+
                                     // });
                                     // setTimeout('', 5000);
                                     // location.href='{{ route('solicitudes.index')  }}'
                                     $("#solicitud_id").val(data.data.id);
                                     getDocumentoAcuse();
                                 }else{
-                                    
+
                                 }
                         }catch(error){
                             console.log(error);
@@ -2549,7 +2549,7 @@
         },templateSelection: function(data) {
             if(data && data.id != "" ){
                 var instancia = $("#instancia").val();
-                
+
                 if((data.ambito_id != 1 && instancia == "federal") || (data.ambito_id != 2 && instancia == "local")){
                     if(instancia == "local"){
                         $("#msjFederal").hide();
