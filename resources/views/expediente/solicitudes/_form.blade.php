@@ -137,7 +137,7 @@
                                     <div class="col-md-12 row text-center" >
                                         <div class="col-md-2"></div>
                                         <div style="border:1px solid red; padding: 2% 2% 2% 2%;">
-                                            <a href="/aviso-privacidad" class="btn btn-link" style="color:black;">
+                                            <a href="/aviso-privacidad" target="_blank" class="btn btn-link" style="color:black;">
                                             <h5 style="text-align: center">
                                                 Aviso de privacidad integral
                                             </h5>
