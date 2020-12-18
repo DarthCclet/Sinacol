@@ -125,7 +125,7 @@
         <script>
             $(document).ready(function(){
                 $.ajax({
-                    url:"/audiencia/getCalendario",
+                    url:"/audiencia/getCalendarioCentral",
                     type:"POST",
                     data:{
                         centro_id:1,
