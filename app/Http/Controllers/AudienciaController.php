@@ -1037,11 +1037,11 @@ class AudienciaController extends Controller {
                     ]);
                 }
                 $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago );
-                // $etapaAudiencia = EtapaResolucionAudiencia::create([
-                //     "etapa_resolucion_id" => 6,
-                //     "audiencia_id" => $audiencia->id,
-                //     "evidencia" => true
-                // ]);
+                $etapaAudiencia = EtapaResolucionAudiencia::create([
+                    "etapa_resolucion_id" => 6,
+                    "audiencia_id" => $audiencia->id,
+                    "evidencia" => $request->evidencia
+                ]);
                     
             }
                 
