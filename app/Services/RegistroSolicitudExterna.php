@@ -14,6 +14,7 @@ use App\TipoParte;
 use App\ClasificacionArchivo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 /**
  * Operaciones para el registro de solicitudes de conciliación
  * Class RegistroSolicitudExterna
@@ -93,11 +94,13 @@ class RegistroSolicitudExterna
         Storage::disk('local')->put($directorio. "/" . $filename, $data);
         $path = $directorio."/".$filename;
         $tipoArchivo = ClasificacionArchivo::where("nombre","Credencial de elector")->first();
+        $uuid = Str::uuid();
         $solicitudSaved->documentos()->create([
             "nombre" => str_replace($directorio."/", '',$path),
             "nombre_original" => $documento->nombre,
             "descripcion" => $documento->descripcion,
             "ruta" => $path,
+            "uuid" => $uuid,
             "tipo_almacen" => "local",
             "uri" => $path,
             "longitud" => round(Storage::size($path) / 1024, 2),

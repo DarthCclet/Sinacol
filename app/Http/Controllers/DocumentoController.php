@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Validator as ValidationValidator;
+use Illuminate\Support\Str;
 
 class DocumentoController extends Controller
 {
@@ -132,11 +133,13 @@ class DocumentoController extends Controller
                 $tipoArchivo = ClasificacionArchivo::find($request->tipo_documento_id[0]);
                 foreach($archivos as $archivo) {
                     $path = $archivo->store($directorio);
+                    $uuid = Str::uuid();
                     $audiencia->documentos()->create([
                         "nombre" => str_replace($directorio."/", '',$path),
                         "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                         "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
                         "ruta" => $path,
+                        "uuid" => $uuid,
                         "tipo_almacen" => "local",
                         "uri" => $path,
                         "longitud" => round(Storage::size($path) / 1024, 2),
@@ -176,13 +179,14 @@ class DocumentoController extends Controller
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                 foreach($archivos as $archivo) {
                     $path = $archivo->store($directorio);
-
+                    $uuid = Str::uuid();
                     $documento = $parte->documentos()->create([
                         "nombre" => str_replace($directorio."/", '',$path),
                         "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                         // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                         "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
                         "ruta" => $path,
+                        "uuid" => $uuid,
                         "tipo_almacen" => "local",
                         "uri" => $path,
                         "longitud" => round(Storage::size($path) / 1024, 2),
@@ -190,7 +194,7 @@ class DocumentoController extends Controller
                         "clasificacion_archivo_id" => $tipoArchivo->id ,
                     ]);
                 }
-                return '{ "files": [ { "success": "Documento almacenado correctamente","thumbnailUrl":"/api/documentos/getFile/'.$documento->id.'" ,"error":0, "name": "'.$tipoArchivo->nombre.'.pdf" } ] }';
+                return '{ "files": [ { "success": "Documento almacenado correctamente","thumbnailUrl":"/documentos/getFile/'.$documento->uuid.'" ,"error":0, "name": "'.$tipoArchivo->nombre.'.pdf" } ] }';
             }else{
                 return '{ "files": [ { "error": "Ya existe un documento para este solicitante", "name": "" } ] }';
 
@@ -225,13 +229,14 @@ class DocumentoController extends Controller
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                 foreach($archivos as $archivo) {
                     $path = $archivo->store($directorio);
-
+                    $uuid = Str::uuid();
                     $documento = $parte->documentos()->create([
                         "nombre" => str_replace($directorio."/", '',$path),
                         "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                         // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                         "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
                         "ruta" => $path,
+                        "uuid" => $uuid,
                         "tipo_almacen" => "local",
                         "uri" => $path,
                         "longitud" => round(Storage::size($path) / 1024, 2),
@@ -239,7 +244,7 @@ class DocumentoController extends Controller
                         "clasificacion_archivo_id" => $tipoArchivo->id ,
                     ]);
                 }
-                return '{ "files": [ { "success": "Documento almacenado correctamente", "error":0, "name": "'.$tipoArchivo->nombre.'.pdf" } ] }';
+                return '{ "files": [ { "success": "Documento almacenado correctamente","thumbnailUrl":"/documentos/getFile/'.$documento->uuid.'" ,"error":0, "name": "'.$tipoArchivo->nombre.'.pdf" } ] }';
             }else{
                 return '{ "files": [ { "error": "Ya existe un documento para este solicitante", "name": "" } ] }';
 
@@ -253,11 +258,34 @@ class DocumentoController extends Controller
         }
         return '{ "files": [ { "error": "No se capturó solicitud", "name": "thumb2.jpg" } ] }';
     }
-    public function getFile($id){
-        $documento = Documento::find($id);
-        $file = Storage::get($documento->ruta);
-        $fileMime = Storage::mimeType($documento->ruta);
-        return response($file, 200)->header('Content-Type', $fileMime);
+    public function getFile($uuid){
+        try{
+
+            $documento = Documento::where('uuid',$uuid)->first();
+            if($documento){
+                $file = Storage::get($documento->ruta);
+                $fileMime = Storage::mimeType($documento->ruta);
+                return response($file, 200)->header('Content-Type', $fileMime);
+            }else{
+                abort(404);
+            }
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            abort(404);
+        }
+    }
+    public function aviso_privacidad(){
+        try{
+            $path = public_path('/assets/img/asesoria/aviso-privacidad.pdf');
+            return response()->file($path);
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            abort(404);
+        }
     }
 
     public function preview(Request $request)
@@ -391,13 +419,14 @@ class DocumentoController extends Controller
             
             $path = $archivo->store($directorio);
             if($solicitud && $archivo ){
-
+                $uuid = Str::uuid();
                 $documento = $solicitud->documentos()->create([
                     "nombre" => $request->nombre_documento,
                     "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                     // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                     "descripcion" => $request->descripcion,
                     "ruta" => $path,
+                    "uuid" => $uuid,
                     "tipo_almacen" => "local",
                     "uri" => $path,
                     "longitud" => round(Storage::size($path) / 1024, 2),
@@ -420,13 +449,34 @@ class DocumentoController extends Controller
         
         try{
             
-            $clasificacion_archivos = array_pluck(ClasificacionArchivo::whereIn('id',[13,14,15,16,17,18,40])->get(),'nombre','id');
+            $clasificacion_archivos = array_pluck(ClasificacionArchivo::whereIn('id',[13,14,15,16,17,18,40])->orderBy('nombre')->get(),'nombre','id');
             return view('herramientas.regenerar_documentos', compact('clasificacion_archivos'));
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensaje: ". $e->getMessage().
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
                        return view('herramientas.regenerar_documentos');
+        }
+    }
+    
+    public function storeRegenerarDocumento(Request $request){
+        
+        try{
+            $arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10];
+            $idSolicitud = $request->get('solicitud_id',1);
+            $idAudiencia = $request->get('audiencia_id');
+            $clasificacion_archivo_id = $request->get('clasificacion_archivo_id');
+            $idSolicitante = $request->get('solicitante_id');
+            $idSolicitado = $request->get('solicitado_id');
+            $plantilla_id = $arrayPlantilla[$clasificacion_archivo_id];
+            event(new GenerateDocumentResolution($idAudiencia, $idSolicitud, $clasificacion_archivo_id, $plantilla_id, $idSolicitante, $idSolicitado));
+            return response()->json(['success' => true, 'message' => 'Se genero el documento correctamente', 'data' => null], 200);
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+            " Se emitió el siguiente mensaje: ". $e->getMessage().
+            " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => 'No se genero el documento correctamente', 'data' => null], 200);
+            
         }
     }
     

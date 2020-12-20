@@ -52,7 +52,9 @@ use App\Events\RatificacionRealizada;
 use App\TipoSolicitud;
 use Carbon\Carbon;
 use App\Traits\FechaNotificacion;
+use Exception;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class SolicitudController extends Controller {
     use FechaNotificacion;
@@ -423,7 +425,7 @@ class SolicitudController extends Controller {
                     unset($value['domicilios']);
                     if($key == 0 && ($tipo_solicitud_id == 1 ||$tipo_solicitud_id == 4 )){
                         $domiciliop = $domicilios[0]["estado_id"];
-                        $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilio['municipio']);
+                        $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilios[0]['municipio']);
                     }
                 }
                 if (isset($value["contactos"])) {
@@ -489,6 +491,7 @@ class SolicitudController extends Controller {
                 if($centro_municipio != null){
                     $centro = Centro::find($centro_municipio->centro_id);
                 }
+                Log::debug("El estado asignado tiene multiples sedes, el municipio asignado es". $municipio. ",  se busca el centro que respalda ese municipio, se encuentra el siguiente: ".print_r($centro_municipio,true)." Se asigno el centro". print_r($centro,true));
             }
         }else{
             $centro = Centro::inRandomOrder()->first();
@@ -551,6 +554,59 @@ class SolicitudController extends Controller {
         return $solicitud;
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  Solicitud  $solicitud
+     * @return \Illuminate\Http\Response
+     */
+    public function getSolicitudByFolio(Request $request) {
+        try{
+
+            $solicitud = Solicitud::where('folio',$request->folio)->where('anio',$request->anio)->first();;
+            
+            $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
+            
+            $solicitantes = $partes->where('tipo_parte_id', 1);
+            
+            foreach ($solicitantes as $key => $value) {
+                $value->dato_laboral;
+                $value->domicilios;
+                $value->contactos;
+                $value->lenguaIndigena;
+                $solicitantes[$key]["activo"] = 1;
+            }
+            $solicitados = $partes->where('tipo_parte_id', 2);
+            foreach ($solicitados as $key => $value) {
+                $value->domicilios;
+                $value->contactos;
+                $solicitados[$key]["activo"] = 1;
+            }
+            $solicitud->objeto_solicitudes;
+            $solicitud["solicitados"] = $solicitados;
+            $solicitud["solicitantes"] = $solicitantes;
+            $solicitud->expediente = $solicitud->expediente;
+            $solicitud->giroComercial = $solicitud->giroComercial;
+            $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
+            $solicitud->centro = $solicitud->centro;
+            $solicitud->tipoSolicitud = $solicitud->tipoSolicitud;
+            if($solicitud->expediente){
+                $solicitud->audiencias = $solicitud->expediente->audiencia;
+                foreach($solicitud->audiencias as $audiencia){
+                    $audiencia->conciliador->persona;
+                }
+            }
+            if($solicitud->giroComercial){
+                $solicitud->giroComercial->ambito;
+            }
+            return response()->json(['success' => true, 'message' => 'Se genero el documento correctamente', 'data' => $solicitud], 200);
+        }catch(Exception $e ){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => 'No se encontraron datos relacionados', 'data' => null], 200);
+        }
+    }
     /**
      * Show the form for editing the specified resource.
      *
@@ -623,7 +679,6 @@ class SolicitudController extends Controller {
             
             //Consulta de solicitud con relaciones
             $solicitud = Solicitud::find($id);
-            $parte = Parte::all()->where('solicitud_id', $solicitud->id);
 
             $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
 
@@ -1229,7 +1284,7 @@ class SolicitudController extends Controller {
                 $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
                 $centroResponsable = auth()->user()->centro;
                 if($solicitud->tipo_solicitud_id == 3 || $solicitud->tipo_solicitud_id == 4){
-                    $centroResponsable = Centro::where("nombre","Oficina Central del CFCRL")->first();
+                    $centroResponsable = Centro::where("abreviatura","OCCFCRL")->first();
                 }
                 if($request->separados == "true"){
                     $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax);
@@ -1363,12 +1418,13 @@ class SolicitudController extends Controller {
                 Storage::makeDirectory($directorio);
                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                 $path = $archivo->store($directorio);
-
+                $uuid = Str::uuid();
                 $parte->documentos()->create([
                     "nombre" => str_replace($directorio."/", '',$path),
                     "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                     "descripcion" => "Documento de audiencia ".$tipoArchivo->nombre,
                     "ruta" => $path,
+                    "uuid" => $uuid,
                     "tipo_almacen" => "local",
                     "uri" => $path,
                     "longitud" => round(Storage::size($path) / 1024, 2),
@@ -1602,6 +1658,17 @@ class SolicitudController extends Controller {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                " Se emitió el siguiente mensale: ". $e->getMessage().
                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+        }
+    }
+
+    public function incidencias_solicitudes(){
+        try{
+            return view('herramientas.incidencias_solicitudes');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+                       return view('herramientas.incidencias_solicitudes');
         }
     }
 }

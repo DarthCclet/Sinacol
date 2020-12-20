@@ -85,6 +85,7 @@
             <div class="modal-footer">
                 <div class="text-right">
                     <button class="btn btn-primary btn-sm m-l-5" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-arrow-down"></i> Cerrar</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnCambiarConciliador"><i class="fa fa-user-friends"></i> Cambiar Conciliador</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnFinalizarRatificacion"><i class="fa fa-calendar"></i> Reprogramar</button>
                 </div>
             </div>
@@ -148,9 +149,87 @@
         </div>
     </div>
 </div>
+<div class="modal" id="modal-cambiar-conciliador" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Asignar audiencia</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-muted">
+                    - Selecciona el conciliador y la sala donde se celebrará la audiencia<br>
+                    - La fecha limite para notificar será 5 días habiles previo a la fecha de audiencia (<span id="lableFechaInicio"></span>)
+                </div>
+                <div id="divAsignarUnoCambiar">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="conciliador_id" class="col-sm-6 control-label">Conciliador</label>
+                            <select id="conciliador_cambio_id" class="form-control">
+                                <option value="">-- Selecciona un conciliador</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="divAsignarDosCambiar">
+                    <div class="col-md-12 row">
+                        <div class="col-md-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Solicitante</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="conciliador_cambio_solicitante_id" class="col-sm-6 control-label">Conciliador</label>
+                                            <div class="col-sm-10">
+                                                <select id="conciliador_cambio_solicitante_id" class="form-control">
+                                                    <option value="">-- Selecciona un conciliador</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Citado</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="conciliador_cambio_solicitado_id" class="col-sm-6 control-label">Conciliador</label>
+                                            <div class="col-sm-10">
+                                                <select id="conciliador_cambio_solicitado_id" class="form-control">
+                                                    <option value="">-- Selecciona un conciliador</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarConciliadorCambio"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <input type="hidden" id="fecha_audiencia"/>
 <input type="hidden" id="audiencia_id"/>
 <input type="hidden" id="multiple"/>
+<input type="hidden" id="tipoAsignacionCambiar"/>
+<input type="hidden" id="fecha_audiencia"/>
+<input type="hidden" id="hora_inicio_audiencia"/>
+<input type="hidden" id="hora_fin_audiencia"/>
 @endsection
 
 <!-- Fin Modal de disponibilidad-->
@@ -243,6 +322,15 @@
                                     $("#btnCambiarConciliador").show();
                                     $("#labelFinalizada").hide();
                                 }
+                                if(!data.multiple){
+                                    $("#divAsignarUnoCambiar").show();
+                                    $("#divAsignarDosCambiar").hide();
+                                    $("#tipoAsignacionCambiar").val(1);
+                                }else{
+                                    $("#divAsignarUnoCambiar").hide();
+                                    $("#divAsignarDosCambiar").show();
+                                    $("#tipoAsignacionCambiar").val(2);
+                                }
                                 $("#audiencia_id").val(audiencia_id);
                                 $("#spanFolio").text(data.folio+"/"+data.anio);
                                 if(fuente == "NoCalendarizada"){
@@ -314,6 +402,84 @@
             });
             function AgregarAudiencia(audiencia_id){
                 
+            }
+            $("#btnCambiarConciliador").on("click",function(){
+                getConciliadores($("#hora_inicio_audiencia").val(),$("#hora_fin_audiencia").val());
+                $("#modal-cambiar-conciliador").modal("show");
+            });
+            $("#btnGuardarConciliadorCambio").on("click",function(){
+                var validacion = validarAsignacionCambio();
+                if(!validacion.error){
+                    var fecha_audiencia = $("#hora_inicio").val();
+                    $.ajax({
+                        url:'/audiencia/cambiar_conciliador',
+                        type:"POST",
+                        data:{
+                            tipoAsignacion:$("#tipoAsignacion").val(),
+                            asignacion:validacion.arrayEnvio,
+                            audiencia_id:$("#audiencia_id").val(),
+                            _token:"{{ csrf_token() }}"
+                        },
+                        dataType:"json",
+                        success:function(data){
+                            try{
+                                console.log(data);
+                                if(data != null && data != ""){
+                                    swal({
+                                        title: 'Correcto',
+                                        text: 'Se cambio el conciliador de la audiencia',
+                                        icon: 'success'
+                                    });
+                                    $('.modal').modal('hide');
+                                    setTimeout('', 5000);
+                                    location.reload();
+                                }else{
+                                    swal({
+                                        title: 'Algo salió mal',
+                                        text: 'No se registro la audiencia',
+                                        icon: 'warning'
+                                    });
+                                }
+                            }catch(error){
+                                console.log(error);
+                            }
+                        }
+                    });
+                }else{
+                    swal({
+                        title: 'Algo salió mal',
+                        text: validacion.msg,
+                        icon: 'warning'
+                    });
+                }
+            });
+            function validarAsignacionCambio(){
+                var error = false;
+                var msg="";
+                var arrayEnvio = new Array();
+                if($("#tipoAsignacionCambiar").val() == 1){
+                    if($("#conciliador_cambio_id").val() == ""){
+                        error = true;
+                        msg = "Selecciona un conciliador";
+                    }
+                    if(!error){
+                        arrayEnvio.push({conciliador:$("#conciliador_cambio_id").val(),resolucion:true});
+                    }
+                }else{
+                    if(($("#conciliador_cambio_solicitante_id").val() == "" || $("#conciliador_cambio_solicitado_id").val() == "") || ($("#conciliador_cambio_solicitante_id").val() == $("#conciliador_cambio_solicitado_id").val())){
+                        error = true;
+                        msg = "Asegurate de seleccionar los conciliadores y que no sean el mismo";
+                    }
+                    if(!error){
+                        arrayEnvio.push({conciliador:$("#conciliador_cambio_solicitante_id").val(),resolucion:true});
+                        arrayEnvio.push({conciliador:$("#conciliador_cambio_solicitado_id").val(),resolucion:false});
+                    }
+                }
+                var array = [];
+                array.error=error;
+                array.msg=msg;
+                array.arrayEnvio=arrayEnvio;
+                return array;
             }
         </script>
 @endpush

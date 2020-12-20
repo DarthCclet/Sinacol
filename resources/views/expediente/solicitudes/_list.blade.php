@@ -799,10 +799,10 @@
                         "targets": -2,
                         "render": function (data, type, row) {
                                 // console.log(row[0]);
-                                if(row[1] == "2" && row[4] != null){
+                                if(row[1] == "2" && row[5] != null){
                                     var d = new Date();
                                     var dateToday = d.getFullYear()+"-"+String(d.getMonth() + 1).padStart(2, '0')+"-"+String(d.getDate()).padStart(2, '0');
-                                    var date1 = new Date(row[4].split(" ")[0]);
+                                    var date1 = new Date(row[5].split(" ")[0]);
                                     var date2 = new Date(dateToday);
                                     var dias = date2 - date1;
                                     dias = (dias/ (1000 * 3600 * 24));
@@ -1545,14 +1545,14 @@
                             div += '<div class="image gallery-group-1">';
                             div += '    <div class="image-inner" style="position: relative;">';
                             if(element.tipo == 'pdf' || element.tipo == 'PDF'){
-                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
+                                div += '            <a href="/api/documentos/getFile/'+element.uuid+'" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">';
                                 div += '                <div class="img" align="center">';
                                 div += '                    <i class="fa fa-file-pdf fa-4x" style="color:black;margin: 0;position: absolute;top: 50%;transform: translateX(-50%);"></i>';
                                 div += '                </div>';
                                 div += '            </a>';
                             }else{
-                                div += '            <a href="/api/documentos/getFile/'+element.id+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
-                                div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.id+'\')"></div>';
+                                div += '            <a href="/api/documentos/getFile/'+element.uuid+'" data-toggle="lightbox" data-gallery="example-gallery" data-type="image">';
+                                div += '                <div class="img" style="background-image: url(\'/api/documentos/getFile/'+element.uuid+'\')"></div>';
                                 div += '            </a>';
                             }
                             div += '            <p class="image-caption">';

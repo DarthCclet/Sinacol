@@ -11,6 +11,7 @@ use App\ClasificacionArchivo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 class NotificacionServiceController extends Controller
 {
      protected $request;
@@ -43,6 +44,7 @@ class NotificacionServiceController extends Controller
                         $fullPath = $directorio.'/notificacion'.$parteDemandado->id.'.pdf';
                         $dir = Storage::put($fullPath, $image);
                         $clasificacion = ClasificacionArchivo::where("nombre","Razón de notificación citatorio")->first();
+                        $uuid = Str::uuid();
                         $parteDemandado->documentos()->create([
                             "nombre" => "Notificacion".$parteDemandado->id,
                             "nombre_original" => "Notificacion".$parteDemandado->id,
@@ -51,6 +53,7 @@ class NotificacionServiceController extends Controller
                             "nombre_original" => str_replace($directorio."/", '',$fullPath),
                             "descripcion" => "Documento de notificacion ",
                             "ruta" => $fullPath,
+                            "uuid" => $uuid,
                             "tipo_almacen" => "local",
                             "uri" => $fullPath,
                             "longitud" => round(Storage::size($fullPath) / 1024, 2),

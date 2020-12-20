@@ -54,6 +54,7 @@ use App\Mail\CambioFecha;
 use App\TipoAsentamiento;
 use App\TipoVialidad;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class AudienciaController extends Controller {
 
@@ -465,7 +466,7 @@ class AudienciaController extends Controller {
         $fechaFin = $request->fechaFin;
         $fechaFinSola = date('Y-m-d', strtotime($request->fechaFin));
         $horaFin = date('H:i:s', strtotime($request->fechaFin));
-        $centro = Centro::where("nombre","Oficina Central del CFCRL")->first();
+        $centro = Centro::where("abreviatura","OCCFCRL")->first();
 
         $conciliadores = Conciliador::where("centro_id", $centro->id)->get();
         $conciliadoresResponse = [];
@@ -577,7 +578,7 @@ class AudienciaController extends Controller {
         $fechaFinSola = date('Y-m-d', strtotime($request->fechaFin));
         $horaFin = date('H:i:s', strtotime($request->fechaFin));
         ## Obtenemos las salas -> en el futuro seran filtradas por el centro de la sesión
-        $centro = Centro::where("nombre","Oficina Central del CFCRL")->first();
+        $centro = Centro::where("abreviatura","OCCFCRL")->first();
         $salas = Sala::where("centro_id", $centro->id)->get();
         $salasResponse = [];
         ## Recorremos las salas para la audiencia
@@ -842,7 +843,7 @@ class AudienciaController extends Controller {
      */
     public function getCalendarioCentral(Request $request) {
         // inicio obtenemos los datos del centro donde no trabajará
-        $centro = Centro::where("nombre","Oficina Central del CFCRL")->first();
+        $centro = Centro::where("abreviatura","OCCFCRL")->first();
         $centroDisponibilidad = $centro->disponibilidades;
         $laboresCentro = array();
         foreach ($centroDisponibilidad as $key => $value) {
@@ -1649,7 +1650,7 @@ class AudienciaController extends Controller {
                     $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                     
                     $path = $archivo->store($directorio);
-                    
+                    $uuid = Str::uuid();
                     $documento = $audiencia->documentos()->create([
                         "nombre" => str_replace($directorio."/", '',$path),
                         "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
@@ -1658,6 +1659,7 @@ class AudienciaController extends Controller {
                         "ruta" => $path,
                         "tipo_almacen" => "local",
                         "uri" => $path,
+                        "uuid" => $uuid,
                         "longitud" => round(Storage::size($path) / 1024, 2),
                         "firmado" => "false",
                         "clasificacion_archivo_id" => $tipoArchivo->id ,
@@ -1729,7 +1731,7 @@ class AudienciaController extends Controller {
                         $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                         
                         $path = $archivo->store($directorio);
-                        
+                        $uuid = Str::uuid();
                         $documento = $audiencia->documentos()->create([
                             "nombre" => str_replace($directorio."/", '',$path),
                             "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
@@ -1738,6 +1740,7 @@ class AudienciaController extends Controller {
                             "ruta" => $path,
                             "tipo_almacen" => "local",
                             "uri" => $path,
+                            "uuid" => $uuid,
                             "longitud" => round(Storage::size($path) / 1024, 2),
                             "firmado" => "false",
                             "clasificacion_archivo_id" => $tipoArchivo->id ,
@@ -1781,7 +1784,8 @@ class AudienciaController extends Controller {
     public function guardarDocumento($idAudiencia,$html,$htmlHeader,$tipo_archivo_id){
         $audiencia = Audiencia::find($idAudiencia);
         $tipoArchivo = ClasificacionArchivo::find($tipo_archivo_id);
-        $archivo = $audiencia->documentos()->create(["descripcion" => "".$tipoArchivo->nombre ]);
+        $uuid = Str::uuid();
+        $archivo = $audiencia->documentos()->create(["descripcion" => "".$tipoArchivo->nombre ,'uuid'=> $uuid]);
 
         $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $idAudiencia;
 
@@ -2165,11 +2169,13 @@ class AudienciaController extends Controller {
 //            dd($archivos);
 //            foreach($archivos as $archivo) {
             $path = $archivo->store($directorio);
+            $uuid = Str::uuid();
             $audiencia->documentos()->create([
                 "nombre" => str_replace($directorio . "/", '', $path),
                 "nombre_original" => str_replace($directorio, '', $archivo->getClientOriginalName()),
                 "descripcion" => "Justificante " . $tipoArchivo->nombre,
                 "ruta" => $path,
+                "uuid" => $uuid,
                 "tipo_almacen" => "local",
                 "uri" => $path,
                 "longitud" => round(Storage::size($path) / 1024, 2),
