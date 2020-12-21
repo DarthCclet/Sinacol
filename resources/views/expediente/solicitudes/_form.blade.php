@@ -770,10 +770,11 @@
                         <center>  <h1>Solicitud</h1></center>
                     <div class="col-md-12 row">
                         <input type="hidden" id="solicitud_id">
+                        <input type="hidden" id="ratificada">
                         <input type="hidden" id="tipo_solicitud_id" value="{{$tipo_solicitud_id}}">
                         <div class="col-md-4 showEdit" >
-                            <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de ratificación" type="text" value="">
-                            <p class="help-block">Fecha de ratificación</p>
+                            <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de confirmación" type="text" value="">
+                            <p class="help-block">Fecha de confirmaci&oacute;n</p>
                         </div>
                         <div class="col-md-4 showEdit">
                             <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
@@ -804,7 +805,7 @@
                                 </table>
                             </div>
                             <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
-                            <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
+                            <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
                             <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                                 <table class="table table-bordered" >
                                     <thead>
@@ -819,7 +820,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
+                            <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoCitado" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
                             <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                                 <table class="table table-bordered" >
                                     <thead>
@@ -908,7 +909,7 @@
                     </div>
                 </div>
                 <br>
-                <div class="alert alert-warning"><h4>Descarga tu acuse para presentarlo al realizar la ratificación</h4></div>
+                <div class="alert alert-warning"><h4>Descarga tu acuse para presentarlo al realizar la confirmaci&oacute;n</h4></div>
                 <br>
                 <div>
                     <div class="col-md-10 offset-1" id="btnGetAcuse" style="display: none;">
@@ -1003,7 +1004,7 @@
                         El sistema indica que la actividad principal del patrón es de competencia local, no federal.
                     </p>
                     <p style="font-size:large;">
-                        Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de ratificación su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
+                        Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de confirmaci&oacute;n su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
                     </p>
                 </div>
                 <div style="display: none;" id="msjLocal">
@@ -1011,7 +1012,7 @@
                         El sistema indica que la actividad principal del patrón es de competencia federal, no local.
                     </p>
                     <p style="font-size:large;">
-                        Acuda a la Oficina Estatal del Centro Federal de Conciliación y Registro Laboral de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el CFCRL, puede continuar la solicitud en el Centro de Conciliación Local y en el momento de ratificación su solicitud será revisada por un funcionario del Centro, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al CFCRL.
+                        Acuda a la Oficina Estatal del Centro Federal de Conciliación y Registro Laboral de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el CFCRL, puede continuar la solicitud en el Centro de Conciliación Local y en el momento de confirmaci&oacute;n su solicitud será revisada por un funcionario del Centro, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al CFCRL.
                     </p>
                 </div>
             </div>
@@ -1129,9 +1130,6 @@
     var municipiosCede = []; //Lista de citados
 
     $(document).ready(function() {
-        if($("#instancia").val() == "federal"){
-            $("#modal-aviso-privacidad").modal('show');
-        }
         $('#wizard').smartWizard({
             selected: 0,
             keyNavigation: false,
@@ -1158,6 +1156,9 @@
             // FormMultipleUpload.init();
             // Gallery.init();
         }else{
+            if($("#instancia").val() == "federal"){
+                $("#modal-aviso-privacidad").modal('show');
+            }
             $(".showEdit").hide();
             $(".estatusSolicitud").hide();
         }
@@ -1694,7 +1695,10 @@
                     // }) ;
                     // console.log(excepcion);
                     // $(".step-6").show();
+                    $("#ratificada").val(data.ratificada);
                     if(data.ratificada){
+                        $("#btnAgregarNuevoSolicitante").hide();
+                        $("#btnAgregarNuevoCitado").hide();
                         $("#btnRatificarSolicitud").hide();
                         $("#expediente_id").val(data.expediente.id);
                         expedientee = true;
@@ -2037,7 +2041,9 @@
                 }
 
                 html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
-                html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                if($("#ratificada").val() != "true"){
+                    html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                }
                 html += "</tr>";
             }
         });
@@ -2075,7 +2081,9 @@
                 }
 
                 html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitado("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
-                html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitado("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                if($("#ratificada").val() != "true"){
+                    html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitado("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                }
                 html += "</tr>";
             }
         });

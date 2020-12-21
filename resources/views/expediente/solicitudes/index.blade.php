@@ -58,8 +58,8 @@
                 <p class="help-block needed">A&ntilde;o</p>
             </div>
             <div class="col-md-4">
-                <input class="form-control date filtros" id="fechaRatificacion" placeholder="Fecha de ratificacion" type="text" value="">
-                <p class="help-block needed">Fecha de ratificaci&oacute;n</p>
+                <input class="form-control date filtros" id="fechaRatificacion" placeholder="Fecha de confirmaci&oacute;n" type="text" value="">
+                <p class="help-block needed">Fecha de confirmaci&oacute;n</p>
             </div>
             <div class="col-md-4">
                 <input class="form-control date filtros" id="fechaRecepcion" placeholder="Fecha de recepcion" type="text" value="">
@@ -95,8 +95,8 @@
             <label class="col-md-12"> Filtros</label>
             <button class="btn btn-primary pull-right m-2" onclick="filtros()">Mas filtros</button>
             <button class="btn btn-primary pull-right m-2 estatus" id="estatus3" onclick="$('#estatus_solicitud_id').val(3).trigger('change');" >Concluidas</button>
-            <button class="btn btn-primary pull-right m-2 estatus" id="estatus2" onclick="$('#estatus_solicitud_id').val(2).trigger('change');">Ratificadas</button>
-            <button class="btn btn-primary pull-right m-2 estatus" id="estatus1" onclick="$('#estatus_solicitud_id').val(1).trigger('change');">Sin Ratificar</button>
+            <button class="btn btn-primary pull-right m-2 estatus" id="estatus2" onclick="$('#estatus_solicitud_id').val(2).trigger('change');">Confirmada</button>
+            <button class="btn btn-primary pull-right m-2 estatus" id="estatus1" onclick="$('#estatus_solicitud_id').val(1).trigger('change');">Sin Confirmar</button>
             <button class="btn btn-primary pull-right m-2 estatus selectedButton" id="estatus" onclick="$('#estatus_solicitud_id').val('').trigger('change');">Todas</button>
         </div>
         <br>

@@ -794,9 +794,9 @@ class AudienciaController extends Controller {
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             if ($this->request->wantsJson()) {
-                return $this->sendError('Error al ratificar la solicitud', 'Error');
+                return $this->sendError('Error al confirmar la solicitud', 'Error');
             }
-            return redirect('solicitudes')->with('error', 'Error al ratificar la solicitud');
+            return redirect('solicitudes')->with('error', 'Error al confirmar la solicitud');
         }
     }
 
