@@ -1151,9 +1151,9 @@ class SolicitudController extends Controller {
             DB::rollback();
             // dd($e);
             if ($this->request->wantsJson()) {
-                return $this->sendError('Error al ratificar la solicitud', 'Error');
+                return $this->sendError('Error al confirmar la solicitud', 'Error');
             }
-            return redirect('solicitudes')->with('error', 'Error al ratificar la solicitud');
+            return redirect('solicitudes')->with('error', 'Error al confirmar la solicitud');
         }
     }
     public function Ratificar(Request $request) {
@@ -1191,7 +1191,7 @@ class SolicitudController extends Controller {
 //                Validamos que el que ratifica sea conciliador
                 if(!auth()->user()->hasRole('Personal conciliador')){
                     DB::rollBack();
-                    return $this->sendError('La solicitud con convenio solo puede ser ratificada por personal conciliador', 'Error');
+                    return $this->sendError('La solicitud con convenio solo puede ser confirmada por personal conciliador', 'Error');
                 }else{
                     //Buscamos el conciliador del usuario
                     if(isset(auth()->user()->persona->conciliador)){
@@ -1380,9 +1380,9 @@ class SolicitudController extends Controller {
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             if ($this->request->wantsJson()) {
-                return $this->sendError('Error al ratificar la solicitud', 'Error');
+                return $this->sendError('Error al confirmar la solicitud', 'Error');
             }
-            return redirect('solicitudes')->with('error', 'Error al ratificar la solicitud');
+            return redirect('solicitudes')->with('error', 'Error al confirmar la solicitud');
         }
 //        catch (\GuzzleHttp\Exception\ClientException $e) {
 //            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().

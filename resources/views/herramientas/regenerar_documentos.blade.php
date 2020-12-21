@@ -431,7 +431,7 @@
                 }
                 if(solicitudObj.ratificada == true){
                     html += "<div class='col-md-3'>";
-                        html += "<label ><b>Fecha de ratificaci&oacute;n:</b> "+solicitudObj.fecha_ratificacion+ "</label ><br>";
+                        html += "<label ><b>Fecha de confirmaci&oacute;n:</b> "+solicitudObj.fecha_ratificacion+ "</label ><br>";
                     html += "</div>";
                 }
                 html += "<div class='col-md-3'>";

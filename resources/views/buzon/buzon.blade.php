@@ -18,13 +18,13 @@
             <div id="collapse{{$solicitud->id}}" class="collapse" data-parent="#accordion">
                 <div class="card-body">
                     <ul>
-                        <li>Ratificacion:
+                        <li>Confirmaci&oacute;n:
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
                                     <td class="text-nowrap"><strong>Fecha de Solicitud:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_solicitud)->format('d/m/Y')}}</td>
                                     <td class="text-nowrap"><strong>Fecha de Conflicto:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_conflicto)->format('d/m/Y')}}</td>
                                     <td class="text-nowrap"><strong>Objeto de la solicitud:</strong> {{$solicitud->objeto_solicitudes[0]->nombre}}</td>
-                                    <td class="text-nowrap"><strong>Fecha de ratificación:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_ratificacion)->format('d/m/Y')}}</td>
+                                    <td class="text-nowrap"><strong>Fecha de confirmaci&oacute;n:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_ratificacion)->format('d/m/Y')}}</td>
                                     <td class="text-nowrap"><strong>Centro:</strong> {{$solicitud->centro->nombre}}</td>
                                 </tr>
                                 <tr>

@@ -19,7 +19,7 @@
 <input type="hidden" id="rutaConsulta" value="{!! route("solicitudes.consulta",'-rutaConsulta') !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
-      <tr><th>Id</th><th class="all">Estatus</th><th class="all">Folio</th><th >Anio</th><th class="all">Fecha de ratificación</th><th>Fecha de recepción</th><th class="all">Fecha de conflicto</th><th class="all">Centro</th><th class="all">Partes</th><th class="all">Expediente</th><th class="all">Días para expiraci&oacute;n</th><th class="all">Acción</th></tr>
+      <tr><th>Id</th><th class="all">Estatus</th><th class="all">Folio</th><th >Anio</th><th class="all">Fecha de confirmaci&oacute;n</th><th>Fecha de recepción</th><th class="all">Fecha de conflicto</th><th class="all">Centro</th><th class="all">Partes</th><th class="all">Expediente</th><th class="all">Días para expiraci&oacute;n</th><th class="all">Acción</th></tr>
     </thead>
 
 </table>
@@ -177,7 +177,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Ratificaci&oacute;n</h2>
+                <h2 class="modal-title">Confirmaci&oacute;n</h2>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -266,9 +266,9 @@
             <div class="modal-footer">
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Ratificar</button>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnRatificarIncompetencia'><i class="fa fa-save"></i> Ratificar con incompetencia</button>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarConvenio'><i class="fa fa-save"></i> Ratificar con convenio</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Confirmar</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnRatificarIncompetencia'><i class="fa fa-save"></i> Confirmar con incompetencia</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarConvenio'><i class="fa fa-save"></i> Confirmar con convenio</button>
                 </div>
             </div>
         </div>
@@ -487,18 +487,18 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Ratificación inmediata</h4>
+                <h4 class="modal-title">Confirmaci&oacute;n inmediata</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-muted">
                     <p>
-                        Usted está a punto de ratificar la solicitud para que se de resolución inmediatamente, las indicaciones para esta resolución son las siguientes.<br><br>
+                        Usted está a punto de confirmar la solicitud para que se de resolución inmediatamente, las indicaciones para esta resolución son las siguientes.<br><br>
                         <ul>
                             <li>Debido a que no se requiere sala para realizar la audiencia, se asignará una sala virtual y el conciliador será asignado de acuerdo a la disponibilidad</li>
                             <li>Debido a que ya hay un convenio entré las partes, la unica labor del conciliador será dar fe de lo acordado</li>
-                            <li>Se deberá acceder a la guia de audiencia donde se llenarán los datos requerido para extender la ratificación y el documento que de esta resulte</li>
-                            <li>Si desea continuar con el proceso de ratificación inmediata presione ratificar</li>
+                            <li>Se deberá acceder a la guia de audiencia donde se llenarán los datos requerido para extender la confirmaci&oacute;n y el documento que de esta resulte</li>
+                            <li>Si desea continuar con el proceso de confirmaci&oacute;n inmediata presione confirmar</li>
                             <li>Si desea agendar una audiencia para conciliar, presione cancelar</li>
                         </ul>
                     </p>
@@ -582,7 +582,7 @@
             </div>
             <div class="modal-footer">
                 <div class="text-right">
-                    <a class="btn btn-primary btn-sm" data-dismiss="modal" onclick="continuarRatificacion()"><i class="fa fa-sign-out"></i> Continuar a ratificaci&oacute;n</a>
+                    <a class="btn btn-primary btn-sm" data-dismiss="modal" onclick="continuarRatificacion()"><i class="fa fa-sign-out"></i> Continuar a confirmaci&oacute;n</a>
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-sign-out"></i> Cerrar</a>
                 </div>
             </div>
@@ -829,7 +829,7 @@
                                     buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+rutaConsulta.replace('/-rutaConsulta',"/"+row[0])+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>';
                                 
                                 if(row[1] == 1 && (row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true")){
-                                    buttons += '<div title="Ratificar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="continuarRatificacion('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></button></div>';
+                                    buttons += '<div title="Confirmar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="continuarRatificacion('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></button></div>';
                                 }
                                 return buttons;
                             }
@@ -925,7 +925,7 @@
             }
         }
 
-    //    para ratificacion
+    //    para confirmacion
 
     $(document).on('click', '[data-toggle="iframe"]',function(event){
         event.preventDefault();
@@ -1060,14 +1060,14 @@
                                             $("#modalRatificacion").modal("hide");
                                             swal({
                                                 title: 'Correcto',
-                                                text: 'Solicitud ratificada correctamente',
+                                                text: 'Solicitud confirmada correctamente',
                                                 icon: 'success'
                                             });
                                             location.reload();
                                         }else{
                                             swal({
                                                 title: 'Error',
-                                                text: 'No se pudo ratificar',
+                                                text: 'No se pudo confirmar',
                                                 icon: 'error'
                                             });
                                         }
@@ -1110,7 +1110,7 @@
         }else{
             swal({
                 title: 'Error',
-                text: 'Al menos un solicitante debe presentar documentos para ratificar',
+                text: 'Al menos un solicitante debe presentar documentos para confirmar',
                 icon: 'warning'
             });
         }
@@ -1281,7 +1281,7 @@
                                                         $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
                                                         swal({
                                                             title: 'Correcto',
-                                                            text: 'Solicitud ratificada correctamente',
+                                                            text: 'Solicitud confirmada correctamente',
                                                             icon: 'success'
                                                         });
                                                     }else{
@@ -1355,7 +1355,7 @@
         var msg = "";
         if(!ratifican){
             error = true;
-            msg = "Al menos un solicitante debe presentar documentos para ratificar";
+            msg = "Al menos un solicitante debe presentar documentos para confirmar";
         }
         if($("#aradioNotificacionA1").is(":checked")){
             var tipo_notificacion_id=1;
@@ -1415,7 +1415,7 @@
                             $("#modalRatificacion").modal("hide");
                             swal({
                                 title: 'Correcto',
-                                text: 'Solicitud ratificada correctamente',
+                                text: 'Solicitud confirmada correctamente',
                                 icon: 'success'
                             });
                             if(data.tipo_solicitud_id == 1){
@@ -1426,7 +1426,7 @@
                         }else{
                             swal({
                                 title: 'Error',
-                                text: 'No se pudo ratificar',
+                                text: 'No se pudo confirmar',
                                 icon: 'error'
                             });
                         }
@@ -2295,14 +2295,14 @@
             }else{
                 swal({
                     title: 'Error',
-                    text: 'Al menos un solicitante debe presentar documentos para ratificar',
+                    text: 'Al menos un solicitante debe presentar documentos para confirmar',
                     icon: 'warning'
                 });
             }
         }else{
             swal({
                 title: 'Error',
-                text: 'La ratificación de esta solicitud solo se puede realizar por el conciliador que la llevará acabo',
+                text: 'La confirmaci&oacute;n de esta solicitud solo se puede realizar por el conciliador que la llevará acabo',
                 icon: 'warning'
             });
         }

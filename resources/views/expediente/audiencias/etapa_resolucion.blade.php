@@ -427,7 +427,8 @@
                                         <hr>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="finalizar({{$etapa->paso}})">Finalizar </button>
+                                {{-- <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="finalizar({{$etapa->paso}})">Finalizar </button> --}}
+                                <button class="btn btn-primary" onclick="finalizar()">Finalizar</button>
                             @break
                             @default
 
@@ -932,7 +933,7 @@
             <div class="modal-footer">
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
-                    <button class="btn btn-warning btn-sm m-l-5" id="btnGuardarResolucionMuchas"><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-warning btn-sm m-l-5" onclick="revisarDocumentos()"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
@@ -1357,7 +1358,32 @@
         </div>
     </div>
 </div>
-<!--Fin de modal propuesta convenio-->
+<!--Fin de modal pagos diferidos-->
+
+<!-- inicio Modal Preview-->
+<div class="modal" id="modal-preview" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <input type="hidden" id="totalDocumentos">
+            <input type="hidden" id="noDocumento">
+            <div class="modal-body" >
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                {{-- <h5>Valide los datos del documento.</h5> --}}
+                <div id="documentoPreviewHtml" style="margin:0 5% 0 5%; max-height:600px; border:1px solid black; overflow: scroll; padding:2%;">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right row">
+                    <a class="btn btn-white btn-sm" class="close" data-dismiss="modal" aria-hidden="true" ><i class="fa fa-times"></i> cancelar</a>
+                    <a class="btn btn-primary btn-sm" id="sigDocumento" onclick="siguienteVistaPrevia()"  > Siguiente</a>
+                    <a class="btn btn-primary btn-sm" id="guardarResolucion" onclick="GuardarResolucionMuchas()"  > Aceptar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal de Preview-->
 
 <input type="hidden" id="parte_id">
 <input type="hidden" id="parte_representada_id">
@@ -1379,6 +1405,7 @@
     var listaConfigFechas= [];
     var listaResolucionesIndividuales = [];
     var firstTimeStamp = "";
+    var listVistaPrevia = [];
     $(document).ready(function(){
         $( "#accordion" ).accordion();
 
@@ -1869,7 +1896,7 @@
                                         visible: true,
                                         className: 'btn btn-danger',
                                         closeModal: true
-                        }
+                                    }
                                 }
                             }).then(function(tipo){
                                 if(tipo != null){
@@ -3126,16 +3153,74 @@
     //  }
      function finalizar(pasoActual){
     // $("#btnFinalizar").on("click",function(){
-        var resolucion = $("#resolucion_id").val();
-        if(resolucion != "" ){
-            if(resolucion == 1){
-                errorDatosConvenio = validarDatosLaborales(1);
-                errorPagos = $('#switchAdicionales').is(':checked') ? validarPagos() : false;
-                if(!errorDatosConvenio && !errorPagos){
-                    
+        let listaPropuestaConceptos = {};
+        error =false;
+        $('.collapseSolicitante').each(function() {
+            idSol=$(this).attr('idSolicitante');
+            if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                    listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
+                }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
+                    listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
+                }else{
+                    listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
+                }
+            }else{
+                error =true;
+                swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
+            }
+        });
+        if(!error){
+            var resolucion = $("#resolucion_id").val();
+            if(resolucion != "" ){
+
+                if(resolucion == 1){//hubo convenio
+                    errorDatosConvenio = validarDatosLaborales(1);
+                    errorPagos = $('#switchAdicionales').is(':checked') ? validarPagos() : false;
+                    if(!errorDatosConvenio && !errorPagos){
+                        swal({
+                            title: 'Se convino con todos los comparecientes?',
+                            text: '',
+                            icon: 'warning',
+                            // showCancelButton: true,
+                            buttons: {
+                                cancel: {
+                                    text: 'No',
+                                    value: null,
+                                    visible: true,
+                                    className: 'btn btn-default',
+                                    closeModal: true
+                                },
+                                confirm: {
+                                    text: 'Sí',
+                                    value: true,
+                                    visible: true,
+                                    className: 'btn btn-warning',
+                                    closeModal: true
+                                }
+                            }
+                        }).then(function(isConfirm){
+                            if(isConfirm){
+
+                                //var success = guardarEvidenciaEtapa(pasoActual);
+                                //if(success){
+                                    $("#icon"+pasoActual).css("background","lightgreen");
+                                    listaResolucionesIndividuales = [];
+                                    // $("#btnGuardarResolucionMuchas").click();
+                                    revisarDocumentos();
+                                // }else{
+                                //     swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
+                                // }
+                            }else{
+                                cargarModalRelaciones();
+                            }
+                        });
+                    }
+                }else{//No hubo convenio
+
                     swal({
-                        title: 'Se convino con todos los comparecientes?',
-                        text: '',
+                        title: '',
+                        text: '¿Está seguro que desea terminar la audiencia?',
                         icon: 'warning',
                         // showCancelButton: true,
                         buttons: {
@@ -3157,64 +3242,27 @@
                     }).then(function(isConfirm){
                         if(isConfirm){
 
-                            var success = guardarEvidenciaEtapa(pasoActual);
-                            if(success){
+                            // var success = guardarEvidenciaEtapa(pasoActual);
+                            // if(success){
                                 $("#icon"+pasoActual).css("background","lightgreen");
-                                // $("#step"+siguiente).show();
                                 listaResolucionesIndividuales = [];
-                                $("#btnGuardarResolucionMuchas").click();
-                            }else{
-                                swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
-                            }
-                        }else{
-                            cargarModalRelaciones();
+                                // $("#btnGuardarResolucionMuchas").click();
+                                revisarDocumentos()
+                            // }else{
+                            //     swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
+                            // }
                         }
                     });
                 }
             }else{
-
                 swal({
-                    title: '',
-                    text: '¿Está seguro que desea terminar la audiencia?',
-                    icon: 'warning',
-                    // showCancelButton: true,
-                    buttons: {
-                        cancel: {
-                            text: 'No',
-                            value: null,
-                            visible: true,
-                            className: 'btn btn-default',
-                            closeModal: true
-                        },
-                        confirm: {
-                            text: 'Sí',
-                            value: true,
-                            visible: true,
-                            className: 'btn btn-warning',
-                            closeModal: true
-                        }
-                    }
-                }).then(function(isConfirm){
-                    if(isConfirm){
-
-                        var success = guardarEvidenciaEtapa(pasoActual);
-                        if(success){
-                            $("#icon"+pasoActual).css("background","lightgreen");
-                            // $("#step"+siguiente).show();
-                            listaResolucionesIndividuales = [];
-                            $("#btnGuardarResolucionMuchas").click();
-                        }else{
-                            swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
-                        }
-                    }
+                    title: 'Alerta',
+                    text: 'Seleccione una resolución para la audiencia',
+                    icon: 'warning'
                 });
             }
         }else{
-            swal({
-                title: 'Alerta',
-                text: 'Seleccione una resolución para la audiencia',
-                icon: 'warning'
-            });
+            swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
         }
     }
 
@@ -3561,7 +3609,8 @@
         listaResolucionesIndividuales.splice(indice,1);
         cargarTablaResolucionesIndividuales();
     }
-    $("#btnGuardarResolucionMuchas").on("click",function(){
+    //$("#btnGuardarResolucionMuchas").on("click",function(){
+    function GuardarResolucionMuchas(){
         let listaPropuestaConceptos = {};
         // totalConceptosPago = 0;
         error =false;
@@ -3592,6 +3641,7 @@
                     audiencia_id:'{{ $audiencia->id }}',
                     convenio:$("#convenio").val(),
                     desahogo:$("#desahogo").val(),
+                    evidencia:$("#evidencia6").val(),
                     resolucion_id:$("#resolucion_id").val(),
                     timeline:true,
                     listaRelacion:listaResolucionesIndividuales,
@@ -3623,7 +3673,140 @@
         }else{
             swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
         }
-    });
+    //});
+    }
+    
+    function revisarDocumentos(){
+        var resolucion = $("#resolucion_id").val();
+        if(resolucion != "" ){
+            //solicitados = $audiencia->solicitados;
+            listVistaPrevia = [];
+            listVistaPrevia.push({
+                plantilla_id : 3, // acta de audiencia
+                parte_solicitante_id: null,
+                parte_solicitado_id: null,
+            });
+            if(resolucion == 1){//hubo convenio
+                if(listaResolucionesIndividuales.length == 0){ // se convino con todos los citados
+                    $('#parte_solicitante_id > option').each(function() { //mostrar convenio por cada solicitante
+                        if( this.value !=null && this.value !="" ){
+                            listVistaPrevia.push({
+                                plantilla_id : 2, // convenio
+                                parte_solicitante_id: this.value,
+                                parte_solicitado_id: null,
+                            });
+                        }
+                    });
+                }else{
+                    $.each(listaResolucionesIndividuales, function (key, value) {
+                        listVistaPrevia.push({
+                            plantilla_id : 2, // convenio
+                            parte_solicitante_id: value.parte_solicitante_id,
+                            parte_solicitado_id: null,
+                        });
+                    });
+                }
+            }else if(resolucion==3){//no hubo convenio
+                $('#parte_solicitado_id > option').each(function() {
+                    let solicitadoId = this.value;
+                    if( solicitadoId !=null && solicitadoId !="" ){
+                        $('#parte_solicitante_id > option').each(function() { //mostrar convenio por cada solicitante
+                            let solicitanteId = this.value;
+                            if( solicitanteId !=null && solicitanteId !="" ){
+                                listVistaPrevia.push({
+                                    plantilla_id : 1, // acta de no conciliacion
+                                    parte_solicitante_id: solicitanteId,
+                                    parte_solicitado_id: solicitadoId,
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+            //mostrar documentos
+            $('#modal-preview').modal("show");
+            if(listVistaPrevia.length > 0){ // mostrar primer documento
+                $('#noDocumento').val(0);
+                siguienteVistaPrevia();
+            }
+        }else{
+            swal({title: 'Error',text: 'Debe seleccionar una resolucion',icon: 'error'});
+        }
+    }
+    
+    function siguienteVistaPrevia(){
+        numDoc = parseInt($('#noDocumento').val());
+        //numDoc = parseInt(('#noDocumento').val());
+        if((numDoc+1) == listVistaPrevia.length){//mostar boton Aceptar guardar resolucion
+            $('#guardarResolucion').show();
+            $('#sigDocumento').hide();
+        }else{
+            $('#guardarResolucion').hide();
+            $('#sigDocumento').show();
+        }
+        vistaPrevia(listVistaPrevia[numDoc].plantilla_id, listVistaPrevia[numDoc].parte_solicitante_id, listVistaPrevia[numDoc].parte_solicitado_id );
+        $('#noDocumento').val(numDoc+1);
+    }
+
+    function vistaPrevia(plantilla_id,solicitante_id = null,citado_id = null){
+        console.log(plantilla_id);
+        console.log(solicitante_id);
+        console.log(citado_id);
+
+        let listaPropuestaConceptos = {};
+        error =false;
+        $('.collapseSolicitante').each(function() {
+            // let idSolicitante =$("#idSolicitante").val();
+            idSol=$(this).attr('idSolicitante');
+            if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                    listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
+                }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
+                    listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
+                }else{
+                    listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
+                }
+            }else{
+                error =true;
+                swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
+            }
+        });
+
+        $.ajax({
+            url:"/plantilla-documento/previewDocumento",
+            type:"POST",
+            dataType:"json",
+            async:false,
+            data:{
+                audiencia_id:'{{ $audiencia->id }}',
+                solicitud_id:'{{ $solicitud_id }}',
+                solicitante_id:solicitante_id,
+                solicitado_id:citado_id,
+                plantilla_id: plantilla_id,
+                convenio:$("#convenio").val(),
+                desahogo:$("#desahogo").val(),
+                resolucion_id:$("#resolucion_id").val(),
+                timeline:true,
+                listaRelacion:listaResolucionesIndividuales,
+                listaConceptos:listaPropuestaConceptos,
+                listaFechasPago:listaConfigFechas,
+                elementos_adicionales: $('#switchAdicionales').is(':checked'),
+                _token:"{{ csrf_token() }}"
+            },
+            success:function(data){
+                try{
+
+                    $('#documentoPreviewHtml').html("");
+                    $('#documentoPreviewHtml').html(data.data);
+                    $('#modal-preview').animate({
+                        scrollTop: $("#documentoPreviewHtml").offset().top
+                    }, 'slow');
+                }catch(error){
+                    console.log(error);
+                }
+            }
+        });
+    }
 
     var timer = 0;
     function startTimer(){

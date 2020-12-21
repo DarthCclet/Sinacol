@@ -457,13 +457,13 @@
                                     $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
                                     swal({
                                         title: 'Correcto',
-                                        text: 'Solicitud ratificada correctamente',
+                                        text: 'Solicitud confirmada correctamente',
                                         icon: 'success'
                                     });
                                 }else{
                                     swal({
                                         title: 'Algo salió mal',
-                                        text: 'No se pudo ratificar la audiencia',
+                                        text: 'No se pudo confirmar la audiencia',
                                         icon: 'warning'
                                     });
                                 }

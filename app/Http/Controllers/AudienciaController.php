@@ -794,9 +794,9 @@ class AudienciaController extends Controller {
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             if ($this->request->wantsJson()) {
-                return $this->sendError('Error al ratificar la solicitud', 'Error');
+                return $this->sendError('Error al confirmar la solicitud', 'Error');
             }
-            return redirect('solicitudes')->with('error', 'Error al ratificar la solicitud');
+            return redirect('solicitudes')->with('error', 'Error al confirmar la solicitud');
         }
     }
 
@@ -1037,12 +1037,13 @@ class AudienciaController extends Controller {
                         "estatus_solicitud_id" => 3
                     ]);
                 }
+                $evidencia = ($request->evidencia) ? $request->evidencia: "";
                 $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago );
-                // $etapaAudiencia = EtapaResolucionAudiencia::create([
-                //     "etapa_resolucion_id" => 6,
-                //     "audiencia_id" => $audiencia->id,
-                //     "evidencia" => true
-                // ]);
+                $etapaAudiencia = EtapaResolucionAudiencia::create([
+                    "etapa_resolucion_id" => 6,
+                    "audiencia_id" => $audiencia->id,
+                    "evidencia" => $evidencia
+                ]);
                     
             }
                 

@@ -126,6 +126,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('plantilla-documento/imprimirPDF','PlantillasDocumentosController@imprimirPDF');
     Route::get('plantilla-documento/cargarDefault','PlantillasDocumentosController@cargarDefault');
     Route::get('plantilla-documento/{id}/imprimirPDF','PlantillasDocumentosController@imprimirPDF')->name('plantilla-documento/imprimirPDF');
+    Route::Post('plantilla-documento/previewDocumento','PlantillasDocumentosController@previewDocumento');
 
     // Catalogos csv para el CJF
     Route::get('catalogos/tipo-persona','TipoPersonaController@index')->name('catalogos.tipo_persona');
