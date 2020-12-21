@@ -104,14 +104,12 @@ class SolicitudController extends Controller {
                 }
                 if ($this->request->get('folio')) {
                     $solicitud->where('folio', $this->request->get('folio'));
-                    $filtrarCentro = false;
                 }
                 if ($this->request->get('curp')) {
                     $curp = $this->request->get('curp');
                     $solicitud = $solicitud->whereHas('partes', function (Builder $query) use ($curp){
                         $query->where('curp', [$curp]);
                     });
-                    $filtrarCentro = false;
                 }
 
                 if ($this->request->get('nombre')) {
@@ -142,6 +140,9 @@ class SolicitudController extends Controller {
                     $solicitud = $solicitud->whereHas('expediente', function (Builder $query) use ($expediente){
                         $query->where('folio', [$expediente]);
                     });
+                    $filtrarCentro = false;
+                }
+                if(Auth::user()->hasRole('Super Usuario')){
                     $filtrarCentro = false;
                 }
                 if(Auth::user()->hasRole('Orientador Central')){

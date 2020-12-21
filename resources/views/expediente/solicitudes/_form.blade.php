@@ -128,7 +128,25 @@
                     <!-- begin row -->
                     <div class="row" id="form">
                         <div class="col-xl-10 offset-xl-1">
-                            <h1>Solicitud de <span id="labelTipoSolicitud"></span></h1>
+                            <div class="col-md-12 row">
+                                <div class="col-md-6"> 
+                                    <h1>Solicitud de <span id="labelTipoSolicitud"></span></h1>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    {{-- <a class="btn btn-primary col-md-12" href="/aviso-privacidad"  target="_blank" > Aviso de privacidad integral</a> --}}
+                                    <div class="col-md-12 row text-center" >
+                                        <div class="col-md-2"></div>
+                                        <div style="border:1px solid red; padding: 2% 2% 2% 2%;">
+                                            <a href="/aviso-privacidad" target="_blank" class="btn btn-link" style="color:black;">
+                                            <h5 style="text-align: center">
+                                                Aviso de privacidad integral
+                                            </h5>
+                                            </a>
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-12 mt-4">
                                 <h2>Datos generales de la solicitud</h2>
                                 <hr class="red">
@@ -2880,33 +2898,9 @@
         if($('#radioAviso1').is(":checked")){
             $("#modal-aviso-privacidad").modal('hide');
         }else if($('#radioAviso2').is(":checked")){
-            swal({
-                title: '¿Estas seguro? ',
-                text: 'Si no aceptas el aviso de privacidad no podrás capturar una solicitud',
-                icon: '',
-                buttons: {
-                    cancel: {
-                        text: 'Cancelar',
-                        value: null,
-                        visible: true,
-                        className: 'btn btn-primary',
-                        closeModal: true,
-                    },
-                    confirm: {
-                        text: "Aceptar",
-                        value: true,
-                        visible: true,
-                        className: 'btn btn-primary',
-                        closeModal: true
-                    }
-                }
-            }).then(function(isConfirm){
-                if(isConfirm){
-                    window.location.href = "https://centrolaboral.gob.mx/";
-                }
-            });
+            $("#modal-aviso-privacidad").modal('hide');
         }else{
-            
+            $("#modal-aviso-privacidad").modal('hide');
         }
     }
 </script>
