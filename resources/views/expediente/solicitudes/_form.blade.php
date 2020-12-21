@@ -1638,6 +1638,7 @@
             success:function(data){
                 try{
                     $("#datosIdentificacionSolicitado").show();
+                    $("#ratificada").val(data.ratificada);alert
                     arraySolicitados = Object.values(data.solicitados);
                     formarTablaSolicitado();
                     arraySolicitantes = Object.values(data.solicitantes);
@@ -1695,7 +1696,6 @@
                     // }) ;
                     // console.log(excepcion);
                     // $(".step-6").show();
-                    $("#ratificada").val(data.ratificada);
                     if(data.ratificada){
                         $("#btnAgregarNuevoSolicitante").hide();
                         $("#btnAgregarNuevoCitado").hide();
