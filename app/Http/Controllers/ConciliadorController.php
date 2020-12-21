@@ -36,9 +36,12 @@ class ConciliadorController extends Controller
         $conciliadoresResponse = [];
         if(!auth()->user()->hasRole("Super Usuario")){
             foreach($conciliadores as $conciliador){
-                if($conciliador->persona->user->centro_id == auth()->user()->centro_id){
-                    $conciliadoresResponse[] = $conciliador;
+                if(isset($conciliador->persona->user)){
+                    if($conciliador->persona->user->centro_id == auth()->user()->centro_id){
+                        $conciliadoresResponse[] = $conciliador;
+                    }
                 }
+                
             }
             $conciliadoresResponse = new Collection($conciliadoresResponse);
         }else{

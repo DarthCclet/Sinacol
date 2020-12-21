@@ -79,7 +79,7 @@
                     </table>
                 </div>
                 <div class="col-md-12" id="calendarioReagendar" style="display:none;">
-                    @include('expediente.audiencias.calendarioCambiarAudiencia')
+                    @include('expediente.audiencias.calendarioCambiarAudienciaColectiva')
                 </div>
             </div>
             <div class="modal-footer">
@@ -367,9 +367,9 @@
                                                         }
                                                     });
                                                     $.each(data.salas_audiencias,function(index2,element2){
-                                                        if(element2.solicitante == elementParte.parte.tipo_parte_id == 1){
+                                                        if(element2.solicitante && elementParte.parte.tipo_parte_id == 1){
                                                             table +='<td>'+element2.sala.sala+'</td>';
-                                                        }else if(!element2.solicitante == elementParte.parte.tipo_parte_id == 2){
+                                                        }else if(!element2.solicitante && elementParte.parte.tipo_parte_id == 2){
                                                             table +='<td>'+element2.sala.sala+'</td>';
                                                         }
                                                     });
