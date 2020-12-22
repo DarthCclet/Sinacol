@@ -82,6 +82,7 @@ class SolicitudController extends Controller {
                     ->searchWith(Solicitud::class)
                     ->filter(false);
             // Si en el request viene el parametro all entonces regresamos todos los elementos
+            $solicitud->whereRaw('incidencia is not true');
             // de lo contrario paginamos
             if ($this->request->get('all')) {
                 $solicitud = $solicitud->get();
