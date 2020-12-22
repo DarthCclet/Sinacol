@@ -196,6 +196,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('notificaciones','CentroController@notificaciones');
     Route::get('notificaciones/enviar/{solicitud_id}','CentroController@EnviarNotificacion');
     
+    /**
+     * descarga de calendario
+     */
+    Route::post('descargaCalendario','CentroController@descargarCalendario')->name("descargaCalendario");
 });
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 
