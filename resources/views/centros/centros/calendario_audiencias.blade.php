@@ -19,6 +19,15 @@
             <button class="btn btn-primary btn-sm m-l-5" class="pull-right" id="btnNoAudiencia">
                 <i class="fa fa-times"></i> No calendarizadas <span class="badge" style="background-color: #B38E5D;" id="spanNumeroAudiencias">{{count($audiencias)}}</span>
             </button>
+            <form action="{{route('descargaCalendario')}}" method="POST" id="frmDescargaCalendario">
+                @csrf
+                <input type="hidden" name="vista" id="vista">
+                <input type="hidden" name="fecha_inicio" id="fecha_inicio">
+                <input type="hidden" name="fecha_fin" id="fecha_fin">
+                <button type="submit" class="btn btn-primary btn-sm m-l-5" class="pull-right" id="btnDescargarCalendario">
+                    <i class="fa fa-file-excel"></i> Descarga
+                </button>
+            </form>
         </div>
     </div>
     <div class="panel-body">
@@ -79,7 +88,7 @@
                     </table>
                 </div>
                 <div class="col-md-12" id="calendarioReagendar" style="display:none;">
-                    @include('expediente.audiencias.calendarioCambiarAudienciaColectiva')
+                    @include('expediente.audiencias.calendarioCambiarAudiencia')
                 </div>
             </div>
             <div class="modal-footer">
@@ -482,5 +491,16 @@
                 array.arrayEnvio=arrayEnvio;
                 return array;
             }
+            $("#btnDescargarCalendario").on("click",function(e){
+                e.preventDefault();
+                //Obtenemos la vista del calendario
+                var view = $('#calendarioAgenda').fullCalendar('getView');
+                $("#vista").val($('#calendarioAgenda').fullCalendar('getDate'));
+                //Obtenemos la fecha inicio en el calendario
+                $("#fecha_inicio").val($('#calendarioAgenda').fullCalendar('getView').start.format('Y/MM/DD'));
+                //Obtenemos la fecha fin del calendario
+                $("#fecha_fin").val($('#calendarioAgenda').fullCalendar('getView').end.format('Y/MM/DD'));
+                $("#frmDescargaCalendario").submit();
+            });
         </script>
 @endpush

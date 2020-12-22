@@ -148,7 +148,7 @@
     </div>
     @if($needsMaps == 'true')
         <h4 id="alertMap{{$identificador}}" style="color:red;"></h4>
-        <div style="width:100%">
+        <div style="width:100%; height: 500px;">
             <div class="panel-botones">
                 <button class="btn btn-primary" type="button" id="validaDir{{$identificador}}"  > <i class="fa fa-map-marker"></i> Validar direcci&oacute;n</button>
             </div>

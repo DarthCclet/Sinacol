@@ -18,6 +18,8 @@ use App\Solicitud;
 use App\TipoNotificacion;
 use App\Events\RatificacionRealizada;
 use Illuminate\Support\Facades\Cache;
+use Rap2hpoutre\FastExcel\FastExcel;
+use Carbon\Carbon;
 
 class CentroController extends Controller
 {
@@ -354,5 +356,60 @@ class CentroController extends Controller
         }
         $solicitud = Solicitud::find($this->request->solicitud_id);
         return $solicitud;
+    }
+    /**
+     * Aqui terminan las funciones de notificaciones
+     */
+    public function descargarCalendario(){
+        $fecha_inicial = date($this->request->fecha_inicio);
+        $fecha_fin = date($this->request->fecha_fin);
+        $audienciasArray = Audiencia::join("expedientes","audiencias.expediente_id","expedientes.id")
+            ->join("solicitudes","expedientes.solicitud_id","solicitudes.id")
+            ->where("solicitudes.centro_id", auth()->user()->centro_id)
+            ->where("audiencias.deleted_at",null)
+            ->whereBetween("audiencias.fecha_audiencia",[$fecha_inicial,$fecha_fin])
+            ->select("audiencias.*","solicitudes.folio as folio_solicitud","solicitudes.anio as anio_solicitud","expedientes.folio as folio_expediente")
+            ->get();
+        $audiencias = [];
+        foreach($audienciasArray as $audiencia){
+            $aud = Audiencia::find($audiencia->id);
+            $salas = self::obtenerSalas($aud->salasAudiencias);
+            $conciliadores = self::obtenerConciliadores($aud->conciliadoresAudiencias);
+            $estatus = "Por celebrar";
+            if($audiencia->finalizada){
+                $estatus = "Finalizada";
+            }
+            $audiencias[]=array(
+                "Solicitud" => $audiencia->folio_solicitud."/".$audiencia->anio_solicitud,
+                "Expediente" => $audiencia->folio_expediente,
+                "Audiencia" => $audiencia->folio."/".$audiencia->anio,
+                "Fecha de audiencia" => $audiencia->fecha_audiencia,
+                "Hora de inicio" => $audiencia->hora_inicio,
+                "Hora de termino" => $audiencia->hora_fin,
+                "Conciliador(es)" => $conciliadores,
+                "Sala(s)" => $salas,
+                "Estatus" => $estatus
+            );
+        }
+        $audiencias = collect($audiencias)->sortBy("Fecha de audiencia")->toArray();
+        $arch = Carbon::now('America/Mexico_city')->format("Y-m-d_Hi");
+        return (new FastExcel($audiencias))->download('Audiencias_'.$arch.'.xlsx');
+    }
+    public function obtenerSalas($salasAudiencias){
+
+        $salasResponse = "";
+        foreach($salasAudiencias as $sala){
+            $salasResponse .=" ".$sala->sala->sala.",";
+        }
+        $salasResponse = substr($salasResponse,0,strlen($salasResponse)-1);
+        return $salasResponse;
+    }
+    public function obtenerConciliadores($conciliadoresAudiencias){
+        $conciliadoresResponse = "";
+        foreach($conciliadoresAudiencias as $conciliador){
+            $conciliadoresResponse .=" ".$conciliador->conciliador->persona->nombre." ".$conciliador->conciliador->persona->primer_apellido." ".$conciliador->conciliador->persona->segundo_apellido.",";
+        }
+        $conciliadoresResponse = substr($conciliadoresResponse,0,strlen($conciliadoresResponse)-1);
+        return $conciliadoresResponse;
     }
 }
