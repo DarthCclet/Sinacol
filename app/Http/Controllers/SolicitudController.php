@@ -49,6 +49,7 @@ use App\Services\FechaAudienciaService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use App\Events\RatificacionRealizada;
+use App\TipoIncidenciaSolicitud;
 use App\TipoSolicitud;
 use Carbon\Carbon;
 use App\Traits\FechaNotificacion;
@@ -549,6 +550,7 @@ class SolicitudController extends Controller {
         $solicitud->giroComercial = $solicitud->giroComercial;
         $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
         $solicitud->centro = $solicitud->centro;
+        $solicitud->tipoIncidenciaSolicitud = $solicitud->tipoIncidenciaSolicitud;
         if($solicitud->giroComercial){
             $solicitud->giroComercial->ambito;
         }
@@ -1664,12 +1666,60 @@ class SolicitudController extends Controller {
 
     public function incidencias_solicitudes(){
         try{
-            return view('herramientas.incidencias_solicitudes');
+            $solicitudes = Solicitud::where('incidencia',true)->with('partes','tipoIncidenciaSolicitud','solicitud','centro');
+            if(Auth::user()->hasRole('Orientador Central')){
+                $solicitudes->whereRaw('(tipo_solicitud_id = 3 or tipo_solicitud_id = 4)');
+                
+            }else if(!Auth::user()->hasRole('Super Usuario') && !Auth::user()->hasRole('Super Usuario')){
+                $centro_id = Auth::user()->centro_id;
+                $solicitudes = $solicitudes->where('centro_id',$centro_id);
+            }
+            $solicitudes = $solicitudes->get();
+            $tipoIncidenciaSolicitud = $this->cacheModel('tipo_incidencia_solicitudes', TipoIncidenciaSolicitud::class);
+            return view('herramientas.incidencias_solicitudes',compact('tipoIncidenciaSolicitud','solicitudes'));
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
-                       " Se emitió el siguiente mensaje: ". $e->getMessage().
-                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
-                       return view('herramientas.incidencias_solicitudes');
+                " Se emitió el siguiente mensaje: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            $solicitudes = Solicitud::where('incidencia',true)->with('partes','tipoIncidenciaSolicitud')->get();
+            $tipoIncidenciaSolicitud = $this->cacheModel('tipo_incidencia_solicitudes', TipoIncidenciaSolicitud::class);
+            return view('herramientas.incidencias_solicitudes',compact('tipoIncidenciaSolicitud','solicitudes'));
+        }
+    }
+    public function guardar_incidencia(Request $request){
+        try{
+            $solicitud = Solicitud::find($request->solicitud_id);
+            $solicitud->incidencia = true;
+            $solicitud->tipo_incidencia_solicitud_id = $request->tipo_incidencia_solicitud_id;
+            $solicitud->justificacion_incidencia = $request->justificacion_incidencia;
+            if($request->solicitud_asociada_id){
+                $solicitud->solicitud_id = $request->solicitud_asociada_id;
+            }
+            $solicitud->save();
+
+            return $this->sendResponse($solicitud, 'SUCCESS');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensaje: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
+        }
+    }
+    public function borrar_incidencia(Request $request){
+        try{
+            $solicitud = Solicitud::find($request->solicitud_id);
+            $solicitud->incidencia = false;
+            $solicitud->tipo_incidencia_solicitud_id = null;
+            $solicitud->justificacion_incidencia = null;
+            $solicitud->solicitud_id = null;
+            $solicitud->save();
+
+            return $this->sendResponse($solicitud, 'SUCCESS');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensaje: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
         }
     }
 }

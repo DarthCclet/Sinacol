@@ -1,0 +1,21 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Error de captura",
+            "descripcion": "Error al capturar la solicitud"
+        },
+        {
+            "id": "2",
+            "nombre": "Solicitud duplicada",
+            "descripcion": " La solicitud se duplicó "
+        },
+        {
+            "id": "3",
+            "nombre": "Solicitud no ratificada",
+            "descripcion": "La solicitud fecha para ratificar la solicitud se veció"
+        }
+
+    ],
+    "numReg": 3
+}

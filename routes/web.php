@@ -153,6 +153,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('regenerar_documento','DocumentoController@generar_documento');
     Route::post('store_regenerar_documento','DocumentoController@storeRegenerarDocumento');
 
+    Route::get('incidencias_solicitudes','SolicitudController@incidencias_solicitudes');
+    Route::post('guardar_incidencia','SolicitudController@guardar_incidencia');
+    Route::post('borrar_incidencia','SolicitudController@borrar_incidencia');
     Route::resource('permisos','PermissionController');
     Route::resource('roles','RoleController');
     Route::get('roles/permisos/{id}','RoleController@GetPermisosRol');
