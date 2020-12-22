@@ -88,7 +88,7 @@
                     </table>
                 </div>
                 <div class="col-md-12" id="calendarioReagendar" style="display:none;">
-                    @include('expediente.audiencias.calendarioCambiarAudienciaColectiva')
+                    @include('expediente.audiencias.calendarioCambiarAudiencia')
                 </div>
             </div>
             <div class="modal-footer">
