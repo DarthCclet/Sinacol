@@ -2906,7 +2906,7 @@
                     //datos laborales extra
                     horario_laboral:$("#horario_laboral").val(),
                     horario_comida:$("#horario_comida").val(),
-                    comida_dentro:$("#comida_dentro").val(),
+                    comida_dentro:$("#comida_dentro").is(":checked"),
                     dias_descanso:$("#dias_descanso").val(),
                     dias_vacaciones:$("#dias_vacaciones").val(),
                     dias_aguinaldo:$("#dias_aguinaldo").val(),
@@ -3112,6 +3112,7 @@
         });
 
         function cargarConfigConceptos(){
+        let idSolicitante = $('#idSolicitante').val();
             $("#tbodyConcepto").html("");
             $('#modal-propuesta-convenio').modal('show');
             if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
@@ -3122,7 +3123,7 @@
                 $(".select-reinstalacion").hide();
             }
             let table = '';
-            let idSolicitante = $('#idSolicitante').val();
+            
             $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
                 table +='<tr>';
                     $("#concepto_pago_resoluciones_id").val(concepto.concepto_pago_resoluciones_id);
