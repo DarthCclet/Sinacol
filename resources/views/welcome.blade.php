@@ -9,3 +9,16 @@
         <area alt="Ingresa al sistema" title="Ingresa al sistema" href="/asesoria/inicio" coords="725,219,1023,405" shape="rect">
     </map>
 @endsection
+
+@push('analytics')
+    @if( !strpos(env('APP_URL'), 'lxl') )
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PVF80ME4N4"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-PVF80ME4N4');
+    </script>
+    @endif
+@endpush
