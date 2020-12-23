@@ -45,9 +45,9 @@
                     <tr style="background-color: rgb(157 36 73 / 0.28);">
                     @endif
                         <td>
-                            <strong>Solicitud: </strong>{{$solicitud->folio}}/{{$solicitud->anio}}<br>
+                            <strong>Solicitud: </strong><a href="/solicitudes/consulta/{{$solicitud->id}}">{{$solicitud->folio}}/{{$solicitud->anio}}</a><br>
                             <strong>Expediente: </strong>{{$solicitud->expediente->folio}}<br>
-                            <strong>Audiencia: </strong>{{$solicitud->audiencia}}<br>
+                            <strong>Audiencia: </strong><a href="/audiencias/{{$solicitud->audiencia_id}}/edit">{{$solicitud->audiencia}}</a><br>
                         </td>
                         <td>
                             @foreach($solicitud->partes_audiencias as $parte)

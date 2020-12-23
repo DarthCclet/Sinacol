@@ -300,7 +300,8 @@ class CentroController extends Controller
                                 $reprogramada = $audiencia->reprogramada;
                                 $etapa_notificacion = $audiencia->etapa_notificacion->etapa;
                                 $audienciaFolio = $audiencia->folio."/".$audiencia->anio;
-                                $conciliador_Audiencia = $audiencia->conciliador_id;
+                                $audiencia_id = $audiencia->id;
+                                $conciliador_Audiencia = $audiencia->id;
                                 $parte->parte->fecha_notificacion = $parte->fecha_notificacion;
                                 $partes[]=$parte->parte;
                                 if($parte->fecha_notificacion == null){
@@ -319,6 +320,7 @@ class CentroController extends Controller
                     $solicitud["etapa_notificacion"] = $etapa_notificacion;
                     $solicitud["notificada"] = $notificada;
                     $solicitud["partes_audiencias"] = $partes;
+                    $solicitud["audiencia_id"] = $audiencia_id;
                     $solicitudes[] = $solicitud;
                 }else{
                     if($conciliador_Audiencia == $conciliador_id){
@@ -328,6 +330,7 @@ class CentroController extends Controller
                         $solicitud["etapa_notificacion"] = $etapa_notificacion;
                         $solicitud["notificada"] = $notificada;
                         $solicitud["partes_audiencias"] = $partes;
+                        $solicitud["audiencia_id"] = $audiencia_id;
                         $solicitudes[] = $solicitud;
                     }
                 }

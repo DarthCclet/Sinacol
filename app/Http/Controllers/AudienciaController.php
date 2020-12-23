@@ -2233,6 +2233,9 @@ class AudienciaController extends Controller {
                     foreach($audiencia->conciliadoresAudiencias as $conciliador){
                         $conciliador->delete();
                     }
+                    foreach($audiencia->salasAudiencias as $sala){
+                        $sala->delete();
+                    }
                     foreach ($this->request->asignacion as $value) {
                         if ($value["resolucion"]) {
                             $id_conciliador = $value["conciliador"];
