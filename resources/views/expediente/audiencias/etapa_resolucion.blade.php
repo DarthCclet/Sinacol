@@ -2822,7 +2822,7 @@
             // let idSolicitante =$("#idSolicitante").val();
             idSol=$(this).attr('idSolicitante');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
@@ -3112,35 +3112,40 @@
         });
 
         function cargarConfigConceptos(){
-            $("#tbodyConcepto").html("");
-            $('#modal-propuesta-convenio').modal('show');
-            if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
-                $(".select-reinstalacion").show();
-                $(".select-otro").hide();
-            }else{
-                $(".select-otro").show();
-                $(".select-reinstalacion").hide();
-            }
-            let table = '';
             let idSolicitante = $('#idSolicitante').val();
-            $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
-                table +='<tr>';
-                    $("#concepto_pago_resoluciones_id").val(concepto.concepto_pago_resoluciones_id);
-                    table +='<td>'+$("#concepto_pago_resoluciones_id option:selected").text()+'</td>';
-                    $("#concepto_pago_resoluciones_id").val("");
-                    table +='<td>'+concepto.dias+'</td>';
-                    table +='<td class="amount" > $'+concepto.monto+'</td>';
-                    table +='<td>'+concepto.otro+'</td>';
-                    table +='<td>';
-                        table +='<button onclick="eliminarConcepto('+idSolicitante+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
-                            table +='<i class="fa fa-trash"></i>';
-                        table +='</button>';
-                    table +='</td>';
-                table +='</tr>';
-            });
-            $("#concepto_pago_resoluciones_id").val("");
-            $("#concepto_pago_resoluciones_id").trigger("change");
-            $("#tbodyConcepto").html(table);
+            if( $('input[name="radiosPropuesta'+idSolicitante+'"]:checked').length > 0 ){
+                $("#tbodyConcepto").html("");
+                $('#modal-propuesta-convenio').modal('show');
+                if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
+                    $(".select-reinstalacion").show();
+                    $(".select-otro").hide();
+                }else{
+                    $(".select-otro").show();
+                    $(".select-reinstalacion").hide();
+                }
+                let table = '';
+            
+                $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
+                    table +='<tr>';
+                        $("#concepto_pago_resoluciones_id").val(concepto.concepto_pago_resoluciones_id);
+                        table +='<td>'+$("#concepto_pago_resoluciones_id option:selected").text()+'</td>';
+                        $("#concepto_pago_resoluciones_id").val("");
+                        table +='<td>'+concepto.dias+'</td>';
+                        table +='<td class="amount" > $'+concepto.monto+'</td>';
+                        table +='<td>'+concepto.otro+'</td>';
+                        table +='<td>';
+                            table +='<button onclick="eliminarConcepto('+idSolicitante+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
+                                table +='<i class="fa fa-trash"></i>';
+                            table +='</button>';
+                        table +='</td>';
+                    table +='</tr>';
+                });
+                $("#concepto_pago_resoluciones_id").val("");
+                $("#concepto_pago_resoluciones_id").trigger("change");
+                $("#tbodyConcepto").html(table);
+            }else{
+                swal({title: 'Error',text: 'Debe seleccionar una propuesta para configurar',icon: 'error'});
+            }
             // $("#dias").val("");
             // $("#monto").val("");
         }
@@ -3158,7 +3163,7 @@
         $('.collapseSolicitante').each(function() {
             idSol=$(this).attr('idSolicitante');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
@@ -3618,7 +3623,7 @@
             // let idSolicitante =$("#idSolicitante").val();
             idSol=$(this).attr('idSolicitante');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
@@ -3759,7 +3764,7 @@
             // let idSolicitante =$("#idSolicitante").val();
             idSol=$(this).attr('idSolicitante');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
