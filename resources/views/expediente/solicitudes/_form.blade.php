@@ -972,7 +972,7 @@
                         <div class="col-md-4" ></div>
                         <div class="custom-control custom-radio col-md-4" >
                             <input type="radio" id="radioAviso1" name="radioAviso" value="1" class="custom-control-input">
-                            <label class="custom-control-label" for="radioAviso1">Si acepto</label>
+                            <label class="custom-control-label" for="radioAviso1">S&iacute; acepto</label>
                         </div>
                         <div class="custom-control custom-radio col-md-4">
                             <input type="radio" id="radioAviso2" name="radioAviso" value="2" class="custom-control-input">
@@ -1698,7 +1698,6 @@
                     // $(".step-6").show();
                     if(data.ratificada){
                         $("#btnAgregarNuevoSolicitante").hide();
-                        $("#btnAgregarNuevoCitado").hide();
                         $("#btnRatificarSolicitud").hide();
                         $("#expediente_id").val(data.expediente.id);
                         expedientee = true;
