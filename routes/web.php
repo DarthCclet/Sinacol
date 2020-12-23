@@ -23,6 +23,7 @@ Route::get('/solicitudes/create-public','SolicitudController@create');
 Route::post('/solicitudes/store-public','SolicitudController@store');
 Route::Get('solicitudes/documentos/{solicitud_id}/acuse','SolicitudController@getAcuseSolicitud');
 Route::get('/aviso-privacidad','DocumentoController@aviso_privacidad');
+Route::get('/version','HomeController@version');
 Route::middleware(['auth'])->group(function () {
 
 
@@ -187,15 +188,15 @@ Route::middleware(['auth'])->group(function () {
 
     // Visor de los logs via web
     Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
-    
+
     Route::get('get_personas','PersonaController@GetPersonaCentro');
-    
+
     /**
      * Notificaciones
      */
     Route::get('notificaciones','CentroController@notificaciones');
     Route::get('notificaciones/enviar/{solicitud_id}','CentroController@EnviarNotificacion');
-    
+
     /**
      * descarga de calendario
      */
