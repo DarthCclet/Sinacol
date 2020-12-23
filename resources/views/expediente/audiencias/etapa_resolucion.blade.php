@@ -164,7 +164,7 @@
                                     <b><h5>Paso 3: Los principios y derechos en el proceso de la conciliación</h5></b>
                                     <p>
                                         <i>Para el conciliador:</i>
-                                        Explicar las características de la conciliación y los derechos de las partes en ella. Recuerde que el proceso de conciliación se realiza en conformidad con los principios constitucionales de legalidad, imparcialidad, confiabilidad, eficacia, objetividad, profesionalismo, transparencia y publicidad. Es importante mencionar a las partes que en algunas ocasiones el conciliador considera necesario hablar con cada una de las partes por separado durante el proceso de negociación. Se realizan estas consultas con cada una de las partes para coadyuvar con el proceso de conciliación, conforme a los principios antes mencionados de este procedimento. 
+                                        Explicar las características de la conciliación y los derechos de las partes en ella. Recuerde que el proceso de conciliación se realiza en conformidad con los principios constitucionales de legalidad, imparcialidad, confiabilidad, eficacia, objetividad, profesionalismo, transparencia y publicidad. Es importante mencionar a las partes que en algunas ocasiones el conciliador considera necesario hablar con cada una de las partes por separado durante el proceso de negociación. Se realizan estas consultas con cada una de las partes para coadyuvar con el proceso de conciliación, conforme a los principios antes mencionados de este procedimento.
                                     </p>
                                     <p>
                                         <u><i>EL CONCILIADOR LEERÁ A LAS PARTES</i></u> “La conciliación es un proceso ágil, objetivo, imparcial, transparente y eficaz. Cada una de las partes tendrá derecho de hablar y de ser escuchada, de plantear, de negociar y de responder. Es un proceso voluntario, no se obligará a nadie a un acuerdo que no quiere. Nos trataremos todos con respeto en esta audiencia. En algún momento de la audiencia es posible que para avanzar la conciliación se tenga que hablar por separado con cada una de las partes, lo que se realiza en algunos casos con el ánimo de arreglar el conflicto, siguiendo los mismos principios mencionados de la conciliación.”.
@@ -631,7 +631,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label id="labelInstrumento" class="needed">Documento de Instrumento</label> 
+                        <label id="labelInstrumento" class="needed">Documento de Instrumento</label>
                         <span class="btn btn-primary fileinput-button m-r-3">
                             <i class="fa fa-fw fa-plus"></i>
                             <span>Seleccionar instrumento</span>
@@ -710,7 +710,7 @@
                     <input type="hidden" id="dato_laboral_id">
                     <input type="hidden" id="resolucion_dato_laboral">
                     <input type="hidden" id="giro_comercial_hidden">
-                    
+
                     <div class="col-md-6">
                         <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
                         <p class="help-block ">N&uacute;mero de seguro social</p>
@@ -1411,7 +1411,7 @@
 
         $(".tipo_documento,.select-element,.catSelect").select2();
         $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
-        
+
         cargarGeneros();
         getEtapasAudiencia();
         cargarTipoContactos();
@@ -1733,7 +1733,7 @@
             if(pasoActual == 1){
                 firstTimeStamp = value.created_at;
             }
-            
+
         });
         startTimer();
     }
@@ -2095,10 +2095,10 @@
                                 }
                                 if(element.parte.parteRepresentada.tipo_persona_id == 1){
                                     html +='<td>Si ('+element.parte.parteRepresentadanombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')</td>';
-                                    
+
                                 }else{
                                     html +='<td>Si ('+element.parte.parteRepresentada.nombre_comercial+')</td>';
-                                    
+
                                 }
                             }else{
                                 html +='<td>No</td>';
@@ -2219,7 +2219,7 @@
                                     $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
                                 }
                             });
-                            
+
                         }else{
                             $("#tipo_documento_id").val("").trigger("change");
                             $("#labelIdentifRepresentante").html("");
@@ -2484,7 +2484,7 @@
                 title: 'Error',
                 text: 'Debe registrar al menos un concepto de pago para esta propuesta ',
                 icon: 'error',
-            }); 
+            });
         }else{
             var objeto_propuesta = {};
             objeto_propuesta.indemnizacion90 = $("#indemnizacion90").val();
@@ -2511,7 +2511,7 @@
     });
     $("#btnGuardarRepresentante").on("click",function(){
         if(!validarRepresentante()){
-            
+
             var formData = new FormData(); // Currently empty
             if($("#fileIdentificacion").val() != ""){
                 formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
@@ -2822,7 +2822,7 @@
             // let idSolicitante =$("#idSolicitante").val();
             idSol=$(this).attr('idSolicitante');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
@@ -2935,7 +2935,7 @@
                             // console.log(key.split("."));
                             // console.log(value);
                             var origen = key.split(".");
-                            
+
                             mensajes += "- "+value[0]+ " del "+origen[0].slice(0,-1)+" "+(parseInt(origen[1])+1)+" \n";
                         });
                         swal({
@@ -3112,36 +3112,40 @@
         });
 
         function cargarConfigConceptos(){
-        let idSolicitante = $('#idSolicitante').val();
-            $("#tbodyConcepto").html("");
-            $('#modal-propuesta-convenio').modal('show');
-            if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
-                $(".select-reinstalacion").show();
-                $(".select-otro").hide();
+            let idSolicitante = $('#idSolicitante').val();
+            if( $('input[name="radiosPropuesta'+idSolicitante+'"]:checked').length > 0 ){
+                $("#tbodyConcepto").html("");
+                $('#modal-propuesta-convenio').modal('show');
+                if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
+                    $(".select-reinstalacion").show();
+                    $(".select-otro").hide();
+                }else{
+                    $(".select-otro").show();
+                    $(".select-reinstalacion").hide();
+                }
+                let table = '';
+
+                $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
+                    table +='<tr>';
+                        $("#concepto_pago_resoluciones_id").val(concepto.concepto_pago_resoluciones_id);
+                        table +='<td>'+$("#concepto_pago_resoluciones_id option:selected").text()+'</td>';
+                        $("#concepto_pago_resoluciones_id").val("");
+                        table +='<td>'+concepto.dias+'</td>';
+                        table +='<td class="amount" > $'+concepto.monto+'</td>';
+                        table +='<td>'+concepto.otro+'</td>';
+                        table +='<td>';
+                            table +='<button onclick="eliminarConcepto('+idSolicitante+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
+                                table +='<i class="fa fa-trash"></i>';
+                            table +='</button>';
+                        table +='</td>';
+                    table +='</tr>';
+                });
+                $("#concepto_pago_resoluciones_id").val("");
+                $("#concepto_pago_resoluciones_id").trigger("change");
+                $("#tbodyConcepto").html(table);
             }else{
-                $(".select-otro").show();
-                $(".select-reinstalacion").hide();
+                swal({title: 'Error',text: 'Debe seleccionar una propuesta para configurar',icon: 'error'});
             }
-            let table = '';
-            
-            $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
-                table +='<tr>';
-                    $("#concepto_pago_resoluciones_id").val(concepto.concepto_pago_resoluciones_id);
-                    table +='<td>'+$("#concepto_pago_resoluciones_id option:selected").text()+'</td>';
-                    $("#concepto_pago_resoluciones_id").val("");
-                    table +='<td>'+concepto.dias+'</td>';
-                    table +='<td class="amount" > $'+concepto.monto+'</td>';
-                    table +='<td>'+concepto.otro+'</td>';
-                    table +='<td>';
-                        table +='<button onclick="eliminarConcepto('+idSolicitante+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
-                            table +='<i class="fa fa-trash"></i>';
-                        table +='</button>';
-                    table +='</td>';
-                table +='</tr>';
-            });
-            $("#concepto_pago_resoluciones_id").val("");
-            $("#concepto_pago_resoluciones_id").trigger("change");
-            $("#tbodyConcepto").html(table);
             // $("#dias").val("");
             // $("#monto").val("");
         }
@@ -3159,7 +3163,7 @@
         $('.collapseSolicitante').each(function() {
             idSol=$(this).attr('idSolicitante');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
@@ -3437,13 +3441,13 @@
     });
 
     $("#btnAgregarFechaPago").on("click",function(){
-        if(listaConfigFechas.length < 6){  
+        if(listaConfigFechas.length < 6){
             var hoy = new Date();
             var _45dias = hoy.setDate(hoy.getDate() + 180);
             // var unMes = hoy.setMonth(hoy.getMonth() + 1);
             let fechaP = $("#fecha_pago").val().split("/");
             var fpago = new Date(fechaP[1]+'/'+fechaP[0]+'/'+fechaP[2]);
-            
+
             if(fpago <= _45dias){
                 let idSolicitante =$("#idSolicitante").val();
                 if( $("#fecha_pago").val() != "" && $("#monto_pago").val() != ""){
@@ -3493,7 +3497,7 @@
         let totalPagoFechas = 0;
 
         $.each(listaConfigFechas,function(index,fechaPago){
-            
+
             idSolicitante = fechaPago.idSolicitante;
             table +='<tr>';
                 table +='<td>'+fechaPago.fecha_pago+'</td>';
@@ -3509,7 +3513,7 @@
             table +='</tr>';
             totalPagoFechas+=parseFloat(fechaPago.monto_pago);
         });
-        
+
         $("#totalPagosDiferidos").val(totalPagoFechas);
         $("#tbodyFechaPago").html(table);
         $("#tbodyFechaPagoPrincipal").html(table);
@@ -3619,7 +3623,7 @@
             // let idSolicitante =$("#idSolicitante").val();
             idSol=$(this).attr('idSolicitante');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
@@ -3631,7 +3635,7 @@
                 swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
             }
         });
-        
+
         if(!error){
             $.ajax({
                 url:"/audiencia/resolucion",
@@ -3676,7 +3680,7 @@
         }
     //});
     }
-    
+
     function revisarDocumentos(){
         var resolucion = $("#resolucion_id").val();
         if(resolucion != "" ){
@@ -3734,7 +3738,7 @@
             swal({title: 'Error',text: 'Debe seleccionar una resolucion',icon: 'error'});
         }
     }
-    
+
     function siguienteVistaPrevia(){
         numDoc = parseInt($('#noDocumento').val());
         //numDoc = parseInt(('#noDocumento').val());
@@ -3760,7 +3764,7 @@
             // let idSolicitante =$("#idSolicitante").val();
             idSol=$(this).attr('idSolicitante');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
