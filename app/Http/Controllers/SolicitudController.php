@@ -56,6 +56,7 @@ use App\Traits\FechaNotificacion;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use App\Providers\HerramientaServiceProvider;
 
 class SolicitudController extends Controller {
     use FechaNotificacion;
@@ -1716,6 +1717,27 @@ class SolicitudController extends Controller {
             $solicitud->save();
 
             return $this->sendResponse($solicitud, 'SUCCESS');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensaje: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
+        }
+    }
+    public function deshacer_solicitudes(){
+        return view('herramientas.deshacer_procesos');
+    }
+    public function rollback_proceso(Request $request){
+        try{
+            $solicitud_id = $request->solicitud_id;
+            $audiencia_id = $request->audiencia_id;
+            $tipoRollback = $request->tipoRollback;
+            $response = HerramientaServiceProvider::rollback($solicitud_id,$audiencia_id,$tipoRollback);
+            if($response->success){
+                return $this->sendResponse(null, $response->msj);
+            }else{
+                return $this->sendError($response->msj);
+            }
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                 " Se emitió el siguiente mensaje: ". $e->getMessage().
