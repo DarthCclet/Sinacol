@@ -290,7 +290,7 @@ class AudienciaController extends Controller {
         $clasificacion_archivos = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
         $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
-        $resoluciones = Resolucion::where('id','<',4)->get();// $this->cacheModel('resoluciones', Resolucion::class);
+        $resoluciones = array_pluck(Resolucion::where('id','<',4)->get(), 'nombre', 'id');// $this->cacheModel('resoluciones', Resolucion::class);
         $audiencia->solicitantes = $this->getSolicitantes($audiencia);
         $audiencia->solicitados = $this->getSolicitados($audiencia);
         $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
@@ -1577,7 +1577,7 @@ class AudienciaController extends Controller {
         $ocupaciones = $this->cacheModel('ocupaciones', Ocupacion::class);
         $jornadas = $this->cacheModel('jornadas', Jornada::class);
         $giros_comerciales = $this->cacheModel('giros_comerciales', GiroComercial::class);
-        $resoluciones = Resolucion::where('id','<',4)->get();// $this->cacheModel('resoluciones', Resolucion::class);
+        $resoluciones = array_pluck(Resolucion::where('id','<',4)->get(), 'nombre', 'id');// $this->cacheModel('resoluciones', Resolucion::class);
         $terminacion_bilaterales = $this->cacheModel('terminacion_bilaterales', TerminacionBilateral::class);
         $audiencia->solicitantes = $this->getSolicitantes($audiencia);
 
@@ -1626,7 +1626,7 @@ class AudienciaController extends Controller {
         $plantilla['plantilla_header'] = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
         $plantilla['plantilla_body'] = "";
         $plantilla['plantilla_footer'] = "";
-        $resoluciones = Resolucion::where('id','<',4)->get();// $this->cacheModel('resoluciones', Resolucion::class);
+        $resoluciones = array_pluck(Resolucion::where('id','<',4)->get(), 'nombre', 'id');// $this->cacheModel('resoluciones', Resolucion::class);
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
         $motivos_archivo = MotivoArchivado::all();
