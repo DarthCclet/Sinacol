@@ -186,7 +186,7 @@
                     </table>
                 @endif
                 @else
-                <div> <h1> Audiencia disponible despues de ratificaci&oacute;n </h1> </div>
+                <div> <h1> Audiencia disponible despues de confirmaci&oacute;n </h1> </div>
             @endif
         </div>
     </div>
@@ -242,7 +242,7 @@
                     El sistema indica que la actividad principal del patrón es de competencia local, no federal.
                 </p>
                 <p style="font-size:large;">
-                    Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de ratificación su solicitud será revisada por un funcionario del CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al Centro de Conciliación competente.
+                    Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de confirmaci&oacute;n su solicitud será revisada por un funcionario del CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al Centro de Conciliación competente.
                 </p>
             </div>
             <div class="modal-footer">

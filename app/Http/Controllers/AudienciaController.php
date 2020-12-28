@@ -1850,7 +1850,10 @@ class AudienciaController extends Controller {
                                     $totalCitadosComparecen++;
                             }
                         }
-                        Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $this->request->audiencia_id, "presentado" => true]);
+                        $comparecienteExiste = Compareciente::where('parte_id',$compareciente)->where('audiencia_id',$this->request->audiencia_id)->first();
+                        if($comparecienteExiste == null){
+                            Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $this->request->audiencia_id, "presentado" => true]);
+                        }
                     }
                 }
                 if (!$solicitantes) {

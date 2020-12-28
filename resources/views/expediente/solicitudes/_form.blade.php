@@ -1638,7 +1638,7 @@
             success:function(data){
                 try{
                     $("#datosIdentificacionSolicitado").show();
-                    $("#ratificada").val(data.ratificada);alert
+                    $("#ratificada").val(data.ratificada);
                     arraySolicitados = Object.values(data.solicitados);
                     formarTablaSolicitado();
                     arraySolicitantes = Object.values(data.solicitantes);

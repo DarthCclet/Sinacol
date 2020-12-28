@@ -179,4 +179,10 @@ class Solicitud extends Model implements Auditable
         }
         return false;
     }
+    public function tipoIncidenciaSolicitud(){
+        return $this->belongsTo(TipoIncidenciaSolicitud::class);
+    }
+    public function solicitud(){
+        return $this->belongsTo(Solicitud::class);
+    }
 }
