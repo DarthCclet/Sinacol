@@ -29,54 +29,54 @@
                 <thead>
                     <tr>
                         <th>Solicitud</th>
-                        <th>Partes a notificar <small>(fecha de notificacion)</small></th>
+                        <th>Partes a notificar</th>
                         <th>Tipo de notificación</th>
                         <th>Evento origén</th>
                         <th>Fecha de petición</th>
                         <th>Notificada</th>
+                        <th>Fecha de notificación</th>
+                        <th>Respuesta</th>
                         <th>Envio de petición</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($solicitudes as $solicitud)
-                    @if($solicitud->fecha_peticion_notificacion != null)
+                    @if($solicitud['fecha_peticion_notificacion'] != null)
                     <tr>
                     @else
                     <tr style="background-color: rgb(157 36 73 / 0.28);">
                     @endif
                         <td>
-                            <strong>Solicitud: </strong><a href="/solicitudes/consulta/{{$solicitud->id}}">{{$solicitud->folio}}/{{$solicitud->anio}}</a><br>
-                            <strong>Expediente: </strong>{{$solicitud->expediente->folio}}<br>
-                            <strong>Audiencia: </strong><a href="/audiencias/{{$solicitud->audiencia_id}}/edit">{{$solicitud->audiencia}}</a><br>
+                            <strong>Solicitud: </strong><a href="/solicitudes/consulta/{{$solicitud['id']}}">{{$solicitud["folio"]}}</a><br>
+                            <strong>Expediente: </strong>{{$solicitud["expediente"]}}<br>
+                            <strong>Audiencia: </strong><a href="/audiencias/{{$solicitud['audiencia_id']}}/edit">{{$solicitud['audiencia']}}</a><br>
                         </td>
                         <td>
-                            @foreach($solicitud->partes_audiencias as $parte)
-                                @if($parte->tipo_parte_id == 2)
-                                    @if($parte->tipo_persona_id == 1)
-                                    - {{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}} <small>({{$parte->fecha_notificacion ?? 'pendiente'}})</small><br>
-                                    @else
-                                        - {{$parte->nombre_comercial}} <small>({{$parte->fecha_notificacion ?? 'pendiente'}})</small><br>
-                                    @endif
-                                @endif
-                            @endforeach
+                            @if($solicitud['parte']->tipo_persona_id == 1)
+                                - {{$solicitud['parte']->nombre}} {{$solicitud['parte']->primer_apellido}} {{$solicitud['parte']->segundo_apellido}}<br>
+                            @else
+                                - {{$solicitud['parte']->nombre_comercial}}<br>
+                            @endif
                         </td>
-                        <td>{{$solicitud->tipo_notificacion}}</td>
-                        <td>{{$solicitud->etapa_notificacion}}</td>
-                        <td>{{$solicitud->fecha_peticion_notificacion ?? 'No enviada'}}</td>
-                        @if($solicitud->notificada)
+                        <td>{{$solicitud['tipo_notificacion']}}</td>
+                        <td>{{$solicitud['etapa_notificacion']}}</td>
+                        <td>{{$solicitud['fecha_peticion_notificacion'] ?? 'No enviada'}}</td>
+                        @if($solicitud['notificada'])
                             <td>Si</td>
                         @else
                             <td>No</td>
                         @endif
-                        @if($solicitud->fecha_peticion_notificacion != null)
+                        <td>{{$solicitud['parte']->fecha_notificacion ?? 'pendiente'}}</td>
+                        <td>{{$solicitud['parte']->finalizado ?? 'N/A'}}</td>
+                        @if($solicitud['fecha_peticion_notificacion'] != null)
                             <td>Enviada
-                            <button onclick="enviar_notificacion({{$solicitud->id}})" class="btn btn-xs btn-primary incidencia" title="Reenviar notificación">
+                            <button onclick="enviar_notificacion({{$solicitud['id']}})" class="btn btn-xs btn-primary incidencia" title="Reenviar notificación">
                                 <i class="fa fa-share-square"></i>
                             </button>
                             </td>
                         @else
                             <td>Pendiente
-                            <button onclick="enviar_notificacion({{$solicitud->id}})" class="btn btn-xs btn-primary incidencia" title="Enviar notificación">
+                            <button onclick="enviar_notificacion({{$solicitud['id']}})" class="btn btn-xs btn-primary incidencia" title="Enviar notificación">
                                 <i class="fa fa-paper-plane"></i>
                             </button>
                             </td>

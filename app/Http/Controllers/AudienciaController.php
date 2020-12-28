@@ -290,7 +290,7 @@ class AudienciaController extends Controller {
         $clasificacion_archivos = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
         $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
-        $resoluciones = array_pluck(Resolucion::where('id','<',4)->get(), 'nombre', 'id');// $this->cacheModel('resoluciones', Resolucion::class);
+        $resoluciones = $this->cacheModel('resoluciones', Resolucion::class);
         $audiencia->solicitantes = $this->getSolicitantes($audiencia);
         $audiencia->solicitados = $this->getSolicitados($audiencia);
         $concepto_pago_resoluciones = ConceptoPagoResolucion::all();
@@ -956,7 +956,11 @@ class AudienciaController extends Controller {
      * @return array
      */
     public function getTodasAudienciasIndividuales() {
-        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[1,2])->get();
+        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)
+            ->where("ratificada",true)
+            ->whereIn("tipo_solicitud_id",[1,2])
+            ->with(["expediente","expediente.audiencia"])
+            ->get();
         $audiencias = [];
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
@@ -980,7 +984,7 @@ class AudienciaController extends Controller {
      * @return array
      */
     public function getTodasAudienciasColectivas() {
-        $solicitudes = Solicitud::whereIn("tipo_solicitud_id", [3,4])->where("ratificada",true)->get();
+        $solicitudes = Solicitud::whereIn("tipo_solicitud_id", [3,4])->where("ratificada",true)->with(["expediente","expediente.audiencia"])->get();
         $audiencias = [];
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
@@ -1577,7 +1581,7 @@ class AudienciaController extends Controller {
         $ocupaciones = $this->cacheModel('ocupaciones', Ocupacion::class);
         $jornadas = $this->cacheModel('jornadas', Jornada::class);
         $giros_comerciales = $this->cacheModel('giros_comerciales', GiroComercial::class);
-        $resoluciones = array_pluck(Resolucion::where('id','<',4)->get(), 'nombre', 'id');// $this->cacheModel('resoluciones', Resolucion::class);
+        $resoluciones = $this->cacheModel('resoluciones', Resolucion::class);
         $terminacion_bilaterales = $this->cacheModel('terminacion_bilaterales', TerminacionBilateral::class);
         $audiencia->solicitantes = $this->getSolicitantes($audiencia);
 
@@ -1626,7 +1630,7 @@ class AudienciaController extends Controller {
         $plantilla['plantilla_header'] = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
         $plantilla['plantilla_body'] = "";
         $plantilla['plantilla_footer'] = "";
-        $resoluciones = array_pluck(Resolucion::where('id','<',4)->get(), 'nombre', 'id');// $this->cacheModel('resoluciones', Resolucion::class);
+        $resoluciones = $this->cacheModel('resoluciones', Resolucion::class);
         $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
         $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
         $motivos_archivo = MotivoArchivado::all();
@@ -1850,10 +1854,7 @@ class AudienciaController extends Controller {
                                     $totalCitadosComparecen++;
                             }
                         }
-                        $comparecienteExiste = Compareciente::where('parte_id',$compareciente)->where('audiencia_id',$this->request->audiencia_id)->first();
-                        if($comparecienteExiste == null){
-                            Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $this->request->audiencia_id, "presentado" => true]);
-                        }
+                        Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $this->request->audiencia_id, "presentado" => true]);
                     }
                 }
                 if (!$solicitantes) {
@@ -2235,9 +2236,6 @@ class AudienciaController extends Controller {
                     $id_conciliador = null;
                     foreach($audiencia->conciliadoresAudiencias as $conciliador){
                         $conciliador->delete();
-                    }
-                    foreach($audiencia->salasAudiencias as $sala){
-                        $sala->delete();
                     }
                     foreach ($this->request->asignacion as $value) {
                         if ($value["resolucion"]) {

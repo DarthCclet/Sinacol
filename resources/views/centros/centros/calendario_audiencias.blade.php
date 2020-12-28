@@ -24,7 +24,7 @@
                 <input type="hidden" name="vista" id="vista">
                 <input type="hidden" name="fecha_inicio" id="fecha_inicio">
                 <input type="hidden" name="fecha_fin" id="fecha_fin">
-                <button type="submit" class="btn btn-primary btn-sm m-l-5" class="pull-right" id="btnDescargarCalendario" style="display:none;">
+                <button type="submit" class="btn btn-primary btn-sm m-l-5" class="pull-right" id="btnDescargarCalendario">
                     <i class="fa fa-file-excel"></i> Descarga
                 </button>
             </form>

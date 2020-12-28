@@ -240,7 +240,7 @@ class CentroController extends Controller
     }
     public function getAudienciasCalendario(){
         $audiencias = array();
-        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[1,2])->get();
+        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[1,2])->with(["expediente","expediente.audiencia"])->get();
         foreach($solicitudes as $solicitud){
             foreach($solicitud->expediente->audiencia as $audiencia){
                 if(!$audiencia->encontro_audiencia){
@@ -286,7 +286,6 @@ class CentroController extends Controller
             $conciliador_id = auth()->user()->persona->conciliador->id;
         }
         foreach($solicitudesTodas as $solicitud){
-            $pasa = false;
             $tipo_notificacion_id = null;
             foreach($solicitud->expediente->audiencia as $audiencia){
                 if($audiencia->encontro_audiencia){
@@ -295,46 +294,31 @@ class CentroController extends Controller
                     foreach($audiencia->audienciaParte as $parte){
                         if($parte->parte != null){
                             if($parte->parte->tipo_parte_id == $tipo_parte->id && ($parte->tipo_notificacion_id == 2 || $parte->tipo_notificacion_id == 3)){ 
-                                $pasa = true;
-                                $tipo_notificacion = $parte->tipo_notificacion->nombre;
-                                $reprogramada = $audiencia->reprogramada;
-                                $etapa_notificacion = $audiencia->etapa_notificacion->etapa;
-                                $audienciaFolio = $audiencia->folio."/".$audiencia->anio;
-                                $audiencia_id = $audiencia->id;
-                                $conciliador_Audiencia = $audiencia->id;
                                 $parte->parte->fecha_notificacion = $parte->fecha_notificacion;
-                                $partes[]=$parte->parte;
+                                $parte->parte->finalizado = $parte->finalizado;
                                 if($parte->fecha_notificacion == null){
                                     $notificada = false;
                                 }
+                                $sol_array = array();
+                                $sol_array["id"] = $solicitud->id;
+                                $sol_array["folio"] = $solicitud->folio."/".$solicitud->anio;
+                                $sol_array["expediente"] = $solicitud->expediente->folio;
+                                $sol_array["fecha_peticion_notificacion"] = $solicitud->fecha_peticion_notificacion;
+                                $sol_array["tipo_notificacion"] = $parte->tipo_notificacion->nombre;
+                                $sol_array["reprogramada"] = $audiencia->reprogramada;
+                                $sol_array["audiencia"] = $audiencia->folio."/".$audiencia->anio;
+                                $sol_array["etapa_notificacion"] = $audiencia->etapa_notificacion->etapa;
+                                $sol_array["notificada"] = $notificada;
+                                $sol_array["parte"] = $parte->parte;
+                                $sol_array["audiencia_id"] = $audiencia->id;
+                                $solicitudes[] = $sol_array;   
                             }
                         }
+                        $notificada = true;
                     }
                 }
             }
-            if($pasa){
-                if($rolActual != "Personal conciliador"){
-                    $solicitud["tipo_notificacion"] = $tipo_notificacion;
-                    $solicitud["reprogramada"] = $reprogramada;
-                    $solicitud["audiencia"] = $audienciaFolio;
-                    $solicitud["etapa_notificacion"] = $etapa_notificacion;
-                    $solicitud["notificada"] = $notificada;
-                    $solicitud["partes_audiencias"] = $partes;
-                    $solicitud["audiencia_id"] = $audiencia_id;
-                    $solicitudes[] = $solicitud;
-                }else{
-                    if($conciliador_Audiencia == $conciliador_id){
-                        $solicitud["tipo_notificacion"] = $tipo_notificacion;
-                        $solicitud["reprogramada"] = $reprogramada;
-                        $solicitud["audiencia"] = $audienciaFolio;
-                        $solicitud["etapa_notificacion"] = $etapa_notificacion;
-                        $solicitud["notificada"] = $notificada;
-                        $solicitud["partes_audiencias"] = $partes;
-                        $solicitud["audiencia_id"] = $audiencia_id;
-                        $solicitudes[] = $solicitud;
-                    }
-                }
-            }
+            
         }
         return view('centros.centros.notificaciones',compact('solicitudes'));
     }
@@ -372,12 +356,12 @@ class CentroController extends Controller
             ->where("audiencias.deleted_at",null)
             ->whereBetween("audiencias.fecha_audiencia",[$fecha_inicial,$fecha_fin])
             ->select("audiencias.*","solicitudes.folio as folio_solicitud","solicitudes.anio as anio_solicitud","expedientes.folio as folio_expediente")
+            ->with(["salasAudiencias","conciliadoresAudiencias","salasAudiencias.sala","conciliadoresAudiencias.conciliador","conciliadoresAudiencias.conciliador.persona"])
             ->get();
         $audiencias = [];
         foreach($audienciasArray as $audiencia){
-            $aud = Audiencia::find($audiencia->id);
-            $salas = self::obtenerSalas($aud->salasAudiencias);
-            $conciliadores = self::obtenerConciliadores($aud->conciliadoresAudiencias);
+            $salas = self::obtenerSalas($audiencia->salasAudiencias);
+            $conciliadores = self::obtenerConciliadores($audiencia->conciliadoresAudiencias);
             $estatus = "Por celebrar";
             if($audiencia->finalizada){
                 $estatus = "Finalizada";
