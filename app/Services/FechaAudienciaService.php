@@ -149,12 +149,15 @@ class FechaAudienciaService{
                         $disponibilidad = $sala->disponibilidades()->where("dia",$d->weekday())->first();
                         if($disponibilidad != null){
                             $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
-                                    ->select('audiencias.*')
-                                    ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                    ->where("audiencias.hora_inicio",$hora_inicio)
-                                    ->where("audiencias.hora_fin",$hora_fin)
-                                    ->where("salas_audiencias.sala_id",$sala->id)
-                                    ->get();
+                            ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                            ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                            ->whereRaw('solicitudes.incidencia is not true')
+                            ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                            ->where("audiencias.hora_inicio",$hora_inicio)
+                            ->where("audiencias.hora_fin",$hora_fin)
+                            ->where("salas_audiencias.sala_id",$sala->id)
+                            ->select('audiencias.*')
+                            ->get();
                             if(count($audiencias) == 0){
                                 $encontroSala=true;
                                 $sala_id = $sala->id;
@@ -168,6 +171,9 @@ class FechaAudienciaService{
                     if($disponibilidad != null){
                         $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
                                 ->select('audiencias.*')
+                                ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                ->whereRaw('solicitudes.incidencia is not true')
                                 ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
                                 ->where("audiencias.hora_inicio",$hora_inicio)
                                 ->where("audiencias.hora_fin",$hora_fin)
@@ -245,12 +251,15 @@ class FechaAudienciaService{
                         $disponibilidad = $sala->disponibilidades()->where("dia",$d->weekday())->first();
                         if($disponibilidad != null){
                             $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
-                                    ->select('audiencias.*')
-                                    ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                    ->where("audiencias.hora_inicio",$hora_inicio)
-                                    ->where("audiencias.hora_fin",$hora_fin)
-                                    ->where("salas_audiencias.sala_id",$sala->id)
-                                    ->get();
+                                ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                                ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                                ->whereRaw('solicitudes.incidencia is not true')
+                                ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                ->where("audiencias.hora_inicio",$hora_inicio)
+                                ->where("audiencias.hora_fin",$hora_fin)
+                                ->where("salas_audiencias.sala_id",$sala->id)
+                                ->select('audiencias.*')
+                                ->get();
                             if(count($audiencias) == 0){
                                 //Buscamos la segunda audiencia
                                 $sala_segunda = self::obtenerSegundaSalaAudiencia($diaHabilCentro["dia"],$hora_inicio,$hora_fin,$sala->id,$salas);
@@ -268,12 +277,15 @@ class FechaAudienciaService{
                     $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
                     if($disponibilidad != null){
                         $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                                ->select('audiencias.*')
-                                ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
-                                ->where("audiencias.hora_inicio",$hora_inicio)
-                                ->where("audiencias.hora_fin",$hora_fin)
-                                ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
-                                ->get();
+                            ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                            ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                            ->whereRaw('solicitudes.incidencia is not true')
+                            ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                            ->where("audiencias.hora_inicio",$hora_inicio)
+                            ->where("audiencias.hora_fin",$hora_fin)
+                            ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                            ->select('audiencias.*')
+                            ->get();
                         if(count($audiencias) == 0){
                             $conciliador_segundo = self::obtenerSegundoConciliadorAudiencia($diaHabilCentro["dia"],$hora_inicio,$hora_fin,$sala->id,$salas);
                             if($conciliador_segundo != null){
@@ -320,11 +332,14 @@ class FechaAudienciaService{
         foreach($salas as $sala){
             if($sala->id != $sala_id && !$sala->virtual){
                 $audiencias = Audiencia::join('salas_audiencias', 'audiencias.id', '=', 'salas_audiencias.audiencia_id')
-                    ->select('audiencias.*')
+                    ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                    ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                    ->whereRaw('solicitudes.incidencia is not true')
                     ->where("audiencias.fecha_audiencia",$fecha)
                     ->where("audiencias.hora_inicio",$hora_inicio)
                     ->where("audiencias.hora_fin",$hora_fin)
                     ->where("salas_audiencias.sala_id",$sala->id)
+                    ->select('audiencias.*')
                     ->get();
                 if(count($audiencias) == 0){
                     //Buscamos la segunda audiencia

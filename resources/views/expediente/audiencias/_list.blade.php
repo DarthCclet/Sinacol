@@ -67,7 +67,6 @@
                     {
                         "targets": [0],
                         "render": function (data, type, row) {
-                            $(row).css("background-color","red");
                             return  row[1]+"/"+row[2];
                         }
                     },

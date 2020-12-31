@@ -81,7 +81,10 @@ class AudienciaController extends Controller {
         // Filtramos los usuarios con los parametros que vengan en el request
         $audiencias = (new CatalogoFilter(Audiencia::query(), $this->request))
                 ->searchWith(Audiencia::class)
-                ->filter(false);
+                ->filter(false)
+                ->join('expedientes','audiencias.expediente_id','expedientes.id')
+                ->join('solicitudes','expedientes.solicitud_id','solicitudes.id')
+                ->whereRaw('solicitudes.incidencia is not true');
         // Si en el request viene el parametro all entonces regresamos todos los elementos
         // de lo contrario paginamos
         if ($this->request->get('all')) {
@@ -130,7 +133,11 @@ class AudienciaController extends Controller {
             if ($this->request->get('IsDatatableScroll')) {
                 $audiencias = $audiencias->with('conciliador.persona');
                 $audiencias = $audiencias->with('expediente.solicitud');
-                $audiencias = $audiencias->orderBy("fecha_audiencia", 'desc')->take($length)->skip($start)->get(['id', 'folio', 'anio', 'fecha_audiencia', 'hora_inicio', 'hora_fin', 'conciliador_id', 'finalizada','expediente_id','solictud_cancelcacion','cancelacion_atendida']);
+                $audiencias = $audiencias->orderBy("fecha_audiencia", 'desc')
+                    ->take($length)
+                    ->skip($start)
+                    ->select('audiencias.id','audiencias.folio','audiencias.anio','audiencias.fecha_audiencia','audiencias.hora_inicio','audiencias.hora_fin','audiencias.conciliador_id','audiencias.finalizada','audiencias.expediente_id','audiencias.solictud_cancelcacion','audiencias.cancelacion_atendida')
+                    ->get(['audiencias.id', 'audiencias.folio', 'audiencias.anio', 'fecha_audiencia', 'hora_inicio', 'hora_fin', 'conciliador_id', 'finalizada','expediente_id','solictud_cancelcacion','cancelacion_atendida']);
                 // $audiencias = $audiencias->select(['id','conciliador','numero_audiencia','fecha_audiencia','hora_inicio','hora_fin'])->orderBy("fecha_audiencia",'desc')->take($length)->skip($start)->get();
             } else {
                 $audiencias = $audiencias->paginate($this->request->get('per_page', 10));
@@ -958,6 +965,7 @@ class AudienciaController extends Controller {
     public function getTodasAudienciasIndividuales() {
         $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)
             ->where("ratificada",true)
+            ->where("incidencia",false)
             ->whereIn("tipo_solicitud_id",[1,2])
             ->with(["expediente","expediente.audiencia"])
             ->get();
@@ -984,7 +992,10 @@ class AudienciaController extends Controller {
      * @return array
      */
     public function getTodasAudienciasColectivas() {
-        $solicitudes = Solicitud::whereIn("tipo_solicitud_id", [3,4])->where("ratificada",true)->with(["expediente","expediente.audiencia"])->get();
+        $solicitudes = Solicitud::whereIn("tipo_solicitud_id", [3,4])
+        ->where("ratificada",true)
+        ->where("incidencia",false)
+        ->with(["expediente","expediente.audiencia"])->get();
         $audiencias = [];
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
@@ -1003,7 +1014,10 @@ class AudienciaController extends Controller {
         return $arrayEventos;
     }
     public function getAudienciasSinFecha(){
-        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->get();
+        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)
+        ->where("incidencia",false)
+        ->where("ratificada",true)
+        ->get();
         $audiencias = [];
         foreach ($solicitudes as $solicitud) {
             $audienciasSolicitud = $solicitud->expediente->audiencia;
@@ -1555,9 +1569,11 @@ class AudienciaController extends Controller {
         if ($conciliador != null) {
             $audiencias = $conciliador->ConciliadorAudiencia;
             foreach ($audiencias as $audiencia) {
-                $start = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_inicio;
-                $end = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_fin;
-                array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->audiencia->folio . "/" . $audiencia->audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->audiencia->id));
+                if(!$audiencia->audiencia->expediente->solicitud->incidencia){
+                    $start = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_inicio;
+                    $end = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_fin;
+                    array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->audiencia->folio . "/" . $audiencia->audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->audiencia->id));
+                }
             }
         }
         // obtenemos el horario menor y mayor del conciliador

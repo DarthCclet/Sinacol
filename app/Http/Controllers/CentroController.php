@@ -242,9 +242,11 @@ class CentroController extends Controller
         $audiencias = array();
         $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->whereIn("tipo_solicitud_id",[1,2])->with(["expediente","expediente.audiencia"])->get();
         foreach($solicitudes as $solicitud){
-            foreach($solicitud->expediente->audiencia as $audiencia){
-                if(!$audiencia->encontro_audiencia){
-                    $audiencias[]=$audiencia;
+            if(!$solicitud->incidencia){
+                foreach($solicitud->expediente->audiencia as $audiencia){
+                    if(!$audiencia->encontro_audiencia){
+                        $audiencias[]=$audiencia;
+                    }
                 }
             }
         }
@@ -254,9 +256,11 @@ class CentroController extends Controller
         $audiencias = array();
         $solicitudes = Solicitud::where("ratificada",true)->whereIn("tipo_solicitud_id",[3,4])->get();
         foreach($solicitudes as $solicitud){
-            foreach($solicitud->expediente->audiencia as $audiencia){
-                if(!$audiencia->encontro_audiencia){
-                    $audiencias[]=$audiencia;
+            if(!$solicitud->incidencia){
+                foreach($solicitud->expediente->audiencia as $audiencia){
+                    if(!$audiencia->encontro_audiencia){
+                        $audiencias[]=$audiencia;
+                    }
                 }
             }
         }
