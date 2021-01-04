@@ -1944,6 +1944,7 @@ class AudienciaController extends Controller {
                         $audiencia->update(["etapa_notificacion_id" => $etapa->id]);
                         $citatorio = false;
                         $notificar = true;
+                        $solicitud->update(["estatus_solicitud_id" => 3]);
                         $audiencia_notificar_id = $audiencia->id;
                         $response = array("tipo" => 2,"response" => $audiencia);
                     }else{
@@ -2127,6 +2128,8 @@ class AudienciaController extends Controller {
             foreach($audienciaN->conciliadoresAudiencias as $conciliador){
                 $conciliador->conciliador->persona;
             }
+            $audiencia->finalizada = true;
+            $audiencia->save();
             $response = array("tipo" => 3,"response" => $audienciaN);
             DB::commit();
             return $this->sendResponse($response, 'SUCCESS');
