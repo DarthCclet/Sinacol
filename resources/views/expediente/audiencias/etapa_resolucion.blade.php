@@ -107,6 +107,9 @@
                                                             <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante Legal" data-toggle="tooltip" data-placement="top">
                                                                 <i class="fa fa-plus"></i>
                                                             </button>
+                                                            @if($parte->tipo_persona_id == 1)
+                                                                <label >(Captura opcional)</label>
+                                                            @endif
                                                         </div>
                                                         @endif
                                                         @if($parte->tipo_parte_id == 1)

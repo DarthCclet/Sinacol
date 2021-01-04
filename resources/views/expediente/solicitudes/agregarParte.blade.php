@@ -173,6 +173,11 @@
 @push('scripts')
 <script>
     var arrayContactoSolicitados = [];
+
+    $(".personaMoralCitado").hide();
+    $(".personaMoralCitado input").attr("required","");
+    $(".personaMoralCitado input").removeAttr("required");
+
     function pasoCitado(pasoActual){
         switch (pasoActual) {
             case 1:
