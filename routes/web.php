@@ -156,6 +156,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('incidencias_solicitudes','SolicitudController@incidencias_solicitudes');
     Route::get('deshacer_solicitudes','SolicitudController@deshacer_solicitudes');
+    Route::post('rollback_proceso','SolicitudController@rollback_proceso');
     Route::post('guardar_incidencia','SolicitudController@guardar_incidencia');
     Route::post('borrar_incidencia','SolicitudController@borrar_incidencia');
     Route::resource('permisos','PermissionController');

@@ -596,9 +596,13 @@ class SolicitudController extends Controller {
             $solicitud->centro = $solicitud->centro;
             $solicitud->tipoSolicitud = $solicitud->tipoSolicitud;
             if($solicitud->expediente){
-                $solicitud->audiencias = $solicitud->expediente->audiencia;
+                $solicitud->audiencias = $solicitud->expediente->audiencia()->orderBy('id','asc')->get();
                 foreach($solicitud->audiencias as $audiencia){
                     $audiencia->conciliador->persona;
+                    $audiencia->iniciada = false;
+                    if(count($audiencia->comparecientes) > 0){
+                        $audiencia->iniciada = true;
+                    }
                 }
             }
             if($solicitud->giroComercial){
@@ -623,7 +627,7 @@ class SolicitudController extends Controller {
         $solicitud = Solicitud::find($id);
         $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
         if (count($expediente) > 0) {
-            $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->get();
+            $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->orderBy('id','asc')->get();
         } else {
             $audiencias = array();
         }
@@ -716,7 +720,7 @@ class SolicitudController extends Controller {
             $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
             if (count($expediente) > 0) {
                 $expediente_id = $expediente[0]->id;
-                $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->withCount('etapasResolucionAudiencia')->get();
+                $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->withCount('etapasResolucionAudiencia')->orderBy('id','asc')->get();
                 foreach($audiencias as $audiencia){
                     foreach($audiencia->audienciaParte as $parte){
                         $documentos = $parte->documentos;
@@ -993,6 +997,16 @@ class SolicitudController extends Controller {
                         foreach ($contactos as $key => $contacto) {
                             unset($contacto['activo']);
                             $contactoSaved = $parteSaved->contactos()->create($contacto);
+                        }
+                        if($solicitudSaved->ratificada && $solicitudSaved->expediente){
+                            $audiencias = $solicitudSaved->expediente->audiencia()->orderBy('id','desc');
+                            if(!empty($audiencias)){
+                                $audiencia = $audiencias->first();
+                                if(!$audiencia->finalizada){
+                                    AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parteSaved->id,"tipo_notificacion_id" => 3]);
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitudSaved->id, 14, 4,null,$parteSaved->id));
+                                }
+                            }
                         }
                     } else {
                         $parteSaved = Parte::find($value['id']);
@@ -1733,10 +1747,10 @@ class SolicitudController extends Controller {
             $audiencia_id = $request->audiencia_id;
             $tipoRollback = $request->tipoRollback;
             $response = HerramientaServiceProvider::rollback($solicitud_id,$audiencia_id,$tipoRollback);
-            if($response->success){
-                return $this->sendResponse(null, $response->msj);
+            if($response["success"]){
+                return $this->sendResponse(null, $response["msj"]);
             }else{
-                return $this->sendError($response->msj);
+                return $this->sendError($response["msj"]);
             }
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().

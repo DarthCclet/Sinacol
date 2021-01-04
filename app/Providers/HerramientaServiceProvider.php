@@ -63,7 +63,7 @@ class HerramientaServiceProvider extends ServiceProvider
                     $audiencia->reprogramada = false;
                     $audiencia->save();
                 }else{
-                    return response()->json(['success'=>false,'msj'=>' La audiencia no esta finalizada, no es posible hacer este proceso ']);
+                    return ['success'=>false,'msj'=>' La audiencia no esta finalizada, no es posible hacer este proceso '];
                 }
             }else if($tipoRollback == 2){
                 $solicitud = Solicitud::find($solicitud_id);
@@ -104,7 +104,7 @@ class HerramientaServiceProvider extends ServiceProvider
                     $audiencia->reprogramada = false;
                     $audiencia->save();
                 }else{
-                    return response()->json(['success'=>false,'msj'=>' La audiencia esta finalizada, no es posible hacer este proceso ']);
+                    return ['success'=>false,'msj'=>' La audiencia esta finalizada, no es posible hacer este proceso '];
                 }
                 
             }else{
@@ -113,7 +113,7 @@ class HerramientaServiceProvider extends ServiceProvider
                     $audiencias = $solicitud->expediente->audiencia;
                     $expediente = $solicitud->expediente;
                     if(count($audiencias) > 1){
-                        return response()->json(['success'=>false,'msj'=>' No se puede realizar este proceso ya que esta solicitud tiene mas de una audiencia ']);
+                        return ['success'=>false,'msj'=>' No se puede realizar este proceso ya que esta solicitud tiene mas de una audiencia '];
                     }else{
                         $partes = $solicitud->partes;
                         $solicitud->estatus_solicitud_id = 1;
@@ -171,19 +171,19 @@ class HerramientaServiceProvider extends ServiceProvider
                         $expediente->delete();
                     }
                 }else{
-                    return response()->json(['success'=>false,'msj'=>' Esta solicitud no esta confirmada, no es posible realizar el proceso ']);
+                    return ['success'=>false,'msj'=>' Esta solicitud no esta confirmada, no es posible realizar el proceso '];
                 }
 
             }
             DB::commit();
-            return response()->json(['success'=>true,'msj'=>' Proceso realizado correctamente ']);
+            return ['success'=>true,'msj'=>' Proceso realizado correctamente '];
 
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                 " Se emitió el siguiente mensaje: ". $e->getMessage().
                 " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
-            return response()->json(['success'=>false,'msj'=>'Error al realizar el proceso ']);
+            return ['success'=>false,'msj'=>'Error al realizar el proceso '];
         }
     }
 
