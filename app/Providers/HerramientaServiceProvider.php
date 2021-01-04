@@ -24,8 +24,8 @@ class HerramientaServiceProvider extends ServiceProvider
     }
 
     public static function rollback($solicitud_id,$audiencia_id,$tipoRollback){
+        DB::beginTransaction();
         try{
-            DB::beginTransaction();
             //tipoRollback nos indica que tipo de rollback se va a realizar, 1 antes de terminar audiencia, 2 antes de comparecencia, 3 antes de ratificación
             if($tipoRollback == 1){
                 $solicitud = Solicitud::find($solicitud_id);
