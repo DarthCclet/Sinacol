@@ -823,7 +823,7 @@
                         "targets": -1,
                         "render": function (data, type, row) {
                                 var buttons = '';
-                                if(row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true"){
+                                if((row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true") && row[1] != 3){
                                     buttons += '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-4" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
                                 }
                                     buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+rutaConsulta.replace('/-rutaConsulta',"/"+row[0])+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>';
