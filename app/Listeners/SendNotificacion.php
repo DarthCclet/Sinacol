@@ -132,19 +132,17 @@ class SendNotificacion
             }
             Log::debug('Se envia esta peticion:'.json_encode($arreglo));
             $client = new Client();
-            $baseURL = $audiencia->expediente->solicitud->centro->url_instancia_notificacion;
+            if(env('NOTIFICACION_DRY_RUN') == "YES"){
+                $baseURL = env('APP_URL_NOTIFICACIONES');
+            }else{
+                $baseURL = $audiencia->expediente->solicitud->centro->url_instancia_notificacion;
+            }
             if($baseURL != null){
                 $response = $client->request('POST',$baseURL ,[
                     'headers' => ['foo' => 'bar'],
                     'verify' => false,
-                    // array de datos del formulario
                     'body' => json_encode($arreglo),
-        //            'http_errors' => false
                 ]);
-//                dd($response);
-//                if ($response->getBody()) {
-                    // JSON string: { ... }
-//                }
             }
     //        Cambiamos el estatus de notificación
             $solicitud = $audiencia->expediente->solicitud;
