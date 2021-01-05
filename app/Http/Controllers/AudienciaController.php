@@ -1944,6 +1944,7 @@ class AudienciaController extends Controller {
                         $audiencia->update(["etapa_notificacion_id" => $etapa->id]);
                         $citatorio = false;
                         $notificar = true;
+                        $solicitud = Solicitud::find($audiencia->expediente->solicitud_id);
                         $solicitud->update(["estatus_solicitud_id" => 3]);
                         $audiencia_notificar_id = $audiencia->id;
                         $response = array("tipo" => 2,"response" => $audiencia);
