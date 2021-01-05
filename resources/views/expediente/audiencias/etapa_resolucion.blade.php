@@ -1428,17 +1428,34 @@
         format:'dd/mm/yyyy',
     });
     function nextStep(pasoActual){
-        var success = guardarEvidenciaEtapa(pasoActual);
-        if(success){
+        let valido = true;
+        if(pasoActual == 3 || pasoActual == 4 || pasoActual == 5 ){
+            evidencia = $("#evidencia"+pasoActual).val();
+            if(evidencia == ""){
+                valido = false;
+                mensaje = 'Debe registrar la justificación y/o manifestación correspondiente.';
+            }
+            // if(pasoActual == 4){
+            //     valido = !validarPropuestas();
+            //     mensaje = 'Debe seleccionar una propuesta para cada solicitante';
+            // }
+        }
+        if(valido){
+            var success = guardarEvidenciaEtapa(pasoActual);
+            if(success){
 
-            var siguiente = pasoActual+1;
-            $("#icon"+pasoActual).css("background","lightgreen");
-            $("#step"+siguiente).show();
-            $('html,body').animate({
-                scrollTop: $("#contentStep"+siguiente).offset().top
-            }, 'slow');
+                var siguiente = pasoActual+1;
+                $("#icon"+pasoActual).css("background","lightgreen");
+                $(".btnPaso"+pasoActual).text("Actualizar");
+                $("#step"+siguiente).show();
+                $('html,body').animate({
+                    scrollTop: $("#contentStep"+siguiente).offset().top
+                }, 'slow');
+            }else{
+                swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
+            }
         }else{
-            swal({title: 'Error',text: 'No se pudo guardar el registro',icon: 'error'});
+            swal({title: 'Error',text: mensaje ,icon: 'error'});
         }
     }
 
@@ -2817,6 +2834,32 @@
         $("#giro_comercial_hidden").val($(this).val());
     });
 
+    function validarPropuestas(){
+        let listaPropuestaConceptos = {};        
+        error =false;
+        $('.collapseSolicitante').each(function() {
+            idSol=$(this).attr('idSolicitante');
+            if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
+                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
+                    listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
+                    if(Object.keys(listaConfigConceptos).length <= 0){
+                        error =true;
+                        swal({title: 'Error',text: 'Debe agregar conceptos de pago para la propuesta seleccionada.',icon: 'error'});
+                    }
+                }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
+                    listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
+                }else{
+                    listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
+                }
+            }else{
+                error =true;
+                swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
+            }
+        });
+        console.log(listaPropuestaConceptos);
+        return error;
+    }
+
     function validarPagos(){
         let listaPropuestaConceptos = {};
         totalConceptosPago = 0;
@@ -2827,6 +2870,10 @@
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
                 if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
+                    if(Object.keys(listaConfigConceptos).length <= 0){
+                        error =true;
+                        swal({title: 'Error',text: 'Debe agregar conceptos de pago para la propuesta seleccionada.',icon: 'error'});
+                    }
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
                 }else{
@@ -3163,11 +3210,16 @@
     // $("#btnFinalizar").on("click",function(){
         let listaPropuestaConceptos = {};
         error =false;
+        mensaje = "";
         $('.collapseSolicitante').each(function() {
             idSol=$(this).attr('idSolicitante');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
                 if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
+                    if(Object.keys(listaConfigConceptos).length <= 0){
+                        error =true;
+                        mensaje = 'Debe agregar conceptos de pago para la propuesta seleccionada.';
+                    }
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
                 }else{
@@ -3175,7 +3227,7 @@
                 }
             }else{
                 error =true;
-                swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
+                mensaje = 'Debe seleccionar una propuesta para cada solicitante.';
             }
         });
         if(!error){
@@ -3270,7 +3322,7 @@
                 });
             }
         }else{
-            swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
+            swal({title: 'Alerta',text: mensaje ,icon: 'warning'});
         }
     }
 
@@ -3628,6 +3680,10 @@
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
                 if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
+                    if(Object.keys(listaConfigConceptos).length <= 0){
+                        error =true;
+                        swal({title: 'Error',text: 'Debe agregar conceptos de pago para la propuesta seleccionada.',icon: 'error'});
+                    }
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
                 }else{
@@ -3769,6 +3825,10 @@
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
                 if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
+                    if(Object.keys(listaConfigConceptos).length <= 0){
+                        error =true;
+                        swal({title: 'Error',text: 'Debe agregar conceptos de pago para la propuesta seleccionada.',icon: 'error'});
+                    }
                 }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
                 }else{
