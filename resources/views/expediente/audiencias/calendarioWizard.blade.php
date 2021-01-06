@@ -182,23 +182,26 @@
                 $.ajax({
                     url:"/audiencia/getCalendario",
                     type:"POST",
-                    global:false,
                     data:{
                         centro_id:1,
                         _token:"{{ csrf_token() }}"
                     },
                     dataType:"json",
                     success:function(data){
-                        console.log(data.minTime);
-                        console.log(data.maxtime);
-                        if(data.minTime == "23:59:59" && data.maxtime == "00:00:00"){
-                            swal({
-                                title: 'Error',
-                                text: 'No está configurada la disponibilidad del centro',
-                                icon: 'warning'
-                            });
+                        try{
+                            console.log(data.minTime);
+                            console.log(data.maxtime);
+                            if(data.minTime == "23:59:59" && data.maxtime == "00:00:00"){
+                                swal({
+                                    title: 'Error',
+                                    text: 'No está configurada la disponibilidad del centro',
+                                    icon: 'warning'
+                                });
+                            }
+                            construirCalendarioResolicion(data);
+                        }catch(error){
+                            console.log(error);
                         }
-                        construirCalendarioResolicion(data);
                     }
                 });
             });
@@ -222,7 +225,7 @@
                     maxTime: arregloGeneral.maxtime,
                     select: function(start, end,a,b) {
                         var ahora = new Date();
-                        end=moment(end).add(30,'minutes').format('Y-MM-DD HH:mm:ss');
+                        end=moment(end).format('Y-MM-DD HH:mm:ss');
                         console.log(end);
                         start=moment(start).format('Y-MM-DD HH:mm:ss');
                         var startVal = new Date(start);
@@ -271,7 +274,6 @@
                 $.ajax({
                     url:"/audiencia/ConciliadoresDisponibles",
                     type:"POST",
-                    global:false,
                     data:{
                         fechaInicio:fechaInicio,
                         fechaFin:fechaFin,
@@ -280,15 +282,19 @@
                     },
                     dataType:"json",
                     success:function(data){
-                        if(data != null && data != ""){
-                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un conciliador</option>");
-                            $.each(data,function(index,element){
-                                $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").append("<option value='"+element.id+"'>"+element.persona.nombre+" "+element.persona.primer_apellido+" "+element.persona.segundo_apellido+"</option>");
-                            });
-                        }else{
-                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un conciliador</option>");
+                        try{
+                            if(data != null && data != ""){
+                                $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un conciliador</option>");
+                                $.each(data,function(index,element){
+                                    $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").append("<option value='"+element.id+"'>"+element.persona.nombre+" "+element.persona.primer_apellido+" "+element.persona.segundo_apellido+"</option>");
+                                });
+                            }else{
+                                $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").html("<option value=''>-- Selecciona un conciliador</option>");
+                            }
+                            $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").select2();
+                        }catch(error){
+                            console.log(error);
                         }
-                        $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").select2();
                     }
                 });
             };
@@ -296,7 +302,6 @@
                 $.ajax({
                     url:"/audiencia/SalasDisponibles",
                     type:"POST",
-                    global:false,
                     data:{
                         fechaInicio:fechaInicio,
                         fechaFin:fechaFin,
@@ -305,13 +310,17 @@
                     },
                     dataType:"json",
                     success:function(data){
-                        $("#sala_id,#sala_solicitado_id,#sala_solicitante_id,#sala_cambio_id").html("<option value=''>-- Selecciona una sala</option>");
-                        if(data != null && data != ""){
-                            $.each(data,function(index,element){
-                                $("#sala_id,#sala_solicitado_id,#sala_solicitante_id,#sala_cambio_id").append("<option value='"+element.id+"'>"+element.sala+"</option>");
-                            });
+                        try{
+                            $("#sala_id,#sala_solicitado_id,#sala_solicitante_id,#sala_cambio_id").html("<option value=''>-- Selecciona una sala</option>");
+                            if(data != null && data != ""){
+                                $.each(data,function(index,element){
+                                    $("#sala_id,#sala_solicitado_id,#sala_solicitante_id,#sala_cambio_id").append("<option value='"+element.id+"'>"+element.sala+"</option>");
+                                });
+                            }
+                            $("#sala_id,#sala_solicitado_id,#sala_solicitante_id,#sala_cambio_id").select2();
+                        }catch(error){
+                            console.log(error);
                         }
-                        $("#sala_id,#sala_solicitado_id,#sala_solicitante_id,#sala_cambio_id").select2();
                     }
                 });
             }
@@ -341,7 +350,6 @@
                     $.ajax({
                         url:url,
                         type:"POST",
-                        global:false,
                         data:{
                             fecha_audiencia:new Date($("#fecha_audiencia").val()).toISOString(),
                             hora_inicio:$("#hora_inicio").val(),
@@ -356,20 +364,24 @@
                         },
                         dataType:"json",
                         success:function(data){
-                            console.log(data);
-                            if(data != null && data != ""){
-                                if(origen == 'audiencias'){
-                                    window.location.href = "/audiencias/"+data.id+"/edit";
+                            try{
+                                console.log(data);
+                                if(data != null && data != ""){
+                                    if(origen == 'audiencias'){
+                                        window.location.href = "/audiencias/"+data.id+"/edit";
+                                    }else{
+                                        window.location.href = "/audiencias/"+data.id+"/edit";
+                                        // window.location.href = "{{ route('audiencias.index')}}";
+                                    }
                                 }else{
-                                    window.location.href = "/audiencias/"+data.id+"/edit";
-                                    // window.location.href = "{{ route('audiencias.index')}}";
+                                    swal({
+                                        title: 'Algo salió mal',
+                                        text: 'No se registró la audiencia',
+                                        icon: 'warning'
+                                    });
                                 }
-                            }else{
-                                swal({
-                                    title: 'Algo salió mal',
-                                    text: 'No se registró la audiencia',
-                                    icon: 'warning'
-                                });
+                            }catch(error){
+                                console.log(error);
                             }
                         }
                     });

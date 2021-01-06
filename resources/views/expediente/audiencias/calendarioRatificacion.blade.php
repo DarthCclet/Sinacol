@@ -167,11 +167,12 @@
                     selectHelper: true,
                     minTime: arregloGeneral.minTime,
                     maxTime: arregloGeneral.maxtime,
+                    slotDuration:'01:00:00',
                     select: function(start, end,a,b) {
                         var validarRatificacion = RatificacionValidar();
                         if(!validarRatificacion.error){
                             var ahora = new Date();
-                            end=moment(end).add(30,'minutes').format('Y-MM-DD HH:mm:ss');
+                            end=moment(end).format('Y-MM-DD HH:mm:ss');
                             console.log(end);
                             start=moment(start).format('Y-MM-DD HH:mm:ss');
                             var startVal = new Date(start);

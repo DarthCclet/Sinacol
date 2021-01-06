@@ -50,7 +50,7 @@
                     maxTime: arregloGeneral.maxTime,
                     select: function(start, end,a,b) {
                         var ahora = new Date();
-                        end=moment(end).add(30,'minutes').format('Y-MM-DD HH:mm:ss');
+                        end=moment(end).format('Y-MM-DD HH:mm:ss');
                         console.log(end);
                         start=moment(start).format('Y-MM-DD HH:mm:ss');
                         var startVal = new Date(start);
@@ -78,6 +78,7 @@
                     allDaySlot:false,
                     eventLimit: false,
                     events: arregloGeneral.eventos,
+                    slotDuration:'01:00:00',
                     eventConstraint: "businessHours"
                 });
             }
