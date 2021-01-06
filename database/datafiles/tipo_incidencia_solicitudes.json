@@ -14,6 +14,11 @@
             "id": "3",
             "nombre": "Solicitud no ratificada",
             "descripcion": "La solicitud fecha para ratificar la solicitud se veció"
+        },
+        {
+            "id": "4",
+            "nombre": "Incompetencia",
+            "descripcion": "La solicitud es una incompetencia"
         }
 
     ],

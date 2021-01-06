@@ -3788,11 +3788,11 @@
                 });
             }
             //mostrar documentos
-            $('#modal-preview').modal("show");
             if(listVistaPrevia.length > 0){ // mostrar primer documento
                 $('#noDocumento').val(0);
                 siguienteVistaPrevia();
             }
+            $('#modal-preview').modal("show");
         }else{
             swal({title: 'Error',text: 'Debe seleccionar una resolucion',icon: 'error'});
         }

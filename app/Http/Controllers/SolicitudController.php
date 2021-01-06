@@ -1099,7 +1099,7 @@ class SolicitudController extends Controller {
                 }
             }
             $user_id = Auth::user()->id;
-            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
+            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true, "incidencia" => true,"justificacion_incidencia"=>"Ratificada con incompetencia","tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
 
             // Obtenemos la sala virtual
             $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
@@ -1132,31 +1132,30 @@ class SolicitudController extends Controller {
 
             // Registramos la audiencia
             //Obtenemos el contador
-            $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+            //$folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
             //creamos el registro de la audiencia
-            $audiencia = Audiencia::create([
-                "expediente_id" => $expediente->id,
-                "multiple" => false,
-                "fecha_audiencia" => now()->format('Y-m-d'),
-                "hora_inicio" => now()->format('H:i:s'),
-                "hora_fin" => \Carbon\Carbon::now()->addHours(1)->format('H:i:s'),
-                "conciliador_id" =>  $conciliador->id,
-                "numero_audiencia" => 1,
-                "reprogramada" => false,
-                "anio" => $folioAudiencia->anio,
-                "folio" => $folioAudiencia->contador
-            ]);
+            // $audiencia = Audiencia::create([
+            //     "expediente_id" => $expediente->id,
+            //     "multiple" => false,
+            //     "fecha_audiencia" => now()->format('Y-m-d'),
+            //     "hora_inicio" => now()->format('H:i:s'),
+            //     "hora_fin" => \Carbon\Carbon::now()->addHours(1)->format('H:i:s'),
+            //     "conciliador_id" =>  $conciliador->id,
+            //     "numero_audiencia" => 1,
+            //     "reprogramada" => false,
+            //     "anio" => $folioAudiencia->anio,
+            //     "folio" => $folioAudiencia->contador
+            // ]);
 
             // guardamos la sala y el conciliador a la audiencia
-            ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id,"solicitante" => true]);
-            SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
-            // Guardamos todas las Partes en la audiencia
+            // ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id,"solicitante" => true]);
+            // SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
             $partes = $solicitud->partes;
             foreach($partes as $parte){
-                AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
+                // AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
                 if($parte->tipo_parte_id == 1){
                     //generar constancia de incompetencia por solicitante
-                    event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,13,10,$parte->id,null));
+                    event(new GenerateDocumentResolution(null,$solicitud->id,13,10,$parte->id,null));
                 }
             }
         DB::commit();
@@ -1703,25 +1702,62 @@ class SolicitudController extends Controller {
         }
     }
     public function guardar_incidencia(Request $request){
+        DB::beginTransaction();
         try{
+            $user_id = Auth::user()->id;
             $solicitud = Solicitud::find($request->solicitud_id);
             $solicitud->incidencia = true;
             $solicitud->tipo_incidencia_solicitud_id = $request->tipo_incidencia_solicitud_id;
             $solicitud->justificacion_incidencia = $request->justificacion_incidencia;
+            $solicitud->user_id = $user_id;
             if($request->solicitud_asociada_id){
                 $solicitud->solicitud_id = $request->solicitud_asociada_id;
             }
+            if($request->tipo_incidencia_solicitud_id == 4){
+                if($solicitud->expediente){
+                    $audiencia =$solicitud->expediente->audiencia()->orderBy('id','desc')->first();
+                    if($audiencia){
+                        $response = HerramientaServiceProvider::rollback($solicitud->id,$audiencia->id,2);
+                        if($response["success"]){
+                            $solicitud->estatus_solicitud_id = 3;
+                            $solicitud->incidencia = false;
+                            $partes = $solicitud->partes;
+                            foreach($partes as $parte){
+                                if($parte->tipo_parte_id == 1){
+                                    //generar constancia de incompetencia por solicitante
+                                    event(new GenerateDocumentResolution(null,$solicitud->id,13,10,$parte->id,null));
+                                }
+                            }
+                        }else{
+                            DB::rollback();
+                            return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
+                        }
+                    }else{
+                        $solicitud->estatus_solicitud_id = 3;
+                        $solicitud->incidencia = false;
+                        $partes = $solicitud->partes;
+                        foreach($partes as $parte){
+                            if($parte->tipo_parte_id == 1){
+                                //generar constancia de incompetencia por solicitante
+                                event(new GenerateDocumentResolution(null,$solicitud->id,13,10,$parte->id,null));
+                            }
+                        }
+                    }
+                }
+            }
             $solicitud->save();
-
+            DB::commit();
             return $this->sendResponse($solicitud, 'SUCCESS');
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                 " Se emitió el siguiente mensaje: ". $e->getMessage().
                 " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
             return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
         }
     }
     public function borrar_incidencia(Request $request){
+        DB::beginTransaction();
         try{
             $solicitud = Solicitud::find($request->solicitud_id);
             $solicitud->incidencia = false;
@@ -1729,12 +1765,13 @@ class SolicitudController extends Controller {
             $solicitud->justificacion_incidencia = null;
             $solicitud->solicitud_id = null;
             $solicitud->save();
-
+            DB::commit();
             return $this->sendResponse($solicitud, 'SUCCESS');
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                 " Se emitió el siguiente mensaje: ". $e->getMessage().
                 " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
             return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
         }
     }

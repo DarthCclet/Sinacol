@@ -64,8 +64,9 @@
                             <td>{{$solicitud->justificacion_incidencia ? substr($solicitud->justificacion_incidencia,0,50).'...'   :"" }}</td>
                             <td>{{$solicitud->solicitud ? $solicitud->solicitud->folio."/".$solicitud->solicitud->anio : "" }}</td>
                             <td>
-                                <button class="btn btn-xs btn-warning btn-primary" onclick="getIncidencia('{{$solicitud->id}}')"><i class="fa fa-eye"></i></button>
-                                <button class="btn btn-xs btn-warning btn-borrar" onclick="borrarIncidencia('{{$solicitud->id}}')"><i class="fa fa-trash btn-borrar"></i></button>
+                                <button title="Detalle de la incidencia" data-toggle="tooltip" data-placement="top" class="btn btn-xs btn-warning btn-primary" onclick="getIncidencia('{{$solicitud->id}}')"><i class="fa fa-eye"></i></button>
+                                <a title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" class="btn btn-xs btn-warning btn-primary" href="{!! route('solicitudes.consulta',$solicitud->id) !!}" ><i class="fa fa-search"></i></a>
+                                <button title="Eliminar incidencia" data-toggle="tooltip" data-placement="top" class="btn btn-xs btn-warning btn-borrar" onclick="borrarIncidencia('{{$solicitud->id}}')"><i class="fa fa-trash btn-borrar"></i></button>
                             </td>
                         </tr>
                     @endforeach
@@ -184,7 +185,7 @@
                     </div>
                     <div class="col-md-12">
                         <h5>Justificacion:</h5>
-                        <label id="justificacion_consulta" style="border: 1px solid black; padding:2%; max-height:250px; overflow:scroll;"></label>
+                        <label id="justificacion_consulta" style="border: 1px solid gray; padding:2%; max-height:250px; width:100%; overflow:scroll;"></label>
                     </div>
                 </div>
                 <div class="text-right">
