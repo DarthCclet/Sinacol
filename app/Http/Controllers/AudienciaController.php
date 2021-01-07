@@ -1056,12 +1056,12 @@ class AudienciaController extends Controller {
                     ]);
                 }
                 $evidencia = ($request->evidencia) ? $request->evidencia: "";
-                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago );
                 $etapaAudiencia = EtapaResolucionAudiencia::create([
                     "etapa_resolucion_id" => 6,
                     "audiencia_id" => $audiencia->id,
                     "evidencia" => $evidencia
                 ]);
+                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago );
                     
             }
                 
