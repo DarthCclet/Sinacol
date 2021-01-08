@@ -539,7 +539,7 @@
                 }
             break;
             case "13":
-                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == ""  ){
+                if($("#solicitud_id").val() == ""  || $("#solicitante_id").val() == ""  ){
                     response.success = false;
                     response.msj = " Es necesario seleccionar Solicitud, Audiencia y un solicitante para continuar";
                 }else{
