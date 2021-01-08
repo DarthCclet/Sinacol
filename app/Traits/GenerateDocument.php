@@ -133,7 +133,6 @@ trait GenerateDocument
     { 
       $vars = [];
       $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idDocumento);
-//
         if($data!=null){
             $count =0;
             foreach ($data as $key => $dato) { //solicitud
@@ -575,14 +574,14 @@ trait GenerateDocument
                     $dom_centro = json_decode($dom_centro->content(),true);
                     $centro['domicilio'] = Arr::except($dom_centro, ['id','updated_at','created_at','deleted_at','domiciliable_id','domiciliable_type']); 
                     $tipo_vialidad =  ($dom_centro['tipo_vialidad'] !== null)? $dom_centro['tipo_vialidad'] :"";
-                    $vialidad =  ($dom_centro['vialidad'] !== null)? $dom_centro['tipo_vialidad']." ". $dom_centro['vialidad'] :"";
+                    $vialidad =  ($dom_centro['vialidad'] !== null)? $tipo_vialidad." ". $dom_centro['vialidad'] :"";
                     $num_ext =  ($dom_centro['num_ext'] !== null)? " No. " . $dom_centro['num_ext'] :"";
                     $num_int =  ($dom_centro['num_int'] !== null)? " Int. " . $dom_centro['num_int'] :"";
                     $num = $num_ext . $num_int;
                     $colonia =  ($dom_centro['asentamiento'] !== null)? $dom_centro['tipo_asentamiento']." ". $dom_centro['asentamiento']." "  :"";
                     $municipio =  ($dom_centro['municipio'] !== null)? $colonia . $dom_centro['municipio'] :"";
                     $estado =  ($dom_centro['estado'] !== null)? $dom_centro['estado'] :"";
-                    $centro['domicilio_completo'] = mb_strtoupper($tipo_vialidad.' '.$vialidad. $num.', '.$municipio.', '.$estado);
+                    $centro['domicilio_completo'] = mb_strtoupper($vialidad. $num.', '.$municipio.', '.$estado);
                     //Disponibilidad del centro horarios y dias
                     $disponibilidad_centro = new JsonResponse($disponibilidad_centro);
                     $disponibilidad_centro = json_decode($disponibilidad_centro->content(),true);
@@ -593,7 +592,6 @@ trait GenerateDocument
                     $objetoResolucion = $model_name::find($resolucionAudienciaId);
                     $datosResolucion=[];
                     $etapas_resolucion = EtapaResolucionAudiencia::where('audiencia_id',$audienciaId)->whereIn('etapa_resolucion_id',[3,4,5,6])->get();
-
                     $objeto = new JsonResponse($etapas_resolucion);
                     $etapas_resolucion = json_decode($objeto->content(),true);
                     $datosResolucion['resolucion']= $objetoResolucion->nombre;
@@ -735,7 +733,6 @@ trait GenerateDocument
                         $tablaPagosDiferidos .= '<table class="tbl">';
                         $tablaPagosDiferidos .= '<tbody>';
                         $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
-                        
                         $totalPagosDiferidos=0;
                         foreach ($resolucion_pagos as $pago ) {
                             $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y').' </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
@@ -743,7 +740,6 @@ trait GenerateDocument
                         }
                         $tablaPagosDiferidos .= '</tbody>';
                         $tablaPagosDiferidos .= '</table>';
-
                         $datosResolucion['total_diferidos']= $totalPagosDiferidos;
                         $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                       }
