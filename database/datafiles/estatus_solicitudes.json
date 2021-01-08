@@ -2,11 +2,11 @@
     "datos": [
         {
             "id": "1",
-            "nombre": "SIN RATIFICAR"
+            "nombre": "SIN CONFIRMAR"
         },
         {
             "id": "2",
-            "nombre": "RATIFICADA"
+            "nombre": "CONFIRMADA"
         },
         {
             "id": "3",

@@ -1042,9 +1042,9 @@ class AudienciaController extends Controller {
             if (!$audiencia->finalizada) {
 
                 if ($request->timeline) {
-                    $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true));
+                    $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true,"tipo_terminacion_audiencia_id"=>1));
                 } else {
-                    $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true));
+                    $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true,"tipo_terminacion_audiencia_id"=>1));
                     foreach ($request->comparecientes as $compareciente) {
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
                     }
@@ -1690,8 +1690,7 @@ class AudienciaController extends Controller {
                     $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
                     $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,15);
                 }
-
-                $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true));
+                $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true,"tipo_terminacion_audiencia_id"=>1));
                 if($request->resolucion_id != 2){
                     $solicitud = $audiencia->expediente->solicitud;
                     $solicitud->update([
@@ -1777,7 +1776,7 @@ class AudienciaController extends Controller {
                 $html = $request['no_comparece_body'];
                 $htmlHeader = view('documentos._header_documentos_colectivo_default',compact('solicitud'))->render();
                 $archivo = $this->guardarDocumento($idAudiencia,$html,$htmlHeader,41);
-                $audiencia->update(array("resolucion_id" => 3, "finalizada" => true));
+                $audiencia->update(array("resolucion_id" => 3, "finalizada" => true,"tipo_terminacion_audiencia_id"=>2));
                 $solicitantes = $this->getSolicitantes($audiencia);
                 $solicitados = $this->getSolicitados($audiencia);
                 foreach ($solicitantes as $solicitante) {
@@ -1876,8 +1875,11 @@ class AudienciaController extends Controller {
                 if (!$solicitantes) {
                     // Aqui aplica el caso 1 donde no comparece el solicitante y se finaliza la solicitud por no comparecencia
                     //Archivado y se genera formato de acta de archivado por no comparecencia
-
-                    $audiencia->update(array("resolucion_id" => 4, "finalizada" => true));
+                    if(!$citados){
+                        $audiencia->update(array("resolucion_id" => 4, "finalizada" => true,"tipo_terminacion_audiencia_id"=>4));
+                    }else{
+                        $audiencia->update(array("resolucion_id" => 4, "finalizada" => true,"tipo_terminacion_audiencia_id"=>2));
+                    }
                     $solicitantesA = $this->getSolicitantes($audiencia);
                     $solicitados = $this->getSolicitados($audiencia);
                     foreach ($solicitantesA as $solicitante) {
@@ -1901,7 +1903,7 @@ class AudienciaController extends Controller {
 //                    dd($solicitantes);
                     }
                 if ($solicitantes && !$citados) {
-                    $audiencia->update(array("resolucion_id" => 3, "finalizada" => true));
+                    $audiencia->update(array("resolucion_id" => 3, "finalizada" => true,"tipo_terminacion_audiencia_id"=>3));
                     $solicitados = $this->getSolicitados($audiencia);
                     $tipo_notificacion = 1;
                     foreach($audiencia->audienciaParte as $parte){
@@ -2129,6 +2131,7 @@ class AudienciaController extends Controller {
             foreach($audienciaN->conciliadoresAudiencias as $conciliador){
                 $conciliador->conciliador->persona;
             }
+            $audiencia->tipo_terminacion_audiencia_id = 5;
             $audiencia->finalizada = true;
             $audiencia->save();
             $response = array("tipo" => 3,"response" => $audienciaN);

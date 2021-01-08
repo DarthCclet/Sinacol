@@ -1,0 +1,36 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Audiencia celebrada",
+            "descripcion": " Se llevo a cabo la audiencia "
+        },
+        {
+            "id": "2",
+            "nombre": "Audiencia concluida por no comparecencia del solicitante",
+            "descripcion": " La audiencia fue concluida por no comparecencia del solicitante "
+        },
+        {
+            "id": "3",
+            "nombre": "Audiencia concluida por no comparecencia del citado",
+            "descripcion": " La Audiencia fue concluida por no comparecencia del citado "
+        },
+        {
+            "id": "4",
+            "nombre": "Audiencia concluida por no comparecencia de ambas partes",
+            "descripcion": " La Audiencia fue concluida por no comparecencia de ambas partes "
+        },
+        {
+            "id": "5",
+            "nombre": "Audiencia concluida por petición del solicitante",
+            "descripcion": " La Audiencia fue concluida por petición del solicitante "
+        },
+        {
+            "id": "6",
+            "nombre": "Audiencia concluida por incompetencia",
+            "descripcion": "Se identifico que la solicitud es una incompetencia "
+        }
+
+    ],
+    "numReg": 3
+}
