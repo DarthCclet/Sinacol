@@ -393,8 +393,10 @@
                     html += "<label ><b>Fecha de audiencia:</b> "+audiencia.fecha_audiencia+ " "+ audiencia.hora_inicio + " "+ audiencia.hora_fin + " </label ><br>";
                 html += "</div>";
                 html += "<div class='col-md-3'>";
-                var conciliador = audiencia.conciliador.persona;
+                if(audiencia.conciliador){
+                    var conciliador = audiencia.conciliador.persona;
                     html += "<label ><b>Conciliador:</b> "+conciliador.nombre+" "+conciliador.primer_apellido+" "+conciliador.segundo_apellido+ "</label ><br>";
+                }
                 html += "</div>";
             html += "</div>";
             

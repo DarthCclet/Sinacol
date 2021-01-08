@@ -568,7 +568,7 @@ class SolicitudController extends Controller {
     public function getSolicitudByFolio(Request $request) {
         try{
 
-            $solicitud = Solicitud::where('folio',$request->folio)->where('anio',$request->anio)->first();;
+            $solicitud = Solicitud::where('folio',$request->folio)->where('anio',$request->anio)->first();
             
             $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
             
@@ -598,7 +598,9 @@ class SolicitudController extends Controller {
             if($solicitud->expediente){
                 $solicitud->audiencias = $solicitud->expediente->audiencia()->orderBy('id','asc')->get();
                 foreach($solicitud->audiencias as $audiencia){
-                    $audiencia->conciliador->persona;
+                    if($audiencia->conciliador){
+                        $audiencia->conciliador->persona;
+                    }
                     $audiencia->iniciada = false;
                     if(count($audiencia->comparecientes) > 0){
                         $audiencia->iniciada = true;

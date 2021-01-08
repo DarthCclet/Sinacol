@@ -34,7 +34,7 @@ class HerramientaServiceProvider extends ServiceProvider
 
                     $solicitud->estatus_solicitud_id = 2;
                     $solicitud->save();
-                    $documentos = $audiencia->documentos()->whereIn('clasificacion_archivo_id',[15,16,17,18])->get();
+                    $documentos = $audiencia->documentos()->whereIn('clasificacion_archivo_id',[15,16,17,18,41])->get();
                     $resolucionPartes =  $audiencia->resolucionPartes;
                     $audienciasPartes =  $audiencia->audienciaParte;
                     $pagosDiferidos =  $audiencia->pagosDiferidos;
@@ -59,6 +59,7 @@ class HerramientaServiceProvider extends ServiceProvider
                         $pagosDiferido->delete();   
                     }
                     $audiencia->finalizada = false;
+                    $audiencia->tipo_terminacion_audiencia_id = null;
                     $audiencia->resolucion_id = null;
                     $audiencia->reprogramada = false;
                     $audiencia->save();
@@ -71,7 +72,7 @@ class HerramientaServiceProvider extends ServiceProvider
                 if($solicitud && $audiencia && !$audiencia->finalizada){
                     $solicitud->estatus_solicitud_id = 2;
                     $solicitud->save();
-                    $documentos = $audiencia->documentos()->whereIn('clasificacion_archivo_id',[15,16,17,18])->get();
+                    $documentos = $audiencia->documentos()->whereIn('clasificacion_archivo_id',[15,16,17,18,41])->get();
                     $resolucionPartes =  $audiencia->resolucionPartes;
                     $audienciasPartes =  $audiencia->audienciaParte;
                     $pagosDiferidos =  $audiencia->pagosDiferidos;
@@ -101,6 +102,7 @@ class HerramientaServiceProvider extends ServiceProvider
                     }
                     $audiencia->finalizada = false;
                     $audiencia->resolucion_id = null;
+                    $audiencia->tipo_terminacion_audiencia_id = null;
                     $audiencia->reprogramada = false;
                     $audiencia->save();
                 }else{
@@ -117,6 +119,7 @@ class HerramientaServiceProvider extends ServiceProvider
                     }else{
                         $partes = $solicitud->partes;
                         $solicitud->estatus_solicitud_id = 1;
+                        $solicitud->ratificada = false;
                         $solicitud->fecha_ratificacion = null;
                         $solicitud->save();
                         $audiencia = Audiencia::find($audiencia_id);
