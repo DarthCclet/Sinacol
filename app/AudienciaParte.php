@@ -44,4 +44,7 @@ class AudienciaParte extends Model implements AuditableContract
     public function parteConceptos(){
         return $this->hasMany(ResolucionParteConcepto::class);
     }
+    public function historialNotificacion(){
+        return $this->hasMany(HistoricoNotificacion::class);
+    }
 }

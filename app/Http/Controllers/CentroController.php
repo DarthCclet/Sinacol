@@ -16,6 +16,7 @@ use App\CentroMunicipio;
 use App\Domicilio;
 use App\Solicitud;
 use App\TipoNotificacion;
+use App\AudienciaParte;
 use App\Events\RatificacionRealizada;
 use Illuminate\Support\Facades\Cache;
 use Rap2hpoutre\FastExcel\FastExcel;
@@ -300,6 +301,7 @@ class CentroController extends Controller
                             if($parte->parte->tipo_parte_id == $tipo_parte->id && ($parte->tipo_notificacion_id == 2 || $parte->tipo_notificacion_id == 3)){ 
                                 $parte->parte->fecha_notificacion = $parte->fecha_notificacion;
                                 $parte->parte->finalizado = $parte->finalizado;
+                                $parte->parte->audiencia_parte_id = $parte->id;
                                 if($parte->fecha_notificacion == null){
                                     $notificada = false;
                                 }
@@ -325,6 +327,20 @@ class CentroController extends Controller
             
         }
         return view('centros.centros.notificaciones',compact('solicitudes'));
+    }
+    public function obtenerHistorial(){
+        $parte = AudienciaParte::find($this->request->audiencia_parte_id);
+        if($parte != null){
+            foreach($parte->historialNotificacion as $historico){
+                foreach($historico->respuestas as $historico2){
+                    $historico2->etapa_notificacion;
+                    $historico2->documento;
+                }
+            }
+            return $parte->historialNotificacion;
+        }else{
+            return null;
+        }
     }
     public function EnviarNotificacion(){
         $solicitud = Solicitud::find($this->request->solicitud_id);

@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\HistoricoNotificacion;
+use App\HistoricoNotificacionRespuesta;
 class NotificacionServiceController extends Controller
 {
      protected $request;
@@ -30,7 +32,7 @@ class NotificacionServiceController extends Controller
                 $folio = $arreglo->folio;
                 if($folio == $audiencia->folio){
                     foreach($arreglo->Demandados as $demandado){
-                        $parteDemandado = AudienciaParte::where("parte_id",$demandado->demandado_id)->where("audiencia_id",$audiencia->id)->first();
+                        $parteDemandado = AudienciaParte::where("parte_id",$demandado->demandado_id)->where("audiencia_id",$audiencia->id)->with(['documentos'])->first();
                         $parteDemandado->update([
                             "finalizado" => $demandado->finalizado,
                             "finalizado_id" => $demandado->finalizado_id,
@@ -38,27 +40,58 @@ class NotificacionServiceController extends Controller
                             "detalle_id" => $demandado->detalle_id,
                             "fecha_notificacion" => $demandado->fecha_notificacion
                         ]);
-                        $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia->id;
-                        Storage::makeDirectory($directorio);
                         $image = base64_decode($demandado->documento);
-                        $fullPath = $directorio.'/notificacion'.$parteDemandado->id.'.pdf';
-                        $dir = Storage::put($fullPath, $image);
                         $clasificacion = ClasificacionArchivo::where("nombre","Razón de notificación citatorio")->first();
-                        $uuid = Str::uuid();
-                        $parteDemandado->documentos()->create([
-                            "nombre" => "Notificacion".$parteDemandado->id,
-                            "nombre_original" => "Notificacion".$parteDemandado->id,
-                            "descripcion" => "documento generado en el sistema de notificaciones",
-                            "nombre" => str_replace($directorio."/", '',$fullPath),
-                            "nombre_original" => str_replace($directorio."/", '',$fullPath),
-                            "descripcion" => "Documento de notificacion ",
-                            "ruta" => $fullPath,
-                            "uuid" => $uuid,
-                            "tipo_almacen" => "local",
-                            "uri" => $fullPath,
-                            "longitud" => round(Storage::size($fullPath) / 1024, 2),
-                            "firmado" => "false",
-                            "clasificacion_archivo_id" => $clasificacion->id,
+                        $encontro_identico = false;
+                        foreach($parteDemandado->documentos as $documento){
+                            if($documento->clasificacion_archivo_id == $clasificacion->id){
+                                $archivo_existente = Storage::get($documento->ruta);
+                                if(md5($image) == md5($archivo_existente) ){
+                                    $encontro_identico = true;
+                                }
+                            }
+                        }
+                        if(!$encontro_identico){
+                            $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia->id;
+                            Storage::makeDirectory($directorio);
+    
+                            $fullPath = $directorio.'/notificacion'.$parteDemandado->id.'.pdf';
+                            $dir = Storage::put($fullPath, $image);
+                            $uuid = Str::uuid();
+                            $parteDemandado->documentos()->create([
+                                "nombre" => "Notificacion".$parteDemandado->id,
+                                "nombre_original" => "Notificacion".$parteDemandado->id,
+                                "descripcion" => "documento generado en el sistema de notificaciones",
+                                "nombre" => str_replace($directorio."/", '',$fullPath),
+                                "nombre_original" => str_replace($directorio."/", '',$fullPath),
+                                "descripcion" => "Documento de notificacion ",
+                                "ruta" => $fullPath,
+                                "uuid" => $uuid,
+                                "tipo_almacen" => "local",
+                                "uri" => $fullPath,
+                                "longitud" => round(Storage::size($fullPath) / 1024, 2),
+                                "firmado" => "false",
+                                "clasificacion_archivo_id" => $clasificacion->id,
+                            ]);
+                        }
+                        $documentoResolucion = $parteDemandado->documentos()->where("clasificacion_archivo_id",$clasificacion->id)->orderBy("id","desc")->first();
+                        
+//                        Guardamos la información en el historico
+                        $historico = HistoricoNotificacion::where("audiencia_parte_id",$parteDemandado->id)->where("tipo_notificacion",$arreglo->tipo_notificacion)->first();
+                        if($historico == null){
+                            $historico = HistoricoNotificacion::create([
+                                "audiencia_parte_id" => $parteDemandado->id,
+                                "tipo_notificacion" => $arreglo->tipo_notificacion
+                            ]);
+                        }
+                        HistoricoNotificacionRespuesta::create([
+                            "historico_notificacion_id" => $historico->id,
+                            "finalizado_id" => $demandado->finalizado_id,
+                            "finalizado" => $demandado->finalizado,
+                            "detalle_id" => $demandado->detalle_id,
+                            "detalle" => $demandado->detalle,
+                            "fecha_notificacion" => $demandado->fecha_notificacion,
+                            "documento_id" => $documentoResolucion->id
                         ]);
                     }
                 }
@@ -91,6 +124,10 @@ class NotificacionServiceController extends Controller
         }
         if(!isset($paramsJSON->junta_id)){
             throw new ParametroNoValidoException("El id de la junta es requerido.", 1011);
+            return null;
+        }
+        if(!isset($paramsJSON->tipo_notificacion)){
+            throw new ParametroNoValidoException("El tipo de notificación es requerido.", 1020);
             return null;
         }
         if(!isset($paramsJSON->Demandados)){

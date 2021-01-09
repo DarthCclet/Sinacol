@@ -9,9 +9,14 @@ use App\Audiencia;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Incidencia;
+use App\Traits\FechaNotificacion;
+use App\HistoricoNotificacion;
+use App\HistoricoNotificacionRespuesta;
 
 class SendNotificacion
 {
+    use FechaNotificacion;
     /**
      * Create the event listener.
      *
@@ -40,26 +45,39 @@ class SendNotificacion
             $arreglo["folio"] = $audiencia->folio."/".$audiencia->anio;
             $arreglo["expediente"] = $audiencia->expediente->folio."/";
             $arreglo["exhorto_num"] = "";
+            //Validamos el tipo de notificación
             $fechaIngreso = new \Carbon\Carbon($audiencia->expediente->solicitud->created_at);
-            $fechaRecepcion = new \Carbon\Carbon($audiencia->expediente->solicitud->fecha_ratificacion);
-            $fechaAudiencia = new \Carbon\Carbon($audiencia->fecha_audiencia);
-            $fechaCita = null;
-            if($audiencia->fecha_cita != null && $audiencia->fecha_cita != ""){
-                $fechaCita = new \Carbon\Carbon($audiencia->fecha_cita);
-            }
-            $fechaLimite = new \Carbon\Carbon($audiencia->fecha_limite_audiencia);
-            $arreglo["fecha_ingreso"] = $fechaIngreso->format("d/m/Y");
-            $arreglo["fecha_recepcion"] = $fechaRecepcion->format("d/m/Y");
-            $arreglo["fecha_audiencia"] = $fechaAudiencia->format("d/m/Y");
-            $arreglo["fecha_ar"] = $fechaRecepcion->format("d/m/Y");
-            $arreglo["nombre_junta"] = $audiencia->expediente->solicitud->centro->nombre;
-            $arreglo["junta_id"] = $audiencia->expediente->solicitud->centro_id;
-            if($fechaCita != null){
-                $arreglo["fecha_cita"] = $fechaCita->format("d/m/Y");
+            if($event->tipo_notificacion == "citatorio"){
+                $fechaRecepcion = new \Carbon\Carbon($audiencia->expediente->solicitud->fecha_ratificacion);
+                $fechaAudiencia = new \Carbon\Carbon($audiencia->fecha_audiencia);
+                $fechaCita = null;
+                if($audiencia->fecha_cita != null && $audiencia->fecha_cita != ""){
+                    $fechaCita = new \Carbon\Carbon($audiencia->fecha_cita);
+                }
+                $fechaLimite = new \Carbon\Carbon($audiencia->fecha_limite_audiencia);
+                $arreglo["fecha_recepcion"] = $fechaRecepcion->format("d/m/Y");
+                $arreglo["fecha_audiencia"] = $fechaAudiencia->format("d/m/Y");
+                $arreglo["fecha_ar"] = $fechaRecepcion->format("d/m/Y");
+                if($fechaCita != null){
+                    $arreglo["fecha_cita"] = $fechaCita->format("d/m/Y");
+                }else{
+                    $arreglo["fecha_cita"] = null;
+                }
+                $arreglo["fecha_limite"] = $fechaLimite->format("d/m/Y");
             }else{
+                $fechaRecepcion = new \Carbon\Carbon($audiencia->fecha_audiencia);
+                $fechaAudiencia = self::ObtenerFechaAudienciaMulta($audiencia->fecha_audiencia,15);
+                $fechaCita = null;
+                $fechaLimite = new \Carbon\Carbon(self::ObtenerFechaLimiteNotificacionMulta($fechaAudiencia,$audiencia->expediente->solicitud));
+                $arreglo["fecha_recepcion"] = $fechaRecepcion->format("d/m/Y");
+                $arreglo["fecha_audiencia"] = $fechaAudiencia->format("d/m/Y");
+                $arreglo["fecha_ar"] = $fechaRecepcion->format("d/m/Y");
+                $arreglo["fecha_limite"] = $fechaLimite->format("d/m/Y");
                 $arreglo["fecha_cita"] = null;
             }
-            $arreglo["fecha_limite"] = $fechaLimite->format("d/m/Y");
+            $arreglo["fecha_ingreso"] = $fechaIngreso->format("d/m/Y");
+            $arreglo["nombre_junta"] = $audiencia->expediente->solicitud->centro->nombre;
+            $arreglo["junta_id"] = $audiencia->expediente->solicitud->centro_id;
             $arreglo["tipo_notificacion"] = $event->tipo_notificacion;
             //Buscamos a los actores
             $actores = self::getSolicitantes($audiencia);
@@ -129,6 +147,19 @@ class SendNotificacion
                         "longitud" => $domicilio->longitud
                     )
                 );
+//                Buscamos si existe un historico de ese tipo de notificación
+                $historico = HistoricoNotificacion::where("audiencia_parte_id",$partes->id)->where("tipo_notificacion",$event->tipo_notificacion)->first();
+                if($historico == null){
+                    $historico = HistoricoNotificacion::create([
+                        "audiencia_parte_id" => $partes->id,
+                        "tipo_notificacion" => $event->tipo_notificacion,
+                    ]);
+                }
+                HistoricoNotificacionRespuesta::create([
+                    "historico_notificacion_id" => $historico->id,
+                    "etapa_notificacion_id" => $audiencia->etapa_notificacion_id,
+                    "fecha_peticion" => now()
+                ]);
             }
             Log::debug('Se envia esta peticion:'.json_encode($arreglo));
             $client = new Client();
@@ -200,5 +231,40 @@ class SendNotificacion
             }
         }
         return $solicitados;
+    }
+
+    /**
+     * Funcion para obtener la fecha de audiencia de multa
+     * @param String $fecha_audiencia
+     * @return Carbon $fecha_audiencia
+     */
+    public function ObtenerFechaAudienciaMulta($fecha_audiencia,$dias){
+        $d = new \Carbon\Carbon($fecha_audiencia);
+        $diasRecorridos = 1;
+        while ($diasRecorridos < $dias){
+            $sig = $d->addDay()->format("Y-m-d");
+            if(!Incidencia::hayIncidencia($sig,auth()->user()->centro_id,"App\Centro")){
+                $d = new \Carbon\Carbon($sig);
+                $diasRecorridos++;
+            }
+        }
+        return $d;
+    }
+    /**
+     * 
+     */
+    Public function ObtenerFechaLimiteNotificacionMulta($fecha_audiencia,$solicitud){
+//      obtenemos el domicilio del centro
+        $domicilio_centro = auth()->user()->centro->domicilio;
+//      obtenemos el domicilio del citado
+        $partes = $solicitud->partes;
+        $domicilio_citado = null;
+        foreach($partes as $parte){
+            if($parte->tipo_parte_id == 2){
+                $domicilio_citado = $parte->domicilios()->first();
+                break;
+            }
+        }
+        return self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$fecha_audiencia);
     }
 }
