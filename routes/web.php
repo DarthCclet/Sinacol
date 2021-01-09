@@ -201,6 +201,7 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::get('notificaciones','CentroController@notificaciones');
     Route::get('notificaciones/enviar/{solicitud_id}','CentroController@EnviarNotificacion');
+    Route::get('obtenerHistorial/{audiencia_parte_id}','CentroController@obtenerHistorial');
 
     /**
      * descarga de calendario
