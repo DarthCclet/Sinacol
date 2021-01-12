@@ -19,6 +19,11 @@
             "id": "4",
             "nombre": "Incompetencia",
             "descripcion": "La solicitud es una incompetencia"
+        },
+        {
+            "id": "4",
+            "nombre": "Otro",
+            "descripcion": " Opción que no esta en el catalogo "
         }
 
     ],

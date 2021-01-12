@@ -19,7 +19,7 @@
 <input type="hidden" id="rutaConsulta" value="{!! route("solicitudes.consulta",'-rutaConsulta') !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
-      <tr><th>Id</th><th class="all">Estatus</th><th class="all">Folio</th><th >Anio</th><th class="all">Fecha de confirmaci&oacute;n</th><th>Fecha de recepción</th><th class="all">Fecha de conflicto</th><th class="all">Centro</th><th class="all">Partes</th><th class="all">Expediente</th><th class="all">Días para expiraci&oacute;n</th><th class="all">Acción</th></tr>
+      <tr><th>Id</th><th class="all">Estatus</th><th class="all">Folio</th><th >Anio</th><th class="all">Fecha de confirmaci&oacute;n</th><th>Fecha de recepción</th><th class="all">Fecha de conflicto</th><th class="all">Centro</th><th class="all">Partes</th><th class="all">Expediente</th><th class="all">Atendio</th><th class="all">Días para expiraci&oacute;n</th><th class="all">Acción</th></tr>
     </thead>
 
 </table>
@@ -751,7 +751,7 @@
                             var solicitados = "";
                             var contSol = 0;
                             var contCit = 0;
-                            $.each(row[8],function(key, value){
+                            $.each(row[9],function(key, value){
                                 var nombre = "";
                                 if(value.tipo_persona_id == 1){
                                         nombre = value.nombre + " " + value.primer_apellido + " " + (value.segundo_apellido || "")
@@ -789,8 +789,18 @@
                         "targets": [9],
                         "render": function (data, type, row) {
                             html = "N/A";
-                            if(row[9] != null){
-                                html = ""+row[9].folio;
+                            if(row[10] != null){
+                                html = ""+row[10].folio;
+                            }
+                            return  html;
+                        }
+                    },
+                    {
+                        "targets": [10],
+                        "render": function (data, type, row) {
+                            html = "";
+                            if(row[11] != null && row[1] == "2" || row[1] == "3" ){
+                                html = " "+row[11].persona.nombre+ " " + row[11].persona.primer_apellido + " " + (row[11].persona.segundo_apellido || "");
                             }
                             return  html;
                         }

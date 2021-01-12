@@ -87,9 +87,11 @@ class Solicitud extends Model implements Auditable
 //        Validamos el campo usuario
         if (Arr::has($data, 'new_values.user_id')) {
             if($data["event"] != "created"){
-                $userOld = User::find($this->getOriginal('user_id'))->persona;
-                $data['old_values']['usuario'] = $userOld->nombre." ".$userOld->primer_apellido." ".$userOld->segundo_apellido;
-                unset($data['old_values']["user_id"]);
+                if($this->getOriginal('user_id')){
+                    $userOld = User::find($this->getOriginal('user_id'))->persona;
+                    $data['old_values']['usuario'] = $userOld->nombre." ".$userOld->primer_apellido." ".$userOld->segundo_apellido;
+                    unset($data['old_values']["user_id"]);
+                }
             }
             $userNew = User::find($this->getAttribute('user_id'))->persona;
             $data['new_values']['usuario'] = $userNew->nombre." ".$userNew->primer_apellido." ".$userNew->segundo_apellido;
