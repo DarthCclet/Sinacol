@@ -19,7 +19,7 @@
 <input type="hidden" id="rutaConsulta" value="{!! route("solicitudes.consulta",'-rutaConsulta') !!}">
 <table id="tabla-detalle" style="width:100%;" class="table display">
     <thead>
-      <tr><th>Id</th><th class="all">Estatus</th><th class="all">Folio</th><th >Anio</th><th class="all">Fecha de confirmaci&oacute;n</th><th>Fecha de recepción</th><th class="all">Fecha de conflicto</th><th class="all">Centro</th><th class="all">Partes</th><th class="all">Expediente</th><th class="all">Atendio</th><th class="all">Días para expiraci&oacute;n</th><th class="all">Acción</th></tr>
+      <tr><th>Id</th><th class="all">Estatus</th><th class="all">Folio</th><th >Anio</th><th class="all">Fecha de confirmaci&oacute;n</th><th>Fecha de recepción</th><th class="all">Fecha de conflicto</th><th class="all">Centro</th><th class="all">Partes</th><th class="all">Expediente</th><th class="all">Atendi&oacute;</th><th class="all">Días para expiraci&oacute;n</th><th class="all">Acción</th></tr>
     </thead>
 
 </table>
@@ -799,7 +799,7 @@
                         "targets": [10],
                         "render": function (data, type, row) {
                             html = "";
-                            if(row[11] != null && row[1] == "2" || row[1] == "3" ){
+                            if(row[11] != null ){
                                 html = " "+row[11].persona.nombre+ " " + row[11].persona.primer_apellido + " " + (row[11].persona.segundo_apellido || "");
                             }
                             return  html;
