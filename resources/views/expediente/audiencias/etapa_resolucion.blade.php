@@ -1296,13 +1296,13 @@
                     <div class="col-md-12" id="divPagosDiferidos" >
                         <h5>Fechas para pagos diferidos</h5>
                         <div class="row">
-                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-7">
                                 <label for="fecha_pago" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control fecha" autocomplete="off" />
+                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control " autocomplete="off" />
                                 </div>
                             </div>
-                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-5">
                                 <label for="monto_pago" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
                                 <div class="col-sm-12">
                                     <input type="text" id="monto_pago" placeholder="Monto a pagar" class="form-control numero" />
@@ -3953,7 +3953,23 @@
         format:'dd/mm/yyyy',
     });
     $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
-    $("#fecha_pago").datepicker({minDate: new Date()});
+    // $.fn.datetimepicker.dates['es'] = {
+    //     days: ["Domin", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    //     daysShort: ["Dom", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    //     daysMin: ["Do", "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+    //     months: ["Enero", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    //     monthsShort: ["Ene", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    //     today: "Today"
+    // };
+    $("#fecha_pago").datetimepicker({
+        locale: 'es',
+        inline: true,
+        sideBySide: true,
+        minDate: new Date(),
+        format: 'DD/MM/YYYY hh:mm',
+        });
 </script>
+<script src="/assets/plugins/moment/moment.js"></script>
+<script src='/assets/plugins/moment/locale/es.js'></script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush
