@@ -41,11 +41,15 @@
                 </thead>
                 <tbody>
                     @foreach($solicitudes as $solicitud)
-                    @if($solicitud['fecha_peticion_notificacion'] != null)
-                    <tr>
-                    @else
-                    <tr style="background-color: rgb(157 36 73 / 0.28);">
-                    @endif
+                        @if($solicitud['tipo_notificacion_id'] == 1)
+                            <tr style="background-color: #f59c1a59;">
+                        @else
+                            @if($solicitud['fecha_peticion_notificacion'] != null)
+                                <tr>
+                            @else
+                                <tr style="background-color: rgb(157 36 73 / 0.28);">
+                            @endif
+                        @endif
                         <td>
                             <strong>Solicitud: </strong><a href="/solicitudes/consulta/{{$solicitud['id']}}">{{$solicitud["folio"]}}</a><br>
                             <strong>Expediente: </strong>{{$solicitud["expediente"]}}<br>
@@ -71,12 +75,12 @@
                         <td>
                         @if($solicitud['fecha_peticion_notificacion'] != null)
                             Enviada
-                            <button onclick="enviar_notificacion({{$solicitud['id']}})" class="btn btn-xs btn-primary incidencia" title="Reenviar notificación">
+                            <button onclick="enviar_notificacion({{$solicitud['audiencia_id']}},{{$solicitud['parte']->audiencia_parte_id}})" class="btn btn-xs btn-primary incidencia" title="Reenviar notificación">
                                 <i class="fa fa-share-square"></i>
                             </button>
                         @else
                             Pendiente
-                            <button onclick="enviar_notificacion({{$solicitud['id']}})" class="btn btn-xs btn-primary incidencia" title="Enviar notificación">
+                            <button onclick="enviar_notificacion({{$solicitud['audiencia_id']}},'')" class="btn btn-xs btn-primary incidencia" title="Enviar notificación">
                                 <i class="fa fa-paper-plane"></i>
                             </button>
                         @endif
@@ -182,7 +186,7 @@
         $(document).ready(function() {
             $('#data-table-default').DataTable({language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
         });
-        function enviar_notificacion(solicitud_id){
+        function enviar_notificacion(audiencia_id,audiencia_parte_id){
             swal({
                 title: '¿Está seguro?',
                 text: 'Al oprimir el botón de aceptar se enviara la solicitud de notificación',
@@ -206,8 +210,13 @@
             }).then(function(isConfirm){
                 if(isConfirm){
                     $.ajax({
-                        url:"/notificaciones/enviar/"+solicitud_id,
-                        type:"GET",
+                        url:"/notificaciones/enviar",
+                        type:"POST",
+                        data:{
+                            "audiencia_id":audiencia_id,
+                            "audiencia_parte_id":audiencia_parte_id,
+                            "_token":"{{ csrf_token() }}"
+                        },
                         dataType:"json",
                         async:true,
                         success:function(data){

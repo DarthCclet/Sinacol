@@ -431,27 +431,27 @@ class AudienciaController extends Controller {
                         $pasa = true;
                     }
                 }
-//            } else {
-//                $pasa = false;
+            } else {
+                $pasa = false;
             }
-//            if ($pasa) {
-//                foreach ($conciliador->incidencias as $inci) {
-//                    if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
-//                        $pasa = false;
-//                    }
-//                }
-//                if ($pasa) {
-//                    $conciliadoresAudiencia = array();
-//                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
-//                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
-//                            //Buscamos que la hora inicio no este entre una audiencia
-//                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
-//                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
-//                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-//                        }
-//                    }
-//                }
-//            }
+            if ($pasa) {
+                foreach ($conciliador->incidencias as $inci) {
+                    if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
+                        $pasa = false;
+                    }
+                }
+                if ($pasa) {
+                    $conciliadoresAudiencia = array();
+                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
+                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
+                            //Buscamos que la hora inicio no este entre una audiencia
+                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
+                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
+                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
+                        }
+                    }
+                }
+            }
             if ($pasa) {
                 $conciliador->persona = $conciliador->persona;
                 $conciliadoresResponse[] = $conciliador;

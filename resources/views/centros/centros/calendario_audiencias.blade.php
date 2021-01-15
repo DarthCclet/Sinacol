@@ -287,7 +287,7 @@
                     },
                     selectable: true,
                     selectHelper: true,
-                    minTime: arregloGeneral.minTime,
+//                    minTime: arregloGeneral.minTime,
                     maxTime: arregloGeneral.maxtime,
                     select: function(start, end,a,b) {
                         $('#calendarioAgenda').fullCalendar('unselect');
@@ -308,9 +308,13 @@
                     eventConstraint: "businessHours",
                     eventClick: function(info) {
                         console.log(info);
-                        if(info.audiencia_id != null){
-                            obtenerAudiencia(info.audiencia_id);
-                            $("#calendarioReagendar").hide();
+                        if(info.tipo == "audiencia"){
+                            if(info.audiencia_id != null){
+                                obtenerAudiencia(info.audiencia_id);
+                                $("#calendarioReagendar").hide();
+                            }
+                        }else{
+                            
                         }
                     }
                 });

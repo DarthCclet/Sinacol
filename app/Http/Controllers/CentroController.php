@@ -21,6 +21,7 @@ use App\Events\RatificacionRealizada;
 use Illuminate\Support\Facades\Cache;
 use Rap2hpoutre\FastExcel\FastExcel;
 use Carbon\Carbon;
+use OwenIt\Auditing\Models\Audit;
 
 class CentroController extends Controller
 {
@@ -280,25 +281,69 @@ class CentroController extends Controller
      * Aqui comienzan las funciones de notificaciones
      */
     public function notificaciones(){
-        $solicitudesTodas = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->with(['partes','expediente','expediente.audiencia','expediente.audiencia.audienciaParte','expediente.audiencia.etapa_notificacion','expediente.audiencia.audienciaParte.parte','expediente.audiencia.audienciaParte.tipo_notificacion'])->get();
-//        dd($solicitudesTodas);
-        $solicitudes = [];
-        $tipo_parte = \App\TipoParte::where("nombre","ilike","CITADO")->first();
         $rolActual = session('rolActual')->name;
-        //En caso de ser conciliador buscamos el registro
-        $conciliador_id = null;
-        if($rolActual == "Personal conciliador"){
-            $conciliador_id = auth()->user()->persona->conciliador->id;
-        }
-        foreach($solicitudesTodas as $solicitud){
-            $tipo_notificacion_id = null;
-            foreach($solicitud->expediente->audiencia as $audiencia){
+        $tipo_parte = \App\TipoParte::where("nombre","ilike","CITADO")->first();
+        if($rolActual != "Orientador"){
+            $solicitudesTodas = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->with(['partes','expediente','expediente.audiencia','expediente.audiencia.audienciaParte','expediente.audiencia.etapa_notificacion','expediente.audiencia.audienciaParte.parte','expediente.audiencia.audienciaParte.tipo_notificacion'])->get();
+    //        dd($solicitudesTodas);
+            $solicitudes = [];
+            //En caso de ser conciliador buscamos el registro
+            $conciliador_id = null;
+            if($rolActual == "Personal conciliador"){
+                $conciliador_id = auth()->user()->persona->conciliador->id;
+            }
+            foreach($solicitudesTodas as $solicitud){
+                $tipo_notificacion_id = null;
+                foreach($solicitud->expediente->audiencia as $audiencia){
+                    if($audiencia->encontro_audiencia){
+                        $notificada = true;
+                        $partes = [];
+                        foreach($audiencia->audienciaParte as $parte){
+                            if($parte->parte != null){
+                                if($parte->parte->tipo_parte_id == $tipo_parte->id){ 
+                                    $parte->parte->fecha_notificacion = $parte->fecha_notificacion;
+                                    $parte->parte->finalizado = $parte->finalizado;
+                                    $parte->parte->audiencia_parte_id = $parte->id;
+                                    if($parte->fecha_notificacion == null){
+                                        $notificada = false;
+                                    }
+                                    $sol_array = array();
+                                    $sol_array["id"] = $solicitud->id;
+                                    $sol_array["folio"] = $solicitud->folio."/".$solicitud->anio;
+                                    $sol_array["expediente"] = $solicitud->expediente->folio;
+                                    $sol_array["fecha_peticion_notificacion"] = $solicitud->fecha_peticion_notificacion;
+                                    $sol_array["tipo_notificacion_id"] = $parte->tipo_notificacion_id;
+                                    $sol_array["tipo_notificacion"] = $parte->tipo_notificacion->nombre;
+                                    $sol_array["reprogramada"] = $audiencia->reprogramada;
+                                    $sol_array["audiencia"] = $audiencia->folio."/".$audiencia->anio;
+                                    $sol_array["etapa_notificacion"] = $audiencia->etapa_notificacion->etapa;
+                                    $sol_array["notificada"] = $notificada;
+                                    $sol_array["parte"] = $parte->parte;
+                                    $sol_array["audiencia_id"] = $audiencia->id;
+                                    $solicitudes[] = $sol_array;   
+                                }
+                            }
+                            $notificada = true;
+                        }
+                    }
+                }
+            }
+            return view('centros.centros.notificaciones',compact('solicitudes'));
+        }else{
+            $audits = Audit::where("auditable_type","App\Audiencia")->where("event","Inserción")->where("user_id",auth()->user()->id)->get();
+            $ids = [];
+            foreach($audits as $audit){
+                $ids[] = $audit->auditable_id;
+            }
+            $audiencias = Audiencia::whereIn('id',$ids)->with(['audienciaParte','expediente','expediente.solicitud','etapa_notificacion','audienciaParte.tipo_notificacion','audienciaParte.parte'])->get();
+            $solicitudes = array();
+            foreach($audiencias as $audiencia){
                 if($audiencia->encontro_audiencia){
                     $notificada = true;
                     $partes = [];
                     foreach($audiencia->audienciaParte as $parte){
                         if($parte->parte != null){
-                            if($parte->parte->tipo_parte_id == $tipo_parte->id && ($parte->tipo_notificacion_id == 2 || $parte->tipo_notificacion_id == 3)){ 
+                            if($parte->parte->tipo_parte_id == $tipo_parte->id){ 
                                 $parte->parte->fecha_notificacion = $parte->fecha_notificacion;
                                 $parte->parte->finalizado = $parte->finalizado;
                                 $parte->parte->audiencia_parte_id = $parte->id;
@@ -306,11 +351,12 @@ class CentroController extends Controller
                                     $notificada = false;
                                 }
                                 $sol_array = array();
-                                $sol_array["id"] = $solicitud->id;
-                                $sol_array["folio"] = $solicitud->folio."/".$solicitud->anio;
-                                $sol_array["expediente"] = $solicitud->expediente->folio;
-                                $sol_array["fecha_peticion_notificacion"] = $solicitud->fecha_peticion_notificacion;
+                                $sol_array["id"] = $audiencia->expediente->solicitud_id;
+                                $sol_array["folio"] = $audiencia->expediente->solicitud->folio."/".$audiencia->expediente->solicitud->anio;
+                                $sol_array["expediente"] = $audiencia->expediente->folio;
+                                $sol_array["fecha_peticion_notificacion"] = $audiencia->expediente->solicitud->fecha_peticion_notificacion;
                                 $sol_array["tipo_notificacion"] = $parte->tipo_notificacion->nombre;
+                                $sol_array["tipo_notificacion_id"] = $parte->tipo_notificacion_id;
                                 $sol_array["reprogramada"] = $audiencia->reprogramada;
                                 $sol_array["audiencia"] = $audiencia->folio."/".$audiencia->anio;
                                 $sol_array["etapa_notificacion"] = $audiencia->etapa_notificacion->etapa;
@@ -324,9 +370,8 @@ class CentroController extends Controller
                     }
                 }
             }
-            
+            return view('centros.centros.notificaciones',compact('solicitudes'));
         }
-        return view('centros.centros.notificaciones',compact('solicitudes'));
     }
     public function obtenerHistorial(){
         $parte = AudienciaParte::find($this->request->audiencia_parte_id);
@@ -343,26 +388,44 @@ class CentroController extends Controller
         }
     }
     public function EnviarNotificacion(){
-        $solicitud = Solicitud::find($this->request->solicitud_id);
-        if(isset($solicitud->expediente->audiencia)){
-            //Obtenemos la audiencia
-            foreach($solicitud->expediente->audiencia as $audiencia){
-                $notificar = false;
-                foreach($audiencia->audienciaParte as $parte){
-                    if($parte->parte && $parte->parte->tipo_parte_id != 1){
-                        if($parte->tipo_notificacion_id != 1 && $parte->tipo_notificacion_id != null){
-                            $notificar = true;
-                        }
-                    }
-                }
-//                dd($notificar);
-                if($notificar){
-                    event(new RatificacionRealizada($audiencia->id, "citatorio"));
+        $audiencia = Audiencia::find($this->request->audiencia_id);
+        $tipo_notificacion = TipoNotificacion::where("nombre","B) El notificador del centro entrega citatorio a citados")->first();
+        foreach($audiencia->audienciaParte as $parte){
+            if($parte->parte && $parte->parte->tipo_parte_id != 1){
+                if($parte->tipo_notificacion_id == 1){
+                    $parte->update(["tipo_notificacion_id" => $tipo_notificacion->id]);
                 }
             }
         }
-        $solicitud = Solicitud::find($this->request->solicitud_id);
-        return $solicitud;
+        $todos = true;
+        if($this->request->audiencia_parte_id != null && $this->request->audiencia_parte_id != ""){
+            $todos = false;
+        }
+        event(new RatificacionRealizada($audiencia->id, "citatorio",$todos,$this->request->audiencia_parte_id));
+        
+        
+        
+//        $solicitud = Solicitud::find($this->request->solicitud_id);
+//        if(isset($solicitud->expediente->audiencia)){
+//            //Obtenemos la audiencia
+//            foreach($solicitud->expediente->audiencia as $audiencia){
+//                $notificar = false;
+//                $tipo_notificacion = TipoNotificacion::where("nombre","B) El notificador del centro entrega citatorio a citados")->first();
+//                foreach($audiencia->audienciaParte as $parte){
+//                    if($parte->parte && $parte->parte->tipo_parte_id != 1){
+//                        if($parte->tipo_notificacion_id == 1){
+//                            $parte->update(["tipo_notificacion_id" => $tipo_notificacion->id]);
+//                        }
+//                        $notificar = true;
+//                    }
+//                }
+//                if($notificar){
+//                    event(new RatificacionRealizada($audiencia->id, "citatorio",$this->request->parte_id));
+//                }
+//            }
+//        }
+//        $solicitud = Solicitud::find($this->request->solicitud_id);
+        return $audiencia->expediente->solicitud;
     }
     /**
      * Aqui terminan las funciones de notificaciones
