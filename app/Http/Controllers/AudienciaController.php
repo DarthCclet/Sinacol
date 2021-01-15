@@ -431,27 +431,27 @@ class AudienciaController extends Controller {
                         $pasa = true;
                     }
                 }
-//            } else {
-//                $pasa = false;
+            } else {
+                $pasa = false;
             }
-//            if ($pasa) {
-//                foreach ($conciliador->incidencias as $inci) {
-//                    if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
-//                        $pasa = false;
-//                    }
-//                }
-//                if ($pasa) {
-//                    $conciliadoresAudiencia = array();
-//                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
-//                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
-//                            //Buscamos que la hora inicio no este entre una audiencia
-//                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
-//                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
-//                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-//                        }
-//                    }
-//                }
-//            }
+            if ($pasa) {
+                foreach ($conciliador->incidencias as $inci) {
+                    if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
+                        $pasa = false;
+                    }
+                }
+                if ($pasa) {
+                    $conciliadoresAudiencia = array();
+                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
+                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
+                            //Buscamos que la hora inicio no este entre una audiencia
+                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
+                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
+                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
+                        }
+                    }
+                }
+            }
             if ($pasa) {
                 $conciliador->persona = $conciliador->persona;
                 $conciliadoresResponse[] = $conciliador;
@@ -693,6 +693,7 @@ class AudienciaController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function calendarizarCentral(Request $request) {
+        $user_id = auth()->user()->id;
         if ($request->tipoAsignacion == 1) {
             $multiple = false;
         } else {
@@ -726,7 +727,7 @@ class AudienciaController extends Controller {
                 }
             }
             
-            $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
+            $solicitud->update(["estatus_solicitud_id" => 2,"user_id" => $user_id, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false]);
             $fecha_notificacion = null;
             if((int)$request->tipo_notificacion_id == 2){
                 $fecha_notificacion = self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$request->fecha_audiencia);
@@ -1038,6 +1039,8 @@ class AudienciaController extends Controller {
     function Resolucion(Request $request) {
         try {
             DB::beginTransaction();
+            $user_id = auth()->user()->id;
+        
             $audiencia = Audiencia::find($request->audiencia_id);
             if (!$audiencia->finalizada) {
 
@@ -1052,7 +1055,8 @@ class AudienciaController extends Controller {
                 if($audiencia->resolucion_id != 2){
                     $solicitud = $audiencia->expediente->solicitud;
                     $solicitud->update([
-                        "estatus_solicitud_id" => 3
+                        "estatus_solicitud_id" => 3,
+                        "user_id" => $user_id
                     ]);
                 }
                 $evidencia = ($request->evidencia) ? $request->evidencia: "";
@@ -1658,6 +1662,7 @@ class AudienciaController extends Controller {
         //Creamos el registro
         DB::beginTransaction();
         try{
+            $user_id = auth()->user()->id;
             $idAudiencia = $request->audiencia_id;
 
             $audiencia = Audiencia::find($idAudiencia);
@@ -1694,7 +1699,8 @@ class AudienciaController extends Controller {
                 if($request->resolucion_id != 2){
                     $solicitud = $audiencia->expediente->solicitud;
                     $solicitud->update([
-                        "estatus_solicitud_id" => 3
+                        "estatus_solicitud_id" => 3,
+                        "user_id" => $user_id
                     ]);
                 }
                 $solicitantes = $this->getSolicitantes($audiencia);
@@ -1832,6 +1838,7 @@ class AudienciaController extends Controller {
     public function guardarComparecientes() {
         DB::beginTransaction();
         try {
+            $user_id = auth()->user()->id;
             $solicitantes = false;
             $citados = false;
             $citadosArray = array();
@@ -1896,7 +1903,7 @@ class AudienciaController extends Controller {
                         }
                     }
                     $solicitud = Solicitud::find($audiencia->expediente->solicitud_id);
-                    $solicitud->update(["estatus_solicitud_id" => 3]);
+                    $solicitud->update(["estatus_solicitud_id" => 3,"user_id" => $user_id]);
                             // Se genera archivo de acta de archivado
                     $response = array("tipo" => 1,"response" => $audiencia);
 //                    DB::rollBack();
@@ -1947,7 +1954,7 @@ class AudienciaController extends Controller {
                         $citatorio = false;
                         $notificar = true;
                         $solicitud = Solicitud::find($audiencia->expediente->solicitud_id);
-                        $solicitud->update(["estatus_solicitud_id" => 3]);
+                        $solicitud->update(["estatus_solicitud_id" => 3,"user_id" => $user_id]);
                         $audiencia_notificar_id = $audiencia->id;
                         $response = array("tipo" => 2,"response" => $audiencia);
                     }else{

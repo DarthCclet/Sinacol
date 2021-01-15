@@ -308,11 +308,11 @@
                     eventConstraint: "businessHours",
                     eventClick: function(info) {
                         console.log(info);
-                        if(info.audiencia_id != null){
-                            obtenerAudiencia(info.audiencia_id);
-                            $("#calendarioReagendar").hide();
+                            if(info.audiencia_id != null){
+                                obtenerAudiencia(info.audiencia_id);
+                                $("#calendarioReagendar").hide();
+                            }
                         }
-                    }
                 });
             }
             function obtenerAudiencia(audiencia_id, fuente = "calendarizada"){

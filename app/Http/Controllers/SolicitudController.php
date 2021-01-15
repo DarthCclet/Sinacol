@@ -175,8 +175,9 @@ class SolicitudController extends Controller {
                     $solicitud->where('centro_id',$centro_id);
                 }
                 $filtered = $solicitud->count();
+                $solicitud->with('user.persona');
                 if ($this->request->get('IsDatatableScroll')) {
-                    $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto','centro_id']);
+                    $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto','centro_id','user_id']);
                 } else {
                     $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
                 }
@@ -346,11 +347,8 @@ class SolicitudController extends Controller {
             // Solicitud
             $userAuth = Auth::user();
             if($userAuth){
-                $user_id = Auth::user()->id;
-            }else{
-                $user_id = User::first()->id;
+                $solicitud['user_id'] = Auth::user()->id;
             }
-            $solicitud['user_id'] = User::first()->id;
             $solicitud['estatus_solicitud_id'] = 1;
             if(!isset($solicitud['tipo_solicitud_id'])){
                 $solicitud['tipo_solicitud_id'] = 1;
@@ -436,9 +434,17 @@ class SolicitudController extends Controller {
                     $contactos = $value["contactos"];
                     unset($value['contactos']);
                 }
+                // if(isset($value['dato_laboral'])){
+                //     $dato_laboral = $value['dato_laboral'];
+                //     unset($value['dato_laboral']);
+                // }
 
                 $value['solicitud_id'] = $solicitudSaved['id'];
                 $parteSaved = Parte::create($value);
+                
+                // if(isset($dato_laboral)){
+                //     $parteSaved->dato_laboral()->create($dato_laboral);
+                // }
                 if (count($domicilios) > 0) {
                     foreach ($domicilios as $key => $domicilio) {
                         unset($domicilio['activo']);
@@ -541,6 +547,7 @@ class SolicitudController extends Controller {
         }
         $solicitados = $partes->where('tipo_parte_id', 2);
         foreach ($solicitados as $key => $value) {
+            // $value->dato_laboral;
             $value->domicilios;
             $value->contactos;
             $solicitados[$key]["activo"] = 1;
@@ -976,6 +983,11 @@ class SolicitudController extends Controller {
             foreach ($solicitados as $key => $value) {
                 if ($value['activo'] == "1") {
                     unset($value['activo']);
+                    // if(isset($value['dato_laboral'])){
+                    //     $dato_laboral = $value['dato_laboral'];
+
+                    //     unset($value['dato_laboral']);
+                    // }
                     $domicilios = Array();
                     if (isset($value["domicilios"])) {
                         $domicilios = $value["domicilios"];
@@ -990,6 +1002,9 @@ class SolicitudController extends Controller {
                     $value['solicitud_id'] = $solicitudSaved['id'];
                     if (!isset($value["id"]) || $value["id"] == "") {
                         $parteSaved = Parte::create($value);
+                        // if(isset($dato_laboral)){
+                        //     $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+                        // }
                         if (count($domicilios) > 0) {
                             foreach ($domicilios as $key => $domicilio) {
                                 unset($domicilio['activo']);
@@ -1013,6 +1028,14 @@ class SolicitudController extends Controller {
                     } else {
                         $parteSaved = Parte::find($value['id']);
                         $parteSaved->update($value);
+                        // if(isset($dato_laboral)){
+                        //     if (isset($dato_laboral["id"]) && $dato_laboral["id"] != "") {
+                        //         $dato_laboralUp = DatoLaboral::find($dato_laboral["id"]);
+                        //         $dato_laboralUp->update($dato_laboral);
+                        //     } else {
+                        //         $dato_laboral = ($parteSaved->dato_laboral()->create($dato_laboral));
+                        //     }
+                        // }
                         foreach ($domicilios as $key => $domicilio) {
                             if ($domicilio["id"] != "") {
                                 $domicilioUp = Domicilio::find($domicilio["id"]);

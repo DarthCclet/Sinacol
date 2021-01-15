@@ -21,10 +21,14 @@ class RatificacionRealizada
      */
     public $audiencia_id;
     public $tipo_notificacion;
-    public function __construct($audiencia_id,$tipo_notificacion)
+    public $parte_id;
+    public $todos;
+    public function __construct($audiencia_id,$tipo_notificacion,$todos = true,$parte_id = null)
     {
         $this->audiencia_id = $audiencia_id;
         $this->tipo_notificacion = $tipo_notificacion;
+        $this->parte_id = $parte_id;
+        $this->todos = $todos;
     }
 
     /**

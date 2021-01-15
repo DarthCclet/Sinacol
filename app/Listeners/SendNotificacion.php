@@ -41,6 +41,7 @@ class SendNotificacion
             $arreglo = array();
             // Consultamos la audiencia
             $audiencia = Audiencia::find($event->audiencia_id);
+            $tipo_notificacion = self::ObtenerTipoNotificacion($audiencia);
             // Agregamos al arreglo las generalidades de la audiencia
             $arreglo["folio"] = $audiencia->folio."/".$audiencia->anio;
             $arreglo["expediente"] = $audiencia->expediente->folio."/";
@@ -78,8 +79,9 @@ class SendNotificacion
             $arreglo["fecha_ingreso"] = $fechaIngreso->format("d/m/Y");
             $arreglo["nombre_junta"] = $audiencia->expediente->solicitud->centro->nombre;
             $arreglo["junta_id"] = $audiencia->expediente->solicitud->centro_id;
-            $arreglo["tipo_notificacion"] = $event->tipo_notificacion;
+            $arreglo["tipo_notificacion"] = $tipo_notificacion;
             //Buscamos a los actores
+            Log::debug('Información de solicitud:'.json_encode($arreglo));
             $actores = self::getSolicitantes($audiencia);
             foreach($actores as $partes){
                 $parte =$partes->parte;
@@ -116,8 +118,9 @@ class SendNotificacion
                     )
                 );
             }
+            Log::debug('Información de actores:'.json_encode($arreglo["Actores"]));
             //Buscamos a los demandados
-            $demandados = self::getSolicitados($audiencia);
+            $demandados = self::getSolicitados($audiencia,$event->parte_id);
             foreach($demandados as $partes){
                 $parte =$partes->parte;
                 if($parte->tipo_persona_id == 1){
@@ -161,6 +164,7 @@ class SendNotificacion
                     "fecha_peticion" => now()
                 ]);
             }
+            Log::debug('Información de demandados:'.json_encode($arreglo["Demandados"]));
             Log::debug('Se envia esta peticion:'.json_encode($arreglo));
             $client = new Client();
             if(env('NOTIFICACION_DRY_RUN') == "YES"){
@@ -196,10 +200,15 @@ class SendNotificacion
                            " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             }else{
                 DB::rollBack();
-                Log::error('En scripts:'.$e->getFile()." En línea: ".$e->getLine().
+                Log::error('respuesta En scripts:'.$e->getFile()." En línea: ".$e->getLine().
                            " Se emitió el siguiente mensale: ". $respuesta.
                            " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             }
+        }catch (Exception $e){
+            DB::rollBack();
+            Log::error('php En scripts:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $respuesta.
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
         }
 
     }
@@ -223,11 +232,17 @@ class SendNotificacion
      * @param Audiencia $audiencia
      * @return AudienciaParte $solicitado
      */
-    public function getSolicitados(Audiencia $audiencia) {
+    public function getSolicitados(Audiencia $audiencia,$audiencia_parte_id = null) {
         $solicitados = [];
         foreach ($audiencia->audienciaParte as $parte) {
-            if ($parte->parte->tipo_parte_id == 2) {
-                $solicitados[] = $parte;
+            if($audiencia_parte_id == null){
+                if ($parte->parte->tipo_parte_id == 2) {
+                    $solicitados[] = $parte;
+                }
+            }else{
+                if($parte->id == $audiencia_parte_id){
+                    $solicitados[] = $parte;
+                }
             }
         }
         return $solicitados;
@@ -266,5 +281,14 @@ class SendNotificacion
             }
         }
         return self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$fecha_audiencia);
+    }
+    public function ObtenerTipoNotificacion($audiencia){
+        $clasificacion_multa = \App\ClasificacionArchivo::where("nombre","Acta de multa")->first();
+        $doc = $audiencia->documentos()->where("clasificacion_archivo_id",$clasificacion_multa->id)->first();
+        if($doc == null){
+            return "citatorio";
+        }else{
+            return "multa";
+        }
     }
 }
