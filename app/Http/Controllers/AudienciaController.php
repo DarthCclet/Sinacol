@@ -1344,6 +1344,8 @@ class AudienciaController extends Controller {
             $pagoDiferido->update([
                 "pagado" => true
             ]);
+            //generar constacia de pago parcial
+            event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13));
 
             $pagos = ResolucionPagoDiferido::where('audiencia_id',$request->audiencia_id)->orderBy('fecha_pago')->get();
             $ultimoPago = $pagos->last()->id;
@@ -1354,9 +1356,9 @@ class AudienciaController extends Controller {
                 }
             }
             //si los pagos anteriores han sido pagados y es el ultimo pago
-            //generar constancia de cumplimiento de convenio
             //if($pagados && ($ultimoPago == $request->idPagoDiferido)){
             if($pagados){
+                //generar constancia de cumplimiento de convenio
                 event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12));
             }
             return $pagoDiferido;
