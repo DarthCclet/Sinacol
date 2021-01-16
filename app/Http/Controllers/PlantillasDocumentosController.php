@@ -940,22 +940,24 @@ class PlantillasDocumentosController extends Controller
                             $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
                             $tablaConceptosActa .= '<br>';
                             
+                            // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
+                            $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
+                            $totalPercepcion = explode('.', $totalPercepciones);
+                            $intTotalPercepciones = $totalPercepcion[0];
+                            $decTotalPercepciones = $totalPercepcion[1];
+                            $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
+                            $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
+                            $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
+                            if($parteID == $idSolicitante ){
+                              $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
+                              $datosResolucion['total_percepciones_letra']= $cantidadTextual;
+                            }
                           }
                         }
                       }
-                        // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
-                        $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
-                        $totalPercepcion = explode('.', $totalPercepciones);
-                        $intTotalPercepciones = $totalPercepcion[0];
-                        $decTotalPercepciones = $totalPercepcion[1];
-                        $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
-                        $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
-                        $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
                         // $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
                         // $cantidadTextual = str_replace("uno","un",$cantidadTextual);
                         // $cantidadTextual = str_replace("coma","punto",$cantidadTextual);
-                        $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
-                        $datosResolucion['total_percepciones_letra']= $cantidadTextual;
                         $datosResolucion['propuestas_conceptos']= $tablaConceptos;
                         $datosResolucion['propuestas_trabajadores']= $tablaConceptosActa;
                         $datosResolucion['propuesta_configurada']= $tablaConceptosConvenio;
@@ -977,7 +979,7 @@ class PlantillasDocumentosController extends Controller
                       
                       $totalPagosDiferidos=0;
                       foreach ($resolucion_pagos as $pago ) {
-                          $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
+                          $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
                           $totalPagosDiferidos +=1;
                       }
                       $tablaPagosDiferidos .= '</tbody>';
