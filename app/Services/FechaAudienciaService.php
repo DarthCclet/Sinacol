@@ -298,7 +298,6 @@ class FechaAudienciaService{
                             ->select('audiencias.*')
                             ->get();
                             if(count($audiencias) == 0){
-                                dump("encontro la sala".$sala->id);
                                 $encontroSala=true;
                                 $sala_id = $sala->id;
                                 break;
