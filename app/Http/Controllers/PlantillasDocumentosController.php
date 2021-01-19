@@ -940,22 +940,24 @@ class PlantillasDocumentosController extends Controller
                             $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
                             $tablaConceptosActa .= '<br>';
                             
+                            // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
+                            $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
+                            $totalPercepcion = explode('.', $totalPercepciones);
+                            $intTotalPercepciones = $totalPercepcion[0];
+                            $decTotalPercepciones = $totalPercepcion[1];
+                            $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
+                            $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
+                            $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
+                            if($parteID == $idSolicitante ){
+                              $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
+                              $datosResolucion['total_percepciones_letra']= $cantidadTextual;
+                            }
                           }
                         }
                       }
-                        // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
-                        $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
-                        $totalPercepcion = explode('.', $totalPercepciones);
-                        $intTotalPercepciones = $totalPercepcion[0];
-                        $decTotalPercepciones = $totalPercepcion[1];
-                        $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
-                        $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
-                        $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
                         // $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
                         // $cantidadTextual = str_replace("uno","un",$cantidadTextual);
                         // $cantidadTextual = str_replace("coma","punto",$cantidadTextual);
-                        $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
-                        $datosResolucion['total_percepciones_letra']= $cantidadTextual;
                         $datosResolucion['propuestas_conceptos']= $tablaConceptos;
                         $datosResolucion['propuestas_trabajadores']= $tablaConceptosActa;
                         $datosResolucion['propuesta_configurada']= $tablaConceptosConvenio;
@@ -977,7 +979,7 @@ class PlantillasDocumentosController extends Controller
                       
                       $totalPagosDiferidos=0;
                       foreach ($resolucion_pagos as $pago ) {
-                          $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
+                          $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
                           $totalPagosDiferidos +=1;
                       }
                       $tablaPagosDiferidos .= '</tbody>';
@@ -1010,7 +1012,7 @@ class PlantillasDocumentosController extends Controller
                         if($parteC->id != $idParteCitada){
                           $idParteCitada = $parteC->id;
                           if($parteC->tipo_persona_id == 1){//fisica
-                            if($parteC->tipo_parte_id == 3){
+                            if($parteC->tipo_parte_id == 3){//si es representante legal
                               $representanteLegalC = $parteC;
                               $parteRepresentada = Parte::find($representanteLegalC->parte_representada_id);
                               $segundo_apellido_representante = ($representanteLegalC['segundo_apellido']!="")?' '.$representanteLegalC['segundo_apellido']:"";
@@ -1028,12 +1030,13 @@ class PlantillasDocumentosController extends Controller
                                   }
                                 }
                               }
+                              $nombreRepresentada = ($parteRepresentada['tipo_persona_id']== 2)? $parteRepresentada['nombre_comercial']: $parteRepresentada['nombre'].' '.$parteRepresentada['primer_apellido'] .' '.$parteRepresentada['segundo_apellido'];
                               if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
-                                $nombreCitadoConvenio = $parteRepresentada['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
+                                $nombreCitadoConvenio = $nombreRepresentada.' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
                               }
                               //$nombreCitadoComparecientes = $parteRepresentada['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
-                              $nombreCitadoComparecientes = $nombreRepresentanteLegal .', en su carácter de representante legal de '. $parteRepresentada['nombre_comercial'] . $representanteInstrumento .", ".$representanteIdentificacion; 
-                              $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteRepresentada['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
+                              $nombreCitadoComparecientes = $nombreRepresentanteLegal .', en su carácter de representante legal de '. $nombreRepresentada . $representanteInstrumento .", ".$representanteIdentificacion; 
+                              $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                             }else{
                               if($parteC->tipo_parte_id == 2){
                                 foreach ($parteC->documentos as $k => $docu) {

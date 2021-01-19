@@ -3774,9 +3774,11 @@
                 $('#parte_solicitado_id > option').each(function() {
                     let solicitadoId = this.value;
                     if( solicitadoId !=null && solicitadoId !="" ){
+                        solicitadoId = getParteSolicitud(solicitadoId);
                         $('#parte_solicitante_id > option').each(function() { //mostrar convenio por cada solicitante
                             let solicitanteId = this.value;
                             if( solicitanteId !=null && solicitanteId !="" ){
+                                solicitanteId = getParteSolicitud(solicitanteId);
                                 listVistaPrevia.push({
                                     plantilla_id : 1, // acta de no conciliacion
                                     parte_solicitante_id: solicitanteId,
@@ -3810,6 +3812,24 @@
         }
         vistaPrevia(listVistaPrevia[numDoc].plantilla_id, listVistaPrevia[numDoc].parte_solicitante_id, listVistaPrevia[numDoc].parte_solicitado_id );
         $('#noDocumento').val(numDoc+1);
+    }
+
+    function getParteSolicitud(idParte){
+        var idParteSolicitud = idParte;
+        $.ajax({
+            url:"/partes/getParteSolicitud/"+idParte,
+            type:"GET",
+            dataType:"json",
+            async:false,
+            success:function(data){
+                try{
+                    idParteSolicitud = data;
+                }catch(error){
+                    console.log(error);
+                }
+            }
+        });
+        return idParteSolicitud;
     }
 
     function vistaPrevia(plantilla_id,solicitante_id = null,citado_id = null){
@@ -3849,7 +3869,7 @@
                 audiencia_id:'{{ $audiencia->id }}',
                 solicitud_id:'{{ $solicitud_id }}',
                 solicitante_id:solicitante_id,
-                solicitado_id:citado_id,
+                citado_id:citado_id,
                 plantilla_id: plantilla_id,
                 convenio:$("#convenio").val(),
                 desahogo:$("#desahogo").val(),
