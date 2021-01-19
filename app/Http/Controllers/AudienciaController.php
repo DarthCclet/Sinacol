@@ -1969,10 +1969,11 @@ class AudienciaController extends Controller {
                         $diasHabilesMax = 18;
                         // validamos si se debe asignar solo una sala o dos y buscamos la disponibilidad
                         if($audiencia->multiple){
-                            $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                            $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$audiencia->conciliadoresAudiencias);
                             $multiple = true;
                         }else{
-                            $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax);
+                            $conciliador = $audiencia->conciliadoresAudiencias()->first()->conciliador;
+                            $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$conciliador);
                             $multiple = false;
                         }
                         //Obtenemos el contador
