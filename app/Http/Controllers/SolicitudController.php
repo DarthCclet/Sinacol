@@ -1745,7 +1745,7 @@ class SolicitudController extends Controller {
                         $response = HerramientaServiceProvider::rollback($solicitud->id,$audiencia->id,2);
                         if($response["success"]){
                             $solicitud->estatus_solicitud_id = 3;
-                            $solicitud->incidencia = false;
+                            $solicitud->incidencia = true;
                             $partes = $solicitud->partes;
                             foreach($partes as $parte){
                                 if($parte->tipo_parte_id == 1){
@@ -1759,7 +1759,7 @@ class SolicitudController extends Controller {
                         }
                     }else{
                         $solicitud->estatus_solicitud_id = 3;
-                        $solicitud->incidencia = false;
+                        $solicitud->incidencia = true;
                         $partes = $solicitud->partes;
                         foreach($partes as $parte){
                             if($parte->tipo_parte_id == 1){
