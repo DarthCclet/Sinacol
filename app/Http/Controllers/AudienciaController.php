@@ -450,7 +450,7 @@ class AudienciaController extends Controller {
                     if($ConciliadorExiste != null){
                         $pasa =false;
                     }
-                }
+                } 
 //                if ($pasa) {
 //                    $conciliadoresAudiencia = array();
 //                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
