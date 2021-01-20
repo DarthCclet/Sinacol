@@ -327,6 +327,7 @@ class ConceptosResolucionController extends Controller
             $al50['prima_vacacional']= round($pagoVacaciones * 0.25,2);
             $total += round($pagoVacaciones * 0.25,2);
             $al50['prima_antiguedad']= round($salarioTopado * $anios_antiguedad * 6,2);
+            $total += round($salarioTopado * $anios_antiguedad * 6,2);
             $al50['total']= round($total,2);
 
             $datosL['al50']= $al50;

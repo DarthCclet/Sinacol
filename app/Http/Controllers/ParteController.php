@@ -650,7 +650,7 @@ class ParteController extends Controller
     }
     
     public function getParteCurp(Request $request){
-        $Parte = Parte::where('curp',$request->curp)->first();
+        $Parte = Parte::where('curp',$request->curp)->order_by('id', 'desc')->first();
         return $Parte;
     }
     public function EliminarContactoRepresentante(Request $request){
@@ -665,6 +665,17 @@ class ParteController extends Controller
         $parte = Parte::find($this->request->id);
         return $parte->domicilios[0];
     }
+    public function getParteSolicitud($id){
+        $parte = Parte::find($id);
+        if($parte->tipo_parte_id == 3){// representante legal
+            $idParteSolicitud = $parte->parte_representada_id;
+        }else{
+            $idParteSolicitud = $parte->id;
+        }
+        return response()->json($idParteSolicitud, 200);
+        //return $idParteSolicitud;
+    }
+
     public function cambiarDomicilioParte(){
         $domicilio = Domicilio::find($this->request->domicilio["id"]);
         $dom =(array) $this->request->domicilio;
