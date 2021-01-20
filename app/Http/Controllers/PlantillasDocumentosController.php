@@ -448,6 +448,7 @@ class PlantillasDocumentosController extends Controller
 
                 array_push($columnNames,'citados_convenio');
                 array_push($columnNames,'citados_comparecientes');
+                array_push($columnNames,'solicitantes_comparecientes');
                 array_push($columnNames,'segunda_declaracion_convenio');
               }
 
@@ -617,7 +618,9 @@ class PlantillasDocumentosController extends Controller
                     $countSolicitado = 0;
                     $nombresSolicitantes = [];
                     $nombresSolicitados = [];
+                    $solicitantesIdentificaciones = [];
                     $datoLaboral="";
+                    $solicitanteIdentificacion = "";
                       // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
@@ -693,8 +696,10 @@ class PlantillasDocumentosController extends Controller
                           $parte['datos_laborales_salario_mensual_letra'] = $salarioMensualTextual;
                         }
 
+                        $solicitanteIdentificacion = $parte['nombre_completo'] ." quien se identifica con " .$parte['identificacion_documento']." expedida a su favor por ". $parte['identificacion_expedida_por'];
                         array_push($parte1, $parte);
                         array_push($nombresSolicitantes, $parte['nombre_completo'] );
+                        array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
                         $countSolicitante += 1;
                       }elseif ($parte['tipo_parte_id'] == 2 ) {//Citado
                         //representante legal solicitado
@@ -743,6 +748,7 @@ class PlantillasDocumentosController extends Controller
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
+                    $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
                 }elseif ($model == 'Expediente') {
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;
@@ -994,6 +1000,7 @@ class PlantillasDocumentosController extends Controller
                     $hayPartesConvenio = count($partes_convenio);
                     if($hayPartesConvenio > 0){
                       $citadosConvenio = [];
+                      $solicitantesComparecientes = [];
                       $citadosComparecientes = [];
                       $nombreCitadoConvenio = "";
                       $nombreCitadoComparecientes = "";
@@ -1001,6 +1008,7 @@ class PlantillasDocumentosController extends Controller
                       $clausulaCitadosConvenio = ($hayPartesConvenio >1)? ' ' : "";
                       foreach ($partes_convenio as $key => $parteConvenio) {
                         $nombreCitadoComparecientes = "";
+                        $nombreSolicitanteComparecientes = "";
                         $nombreCitadoConvenio = "";
                         //citados convenio
                         $parteC = $parteConvenio->parte;
@@ -1045,21 +1053,21 @@ class PlantillasDocumentosController extends Controller
                               $nombreCitadoComparecientes = $nombreRepresentanteLegal .', en su carácter de representante legal de '. $nombreRepresentada . $representanteInstrumento .", ".$representanteIdentificacion; 
                               $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                             }else{
-                              if($parteC->tipo_parte_id == 2){
-                                foreach ($parteC->documentos as $k => $docu) {
-                                  if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
-                                    $parteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
-                                  }
+                              foreach ($parteC->documentos as $k => $docu) {
+                                if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
+                                  //$parteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
+                                  $parteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre . " expedida a su favor por ". $docu->clasificacionArchivo->entidad_emisora->nombre: "";
                                 }
-                                $segundo_apellido_citado = ($parteC['segundo_apellido']!="")?' '.$parteC['segundo_apellido']:"";
-                                // if($parteC->terminacion_bilateral_id ==3){
-                                // 	$nombreCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado;
-                                // }
-                                $nombreCitadoComparecientes = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado;
-                                $clausulaCitadosConvenio .= $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
+                              }
+                              $segundo_apellido = ($parteC['segundo_apellido']!="")?' '.$parteC['segundo_apellido']:"";
+                              if($parteC->tipo_parte_id == 2){//citados
+                                $nombreCitadoComparecientes = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido. $parteIdentificacion;
+                                $clausulaCitadosConvenio .= $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
+                              }else{//solicitantes
+                                $nombreSolicitanteComparecientes = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion;
                               }
                             }
-                          }else{ //moral
+                          }else{ //moral compareciente
                             $representanteLegalC = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteC->id)->where('tipo_parte_id',3)->get();
                             $representanteLegalC = $representanteLegalC[0];
                             $segundo_apellido_representante = ($representanteLegalC['segundo_apellido']!="")?' '.$representanteLegalC['segundo_apellido']:"";
@@ -1086,6 +1094,9 @@ class PlantillasDocumentosController extends Controller
                           if($nombreCitadoComparecientes != ""){
                               array_push($citadosComparecientes, $nombreCitadoComparecientes );
                           }
+                          if($nombreSolicitanteComparecientes != ""){
+                              array_push($solicitantesComparecientes, $nombreSolicitanteComparecientes );
+                          }
                         }
                       }
                       if($hayPartesConvenio > 1){
@@ -1094,6 +1105,9 @@ class PlantillasDocumentosController extends Controller
                         
                         $citadosConvenioB =  implode(", ",$citadosComparecientes);
                         $nombreCitadosComparecientes = $citadosConvenioB;//$this->lreplace(',', ' y', $citadosConvenioA);
+                        
+                        $solicitantesB =  implode(", ",$solicitantesComparecientes);
+                        $nombreSolicitanteComparecientes = $solicitantesB;//$this->lreplace(',', ' y', $citadosConvenioA);
                       }else{
                         $nombreCitadosConvenio = $nombreCitadoConvenio;
                         $nombreCitadosComparecientes = $nombreCitadoComparecientes;
@@ -1105,6 +1119,7 @@ class PlantillasDocumentosController extends Controller
                     }
           
                     $datosResolucion['citados_comparecientes'] = $nombreCitadosComparecientes;
+                    $datosResolucion['solicitantes_comparecientes'] = $nombreSolicitanteComparecientes;
                     $datosResolucion['citados_convenio'] = $nombreCitadosConvenio;
                     $datosResolucion['segunda_declaracion_convenio'] = $clausulaCitadosConvenio;
                     $datosResolucion['primera_manifestacion'] = (isset($datosResolucion['primera_manifestacion']))? $datosResolucion['primera_manifestacion'] :"";
