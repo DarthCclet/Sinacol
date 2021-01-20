@@ -181,7 +181,15 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <div style="overflow:scroll" class="col-md-12">
+                <div id="confirmacion_virtual" style="display: none;">
+                    <h5>Proceso virtual</h5>
+                    <hr class="red">
+                    <input type="text" id="url_virtual" class="form-control" placeholder="Url virtual">
+                    <p class="help-block needed">Url virtual</p>
+                    <button class="btn btn-primary" onclick="guardarUrlVirtual()">Guardar</button>
+                </div>
+                
+                <div style="overflow:scroll"  id="div_confirmacion" class="col-md-12">
                     <div id="divNeedRepresentante" style="display: none;">
                         <h5>Representante legal (solo si hay representante)</h5>
                         <hr class="red">
@@ -1251,6 +1259,7 @@
                                                 tipo_notificacion_id:validarRatificacion.tipo_notificacion_id,
                                                 inmediata:false,
                                                 fecha_cita:$("#fecha_cita").val(),
+                                                url_virtual:$("#url_virtual").val(),
                                                 separados:separados,
                                                 _token:"{{ csrf_token() }}"
                                             },
@@ -1415,6 +1424,7 @@
                     data:{
                         id:$("#solicitud_id").val(),
                         inmediata:true,
+                        url_virtual:$("#url_virtual").val(),
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
@@ -2388,6 +2398,18 @@
                     solicitudObj.ambito_id = data.giroComercial.ambito_id;
                     solicitudObj.ambito_nombre = data.giroComercial.ambito.nombre;
                     solicitudObj.tipo_solicitud_id = data.tipo_solicitud_id;
+                    $("#url_virtual").val("");
+                    if(data.virtual){
+                        $("#confirmacion_virtual").show();
+                        $("#div_confirmacion").hide();
+                        if(data.url_virtual){
+                            $("#url_virtual").val(data.url_virtual);
+                            $("#div_confirmacion").show();
+                        }
+                    }else{
+                        $("#div_confirmacion").show();
+                        $("#confirmacion_virtual").hide();
+                    }
                     if(solicitudObj.tipo_solicitud_id == 3 || solicitudObj.tipo_solicitud_id == 4 ){
                         esSindical = true;
                     }
@@ -2484,6 +2506,35 @@
         $(".estatus").removeClass('selectedButton');
         $("#estatus"+estatus).addClass('selectedButton');
     });
+    function guardarUrlVirtual(){
+        if($("#url_virtual").val() != ""){
+            $.ajax({
+                url:"/guardarUrlVirtual",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    url_virtual:$("#url_virtual").val(),
+                    solicitud_id:$("#solicitud_id").val(),
+                    _token:"{{ csrf_token() }}"
+                },
+                async:true,
+                success:function(data){
+                    try{
+                        if(data.success){
+                            swal({ title: 'Éxito', text: 'Url guardada correctamente', icon: 'success'});
+                            $("#div_confirmacion").show();
+                        }else{
+                            swal({title: 'Error',text: 'No se pudo guardar la url',icon: 'error'});
+                        }
+                    }catch(error){
+                        console.log(error);
+                    }
+                }
+            });
+        }else{
+            swal({title: 'Error',text: 'Es necesario ingresar la url',icon: 'error'});
+        }
+    }
     
   </script>
   @endpush

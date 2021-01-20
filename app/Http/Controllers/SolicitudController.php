@@ -57,6 +57,8 @@ use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use App\Providers\HerramientaServiceProvider;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Redirect;
 
 class SolicitudController extends Controller {
     use FechaNotificacion;
@@ -379,6 +381,15 @@ class SolicitudController extends Controller {
                 $contactos = Array();
                 $domicilios = Array();
                 unset($value['activo']);
+                if(isset($value['identificacion'])){
+                    // dd($_FILES[$value['identificacion']]);
+                    // $archivo = $_FILES[$value['identificacion']];
+                    $resp = File::copy($value["tmp_file"],'/solicitudes');
+                    dd($resp);
+                    // dd($archivo);
+                    unset($value['identificacion']);
+                }
+
                 if(isset($value['dato_laboral'])){
                     $dato_laboral = $value['dato_laboral'];
                     unset($value['dato_laboral']);
@@ -1814,6 +1825,41 @@ class SolicitudController extends Controller {
             }else{
                 return $this->sendError($response["msj"]);
             }
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensaje: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
+        }
+    }
+
+    public function canal(Request $request){
+        $mensaje = "La solicitud no existe";
+        $solicitud = Solicitud::where('canal',$request->canal)->first();
+        if($solicitud){
+            if(!empty($solicitud->url_virtual)){
+                return Redirect::to($solicitud->url_virtual);
+            }
+            $mensaje = "Canal no asignado";
+        }
+        return view('pages.canalNotFound',compact('mensaje'));
+        
+    }
+    public function identificacion(Request $request){
+        foreach($_FILES as $key => $file){
+            $archivo['nombre'] = $key;
+            $archivo['tmp_file'] = $file['tmp_name'];
+            
+        }
+        
+        return $this->sendResponse($archivo, 'SUCCESS');
+    }
+    public function guardarUrlVirtual(Request $request){
+        try{
+            $solicitud = Solicitud::find($request->solicitud_id);
+            $solicitud->url_virtual = $request->url_virtual;
+            $solicitud->save();
+            return $this->sendResponse("", 'SUCCESS');
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                 " Se emitió el siguiente mensaje: ". $e->getMessage().

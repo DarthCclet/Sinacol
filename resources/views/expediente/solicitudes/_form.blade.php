@@ -46,6 +46,8 @@
 @else
     <input type="hidden" id="externo" value="1">
 @endif
+<input type="hidden" id="estado_centro_id" value="">
+<input type="hidden" id="atiende_virtual" value="false">
 <input type="hidden" id="instancia" value="{{ env('INSTANCIA','federal')}}">
 <div class="tab-content" style="background: #f2f3f4 !important;">
 <div class="tab-pane fade active show" id="default-tab-1">
@@ -414,6 +416,7 @@
                                         <hr class="red">
                                     </div>
                                     <input type="hidden" id="dato_laboral_id">
+                                    {{-- <input type="hidden" id="dato_laboral_idCitado"> --}}
                                     <div class="col-md-6">
                                         <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
                                         <p class="help-block ">N&uacute;mero de seguro social</p>
@@ -731,25 +734,78 @@
                                         </div>
                                         @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"true", 'instancia' => 2, 'tipo_solicitud' => $tipo_solicitud_id])
                                         <div style="margin-top: 2%;" class="col-md-12">
-
-                                            {{-- <button class="btn btn-primary btn-sm m-l-5" onclick="agregarDomicilio()"><i class="fa fa-save"></i> Guardar Domicilio</button> --}}
-                                            {{-- <div class="col-md-10 offset-md-1" >
-                                                <table class="table table-bordered" >
-                                                    <thead>
-                                                        <tr>
-                                                            <th style="width:80%;">Domicilio</th>
-                                                            <th style="width:20%; text-align: center;">Acci&oacute;n</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="tbodyDomicilioSolicitado">
-                                                    </tbody>
-                                                </table>
-                                            </div> --}}
                                         </div>
                                     </div>
-
+                                    {{-- <div class="col-md-12 pasoCitado"id="continuarCitado3">
+                                        <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(3)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
+                                    </div> --}}
                                 </div>
                                     <!-- end seccion de domicilios citado -->
+                                    <!-- Seccion de Datos laborales -->
+                                {{-- <div id="divDatoLaboralCitado" style="display: none;"  class="col-md-12 row">
+                                    <div class="col-md-12 mt-4">
+                                        <h4>Datos Laborales</h4>
+                                        <hr class="red">
+                                    </div>
+                                    <input type="hidden" id="dato_laboral_id">
+                                    <div class="col-md-6">
+                                        <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nssCitado" placeholder="N&uacute;mero de seguro social"  type="text" value="">
+                                        <p class="help-block ">N&uacute;mero de seguro social</p>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-6">
+                                            <input class="form-control upper requiredLaboralCitado" required id="puestoCitado" placeholder="Puesto" type="text" value="">
+                                            <p class="help-block needed">Puesto</p>
+                                        </div>
+                                        <div class="col-md-6" >
+                                            {!! Form::select('ocupacion_idCitado', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_idCitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('ocupacion_idCitado', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoge del catálogo. Si no, d&eacute;jalo vac&iacute;o.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-4">
+                                            <input class="form-control numero requiredLaboralCitado" required data-parsley-type='number' id="remuneracionCitado" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
+                                            <p class="help-block needed">&iquest;Cu&aacute;nto te pagan?</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            {!! Form::select('periodicidad_idCitado', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_idCitado','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboralCitado']);  !!}
+                                            {!! $errors->first('periodicidad_idCitado', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block needed">&iquest;Cada cuándo te pagan?</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input class="form-control numero requiredLaboralCitado" required data-parsley-type='integer' id="horas_semanalesCitado" placeholder="Horas semanales" type="text" value="">
+                                            <p class="help-block needed">Horas semanales</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row">
+
+                                        <div class="col-md-2">
+                                            <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="hidden" />
+                                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmenteCitado" name='labora_actualmenteCitado'/>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input class="form-control requiredLaboralCitado" required id="fecha_ingresoCitado" placeholder="Fecha de ingreso" type="text" value="">
+                                            <p class="help-block needed">Fecha de ingreso</p>
+                                        </div>
+                                        <div class="col-md-4" id="divFechaSalida">
+                                            <input class="form-control requiredLaboralCitado" required id="fecha_salidaCitado" placeholder="Fecha salida" type="text" value="">
+                                            <p class="help-block needed">Fecha salida</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        {!! Form::select('jornada_idCitado', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_idCitado','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboralCitado']);  !!}
+                                        {!! $errors->first('jornada_idCitado', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block needed">Jornada</p>
+                                    </div>
+                                    <div>
+                                        <a style="font-size: medium;" onclick="$('#modal-jornada').modal('show');"><i class="fa fa-question-circle"></i></a>
+                                    </div>
+                                </div> --}}
+                                <!-- end Seccion de Datos laborales -->
                                 <hr style="margin-top:5%;">
                                 <div id="divBotonesSolicitado" style="display: none;">
                                     <button class="btn btn-danger" type="button" onclick="limpiarSolicitado()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
@@ -772,6 +828,15 @@
                         <input type="hidden" id="solicitud_id">
                         <input type="hidden" id="ratificada">
                         <input type="hidden" id="tipo_solicitud_id" value="{{$tipo_solicitud_id}}">
+                        <div class="col-md-12 atiendeVirtual text-right row" style="display: none;">
+                            <div class="col-md-8"> </div>
+                            <div class="card col-md-4" style="padding: 2%; border: 1px solid #9d2449;">
+                            <h3 for='virtual'>Llevar proceso virtual</h3> 
+                            <div style="margin-left: auto;">
+                                <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="virtual" name='virtual'/>
+                            </div>
+                        </div>
+                        </div>
                         <div class="col-md-4 showEdit" >
                             <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de confirmación" type="text" value="">
                             <p class="help-block">Fecha de confirmaci&oacute;n</p>
@@ -989,6 +1054,47 @@
 </div>
 <!-- Fin Modal de Domicilio-->
 
+<div class="modal" id="modal-virtual" data-backdrop="static" data-keyboard="false" aria-hidden="true" >
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="col-md-12">
+                    <h2 style="text-align: center;"> Proceso Virtual </h2>
+                </div>
+            </div>
+            <div class="modal-body" >
+                <div class="col-md-12">
+                    <ul>
+                        <li> El proceso virtual requiere que se suba una identificación oficial para cada solicitante. </li>
+                        <li> El solicitante debe seguir las instrucciones en el acuse de la solicitud, para confirmar la solicitud y recibir el citatorio de su audiencia de conciliación. Podrá entregar el citatorio directamente al citado o solicitar la notificación por un funcionario del CFCRL.  </li>
+                        <li> Posteriormente asistirá a la audiencia de conciliación de manera virtual, para buscar una solución a su conflicto laboral. </li>
+                        <li> Si acepta la conciliación virtual, a continuación deberá subir el documento de identificación oficial de cada solicitante utilizando el ícono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i><span> . </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12 row">
+
+                    <div class="row col-md-9">
+                        <div class="col-md-2" ></div>
+                        <div class="custom-control custom-radio col-md-5" >
+                            <input type="radio" id="radioVirtual1" name="radioVirtual" value="1" class="custom-control-input">
+                            <label class="custom-control-label" for="radioVirtual1">Aceptar conciliación virtual</label>
+                        </div>
+                        <div class="custom-control custom-radio col-md-5">
+                            <input type="radio" id="radioVirtual2" name="radioVirtual" value="2" class="custom-control-input">
+                            <label class="custom-control-label" for="radioVirtual2">Seguir conciliación presencial</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-right">
+                        <button class="btn btn-primary m-l-5" onclick="aceptarVitual()"> Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- inicio Modal Alerta Giro-->
 
 <div class="modal" id="modal-giro" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
@@ -1121,6 +1227,7 @@
     var arrayObjetoSolicitudes = []; // Array de objeto_solicitude para el citado
     var arrayContactoSolicitantes = []; // Array de objeto_solicitude para el citado
     var arrayContactoSolicitados = []; // Array de objeto_solicitude para el citado
+    var arrayIdentificaciones = []; // Array de objeto_solicitude para el citado
     // var arraySolicitanteExcepcion = {}; // Array de solicitante excepción
     var ratifican = false;; // Array de solicitante excepción
     var editSolicitud = false; //Lista de citados
@@ -1224,6 +1331,14 @@
                         dato_laboral.resolucion = false;
                         solicitante.dato_laboral = dato_laboral;
                     }
+                    // Identificacion de solicitante
+
+                    //var formData = new FormData(); // Currently empty
+                    // if($("#fileIdentificacion").val() != ""){
+                    //     //formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
+                    //     solicitante.identificacion = $("#fileIdentificacion")[0].files[0];
+                    // }
+                    //Identificacion
 
                     //domicilio del solicitante
 
@@ -1245,9 +1360,9 @@
                         arraySolicitantes[key] = solicitante;
                     }
                     if(($("#tipo_solicitud_id").val() == 3 || $("#tipo_solicitud_id").val() == 2)){
-                            $(".no_enVigor").show();
-                            $(".estadoSelectsolicitante").select2({width: '100%'});
-                            $(".estadoSelectsolicitado").select2({width: '100%'});
+                        $(".no_enVigor").show();
+                        $(".estadoSelectsolicitante").select2({width: '100%'});
+                        $(".estadoSelectsolicitado").select2({width: '100%'});
                     }
                     limpiarSolicitante();
                     formarTablaSolicitante();
@@ -1255,6 +1370,7 @@
                     $('#divContactoSolicitante').hide();
                     $('#divMapaSolicitante').hide();
                     $('#divDatoLaboralSolicitante').hide();
+                    // $('#divDatoLaboralCitado').hide();
                     $('#divBotonesSolicitante').hide();
                     $(".pasoSolicitante").show();
                     $("#divCancelarCitado").hide();
@@ -1285,6 +1401,7 @@
                         }
                     }).then(function(isConfirm){
                         if(isConfirm){
+                            getAtiendeVirtual();
                             if(!editCitado){
                                 editCitado = true;
                                 $('#wizard').smartWizard('goToStep', 2);
@@ -1340,6 +1457,23 @@
                         solicitado.tipo_parte_id = 2;
                         solicitado.rfc = $("#idSolicitadoRfc").val();
                         solicitado.activo = 1;
+                        // if($("#tipo_solicitud_id").val() == "2"){
+                        //     var dato_laboral = {};
+                        //     dato_laboral.id = $("#dato_laboral_idCitado").val();
+                        //     dato_laboral.ocupacion_id = $("#ocupacion_idCitado").val();
+                        //     dato_laboral.puesto = $("#puestoCitado").val();
+                        //     dato_laboral.nss = $("#nssCitado").val();
+                        //     dato_laboral.no_issste = "";//$("#no_issste").val();
+                        //     dato_laboral.remuneracion = $("#remuneracionCitado").val();
+                        //     dato_laboral.periodicidad_id = $("#periodicidad_idCitado").val();
+                        //     dato_laboral.labora_actualmente = $("#labora_actualmenteCitado").is(":checked");
+                        //     dato_laboral.fecha_ingreso = dateFormat($("#fecha_ingresoCitado").val());
+                        //     dato_laboral.fecha_salida = dateFormat($("#fecha_salidaCitado").val());
+                        //     dato_laboral.jornada_id = $("#jornada_idCitado").val();
+                        //     dato_laboral.horas_semanales = $("#horas_semanalesCitado").val();
+                        //     dato_laboral.resolucion = false;
+                        //     solicitado.dato_laboral = dato_laboral;
+                        // }
                         solicitado.domicilios = arrayDomiciliosSolicitado;
                         //contactos del solicitado
                         solicitado.contactos = arrayContactoSolicitados;
@@ -1387,6 +1521,7 @@
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
+                                getAtiendeVirtual();
                                 if(!editCitado){
                                     editCitado = true;
                                     $('#wizard').smartWizard('goToStep', 3);
@@ -1485,6 +1620,17 @@
                 $("#divFechaSalida").show();
             }
         });
+        // $("#labora_actualmenteCitado").change(function(){
+        //     if($("#labora_actualmenteCitado").is(":checked")){
+        //         console.log("fecha_salida no requerida");
+        //         $("#fecha_salidaCitado").removeAttr("required");
+        //         $("#divFechaSalidaCitado").hide();
+        //     }else{
+        //         console.log("fecha_salida requerida");
+        //         $("#fecha_salidaCitado").attr("required","");
+        //         $("#divFechaSalidaCitado").show();
+        //     }
+        // });
         // $("#motivo_excepciones_id_solicitante").change(function(){
         //     if($(this).val() == 3){
         //         $("#divGrupoPrioritario").show();
@@ -1753,6 +1899,22 @@
         $("#fecha_salida").val("");
         $("#jornada_id").val("");
         $("#horas_semanales").val("");
+
+        // $("#dato_laboral_idCitado").val("");
+        // $("#ocupacion_idCitado").val("");
+        // $("#puestoCitado").val("");
+        // $("#nssCitado").val("");
+        // $("#no_isssteCitado").val("");
+        // $("#remuneracionCitado").val("");
+        // $("#periodicidad_idCitado").val("");
+        // if($("#labora_actualmenteCitado").is(":checked")){
+        //     $("#labora_actualmenteCitado").trigger('click');
+        // }
+        // $("#fecha_ingresoCitado").val("");
+        // $("#fecha_salidaCitado").val("");
+        // $("#jornada_idCitado").val("");
+        // $("#horas_semanalesCitado").val("");
+        
         $("#genero_id_solicitante").val("");
         $("#nacionalidad_id_solicitante").val("");
         $("#entidad_nacimiento_id_solicitante").val("");
@@ -2041,13 +2203,22 @@
 
                 html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
                 if($("#ratificada").val() != "true"){
-                    html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                    html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a>";
                 }
+                if($("#virtual").is(":checked")){
+                    html += "<span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i><span></span><input type='file' id='fileIdentificacion"+key+"' id_identificacion='"+key+"' class='fileIdentificacion' name='files'></span><span style='margin-top: 1%;' id='labelIdentif"+key+"'></span>";
+                }
+                html += "</td>";
                 html += "</tr>";
             }
         });
         $("#tbodySolicitante").html(html);
         $("#tbodySolicitanteRevision").html(html);
+        $(".fileIdentificacion").change(function(e){
+            var id = $(this).attr('id_identificacion');
+            $("#labelIdentif"+id).html(" Ok <i class='fa fa-check' style='color:green'></i> ");
+            loadFileSolicitante(id,e.target.files[0]);
+        });
     }
 
     /**
@@ -2269,6 +2440,32 @@
         arrayContactoSolicitados = arraySolicitados[key].contactos ? arraySolicitados[key].contactos : [];
         formarTablaContacto();
         // arrayContactoSolicitados = arraySolicitados[key].contactos;
+        // datos laborales en la solicitante
+        // if(arraySolicitados[key].dato_laboral != undefined){
+        //     if($.isArray(arraySolicitados[key].dato_laboral)){
+        //         arraySolicitados[key].dato_laboral = arraySolicitados[key].dato_laboral[0];
+        //     }
+        //     $("#dato_laboral_idCitado").val(arraySolicitados[key].dato_laboral.id);
+        //     $('#divDatoLaboralCitado').show();
+        //     // getGiroEditar("solicitante");
+        //     $("#ocupacion_idCitado").val(arraySolicitados[key].dato_laboral.ocupacion_id);
+        //     $("#puestoCitado").val(arraySolicitados[key].dato_laboral.puesto);
+        //     $("#nssCitado").val(arraySolicitados[key].dato_laboral.nss);
+        //     $("#no_isssteCitado").val(arraySolicitados[key].dato_laboral.no_issste);
+        //     $("#remuneracionCitado").val(arraySolicitados[key].dato_laboral.remuneracion);
+        //     $("#periodicidad_idCitado").val(arraySolicitados[key].dato_laboral.periodicidad_id);
+        //     if(arraySolicitados[key].dato_laboral.labora_actualmente != $("#labora_actualmenteCitado").is(":checked")){
+        //         $("#labora_actualmenteCitado").click();
+        //     }
+            
+        //     $("input[name='tipo_persona_solicitanteCitado']").trigger("change");
+        //     $("#fecha_ingresoCitado").val(dateFormat(arraySolicitados[key].dato_laboral.fecha_ingreso,4));
+        //     $("#fecha_salidaCitado").val(dateFormat(arraySolicitados[key].dato_laboral.fecha_salida,4));
+        //     $("#jornada_idCitado").val(arraySolicitados[key].dato_laboral.jornada_id);
+        //     $("#horas_semanalesCitado").val(arraySolicitados[key].dato_laboral.horas_semanales);
+        // }else{
+        //     $(".requiredLaboralCitado").removeAttr('required');
+        // }
         arrayDomiciliosSolicitado = arraySolicitados[key].domicilios;
         cargarEditarDomicilioSolicitado(0);
         formarTablaDomiciliosSolicitado();
@@ -2371,6 +2568,16 @@
             //funcion para obtener informacion de la excepcion
             var excepcion = getExcepcion();
             //Se llama api para guardar solicitud
+            if($("#virtual").is(":checked")){
+                if(arraySolicitantes.length != arrayIdentificaciones.length  ){
+                    swal({
+                        title: 'Error',
+                        text: 'Es necesario agregar la identificación de todos los solicitantes',
+                        icon: 'error'
+                    });
+                    return false;
+                }
+            }
             if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 && arrayObjetoSolicitudes.length > 0 ){
 
                 var upd = "";
@@ -2473,6 +2680,8 @@
             solicitud.fecha_conflicto = dateFormat($("#fechaConflicto").val());
             solicitud.tipo_solicitud_id = $("#tipo_solicitud_id").val();
             solicitud.giro_comercial_id = $("#giro_comercial_hidden").val();
+            solicitud.virtual = $("#virtual").is(":checked");
+
             if($("input[name='recibo_oficial']").val() == 1){
                 recibo_oficial = true;
             }else{
@@ -2663,7 +2872,30 @@
         date2.setDate(date2.getDate()+1);
         $('#fecha_salida').datepicker("option", "minDate", date2);
     });
+    // $('#fecha_ingresoCitado').datepicker({
+    //     format: "dd/mm/yyyy",
+    //     changeMonth: true,
+    //     changeYear: true,
+    //     maxDate:0,
+    //     yearRange: "c-80:",
+    //     language: 'es',
+    //     autoclose: true,
+    // });
+    // var a = $('#fecha_ingresoCitado').datepicker("getDate");
+    // $('#fecha_salidaCitado').datepicker({
+    //     format: "dd/mm/yyyy",
+    //     language: "es",
+    //     yearRange: "c-80:",
+    //     changeMonth: true,
+    //     changeYear: true,
+    //     autoclose: true
+    // });
 
+    // $('#fecha_ingresoCitado').datepicker().on('change', function (ev) {
+    //     var date2 = $('#fecha_ingresoCitado').datepicker('getDate');
+    //     date2.setDate(date2.getDate()+1);
+    //     $('#fecha_salidaCitado').datepicker("option", "minDate", date2);
+    // });
 
     $(".date").datepicker({useCurrent: false,format:'dd/mm/yyyy'});
     $(".dateTime").datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm:ss'});
@@ -2703,6 +2935,36 @@
             }
         });
     }
+    function getAtiendeVirtual(){
+        if(($("#tipo_solicitud_id").val() == 3 || $("#tipo_solicitud_id").val() == 2)){
+            if(arraySolicitantes.length == 1){
+                $("#estado_centro_id").val(arraySolicitantes[0].domicilios[0].estado_id);
+            }
+        }else{
+            if(arraySolicitados.length == 1){
+                $("#estado_centro_id").val(arraySolicitados[0].domicilios[0].estado_id);
+            }
+        }
+        $.ajax({
+            url:"/centro/getAtiendeVirtual/"+$("#estado_centro_id").val(),
+            type:"GET",
+            dataType:"json",
+            async:true,
+            success:function(data){
+                try{
+                    if(data.atiende_virtual){
+                        $(".atiendeVirtual").show();
+                        $("#atiende_virtual").val(true);
+                    }else{
+                        $(".atiendeVirtual").hide();
+                        $("#atiende_virtual").val(false);
+                    }
+                }catch(error){
+                    console.log(error);
+                }
+            }
+        });
+    }
 
     function validarPalabras(e){
         var numeroPalabras = countPalabras(e);
@@ -2723,12 +2985,21 @@
                 break;
             case 2:
                 if(arrayContactoSolicitantes.length > 0){
-                    var tieneCorreo = arrayContactoSolicitantes.find(x=>x.tipo_contacto_id == 3);
-                    if(tieneCorreo != undefined){
-                        $('#divMapaSolicitante').show();
-                        $('#continuar2').hide();
+                    var tieneTelefono = arrayContactoSolicitantes.find(x=>x.tipo_contacto_id < 3);
+                    if(tieneTelefono){
+                        var tieneCorreo = arrayContactoSolicitantes.find(x=>x.tipo_contacto_id == 3);
+                        if(tieneCorreo != undefined){
+                            $('#divMapaSolicitante').show();
+                            $('#continuar2').hide();
+                        }else{
+                            $("#modal_valida_correo").modal("show");
+                        }
                     }else{
-                        $("#modal_valida_correo").modal("show");
+                        swal({
+                        title: 'Error',
+                        text: 'Es necesario capturar al menos un telefono para continuar',
+                        icon: 'error',
+                    });
                     }
                 }else{
                     swal({
@@ -2745,11 +3016,26 @@
                         $('#divBotonesSolicitante').show();
                         $(".requiredLaboral").attr('required',true);
                         $('#continuar3').hide();
+                    //     $('#divDatoLaboralCitado').hide();
+                    //     $('#divBotonesCitado').hide();
+                    //     $(".requiredLaboralCitado").removeAttr('required',true);
+                    // }else if($("#tipo_solicitud_id").val() == 2){
+                    //     $("#divDatoLaboralSolicitante").removeAttr('data-parsley-validate');
+                    //     $(".requiredLaboral").removeAttr('required');
+                    //     $('#divBotonesSolicitante').show();
+                    //     $('#continuarCitado3').show();
+                    //     $('#continuar3').hide();
+                    //     $('#divDatoLaboralCitado').show();
+                    //     $('#divBotonesCitado').show();
+                    //     $(".requiredLaboralCitado").attr('required',true);
                     }else{
                         $("#divDatoLaboralSolicitante").removeAttr('data-parsley-validate');
                         $(".requiredLaboral").removeAttr('required');
                         $('#divBotonesSolicitante').show();
                         $('#continuar3').hide();
+                        // $('#divDatoLaboralCitado').hide();
+                        // $('#divBotonesCitado').hide();
+                        // $(".requiredLaboralCitado").removeAttr('required',true);
                     }
                 }
             break;
@@ -2768,10 +3054,16 @@
                 break;
             case 2:
                 $('#divMapaSolicitado').show();
-                // $('#continuarSolicitado2').hide();
-                 $('#divBotonesSolicitado').show();
+                // if($("#tipo_solicitud_id").val() == "2"){
+                //     $('#continuarCitado3').show();
+                // }else{
+                    $('#divBotonesSolicitado').show();
+                // }
             break;
             case 3:
+                // if($("#tipo_solicitud_id").val() == "2"){
+                //     $('#divDatoLaboralCitado').show();
+                // }
                 if($('#divMapaSolicitado').parsley().validate()){
                     $('#divBotonesSolicitado').show();
                     $('#continuarSolicitado3').hide();
@@ -2910,9 +3202,99 @@
             $("#modal-aviso-privacidad").modal('hide');
         }
     }
+    function aceptarVitual(){
+        if($('#radioVirtual1').is(":checked")){
+            
+        }else if($('#radioVirtual2').is(":checked")){
+            $("#virtual").click();
+        }
+            $("#modal-virtual").modal('hide');
+    }
+    $("#virtual").change(function(e){
+        if($(this).is(":checked")){
+            $("#modal-virtual").modal('show');
+        }
+        formarTablaSolicitante();
+    });
+    function loadFileSolicitante(key,file){
+        var timestamp = Date.now()
+        var formData = new FormData(); // Currently empty
+        formData.append(timestamp, file);
+        formData.append('_token', "{{ csrf_token() }}");
+        arraySolicitantes[key].identificacion = timestamp;
+        $.ajax({
+            xhr: function() {
+            var xhr = new window.XMLHttpRequest();
+            var progreso = 0;
+                // Download progress
+                xhr.addEventListener("progress", function(evt){
+                if (evt.lengthComputable) {
+                    var percentComplete = evt.loaded / evt.total;
+                    // Do something with download progress
+                    console.log(percentComplete);
+                    $('#progress-bar').show();
+                    var percent = parseInt(percentComplete * 100)
+                    $("#progressbar-ajax-value").text(percent+"%");;
+                    $('#progressbar-ajax').css({
+                        width: percent + '%'
+                    });
+                    if (percentComplete === 1) {
+                        $('#progress-bar').hide();
+                        $('#progressbar-ajax').css({
+                            width: '0%'
+                        });
+                    }
+                }
+            }, false);
+            // Upload progress
+            xhr.upload.addEventListener("progress", function(evt){
+                if (evt.lengthComputable) {
+                    var percentComplete = evt.loaded / evt.total;
+                    //Do something with upload progress
+                    console.log(percentComplete);
+                    $('#progress-bar').show();
+                    var percent = parseInt(percentComplete * 100)
+                    $("#progressbar-ajax-value").text(percent+"%");;
+                    $('#progressbar-ajax').css({
+                        width: percent + '%'
+                    });
+                    if (percentComplete === 1) {
+                        $('#progress-bar').hide();
+                        $('#progressbar-ajax').css({
+                            width: '0%'
+                        });
+                    }
+                }
+            }, false);
+            return xhr;
+        },
+            url:"/solicitud/identificacion",
+            type:"POST",
+            dataType:"json",
+            processData: false,
+            contentType: false,
+            data:formData,
+            success:function(data){
+                try{
+                    console.log(data.data.tmp_file);
+                    arraySolicitantes[key].tmp_file = data.data.tmp_file;
+                }catch(error){
+                    console.log(error);
+                }
+            },error:function(data){
+                // console.log(data);
+                try{
+                    swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
+                }catch(error){
+                    console.log(error);
+                }
+            },
+            error: function(){
+                swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayo a 10M ',icon: 'warning'});
+            }
+        });
+    }
+
 </script>
-
-
 <script src="/assets/plugins/highlight.js/highlight.min.js"></script>
-
 @endpush

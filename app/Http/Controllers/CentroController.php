@@ -482,4 +482,8 @@ class CentroController extends Controller
         $conciliadoresResponse = substr($conciliadoresResponse,0,strlen($conciliadoresResponse)-1);
         return $conciliadoresResponse;
     }
+    public function getAtiendeVirtual($estado_id){
+        $centro = Centro::find($estado_id);
+        return $centro;
+    }
 }
