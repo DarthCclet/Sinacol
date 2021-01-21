@@ -136,7 +136,7 @@
                     data:{
                         fechaInicio:fechaInicio,
                         fechaFin:fechaFin,
-                        centro_id:1,
+                        virtual:$("#virtual").val(),
                         _token:"{{ csrf_token() }}"
                     },
                     dataType:"json",

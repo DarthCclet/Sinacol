@@ -230,6 +230,7 @@
 <input type="hidden" id="fecha_audiencia"/>
 <input type="hidden" id="hora_inicio_audiencia"/>
 <input type="hidden" id="hora_fin_audiencia"/>
+<input type="hidden" id="virtual"/>
 @endsection
 
 <!-- Fin Modal de disponibilidad-->
@@ -376,6 +377,7 @@
                                                 table +='</tr>';
                                             }
                                         });
+                                    $("#virtual").val($audiencia->virtual);
                                     $("#tableAudienciaSuccess").show();
                                     $("#tableAudienciaSuccess tbody").html(table);
                                     $("#modalRatificacion").modal("hide");

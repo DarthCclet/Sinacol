@@ -1331,6 +1331,7 @@
     <input type="hidden" id="parte_id">
     <input type="hidden" id="parte_representada_id">
     <input type="hidden" id="solicitud_id" value="{{$solicitud_id}}"/>
+    <input type="hidden" id="virtual" value="{{$virtual}}"/>
 @endsection
 @push('scripts')
     <script>

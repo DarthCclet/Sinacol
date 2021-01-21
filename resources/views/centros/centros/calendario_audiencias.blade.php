@@ -240,6 +240,7 @@
 <input type="hidden" id="audiencia_id"/>
 <input type="hidden" id="multiple"/>
 <input type="hidden" id="tipoAsignacionCambiar"/>
+<input type="hidden" id="virtual"/>
 @endsection
 
 <!-- Fin Modal de disponibilidad-->
@@ -389,6 +390,7 @@
                                                 table +='</tr>';
                                             }
                                         });
+                                    $("#virtual").val(data.virtual);
                                     $("#tableAudienciaSuccess").show();
                                     $("#tableAudienciaSuccess tbody").html(table);
                                     $("#modalRatificacion").modal("hide");
