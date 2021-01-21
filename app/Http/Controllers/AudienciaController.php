@@ -352,7 +352,8 @@ class AudienciaController extends Controller {
             }
         }
         $documentos = $doc->sortBy('id');
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id','estatus_solicitud_id'));
+        $virtual = $solicitud->virtual;
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id','estatus_solicitud_id','virtual'));
     }
 
     /**
@@ -421,8 +422,16 @@ class AudienciaController extends Controller {
         $fechaFinSola = date('Y-m-d', strtotime($request->fechaFin));
         $horaFin = date('H:i:s', strtotime($request->fechaFin));
 
-        $conciliadores = Conciliador::where("centro_id", auth()->user()->centro_id)->get();
         $conciliadoresResponse = [];
+        if($request->virtual == "false"){
+            $rol = \App\RolAtencion::where("nombre","Conciliador virtual")->first();
+        }else{
+            $rol = \App\RolAtencion::where("nombre","Conciliador en sala")->first();
+        }
+        $conciliadores = Conciliador::join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")
+                ->where("roles_conciliador.rol_atencion_id",$rol->id)
+                ->where("conciliadores.centro_id",auth()->user()->centro_id)
+                ->get();
         foreach ($conciliadores as $conciliador) {
             $pasa = false;
             if (count($conciliador->disponibilidades) > 0) {
@@ -450,18 +459,7 @@ class AudienciaController extends Controller {
                     if($ConciliadorExiste != null){
                         $pasa =false;
                     }
-                } 
-//                if ($pasa) {
-//                    $conciliadoresAudiencia = array();
-//                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
-//                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
-//                            //Buscamos que la hora inicio no este entre una audiencia
-//                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
-//                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
-//                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-//                        }
-//                    }
-//                }
+                }
             }
             if ($pasa) {
                 $conciliador->persona = $conciliador->persona;
@@ -551,45 +549,53 @@ class AudienciaController extends Controller {
         $fechaFinSola = date('Y-m-d', strtotime($request->fechaFin));
         $horaFin = date('H:i:s', strtotime($request->fechaFin));
         ## Obtenemos las salas -> en el futuro seran filtradas por el centro de la sesión
-        $salas = Sala::where("centro_id", auth()->user()->centro_id)->get();
         $salasResponse = [];
-        ## Recorremos las salas para la audiencia
-        foreach ($salas as $sala) {
-            $pasa = false;
-            ## buscamos si tiene disponibilidad y si esta en el día que se solicita
-            if (count($sala->disponibilidades) > 0) {
-                foreach ($sala->disponibilidades as $disp) {
-                    if ($disp["dia"] == $diaSemana) {
-                        $pasa = true;
-                    }
-                }
-            } else {
+        if($request->virtual == "false"){
+            $salas = Sala::where("centro_id", auth()->user()->centro_id)->get();
+                ## Recorremos las salas para la audiencia
+            foreach ($salas as $sala) {
                 $pasa = false;
-            }
-            if ($pasa) {
-                ## Validamos que no haya incidencias
-                foreach ($sala->incidencias as $inci) {
-                    if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
-                        $pasa = false;
+                ## buscamos si tiene disponibilidad y si esta en el día que se solicita
+                if (count($sala->disponibilidades) > 0) {
+                    foreach ($sala->disponibilidades as $disp) {
+                        if ($disp["dia"] == $diaSemana) {
+                            $pasa = true;
+                        }
                     }
+                } else {
+                    $pasa = false;
                 }
                 if ($pasa) {
-                    $salaExiste = SalaAudiencia::join('audiencias',"audiencia_id","audiencias.id")
-                            ->where("salas_audiencias.sala_id",$sala->id)
-                            ->where("audiencias.fecha_audiencia",$fechaInicioSola)
-                            ->where("hora_inicio",$horaInicio)
-                            ->where("hora_fin",$horaFin)
-                            ->first();
-                    if($salaExiste != null){
-                        $pasa =false;
+                    ## Validamos que no haya incidencias
+                    foreach ($sala->incidencias as $inci) {
+                        if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
+                            $pasa = false;
+                        }
+                    }
+                    if ($pasa) {
+                        $salaExiste = SalaAudiencia::join('audiencias',"audiencia_id","audiencias.id")
+                                ->where("salas_audiencias.sala_id",$sala->id)
+                                ->where("audiencias.fecha_audiencia",$fechaInicioSola)
+                                ->where("hora_inicio",$horaInicio)
+                                ->where("hora_fin",$horaFin)
+                                ->first();
+                        if($salaExiste != null){
+                            $pasa =false;
+                        }
                     }
                 }
-            }
 
-            if ($pasa) {
-                $salasResponse[] = $sala;
+                if ($pasa) {
+                    $salasResponse[] = $sala;
+                }
             }
+        }else{
+            $sala_virtual = Sala::where("centro_id",auth()->user()->centro_id)->where("virtual",true)->first();
+            $salasResponse[]=$sala_virtual;
         }
+        
+        
+        
         return $salasResponse;
     }
     /**
@@ -1993,11 +1999,11 @@ class AudienciaController extends Controller {
                         $diasHabilesMax = 18;
                         // validamos si se debe asignar solo una sala o dos y buscamos la disponibilidad
                         if($audiencia->multiple){
-                            $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$audiencia->conciliadoresAudiencias);
+                            $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$audiencia->conciliadoresAudiencias,$audiencia->expediente->solicitud->virtual);
                             $multiple = true;
                         }else{
                             $conciliador = $audiencia->conciliadoresAudiencias()->first()->conciliador;
-                            $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$conciliador);
+                            $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$conciliador,$audiencia->expediente->solicitud->virtual);
                             $multiple = false;
                         }
                         //Obtenemos el contador
@@ -2112,11 +2118,11 @@ class AudienciaController extends Controller {
             $audiencia = Audiencia::find($this->request->audiencia_id);
             // validamos si se debe asignar solo una sala o dos y buscamos la disponibilidad
             if($audiencia->multiple){
-                $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$audiencia->conciliadoresAudiencias);
+                $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$audiencia->conciliadoresAudiencias,$audiencia->expediente->solicitud->virtual);
                 $multiple = true;
             }else{
                 $conciliador = $audiencia->conciliadoresAudiencias()->first()->conciliador;
-                $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$conciliador);
+                $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$conciliador,$audiencia->expediente->solicitud->virtual);
                 $multiple = false;
             }
             //Obtenemos el contador
@@ -2405,6 +2411,7 @@ class AudienciaController extends Controller {
         foreach ($audiencia->audienciaParte as $partes) {
             $partes->parte->tipoParte;
         }
+        $audiencia->virtual = $audiencia->expediente->solicitud->virtual;
         return $audiencia;
     }
     

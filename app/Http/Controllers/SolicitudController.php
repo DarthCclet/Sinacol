@@ -1362,10 +1362,10 @@ class SolicitudController extends Controller {
                     $centroResponsable = Centro::where("abreviatura","OCCFCRL")->first();
                 }
                 if($request->separados == "true"){
-                    $datos_audiencia = FechaAudienciaService::obtenerFechaAudienciaDoble(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax);
+                    $datos_audiencia = FechaAudienciaService::obtenerFechaAudienciaDoble(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax,$solicitud->virtual);
                     $multiple = true;
                 }else{
-                    $datos_audiencia = FechaAudienciaService::obtenerFechaAudiencia(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax);
+                    $datos_audiencia = FechaAudienciaService::obtenerFechaAudiencia(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax,$solicitud->virtual);
                     $multiple = false;
                 }
 //                Solicitamos la fecha limite de notificacion solo cuando el tipo de notificación es por notificador sin cita
