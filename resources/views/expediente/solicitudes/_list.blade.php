@@ -219,6 +219,7 @@
                             <tr>
                                 <td>Solicitante</td>
                                 <td>Documento</td>
+                                <td>Revisar</td>
                             </tr>
                         </thead>
                         <tbody id="tbodyRatificacion">
@@ -1552,6 +1553,7 @@
                                 html += "<tr>";
                                 html += "<td>"+value.parte+"</td>";
                                 html += "<td>"+ value.clasificacion_archivo.nombre+"</td>";
+                                html += "<td><a class='btn btn-link' href='/api/documentos/getFile/"+ value.uuid+"' target='_blank'>Revisar</a></td>";
                                 html += "</tr>";
                                 ratifican = true;
                             // }

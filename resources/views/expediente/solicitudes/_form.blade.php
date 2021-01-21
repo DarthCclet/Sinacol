@@ -959,7 +959,6 @@
 <!-- Fin Modal de Domicilio-->
 
 <!-- inicio Modal Domicilio-->
-
 <div class="modal" id="modal-acuse" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog ">
         <div class="modal-content">
@@ -991,6 +990,43 @@
                 </div>
             </div>
             <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal de Domicilio-->
+
+<!-- inicio Modal Identificacion virtual-->
+<div class="modal" id="modal-identificacion-virtual" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-body" >
+                <div class="col-md-12">
+                    <div style="width: 100%; text-align:center;">
+                        <h1>Identificaci&oacute;n</h1>
+                    </div>
+                    <div style="width: 100%; text-align:center;">
+                        <div>
+                            <select class="form-control catSelect" id="clasificacion_archivo_id" name="clasificacion_archivo_id">
+                                <option value="">Seleccione una opci&oacute;n</option>
+                                @if(isset($clasificacion_archivo))
+                                    @foreach($clasificacion_archivo as $clasificacion)
+                                        <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            {!! $errors->first('clasificacion_archivo_id', '<span class=text-danger>:message</span>') !!}
+                            <p class="help-block needed">Tipo de identificaci&oacute;n</p>
+                        </div>
+                        <span class='btn btn-primary fileinput-button' style="display: none;" id="boton_file_solicitante">Seleccionar identificaci&oacute;n<input type='file' id='fileIdentificacion' id_identificacion='' class='fileIdentificacion' name='files'></span>
+                        <br>
+                        <span style='margin-top: 1%;' id='labelIdentifAlone'></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary btn-sm" onclick="loadFileSolicitante()" ><i class="fa fa-times"></i> Aceptar</a>
+                <a class="btn btn-white btn-sm" class="close" data-dismiss="modal" aria-hidden="true" ><i class="fa fa-times"></i> Cancelar</a>
             </div>
         </div>
     </div>
@@ -1332,14 +1368,6 @@
                         solicitante.dato_laboral = dato_laboral;
                     }
                     // Identificacion de solicitante
-
-                    //var formData = new FormData(); // Currently empty
-                    // if($("#fileIdentificacion").val() != ""){
-                    //     //formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
-                    //     solicitante.identificacion = $("#fileIdentificacion")[0].files[0];
-                    // }
-                    //Identificacion
-
                     //domicilio del solicitante
 
                     var domicilio = {};
@@ -2206,7 +2234,7 @@
                     html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a>";
                 }
                 if($("#virtual").is(":checked")){
-                    html += "<span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i><span></span><input type='file' id='fileIdentificacion"+key+"' id_identificacion='"+key+"' class='fileIdentificacion' name='files'></span><span style='margin-top: 1%;' id='labelIdentif"+key+"'></span>";
+                    html += "<span class='btn btn-primary fileinput-button btn-xs' onclick='loadModalFile("+key+")'><i class='fa fa-fw fa-id-card'></i><span></span></span><span style='margin-top: 1%;' id='labelIdentif"+key+"'></span>";
                 }
                 html += "</td>";
                 html += "</tr>";
@@ -2214,11 +2242,6 @@
         });
         $("#tbodySolicitante").html(html);
         $("#tbodySolicitanteRevision").html(html);
-        $(".fileIdentificacion").change(function(e){
-            var id = $(this).attr('id_identificacion');
-            $("#labelIdentif"+id).html(" Ok <i class='fa fa-check' style='color:green'></i> ");
-            loadFileSolicitante(id,e.target.files[0]);
-        });
     }
 
     /**
@@ -2569,13 +2592,19 @@
             var excepcion = getExcepcion();
             //Se llama api para guardar solicitud
             if($("#virtual").is(":checked")){
-                if(arraySolicitantes.length != arrayIdentificaciones.length  ){
-                    swal({
-                        title: 'Error',
-                        text: 'Es necesario agregar la identificación de todos los solicitantes',
-                        icon: 'error'
-                    });
-                    return false;
+                var valido = true;
+                $.each(arraySolicitantes, function (key, value) {
+                    if(value.tmp_file == undefined){
+                        swal({
+                            title: 'Error',
+                            text: 'Es necesario agregar la identificación de todos los solicitantes',
+                            icon: 'error'
+                        });
+                        valido = false;
+                    }
+                });
+                if(!valido){
+                    return valido;
                 }
             }
             if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 && arrayObjetoSolicitudes.length > 0 ){
@@ -3216,12 +3245,13 @@
         }
         formarTablaSolicitante();
     });
-    function loadFileSolicitante(key,file){
-        var timestamp = Date.now()
+    function loadFileSolicitante(){
         var formData = new FormData(); // Currently empty
-        formData.append(timestamp, file);
+        var key = $("#fileIdentificacion").attr('id_identificacion');
+        var file = $("#fileIdentificacion")[0].files[0];
+        formData.append("file", file);
         formData.append('_token', "{{ csrf_token() }}");
-        arraySolicitantes[key].identificacion = timestamp;
+        arraySolicitantes[key].clasificacion_archivo_id = $("#clasificacion_archivo_id").val();
         $.ajax({
             xhr: function() {
             var xhr = new window.XMLHttpRequest();
@@ -3276,8 +3306,10 @@
             data:formData,
             success:function(data){
                 try{
-                    console.log(data.data.tmp_file);
-                    arraySolicitantes[key].tmp_file = data.data.tmp_file;
+                    console.log(data.data);
+                    arraySolicitantes[key].tmp_file = data.data;
+                    $("#modal-identificacion-virtual").modal("hide");
+                    swal({title: 'Correcto',text: ' Identificación guardada correctametne ',icon: 'success'});
                 }catch(error){
                     console.log(error);
                 }
@@ -3290,10 +3322,30 @@
                 }
             },
             error: function(){
-                swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayo a 10M ',icon: 'warning'});
+                swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayor a 10M ',icon: 'warning'});
             }
         });
     }
+    function loadModalFile(solicitante_id){
+        $("#modal-identificacion-virtual").modal('show');
+        $("#fileIdentificacion").attr('id_identificacion',solicitante_id);
+    }
+    $(".fileIdentificacion").change(function(e){
+        var id = $(this).attr('id_identificacion');
+        if(id != ""){
+            $("#labelIdentif"+id).html(" Ok <i class='fa fa-check' style='color:green'></i> ");
+            $("#labelIdentifAlone").html("<b>Archivo: </b>"+e.target.files[0].name);
+        }else{
+            swal({title: 'Error',text: ' No selecciono un solicitante ',icon: 'warning'});
+        }
+    });
+    $("#clasificacion_archivo_id").change(function(e){
+        if($(this).val() != ""){
+            $("#boton_file_solicitante").show();
+        }else{
+            $("#boton_file_solicitante").hide();
+        }
+    });
 
 </script>
 <script src="/assets/plugins/highlight.js/highlight.min.js"></script>
