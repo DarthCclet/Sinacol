@@ -418,6 +418,7 @@
                                             <table class="table table-bordered" >
                                                 <thead>
                                                     <tr>
+                                                        <th>Solicitante</th>
                                                         <th>Fecha de pago</th>
                                                         <th>Monto</th>
                                                         <th>Acciones</th>
@@ -1284,7 +1285,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Pagos diferidos</h4>
+                <h4 class="modal-title">Fechas para Pagos diferidos</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -1294,7 +1295,25 @@
                 </div><br> --}}
                 <div class="col-md-12 row">
                     <div class="col-md-12" id="divPagosDiferidos" >
-                        <h5>Fechas para pagos diferidos</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="pago_solicitante_id" class="col-sm-6 control-label labelResolucion">Solicitante</label>
+                                    <div class="col-sm-12">
+                                        <select id="pago_solicitante_id" class="form-control select-element">
+                                            <option value="">-- Selecciona un solicitante --</option>
+                                            @foreach($audiencia->solicitantes as $parte)
+                                                @if($parte->parte->tipo_persona_id == 1)
+                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
+                                                @else
+                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label for="fecha_pago" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
@@ -1319,6 +1338,7 @@
                             <table class="table table-bordered" >
                                 <thead>
                                     <tr>
+                                        <th>Solicitante</th>
                                         <th>Fecha</th>
                                         <th>Monto</th>
                                         <th>Acciones</th>
@@ -3504,16 +3524,16 @@
             var fpago = new Date(fechaP[1]+'/'+fechaP[0]+'/'+fechaP[2]);
 
             if(fpago <= _45dias){
-                let idSolicitante =$("#idSolicitante").val();
+                let idSolicitante =$("#pago_solicitante_id").val();
                 if( $("#fecha_pago").val() != "" && $("#monto_pago").val() != ""){
                     let existe = false;
                     $.each(listaConfigFechas,function(index,fecha){
-                        if(fecha.fecha_pago == $("#fecha_pago").val() ){
+                        if(fecha.fecha_pago == $("#fecha_pago").val() && fecha.idSolicitante ==idSolicitante ){
                             existe= true;
                         }
                     });
                     if(existe){
-                        swal({title: 'Error',text: 'La fecha de pago ya se encuentra registrada',icon: 'warning'});
+                        swal({title: 'Error',text: 'La fecha de pago para esta parte ya se encuentra registrada',icon: 'warning'});
                     }else{
                         if(listaConfigFechas == undefined ){
                             listaConfigFechas = [];
@@ -3526,7 +3546,7 @@
                             });
                         }else{
                             listaConfigFechas.push({
-                                //idSolicitante:$("#idSolicitante").val(),
+                                idSolicitante:$("#pago_solicitante_id").val(),
                                 fecha_pago:$("#fecha_pago").val(),
                                 monto_pago:$("#monto_pago").val(),
                             });
@@ -3554,7 +3574,9 @@
         $.each(listaConfigFechas,function(index,fechaPago){
 
             idSolicitante = fechaPago.idSolicitante;
+            $("#pago_solicitante_id").val(idSolicitante);
             table +='<tr>';
+                table +='<td>'+$("#pago_solicitante_id option:selected").text(),+'</td>';
                 table +='<td>'+fechaPago.fecha_pago+'</td>';
                 table +='<td>'+(fechaPago.monto_pago)+'</td>';
                 table +='<td>';

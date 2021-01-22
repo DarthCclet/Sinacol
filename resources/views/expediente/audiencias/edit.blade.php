@@ -357,6 +357,7 @@
                                                             <table class="table table-bordered" >
                                                                 <thead>
                                                                     <tr>
+                                                                        <th>Solicitante</th>
                                                                         <th>Fecha de pago</th>
                                                                         <th>Monto</th>
                                                                         <th>Estatus</th>
@@ -368,6 +369,7 @@
                                                                     
                                                                         @foreach($audiencia->pagosDiferidos as $fechaPago)
                                                                             <tr>
+                                                                            <td>{{ $fechaPago->solicitante->nombre}} {{$fechaPago->solicitante->primer_apellido}} {{$fechaPago->solicitante->segundo_apellido}}</td>
                                                                                 <td>{{ Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$fechaPago->fecha_pago)->format('d/m/Y')}}</td>
                                                                                 <td>{{$fechaPago->monto}}</td>
                                                                                 <td>
