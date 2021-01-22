@@ -366,7 +366,7 @@ class SolicitudController extends Controller {
             $solicitud['folio'] = $folio->contador;
             $solicitud['anio'] = $folio->anio;
             $solicitud['ratificada'] = false;
-            if($solicitud['virtual']){
+            if($solicitud['virtual'] == true){
                 $canal = CanalFolio::inRandomOrder()->first();
                 $solicitud['canal'] = $canal->folio;
                 $canal->delete();
