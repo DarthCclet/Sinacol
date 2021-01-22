@@ -252,12 +252,14 @@
                                         <div class="row">
                                             <div class="radio radio-css radio-inline">
                                                 <input checked="checked" name="tipo_persona_solicitante" type="radio" id="tipo_persona_fisica_solicitante" value="1"/>
-                                                <label for="tipo_persona_fisica_solicitante">Física</label>
+                                                <label for="tipo_persona_fisica_solicitante">F&iacute;sica</label>
                                             </div>
+                                            @if($tipo_solicitud_id != 1)
                                             <div class="radio radio-css radio-inline">
                                                 <input name="tipo_persona_solicitante" type="radio" id="tipo_persona_moral_solicitante" value="2"/>
                                                 <label for="tipo_persona_moral_solicitante">Moral</label>
                                             </div>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="col-md-8 personaFisicaSolicitante">
@@ -344,7 +346,7 @@
                                         <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
                                             {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                             {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                            <p class="help-block needed">Lengua indígena</p>
+                                            <p class="help-block needed">Lengua ind&iacute;gena</p>
                                         </div>
                                     </div>
                                     <div  class="col-md-12 pasoSolicitante" id="continuar1">
@@ -429,7 +431,7 @@
                                         <div class="col-md-6" >
                                             {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                             {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                                            <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoge del catálogo. Si no, d&eacute;jalo vac&iacute;o.</p>
+                                            <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario m&iacute;nimo distinto al general, escoge del catálogo. Si no, d&eacute;jalo vac&iacute;o.</p>
                                         </div>
                                         {{-- <div class="col-md-4">
                                             <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
@@ -518,7 +520,7 @@
                                 <div id="divAyudaCitado" style="margin-top: 2%; margin-bottom: 2%;">
                                     <div>
                                         <p>
-                                            Debes citar a tu patrón, la persona física (un individuo) o moral (una empresa) responsable de la relación de trabajo contigo. Para ayudarte a determinar a quién deberías citar, te hacemos las siguientes preguntas:<br>
+                                            Debes citar a tu patrón, la persona f&iacute;sica (un individuo) o moral (una empresa) responsable de la relación de trabajo contigo. Para ayudarte a determinar a quién deber&iacute;as citar, te hacemos las siguientes preguntas:<br>
                                             ¿Tienes un recibo o recibos de nómina oficiales (que contenga tu número de seguridad social)?
                                         </p>
                                     </div>
@@ -594,12 +596,14 @@
                                         <div class="row">
                                             <div class="radio radio-css radio-inline">
                                                 <input checked="checked" name="tipo_persona_solicitado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
-                                                <label for="tipo_persona_fisica_solicitado">Física</label>
+                                                <label for="tipo_persona_fisica_solicitado">F&iacute;sica</label>
                                             </div>
+                                            @if($tipo_solicitud_id != 2)
                                             <div class="radio radio-css radio-inline">
                                                 <input name="tipo_persona_solicitado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
                                                 <label for="tipo_persona_moral_solicitado">Moral</label>
                                             </div>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="col-md-8 personaFisicaSolicitadoNO">
@@ -674,7 +678,7 @@
                                             <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
                                                 {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                                 {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                                <p class="help-block needed">Lengua indígena</p>
+                                                <p class="help-block needed">Lengua ind&iacute;gena</p>
                                             </div>
                                         </div>
                                     @endif
@@ -760,7 +764,7 @@
                                         <div class="col-md-6" >
                                             {!! Form::select('ocupacion_idCitado', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_idCitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                             {!! $errors->first('ocupacion_idCitado', '<span class=text-danger>:message</span>') !!}
-                                            <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoge del catálogo. Si no, d&eacute;jalo vac&iacute;o.</p>
+                                            <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario m&iacute;nimo distinto al general, escoge del catálogo. Si no, d&eacute;jalo vac&iacute;o.</p>
                                         </div>
                                     </div>
                                     <div class="col-md-12 row">
@@ -828,11 +832,11 @@
                         <input type="hidden" id="solicitud_id">
                         <input type="hidden" id="ratificada">
                         <input type="hidden" id="tipo_solicitud_id" value="{{$tipo_solicitud_id}}">
-                        <div class="col-md-12 atiendeVirtual text-right row" style="display: none;">
+                        <div class="col-md-12 atiendeVirtual row" style="display: none;">
                             <div class="card col-md-12" style="padding: 2%; border: 1px solid #9d2449;">
                             <h3 for='virtual'>Llevar proceso virtual</h3> 
                             <p>
-                                Conforme al ACUERDO por el que se establece la suspensión de plazos y términos en el Centro Federal de Conciliación y Registro Laboral, se declara la suspensión de plazos y términos en las entidades federativas que se encuentren o que pasen a semáforo epidemiológico color rojo. Con base en lo anterior, si usted escoge la conciliación presencial, podrá guardar su solicitud y recibirá un acuse de la misma. Sin embargo, solamente podrá confirmar su solicitud y obtener el citatorio de su audiencia de conciliación a partir de la fecha en la que cambie a color naranja el semáforo epidemiológico en su entidad federativa.
+                                Conforme al ACUERDO por el que se establece la suspensión de plazos y términos en el Centro Federal de Conciliación y Registro Laboral, se declara la suspensión de plazos y términos en las entidades federativas que se encuentren o que pasen a semáforo epidemiológico color rojo. Con base en lo anterior, si usted elige la conciliación presencial, podrá guardar su solicitud y recibirá un acuse de la misma. Sin embargo, solamente podrá confirmar su solicitud y obtener el citatorio de su audiencia de conciliación a partir de la fecha en la que cambie a color naranja el semáforo epidemiológico en su entidad federativa. En caso de seleccionar la conciliación en l&iacute;nea se seguirá el proceso conforme a los términos establecidos en la Ley.
                             </p>
                             <div style="margin-left: auto;">
                                 <label for="virtual">Aceptar proceso virtual</label>
@@ -941,7 +945,7 @@
 
             <div class="modal-body" >
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h5>Para determinar tu tipo de jornada, debes considerar las primeras 8 horas que laboras en un día.</h5>
+                <h5>Para determinar tu tipo de jornada, debes considerar las primeras 8 horas que laboras en un d&iacute;a.</h5>
                 <p style="font-size:large;">
                     <ol>
                         <li>Si estas 8 horas transcurren entre 6 am y 8 pm, es una jornada "DIURNA".</li>
@@ -1049,10 +1053,10 @@
             <div class="modal-body" >
                 <div class="col-md-12">
                     <p>
-                        La Coordinación General de Conciliación Individual del Centro Federal de Conciliación y Registro Laboral (CFCRL), hace saber que sus datos personales aquí recabados son tratados de forma estrictamente confidencial.
+                        La Coordinación General de Conciliación Individual del Centro Federal de Conciliación y Registro Laboral (CFCRL), hace saber que sus datos personales aqu&iacute; recabados son tratados de forma estrictamente confidencial.
                     </p>
                     <p>
-                        Los datos personales que se recaban podrán ser transferidos con fundamento en el artículo 22; 66 y 70 de la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados.
+                        Los datos personales que se recaban podrán ser transferidos con fundamento en el art&iacute;culo 22; 66 y 70 de la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados.
                     </p>
                     <p>
                         Usted puede manifestar su negativa para el tratamiento de sus datos personales para aquellas finalidades que no sean necesarias, mediante comparecencia en la Unidad de Transparencia o a través de una solicitud por escrito debidamente firmada y enviada a la cuenta de correo electrónico <a href = "mailto: transparencia@centrolaboral.gob.mx">transparencia@centrolaboral.gob.mx </a>
@@ -1104,10 +1108,10 @@
             <div class="modal-body" >
                 <div class="col-md-12">
                     <ul>
-                        <li> El proceso virtual requiere que se suba una identificación oficial para cada solicitante. </li>
-                        <li> El solicitante debe seguir las instrucciones en el acuse de la solicitud, para confirmar la solicitud y recibir el citatorio de su audiencia de conciliación. Podrá entregar el citatorio directamente al citado o solicitar la notificación por un funcionario del CFCRL.  </li>
-                        <li> Posteriormente asistirá a la audiencia de conciliación de manera virtual, para buscar una solución a su conflicto laboral. </li>
-                        <li> Si acepta la conciliación virtual, a continuación deberá subir el documento de identificación oficial de cada solicitante utilizando el ícono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i><span> . </li>
+                        <li>  Si desea continuar con el procedimiento en l&iacute;nea se requiere que cargue una identificaci&oacute;n por cada solicitante al momento de la captura de la solicitud. La identificaci&oacute;n la deberá cargar en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto a su nombre. </li>
+                        <li> Usted deberá seguir las instrucciones detalladas en el acuse para confirmar la solicitud y que se genere la fecha y hora de la audiencia de conciliaci&oacute;n en l&iacute;nea </li>
+                        <li> Al momento de la confirmaci&oacute;n podrá decidir si usted entrega el citatorio directamente a su patr&oacute;n o podrá solicitar que lo entregue un notificador del CFCRL. </li>
+                        <li> Una vez asignada la fecha y hora para la audiencia en l&iacute;nea usted comparecerá de forma remota a través de la liga única que está en su acuse. </li>
                     </ul>
                 </div>
             </div>
@@ -1118,7 +1122,7 @@
                         <div class="col-md-2" ></div>
                         <div class="custom-control custom-radio col-md-5" >
                             <input type="radio" id="radioVirtual1" name="radioVirtual" value="1" class="custom-control-input">
-                            <label class="custom-control-label" for="radioVirtual1">Aceptar conciliación virtual</label>
+                            <label class="custom-control-label" for="radioVirtual1">Aceptar conciliaci&oacute;n virtual</label>
                         </div>
                         <div class="custom-control custom-radio col-md-5">
                             <input type="radio" id="radioVirtual2" name="radioVirtual" value="2" class="custom-control-input">
@@ -1149,7 +1153,7 @@
                         El sistema indica que la actividad principal del patrón es de competencia local, no federal.
                     </p>
                     <p style="font-size:large;">
-                        Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de confirmaci&oacute;n su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
+                        Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de confirmaci&oacute;n su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el env&iacute;o de su solicitud al centro de conciliación competente.
                     </p>
                 </div>
                 <div style="display: none;" id="msjLocal">
@@ -1157,7 +1161,7 @@
                         El sistema indica que la actividad principal del patrón es de competencia federal, no local.
                     </p>
                     <p style="font-size:large;">
-                        Acuda a la Oficina Estatal del Centro Federal de Conciliación y Registro Laboral de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el CFCRL, puede continuar la solicitud en el Centro de Conciliación Local y en el momento de confirmaci&oacute;n su solicitud será revisada por un funcionario del Centro, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al CFCRL.
+                        Acuda a la Oficina Estatal del Centro Federal de Conciliación y Registro Laboral de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el CFCRL, puede continuar la solicitud en el Centro de Conciliación Local y en el momento de confirmaci&oacute;n su solicitud será revisada por un funcionario del Centro, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el env&iacute;o de su solicitud al CFCRL.
                     </p>
                 </div>
             </div>
@@ -3236,11 +3240,13 @@
     }
     function aceptarVitual(){
         if($('#radioVirtual1').is(":checked")){
-            
+            $("#modal-virtual").modal('hide');
         }else if($('#radioVirtual2').is(":checked")){
             $("#virtual").click();
-        }
             $("#modal-virtual").modal('hide');
+        }else{
+            swal({title: 'Atención',text: 'Es necesario seleccionar alguna de las opciones',icon: 'warning'});
+        }
     }
     $("#virtual").change(function(e){
         if($(this).is(":checked")){

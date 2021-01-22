@@ -1426,7 +1426,7 @@ class SolicitudController extends Controller {
                         $tipo_notificacion_id = $this->request->tipo_notificacion_id;
                     }
                     AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
-                    if($parte->tipo_parte_id == 2){
+                    if($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]){
                         event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
                     }
                 }
