@@ -836,7 +836,13 @@
                             <div class="card col-md-12" style="padding: 2%; border: 1px solid #9d2449;">
                                 <h3 for='virtual'>Llevar proceso virtual</h3>
                                 <p>
-                                    Conforme al ACUERDO por el que se establece la suspensión de plazos y términos en el Centro Federal de Conciliación y Registro Laboral, se declara la suspensión de plazos y términos en las entidades federativas que se encuentren o que pasen a color rojo en el semáforo epidemiológico. Con base en lo anterior, si usted elige la conciliación presencial, podrá guardar su solicitud y recibirá un acuse de la misma. Sin embargo, solamente podrá confirmar su solicitud y obtener el citatorio de su audiencia de conciliación a partir de la fecha en la que cambie a color naranja el semáforo epidemiológico en su entidad federativa. En caso de seleccionar la conciliación en l&iacute;nea se seguirá el proceso conforme a los términos establecidos en la Ley.
+                                    Conforme al Acuerdo por el que se establece la suspensión de plazos y términos en el Centro Federal de Conciliación y Registro Laboral publicado el 21 de diciembre de 2020 en el Diario Oficial de la Federación, se declara la suspensión de plazos y términos en las entidades federativas que se encuentren o que pasen a color rojo en el semáforo epidemiológico. 
+                                </p>
+                                <p>
+                                    Con base en lo anterior, si usted elige llevar el procedimiento de conciliación de forma presencial podrá guardar su solicitud y recibirá el correspondiente acuse, pero no podrá continuar con el procedimiento de conciliación hasta que la entidad federativa pase a color naranja en el semáforo epidemiológico. 
+                                </p>
+                                <p>
+                                    Si usted selecciona la conciliación en línea podrá continuar con el procedimiento siguiendo los mismos pasos que señala la Ley Federal del Trabajo.
                                 </p>
                                 <div style="margin-left: auto;">
                                     <label for="virtual">Aceptar proceso virtual</label>
