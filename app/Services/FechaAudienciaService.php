@@ -103,7 +103,7 @@ class FechaAudienciaService{
                     "conciliador_id" => $conciliador_id,
                     "encontro_audiencia" => true);
             }else{
-                return self::obtenerFechaAudiencia($diaHabilCentro["dia"], $centro, 0,$diaHabilCentro["max"]);
+                return self::obtenerFechaAudiencia($diaHabilCentro["dia"], $centro, 0,$diaHabilCentro["max"],$virtual);
             }
         }else{
             return array(

@@ -829,13 +829,13 @@
                         <input type="hidden" id="ratificada">
                         <input type="hidden" id="tipo_solicitud_id" value="{{$tipo_solicitud_id}}">
                         <div class="col-md-12 atiendeVirtual text-right row" style="display: none;">
-                            <div class="col-md-8"> </div>
-                            <div class="card col-md-4" style="padding: 2%; border: 1px solid #9d2449;">
+                            <div class="card col-md-12" style="padding: 2%; border: 1px solid #9d2449;">
                             <h3 for='virtual'>Llevar proceso virtual</h3> 
                             <p>
                                 Conforme al ACUERDO por el que se establece la suspensión de plazos y términos en el Centro Federal de Conciliación y Registro Laboral, se declara la suspensión de plazos y términos en las entidades federativas que se encuentren o que pasen a semáforo epidemiológico color rojo. Con base en lo anterior, si usted escoge la conciliación presencial, podrá guardar su solicitud y recibirá un acuse de la misma. Sin embargo, solamente podrá confirmar su solicitud y obtener el citatorio de su audiencia de conciliación a partir de la fecha en la que cambie a color naranja el semáforo epidemiológico en su entidad federativa.
                             </p>
                             <div style="margin-left: auto;">
+                                <label for="virtual">Aceptar proceso virtual</label>
                                 <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="virtual" name='virtual'/>
                             </div>
                         </div>
