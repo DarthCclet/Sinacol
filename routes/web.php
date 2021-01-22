@@ -213,6 +213,12 @@ Route::middleware(['auth'])->group(function () {
      * descarga de calendario
      */
     Route::post('descargaCalendario','CentroController@descargarCalendario')->name("descargaCalendario");
+    
+    /*
+     * Centro
+     */
+    Route::post('centros/contactos','CentroController@ObtenerContactos');
+    Route::post('centros/agregar_contacto','CentroController@AgregarContacto');
 });
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 
