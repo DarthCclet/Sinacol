@@ -528,6 +528,13 @@ class AudienciaController extends Controller {
         $fechaFin = $request->fechaFin;
         $fechaFinSola = date('Y-m-d', strtotime($request->fechaFin));
         $horaFin = date('H:i:s', strtotime($request->fechaFin));
+        
+        dump($fechaInicioSola);
+        dump($diaSemana);
+        dump($horaInicio);
+        dump($horaFin);
+        dd($request->fechaFin);
+        
         ## Obtenemos las salas -> en el futuro seran filtradas por el centro de la sesión
         $salas = Sala::where("centro_id", auth()->user()->centro_id)->get();
         $salasResponse = [];
