@@ -40,6 +40,7 @@ use App\Sala;
 use App\SalaAudiencia;
 use App\ConciliadorAudiencia;
 use App\AudienciaParte;
+use App\CanalFolio;
 use App\Documento;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -365,6 +366,11 @@ class SolicitudController extends Controller {
             $solicitud['folio'] = $folio->contador;
             $solicitud['anio'] = $folio->anio;
             $solicitud['ratificada'] = false;
+            if($solicitud['virtual']){
+                $canal = CanalFolio::inRandomOrder()->first();
+                $solicitud['canal'] = $canal->folio;
+                $canal->delete();
+            }
             $solicitudSaved = Solicitud::create($solicitud);
             $objeto_solicitudes = $request->input('objeto_solicitudes');
 
@@ -1156,7 +1162,7 @@ class SolicitudController extends Controller {
                 }
             }
             $user_id = Auth::user()->id;
-            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true, "incidencia" => true,"justificacion_incidencia"=>"Ratificada con incompetencia","tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
+            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"justificacion_incidencia"=>"Ratificada con incompetencia","tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
 
             // Obtenemos la sala virtual
             $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
@@ -1254,7 +1260,7 @@ class SolicitudController extends Controller {
             $tipo_notificacion_id = null;
             if($request->inmediata == "true"){
                 $user_id = Auth::user()->id;
-                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => true,'user_id'=>$user_id]);
+                $solicitud->update(["estatus_solicitud_id" => 2,"url_virtual" => null, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => true,'user_id'=>$user_id]);
                 // Obtenemos la sala virtual
                 $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
                 if($sala == null){
@@ -1356,7 +1362,7 @@ class SolicitudController extends Controller {
                     }
                 }
                 $user_id = Auth::user()->id;
-                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
+                $solicitud->update(["estatus_solicitud_id" => 2,"url_virtual" => null, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
                 $centroResponsable = auth()->user()->centro;
                 if($solicitud->tipo_solicitud_id == 3 || $solicitud->tipo_solicitud_id == 4){
                     $centroResponsable = Centro::where("abreviatura","OCCFCRL")->first();

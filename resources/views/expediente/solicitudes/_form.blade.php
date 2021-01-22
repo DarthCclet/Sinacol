@@ -832,6 +832,9 @@
                             <div class="col-md-8"> </div>
                             <div class="card col-md-4" style="padding: 2%; border: 1px solid #9d2449;">
                             <h3 for='virtual'>Llevar proceso virtual</h3> 
+                            <p>
+                                Conforme al ACUERDO por el que se establece la suspensión de plazos y términos en el Centro Federal de Conciliación y Registro Laboral, se declara la suspensión de plazos y términos en las entidades federativas que se encuentren o que pasen a semáforo epidemiológico color rojo. Con base en lo anterior, si usted escoge la conciliación presencial, podrá guardar su solicitud y recibirá un acuse de la misma. Sin embargo, solamente podrá confirmar su solicitud y obtener el citatorio de su audiencia de conciliación a partir de la fecha en la que cambie a color naranja el semáforo epidemiológico en su entidad federativa.
+                            </p>
                             <div style="margin-left: auto;">
                                 <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="virtual" name='virtual'/>
                             </div>
@@ -3308,6 +3311,7 @@
                 try{
                     console.log(data.data);
                     arraySolicitantes[key].tmp_file = data.data;
+                    $("#labelIdentif"+key).html(" Ok <i class='fa fa-check' style='color:green'></i> ");
                     $("#modal-identificacion-virtual").modal("hide");
                     swal({title: 'Correcto',text: ' Identificación guardada correctametne ',icon: 'success'});
                 }catch(error){
@@ -3333,7 +3337,6 @@
     $(".fileIdentificacion").change(function(e){
         var id = $(this).attr('id_identificacion');
         if(id != ""){
-            $("#labelIdentif"+id).html(" Ok <i class='fa fa-check' style='color:green'></i> ");
             $("#labelIdentifAlone").html("<b>Archivo: </b>"+e.target.files[0].name);
         }else{
             swal({title: 'Error',text: ' No selecciono un solicitante ',icon: 'warning'});
