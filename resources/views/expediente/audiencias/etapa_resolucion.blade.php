@@ -52,7 +52,17 @@
 
 @if(auth()->user()->persona_id == $conciliador->persona_id)
 <!-- begin timeline -->
-<ul class="timeline">
+<div id="confirmacion_virtual" class="col-md-12 row" style="{{$virtual ? '' : 'display:none'}}">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <h5>Proceso virtual</h5>
+        <hr class="red">
+        <input type="text" id="url_virtual" class="form-control" placeholder="Url virtual" value="{{$url_virtual}}">
+        <p class="help-block needed">Url virtual</p>
+        <button class="btn btn-primary" onclick="guardarUrlVirtual()">Guardar</button>
+    </div>
+</div>
+<ul class="timeline" id="timeline_etapas" style="{{!empty($url_virtual) ? '' : 'display:none'}}">
     @foreach($etapa_resolucion as $etapa)
         @if($etapa->paso == 1)
             <li style="" id="step{{$etapa->paso}}">
@@ -3978,6 +3988,35 @@
                     }
                 }
             });
+        }
+    }
+    function guardarUrlVirtual(){
+        if($("#url_virtual").val() != ""){
+            $.ajax({
+                url:"/guardarUrlVirtual",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    url_virtual:$("#url_virtual").val(),
+                    solicitud_id:'{{$solicitud_id}}',
+                    _token:"{{ csrf_token() }}"
+                },
+                async:true,
+                success:function(data){
+                    try{
+                        if(data.success){
+                            swal({ title: 'Éxito', text: 'Url guardada correctamente', icon: 'success'});
+                            $("#timeline_etapas").show();
+                        }else{
+                            swal({title: 'Error',text: 'No se pudo guardar la url',icon: 'error'});
+                        }
+                    }catch(error){
+                        console.log(error);
+                    }
+                }
+            });
+        }else{
+            swal({title: 'Error',text: 'Es necesario ingresar la url',icon: 'error'});
         }
     }
     $('.upper').on('keyup', function () {
