@@ -79,8 +79,9 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            $("#tipo_contacto").select2();
+            $("#tipo_contacto_id").select2();
             $("#duracionAudiencia").datetimepicker({format:"HH:mm"});
+            obtenerContactos();
         });
         $("#btnAgregarContacto").on("click",function(){
             if($("#tipo_contacto_id").val() != "" && $("#contacto").val() != ""){
@@ -129,10 +130,29 @@
                             table +='<tr>';
                             table +='   <td>'+element.tipo_contacto.nombre+'</td>';
                             table +='   <td>'+element.contacto+'</td>';
-                            table +='   <td></td>';
+                            table +='   <td><button onclick="eliminarContacto('+element.id+')" class="btn btn-xs btn-warning" title="Eliminar"><i class="fa fa-trash"></i></button></td>';
                             table +='</tr>';
                         });
                         $("#tbodyContacto").html(table);
+                    }catch(error){
+                    
+                    }
+                }
+            });
+        }
+        function eliminarContacto(id){
+            $.ajax({
+                url:"/centros/contactos/eliminar",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    id:id,
+                    _token:"{{ csrf_token() }}"
+                },
+                async:true,
+                success:function(data){
+                    try{
+                        obtenerContactos();
                     }catch(error){
                     
                     }

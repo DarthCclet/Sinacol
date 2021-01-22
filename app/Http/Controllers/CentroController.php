@@ -485,12 +485,16 @@ class CentroController extends Controller
     }
     public function ObtenerContactos(){
         $centro = Centro::find($this->request->centro_id);
-        return $centro->contactos()->with(['tipo_contacto']);
+        return $centro->contactos()->with(['tipo_contacto'])->get();
     }
     public function AgregarContacto(){
         $centro = Centro::find($this->request->centro_id);
         $centro->contactos()->create(["tipo_contacto_id" => $this->request->tipo_contacto_id,"contacto" => $this->request->contacto]);
         return $centro;
+    }
+    public function EliminarContacto(){
+        \App\Contacto::find($this->request->id)->delete();
+        return $this->request->id;
     }
     public function getAtiendeVirtual($estado_id){
         $centro = Centro::find($estado_id);

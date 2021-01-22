@@ -219,6 +219,7 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::post('centros/contactos','CentroController@ObtenerContactos');
     Route::post('centros/agregar_contacto','CentroController@AgregarContacto');
+    Route::post('centros/contactos/eliminar','CentroController@EliminarContacto');
 });
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 
