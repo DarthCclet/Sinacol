@@ -38,7 +38,7 @@ class FechaAudienciaService{
             }else{
                 $rol = \App\RolAtencion::where("nombre","Conciliador en sala")->first();
             }
-            $conciliadores = $centro->conciliadores()->join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")->where("roles_conciliador.rol_atencion_id",$rol->id)->get();
+            $conciliadores = $centro->conciliadores()->join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")->where("roles_conciliador.rol_atencion_id",$rol->id)->select("conciliadores.*")->get();
             foreach($arreglo_horas as $hora_inicio){
                 $hora_fin = date("H:i:s",strtotime($hora_inicio) + 3600);
                 if($virtual){
@@ -68,7 +68,8 @@ class FechaAudienciaService{
                         }
                     }
                 }
-                foreach($conciliadores as $conciliador){
+                foreach($conciliadores as $conciliadorE){
+                    $conciliador = Conciliador::find($conciliadorE->id);
                     $disponibilidad = $conciliador->disponibilidades()->where("dia",$d->weekday())->first();
                     if($disponibilidad != null){
                         $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
@@ -132,7 +133,7 @@ class FechaAudienciaService{
             }else{
                 $rol = \App\RolAtencion::where("nombre","Conciliador en sala")->first();
             }
-            $conciliadores = $centro->conciliadores()->join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")->where("roles_conciliador.rol_atencion_id",$rol->id)->get();
+            $conciliadores = $centro->conciliadores()->join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")->where("roles_conciliador.rol_atencion_id",$rol->id)->select("conciliadores.*")->get();
             foreach($arreglo_horas as $hora_inicio){
                 $hora_fin = date("H:i:s",strtotime($hora_inicio) + 3600);
                 if($virtual){
