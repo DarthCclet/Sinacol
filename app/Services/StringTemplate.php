@@ -171,12 +171,12 @@ class StringTemplate
             $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_VIRTUAL]');
             if($vars['solicitud_virtual']){ //solicitud es virtual
                 $sliceVirtual = Str::after($string, '[SI_SOLICITUD_VIRTUAL]');
-                $sliceVirtual = Str::before($sliceRatificada, '[SI_SOLICITUD_NO_VIRTUAL]');
+                $sliceVirtual = Str::before($sliceVirtual, '[SI_SOLICITUD_NO_VIRTUAL]');
 
                 $string = $htmlA . $sliceVirtual . $htmlB;
               }else{//solicitud no virtual
                 $sliceVirtual = Str::after($string, '[SI_SOLICITUD_NO_VIRTUAL]');
-                $sliceVirtual = Str::before($sliceRatificada, '[FIN_SI_SOLICITUD_VIRTUAL]');
+                $sliceVirtual = Str::before($sliceVirtual, '[FIN_SI_SOLICITUD_VIRTUAL]');
 
                 $string = $htmlA . $sliceVirtual . $htmlB;
             }
