@@ -179,6 +179,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\FakerServiceProvider::class,
 
+        \EdgarOrozco\Docsigner\Providers\DocsignerServiceProvider::class,
+
     ],
 
     /*
@@ -231,6 +233,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'PDF'       => Barryvdh\DomPDF\Facade::class,
         'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
+        'Docsigner' => \EdgarOrozco\Docsigner\Facades\Docsigner::class,
     ],
 
 ];

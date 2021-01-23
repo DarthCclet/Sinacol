@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b0684297708511e3e42d5cd1ac7ed164",
+    "content-hash": "665f5c5cf08c81a1a64a038d2140a1c9",
     "packages": [
         {
             "name": "akeneo-labs/spreadsheet-parser",
@@ -1152,6 +1152,118 @@
                 }
             ],
             "time": "2020-10-13T00:52:37+00:00"
+        },
+        {
+            "name": "eclipxe/enum",
+            "version": "v0.2.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eclipxe13/enum.git",
+                "reference": "08048fe76ea01be059d49757e832f460de53b342"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eclipxe13/enum/zipball/08048fe76ea01be059d49757e832f460de53b342",
+                "reference": "08048fe76ea01be059d49757e832f460de53b342",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.4",
+                "phpstan/phpstan": "^0.12",
+                "phpunit/phpunit": "^8.0",
+                "psalm/phar": "^3.7",
+                "squizlabs/php_codesniffer": "^3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Eclipxe\\Enum\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Carlos C Soto",
+                    "email": "eclipxe13@gmail.com",
+                    "homepage": "http://eclipxe.com.mx/"
+                }
+            ],
+            "description": "Enum based on the Brent Roose enum idea https://stitcher.io/blog/php-enums",
+            "homepage": "https://github.com/eclipxe13/enum",
+            "keywords": [
+                "enum",
+                "reflection"
+            ],
+            "time": "2020-01-09T17:54:47+00:00"
+        },
+        {
+            "name": "edgar-orozco/docsigner",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../packages/edgar-orozco/docsigner",
+                "reference": "403c2bf9c24edf08881388aa21f1c31e9f77a8f5"
+            },
+            "require": {
+                "laravel/framework": "^6.0",
+                "php": "^7.4",
+                "phpcfdi/credentials": "^1.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "EdgarOrozco\\Docsigner\\Providers\\DocsignerServiceProvider"
+                    ],
+                    "aliases": {
+                        "Docsigner": "EdgarOrozco\\Docsigner\\Providers\\Facades\\Docsigner"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "EdgarOrozco\\Docsigner\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "EdgarOrozco\\Docsigner\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "vendor/bin/phpunit -c ./phpunit.xml --colors=always"
+                ],
+                "analysis": [
+                    "vendor/bin/phpstan analyse"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Edgar Orozco",
+                    "email": "eorozco@lxl.mx"
+                }
+            ],
+            "description": "Firma digital y autógrafa digital",
+            "homepage": "https://github.com/edgar-orozco/docsigner",
+            "keywords": [
+                "Laravel"
+            ],
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "egulias/email-validator",
@@ -3571,6 +3683,62 @@
                 "uri"
             ],
             "time": "2015-12-19T14:08:53+00:00"
+        },
+        {
+            "name": "phpcfdi/credentials",
+            "version": "v1.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpcfdi/credentials.git",
+                "reference": "99bea9a271e8324f25351a0e8874e6cd761d846e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpcfdi/credentials/zipball/99bea9a271e8324f25351a0e8874e6cd761d846e",
+                "reference": "99bea9a271e8324f25351a0e8874e6cd761d846e",
+                "shasum": ""
+            },
+            "require": {
+                "eclipxe/enum": "^0.2.0",
+                "ext-mbstring": "*",
+                "ext-openssl": "*",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "friendsofphp/php-cs-fixer": "^2.4",
+                "phpstan/phpstan": "^0.12",
+                "phpunit/phpunit": "^8.4",
+                "squizlabs/php_codesniffer": "^3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpCfdi\\Credentials\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "phpCfdi",
+                    "email": "contact@phpcfdi.com",
+                    "homepage": "https://www.phpcfdi.com/"
+                }
+            ],
+            "description": "Library to use eFirma (fiel) and CSD (sellos) from SAT",
+            "homepage": "https://github.com/phpcfdi/credentials",
+            "keywords": [
+                "certificado",
+                "cfdi",
+                "efirma",
+                "fiel",
+                "sat",
+                "sello"
+            ],
+            "time": "2020-12-21T03:06:48+00:00"
         },
         {
             "name": "phpoption/phpoption",
@@ -8941,7 +9109,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "edgar-orozco/docsigner": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
