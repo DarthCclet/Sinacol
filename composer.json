@@ -90,6 +90,6 @@
         {
             "type": "vcs",
             "url": "git@github.com:edgar-orozco/docsigner.git"
-        }
+         }
     ]
 }
