@@ -3,7 +3,8 @@
 namespace Tests\Unit;
 
 use EdgarOrozco\Docsigner\Facades\Docsigner;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
+
 
 class DocsigningTest extends TestCase
 {
