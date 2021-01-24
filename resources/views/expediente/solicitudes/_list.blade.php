@@ -182,10 +182,10 @@
             </div>
             <div class="modal-body">
                 <div id="confirmacion_virtual" style="display: none;">
-                    <h5>Proceso virtual</h5>
+                    <h5>Proceso v&iacute;a remota</h5>
                     <hr class="red">
                     <input type="text" id="url_virtual" class="form-control" placeholder="Url virtual">
-                    <p class="help-block needed">Url virtual</p>
+                    <p class="help-block needed">Url remota</p>
                     <button class="btn btn-primary" onclick="guardarUrlVirtual()">Guardar</button>
                 </div>
                 
@@ -273,11 +273,13 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <div class="text-right">
+                <div class="text-right row">
                     <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Confirmar</button>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnRatificarIncompetencia'><i class="fa fa-save"></i> Confirmar con incompetencia</button>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarConvenio'><i class="fa fa-save"></i> Confirmar con convenio</button>
+                    <div id="btnVirtual" >
+                        <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Confirmar</button>
+                        <button class="btn btn-primary btn-sm m-l-5" id='btnRatificarIncompetencia'><i class="fa fa-save"></i> Confirmar con incompetencia</button>
+                        <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarConvenio'><i class="fa fa-save"></i> Confirmar con convenio</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2404,13 +2406,19 @@
                     if(data.virtual){
                         $("#confirmacion_virtual").show();
                         $("#div_confirmacion").hide();
-                        if(data.url_virtual){
+                        $("#btnVirtual").hide();
+                        console.log(data.url_virtual);
+                        console.log(data.url_virtual != "" && data.url_virtual != null);
+                        if(data.url_virtual != "" && data.url_virtual != null){
                             $("#url_virtual").val(data.url_virtual);
                             $("#div_confirmacion").show();
+                            $("#btnVirtual").show();
+                            
                         }
                     }else{
                         $("#div_confirmacion").show();
                         $("#confirmacion_virtual").hide();
+                        $("#btnVirtual").show();
                     }
                     if(solicitudObj.tipo_solicitud_id == 3 || solicitudObj.tipo_solicitud_id == 4 ){
                         esSindical = true;
@@ -2525,6 +2533,7 @@
                         if(data.success){
                             swal({ title: 'Éxito', text: 'Url guardada correctamente', icon: 'success'});
                             $("#div_confirmacion").show();
+                            $("#btnVirtual").show();
                         }else{
                             swal({title: 'Error',text: 'No se pudo guardar la url',icon: 'error'});
                         }
