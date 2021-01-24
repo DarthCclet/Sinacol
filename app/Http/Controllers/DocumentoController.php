@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\TextoFirmableInexistenteException;
+use EdgarOrozco\Docsigner\Facades\Docsigner;
+use Goutte\Client;
 use Illuminate\Http\Request;
 use App\Documento;
 use App\Audiencia;
@@ -18,6 +21,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Validator as ValidationValidator;
 use Illuminate\Support\Str;
+use Symfony\Component\DomCrawler\Crawler;
 
 class DocumentoController extends Controller
 {
@@ -117,9 +121,9 @@ class DocumentoController extends Controller
         $documento = Documento::findOrFail($id)->delete();
         return 204;
     }
-    
+
     public function uploadSubmit(){
-        
+
     }
     public function postAudiencia(Request $request)
     {
@@ -159,14 +163,14 @@ class DocumentoController extends Controller
     }
     public function solicitud(Request $request)
     {
-        
+
        if(!isset($request->parte) || $request->parte[0] == null || !isset($request->tipo_documento_id) || $request->tipo_documento_id[0] == null){
             return '{ "files": [ { "error": "No se capturó tipo de documento o parte solicitada", "name": "thumb2.jpg" } ] }';
        }
 
         $parte = Parte::find($request->parte[0]);
         $solicitud = Solicitud::find($request->solicitud_id[0]);
-        
+
         try{
             $existeDocumento = $parte->documentos;
             if($solicitud != null && count($existeDocumento) == 0 ){
@@ -199,7 +203,7 @@ class DocumentoController extends Controller
                 return '{ "files": [ { "error": "Ya existe un documento para este solicitante", "name": "" } ] }';
 
             }
-            
+
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensaje: ". $e->getMessage().
@@ -210,13 +214,13 @@ class DocumentoController extends Controller
     }
     public function postComparece(Request $request)
     {
-        
+
        if(!isset($request->parte) || $request->parte[0] == null || !isset($request->tipo_documento_id) || $request->tipo_documento_id[0] == null){
             return '{ "files": [ { "error": "No se capturo tipo de documento o parte solicitada", "name": "thumb2.jpg" } ] }';
        }
         $parte = Parte::find($request->parte[0]);
         $audiencia = Audiencia::find($request->audiencia_idC[0]);
-        
+
         try{
             $existeDocumento = $parte->documentos;
             if($audiencia != null && count($existeDocumento) == 0){
@@ -249,7 +253,7 @@ class DocumentoController extends Controller
                 return '{ "files": [ { "error": "Ya existe un documento para este solicitante", "name": "" } ] }';
 
             }
-            
+
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensaje: ". $e->getMessage().
@@ -309,7 +313,7 @@ class DocumentoController extends Controller
                 $plantilla_id,
                 "",//solicitante
                 "",//solicitado
-                "",//documento
+                ""//documento
             );
 
             if($pdf) {
@@ -329,7 +333,7 @@ class DocumentoController extends Controller
     public function firmado(Request $request)
     {
         try {
-            $idParte = $request->get('parte_id');
+            $idParte = $request->get('persona_id');
             $tipoPersona = $request->get('tipo_persona');
             $idSolicitud = $request->get('solicitud_id');
             $idAudiencia = $request->get('audiencia_id');
@@ -337,42 +341,75 @@ class DocumentoController extends Controller
             $idDocumento = $request->get('documento_id');
             $idSolicitado = $request->get('solicitado_id');
             $idSolicitante = $request->get('solicitante_id');
-            $firmaBase64 = $request->get('img_firma');
 
-            if($tipoPersona!='conciliador'){
+            $firmaBase64 = $request->get('img_firma');
+            $tipo_firma = $request->get('tipo_firma');
+            $firma = null;
+
+            //Si firma con llave publica, FIEL o FIREL o certificado X.509
+            if($tipo_firma == 'llave-publica' || $tipo_firma == null) {
+                list($firma, $texto_firmado) = $this->firmaConLlavePublica(
+                    $request,
+                    $idAudiencia,
+                    $idSolicitud,
+                    $idPlantilla
+                );
+            }
+            //Si firma de forma autógrafa
+            else if($tipo_firma == 'autografa') {
+                $firma = $firmaBase64;
+            }
+
+            if ($tipoPersona != 'conciliador') {
                 $model = 'Parte';
-            }else{
+            } else {
                 $model = 'Conciliador';
             }
+
             //guardar o actualizar firma
-            $firmaDocumento = FirmaDocumento::where('firmable_id',$idParte)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->first();
-            if($firmaDocumento != null){
-                $firmaDocumento->update([
-                    "firma" => $firmaBase64
-                ]);
-            }else{
-                $firmaDocumento = FirmaDocumento::create([
-                    "firmable_type" => $model,
-                    "firmable_id" => $idParte,
-                    "audiencia_id" => $idAudiencia,
-                    "solicitud_id" => $idSolicitud,
-                    "plantilla_id" => $idPlantilla,
-                    "firma" => $firmaBase64
-                ]);
-            }
+            $match = [
+                'firmable_id'=>$idParte,
+                'plantilla_id'=>$idPlantilla,
+                'audiencia_id'=>$idAudiencia,
+            ];
+            $updateOrCreate = [
+                "firmable_type" => $model,
+                "firmable_id" => $idParte,
+                "audiencia_id" => $idAudiencia,
+                "solicitud_id" => $idSolicitud,
+                "plantilla_id" => $idPlantilla,
+                'tipo_firma' => $tipo_firma,
+                'texto_firmado' => $texto_firmado,
+                "firma" => $firma
+            ];
+            $firmaDocumento = FirmaDocumento::UpdateOrCreate($match, $updateOrCreate);
+
             //eliminar documento con codigo QR
             $documento = Documento::find($idDocumento);
             $clasificacionArchivo = $documento->clasificacion_archivo_id;
             $totalFirmantes = $documento->total_firmantes;
-            $firmasDocumento = FirmaDocumento::where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->get();
-            if($totalFirmantes == count($firmasDocumento)){
-                if($documento != null){
+            $firmasDocumento = FirmaDocumento::where('plantilla_id', $idPlantilla)->where(
+                'audiencia_id',
+                $idAudiencia
+            )->get();
+            if ($totalFirmantes == count($firmasDocumento)) {
+                if ($documento != null) {
                     $documento->delete();
                 }
                 //generar documento con firmas
-                event(new GenerateDocumentResolution($idAudiencia,$idSolicitud,$clasificacionArchivo,$idPlantilla,$idSolicitante,$idSolicitado));
+                event(
+                    new GenerateDocumentResolution(
+                        $idAudiencia,
+                        $idSolicitud,
+                        $clasificacionArchivo,
+                        $idPlantilla,
+                        $idSolicitante,
+                        $idSolicitado
+                    )
+                );
             }
 
+            //TODO: hay que devolver los errores a la aplicación que invoca este método
 
             return response()->json([
                 'success' => true,
@@ -380,12 +417,13 @@ class DocumentoController extends Controller
             ], 200);
 
         } catch (\Throwable $e) {
+
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
-                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Se emitió el siguiente mensaje: ". $e->getMessage().
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             return response()->json([
                 'success' => false,
-                'message' => 'ERROR:'.$e,
+                'message' => 'ERROR:'.$e->getMessage(),
             ], 200);
         }
     }
@@ -394,8 +432,8 @@ class DocumentoController extends Controller
         $validator = Validator::make($request->all(), [
             'descripcion' => 'required',
             'nombre_documento' => 'required',
-            'solicitud_id' => 'integer|required',               
-            'fileDocumento' => 'max:10000|mimes:pdf',               
+            'solicitud_id' => 'integer|required',
+            'fileDocumento' => 'max:10000|mimes:pdf',
         ],[
             'fileDocumento.max' => 'El documento no puede ser de tamaño mayor a :max Kb.',
             'descripcion.required' => 'El campo :required es requerido.',
@@ -405,7 +443,7 @@ class DocumentoController extends Controller
         if ($validator->fails()) {
             $error = "";
             foreach ($validator->errors()->all() as $key => $value) {
-                $error .= " - ".$value;   
+                $error .= " - ".$value;
             }
             return response()->json(['success' => false, 'message' => 'Por favor verifica tus datos: '.$error, 'data' => null], 200);
         }
@@ -416,7 +454,7 @@ class DocumentoController extends Controller
             $directorio = '/solicitud/' . $solicitud->id;
             Storage::makeDirectory($directorio);
             $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-            
+
             $path = $archivo->store($directorio);
             if($solicitud && $archivo ){
                 $uuid = Str::uuid();
@@ -446,9 +484,9 @@ class DocumentoController extends Controller
     }
 
     public function generar_documento(){
-        
+
         try{
-            
+
             $clasificacion_archivos = array_pluck(ClasificacionArchivo::whereIn('id',[13,14,15,16,17,18,40])->orderBy('nombre')->get(),'nombre','id');
             return view('herramientas.regenerar_documentos', compact('clasificacion_archivos'));
         }catch(Exception $e){
@@ -458,9 +496,9 @@ class DocumentoController extends Controller
                        return view('herramientas.regenerar_documentos');
         }
     }
-    
+
     public function storeRegenerarDocumento(Request $request){
-        
+
         try{
             $arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10];
             $idSolicitud = $request->get('solicitud_id',1);
@@ -476,8 +514,99 @@ class DocumentoController extends Controller
             " Se emitió el siguiente mensaje: ". $e->getMessage().
             " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             return response()->json(['success' => false, 'message' => 'No se genero el documento correctamente', 'data' => null], 200);
-            
+
         }
     }
-    
+
+    /**
+     * Recibe los archivos de llave, certificados y parámetros para firmado del documento y regresa un arreglo
+     * con la firma en el primer elemento y en el segundo el texto que se firma.
+     * @param Request $request
+     * @param $idAudiencia
+     * @param $idSolicitud
+     * @param $idPlantilla
+     * @return array
+     */
+    protected function firmaConLlavePublica(Request $request, $idAudiencia, $idSolicitud, $idPlantilla)
+    {
+        $key_path = storage_path('app/' . $request->file('key')->store('firmas'));
+        $cert_path = storage_path('app/' . $request->file('cert')->store('firmas'));
+        $password = $request->get('password');
+
+        try {
+            $texto_a_firmar = $this->textoQueSeFirma($idAudiencia, $idSolicitud, $idPlantilla);
+
+            //dd($texto_a_firmar);
+            $firma = Docsigner::setCredenciales($cert_path, $key_path, $password)->firma($texto_a_firmar);
+            return [$firma, $texto_a_firmar];
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+
+    }
+
+    /**
+     * @param $tipoPersona
+     * @param $idParte
+     * @param $idPlantilla
+     * @param $idAudiencia
+     * @param $firmaBase64
+     * @param $idSolicitud
+     * @param $idDocumento
+     * @param $idSolicitante
+     * @param $idSolicitado
+     */
+    protected function firmaConAutografaDigital(
+        $tipoPersona,
+        $idParte,
+        $idPlantilla,
+        $idAudiencia,
+        $firmaBase64,
+        $idSolicitud,
+        $idDocumento,
+        $idSolicitante,
+        $idSolicitado
+    ) {
+    }
+
+    /**
+     * Devuelve el texto que se debe firmar, sin elementos html ni de control de plantilla, esto se extrae
+     * del cuerpo del documento.
+     *
+     * @important Debe existir en la plantilla un tag con class = body si no existe emitirá una excepción
+     *
+     * @param $idAudiencia
+     * @param $idSolicitud
+     * @param $idPlantilla
+     * @return string
+     * @throws TextoFirmableInexistenteException
+     */
+    protected function textoQueSeFirma($idAudiencia, $idSolicitud, $idPlantilla): string
+    {
+        $html = $this->renderDocumento(
+            $idAudiencia,
+            $idSolicitud,
+            $idPlantilla,
+            "",//solicitante
+            "",//solicitado
+            ""//documento
+        );
+
+        //Ojo que aquí el supuesto es que en el documento hay un div o un tag que encierra todo el texto
+        //útil a firmar. Sin encabezados ni elementos de control, sólo el texto firmable
+        //Si no hay ese elemento este código va a emitir una excepción.
+
+        $crawler = new Crawler($html);
+        $elements = $crawler->filter('.body')->each(
+            function ($node) {
+                return $node->text();
+            }
+        );
+        if(!$elements || !isset($elements[0])){
+            throw new TextoFirmableInexistenteException("ELEMENTO CON CLASE .body NO SE ENCONTRÓ EN PLANTILLA", '20201');
+        }
+        $text_a_firmar = strip_tags($elements[0]);
+        return $text_a_firmar;
+    }
+
 }
