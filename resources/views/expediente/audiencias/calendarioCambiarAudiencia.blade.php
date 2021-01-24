@@ -173,15 +173,15 @@
                                 $(".fc-agendaWeek-button").click();
                                 $("#fecha_audiencia").val(start);
                             }else{
-                                if(startVal >= ahora){ //validar si la fecha es mayor que hoy
+//                                if(startVal >= ahora){ //validar si la fecha es mayor que hoy
                                     SolicitarAudiencia(start,end);
-                                }else{
-                                    swal({
-                                        title: 'Error',
-                                        text: 'No puedes seleccionar una fecha previa',
-                                        icon: 'warning'
-                                    });
-                                }
+//                                }else{
+//                                    swal({
+//                                        title: 'Error',
+//                                        text: 'No puedes seleccionar una fecha previa',
+//                                        icon: 'warning'
+//                                    });
+//                                }
                             }
                         $('#calendarioCambioAudiencia').fullCalendar('unselect');
                     },
@@ -266,6 +266,12 @@
                             });
                         }else{
                             $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id,#conciliador_cambio_id,#conciliador_cambio_solicitante_id,#conciliador_cambio_solicitado_id").html("<option value=''>-- Selecciona un conciliador</option>");
+                            $("#modal-asignar_nueva_audiencia").modal("hide");
+                            swal({
+                                title: 'Aviso',
+                                text: 'No hay conciliadores disponibles',
+                                icon: 'info'
+                            });
                         }
                         $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id,#conciliador_cambio_id,#conciliador_cambio_solicitante_id,#conciliador_cambio_solicitado_id").select2();
                     }
@@ -287,6 +293,13 @@
                         if(data != null && data != ""){
                             $.each(data,function(index,element){
                                 $("#sala_id,#sala_solicitado_id,#sala_solicitante_id").append("<option value='"+element.id+"'>"+element.sala+"</option>");
+                            });
+                        }else{
+                            $("#modal-asignar_nueva_audiencia").modal("hide");
+                            swal({
+                                title: 'Aviso',
+                                text: 'No hay salas disponibles',
+                                icon: 'info'
                             });
                         }
                         $("#sala_id,#sala_solicitado_id,#sala_solicitante_id").select2();

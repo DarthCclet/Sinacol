@@ -424,9 +424,9 @@ class AudienciaController extends Controller {
 
         $conciliadoresResponse = [];
         if($request->virtual == "false"){
-            $rol = \App\RolAtencion::where("nombre","Conciliador virtual")->first();
-        }else{
             $rol = \App\RolAtencion::where("nombre","Conciliador en sala")->first();
+        }else{
+            $rol = \App\RolAtencion::where("nombre","Conciliador virtual")->first();
         }
         $conciliadores = Conciliador::join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")
                 ->where("roles_conciliador.rol_atencion_id",$rol->id)
@@ -2457,6 +2457,27 @@ class AudienciaController extends Controller {
         $audiencia->update(["conciliador_id" => $conciliador_id]);
         return $audiencia;
     }
+    
+    function SuspensionVirtual(){
+        $audiencia = Audiencia::find($this->request->audiencia_id);
+        $audiencia->update([
+            "fecha_audiencia" => null,
+            "hora_inicio" => null,
+            "hora_fin" => null,
+            "encontro_audiencia" => false,
+            "conciliador_id" => null
+        ]);
+        foreach($audiencia->salasAudiencias as $sala){
+            $sala->delete();
+        }
+        foreach($audiencia->conciliadoresAudiencias as $conciliador){
+            $conciliador->delete();
+        }
+        return $audiencia;
+    }
+    
+    
+    
 
     public function renderPDF($html, $plantilla_id, $path=null){
         $pdf = App::make('snappy.pdf.wrapper');

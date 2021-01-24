@@ -147,6 +147,14 @@
                                 $.each(data,function(index,element){
                                     $("#sala_cambio_fecha_id").append("<option value='"+element.id+"'>"+element.sala+"</option>");
                                 });
+                            }else{
+                                $("#modal-Sala-Cambio").modal("hide");
+                                $("#modal-reprogramacion").modal("show");
+                                swal({
+                                    title: 'Aviso',
+                                    text: 'No hay salas disponibles',
+                                    icon: 'info'
+                                });
                             }
                             $("#sala_cambio_fecha_id").select2();
                         }catch(error){
@@ -201,11 +209,7 @@
                                 console.log(error);
                             }
                         },error: function(){
-                            swal({
-                                title: 'Error',
-                                text: 'Algo salió mal al tratar de reagendar',
-                                icon: 'warning'
-                            });
+                            v
                         }
                     });
                 }else{

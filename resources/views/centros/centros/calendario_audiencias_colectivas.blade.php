@@ -334,6 +334,7 @@
                                 }
                                 $("#audiencia_id").val(audiencia_id);
                                 $("#spanFolio").text(data.folio+"/"+data.anio);
+                                $("#virtual").val(data.virtual);
                                 if(fuente == "NoCalendarizada"){
                                     $("#tableAudienciaSuccess").hide();
                                     $("#calendarioReagendar").show();
@@ -377,7 +378,7 @@
                                                 table +='</tr>';
                                             }
                                         });
-                                    $("#virtual").val($audiencia->virtual);
+                                    
                                     $("#tableAudienciaSuccess").show();
                                     $("#tableAudienciaSuccess tbody").html(table);
                                     $("#modalRatificacion").modal("hide");

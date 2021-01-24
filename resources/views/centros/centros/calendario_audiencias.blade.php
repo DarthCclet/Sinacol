@@ -97,6 +97,7 @@
                     <button class="btn btn-primary btn-sm m-l-5" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-arrow-down"></i> Cerrar</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnCambiarConciliador"><i class="fa fa-user-friends"></i> Cambiar Conciliador</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnFinalizarRatificacion"><i class="fa fa-calendar"></i> Reprogramar</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnSuspension" title="suspensión de audiencia vía remota por falta de aceptación del citado"><i class="fa fa-calendar"></i> Suspención de audiencia</button>
                 </div>
             </div>
         </div>
@@ -328,11 +329,17 @@
                                 if(data.finalizada){
                                     $("#btnFinalizarRatificacion").hide();
                                     $("#btnCambiarConciliador").hide();
+                                    $("#btnSuspension").hide();
                                     $("#labelFinalizada").show();
                                 }else{
                                     $("#btnFinalizarRatificacion").show();
                                     $("#btnCambiarConciliador").show();
                                     $("#labelFinalizada").hide();
+                                    if(data.virtual){
+                                        $("#btnSuspension").show()
+                                    }else{
+                                        $("#btnSuspension").hide()
+                                    }
                                 }
                                 if(!data.multiple){
                                     $("#divAsignarUnoCambiar").show();
@@ -345,6 +352,7 @@
                                 }
                                 $("#audiencia_id").val(audiencia_id);
                                 $("#spanFolio").text(data.folio+"/"+data.anio);
+                                $("#virtual").val(data.virtual);
                                 if(fuente == "NoCalendarizada"){
                                     $("#tableAudienciaSuccess").hide();
                                     $("#calendarioReagendar").show();
@@ -390,7 +398,6 @@
                                                 table +='</tr>';
                                             }
                                         });
-                                    $("#virtual").val(data.virtual);
                                     $("#tableAudienciaSuccess").show();
                                     $("#tableAudienciaSuccess tbody").html(table);
                                     $("#modalRatificacion").modal("hide");
@@ -503,6 +510,53 @@
                 //Obtenemos la fecha fin del calendario
                 $("#fecha_fin").val($('#calendarioAgenda').fullCalendar('getView').end.format('Y/MM/DD'));
                 $("#frmDescargaCalendario").submit();
+            });
+            $("#btnSuspension").on("click",function(){
+                swal({
+                    title: 'Advertencia',
+                    text: 'Al oprimir aceptar se eliminará la fecha de audiencia, junto con el conciliador y la sala, la audiencia deberá ser reprogramar en la opción no calendarizadas',
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'No',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true,
+                        },
+                        confirm: {
+                            text: 'Si',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-warning',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(isConfirm){
+                    if(isConfirm){
+                        $.ajax({
+                        url:'/audiencia/suspension/'+$("#audiencia_id").val(),
+                        type:"GET",
+                        dataType:"json",
+                        success:function(data){
+                            try{
+                                swal({
+                                    title: 'Correcto',
+                                    text: 'Se suspendió la audiencia',
+                                    icon: 'success'
+                                });
+                                $('.modal').modal('hide');
+                                setTimeout('', 5000);
+                                location.reload();
+                            }catch(error){
+                                
+                            }
+                        }
+                    });
+                    }else{
+                        
+                    }
+                });
             });
         </script>
 @endpush
