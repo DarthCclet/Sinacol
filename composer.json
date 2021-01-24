@@ -15,6 +15,7 @@
         "barryvdh/laravel-dompdf": "^0.8.5",
         "barryvdh/laravel-snappy": "^0.4.7",
         "doctrine/dbal": "^2.10",
+        "edgar-orozco/docsigner": "^1.0",
         "fideloper/proxy": "^4.0",
         "guzzlehttp/guzzle": "^6.5",
         "h4cc/wkhtmltoimage-amd64": "0.12.x",
@@ -83,5 +84,12 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ]
-    }
+    },
+
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:edgar-orozco/docsigner.git"
+        }
+    ]
 }
