@@ -88,8 +88,8 @@
 
     "repositories": [
         {
-            "type": "path",
-            "url": "../packages/edgar-orozco/docsigner"
+            "type": "vcs",
+            "url": "git@github.com:edgar-orozco/docsigner.git"
         }
     ]
 }

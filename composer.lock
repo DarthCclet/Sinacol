@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "665f5c5cf08c81a1a64a038d2140a1c9",
+    "content-hash": "de66973d68dc6ba6c3692e3ed0dfd2d3",
     "packages": [
         {
             "name": "akeneo-labs/spreadsheet-parser",
