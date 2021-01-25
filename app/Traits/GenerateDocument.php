@@ -334,6 +334,9 @@ trait GenerateDocument
             $audienciaId = $idAudiencia;
             $data = [];
             $solicitud = "";
+            $solicitudVirtual = "";
+            $conciliadorId = "";
+            $centroId = "";
             foreach ($objetos as $objeto) {
               foreach ($jsonElementos['datos'] as $key=>$element) {
                 if($element['id']==$objeto){
@@ -343,6 +346,7 @@ trait GenerateDocument
                   if($model == 'Solicitud' ){
                     $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find($idSolicitud);
                     // $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
+                    $solicitudVirtual = $solicitud->virtual;
                     $objeto = new JsonResponse($solicitud);
                     $obj = json_decode($objeto->content(),true);
                     $idBase = intval($obj['id']);
@@ -406,12 +410,16 @@ trait GenerateDocument
                       }else{
                         $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->first();
                       }
-                      if($firmaDocumento != null){
-                        $parte['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
-                      } elseif ($firmaDocumento != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
-                          $parte['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
-                      } else{
-                        $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($parteId."|".$tipoParte."|".$parte['nombre_completo']."|".$audienciaId."|".$idSolicitud."|".$idPlantilla."|".$idDocumento ."|".$idSolicitante ."|".$idSolicitado).'</div>';
+                      if($solicitudVirtual && $solicitudVirtual!=""){
+                        if($firmaDocumento != null){
+                          $parte['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                        } elseif ($firmaDocumento != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
+                            $parte['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
+                        } else{
+                          $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($parteId."|".$tipoParte."|".$parte['nombre_completo']."|".$audienciaId."|".$idSolicitud."|".$idPlantilla."|".$idDocumento ."|".$idSolicitante ."|".$idSolicitado).'</div>';
+                        }
+                      }else{
+                        $parte['qr_firma'] = "";
                       }
                       //domicilio de partes, excepto representante
                       if($parte['tipo_parte_id'] != 3 ){
@@ -558,21 +566,27 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'sala', $salas );
                   }
                 }elseif ($model == 'Conciliador') {
-                    $objeto = $model_name::with('persona')->find($conciliadorId);
-                    $objeto = new JsonResponse($objeto);
-                    $conciliador = json_decode($objeto->content(),true);
-                    $conciliador = Arr::except($conciliador, ['id','updated_at','created_at','deleted_at']);
-                    $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
-                    $nombreConciliador = $conciliador['persona']['nombre']." ".$conciliador['persona']['primer_apellido']." ".$conciliador['persona']['segundo_apellido'];
-                    $firmaDocumento = FirmaDocumento::where('firmable_id',$conciliadorId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->first();
-                      if($firmaDocumento != null && $firmaDocumento->tipo_firma == 'autografa'){
-                        $conciliador['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
-                      } elseif ($firmaDocumento != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
-                        $conciliador['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
+                    if($conciliadorId != ""){
+                      $objeto = $model_name::with('persona')->find($conciliadorId);
+                      $objeto = new JsonResponse($objeto);
+                      $conciliador = json_decode($objeto->content(),true);
+                      $conciliador = Arr::except($conciliador, ['id','updated_at','created_at','deleted_at']);
+                      $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
+                      $nombreConciliador = $conciliador['persona']['nombre']." ".$conciliador['persona']['primer_apellido']." ".$conciliador['persona']['segundo_apellido'];
+                      if($solicitudVirtual && $solicitudVirtual!=""){
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$conciliadorId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->first();
+                          if($firmaDocumento != null && $firmaDocumento->tipo_firma == 'autografa'){
+                            $conciliador['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                          } elseif ($firmaDocumento != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
+                            $conciliador['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
+                          }else{
+                            $conciliador['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($conciliadorId."|conciliador|".$nombreConciliador."|".$audienciaId."|".$idSolicitud."|".$idPlantilla."|".$idDocumento ."|".$idSolicitante ."|".$idSolicitado).'</div>';
+                          }
                       }else{
-                        $conciliador['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($conciliadorId."|conciliador|".$nombreConciliador."|".$audienciaId."|".$idSolicitud."|".$idPlantilla."|".$idDocumento ."|".$idSolicitante ."|".$idSolicitado).'</div>';
+                        $conciliador['qr_firma'] = '';
                       }
-                    $data = Arr::add( $data, 'conciliador', $conciliador );
+                      $data = Arr::add( $data, 'conciliador', $conciliador );
+                    }
                   }elseif ($model == 'Centro') {
                     $objeto = $model_name::with('domicilio','disponibilidades','contactos')->find($centroId);
                     $dom_centro = $objeto->domicilio;
