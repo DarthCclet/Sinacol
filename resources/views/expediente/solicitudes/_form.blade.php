@@ -834,18 +834,18 @@
                         <input type="hidden" id="tipo_solicitud_id" value="{{$tipo_solicitud_id}}">
                         <div class="col-md-12 atiendeVirtual row" style="display: none; margin:2%;">
                             <div class="card col-md-12" style="padding: 2%; border: 1px solid #9d2449;">
-                                <h3 for='virtual'>Llevar proceso virtual</h3>
+                                <h3 for='virtual'>Llevar proceso v&iacute;a remota</h3>
                                 <p style="font-size: larger;">
-                                    Conforme al Acuerdo por el que se establece la suspensión de plazos y términos en el Centro Federal de Conciliación y Registro Laboral publicado el 21 de diciembre de 2020 en el Diario Oficial de la Federación, se declara la suspensión de plazos y términos en las entidades federativas que se encuentren o que pasen a color rojo en el semáforo epidemiológico. 
+                                    Conforme al <a target="_blank" href="https://www.dof.gob.mx/nota_detalle.php?codigo=5608350&fecha=21/12/2020 ">Acuerdo</a> por el que se establece la suspensión de plazos y términos en el Centro Federal de Conciliación y Registro Laboral publicado el 21 de diciembre de 2020 en el Diario Oficial de la Federación, se declara la suspensión de plazos y términos en las entidades federativas que se encuentren o que pasen a color rojo en el semáforo epidemiológico. 
                                 </p>
                                 <p style="font-size: larger;">
                                     Con base en lo anterior, si usted elige llevar el procedimiento de conciliación de forma presencial podrá guardar su solicitud y recibirá el correspondiente acuse, pero no podrá continuar con el procedimiento de conciliación hasta que la entidad federativa pase a color naranja en el semáforo epidemiológico. 
                                 </p>
                                 <p style="font-size: larger;">
-                                    Si usted selecciona la conciliación en línea podrá continuar con el procedimiento siguiendo los mismos pasos que señala la Ley Federal del Trabajo.
+                                    En caso de seleccionar la conciliación en línea se seguir&aacute; el proceso conforme a los t&eacute;rminos establecidos en la Ley.
                                 </p>
                                 <div style="margin-left: auto;">
-                                    <label style="font-size: larger;" for="virtual">Aceptar proceso virtual</label>
+                                    <label style="font-size: larger;" for="virtual">Aceptar proceso v&iacute;a remota</label>
                                     <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="virtual" name='virtual'/>
                                 </div>
                             </div>
@@ -1114,10 +1114,9 @@
             <div class="modal-body" >
                 <div class="col-md-12">
                     <ul>
-                        <li style="font-size: larger;" > Si desea continuar con el procedimiento en l&iacute;nea se requiere que cargue una identificaci&oacute;n por cada solicitante al momento de la captura de la solicitud. La identificaci&oacute;n la deberá cargar en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto a su nombre. </li>
-                        <li style="font-size: larger;" > Usted deberá seguir las instrucciones detalladas en el acuse para confirmar la solicitud y que se genere la fecha y hora de la audiencia de conciliaci&oacute;n en l&iacute;nea </li>
-                        <li style="font-size: larger;" > Al momento de la confirmaci&oacute;n podrá decidir si usted entrega el citatorio directamente a su patr&oacute;n o podrá solicitar que lo entregue un notificador del CFCRL. </li>
-                        <li style="font-size: larger;" > Una vez asignada la fecha y hora para la audiencia en l&iacute;nea usted comparecerá de forma remota a través de la liga única que está en su acuse. </li>
+                        <li style="font-size: larger;" > Si desea llevar a cabo el procedimiento v&iacute;a remota se requiere que a continuaci&oacute;n cargue una identificación por cada solicitante. La identificaci&oacute;n la deber&aacute; cargar en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto a su nombre. </li>
+                        <li style="font-size: larger;" > Usted deber&aacute; seguir las instrucciones detalladas en el acuse para confirmar la solicitud y que se genere la fecha y hora de la audiencia de conciliaci&oacute;n v&iacute;a remota, misma que, posteriormente, se le deber&aacute; de notificar al citado. Todo el procedimiento se har&aacute; por medio de una liga &uacute;nica que se le proporcionar&aacute; en el acuse de solicitud </li>
+                        <li style="font-size: larger;" > Una vez asignada la fecha y hora para la celebraci&oacute;n de la audiencia v&iacute;a remota usted comparecerá a trav&eacute;s de la liga única proporcionada. </li>
                     </ul>
                 </div>
             </div>
