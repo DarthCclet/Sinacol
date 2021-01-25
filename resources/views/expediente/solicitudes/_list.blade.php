@@ -854,7 +854,7 @@
                                 if(row[1] == 1 && (row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true") && ($("#atiende_virtual").val() == "1" && row[9] || $("#atiende_virtual").val() == "")){
                                     buttons += '<div title="Confirmar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="continuarRatificacion('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></button></div>';
                                 }
-                                if($("#atiende_virtual").val() == "1"  && !row[9]){
+                                if(row[1] == 1 && $("#atiende_virtual").val() == "1"  && !row[9]){
                                     buttons += '<label>Aplazada (No virtual)</label>';
                                 }
                                 return buttons;
