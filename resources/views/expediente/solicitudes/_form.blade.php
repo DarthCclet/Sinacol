@@ -2711,7 +2711,7 @@
             solicitud.fecha_conflicto = dateFormat($("#fechaConflicto").val());
             solicitud.tipo_solicitud_id = $("#tipo_solicitud_id").val();
             solicitud.giro_comercial_id = $("#giro_comercial_hidden").val();
-            solicitud.virtual = $("#virtual").is(":checked");
+            solicitud.virtual = $('#radioVirtual1').is(":checked");
 
             if($("input[name='recibo_oficial']").val() == 1){
                 recibo_oficial = true;
