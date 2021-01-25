@@ -529,8 +529,21 @@ class DocumentoController extends Controller
      */
     protected function firmaConLlavePublica(Request $request, $idAudiencia, $idSolicitud, $idPlantilla)
     {
-        $key_path = storage_path('app/' . $request->file('key')->store('firmas'));
-        $cert_path = storage_path('app/' . $request->file('cert')->store('firmas'));
+        $encoding_firmas = $request->get('encoding_firmas');
+        if(!$encoding_firmas) {
+            $key_path = storage_path('app/' . $request->file('key')->store('firmas'));
+            $cert_path = storage_path('app/' . $request->file('cert')->store('firmas'));
+        }
+        else{
+            $binkey = file_get_contents($request->get('key'));
+            $bincert = file_get_contents($request->get('cert'));
+            $nombrekey = md5($request->get('key'));
+            $nombrecert = md5($request->get('cert'));
+            $key_path = storage_path('app/firmas/'.$nombrekey.'.key');
+            $cert_path = storage_path('app/firmas/'.$nombrecert.'.cer');
+            file_put_contents($key_path, $binkey);
+            file_put_contents($cert_path, $bincert);
+        }
         $password = $request->get('password');
 
         try {
