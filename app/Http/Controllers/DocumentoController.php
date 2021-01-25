@@ -530,7 +530,7 @@ class DocumentoController extends Controller
     protected function firmaConLlavePublica(Request $request, $idAudiencia, $idSolicitud, $idPlantilla)
     {
         $encoding_firmas = $request->get('encoding_firmas');
-        $base_firmas_path = storage_path('app/firmas');
+        $base_firmas_path = 'app/firmas';
         if(!Storage::exists($base_firmas_path)){
             Storage::makeDirectory($base_firmas_path);
         }
@@ -557,6 +557,13 @@ class DocumentoController extends Controller
         } catch (\Exception $e) {
             $message = "No ha sido posible realizar la firma del documento. Favor de revisar la validéz de su clave, archivo .key y/o archivo.cer";
             throw new CredencialesParaFirmaNoValidosException($message);
+        } finally {
+            if(Storage::exists($key_path)) {
+                Storage::delete($key_path);
+            }
+            if(Storage::exists($cert_path)) {
+                Storage::delete($cert_path);
+            }
         }
 
     }
