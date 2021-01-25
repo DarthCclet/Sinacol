@@ -58,20 +58,20 @@ class PlantillasDocumentosController extends Controller
      */
      public function index()
      {
-         $plantilla = (new CatalogoFilter(PlantillaDocumento::query(), $this->request))
+         $plantillas = (new CatalogoFilter(PlantillaDocumento::query(), $this->request))
              ->searchWith(PlantillaDocumento::class)
              ->filter();
          // Si en el request viene el parametro all entonces regresamos todos los elementos de lo contrario paginamos
          if ($this->request->get('all')) {
-             $plantilla = $plantilla->get();
+             $plantillas = $plantillas->get();
          } else {
-             $plantilla = $plantilla->paginate($this->request->get('per_page', 10));
+             $plantillas = $plantillas->paginate($this->request->get('per_page', 10));
          }
 
          if ($this->request->wantsJson()) {
-             return $this->sendResponse($plantilla, 'SUCCESS');
+             return $this->sendResponse($plantillas, 'SUCCESS');
          }
-         return view('documentos.index', compact('plantilla'));
+         return view('documentos.index', compact('plantillas'));
      }
 
      /**

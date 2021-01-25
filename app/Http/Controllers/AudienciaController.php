@@ -1639,6 +1639,7 @@ class AudienciaController extends Controller {
         }
         $solicitud_id = $audiencia->expediente->solicitud->id;
         $virtual = $audiencia->expediente->solicitud->virtual;
+        $atiende_virtual = $audiencia->expediente->solicitud->centro->atiende_virtual;
         $url_virtual = $audiencia->expediente->solicitud->url_virtual;
         $audiencia->partes = $partes;
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
@@ -1677,7 +1678,7 @@ class AudienciaController extends Controller {
         $generos = $this->cacheModel('generos',Genero::class);
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         $nacionalidades = $this->cacheModel('nacionalidades',Nacionalidad::class);
-        return view('expediente.audiencias.etapa_resolucion', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id','conciliador','estados','tipos_vialidades','tipos_asentamientos','lengua_indigena','generos','tipo_contacto','nacionalidades','virtual','url_virtual'));
+        return view('expediente.audiencias.etapa_resolucion', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id','conciliador','estados','tipos_vialidades','tipos_asentamientos','lengua_indigena','generos','tipo_contacto','nacionalidades','virtual','url_virtual','atiende_virtual'));
     }
 
     public function resolucionColectiva($id) {

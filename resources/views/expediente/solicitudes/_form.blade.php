@@ -2968,14 +2968,15 @@
     }
     function getAtiendeVirtual(){
         if(($("#tipo_solicitud_id").val() == 3 || $("#tipo_solicitud_id").val() == 2)){
-            if(arraySolicitantes.length == 1){
+            if(arraySolicitantes.length > 0){
                 $("#estado_centro_id").val(arraySolicitantes[0].domicilios[0].estado_id);
             }
         }else{
-            if(arraySolicitados.length == 1){
+            if(arraySolicitados.length > 0){
                 $("#estado_centro_id").val(arraySolicitados[0].domicilios[0].estado_id);
             }
         }
+        formarTablaSolicitante();
         $.ajax({
             url:"/centro/getAtiendeVirtual/"+$("#estado_centro_id").val(),
             type:"GET",
@@ -2993,6 +2994,7 @@
                         $("#btnGuardar").show();
                         $(".atiendeVirtual").hide();
                         $("#atiende_virtual").val(false);
+                        $("#radioVirtual1").prop("checked", false);
                     }
                 }catch(error){
                     console.log(error);
