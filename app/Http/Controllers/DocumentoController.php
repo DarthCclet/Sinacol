@@ -530,6 +530,10 @@ class DocumentoController extends Controller
     protected function firmaConLlavePublica(Request $request, $idAudiencia, $idSolicitud, $idPlantilla)
     {
         $encoding_firmas = $request->get('encoding_firmas');
+        $base_firmas_path = storage_path('app/firmas');
+        if(!Storage::exists($base_firmas_path)){
+            Storage::makeDirectory($base_firmas_path);
+        }
         if(!$encoding_firmas) {
             $key_path = storage_path('app/' . $request->file('key')->store('firmas'));
             $cert_path = storage_path('app/' . $request->file('cert')->store('firmas'));
