@@ -167,21 +167,22 @@ class StringTemplate
             }
           }
         }
-        if (isset($vars['solicitud_tipo_solicitud_id'])&& $countSolicitudIndividual > 0){
-          for ($i=0; $i < $countSolicitudIndividual; $i++) {
-            $htmlA = Str::before($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
-            $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_TIPO]');
-            if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual
-                // texto para solicitud individual
-                $sliceIndividual = Str::after($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
-                $sliceIndividual = Str::before($sliceIndividual, '[FIN_SI_SOLICITUD_TIPO]');
+        //dd($vars['solicitud_tipo_solicitud_id']);
+        // if (isset($vars['solicitud_tipo_solicitud_id'])&& $countSolicitudIndividual > 0){
+        //   for ($i=0; $i < $countSolicitudIndividual; $i++) {
+        //     $htmlA = Str::before($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+        //     $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_TIPO]');
+        //     if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual
+        //         // texto para solicitud individual
+        //         $sliceIndividual = Str::after($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+        //         $sliceIndividual = Str::before($sliceIndividual, '[FIN_SI_SOLICITUD_TIPO]');
 
-                $string = $htmlA . $sliceIndividual . $htmlB;
-              }else{//solicitud no individual
-                $string = $htmlA . $htmlB;
-            }
-          }
-        }
+        //         $string = $htmlA . $sliceIndividual . $htmlB;
+        //       }else{//solicitud no individual
+        //         $string = $htmlA . $htmlB;
+        //     }
+        //   }
+        // }
 
         if (isset($vars['centro_atiende_virtual'])&& $countCentroVirtual > 0){
           for ($i=0; $i < $countCentroVirtual; $i++) {
