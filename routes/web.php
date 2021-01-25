@@ -22,8 +22,11 @@ Route::get('/asesoria/{accion}', 'AsesoriaController@index');
 Route::get('/solicitudes/create-public','SolicitudController@create');
 Route::post('/solicitudes/store-public','SolicitudController@store');
 Route::Get('solicitudes/documentos/{solicitud_id}/acuse','SolicitudController@getAcuseSolicitud');
+Route::post('/solicitud/identificacion','SolicitudController@identificacion');
 Route::get('/aviso-privacidad','DocumentoController@aviso_privacidad');
 Route::get('/version','HomeController@version');
+Route::get('centro/getAtiendeVirtual/{estado_id}','CentroController@getAtiendeVirtual');
+Route::Get('canal/{canal}','SolicitudController@canal');
 Route::middleware(['auth'])->group(function () {
 
 
@@ -64,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('solicitud/correos/{solicitud_id}','SolicitudController@validarCorreos');
     Route::POST('solicitud/correos','SolicitudController@cargarCorreos');
     Route::Get('solicitudes/documentos/{solicitud_id}','SolicitudController@getDocumentosSolicitud');
+    Route::POST('guardarUrlVirtual','SolicitudController@guardarUrlVirtual');
     Route::resource('expedientes','ExpedienteController');
     Route::resource('audiencias','AudienciaController');
     Route::resource('audiencia','AudienciaController');
@@ -95,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('audiencia/negarCancelacion/{audiencia_id}','AudienciaController@negarCancelacion');
     Route::Post('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
     Route::Post('audiencias/solicitar_nueva','AudienciaController@SolicitarNueva');
+    
     Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');
     Route::get('resolucionColectiva/{id}','AudienciaController@resolucionColectiva')->name('resolucionColectiva');
     Route::Post('audiencia/guardarAudienciaColectiva','AudienciaController@guardarAudienciaColectiva');
@@ -208,6 +213,18 @@ Route::middleware(['auth'])->group(function () {
      * descarga de calendario
      */
     Route::post('descargaCalendario','CentroController@descargarCalendario')->name("descargaCalendario");
+    
+    /*
+     * Centro
+     */
+    Route::post('centros/contactos','CentroController@ObtenerContactos');
+    Route::post('centros/agregar_contacto','CentroController@AgregarContacto');
+    Route::post('centros/contactos/eliminar','CentroController@EliminarContacto');
+    
+    /*
+     * Suspensión de virtuales
+     */
+    Route::get('audiencia/suspension/{audiencia_id}','AudienciaController@SuspensionVirtual');
 });
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
 

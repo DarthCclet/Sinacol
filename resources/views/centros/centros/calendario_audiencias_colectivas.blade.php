@@ -230,6 +230,7 @@
 <input type="hidden" id="fecha_audiencia"/>
 <input type="hidden" id="hora_inicio_audiencia"/>
 <input type="hidden" id="hora_fin_audiencia"/>
+<input type="hidden" id="virtual"/>
 @endsection
 
 <!-- Fin Modal de disponibilidad-->
@@ -333,6 +334,7 @@
                                 }
                                 $("#audiencia_id").val(audiencia_id);
                                 $("#spanFolio").text(data.folio+"/"+data.anio);
+                                $("#virtual").val(data.virtual);
                                 if(fuente == "NoCalendarizada"){
                                     $("#tableAudienciaSuccess").hide();
                                     $("#calendarioReagendar").show();
@@ -376,6 +378,7 @@
                                                 table +='</tr>';
                                             }
                                         });
+                                    
                                     $("#tableAudienciaSuccess").show();
                                     $("#tableAudienciaSuccess tbody").html(table);
                                     $("#modalRatificacion").modal("hide");

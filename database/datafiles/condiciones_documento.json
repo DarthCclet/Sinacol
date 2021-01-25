@@ -39,8 +39,12 @@
               "nombre": "Solicitud",
               "catalogos": [
                   {"catalogo":"Ratificada",
-                    "val":[""]}
-                    ]
+                    "val":[""]
+                  },
+                  {"catalogo":"Virtual",
+                      "val":[""]
+                  }
+              ]
           },
           {
             "id": "4",
@@ -49,8 +53,7 @@
                 {"catalogo":"Pago",
                   "val":["diferido","no_diferido"]}
                   ]
-        }
-
+          }
       ]
     },
     {"tipoCondicion" : "Repetir",
