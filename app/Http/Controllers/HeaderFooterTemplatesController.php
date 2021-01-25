@@ -29,9 +29,9 @@ class HeaderFooterTemplatesController extends Controller
         if ($solicitud) {
             if (!$idAudiencia && isset($solicitud->expediente->audiencia->first()->id)) {
                 $idAudiencia = $solicitud->expediente->audiencia->first()->id;
-                if(!$idConciliador){
-                    $idConciliador = $solicitud->expediente->audiencia->first()->conciliador->id;
-                }
+                // if(!$idConciliador){
+                //     $idConciliador = $solicitud->expediente->audiencia->first()->conciliador->id;
+                // }
             }
             if(!$idSolicitante){
                 $idSolicitante =$solicitud->solicitantes->first()->id;

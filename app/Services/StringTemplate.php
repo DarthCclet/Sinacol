@@ -67,8 +67,10 @@ class StringTemplate
         $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
         $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
         $countSolicitudRatificada = substr_count($string,'[SI_SOLICITUD_RATIFICADA]');
+        $countSolicitudIndividual = substr_count($string,'[SI_SOLICITUD_TIPO_INDIVIDUAL]');
         $countPagosDiferidos = substr_count($string,'[SI_RESOLUCION_PAGO_DIFERIDO]');
-
+        $countSolicitudVirtual = substr_count($string,'[SI_SOLICITUD_VIRTUAL]');
+        $countCentroVirtual = substr_count($string,'[SI_CENTRO_ATIENDE_VIRTUAL]');
         if (isset($vars['resolucion_total_diferidos'])){
           if($countPagosDiferidos >0){
             for ($i=0; $i < $countPagosDiferidos; $i++) {
@@ -76,7 +78,7 @@ class StringTemplate
                 // texto de pagos diferidos
                 $sliceDiferido = Str::after($string, '[SI_RESOLUCION_PAGO_DIFERIDO]');
                 $sliceDiferido = Str::before($sliceDiferido, '[SI_RESOLUCION_PAGO_NO_DIFERIDO]');
-                $htmlA = Str::before($string, '[SI_RESOLUCION_');
+                $htmlA = Str::before($string, '[SI_RESOLUCION_PAGO');
                 $htmlB = Str::after($string, '[FIN_SI_RESOLUCION_PAGO]');
 
                 $string = $htmlA . $sliceDiferido . $htmlB;
@@ -113,8 +115,6 @@ class StringTemplate
                     // texto de notificacion por actuario
                     $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
                     $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-
-
                     $string = $htmlA . $sliceNotificacion . $htmlB;
                   // default: // 3
                     // $string = $htmlA . $htmlB;
@@ -164,6 +164,63 @@ class StringTemplate
                 $string = $htmlA . $sliceRatificada . $htmlB;
               }else{//solicitud no ratificada
                 $string = $htmlA . $htmlB;
+            }
+          }
+        }
+        //dd($vars['solicitud_tipo_solicitud_id']);
+        // if (isset($vars['solicitud_tipo_solicitud_id'])&& $countSolicitudIndividual > 0){
+        //   for ($i=0; $i < $countSolicitudIndividual; $i++) {
+        //     $htmlA = Str::before($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+        //     $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_TIPO]');
+        //     if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual
+        //         // texto para solicitud individual
+        //         $sliceIndividual = Str::after($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+        //         $sliceIndividual = Str::before($sliceIndividual, '[FIN_SI_SOLICITUD_TIPO]');
+
+        //         $string = $htmlA . $sliceIndividual . $htmlB;
+        //       }else{//solicitud no individual
+        //         $string = $htmlA . $htmlB;
+        //     }
+        //   }
+        // }
+
+        if (isset($vars['centro_atiende_virtual'])&& $countCentroVirtual > 0){
+          for ($i=0; $i < $countCentroVirtual; $i++) {
+            if($vars['centro_atiende_virtual'] == 'Si' ){ //solicitud es virtual
+              $htmlA = Str::before($string, '[SI_CENTRO_ATIENDE_VIRTUAL');
+              $htmlB = Str::after($string, '[FIN_SI_CENTRO_ATIENDE]');
+                $sliceCentroVirtual = Str::after($string, '[SI_CENTRO_ATIENDE_VIRTUAL]');
+                $sliceCentroVirtual = Str::before($sliceCentroVirtual, '[SI_CENTRO_NO_ATIENDE_VIRTUAL]');
+
+                $string = $htmlA . $sliceCentroVirtual . $htmlB;
+              }else if($vars['centro_atiende_virtual'] == 'No' ){//solicitud no virtual
+                $htmlA = Str::before($string, '[SI_CENTRO_ATIENDE_VIRTUAL');
+                $htmlB = Str::after($string, '[FIN_SI_CENTRO_ATIENDE]');
+
+                $sliceCentroVirtual = Str::after($string, '[SI_CENTRO_NO_ATIENDE_VIRTUAL]');
+                $sliceCentroVirtual = Str::before($sliceCentroVirtual, '[FIN_SI_CENTRO_ATIENDE]');
+
+                $string = $htmlA . $sliceCentroVirtual . $htmlB;
+            }
+          }
+        }
+
+        if (isset($vars['solicitud_virtual'])&& $countSolicitudVirtual > 0){
+          for ($i=0; $i < $countSolicitudVirtual; $i++) {
+            if($vars['solicitud_virtual'] == 'Si'){ //solicitud es virtual
+                $htmlA = Str::before($string, '[SI_SOLICITUD_VIRTUAL');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_VIRTUAL]');
+                $sliceVirtual = Str::after($string, '[SI_SOLICITUD_VIRTUAL]');
+                $sliceVirtual = Str::before($sliceVirtual, '[SI_SOLICITUD_NO_VIRTUAL]');
+
+                $string = $htmlA . $sliceVirtual . $htmlB;
+              }else if($vars['solicitud_virtual']== 'No'){//solicitud no virtual
+                $htmlA = Str::before($string, '[SI_SOLICITUD_VIRTUAL');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_VIRTUAL]');
+                $sliceVirtual = Str::after($string, '[SI_SOLICITUD_NO_VIRTUAL]');
+                $sliceVirtual = Str::before($sliceVirtual, '[FIN_SI_SOLICITUD_VIRTUAL]');
+
+                $string = $htmlA . $sliceVirtual . $htmlB;
             }
           }
         }

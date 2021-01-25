@@ -46,6 +46,8 @@
 @else
     <input type="hidden" id="externo" value="1">
 @endif
+<input type="hidden" id="estado_centro_id" value="">
+<input type="hidden" id="atiende_virtual" value="false">
 <input type="hidden" id="instancia" value="{{ env('INSTANCIA','federal')}}">
 <div class="tab-content" style="background: #f2f3f4 !important;">
 <div class="tab-pane fade active show" id="default-tab-1">
@@ -250,12 +252,14 @@
                                         <div class="row">
                                             <div class="radio radio-css radio-inline">
                                                 <input checked="checked" name="tipo_persona_solicitante" type="radio" id="tipo_persona_fisica_solicitante" value="1"/>
-                                                <label for="tipo_persona_fisica_solicitante">Física</label>
+                                                <label for="tipo_persona_fisica_solicitante">F&iacute;sica</label>
                                             </div>
+                                            @if($tipo_solicitud_id != 1)
                                             <div class="radio radio-css radio-inline">
                                                 <input name="tipo_persona_solicitante" type="radio" id="tipo_persona_moral_solicitante" value="2"/>
                                                 <label for="tipo_persona_moral_solicitante">Moral</label>
                                             </div>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="col-md-8 personaFisicaSolicitante">
@@ -342,7 +346,7 @@
                                         <div class="col-md-4" id="selectIndigenaSolicitante" style="display:none;">
                                             {!! Form::select('lengua_indigena_id_solicitante', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitante','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                             {!! $errors->first('lengua_indigena_id_solicitante', '<span class=text-danger>:message</span>') !!}
-                                            <p class="help-block needed">Lengua indígena</p>
+                                            <p class="help-block needed">Lengua ind&iacute;gena</p>
                                         </div>
                                     </div>
                                     <div  class="col-md-12 pasoSolicitante" id="continuar1">
@@ -414,6 +418,7 @@
                                         <hr class="red">
                                     </div>
                                     <input type="hidden" id="dato_laboral_id">
+                                    {{-- <input type="hidden" id="dato_laboral_idCitado"> --}}
                                     <div class="col-md-6">
                                         <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
                                         <p class="help-block ">N&uacute;mero de seguro social</p>
@@ -426,7 +431,7 @@
                                         <div class="col-md-6" >
                                             {!! Form::select('ocupacion_id', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_id','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                             {!! $errors->first('ocupacion_id', '<span class=text-danger>:message</span>') !!}
-                                            <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario mínimo distinto al general, escoge del catálogo. Si no, d&eacute;jalo vac&iacute;o.</p>
+                                            <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario m&iacute;nimo distinto al general, escoge del catálogo. Si no, d&eacute;jalo vac&iacute;o.</p>
                                         </div>
                                         {{-- <div class="col-md-4">
                                             <input class="form-control numero" data-parsley-type='integer' id="no_issste" placeholder="No. ISSSTE"  type="text" value="">
@@ -515,7 +520,7 @@
                                 <div id="divAyudaCitado" style="margin-top: 2%; margin-bottom: 2%;">
                                     <div>
                                         <p>
-                                            Debes citar a tu patrón, la persona física (un individuo) o moral (una empresa) responsable de la relación de trabajo contigo. Para ayudarte a determinar a quién deberías citar, te hacemos las siguientes preguntas:<br>
+                                            Debes citar a tu patrón, la persona f&iacute;sica (un individuo) o moral (una empresa) responsable de la relación de trabajo contigo. Para ayudarte a determinar a quién deber&iacute;as citar, te hacemos las siguientes preguntas:<br>
                                             ¿Tienes un recibo o recibos de nómina oficiales (que contenga tu número de seguridad social)?
                                         </p>
                                     </div>
@@ -591,12 +596,14 @@
                                         <div class="row">
                                             <div class="radio radio-css radio-inline">
                                                 <input checked="checked" name="tipo_persona_solicitado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
-                                                <label for="tipo_persona_fisica_solicitado">Física</label>
+                                                <label for="tipo_persona_fisica_solicitado">F&iacute;sica</label>
                                             </div>
+                                            @if($tipo_solicitud_id != 2)
                                             <div class="radio radio-css radio-inline">
                                                 <input name="tipo_persona_solicitado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
                                                 <label for="tipo_persona_moral_solicitado">Moral</label>
                                             </div>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="col-md-8 personaFisicaSolicitadoNO">
@@ -671,7 +678,7 @@
                                             <div class="col-md-4" id="selectIndigenaSolicitado" style="display:none">
                                                 {!! Form::select('lengua_indigena_id_solicitado', isset($lengua_indigena) ? $lengua_indigena : [] , null, ['id'=>'lengua_indigena_id_solicitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
                                                 {!! $errors->first('lengua_indigena_id_solicitado', '<span class=text-danger>:message</span>') !!}
-                                                <p class="help-block needed">Lengua indígena</p>
+                                                <p class="help-block needed">Lengua ind&iacute;gena</p>
                                             </div>
                                         </div>
                                     @endif
@@ -731,25 +738,78 @@
                                         </div>
                                         @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"true", 'instancia' => 2, 'tipo_solicitud' => $tipo_solicitud_id])
                                         <div style="margin-top: 2%;" class="col-md-12">
-
-                                            {{-- <button class="btn btn-primary btn-sm m-l-5" onclick="agregarDomicilio()"><i class="fa fa-save"></i> Guardar Domicilio</button> --}}
-                                            {{-- <div class="col-md-10 offset-md-1" >
-                                                <table class="table table-bordered" >
-                                                    <thead>
-                                                        <tr>
-                                                            <th style="width:80%;">Domicilio</th>
-                                                            <th style="width:20%; text-align: center;">Acci&oacute;n</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="tbodyDomicilioSolicitado">
-                                                    </tbody>
-                                                </table>
-                                            </div> --}}
                                         </div>
                                     </div>
-
+                                    {{-- <div class="col-md-12 pasoCitado"id="continuarCitado3">
+                                        <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(3)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
+                                    </div> --}}
                                 </div>
                                     <!-- end seccion de domicilios citado -->
+                                    <!-- Seccion de Datos laborales -->
+                                {{-- <div id="divDatoLaboralCitado" style="display: none;"  class="col-md-12 row">
+                                    <div class="col-md-12 mt-4">
+                                        <h4>Datos Laborales</h4>
+                                        <hr class="red">
+                                    </div>
+                                    <input type="hidden" id="dato_laboral_id">
+                                    <div class="col-md-6">
+                                        <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nssCitado" placeholder="N&uacute;mero de seguro social"  type="text" value="">
+                                        <p class="help-block ">N&uacute;mero de seguro social</p>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-6">
+                                            <input class="form-control upper requiredLaboralCitado" required id="puestoCitado" placeholder="Puesto" type="text" value="">
+                                            <p class="help-block needed">Puesto</p>
+                                        </div>
+                                        <div class="col-md-6" >
+                                            {!! Form::select('ocupacion_idCitado', isset($ocupaciones) ? $ocupaciones : [] , null, ['id'=>'ocupacion_idCitado','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                            {!! $errors->first('ocupacion_idCitado', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block ">En caso de desempeñar un oficio que cuenta con salario m&iacute;nimo distinto al general, escoge del catálogo. Si no, d&eacute;jalo vac&iacute;o.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row">
+                                        <div class="col-md-4">
+                                            <input class="form-control numero requiredLaboralCitado" required data-parsley-type='number' id="remuneracionCitado" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
+                                            <p class="help-block needed">&iquest;Cu&aacute;nto te pagan?</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            {!! Form::select('periodicidad_idCitado', isset($periodicidades) ? $periodicidades : [] , null, ['id'=>'periodicidad_idCitado','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboralCitado']);  !!}
+                                            {!! $errors->first('periodicidad_idCitado', '<span class=text-danger>:message</span>') !!}
+                                            <p class="help-block needed">&iquest;Cada cuándo te pagan?</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input class="form-control numero requiredLaboralCitado" required data-parsley-type='integer' id="horas_semanalesCitado" placeholder="Horas semanales" type="text" value="">
+                                            <p class="help-block needed">Horas semanales</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 row">
+
+                                        <div class="col-md-2">
+                                            <span class="text-muted m-l-5 m-r-20" for='switch1'>Labora actualmente</span>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="hidden" />
+                                            <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="labora_actualmenteCitado" name='labora_actualmenteCitado'/>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input class="form-control requiredLaboralCitado" required id="fecha_ingresoCitado" placeholder="Fecha de ingreso" type="text" value="">
+                                            <p class="help-block needed">Fecha de ingreso</p>
+                                        </div>
+                                        <div class="col-md-4" id="divFechaSalida">
+                                            <input class="form-control requiredLaboralCitado" required id="fecha_salidaCitado" placeholder="Fecha salida" type="text" value="">
+                                            <p class="help-block needed">Fecha salida</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        {!! Form::select('jornada_idCitado', isset($jornadas) ? $jornadas : [] , null, ['id'=>'jornada_idCitado','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect requiredLaboralCitado']);  !!}
+                                        {!! $errors->first('jornada_idCitado', '<span class=text-danger>:message</span>') !!}
+                                        <p class="help-block needed">Jornada</p>
+                                    </div>
+                                    <div>
+                                        <a style="font-size: medium;" onclick="$('#modal-jornada').modal('show');"><i class="fa fa-question-circle"></i></a>
+                                    </div>
+                                </div> --}}
+                                <!-- end Seccion de Datos laborales -->
                                 <hr style="margin-top:5%;">
                                 <div id="divBotonesSolicitado" style="display: none;">
                                     <button class="btn btn-danger" type="button" onclick="limpiarSolicitado()"> <i class="fa fa-eraser"></i> Limpiar campos</button>
@@ -772,77 +832,127 @@
                         <input type="hidden" id="solicitud_id">
                         <input type="hidden" id="ratificada">
                         <input type="hidden" id="tipo_solicitud_id" value="{{$tipo_solicitud_id}}">
-                        <div class="col-md-4 showEdit" >
-                            <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de confirmación" type="text" value="">
-                            <p class="help-block">Fecha de confirmaci&oacute;n</p>
-                        </div>
-                        <div class="col-md-4 showEdit">
-                            <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
-                            <p class="help-block needed">Fecha de recepción</p>
-                        </div>
-                        <div class="col-md-4 estatusSolicitud">
-                            {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                            {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
-                            <p class="help-block needed">Estatus de la solicitud</p>
-                        </div>
-                        <div class="col-md-12">
-                            <h4>Giro Comercial</h4>
-                            <h5 id="giro_solicitanteSol"></h4>
-                        </div>
-                        <div class="col-md-12">
-
-                            <div><h4>Objeto de la solicitud</h4></div>
-                            <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                                <table class="table table-bordered" >
-                                    <thead>
-                                        <tr>
-                                            <th>Objeto</th>
-                                            <th>Acci&oacute;n</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbodyObjetoSolRevision">
-                                    </tbody>
-                                </table>
+                        <div class="col-md-12 atiendeVirtual row" style="display: none; margin:2%;">
+                            <div class="col-md-12">
+                                <h3 for='virtual'>Llevar procedimiento v&iacute;a remota</h3>
+                                <p style="font-size: large;">
+                                    Conforme al <a target="_blank" href="https://www.dof.gob.mx/nota_detalle.php?codigo=5608350&fecha=21/12/2020 ">Acuerdo</a> por el que se establece la suspensión de plazos y términos en el Centro Federal de Conciliación y Registro Laboral publicado el 21 de diciembre de 2020 en el Diario Oficial de la Federación, se declara la suspensión de plazos y términos en las entidades federativas que se encuentren o que pasen a color rojo en el semáforo epidemiológico. 
+                                </p>
+                                <p style="font-size: large;">
+                                    Con base en lo anterior, si usted elige llevar el procedimiento de conciliación de forma presencial podrá guardar su solicitud y recibirá el correspondiente acuse, pero no podrá continuar con el procedimiento de conciliación hasta que la entidad federativa donde se encuentra la Oficina Estatal competente pase a color naranja en el semáforo epidemiológico.
+                                </p>
+                                <p style="font-size: large;">
+                                    En caso de seleccionar la conciliación en línea se seguir&aacute; el procedimiento conforme a los t&eacute;rminos establecidos en la Ley.
+                                </p>
+                                <div style="margin-left: auto;">
+                                    {{-- <label style="font-size: large;" for="virtual">Aceptar procedimiento v&iacute;a remota</label>
+                                    <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="virtual" name='virtual'/> --}}
+                                    <button class="btn btn-primary m-l-5" onclick="siguienteVirtual()"> Continuar</button>
+                                </div>
                             </div>
-                            <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
-                            <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
-                            <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                                <table class="table table-bordered" >
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre</th>
-                                            <th>Curp</th>
-                                            <th>RFC</th>
-                                            <th>Acci&oacute;n</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbodySolicitanteRevision">
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoCitado" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
-                            <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                                <table class="table table-bordered" >
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre</th>
-                                            <th>Curp</th>
-                                            <th>RFC</th>
-                                            <th style="width:15%; text-align: center;">Acci&oacute;n</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbodySolicitadoRevision">
-                                    </tbody>
-                                </table>
+                            <div id="modal-virtual" style="display: none;">
+                                <div class="col-md-12">
+                                    <h2 style="text-align: center;"> Procedimiento v&iacute;a remota </h2>
+                                </div>
+                                <div class="col-md-12">
+                                    <ul>
+                                        <li style="font-size: large;" > Si desea llevar a cabo el procedimiento v&iacute;a remota se requiere que a continuaci&oacute;n cargue una identificación por cada solicitante. La identificaci&oacute;n la deber&aacute; cargar en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto a su nombre. </li>
+                                        <li style="font-size: large;" > Usted deber&aacute; seguir las instrucciones detalladas en el acuse para confirmar la solicitud y que se genere la fecha y hora de la audiencia de conciliaci&oacute;n v&iacute;a remota, misma que, posteriormente, se le deber&aacute; notificar al citado. Todo el procedimiento se har&aacute; por medio de una liga &uacute;nica que se le proporcionar&aacute; en el acuse de solicitud </li>
+                                        <li style="font-size: large;" > Una vez asignada la fecha y hora para la celebraci&oacute;n de la audiencia v&iacute;a remota usted comparecerá a trav&eacute;s de la liga única proporcionada. </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-12 row">
+                                    <div class="row col-md-9">
+                                        <div class="col-md-2" ></div>
+                                        <div class="custom-control custom-radio col-md-5" >
+                                            <input type="radio" id="radioVirtual1" name="radioVirtual" value="1" class="custom-control-input">
+                                            <label class="custom-control-label" style="font-size: large;" for="radioVirtual1">Acepto llevar la conciliaci&oacute;n v&iacute;a remota</label>
+                                        </div>
+                                        <div class="custom-control custom-radio col-md-5">
+                                            <input type="radio" id="radioVirtual2" name="radioVirtual" value="2" class="custom-control-input">
+                                            <label class="custom-control-label" style="font-size: large;" for="radioVirtual2">No, prefiero continuar con la conciliación presencial</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-right">
+                                        <button class="btn btn-primary m-l-5" onclick="aceptarVitual()"> Aceptar</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        <br>
-                        <br>
-                        <div class="col-md-12 form-group">
-                            <textarea rows="4" class="form-control" id="observaciones" onkeyup="validarPalabras(this)"></textarea>
-                            <p class="help-block">Descripci&oacute;n de los hechos motivo de la solicitud (<label id="numeroPalabras">0</label> de 200 palabras)</p>
-                            <input type="hidden" id="countObservaciones" />
+                        <div id="divPasoFinal" class="col-md-12">
+                            <div class="col-md-4 showEdit" >
+                                <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de confirmación" type="text" value="">
+                                <p class="help-block">Fecha de confirmaci&oacute;n</p>
+                            </div>
+                            <div class="col-md-4 showEdit">
+                                <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
+                                <p class="help-block needed">Fecha de recepción</p>
+                            </div>
+                            <div class="col-md-4 estatusSolicitud">
+                                {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Estatus de la solicitud</p>
+                            </div>
+                            <div class="col-md-12">
+                                <h4>Giro Comercial</h4>
+                                <h5 id="giro_solicitanteSol"></h4>
+                            </div>
+                            <div class="col-md-12">
+    
+                                <div><h4>Objeto de la solicitud</h4></div>
+                                <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                                    <table class="table table-bordered" >
+                                        <thead>
+                                            <tr>
+                                                <th>Objeto</th>
+                                                <th>Acci&oacute;n</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyObjetoSolRevision">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
+                                <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
+                                <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                                    <table class="table table-bordered" >
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Curp</th>
+                                                <th>RFC</th>
+                                                <th>Acci&oacute;n</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodySolicitanteRevision">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoCitado" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
+                                <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                                    <table class="table table-bordered" >
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Curp</th>
+                                                <th>RFC</th>
+                                                <th style="width:15%; text-align: center;">Acci&oacute;n</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodySolicitadoRevision">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+    
+                            <br>
+                            <br>
+                            <div class="col-md-12 form-group">
+                                <textarea rows="4" class="form-control" id="observaciones" onkeyup="validarPalabras(this)"></textarea>
+                                <p class="help-block">Descripci&oacute;n de los hechos motivo de la solicitud (<label id="numeroPalabras">0</label> de 200 palabras)</p>
+                                <input type="hidden" id="countObservaciones" />
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -873,7 +983,7 @@
 
             <div class="modal-body" >
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h5>Para determinar tu tipo de jornada, debes considerar las primeras 8 horas que laboras en un día.</h5>
+                <h5>Para determinar tu tipo de jornada, debes considerar las primeras 8 horas que laboras en un d&iacute;a.</h5>
                 <p style="font-size:large;">
                     <ol>
                         <li>Si estas 8 horas transcurren entre 6 am y 8 pm, es una jornada "DIURNA".</li>
@@ -894,7 +1004,6 @@
 <!-- Fin Modal de Domicilio-->
 
 <!-- inicio Modal Domicilio-->
-
 <div class="modal" id="modal-acuse" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog ">
         <div class="modal-content">
@@ -932,6 +1041,43 @@
 </div>
 <!-- Fin Modal de Domicilio-->
 
+<!-- inicio Modal Identificacion virtual-->
+<div class="modal" id="modal-identificacion-virtual" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-body" >
+                <div class="col-md-12">
+                    <div style="width: 100%; text-align:center;">
+                        <h1>Identificaci&oacute;n</h1>
+                    </div>
+                    <div style="width: 100%; text-align:center;">
+                        <div>
+                            <select class="form-control catSelect" id="clasificacion_archivo_id" name="clasificacion_archivo_id">
+                                <option value="">Seleccione una opci&oacute;n</option>
+                                @if(isset($clasificacion_archivo))
+                                    @foreach($clasificacion_archivo as $clasificacion)
+                                        <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            {!! $errors->first('clasificacion_archivo_id', '<span class=text-danger>:message</span>') !!}
+                            <p class="help-block needed">Tipo de identificaci&oacute;n</p>
+                        </div>
+                        <span class='btn btn-primary fileinput-button' style="display: none;" id="boton_file_solicitante">Seleccionar identificaci&oacute;n<input type='file' id='fileIdentificacion' id_identificacion='' class='fileIdentificacion' name='files'></span>
+                        <br>
+                        <span style='margin-top: 1%;' id='labelIdentifAlone'></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary btn-sm" onclick="loadFileSolicitante()" ><i class="fa fa-times"></i> Aceptar</a>
+                <a class="btn btn-white btn-sm" class="close" data-dismiss="modal" aria-hidden="true" ><i class="fa fa-times"></i> Cancelar</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal de Domicilio-->
+
 <!-- inicio Modal Aviso privacidad-->
 
 <div class="modal" id="modal-aviso-privacidad" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
@@ -945,10 +1091,10 @@
             <div class="modal-body" >
                 <div class="col-md-12">
                     <p>
-                        La Coordinación General de Conciliación Individual del Centro Federal de Conciliación y Registro Laboral (CFCRL), hace saber que sus datos personales aquí recabados son tratados de forma estrictamente confidencial.
+                        La Coordinación General de Conciliación Individual del Centro Federal de Conciliación y Registro Laboral (CFCRL), hace saber que sus datos personales aqu&iacute; recabados son tratados de forma estrictamente confidencial.
                     </p>
                     <p>
-                        Los datos personales que se recaban podrán ser transferidos con fundamento en el artículo 22; 66 y 70 de la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados.
+                        Los datos personales que se recaban podrán ser transferidos con fundamento en el art&iacute;culo 22; 66 y 70 de la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados.
                     </p>
                     <p>
                         Usted puede manifestar su negativa para el tratamiento de sus datos personales para aquellas finalidades que no sean necesarias, mediante comparecencia en la Unidad de Transparencia o a través de una solicitud por escrito debidamente firmada y enviada a la cuenta de correo electrónico <a href = "mailto: transparencia@centrolaboral.gob.mx">transparencia@centrolaboral.gob.mx </a>
@@ -987,8 +1133,6 @@
         </div>
     </div>
 </div>
-<!-- Fin Modal de Domicilio-->
-
 <!-- inicio Modal Alerta Giro-->
 
 <div class="modal" id="modal-giro" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
@@ -1004,7 +1148,7 @@
                         El sistema indica que la actividad principal del patrón es de competencia local, no federal.
                     </p>
                     <p style="font-size:large;">
-                        Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de confirmaci&oacute;n su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al centro de conciliación competente.
+                        Acuda al Centro de Conciliación local de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el Centro de Conciliación local, puede continuar la solicitud en el sistema federal y en el momento de confirmaci&oacute;n su solicitud será revisada por un funcionario el CFCRL, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el env&iacute;o de su solicitud al centro de conciliación competente.
                     </p>
                 </div>
                 <div style="display: none;" id="msjLocal">
@@ -1012,7 +1156,7 @@
                         El sistema indica que la actividad principal del patrón es de competencia federal, no local.
                     </p>
                     <p style="font-size:large;">
-                        Acuda a la Oficina Estatal del Centro Federal de Conciliación y Registro Laboral de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el CFCRL, puede continuar la solicitud en el Centro de Conciliación Local y en el momento de confirmaci&oacute;n su solicitud será revisada por un funcionario del Centro, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el envío de su solicitud al CFCRL.
+                        Acuda a la Oficina Estatal del Centro Federal de Conciliación y Registro Laboral de su entidad para realizar la solicitud, si no tiene la posibilidad de realizar a tiempo su solicitud en el CFCRL, puede continuar la solicitud en el Centro de Conciliación Local y en el momento de confirmaci&oacute;n su solicitud será revisada por un funcionario del Centro, quien determinará una corrección de la actividad principal o la emisión de una constancia de incompetencia y el env&iacute;o de su solicitud al CFCRL.
                     </p>
                 </div>
             </div>
@@ -1032,7 +1176,7 @@
         <div class="modal-content">
             <div class="modal-body">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h5>No captur&oacute; correo electr&oacute;nico, tome en cuenta que el correo electr&oacute;nico es muy importante para el seguimiento del proceso de conciliaci&oacute;n</h5>
+                <h5>No captur&oacute; correo electr&oacute;nico, tome en cuenta que el correo electr&oacute;nico es muy importante para el seguimiento del procedimiento de conciliaci&oacute;n</h5>
                 <div>
                     <label for="sin_correo">Seleccione si no tiene correo electr&oacute;nico</label>
                     <input type="checkbox" value="1" onchange="if($('#sin_correo').is(':checked')){ $('#btnContinuarCorreo').removeAttr('disabled'); }else{ $('#btnContinuarCorreo').attr('disabled', true);  }" data-render="switchery" data-theme="default" id="sin_correo" />
@@ -1121,6 +1265,7 @@
     var arrayObjetoSolicitudes = []; // Array de objeto_solicitude para el citado
     var arrayContactoSolicitantes = []; // Array de objeto_solicitude para el citado
     var arrayContactoSolicitados = []; // Array de objeto_solicitude para el citado
+    var arrayIdentificaciones = []; // Array de objeto_solicitude para el citado
     // var arraySolicitanteExcepcion = {}; // Array de solicitante excepción
     var ratifican = false;; // Array de solicitante excepción
     var editSolicitud = false; //Lista de citados
@@ -1224,7 +1369,7 @@
                         dato_laboral.resolucion = false;
                         solicitante.dato_laboral = dato_laboral;
                     }
-
+                    // Identificacion de solicitante
                     //domicilio del solicitante
 
                     var domicilio = {};
@@ -1245,9 +1390,9 @@
                         arraySolicitantes[key] = solicitante;
                     }
                     if(($("#tipo_solicitud_id").val() == 3 || $("#tipo_solicitud_id").val() == 2)){
-                            $(".no_enVigor").show();
-                            $(".estadoSelectsolicitante").select2({width: '100%'});
-                            $(".estadoSelectsolicitado").select2({width: '100%'});
+                        $(".no_enVigor").show();
+                        $(".estadoSelectsolicitante").select2({width: '100%'});
+                        $(".estadoSelectsolicitado").select2({width: '100%'});
                     }
                     limpiarSolicitante();
                     formarTablaSolicitante();
@@ -1255,6 +1400,7 @@
                     $('#divContactoSolicitante').hide();
                     $('#divMapaSolicitante').hide();
                     $('#divDatoLaboralSolicitante').hide();
+                    // $('#divDatoLaboralCitado').hide();
                     $('#divBotonesSolicitante').hide();
                     $(".pasoSolicitante").show();
                     $("#divCancelarCitado").hide();
@@ -1285,6 +1431,7 @@
                         }
                     }).then(function(isConfirm){
                         if(isConfirm){
+                            getAtiendeVirtual();
                             if(!editCitado){
                                 editCitado = true;
                                 $('#wizard').smartWizard('goToStep', 2);
@@ -1340,6 +1487,23 @@
                         solicitado.tipo_parte_id = 2;
                         solicitado.rfc = $("#idSolicitadoRfc").val();
                         solicitado.activo = 1;
+                        // if($("#tipo_solicitud_id").val() == "2"){
+                        //     var dato_laboral = {};
+                        //     dato_laboral.id = $("#dato_laboral_idCitado").val();
+                        //     dato_laboral.ocupacion_id = $("#ocupacion_idCitado").val();
+                        //     dato_laboral.puesto = $("#puestoCitado").val();
+                        //     dato_laboral.nss = $("#nssCitado").val();
+                        //     dato_laboral.no_issste = "";//$("#no_issste").val();
+                        //     dato_laboral.remuneracion = $("#remuneracionCitado").val();
+                        //     dato_laboral.periodicidad_id = $("#periodicidad_idCitado").val();
+                        //     dato_laboral.labora_actualmente = $("#labora_actualmenteCitado").is(":checked");
+                        //     dato_laboral.fecha_ingreso = dateFormat($("#fecha_ingresoCitado").val());
+                        //     dato_laboral.fecha_salida = dateFormat($("#fecha_salidaCitado").val());
+                        //     dato_laboral.jornada_id = $("#jornada_idCitado").val();
+                        //     dato_laboral.horas_semanales = $("#horas_semanalesCitado").val();
+                        //     dato_laboral.resolucion = false;
+                        //     solicitado.dato_laboral = dato_laboral;
+                        // }
                         solicitado.domicilios = arrayDomiciliosSolicitado;
                         //contactos del solicitado
                         solicitado.contactos = arrayContactoSolicitados;
@@ -1387,6 +1551,7 @@
                             }
                         }).then(function(isConfirm){
                             if(isConfirm){
+                                getAtiendeVirtual();
                                 if(!editCitado){
                                     editCitado = true;
                                     $('#wizard').smartWizard('goToStep', 3);
@@ -1485,6 +1650,17 @@
                 $("#divFechaSalida").show();
             }
         });
+        // $("#labora_actualmenteCitado").change(function(){
+        //     if($("#labora_actualmenteCitado").is(":checked")){
+        //         console.log("fecha_salida no requerida");
+        //         $("#fecha_salidaCitado").removeAttr("required");
+        //         $("#divFechaSalidaCitado").hide();
+        //     }else{
+        //         console.log("fecha_salida requerida");
+        //         $("#fecha_salidaCitado").attr("required","");
+        //         $("#divFechaSalidaCitado").show();
+        //     }
+        // });
         // $("#motivo_excepciones_id_solicitante").change(function(){
         //     if($(this).val() == 3){
         //         $("#divGrupoPrioritario").show();
@@ -1753,6 +1929,22 @@
         $("#fecha_salida").val("");
         $("#jornada_id").val("");
         $("#horas_semanales").val("");
+
+        // $("#dato_laboral_idCitado").val("");
+        // $("#ocupacion_idCitado").val("");
+        // $("#puestoCitado").val("");
+        // $("#nssCitado").val("");
+        // $("#no_isssteCitado").val("");
+        // $("#remuneracionCitado").val("");
+        // $("#periodicidad_idCitado").val("");
+        // if($("#labora_actualmenteCitado").is(":checked")){
+        //     $("#labora_actualmenteCitado").trigger('click');
+        // }
+        // $("#fecha_ingresoCitado").val("");
+        // $("#fecha_salidaCitado").val("");
+        // $("#jornada_idCitado").val("");
+        // $("#horas_semanalesCitado").val("");
+        
         $("#genero_id_solicitante").val("");
         $("#nacionalidad_id_solicitante").val("");
         $("#entidad_nacimiento_id_solicitante").val("");
@@ -2041,8 +2233,12 @@
 
                 html += "<td style='text-align: center;'><a class='btn btn-xs btn-primary' onclick='cargarEditarSolicitante("+key+")'><i class='fa fa-pencil-alt'></i></a> ";
                 if($("#ratificada").val() != "true"){
-                    html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                    html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a>";
                 }
+                if($('#radioVirtual1').is(":checked")){
+                    html += "<span class='btn btn-primary fileinput-button btn-xs' onclick='loadModalFile("+key+")'><i class='fa fa-fw fa-id-card'></i><span></span></span><span style='margin-top: 1%;' id='labelIdentif"+key+"'></span>";
+                }
+                html += "</td>";
                 html += "</tr>";
             }
         });
@@ -2269,6 +2465,32 @@
         arrayContactoSolicitados = arraySolicitados[key].contactos ? arraySolicitados[key].contactos : [];
         formarTablaContacto();
         // arrayContactoSolicitados = arraySolicitados[key].contactos;
+        // datos laborales en la solicitante
+        // if(arraySolicitados[key].dato_laboral != undefined){
+        //     if($.isArray(arraySolicitados[key].dato_laboral)){
+        //         arraySolicitados[key].dato_laboral = arraySolicitados[key].dato_laboral[0];
+        //     }
+        //     $("#dato_laboral_idCitado").val(arraySolicitados[key].dato_laboral.id);
+        //     $('#divDatoLaboralCitado').show();
+        //     // getGiroEditar("solicitante");
+        //     $("#ocupacion_idCitado").val(arraySolicitados[key].dato_laboral.ocupacion_id);
+        //     $("#puestoCitado").val(arraySolicitados[key].dato_laboral.puesto);
+        //     $("#nssCitado").val(arraySolicitados[key].dato_laboral.nss);
+        //     $("#no_isssteCitado").val(arraySolicitados[key].dato_laboral.no_issste);
+        //     $("#remuneracionCitado").val(arraySolicitados[key].dato_laboral.remuneracion);
+        //     $("#periodicidad_idCitado").val(arraySolicitados[key].dato_laboral.periodicidad_id);
+        //     if(arraySolicitados[key].dato_laboral.labora_actualmente != $("#labora_actualmenteCitado").is(":checked")){
+        //         $("#labora_actualmenteCitado").click();
+        //     }
+            
+        //     $("input[name='tipo_persona_solicitanteCitado']").trigger("change");
+        //     $("#fecha_ingresoCitado").val(dateFormat(arraySolicitados[key].dato_laboral.fecha_ingreso,4));
+        //     $("#fecha_salidaCitado").val(dateFormat(arraySolicitados[key].dato_laboral.fecha_salida,4));
+        //     $("#jornada_idCitado").val(arraySolicitados[key].dato_laboral.jornada_id);
+        //     $("#horas_semanalesCitado").val(arraySolicitados[key].dato_laboral.horas_semanales);
+        // }else{
+        //     $(".requiredLaboralCitado").removeAttr('required');
+        // }
         arrayDomiciliosSolicitado = arraySolicitados[key].domicilios;
         cargarEditarDomicilioSolicitado(0);
         formarTablaDomiciliosSolicitado();
@@ -2371,6 +2593,22 @@
             //funcion para obtener informacion de la excepcion
             var excepcion = getExcepcion();
             //Se llama api para guardar solicitud
+            if($("#virtual").is(":checked")){
+                var valido = true;
+                $.each(arraySolicitantes, function (key, value) {
+                    if(value.tmp_file == undefined){
+                        swal({
+                            title: 'Error',
+                            text: 'Es necesario agregar la identificación de todos los solicitantes',
+                            icon: 'error'
+                        });
+                        valido = false;
+                    }
+                });
+                if(!valido){
+                    return valido;
+                }
+            }
             if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 && arrayObjetoSolicitudes.length > 0 ){
 
                 var upd = "";
@@ -2473,6 +2711,8 @@
             solicitud.fecha_conflicto = dateFormat($("#fechaConflicto").val());
             solicitud.tipo_solicitud_id = $("#tipo_solicitud_id").val();
             solicitud.giro_comercial_id = $("#giro_comercial_hidden").val();
+            solicitud.virtual = $('#radioVirtual1').is(":checked");
+
             if($("input[name='recibo_oficial']").val() == 1){
                 recibo_oficial = true;
             }else{
@@ -2663,7 +2903,30 @@
         date2.setDate(date2.getDate()+1);
         $('#fecha_salida').datepicker("option", "minDate", date2);
     });
+    // $('#fecha_ingresoCitado').datepicker({
+    //     format: "dd/mm/yyyy",
+    //     changeMonth: true,
+    //     changeYear: true,
+    //     maxDate:0,
+    //     yearRange: "c-80:",
+    //     language: 'es',
+    //     autoclose: true,
+    // });
+    // var a = $('#fecha_ingresoCitado').datepicker("getDate");
+    // $('#fecha_salidaCitado').datepicker({
+    //     format: "dd/mm/yyyy",
+    //     language: "es",
+    //     yearRange: "c-80:",
+    //     changeMonth: true,
+    //     changeYear: true,
+    //     autoclose: true
+    // });
 
+    // $('#fecha_ingresoCitado').datepicker().on('change', function (ev) {
+    //     var date2 = $('#fecha_ingresoCitado').datepicker('getDate');
+    //     date2.setDate(date2.getDate()+1);
+    //     $('#fecha_salidaCitado').datepicker("option", "minDate", date2);
+    // });
 
     $(".date").datepicker({useCurrent: false,format:'dd/mm/yyyy'});
     $(".dateTime").datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm:ss'});
@@ -2703,6 +2966,42 @@
             }
         });
     }
+    function getAtiendeVirtual(){
+        if(($("#tipo_solicitud_id").val() == 3 || $("#tipo_solicitud_id").val() == 2)){
+            if(arraySolicitantes.length > 0){
+                $("#estado_centro_id").val(arraySolicitantes[0].domicilios[0].estado_id);
+            }
+        }else{
+            if(arraySolicitados.length > 0){
+                $("#estado_centro_id").val(arraySolicitados[0].domicilios[0].estado_id);
+            }
+        }
+        formarTablaSolicitante();
+        $.ajax({
+            url:"/centro/getAtiendeVirtual/"+$("#estado_centro_id").val(),
+            type:"GET",
+            dataType:"json",
+            async:true,
+            success:function(data){
+                try{
+                    if(data.atiende_virtual){
+                        $("#divPasoFinal").hide();
+                        $("#btnGuardar").hide();
+                        $(".atiendeVirtual").show();
+                        $("#atiende_virtual").val(true);
+                    }else{
+                        $("#divPasoFinal").show();
+                        $("#btnGuardar").show();
+                        $(".atiendeVirtual").hide();
+                        $("#atiende_virtual").val(false);
+                        $("#radioVirtual1").prop("checked", false);
+                    }
+                }catch(error){
+                    console.log(error);
+                }
+            }
+        });
+    }
 
     function validarPalabras(e){
         var numeroPalabras = countPalabras(e);
@@ -2723,12 +3022,21 @@
                 break;
             case 2:
                 if(arrayContactoSolicitantes.length > 0){
-                    var tieneCorreo = arrayContactoSolicitantes.find(x=>x.tipo_contacto_id == 3);
-                    if(tieneCorreo != undefined){
-                        $('#divMapaSolicitante').show();
-                        $('#continuar2').hide();
+                    var tieneTelefono = arrayContactoSolicitantes.find(x=>x.tipo_contacto_id < 3);
+                    if(tieneTelefono){
+                        var tieneCorreo = arrayContactoSolicitantes.find(x=>x.tipo_contacto_id == 3);
+                        if(tieneCorreo != undefined){
+                            $('#divMapaSolicitante').show();
+                            $('#continuar2').hide();
+                        }else{
+                            $("#modal_valida_correo").modal("show");
+                        }
                     }else{
-                        $("#modal_valida_correo").modal("show");
+                        swal({
+                        title: 'Error',
+                        text: 'Es necesario capturar al menos un telefono para continuar',
+                        icon: 'error',
+                    });
                     }
                 }else{
                     swal({
@@ -2745,11 +3053,26 @@
                         $('#divBotonesSolicitante').show();
                         $(".requiredLaboral").attr('required',true);
                         $('#continuar3').hide();
+                    //     $('#divDatoLaboralCitado').hide();
+                    //     $('#divBotonesCitado').hide();
+                    //     $(".requiredLaboralCitado").removeAttr('required',true);
+                    // }else if($("#tipo_solicitud_id").val() == 2){
+                    //     $("#divDatoLaboralSolicitante").removeAttr('data-parsley-validate');
+                    //     $(".requiredLaboral").removeAttr('required');
+                    //     $('#divBotonesSolicitante').show();
+                    //     $('#continuarCitado3').show();
+                    //     $('#continuar3').hide();
+                    //     $('#divDatoLaboralCitado').show();
+                    //     $('#divBotonesCitado').show();
+                    //     $(".requiredLaboralCitado").attr('required',true);
                     }else{
                         $("#divDatoLaboralSolicitante").removeAttr('data-parsley-validate');
                         $(".requiredLaboral").removeAttr('required');
                         $('#divBotonesSolicitante').show();
                         $('#continuar3').hide();
+                        // $('#divDatoLaboralCitado').hide();
+                        // $('#divBotonesCitado').hide();
+                        // $(".requiredLaboralCitado").removeAttr('required',true);
                     }
                 }
             break;
@@ -2768,10 +3091,16 @@
                 break;
             case 2:
                 $('#divMapaSolicitado').show();
-                // $('#continuarSolicitado2').hide();
-                 $('#divBotonesSolicitado').show();
+                // if($("#tipo_solicitud_id").val() == "2"){
+                //     $('#continuarCitado3').show();
+                // }else{
+                    $('#divBotonesSolicitado').show();
+                // }
             break;
             case 3:
+                // if($("#tipo_solicitud_id").val() == "2"){
+                //     $('#divDatoLaboralCitado').show();
+                // }
                 if($('#divMapaSolicitado').parsley().validate()){
                     $('#divBotonesSolicitado').show();
                     $('#continuarSolicitado3').hide();
@@ -2910,9 +3239,126 @@
             $("#modal-aviso-privacidad").modal('hide');
         }
     }
+    function aceptarVitual(){
+            $("#modal-virtual").show();
+            $("#divPasoFinal").show();
+            $("#btnGuardar").show();
+        formarTablaSolicitante();
+        if($('#radioVirtual1').is(":checked")){
+        }else if($('#radioVirtual2').is(":checked")){
+        }else{
+            swal({title: 'Atención',text: 'Es necesario seleccionar alguna de las opciones',icon: 'warning'});
+        }
+    }
+    function siguienteVirtual(){
+        $("#modal-virtual").show();
+    }
+    function loadFileSolicitante(){
+        if($("#fileIdentificacion").val() != "" && $("#clasificacion_archivo_id").val() != ""){
+            var formData = new FormData(); // Currently empty
+            var key = $("#fileIdentificacion").attr('id_identificacion');
+            var file = $("#fileIdentificacion")[0].files[0];
+            formData.append("file", file);
+            formData.append('_token', "{{ csrf_token() }}");
+            arraySolicitantes[key].clasificacion_archivo_id = $("#clasificacion_archivo_id").val();
+            $.ajax({
+                xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                var progreso = 0;
+                    // Download progress
+                    xhr.addEventListener("progress", function(evt){
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total;
+                        // Do something with download progress
+                        console.log(percentComplete);
+                        $('#progress-bar').show();
+                        var percent = parseInt(percentComplete * 100)
+                        $("#progressbar-ajax-value").text(percent+"%");;
+                        $('#progressbar-ajax').css({
+                            width: percent + '%'
+                        });
+                        if (percentComplete === 1) {
+                            $('#progress-bar').hide();
+                            $('#progressbar-ajax').css({
+                                width: '0%'
+                            });
+                        }
+                    }
+                }, false);
+                // Upload progress
+                xhr.upload.addEventListener("progress", function(evt){
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total;
+                        //Do something with upload progress
+                        console.log(percentComplete);
+                        $('#progress-bar').show();
+                        var percent = parseInt(percentComplete * 100)
+                        $("#progressbar-ajax-value").text(percent+"%");;
+                        $('#progressbar-ajax').css({
+                            width: percent + '%'
+                        });
+                        if (percentComplete === 1) {
+                            $('#progress-bar').hide();
+                            $('#progressbar-ajax').css({
+                                width: '0%'
+                            });
+                        }
+                    }
+                }, false);
+                return xhr;
+            },
+                url:"/solicitud/identificacion",
+                type:"POST",
+                dataType:"json",
+                processData: false,
+                contentType: false,
+                data:formData,
+                success:function(data){
+                    try{
+                        console.log(data.data);
+                        arraySolicitantes[key].tmp_file = data.data;
+                        $("#labelIdentif"+key).html(" Registrado <i class='fa fa-check' style='color:green'></i> ");
+                        $("#modal-identificacion-virtual").modal("hide");
+                        swal({title: 'Correcto',text: ' Identificación guardada correctametne ',icon: 'success'});
+                    }catch(error){
+                        console.log(error);
+                    }
+                },error:function(data){
+                    // console.log(data);
+                    try{
+                        swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
+                    }catch(error){
+                        console.log(error);
+                    }
+                },
+                error: function(){
+                    swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayor a 10M ',icon: 'warning'});
+                }
+            });
+        }else{
+            swal({title: 'Error',text: ' Seleccione un archivo para continuar ',icon: 'warning'});
+        }
+    }
+    function loadModalFile(solicitante_id){
+        $("#modal-identificacion-virtual").modal('show');
+        $("#fileIdentificacion").attr('id_identificacion',solicitante_id);
+    }
+    $(".fileIdentificacion").change(function(e){
+        var id = $(this).attr('id_identificacion');
+        if(id != ""){
+            $("#labelIdentifAlone").html("<b>Archivo: </b>"+e.target.files[0].name);
+        }else{
+            swal({title: 'Error',text: ' No selecciono un solicitante ',icon: 'warning'});
+        }
+    });
+    $("#clasificacion_archivo_id").change(function(e){
+        if($(this).val() != ""){
+            $("#boton_file_solicitante").show();
+        }else{
+            $("#boton_file_solicitante").hide();
+        }
+    });
+
 </script>
-
-
 <script src="/assets/plugins/highlight.js/highlight.min.js"></script>
-
 @endpush

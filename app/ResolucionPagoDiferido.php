@@ -16,5 +16,12 @@ class ResolucionPagoDiferido extends Model
     public function resolucionParte(){
         return $this->belongsTo(ResolucionPartes::class);
     }
+     /*
+     * Relación con la tabla partes para los solicitados
+     * un centro puede tener muchas salas
+     */
+    public function solicitante(){
+        return $this->belongsTo(Parte::class);
+    }
 }
 

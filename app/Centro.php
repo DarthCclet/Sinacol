@@ -84,4 +84,7 @@ class Centro extends Model implements Auditable
     {
         return $this->morphOne(Domicilio::class, 'domiciliable');
     }
+    public function contactos() {
+        return $this->morphMany(Contacto::class, 'contactable');
+    }
 }
