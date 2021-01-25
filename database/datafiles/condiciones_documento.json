@@ -43,7 +43,10 @@
                   },
                   {"catalogo":"Virtual",
                       "val":[""]
-                  }
+                  },
+                  {"catalogo":"Tipo",
+                    "val":["Individual"]
+                }
               ]
           },
           {
