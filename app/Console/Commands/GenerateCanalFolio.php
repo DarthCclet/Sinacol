@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\CanalFolio;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class GenerateCanalFolio extends Command
 {
@@ -48,7 +49,12 @@ class GenerateCanalFolio extends Command
                 $yearFolio = date("y");
                 $hex = dechex($i);
                 $folio = $yearFolio. $hex;
-                CanalFolio::create(['folio'=>$folio,'year'=>$year]);
+                DB::table('canal_folios')->insert(
+                    [
+                        'folio' => $folio,
+                        'year' => $year
+                    ]
+                );
             }
         }else{
             echo "Error ya existen folios para el año actual";
