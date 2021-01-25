@@ -124,8 +124,8 @@ Route::post('cambiarDomicilioParte', 'ParteController@cambiarDomicilioParte');
 
 # Rutas para firma autógrafa de los documentos
 Route::middleware(['auth:api'])->group(function () {
-    Route::get('documentos/preview','DocumentoController@preview');
     Route::Post('documentos/firmado','DocumentoController@firmado');
+    Route::get('documentos/preview','DocumentoController@preview');
 });
 
 Route::middleware(['auth'])->group(function () {

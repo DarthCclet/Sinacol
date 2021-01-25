@@ -150,7 +150,7 @@ class PlantillasDocumentosController extends Controller
       */
      public function show($id)
      {
-        
+
      }
 
      /**
@@ -333,7 +333,7 @@ class PlantillasDocumentosController extends Controller
        */
 
        private function getObjetoDocumento($objetos){
-        
+
         $objetoDocumento = [];
         //Se llena el catalogo desde el arvhivo json elemento_documentos.json
         $path = base_path('database/datafiles');
@@ -484,7 +484,7 @@ class PlantillasDocumentosController extends Controller
           }
         }
         // dd($objetoDocumento);
-        return $objetoDocumento; 
+        return $objetoDocumento;
        }
 
        /**
@@ -530,13 +530,13 @@ class PlantillasDocumentosController extends Controller
        public function previewDocumento(Request $request)
        {
           $idAudiencia = $request->audiencia_id;
-          $idSolicitud = $request->solicitud_id; 
-          $plantilla_id = $request->plantilla_id; 
-          $idSolicitante = $request->solicitante_id; 
-          $idSolicitado = $request->citado_id; 
-          $resolucion_id = $request->resolucion_id; 
-          $conceptos_pago = $request->listaConceptos; 
-          $resolucion_pagos = $request->listaFechasPago; 
+          $idSolicitud = $request->solicitud_id;
+          $plantilla_id = $request->plantilla_id;
+          $idSolicitante = $request->solicitante_id;
+          $idSolicitado = $request->citado_id;
+          $resolucion_id = $request->resolucion_id;
+          $conceptos_pago = $request->listaConceptos;
+          $resolucion_pagos = $request->listaFechasPago;
           $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla_id, $idSolicitante, $idSolicitado, $conceptos_pago, $resolucion_pagos,$resolucion_id);
           $html = file_get_contents(env('APP_URL').'/header/'.$plantilla_id) . $html . file_get_contents(env('APP_URL').'/footer/'.$plantilla_id);
           return $this->sendResponse($html, "Correcto");
@@ -816,7 +816,7 @@ class PlantillasDocumentosController extends Controller
                     $centro = Arr::except($centro, ['id','updated_at','created_at','deleted_at']);
                     $dom_centro = new JsonResponse($dom_centro);
                     $dom_centro = json_decode($dom_centro->content(),true);
-                    $centro['domicilio'] = Arr::except($dom_centro, ['id','updated_at','created_at','deleted_at','domiciliable_id','domiciliable_type']); 
+                    $centro['domicilio'] = Arr::except($dom_centro, ['id','updated_at','created_at','deleted_at','domiciliable_id','domiciliable_type']);
                     $tipo_vialidad =  ($dom_centro['tipo_vialidad'] !== null)? $dom_centro['tipo_vialidad'] :"";
                     $vialidad =  ($dom_centro['vialidad'] !== null)? $dom_centro['tipo_vialidad']." ". $dom_centro['vialidad'] :"";
                     $num_ext =  ($dom_centro['num_ext'] !== null)? " No. " . $dom_centro['num_ext'] :"";
@@ -940,13 +940,13 @@ class PlantillasDocumentosController extends Controller
                             $tablaConceptosConvenio .= '</tbody>';
                             $tablaConceptosConvenio .= '</table>';
                             $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
-                            
+
                             $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
                             $tablaConceptosActa .= '</tbody>';
                             $tablaConceptosActa .= '</table>';
                             $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
                             $tablaConceptosActa .= '<br>';
-                            
+
                             // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                             $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
                             $totalPercepcion = explode('.', $totalPercepciones);
@@ -983,7 +983,7 @@ class PlantillasDocumentosController extends Controller
                       }else{
                         $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
                       }
-                      
+
                       $totalPagosDiferidos=0;
                       foreach ($resolucion_pagos as $pago ) {
                           $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
@@ -996,7 +996,7 @@ class PlantillasDocumentosController extends Controller
                       $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                     }
                     // citados que convinieron comparecieron
-                    $partes_convenio = Compareciente::where('audiencia_id',$audienciaId)->get();  
+                    $partes_convenio = Compareciente::where('audiencia_id',$audienciaId)->get();
                     $hayPartesConvenio = count($partes_convenio);
                     if($hayPartesConvenio > 0){
                       $citadosConvenio = [];
@@ -1032,7 +1032,7 @@ class PlantillasDocumentosController extends Controller
                               $documentoRep = $representanteLegalC->documentos;
                               if( sizeof($documentoRep) > 0 ){
                                 foreach ($documentoRep as $k => $docu) {
-                                  
+
                                   if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
                                     $representanteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
                                   }else if($docu->clasificacionArchivo->tipo_archivo_id == 9){
@@ -1044,13 +1044,13 @@ class PlantillasDocumentosController extends Controller
                               $nombreRepresentada = ($parteRepresentada['tipo_persona_id']== 2)? $parteRepresentada['nombre_comercial']: $parteRepresentada['nombre'].' '.$parteRepresentada['primer_apellido'] .' '.$parteRepresentada['segundo_apellido'];
                               if($resolucion_id == null){
                                 if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
-                                  $nombreCitadoConvenio = $nombreRepresentada.' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
+                                  $nombreCitadoConvenio = $nombreRepresentada.' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
                                 }
-                              }elseif($resolucion_id=="1"){   
-                                $nombreCitadoConvenio = $nombreRepresentada.' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
+                              }elseif($resolucion_id=="1"){
+                                $nombreCitadoConvenio = $nombreRepresentada.' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
                               }
-                              //$nombreCitadoComparecientes = $parteRepresentada['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
-                              $nombreCitadoComparecientes = $nombreRepresentanteLegal .', en su carácter de representante legal de '. $nombreRepresentada . $representanteInstrumento .", ".$representanteIdentificacion; 
+                              //$nombreCitadoComparecientes = $parteRepresentada['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                              $nombreCitadoComparecientes = $nombreRepresentanteLegal .', en su carácter de representante legal de '. $nombreRepresentada . $representanteInstrumento .", ".$representanteIdentificacion;
                               $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                             }else{
                               foreach ($parteC->documentos as $k => $docu) {
@@ -1083,9 +1083,9 @@ class PlantillasDocumentosController extends Controller
                               }
                             }
                             if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
-                              $nombreCitadoConvenio = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
+                              $nombreCitadoConvenio = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
                             }
-                            $nombreCitadoComparecientes = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal' ; //$parteIdentificacion 
+                            $nombreCitadoComparecientes = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal' ; //$parteIdentificacion
                             $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteC['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                           }
                             if($nombreCitadoConvenio != ""){
@@ -1102,10 +1102,10 @@ class PlantillasDocumentosController extends Controller
                       if($hayPartesConvenio > 1){
                         $citadosConvenioA =  implode(", ",$citadosConvenio);
                         $nombreCitadosConvenio = $citadosConvenioA;//$this->lreplace(',', ' y', $citadosConvenioA);
-                        
+
                         $citadosConvenioB =  implode(", ",$citadosComparecientes);
                         $nombreCitadosComparecientes = $citadosConvenioB;//$this->lreplace(',', ' y', $citadosConvenioA);
-                        
+
                         $solicitantesB =  implode(", ",$solicitantesComparecientes);
                         $nombreSolicitanteComparecientes = $solicitantesB;//$this->lreplace(',', ' y', $citadosConvenioA);
                       }else{
@@ -1117,7 +1117,7 @@ class PlantillasDocumentosController extends Controller
                       $nombreCitadosComparecientes = "";
                       $clausulaCitadosConvenio = "";
                     }
-          
+
                     $datosResolucion['citados_comparecientes'] = $nombreCitadosComparecientes;
                     $datosResolucion['solicitantes_comparecientes'] = $nombreSolicitanteComparecientes;
                     $datosResolucion['citados_convenio'] = $nombreCitadosConvenio;
@@ -1150,7 +1150,7 @@ class PlantillasDocumentosController extends Controller
       }
 
         /*
-        Calcular posible prescripcion de derechos 
+        Calcular posible prescripcion de derechos
          */
         private function calcularPrescripcion($objetoSolicitud,$fechaConflicto,$fechaRatificacion)
         {
@@ -1174,10 +1174,10 @@ class PlantillasDocumentosController extends Controller
             return $prescripcion;
           } catch (\Throwable $th) {
             return "";
-          }  
+          }
         }
         /*
-        Calcular posible prescripcion de derechos 
+        Calcular posible prescripcion de derechos
          */
         private function calcularFechaMaximaRatificacion($fechaRecepcion,$centroId)
         {
@@ -1189,8 +1189,8 @@ class PlantillasDocumentosController extends Controller
               array_push($diasDisponibilidad,$disponibilidad->dia);
             }
             while ($ndia <= 3) {
-              $fechaRecepcion = Carbon::parse($fechaRecepcion); 
-              if($ndia<3){ 
+              $fechaRecepcion = Carbon::parse($fechaRecepcion);
+              if($ndia<3){
                 $fechaRecepcion = $fechaRecepcion->addDay();//sumar dia a fecha recepcion
                 $dayOfTheWeek = $fechaRecepcion->dayOfWeek; //dia de la semana de la fecha de recepcion
               }
@@ -1200,12 +1200,12 @@ class PlantillasDocumentosController extends Controller
               }
             }
             //Do,lu,ma,mi,ju,vi,sa
-            // 0,1,2,3,4,5,6 
+            // 0,1,2,3,4,5,6
             // return $this->formatoFecha($fechaRecepcion,1);
             return $fechaRecepcion->toDateTimeString();
           } catch (\Throwable $th) {
             return "";
-          }  
+          }
         }
 
         /*
@@ -1244,7 +1244,7 @@ class PlantillasDocumentosController extends Controller
             return $ddmmyy;
           } catch (\Throwable $th) {
             return "";
-          }  
+          }
         }
 
         public function renderDocumento($idAudiencia, $idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado, $conceptos_pago=null, $resolucion_pagos=null, $resolucion_id=null)
@@ -1372,6 +1372,7 @@ class PlantillasDocumentosController extends Controller
                       tfoot { display: table-row-group }
                       tr { page-break-inside: avoid }
                       #contenedor-firma {height: 5px;}
+                      .firma-llave-publica {text-align: center; font-size: xx-small; max-height: 1000px; overflow-wrap: break-word;}
                       body {
                             margin-left: 1cm;
                             margin-right: 1cm;
