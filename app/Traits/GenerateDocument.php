@@ -255,7 +255,7 @@ trait GenerateDocument
                   tfoot { display: table-row-group }
                   tr { page-break-inside: avoid }
                   #contenedor-firma {height: 5px;}
-                  .firma-llave-publica {text-align: center; font-size: xx-small; overflow-wrap: break-word;}
+                  .firma-llave-publica {text-align: center; font-size: xx-small; max-width: 1024px; overflow-wrap: break-word;}
                   body {
                         margin-left: 1cm;
                         margin-right: 1cm;
@@ -409,7 +409,7 @@ trait GenerateDocument
                       if($firmaDocumento != null){
                         $parte['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
                       } elseif ($firmaDocumento != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
-                          $parte['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">'.$firmaDocumento->firma.'</div>';
+                          $parte['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
                       } else{
                         $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($parteId."|".$tipoParte."|".$parte['nombre_completo']."|".$audienciaId."|".$idSolicitud."|".$idPlantilla."|".$idDocumento ."|".$idSolicitante ."|".$idSolicitado).'</div>';
                       }
@@ -568,7 +568,7 @@ trait GenerateDocument
                       if($firmaDocumento != null && $firmaDocumento->tipo_firma == 'autografa'){
                         $conciliador['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
                       } elseif ($firmaDocumento != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
-                        $conciliador['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">'.$firmaDocumento->firma.'</div>';
+                        $conciliador['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
                       }else{
                         $conciliador['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($conciliadorId."|conciliador|".$nombreConciliador."|".$audienciaId."|".$idSolicitud."|".$idPlantilla."|".$idDocumento ."|".$idSolicitante ."|".$idSolicitado).'</div>';
                       }
@@ -1059,6 +1059,13 @@ trait GenerateDocument
       } catch (\Throwable $th) {
         return "";
       }
+    }
+
+    public function splitFirma($firma)
+    {
+        $aFirma = str_split($firma,150);
+        $firma = implode("\n", $aFirma);
+        return $firma;
     }
 
     /**

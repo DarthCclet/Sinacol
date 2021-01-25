@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\CredencialesParaFirmaNoValidosException;
 use App\Exceptions\TextoFirmableInexistenteException;
 use EdgarOrozco\Docsigner\Facades\Docsigner;
 use Goutte\Client;
@@ -409,8 +410,6 @@ class DocumentoController extends Controller
                 );
             }
 
-            //TODO: hay que devolver los errores a la aplicación que invoca este método
-
             return response()->json([
                 'success' => true,
                 'message' => 'OK',
@@ -526,6 +525,7 @@ class DocumentoController extends Controller
      * @param $idSolicitud
      * @param $idPlantilla
      * @return array
+     * @throws CredencialesParaFirmaNoValidosException
      */
     protected function firmaConLlavePublica(Request $request, $idAudiencia, $idSolicitud, $idPlantilla)
     {
@@ -535,12 +535,11 @@ class DocumentoController extends Controller
 
         try {
             $texto_a_firmar = $this->textoQueSeFirma($idAudiencia, $idSolicitud, $idPlantilla);
-
-            //dd($texto_a_firmar);
             $firma = Docsigner::setCredenciales($cert_path, $key_path, $password)->firma($texto_a_firmar);
             return [$firma, $texto_a_firmar];
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            $message = "No ha sido posible realizar la firma del documento. Favor de revisar la validéz de su clave, archivo .key y/o archivo.cer";
+            throw new CredencialesParaFirmaNoValidosException($message);
         }
 
     }

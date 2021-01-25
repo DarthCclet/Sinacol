@@ -16,6 +16,7 @@
         "barryvdh/laravel-snappy": "^0.4.7",
         "doctrine/dbal": "^2.10",
         "edgar-orozco/docsigner": "^1.0",
+        "fabpot/goutte": "^4.0",
         "fideloper/proxy": "^4.0",
         "guzzlehttp/guzzle": "^6.5",
         "h4cc/wkhtmltoimage-amd64": "0.12.x",
