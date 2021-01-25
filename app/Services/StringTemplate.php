@@ -69,6 +69,7 @@ class StringTemplate
         $countSolicitudRatificada = substr_count($string,'[SI_SOLICITUD_RATIFICADA]');
         $countPagosDiferidos = substr_count($string,'[SI_RESOLUCION_PAGO_DIFERIDO]');
         $countSolicitudVirtual = substr_count($string,'[SI_SOLICITUD_VIRTUAL]');
+        $countCentroVirtual = substr_count($string,'[SI_CENTRO_ATIENDE_VIRTUAL]');
         if (isset($vars['resolucion_total_diferidos'])){
           if($countPagosDiferidos >0){
             for ($i=0; $i < $countPagosDiferidos; $i++) {
@@ -167,18 +168,41 @@ class StringTemplate
         }
         if (isset($vars['solicitud_virtual'])&& $countSolicitudVirtual > 0){
           for ($i=0; $i < $countSolicitudVirtual; $i++) {
-            $htmlA = Str::before($string, '[SI_SOLICITUD_VIRTUAL');
-            $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_VIRTUAL]');
-            if($vars['solicitud_virtual']){ //solicitud es virtual
+            if($vars['solicitud_virtual'] == 'Si'){ //solicitud es virtual
+                $htmlA = Str::before($string, '[SI_SOLICITUD_VIRTUAL');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_VIRTUAL]');
                 $sliceVirtual = Str::after($string, '[SI_SOLICITUD_VIRTUAL]');
                 $sliceVirtual = Str::before($sliceVirtual, '[SI_SOLICITUD_NO_VIRTUAL]');
 
                 $string = $htmlA . $sliceVirtual . $htmlB;
-              }else{//solicitud no virtual
+              }else if($vars['solicitud_virtual']== 'No'){//solicitud no virtual
+                $htmlA = Str::before($string, '[SI_SOLICITUD_VIRTUAL');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_VIRTUAL]');
                 $sliceVirtual = Str::after($string, '[SI_SOLICITUD_NO_VIRTUAL]');
                 $sliceVirtual = Str::before($sliceVirtual, '[FIN_SI_SOLICITUD_VIRTUAL]');
 
                 $string = $htmlA . $sliceVirtual . $htmlB;
+            }
+          }
+        }
+        
+        if (isset($vars['centro_atiende_virtual'])&& $countCentroVirtual > 0){
+          for ($i=0; $i < $countCentroVirtual; $i++) {
+            if($vars['centro_atiende_virtual'] == 'Si' ){ //solicitud es virtual
+              $htmlA = Str::before($string, '[SI_CENTRO_ATIENDE_VIRTUAL');
+              $htmlB = Str::after($string, '[FIN_SI_CENTRO_ATIENDE]');
+                $sliceCentroVirtual = Str::after($string, '[SI_CENTRO_ATIENDE_VIRTUAL]');
+                $sliceCentroVirtual = Str::before($sliceCentroVirtual, '[SI_CENTRO_NO_ATIENDE_VIRTUAL]');
+
+                $string = $htmlA . $sliceCentroVirtual . $htmlB;
+              }else if($vars['centro_atiende_virtual'] == 'No' ){//solicitud no virtual
+                $htmlA = Str::before($string, '[SI_CENTRO_ATIENDE_VIRTUAL');
+                $htmlB = Str::after($string, '[FIN_SI_CENTRO_ATIENDE]');
+
+                $sliceCentroVirtual = Str::after($string, '[SI_CENTRO_NO_ATIENDE_VIRTUAL]');
+                $sliceCentroVirtual = Str::before($sliceCentroVirtual, '[FIN_SI_CENTRO_ATIENDE]');
+
+                $string = $htmlA . $sliceCentroVirtual . $htmlB;
             }
           }
         }
