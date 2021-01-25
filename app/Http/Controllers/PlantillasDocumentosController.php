@@ -471,6 +471,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'hora_fin');
                 array_push($columnNames,'dias');
                 array_push($columnNames,'domicilio_completo');
+                array_push($columnNames,'telefono');
                 array_push($columnNames,['nombre'=>'domicilio', 'columns'=>$columnDomicilio]);
               }
               $objetoDocumento [] =
@@ -808,8 +809,9 @@ class PlantillasDocumentosController extends Controller
                       }
                     $data = Arr::add( $data, 'conciliador', $conciliador );
                   }elseif ($model == 'Centro') {
-                    $objeto = $model_name::with('domicilio','disponibilidades')->find($centroId);
+                    $objeto = $model_name::with('domicilio','disponibilidades','contactos')->find($centroId);
                     $dom_centro = $objeto->domicilio;
+                    $contacto_centro = $objeto->contactos;
                     $disponibilidad_centro = $objeto->disponibilidades;
                     $objeto = new JsonResponse($objeto);
                     $centro = json_decode($objeto->content(),true);
@@ -826,6 +828,15 @@ class PlantillasDocumentosController extends Controller
                     $municipio =  ($dom_centro['municipio'] !== null)? $colonia . $dom_centro['municipio'] :"";
                     $estado =  ($dom_centro['estado'] !== null)? $dom_centro['estado'] :"";
                     $centro['domicilio_completo'] = mb_strtoupper($tipo_vialidad.' '.$vialidad. $num.', '.$municipio.', '.$estado);
+                    $contacto_centro = new JsonResponse($contacto_centro);
+                    $contacto_centro = json_decode($contacto_centro->content(),true);
+                    foreach ($contacto_centro as $contacto ) {
+                      if($contacto['tipo_contacto_id'] == 1 || $contacto['tipo_contacto_id'] == 2 ){
+                        $centro['telefono'] = $contacto['contacto'];
+                      }else{
+                        $centro['telefono'] = '--- -- -- ---';
+                      }
+                    }
                     //Disponibilidad del centro horarios y dias
                     $disponibilidad_centro = new JsonResponse($disponibilidad_centro);
                     $disponibilidad_centro = json_decode($disponibilidad_centro->content(),true);
