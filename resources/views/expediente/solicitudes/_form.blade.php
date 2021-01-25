@@ -833,94 +833,126 @@
                         <input type="hidden" id="ratificada">
                         <input type="hidden" id="tipo_solicitud_id" value="{{$tipo_solicitud_id}}">
                         <div class="col-md-12 atiendeVirtual row" style="display: none; margin:2%;">
-                            <div class="card col-md-12" style="padding: 2%; border: 1px solid #9d2449;">
-                                <h3 for='virtual'>Llevar proceso v&iacute;a remota</h3>
-                                <p style="font-size: larger;">
+                            <div class="col-md-12">
+                                <h3 for='virtual'>Llevar procedimiento v&iacute;a remota</h3>
+                                <p style="font-size: large;">
                                     Conforme al <a target="_blank" href="https://www.dof.gob.mx/nota_detalle.php?codigo=5608350&fecha=21/12/2020 ">Acuerdo</a> por el que se establece la suspensión de plazos y términos en el Centro Federal de Conciliación y Registro Laboral publicado el 21 de diciembre de 2020 en el Diario Oficial de la Federación, se declara la suspensión de plazos y términos en las entidades federativas que se encuentren o que pasen a color rojo en el semáforo epidemiológico. 
                                 </p>
-                                <p style="font-size: larger;">
-                                    Con base en lo anterior, si usted elige llevar el procedimiento de conciliación de forma presencial podrá guardar su solicitud y recibirá el correspondiente acuse, pero no podrá continuar con el procedimiento de conciliación hasta que la entidad federativa pase a color naranja en el semáforo epidemiológico. 
+                                <p style="font-size: large;">
+                                    Con base en lo anterior, si usted elige llevar el procedimiento de conciliación de forma presencial podrá guardar su solicitud y recibirá el correspondiente acuse, pero no podrá continuar con el procedimiento de conciliación hasta que la entidad federativa donde se encuentra la Oficina Estatal competente pase a color naranja en el semáforo epidemiológico.
                                 </p>
-                                <p style="font-size: larger;">
-                                    En caso de seleccionar la conciliación en línea se seguir&aacute; el proceso conforme a los t&eacute;rminos establecidos en la Ley.
+                                <p style="font-size: large;">
+                                    En caso de seleccionar la conciliación en línea se seguir&aacute; el procedimiento conforme a los t&eacute;rminos establecidos en la Ley.
                                 </p>
                                 <div style="margin-left: auto;">
-                                    <label style="font-size: larger;" for="virtual">Aceptar proceso v&iacute;a remota</label>
-                                    <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="virtual" name='virtual'/>
+                                    {{-- <label style="font-size: large;" for="virtual">Aceptar procedimiento v&iacute;a remota</label>
+                                    <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="virtual" name='virtual'/> --}}
+                                    <button class="btn btn-primary m-l-5" onclick="siguienteVirtual()"> Continuar</button>
+                                </div>
+                            </div>
+                            <div id="modal-virtual" style="display: none;">
+                                <div class="col-md-12">
+                                    <h2 style="text-align: center;"> Procedimiento v&iacute;a remota </h2>
+                                </div>
+                                <div class="col-md-12">
+                                    <ul>
+                                        <li style="font-size: large;" > Si desea llevar a cabo el procedimiento v&iacute;a remota se requiere que a continuaci&oacute;n cargue una identificación por cada solicitante. La identificaci&oacute;n la deber&aacute; cargar en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto a su nombre. </li>
+                                        <li style="font-size: large;" > Usted deber&aacute; seguir las instrucciones detalladas en el acuse para confirmar la solicitud y que se genere la fecha y hora de la audiencia de conciliaci&oacute;n v&iacute;a remota, misma que, posteriormente, se le deber&aacute; notificar al citado. Todo el procedimiento se har&aacute; por medio de una liga &uacute;nica que se le proporcionar&aacute; en el acuse de solicitud </li>
+                                        <li style="font-size: large;" > Una vez asignada la fecha y hora para la celebraci&oacute;n de la audiencia v&iacute;a remota usted comparecerá a trav&eacute;s de la liga única proporcionada. </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-12 row">
+                                    <div class="row col-md-9">
+                                        <div class="col-md-2" ></div>
+                                        <div class="custom-control custom-radio col-md-5" >
+                                            <input type="radio" id="radioVirtual1" name="radioVirtual" value="1" class="custom-control-input">
+                                            <label class="custom-control-label" style="font-size: large;" for="radioVirtual1">Acepto llevar la conciliaci&oacute;n v&iacute;a remota</label>
+                                        </div>
+                                        <div class="custom-control custom-radio col-md-5">
+                                            <input type="radio" id="radioVirtual2" name="radioVirtual" value="2" class="custom-control-input">
+                                            <label class="custom-control-label" style="font-size: large;" for="radioVirtual2">No, prefiero continuar con la conciliación presencial</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-right">
+                                        <button class="btn btn-primary m-l-5" onclick="aceptarVitual()"> Aceptar</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4 showEdit" >
-                            <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de confirmación" type="text" value="">
-                            <p class="help-block">Fecha de confirmaci&oacute;n</p>
-                        </div>
-                        <div class="col-md-4 showEdit">
-                            <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
-                            <p class="help-block needed">Fecha de recepción</p>
-                        </div>
-                        <div class="col-md-4 estatusSolicitud">
-                            {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
-                            {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
-                            <p class="help-block needed">Estatus de la solicitud</p>
-                        </div>
-                        <div class="col-md-12">
-                            <h4>Giro Comercial</h4>
-                            <h5 id="giro_solicitanteSol"></h4>
-                        </div>
-                        <div class="col-md-12">
-
-                            <div><h4>Objeto de la solicitud</h4></div>
-                            <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                                <table class="table table-bordered" >
-                                    <thead>
-                                        <tr>
-                                            <th>Objeto</th>
-                                            <th>Acci&oacute;n</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbodyObjetoSolRevision">
-                                    </tbody>
-                                </table>
+                        <div id="divPasoFinal" class="col-md-12">
+                            <div class="col-md-4 showEdit" >
+                                <input class="form-control dateTime" id="fechaRatificacion" disabled placeholder="Fecha de confirmación" type="text" value="">
+                                <p class="help-block">Fecha de confirmaci&oacute;n</p>
                             </div>
-                            <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
-                            <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
-                            <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                                <table class="table table-bordered" >
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre</th>
-                                            <th>Curp</th>
-                                            <th>RFC</th>
-                                            <th>Acci&oacute;n</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbodySolicitanteRevision">
-                                    </tbody>
-                                </table>
+                            <div class="col-md-4 showEdit">
+                                <input class="form-control dateTime" id="fechaRecepcion" disabled placeholder="Fecha de Recepción" type="text" value="">
+                                <p class="help-block needed">Fecha de recepción</p>
                             </div>
-                            <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoCitado" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
-                            <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
-                                <table class="table table-bordered" >
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre</th>
-                                            <th>Curp</th>
-                                            <th>RFC</th>
-                                            <th style="width:15%; text-align: center;">Acci&oacute;n</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbodySolicitadoRevision">
-                                    </tbody>
-                                </table>
+                            <div class="col-md-4 estatusSolicitud">
+                                {!! Form::select('estatus_solicitud_id', isset($estatus_solicitudes) ? $estatus_solicitudes : [] , isset($solicitud->estatus_solicitud_id) ?  $solicitud->estatus_solicitud_id : null, ['id'=>'estatus_solicitud_id','disabled','placeholder' => 'Seleccione una opción', 'class' => 'form-control catSelect']);  !!}
+                                {!! $errors->first('estatus_solicitud_id', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Estatus de la solicitud</p>
                             </div>
-                        </div>
-
-                        <br>
-                        <br>
-                        <div class="col-md-12 form-group">
-                            <textarea rows="4" class="form-control" id="observaciones" onkeyup="validarPalabras(this)"></textarea>
-                            <p class="help-block">Descripci&oacute;n de los hechos motivo de la solicitud (<label id="numeroPalabras">0</label> de 200 palabras)</p>
-                            <input type="hidden" id="countObservaciones" />
+                            <div class="col-md-12">
+                                <h4>Giro Comercial</h4>
+                                <h5 id="giro_solicitanteSol"></h4>
+                            </div>
+                            <div class="col-md-12">
+    
+                                <div><h4>Objeto de la solicitud</h4></div>
+                                <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                                    <table class="table table-bordered" >
+                                        <thead>
+                                            <tr>
+                                                <th>Objeto</th>
+                                                <th>Acci&oacute;n</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyObjetoSolRevision">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
+                                <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
+                                <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                                    <table class="table table-bordered" >
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Curp</th>
+                                                <th>RFC</th>
+                                                <th>Acci&oacute;n</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodySolicitanteRevision">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoCitado" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
+                                <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
+                                    <table class="table table-bordered" >
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Curp</th>
+                                                <th>RFC</th>
+                                                <th style="width:15%; text-align: center;">Acci&oacute;n</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodySolicitadoRevision">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+    
+                            <br>
+                            <br>
+                            <div class="col-md-12 form-group">
+                                <textarea rows="4" class="form-control" id="observaciones" onkeyup="validarPalabras(this)"></textarea>
+                                <p class="help-block">Descripci&oacute;n de los hechos motivo de la solicitud (<label id="numeroPalabras">0</label> de 200 palabras)</p>
+                                <input type="hidden" id="countObservaciones" />
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -1101,48 +1133,6 @@
         </div>
     </div>
 </div>
-<!-- Fin Modal de Domicilio-->
-
-<div class="modal" id="modal-virtual" data-backdrop="static" data-keyboard="false" aria-hidden="true" >
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="col-md-12">
-                    <h2 style="text-align: center;"> Proceso v&iacute;a remota </h2>
-                </div>
-            </div>
-            <div class="modal-body" >
-                <div class="col-md-12">
-                    <ul>
-                        <li style="font-size: larger;" > Si desea llevar a cabo el procedimiento v&iacute;a remota se requiere que a continuaci&oacute;n cargue una identificación por cada solicitante. La identificaci&oacute;n la deber&aacute; cargar en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto a su nombre. </li>
-                        <li style="font-size: larger;" > Usted deber&aacute; seguir las instrucciones detalladas en el acuse para confirmar la solicitud y que se genere la fecha y hora de la audiencia de conciliaci&oacute;n v&iacute;a remota, misma que, posteriormente, se le deber&aacute; de notificar al citado. Todo el procedimiento se har&aacute; por medio de una liga &uacute;nica que se le proporcionar&aacute; en el acuse de solicitud </li>
-                        <li style="font-size: larger;" > Una vez asignada la fecha y hora para la celebraci&oacute;n de la audiencia v&iacute;a remota usted comparecerá a trav&eacute;s de la liga única proporcionada. </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="col-md-12 row">
-
-                    <div class="row col-md-9">
-                        <div class="col-md-2" ></div>
-                        <div class="custom-control custom-radio col-md-5" >
-                            <input type="radio" id="radioVirtual1" name="radioVirtual" value="1" class="custom-control-input">
-                            <label class="custom-control-label" style="font-size: larger;" for="radioVirtual1">Aceptar conciliaci&oacute;n v&iacute;a remota</label>
-                        </div>
-                        <div class="custom-control custom-radio col-md-5">
-                            <input type="radio" id="radioVirtual2" name="radioVirtual" value="2" class="custom-control-input">
-                            <label class="custom-control-label" style="font-size: larger;" for="radioVirtual2">No, prefiero continuar con la conciliación presencial</label>
-                        </div>
-                    </div>
-                    <div class="col-md-3 text-right">
-                        <button class="btn btn-primary m-l-5" onclick="aceptarVitual()"> Aceptar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- inicio Modal Alerta Giro-->
 
 <div class="modal" id="modal-giro" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
@@ -1186,7 +1176,7 @@
         <div class="modal-content">
             <div class="modal-body">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h5>No captur&oacute; correo electr&oacute;nico, tome en cuenta que el correo electr&oacute;nico es muy importante para el seguimiento del proceso de conciliaci&oacute;n</h5>
+                <h5>No captur&oacute; correo electr&oacute;nico, tome en cuenta que el correo electr&oacute;nico es muy importante para el seguimiento del procedimiento de conciliaci&oacute;n</h5>
                 <div>
                     <label for="sin_correo">Seleccione si no tiene correo electr&oacute;nico</label>
                     <input type="checkbox" value="1" onchange="if($('#sin_correo').is(':checked')){ $('#btnContinuarCorreo').removeAttr('disabled'); }else{ $('#btnContinuarCorreo').attr('disabled', true);  }" data-render="switchery" data-theme="default" id="sin_correo" />
@@ -2245,7 +2235,7 @@
                 if($("#ratificada").val() != "true"){
                     html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a>";
                 }
-                if($("#virtual").is(":checked")){
+                if($('#radioVirtual1').is(":checked")){
                     html += "<span class='btn btn-primary fileinput-button btn-xs' onclick='loadModalFile("+key+")'><i class='fa fa-fw fa-id-card'></i><span></span></span><span style='margin-top: 1%;' id='labelIdentif"+key+"'></span>";
                 }
                 html += "</td>";
@@ -2994,9 +2984,13 @@
             success:function(data){
                 try{
                     if(data.atiende_virtual){
+                        $("#divPasoFinal").hide();
+                        $("#btnGuardar").hide();
                         $(".atiendeVirtual").show();
                         $("#atiende_virtual").val(true);
                     }else{
+                        $("#divPasoFinal").show();
+                        $("#btnGuardar").show();
                         $(".atiendeVirtual").hide();
                         $("#atiende_virtual").val(false);
                     }
@@ -3244,102 +3238,104 @@
         }
     }
     function aceptarVitual(){
+            $("#modal-virtual").show();
+            $("#divPasoFinal").show();
+            $("#btnGuardar").show();
+        formarTablaSolicitante();
         if($('#radioVirtual1').is(":checked")){
-            $("#modal-virtual").modal('hide');
         }else if($('#radioVirtual2').is(":checked")){
-            $("#virtual").click();
-            $("#modal-virtual").modal('hide');
         }else{
             swal({title: 'Atención',text: 'Es necesario seleccionar alguna de las opciones',icon: 'warning'});
         }
     }
-    $("#virtual").change(function(e){
-        if($(this).is(":checked")){
-            $("#modal-virtual").modal('show');
-        }
-        formarTablaSolicitante();
-    });
+    function siguienteVirtual(){
+        $("#modal-virtual").show();
+    }
     function loadFileSolicitante(){
-        var formData = new FormData(); // Currently empty
-        var key = $("#fileIdentificacion").attr('id_identificacion');
-        var file = $("#fileIdentificacion")[0].files[0];
-        formData.append("file", file);
-        formData.append('_token', "{{ csrf_token() }}");
-        arraySolicitantes[key].clasificacion_archivo_id = $("#clasificacion_archivo_id").val();
-        $.ajax({
-            xhr: function() {
-            var xhr = new window.XMLHttpRequest();
-            var progreso = 0;
-                // Download progress
-                xhr.addEventListener("progress", function(evt){
-                if (evt.lengthComputable) {
-                    var percentComplete = evt.loaded / evt.total;
-                    // Do something with download progress
-                    console.log(percentComplete);
-                    $('#progress-bar').show();
-                    var percent = parseInt(percentComplete * 100)
-                    $("#progressbar-ajax-value").text(percent+"%");;
-                    $('#progressbar-ajax').css({
-                        width: percent + '%'
-                    });
-                    if (percentComplete === 1) {
-                        $('#progress-bar').hide();
+        if($("#fileIdentificacion").val() != "" && $("#clasificacion_archivo_id").val() != ""){
+            var formData = new FormData(); // Currently empty
+            var key = $("#fileIdentificacion").attr('id_identificacion');
+            var file = $("#fileIdentificacion")[0].files[0];
+            formData.append("file", file);
+            formData.append('_token', "{{ csrf_token() }}");
+            arraySolicitantes[key].clasificacion_archivo_id = $("#clasificacion_archivo_id").val();
+            $.ajax({
+                xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                var progreso = 0;
+                    // Download progress
+                    xhr.addEventListener("progress", function(evt){
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total;
+                        // Do something with download progress
+                        console.log(percentComplete);
+                        $('#progress-bar').show();
+                        var percent = parseInt(percentComplete * 100)
+                        $("#progressbar-ajax-value").text(percent+"%");;
                         $('#progressbar-ajax').css({
-                            width: '0%'
+                            width: percent + '%'
                         });
+                        if (percentComplete === 1) {
+                            $('#progress-bar').hide();
+                            $('#progressbar-ajax').css({
+                                width: '0%'
+                            });
+                        }
                     }
-                }
-            }, false);
-            // Upload progress
-            xhr.upload.addEventListener("progress", function(evt){
-                if (evt.lengthComputable) {
-                    var percentComplete = evt.loaded / evt.total;
-                    //Do something with upload progress
-                    console.log(percentComplete);
-                    $('#progress-bar').show();
-                    var percent = parseInt(percentComplete * 100)
-                    $("#progressbar-ajax-value").text(percent+"%");;
-                    $('#progressbar-ajax').css({
-                        width: percent + '%'
-                    });
-                    if (percentComplete === 1) {
-                        $('#progress-bar').hide();
+                }, false);
+                // Upload progress
+                xhr.upload.addEventListener("progress", function(evt){
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total;
+                        //Do something with upload progress
+                        console.log(percentComplete);
+                        $('#progress-bar').show();
+                        var percent = parseInt(percentComplete * 100)
+                        $("#progressbar-ajax-value").text(percent+"%");;
                         $('#progressbar-ajax').css({
-                            width: '0%'
+                            width: percent + '%'
                         });
+                        if (percentComplete === 1) {
+                            $('#progress-bar').hide();
+                            $('#progressbar-ajax').css({
+                                width: '0%'
+                            });
+                        }
                     }
-                }
-            }, false);
-            return xhr;
-        },
-            url:"/solicitud/identificacion",
-            type:"POST",
-            dataType:"json",
-            processData: false,
-            contentType: false,
-            data:formData,
-            success:function(data){
-                try{
-                    console.log(data.data);
-                    arraySolicitantes[key].tmp_file = data.data;
-                    $("#labelIdentif"+key).html(" Registrado <i class='fa fa-check' style='color:green'></i> ");
-                    $("#modal-identificacion-virtual").modal("hide");
-                    swal({title: 'Correcto',text: ' Identificación guardada correctametne ',icon: 'success'});
-                }catch(error){
-                    console.log(error);
-                }
-            },error:function(data){
-                // console.log(data);
-                try{
-                    swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
-                }catch(error){
-                    console.log(error);
-                }
+                }, false);
+                return xhr;
             },
-            error: function(){
-                swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayor a 10M ',icon: 'warning'});
-            }
-        });
+                url:"/solicitud/identificacion",
+                type:"POST",
+                dataType:"json",
+                processData: false,
+                contentType: false,
+                data:formData,
+                success:function(data){
+                    try{
+                        console.log(data.data);
+                        arraySolicitantes[key].tmp_file = data.data;
+                        $("#labelIdentif"+key).html(" Registrado <i class='fa fa-check' style='color:green'></i> ");
+                        $("#modal-identificacion-virtual").modal("hide");
+                        swal({title: 'Correcto',text: ' Identificación guardada correctametne ',icon: 'success'});
+                    }catch(error){
+                        console.log(error);
+                    }
+                },error:function(data){
+                    // console.log(data);
+                    try{
+                        swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});
+                    }catch(error){
+                        console.log(error);
+                    }
+                },
+                error: function(){
+                    swal({title: 'Error',text: 'No se pudo capturar el representante legal, revisa que el tamaño de tus documentos nos sea mayor a 10M ',icon: 'warning'});
+                }
+            });
+        }else{
+            swal({title: 'Error',text: ' Seleccione un archivo para continuar ',icon: 'warning'});
+        }
     }
     function loadModalFile(solicitante_id){
         $("#modal-identificacion-virtual").modal('show');

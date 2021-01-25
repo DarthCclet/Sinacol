@@ -1353,6 +1353,8 @@ class AudienciaController extends Controller {
                 }
             }
         }
+        $solicitud = $audiencia->expediente->solicitud();
+        $solicitud->update(['url_virtual' => null]);
         //generar acta de audiencia
         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3));
     }
