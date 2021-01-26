@@ -97,7 +97,7 @@
                     <button class="btn btn-primary btn-sm m-l-5" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-arrow-down"></i> Cerrar</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnCambiarConciliador"><i class="fa fa-user-friends"></i> Cambiar Conciliador</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnFinalizarRatificacion"><i class="fa fa-calendar"></i> Reprogramar</button>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnSuspension" title="suspensión de audiencia vía remota por falta de aceptación del citado"><i class="fa fa-calendar"></i> Suspención de audiencia</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnSuspension" title="suspensión de audiencia vía remota por falta de aceptación del citado"><i class="fa fa-calendar"></i> Suspensión de audiencia</button>
                 </div>
             </div>
         </div>
