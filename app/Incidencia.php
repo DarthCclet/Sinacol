@@ -125,7 +125,6 @@ class Incidencia extends Model implements AuditableContract
                 $diasRecorridos++;
             }
         }
-        
         $max = $max - $dias;
         return self::siguienteDiaHabil($d,$id,$incidencia_type,$max);
     }
