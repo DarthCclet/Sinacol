@@ -4,7 +4,7 @@
 
 @include('includes.component.datatables')
 @include('includes.component.pickers')
-
+@include('includes.component.dropzone')
 
 @section('content')
     <!-- begin breadcrumb -->

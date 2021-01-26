@@ -791,8 +791,8 @@ trait GenerateDocument
                                   if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
                                     $representanteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
                                   }else if($docu->clasificacionArchivo->tipo_archivo_id == 9){
-                                    $representantePoder = ($docu->clasificacionArchivo->nombre != null ) ? " en términos de " .$docu->clasificacionArchivo->nombre . ' poder que a la fecha de este convenio no le ha sido revocado. ' : "";
-                                    $representanteInstrumento = ($docu->clasificacionArchivo->nombre != null ) ? " circunstancia que se acredita con " .$docu->clasificacionArchivo->nombre .", ". $representanteLegalC->detalle_instrumento : "";
+                                    $representantePoder = ($docu->clasificacionArchivo->nombre != null ) ? " en términos de " .$docu->clasificacionArchivo->nombre . ', poder que a la fecha de este convenio no le ha sido revocado. ' : "";
+                                    $representanteInstrumento = ($docu->clasificacionArchivo->nombre != null ) ? " circunstancia que se acredita con " .$docu->clasificacionArchivo->nombre ." ". $representanteLegalC->detalle_instrumento : "";
                                   }
                                 }
                               }
@@ -833,7 +833,7 @@ trait GenerateDocument
                                 if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
                                   $representanteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
                                 }else if($docu->clasificacionArchivo->tipo_archivo_id == 9){
-                                  $representantePoder = ($docu->clasificacionArchivo->nombre != null ) ? " en términos de " .$docu->clasificacionArchivo->nombre . ' poder que a la fecha de este convenio no le ha sido revocado. ' : "";
+                                  $representantePoder = ($docu->clasificacionArchivo->nombre != null ) ? " en términos de " .$docu->clasificacionArchivo->nombre . ', poder que a la fecha de este convenio no le ha sido revocado. ' : "";
                                 }
                               }
                             }
