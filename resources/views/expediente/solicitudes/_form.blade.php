@@ -46,6 +46,7 @@
 @else
     <input type="hidden" id="externo" value="1">
 @endif
+<meta name="csrf-token" content="{{ csrf_token() }}" />
 <input type="hidden" id="estado_centro_id" value="">
 <input type="hidden" id="atiende_virtual" value="false">
 <input type="hidden" id="instancia" value="{{ env('INSTANCIA','federal')}}">
