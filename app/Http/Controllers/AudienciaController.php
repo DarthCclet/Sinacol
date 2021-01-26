@@ -459,7 +459,18 @@ class AudienciaController extends Controller {
                     if($ConciliadorExiste != null){
                         $pasa =false;
                     }
-                }
+                } 
+//                if ($pasa) {
+//                    $conciliadoresAudiencia = array();
+//                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
+//                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
+//                            //Buscamos que la hora inicio no este entre una audiencia
+//                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
+//                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
+//                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
+//                        }
+//                    }
+//                }
             }
             if ($pasa) {
                 $conciliador->persona = $conciliador->persona;
@@ -1353,6 +1364,8 @@ class AudienciaController extends Controller {
                 }
             }
         }
+        $solicitud = $audiencia->expediente->solicitud();
+        $solicitud->update(['url_virtual' => null]);
         //generar acta de audiencia
         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3));
     }
@@ -1637,6 +1650,7 @@ class AudienciaController extends Controller {
         }
         $solicitud_id = $audiencia->expediente->solicitud->id;
         $virtual = $audiencia->expediente->solicitud->virtual;
+        $atiende_virtual = $audiencia->expediente->solicitud->centro->atiende_virtual;
         $url_virtual = $audiencia->expediente->solicitud->url_virtual;
         $audiencia->partes = $partes;
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
@@ -1675,7 +1689,7 @@ class AudienciaController extends Controller {
         $generos = $this->cacheModel('generos',Genero::class);
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         $nacionalidades = $this->cacheModel('nacionalidades',Nacionalidad::class);
-        return view('expediente.audiencias.etapa_resolucion', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id','conciliador','estados','tipos_vialidades','tipos_asentamientos','lengua_indigena','generos','tipo_contacto','nacionalidades','virtual','url_virtual'));
+        return view('expediente.audiencias.etapa_resolucion', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id','conciliador','estados','tipos_vialidades','tipos_asentamientos','lengua_indigena','generos','tipo_contacto','nacionalidades','virtual','url_virtual','atiende_virtual'));
     }
 
     public function resolucionColectiva($id) {

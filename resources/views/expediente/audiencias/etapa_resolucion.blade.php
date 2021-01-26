@@ -49,10 +49,11 @@
 <!-- end page-header -->
 <h1 class="badge badge-secondary col-md-2 offset-10" style="position: fixed; font-size: 2rem; z-index:999;" onclick="startTimer();"><span class="countdown">00:00:00</span></h1>
 <input type="hidden" id="audiencia_id" name="audiencia_id" value="{{$audiencia->id}}" />
+<input type="hidden" id="atiende_virtual" name="atiende_virtual" value="{{$atiende_virtual}}" />
 
 @if(auth()->user()->persona_id == $conciliador->persona_id)
 <!-- begin timeline -->
-<div id="confirmacion_virtual" class="col-md-12 row" style="{{$virtual ? '' : 'display:none'}}">
+<div id="confirmacion_virtual" class="col-md-12 row" style="{{($atiende_virtual && $virtual) ? '' : 'display:none'}}">
     <div class="col-md-2"></div>
     <div class="col-md-8">
         <h5>Proceso virtual</h5>
@@ -62,7 +63,7 @@
         <button class="btn btn-primary" onclick="guardarUrlVirtual()">Guardar</button>
     </div>
 </div>
-<ul class="timeline" id="timeline_etapas" style="{{!empty($url_virtual) ? '' : 'display:none'}}">
+<ul class="timeline" id="timeline_etapas" style="display:none">
     @foreach($etapa_resolucion as $etapa)
         @if($etapa->paso == 1)
             <li style="" id="step{{$etapa->paso}}">
@@ -1450,6 +1451,11 @@
         cargarTipoContactos();
         FormMultipleUpload.init();
         Gallery.init();
+        if($("#atiende_virtual").val() == 1){
+            $("#timeline_etapas").hide();
+        }else{
+            $("#timeline_etapas").show();
+        }
     });
     $(".dateBirth").datepicker({
         changeMonth: true,

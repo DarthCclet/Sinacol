@@ -198,6 +198,8 @@
                                         editor.insertContent('<strong class="mceNonEditable" data-nombre="">[SI_NO_NOTIFICA]</strong><br>&nbsp;');
                                       }else if(cat['catalogo'] == "Virtual"){
                                         editor.insertContent('<strong class="mceNonEditable" data-nombre="">[SI_SOLICITUD_NO_VIRTUAL]</strong><br>&nbsp;');
+                                      }else if(cat['catalogo'] == "Atiende"){
+                                        editor.insertContent('<strong class="mceNonEditable" data-nombre="">[SI_CENTRO_NO_ATIENDE_VIRTUAL]</strong><br>&nbsp;');
                                       }
                                       editor.insertContent('<strong class="mceNonEditable" data-nombre="">[FIN_'+(condString).toUpperCase()+']</strong>&nbsp;\n');
                                     }

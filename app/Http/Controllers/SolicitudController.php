@@ -180,7 +180,7 @@ class SolicitudController extends Controller {
                 $filtered = $solicitud->count();
                 $solicitud->with('user.persona');
                 if ($this->request->get('IsDatatableScroll')) {
-                    $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto','centro_id','user_id']);
+                    $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto','centro_id','user_id','virtual']);
                 } else {
                     $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
                 }

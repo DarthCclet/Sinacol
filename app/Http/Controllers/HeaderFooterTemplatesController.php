@@ -76,7 +76,7 @@ class HeaderFooterTemplatesController extends Controller
                 $idSolicitado,
                 ""
             );
-            $html = file_get_contents(env('APP_URL').'/header/'.$plantilla_id) . $html . file_get_contents(env('APP_URL').'/footer/'.$plantilla_id);
+            //$html = file_get_contents(env('APP_URL').'/header/'.$plantilla_id) . $html . file_get_contents(env('APP_URL').'/footer/'.$plantilla_id);
             return $this->sendResponse($html, "Correcto");
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().

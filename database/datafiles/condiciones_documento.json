@@ -43,7 +43,10 @@
                   },
                   {"catalogo":"Virtual",
                       "val":[""]
-                  }
+                  },
+                  {"catalogo":"Tipo",
+                    "val":["Individual"]
+                }
               ]
           },
           {
@@ -52,6 +55,14 @@
             "catalogos": [
                 {"catalogo":"Pago",
                   "val":["diferido","no_diferido"]}
+                  ]
+          },
+          {
+            "id": "4",
+            "nombre": "Centro",
+            "catalogos": [
+                {"catalogo":"Atiende",
+                  "val":["Virtual"]}
                   ]
           }
       ]
