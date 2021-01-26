@@ -2628,6 +2628,7 @@
                     type:method,
                     dataType:"json",
                     async:false,
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data:{
                         solicitados:arraySolicitados,
                         solicitantes:arraySolicitantes,
