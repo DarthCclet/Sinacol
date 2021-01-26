@@ -431,8 +431,10 @@ class AudienciaController extends Controller {
         $conciliadores = Conciliador::join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")
                 ->where("roles_conciliador.rol_atencion_id",$rol->id)
                 ->where("conciliadores.centro_id",auth()->user()->centro_id)
+                ->select("conciliadores.*")
                 ->get();
-        foreach ($conciliadores as $conciliador) {
+        foreach ($conciliadores as $conciliadorE) {
+            $conciliador = Conciliador::find($conciliadorE->id);
             $pasa = false;
             if (count($conciliador->disponibilidades) > 0) {
                 foreach ($conciliador->disponibilidades as $disp) {
