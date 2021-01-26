@@ -1858,6 +1858,9 @@
                     if(data.estatus_solicitud_id == 3){
                         $(".solicitudTerminada").hide();
                     }
+                    if(data.virtual){
+                        $('#radioVirtual1').prop("checked", true);
+                    }
 
                     $("#fechaRatificacion").val(dateFormat(data.fecha_ratificacion,2));
                     $("#fechaRecepcion").val(dateFormat(data.fecha_recepcion,2));
@@ -2236,7 +2239,7 @@
                 if($("#ratificada").val() != "true"){
                     html += "<a class='btn btn-xs btn-danger' onclick='eliminarSolicitante("+key+")' ><i class='fa fa-trash'></i></a>";
                 }
-                if($('#radioVirtual1').is(":checked")){
+                if($('#radioVirtual1').is(":checked") && $("#solicitud_id").val() == ""){
                     html += "<span class='btn btn-primary fileinput-button btn-xs' onclick='loadModalFile("+key+")'><i class='fa fa-fw fa-id-card'></i><span></span></span><span style='margin-top: 1%;' id='labelIdentif"+key+"'></span>";
                 }
                 html += "</td>";

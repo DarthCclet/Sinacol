@@ -867,6 +867,7 @@ class SolicitudController extends Controller {
     public function update(Request $request, Solicitud $solicitud) {
         if($solicitud["tipo_solicitud_id"] == 1){
             $request->validate([
+                'solicitud.fecha_conflicto' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.rfc' => ['nullable'],
@@ -889,6 +890,7 @@ class SolicitudController extends Controller {
             ]);
         }else{
             $request->validate([
+                'solicitud.fecha_conflicto' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.rfc' => ['nullable'],
