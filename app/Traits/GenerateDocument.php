@@ -345,6 +345,7 @@ trait GenerateDocument
                   $model_name = 'App\\' .$model;
                   if($model == 'Solicitud' ){
                     $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find($idSolicitud);
+                    
                     // $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
                     $solicitudVirtual = $solicitud->virtual;
                     $objeto = new JsonResponse($solicitud);
@@ -369,12 +370,15 @@ trait GenerateDocument
                     }else{
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->get();
                     }
-                    foreach($partes as $parte){
-                      $existe = $parte->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
-                      if($existe == null){
-                        $parte->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                    if($idDocumento){
+                      foreach($partes as $parteaFirma){
+                        $existe = $parteaFirma->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        if($existe == null){
+                          $parteaFirma->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                        }
                       }
                     }
+                    
                     $objeto = new JsonResponse($partes);
                     $obj = json_decode($objeto->content(),true);
                     $parte2 = [];
@@ -574,7 +578,9 @@ trait GenerateDocument
                 }elseif ($model == 'Conciliador') {
                     if($conciliadorId != ""){
                       $objeto = $model_name::with('persona')->find($conciliadorId);
-                      $objeto->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                      if($idDocumento){
+                        $objeto->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                      }
                       $objeto = new JsonResponse($objeto);
                       $conciliador = json_decode($objeto->content(),true);
                       $conciliador = Arr::except($conciliador, ['id','updated_at','created_at','deleted_at']);
