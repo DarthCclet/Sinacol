@@ -381,9 +381,17 @@ trait GenerateDocument
                     }
                     if($idDocumento){
                       foreach($partes as $parteaFirma){
-                        $existe = $parteaFirma->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        if($idAudiencia){
+                          $existe = $parteaFirma->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        }else{
+                          $existe = $parteaFirma->firmas()->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        }
                         if($existe == null){
-                          $parteaFirma->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                          if($idAudiencia){
+                            $parteaFirma->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                          }else{
+                            $parteaFirma->firmas()->create(['solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                          }
                         }
                       }
                     }
@@ -591,9 +599,17 @@ trait GenerateDocument
                     if($conciliadorId != ""){
                       $objeto = $model_name::with('persona')->find($conciliadorId);
                       if($idDocumento){
-                        $existe = $objeto->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        if($idAudiencia){
+                          $existe = $objeto->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        }else{
+                          $existe = $objeto->firmas()->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        }
                         if($existe == null){
-                          $objeto->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                          if($idAudiencia){
+                            $objeto->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                          }else{
+                            $objeto->firmas()->create(['solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                          }
                         }
                       }
                       $objeto = new JsonResponse($objeto);
