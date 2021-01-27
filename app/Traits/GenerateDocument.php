@@ -87,7 +87,7 @@ trait GenerateDocument
                     "uri" => $path,
                     "longitud" => round(Storage::size($path) / 1024, 2),
                     "firmado" => "false",
-                    
+
                     "total_firmantes" => $firmantes,
                 ]);
                 if($tipoArchivo->id == 18){
@@ -354,7 +354,7 @@ trait GenerateDocument
                   $model_name = 'App\\' .$model;
                   if($model == 'Solicitud' ){
                     $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find($idSolicitud);
-                    
+
                     // $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
                     $solicitudVirtual = $solicitud->virtual;
                     $objeto = new JsonResponse($solicitud);
@@ -446,7 +446,7 @@ trait GenerateDocument
                         } elseif ($firmaDocumento && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
                           $parte['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
                         } else{
-                          $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($parteId."/".$tipoParte."/".urlencode($parte['nombre_completo'])."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
+                          $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($parteId."/".$tipoParte."/".urlencode($parte['nombre_completo'])."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
                         }
                       }else{
                         $parte['qr_firma'] = "";
@@ -624,7 +624,7 @@ trait GenerateDocument
                           } elseif ($firmaDocumento != null && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
                             $conciliador['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
                           }else{
-                            $conciliador['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($conciliadorId."/conciliador/".urlencode($nombreConciliador)."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
+                            $conciliador['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($conciliadorId."/conciliador/".urlencode($nombreConciliador)."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
                           }
                       }else{
                         $conciliador['qr_firma'] = '';
