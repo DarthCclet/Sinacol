@@ -23,6 +23,7 @@ class HeaderFooterTemplatesController extends Controller
         $idSolicitante = $request->get('solicitante_id');
         $idSolicitado = $request->get('solicitado_id');
         $idConciliador = $request->get('conciliador_id');
+        $idDocumento = $request->get('documento_id');
         $pdf = $request->exists('pdf');
 
         $solicitud = Solicitud::find($idSolicitud);
@@ -47,7 +48,8 @@ class HeaderFooterTemplatesController extends Controller
             $plantilla_id,
             $idSolicitante,
             $idSolicitado,
-            $idConciliador
+            $idConciliador,
+            $idDocumento
         );
 
         if($pdf) {
