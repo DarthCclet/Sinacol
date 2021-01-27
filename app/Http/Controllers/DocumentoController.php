@@ -299,6 +299,9 @@ class DocumentoController extends Controller
             $idSolicitud = $request->get('solicitud_id');
             $idAudiencia = $request->get('audiencia_id');
             $plantilla_id = $request->get('plantilla_id', 1);
+            $idSolicitado = $request->get('solicitado_id');
+            $idSolicitante = $request->get('solicitante_id');
+            
             $pdf = $request->exists('pdf');
 
             $solicitud = Solicitud::find($idSolicitud);
@@ -312,8 +315,8 @@ class DocumentoController extends Controller
                 $idAudiencia,
                 $idSolicitud,
                 $plantilla_id,
-                "",//solicitante
-                "",//solicitado
+                $idSolicitante,//solicitante
+                $idSolicitado,//solicitado
                 ""//documento
             );
 
