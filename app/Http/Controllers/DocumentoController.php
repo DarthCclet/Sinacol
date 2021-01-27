@@ -394,7 +394,7 @@ class DocumentoController extends Controller
             $firmasDocumento = FirmaDocumento::where('plantilla_id', $idPlantilla)->where(
                 'audiencia_id',
                 $idAudiencia
-            )->get();
+            )->where('documento_id',$idDocumento)->whereRaw('firma is not null')->get();
             if ($totalFirmantes == count($firmasDocumento)) {
                 // if ($documento != null) {
                 //     $documento->delete();
