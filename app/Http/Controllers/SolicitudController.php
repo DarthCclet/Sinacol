@@ -508,8 +508,8 @@ class SolicitudController extends Controller {
                 $solicitudSaved->loadDataFromRequest();
             });
             // generar acuse de solicitud
-            event(new GenerateDocumentResolution("",$solicitudSaved->id,40,6));
             DB::commit();
+            event(new GenerateDocumentResolution("",$solicitudSaved->id,40,6));
         } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensale: ". $e->getMessage().
