@@ -374,7 +374,6 @@ class DocumentoController extends Controller
                 'audiencia_id'=>$idAudiencia,
             ];
             $updateOrCreate = [
-                "firmable_type" => $model,
                 "firmable_id" => $idParte,
                 "audiencia_id" => $idAudiencia,
                 "solicitud_id" => $idSolicitud,
@@ -387,6 +386,7 @@ class DocumentoController extends Controller
 
             //eliminar documento con codigo QR
             $documento = Documento::find($idDocumento);
+            $documento->update(['firmado'=>true]);
             $clasificacionArchivo = $documento->clasificacion_archivo_id;
             $totalFirmantes = $documento->total_firmantes;
             $firmasDocumento = FirmaDocumento::where('plantilla_id', $idPlantilla)->where(
@@ -394,9 +394,9 @@ class DocumentoController extends Controller
                 $idAudiencia
             )->get();
             if ($totalFirmantes == count($firmasDocumento)) {
-                if ($documento != null) {
-                    $documento->delete();
-                }
+                // if ($documento != null) {
+                //     $documento->delete();
+                // }
                 //generar documento con firmas
                 event(
                     new GenerateDocumentResolution(
@@ -405,7 +405,8 @@ class DocumentoController extends Controller
                         $clasificacionArchivo,
                         $idPlantilla,
                         $idSolicitante,
-                        $idSolicitado
+                        $idSolicitado,
+                        $documento->id
                     )
                 );
             }

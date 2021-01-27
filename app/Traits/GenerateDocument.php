@@ -10,6 +10,7 @@ use App\Compareciente;
 use App\ConceptoPagoResolucion;
 use App\DatoLaboral;
 use App\Disponibilidad;
+use App\Documento;
 use App\EtapaResolucionAudiencia;
 use App\Expediente;
 use App\FirmaDocumento;
@@ -42,7 +43,7 @@ trait GenerateDocument
      * Generar documento a partir de un modelo y de una plantilla
      * @return mixed
      */
-    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null)
+    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null,$idDocumento = null)
     {
     $plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
@@ -56,7 +57,15 @@ trait GenerateDocument
 
                 //Creamos el registro
                 $uuid = Str::uuid();
-                $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid]);
+                if($idDocumento != null){
+                  $archivo = Documento::find($idDocumento);
+                  if(Storage::exists($archivo->ruta)){
+                    Storage::delete($archivo->ruta.".old");
+                    Storage::move($archivo->ruta, $archivo->ruta.".old");
+                  }
+                }else{
+                  $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid,"clasificacion_archivo_id" => $tipoArchivo->id]);
+                }
                 //generamos html del archivo
                 $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
                 $firmantes = substr_count($html, 'class="qr"');
@@ -78,7 +87,7 @@ trait GenerateDocument
                     "uri" => $path,
                     "longitud" => round(Storage::size($path) / 1024, 2),
                     "firmado" => "false",
-                    "clasificacion_archivo_id" => $tipoArchivo->id,
+                    
                     "total_firmantes" => $firmantes,
                 ]);
                 if($tipoArchivo->id == 18){
@@ -579,7 +588,10 @@ trait GenerateDocument
                     if($conciliadorId != ""){
                       $objeto = $model_name::with('persona')->find($conciliadorId);
                       if($idDocumento){
-                        $objeto->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                        $existe = $objeto->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        if($existe == null){
+                          $objeto->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                        }
                       }
                       $objeto = new JsonResponse($objeto);
                       $conciliador = json_decode($objeto->content(),true);
