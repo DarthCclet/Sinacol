@@ -424,10 +424,13 @@ trait GenerateDocument
                       }
                       //$idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador
                       $tipoParte = ($parte['tipo_parte_id'] == 1) ? 'solicitante':'citado';
-                      if($idAudiencia ==""){
-                        $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('solicitud_id',$idBase)->where('documento_id',$idDocumento)->first();
-                      }else{
-                        $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->where('documento_id',$idDocumento)->first();
+                      $firmaDocumento = null;
+                      if($idDocumento){
+                        if($idAudiencia =="" ){
+                          $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('solicitud_id',$idBase)->where('documento_id',$idDocumento)->first();
+                        }else{
+                          $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->where('documento_id',$idDocumento)->first();
+                        }
                       }
                       if($solicitudVirtual && $solicitudVirtual!=""){
                         if($firmaDocumento && $firmaDocumento->firma != null){
