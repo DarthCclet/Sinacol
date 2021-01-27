@@ -342,6 +342,7 @@ class DocumentoController extends Controller
             $idDocumento = $request->get('documento_id');
             $idSolicitado = $request->get('solicitado_id');
             $idSolicitante = $request->get('solicitante_id');
+            $firma_documento_id = $request->get('firma_documento_id');
 
             $firmaBase64 = $request->get('img_firma');
             $tipo_firma = $request->get('tipo_firma');
@@ -361,28 +362,29 @@ class DocumentoController extends Controller
                 $firma = $firmaBase64;
             }
 
-            if ($tipoPersona != 'conciliador') {
-                $model = 'Parte';
-            } else {
-                $model = 'Conciliador';
-            }
+            // if ($tipoPersona != 'conciliador') {
+            //     $model = 'App\Parte';
+            // } else {
+            //     $model = 'App\Conciliador';
+            // }
 
             //guardar o actualizar firma
-            $match = [
-                'firmable_id'=>$idParte,
-                'plantilla_id'=>$idPlantilla,
-                'audiencia_id'=>$idAudiencia,
-            ];
-            $updateOrCreate = [
-                "firmable_id" => $idParte,
+            // $match = [
+            //     'firmable_id'=>$idParte,
+            //     'plantilla_id'=>$idPlantilla,
+            //     'audiencia_id'=>$idAudiencia,
+            // ];
+            $firmaDocumento = FirmaDocumento::find($firma_documento_id);
+            $firmaDocumento->update([
                 "audiencia_id" => $idAudiencia,
                 "solicitud_id" => $idSolicitud,
                 "plantilla_id" => $idPlantilla,
                 'tipo_firma' => $tipo_firma,
                 'texto_firmado' => $texto_firmado,
                 "firma" => $firma
-            ];
-            $firmaDocumento = FirmaDocumento::UpdateOrCreate($match, $updateOrCreate);
+            ]);
+            // $updateOrCreate = ;
+            // $firmaDocumento = FirmaDocumento::UpdateOrCreate($match, $updateOrCreate);
 
             //eliminar documento con codigo QR
             $documento = Documento::find($idDocumento);
