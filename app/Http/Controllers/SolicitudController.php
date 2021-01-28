@@ -1340,8 +1340,8 @@ class SolicitudController extends Controller {
                 return $audiencia;
             }else{
                 if((int)$request->tipo_notificacion_id == 1){
-                    $diasHabilesMin = 6;
-                    $diasHabilesMax = 9;
+                    $diasHabilesMin = 7;
+                    $diasHabilesMax = 10;
                 }else{
                     $diasHabilesMin = 15;
                     $diasHabilesMax = 18;
