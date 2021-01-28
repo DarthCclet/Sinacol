@@ -49,10 +49,22 @@
 <!-- end page-header -->
 <h1 class="badge badge-secondary col-md-2 offset-10" style="position: fixed; font-size: 2rem; z-index:999;" onclick="startTimer();"><span class="countdown">00:00:00</span></h1>
 <input type="hidden" id="audiencia_id" name="audiencia_id" value="{{$audiencia->id}}" />
+<input type="hidden" id="atiende_virtual" name="atiende_virtual" value="{{$atiende_virtual}}" />
+<input type="hidden" id="virtual" name="virtual" value="{{$virtual}}" />
 
 @if(auth()->user()->persona_id == $conciliador->persona_id)
 <!-- begin timeline -->
-<ul class="timeline">
+<div id="confirmacion_virtual" class="col-md-12 row" style="{{($atiende_virtual && $virtual) ? '' : 'display:none'}}">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <h5>Proceso virtual</h5>
+        <hr class="red">
+        <input type="text" id="url_virtual" class="form-control" placeholder="Url virtual" value="{{$url_virtual}}">
+        <p class="help-block needed">Url virtual</p>
+        <button class="btn btn-primary" onclick="guardarUrlVirtual()">Guardar</button>
+    </div>
+</div>
+<ul class="timeline" id="timeline_etapas" style="display:none">
     @foreach($etapa_resolucion as $etapa)
         @if($etapa->paso == 1)
             <li style="" id="step{{$etapa->paso}}">
@@ -418,6 +430,7 @@
                                             <table class="table table-bordered" >
                                                 <thead>
                                                     <tr>
+                                                        <th>Solicitante</th>
                                                         <th>Fecha de pago</th>
                                                         <th>Monto</th>
                                                         <th>Acciones</th>
@@ -1284,7 +1297,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Pagos diferidos</h4>
+                <h4 class="modal-title">Fechas para Pagos diferidos</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -1294,7 +1307,25 @@
                 </div><br> --}}
                 <div class="col-md-12 row">
                     <div class="col-md-12" id="divPagosDiferidos" >
-                        <h5>Fechas para pagos diferidos</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="pago_solicitante_id" class="col-sm-6 control-label labelResolucion">Solicitante</label>
+                                    <div class="col-sm-12">
+                                        <select id="pago_solicitante_id" class="form-control select-element">
+                                            <option value="">-- Selecciona un solicitante --</option>
+                                            @foreach($audiencia->solicitantes as $parte)
+                                                @if($parte->parte->tipo_persona_id == 1)
+                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
+                                                @else
+                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label for="fecha_pago" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
@@ -1319,6 +1350,7 @@
                             <table class="table table-bordered" >
                                 <thead>
                                     <tr>
+                                        <th>Solicitante</th>
                                         <th>Fecha</th>
                                         <th>Monto</th>
                                         <th>Acciones</th>
@@ -1420,6 +1452,15 @@
         cargarTipoContactos();
         FormMultipleUpload.init();
         Gallery.init();
+        if($("#atiende_virtual").val() == 1){
+            if($("#virtual").val() == 1 && $("#url_virtual").val() == ""){
+                $("#timeline_etapas").hide();
+            }else{
+                $("#timeline_etapas").show();
+            }
+        }else{
+            $("#timeline_etapas").show();
+        }
     });
     $(".dateBirth").datepicker({
         changeMonth: true,
@@ -3504,16 +3545,16 @@
             var fpago = new Date(fechaP[1]+'/'+fechaP[0]+'/'+fechaP[2]);
 
             if(fpago <= _45dias){
-                let idSolicitante =$("#idSolicitante").val();
+                let idSolicitante =$("#pago_solicitante_id").val();
                 if( $("#fecha_pago").val() != "" && $("#monto_pago").val() != ""){
                     let existe = false;
                     $.each(listaConfigFechas,function(index,fecha){
-                        if(fecha.fecha_pago == $("#fecha_pago").val() ){
+                        if(fecha.fecha_pago == $("#fecha_pago").val() && fecha.idSolicitante ==idSolicitante ){
                             existe= true;
                         }
                     });
                     if(existe){
-                        swal({title: 'Error',text: 'La fecha de pago ya se encuentra registrada',icon: 'warning'});
+                        swal({title: 'Error',text: 'La fecha de pago para esta parte ya se encuentra registrada',icon: 'warning'});
                     }else{
                         if(listaConfigFechas == undefined ){
                             listaConfigFechas = [];
@@ -3526,7 +3567,7 @@
                             });
                         }else{
                             listaConfigFechas.push({
-                                //idSolicitante:$("#idSolicitante").val(),
+                                idSolicitante:$("#pago_solicitante_id").val(),
                                 fecha_pago:$("#fecha_pago").val(),
                                 monto_pago:$("#monto_pago").val(),
                             });
@@ -3554,7 +3595,9 @@
         $.each(listaConfigFechas,function(index,fechaPago){
 
             idSolicitante = fechaPago.idSolicitante;
+            $("#pago_solicitante_id").val(idSolicitante);
             table +='<tr>';
+                table +='<td>'+$("#pago_solicitante_id option:selected").text(),+'</td>';
                 table +='<td>'+fechaPago.fecha_pago+'</td>';
                 table +='<td>'+(fechaPago.monto_pago)+'</td>';
                 table +='<td>';
@@ -3956,6 +3999,35 @@
                     }
                 }
             });
+        }
+    }
+    function guardarUrlVirtual(){
+        if($("#url_virtual").val() != ""){
+            $.ajax({
+                url:"/guardarUrlVirtual",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    url_virtual:$("#url_virtual").val(),
+                    solicitud_id:'{{$solicitud_id}}',
+                    _token:"{{ csrf_token() }}"
+                },
+                async:true,
+                success:function(data){
+                    try{
+                        if(data.success){
+                            swal({ title: 'Éxito', text: 'Url guardada correctamente', icon: 'success'});
+                            $("#timeline_etapas").show();
+                        }else{
+                            swal({title: 'Error',text: 'No se pudo guardar la url',icon: 'error'});
+                        }
+                    }catch(error){
+                        console.log(error);
+                    }
+                }
+            });
+        }else{
+            swal({title: 'Error',text: 'Es necesario ingresar la url',icon: 'error'});
         }
     }
     $('.upper').on('keyup', function () {

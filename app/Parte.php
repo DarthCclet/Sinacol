@@ -332,4 +332,8 @@ class Parte extends Model implements Auditable
         return $this->morphMany(Documento::class,'documentable');
     }
     
+    public function firmas(){
+        return $this->morphMany(FirmaDocumento::class,'firmable');
+    }
+    
 }

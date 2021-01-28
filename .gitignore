@@ -28,3 +28,17 @@ yarn-error.log
 /public/assets/css/default/theme/teal.min.css
 /public/assets/css/default/theme/yellow.min.css
 /public/assets/css/default/invoice-print.min.css
+resources/views/auth/verify.blade.php
+resources/views/auth/register.blade.php
+resources/views/auth/passwords/confirm.blade.php
+resources/views/auth/passwords/email.blade.php
+resources/views/auth/passwords/reset.blade.php
+resources/sass/_variables.scss
+resources/js/components/ExampleComponent.vue
+public/js/app.min.js
+public/assets/js/theme/default.min.js
+public/js/tinymce
+public/vendor
+public/js
+public
+nbproject

@@ -32,6 +32,7 @@
         <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
     </div>
     <input type="hidden" id="centro_id" value="{{Auth::user()->centro_id}}">
+    <input type="hidden" id="atiende_virtual" value="{{Auth::user()->centro->atiende_virtual}}">
     <input type="hidden" id="oficina_central" value="{{(auth()->user()->hasRole('Orientador Central')) ? 'true':'false'}}">
     <div class="col-md-12">
         <div id="gallery" class="gallery row"></div>
@@ -181,7 +182,15 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <div style="overflow:scroll" class="col-md-12">
+                <div id="confirmacion_virtual" style="display: none;">
+                    <h5>Proceso v&iacute;a remota</h5>
+                    <hr class="red">
+                    <input type="text" id="url_virtual" class="form-control" placeholder="Url virtual">
+                    <p class="help-block needed">Url remota</p>
+                    <button class="btn btn-primary" onclick="guardarUrlVirtual()">Guardar</button>
+                </div>
+                
+                <div style="overflow:scroll"  id="div_confirmacion" class="col-md-12">
                     <div id="divNeedRepresentante" style="display: none;">
                         <h5>Representante legal (solo si hay representante)</h5>
                         <hr class="red">
@@ -211,6 +220,7 @@
                             <tr>
                                 <td>Solicitante</td>
                                 <td>Documento</td>
+                                <td>Revisar</td>
                             </tr>
                         </thead>
                         <tbody id="tbodyRatificacion">
@@ -264,11 +274,13 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <div class="text-right">
+                <div class="text-right row">
                     <a class="btn btn-white btn-sm" data-dismiss="modal" ><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Confirmar</button>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnRatificarIncompetencia'><i class="fa fa-save"></i> Confirmar con incompetencia</button>
-                    <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarConvenio'><i class="fa fa-save"></i> Confirmar con convenio</button>
+                    <div id="btnVirtual" >
+                        <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarRatificar'><i class="fa fa-save"></i> Confirmar</button>
+                        <button class="btn btn-primary btn-sm m-l-5" id='btnRatificarIncompetencia'><i class="fa fa-save"></i> Confirmar con incompetencia</button>
+                        <button class="btn btn-primary btn-sm m-l-5" id='btnGuardarConvenio'><i class="fa fa-save"></i> Confirmar con convenio</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -751,7 +763,7 @@
                             var solicitados = "";
                             var contSol = 0;
                             var contCit = 0;
-                            $.each(row[9],function(key, value){
+                            $.each(row[10],function(key, value){
                                 var nombre = "";
                                 if(value.tipo_persona_id == 1){
                                         nombre = value.nombre + " " + value.primer_apellido + " " + (value.segundo_apellido || "")
@@ -789,8 +801,8 @@
                         "targets": [9],
                         "render": function (data, type, row) {
                             html = "N/A";
-                            if(row[10] != null){
-                                html = ""+row[10].folio;
+                            if(row[11] != null){
+                                html = ""+row[11].folio;
                             }
                             return  html;
                         }
@@ -799,8 +811,8 @@
                         "targets": [10],
                         "render": function (data, type, row) {
                             html = "";
-                            if(row[11] != null ){
-                                html = " "+row[11].persona.nombre+ " " + row[11].persona.primer_apellido + " " + (row[11].persona.segundo_apellido || "");
+                            if(row[12] != null ){
+                                html = " "+row[12].persona.nombre+ " " + row[12].persona.primer_apellido + " " + (row[12].persona.segundo_apellido || "");
                             }
                             return  html;
                         }
@@ -833,13 +845,17 @@
                         "targets": -1,
                         "render": function (data, type, row) {
                                 var buttons = '';
+                                console.log(row);
                                 if((row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true") && row[1] != 3){
                                     buttons += '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-4" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
                                 }
                                     buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+rutaConsulta.replace('/-rutaConsulta',"/"+row[0])+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>';
                                 
-                                if(row[1] == 1 && (row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true")){
+                                if(row[1] == 1 && (row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true") && ($("#atiende_virtual").val() == "1" && row[9] || $("#atiende_virtual").val() == "")){
                                     buttons += '<div title="Confirmar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="continuarRatificacion('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></button></div>';
+                                }
+                                if(row[1] == 1 && $("#atiende_virtual").val() == "1"  && !row[9]){
+                                    buttons += '<label>Aplazada (No virtual)</label>';
                                 }
                                 return buttons;
                             }
@@ -1251,6 +1267,7 @@
                                                 tipo_notificacion_id:validarRatificacion.tipo_notificacion_id,
                                                 inmediata:false,
                                                 fecha_cita:$("#fecha_cita").val(),
+                                                url_virtual:$("#url_virtual").val(),
                                                 separados:separados,
                                                 _token:"{{ csrf_token() }}"
                                             },
@@ -1415,6 +1432,7 @@
                     data:{
                         id:$("#solicitud_id").val(),
                         inmediata:true,
+                        url_virtual:$("#url_virtual").val(),
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
@@ -1542,6 +1560,7 @@
                                 html += "<tr>";
                                 html += "<td>"+value.parte+"</td>";
                                 html += "<td>"+ value.clasificacion_archivo.nombre+"</td>";
+                                html += "<td><a class='btn btn-link' href='/api/documentos/getFile/"+ value.uuid+"' target='_blank'>Revisar</a></td>";
                                 html += "</tr>";
                                 ratifican = true;
                             // }
@@ -2388,6 +2407,24 @@
                     solicitudObj.ambito_id = data.giroComercial.ambito_id;
                     solicitudObj.ambito_nombre = data.giroComercial.ambito.nombre;
                     solicitudObj.tipo_solicitud_id = data.tipo_solicitud_id;
+                    $("#url_virtual").val("");
+                    if(data.virtual){
+                        $("#confirmacion_virtual").show();
+                        $("#div_confirmacion").hide();
+                        $("#btnVirtual").hide();
+                        console.log(data.url_virtual);
+                        console.log(data.url_virtual != "" && data.url_virtual != null);
+                        if(data.url_virtual != "" && data.url_virtual != null){
+                            $("#url_virtual").val(data.url_virtual);
+                            $("#div_confirmacion").show();
+                            $("#btnVirtual").show();
+                            
+                        }
+                    }else{
+                        $("#div_confirmacion").show();
+                        $("#confirmacion_virtual").hide();
+                        $("#btnVirtual").show();
+                    }
                     if(solicitudObj.tipo_solicitud_id == 3 || solicitudObj.tipo_solicitud_id == 4 ){
                         esSindical = true;
                     }
@@ -2484,6 +2521,36 @@
         $(".estatus").removeClass('selectedButton');
         $("#estatus"+estatus).addClass('selectedButton');
     });
+    function guardarUrlVirtual(){
+        if($("#url_virtual").val() != ""){
+            $.ajax({
+                url:"/guardarUrlVirtual",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    url_virtual:$("#url_virtual").val(),
+                    solicitud_id:$("#solicitud_id").val(),
+                    _token:"{{ csrf_token() }}"
+                },
+                async:true,
+                success:function(data){
+                    try{
+                        if(data.success){
+                            swal({ title: 'Éxito', text: 'Url guardada correctamente', icon: 'success'});
+                            $("#div_confirmacion").show();
+                            $("#btnVirtual").show();
+                        }else{
+                            swal({title: 'Error',text: 'No se pudo guardar la url',icon: 'error'});
+                        }
+                    }catch(error){
+                        console.log(error);
+                    }
+                }
+            });
+        }else{
+            swal({title: 'Error',text: 'Es necesario ingresar la url',icon: 'error'});
+        }
+    }
     
   </script>
   @endpush

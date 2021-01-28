@@ -9,7 +9,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach($plantilla as $plantilla)
+    @foreach($plantillas as $plantilla)
         <tr class="odd gradeX">
             <td width="1%" class="f-s-600 text-inverse">{{$plantilla->id}}</td>
             <td>{{$plantilla->nombre_plantilla}}</td>
@@ -30,3 +30,5 @@
 
     </tbody>
 </table>
+<p>Mostrando registros del {{ (($plantillas->currentPage() -1) * 10)+1 }} al {{ ((($plantillas->currentPage() -1) * 10))+$plantillas->count() }} de un total de {{ $plantillas->total() }} registros: </p>
+{{ $plantillas->links() }}

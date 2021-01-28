@@ -13,13 +13,13 @@ use Illuminate\Queue\SerializesModels;
 class GenerateDocumentResolution
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null;
+    public $idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null, $idDocumento = null;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null)
+    public function __construct($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null,$idDocumento = null)
     {
         $this->idAudiencia = $idAudiencia;
         $this->idSolicitud =$idSolicitud;
@@ -27,7 +27,7 @@ class GenerateDocumentResolution
         $this->plantilla_id = $plantilla_id;
         $this->idSolicitante  = $idSolicitante;
         $this->idSolicitado = $idSolicitado;
-        //$this->idDocumento = $idDocumento;
+        $this->idDocumento = $idDocumento;
         
     }
 

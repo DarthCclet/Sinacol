@@ -40,6 +40,7 @@ use App\Sala;
 use App\SalaAudiencia;
 use App\ConciliadorAudiencia;
 use App\AudienciaParte;
+use App\CanalFolio;
 use App\Documento;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -57,6 +58,8 @@ use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use App\Providers\HerramientaServiceProvider;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Redirect;
 
 class SolicitudController extends Controller {
     use FechaNotificacion;
@@ -177,7 +180,7 @@ class SolicitudController extends Controller {
                 $filtered = $solicitud->count();
                 $solicitud->with('user.persona');
                 if ($this->request->get('IsDatatableScroll')) {
-                    $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto','centro_id','user_id']);
+                    $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id','estatus_solicitud_id','folio','anio','fecha_ratificacion','fecha_recepcion','fecha_conflicto','centro_id','user_id','virtual']);
                 } else {
                     $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
                 }
@@ -363,6 +366,11 @@ class SolicitudController extends Controller {
             $solicitud['folio'] = $folio->contador;
             $solicitud['anio'] = $folio->anio;
             $solicitud['ratificada'] = false;
+            if($solicitud['virtual'] == "true"){
+                $canal = CanalFolio::inRandomOrder()->first();
+                $solicitud['canal'] = $canal->folio;
+                $canal->delete();
+            }
             $solicitudSaved = Solicitud::create($solicitud);
             $objeto_solicitudes = $request->input('objeto_solicitudes');
 
@@ -379,6 +387,12 @@ class SolicitudController extends Controller {
                 $contactos = Array();
                 $domicilios = Array();
                 unset($value['activo']);
+                if(isset($value['tmp_file'])){
+                    $clasificacion_archivo_id = $value['clasificacion_archivo_id'];
+                    $tmp_file = $value['tmp_file'];
+                    unset($value['tmp_file']);
+                    unset($value['clasificacion_archivo_id']);
+                }
                 if(isset($value['dato_laboral'])){
                     $dato_laboral = $value['dato_laboral'];
                     unset($value['dato_laboral']);
@@ -398,6 +412,30 @@ class SolicitudController extends Controller {
                 if(isset($dato_laboral)){
                     $parteSaved->dato_laboral()->create($dato_laboral);
                 }
+                if(isset($tmp_file)){
+                    $solicitud_id = $solicitudSaved->id;
+                    $clasificacion_archivo= $clasificacion_archivo_id;
+                    $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parteSaved->id;
+                    $file_name = basename($tmp_file);
+                    $complete_path = $directorio."/".$file_name;
+                    Storage::makeDirectory($directorio);
+                    $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                    Storage::copy($tmp_file,$complete_path);
+                    $path = $complete_path;
+                    $uuid = Str::uuid();
+                    $documento = $parteSaved->documentos()->create([
+                        "nombre" => $file_name,
+                        "nombre_original" => $file_name,
+                        "descripcion" => $tipoArchivo->nombre,
+                        "ruta" => $path,
+                        "uuid" => $uuid,
+                        "tipo_almacen" => "local",
+                        "uri" => $path,
+                        "longitud" => round(Storage::size($path) / 1024, 2),
+                        "firmado" => "false",
+                        "clasificacion_archivo_id" => $tipoArchivo->id ,
+                    ]);
+                }                
                 // foreach ($domicilios as $key => $domicilio) {
                 unset($domicilio['activo']);
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
@@ -830,8 +868,6 @@ class SolicitudController extends Controller {
         if($solicitud["tipo_solicitud_id"] == 1){
             $request->validate([
                 'solicitud.fecha_conflicto' => 'required',
-                'solicitud.solicita_excepcion' => 'required',
-                'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.rfc' => ['nullable'],
@@ -855,8 +891,6 @@ class SolicitudController extends Controller {
         }else{
             $request->validate([
                 'solicitud.fecha_conflicto' => 'required',
-                'solicitud.solicita_excepcion' => 'required',
-                'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.rfc' => ['nullable'],
@@ -1124,7 +1158,7 @@ class SolicitudController extends Controller {
                 }
             }
             $user_id = Auth::user()->id;
-            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true, "incidencia" => true,"justificacion_incidencia"=>"Ratificada con incompetencia","tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
+            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"justificacion_incidencia"=>"Ratificada con incompetencia","tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
 
             // Obtenemos la sala virtual
             $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
@@ -1222,7 +1256,7 @@ class SolicitudController extends Controller {
             $tipo_notificacion_id = null;
             if($request->inmediata == "true"){
                 $user_id = Auth::user()->id;
-                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => true,'user_id'=>$user_id]);
+                $solicitud->update(["estatus_solicitud_id" => 2,"url_virtual" => null, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => true,'user_id'=>$user_id]);
                 // Obtenemos la sala virtual
                 $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
                 if($sala == null){
@@ -1306,8 +1340,8 @@ class SolicitudController extends Controller {
                 return $audiencia;
             }else{
                 if((int)$request->tipo_notificacion_id == 1){
-                    $diasHabilesMin = 5;
-                    $diasHabilesMax = 8;
+                    $diasHabilesMin = 6;
+                    $diasHabilesMax = 9;
                 }else{
                     $diasHabilesMin = 15;
                     $diasHabilesMax = 18;
@@ -1324,16 +1358,16 @@ class SolicitudController extends Controller {
                     }
                 }
                 $user_id = Auth::user()->id;
-                $solicitud->update(["estatus_solicitud_id" => 2, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
+                $solicitud->update(["estatus_solicitud_id" => 2,"url_virtual" => null, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
                 $centroResponsable = auth()->user()->centro;
                 if($solicitud->tipo_solicitud_id == 3 || $solicitud->tipo_solicitud_id == 4){
                     $centroResponsable = Centro::where("abreviatura","OCCFCRL")->first();
                 }
                 if($request->separados == "true"){
-                    $datos_audiencia = FechaAudienciaService::obtenerFechaAudienciaDoble(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax);
+                    $datos_audiencia = FechaAudienciaService::obtenerFechaAudienciaDoble(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax,$solicitud->virtual);
                     $multiple = true;
                 }else{
-                    $datos_audiencia = FechaAudienciaService::obtenerFechaAudiencia(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax);
+                    $datos_audiencia = FechaAudienciaService::obtenerFechaAudiencia(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax,$solicitud->virtual);
                     $multiple = false;
                 }
 //                Solicitamos la fecha limite de notificacion solo cuando el tipo de notificación es por notificador sin cita
@@ -1388,7 +1422,7 @@ class SolicitudController extends Controller {
                         $tipo_notificacion_id = $this->request->tipo_notificacion_id;
                     }
                     AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
-                    if($parte->tipo_parte_id == 2){
+                    if($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]){
                         event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
                     }
                 }
@@ -1496,11 +1530,12 @@ class SolicitudController extends Controller {
         $documentos = $solicitud->documentos;
         foreach ($documentos as $documento) {
             if($documento->ruta != ""){
-            $documento->id = $documento->id;
-            $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-            $documento->tipo = pathinfo($documento->ruta)['extension'];
-            $doc->push($documento);
-        }
+                $documento->id = $documento->id;
+                $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                $documento->tipo = pathinfo($documento->ruta)['extension'];
+                $documento->uuid = $documento->uuid;
+                $doc->push($documento);
+            }
         }
         $partes = Parte::where('solicitud_id',$solicitud_id)->get();
         foreach($partes as $parte){
@@ -1511,6 +1546,7 @@ class SolicitudController extends Controller {
                 $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                 $documento->tipo = pathinfo($documento->ruta)['extension'];
                 $documento->parte = $parte->nombre. " ".$parte->primer_apellido." ".$parte->segundo_apellido;
+                $documento->uuid = $documento->uuid;
                 $doc->push($documento);
             }
         }
@@ -1814,6 +1850,40 @@ class SolicitudController extends Controller {
             }else{
                 return $this->sendError($response["msj"]);
             }
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensaje: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
+        }
+    }
+
+    public function canal(Request $request){
+        $mensaje = "La solicitud no existe";
+        $solicitud = Solicitud::where('canal',$request->canal)->first();
+        if($solicitud){
+            if(!empty($solicitud->url_virtual)){
+                return Redirect::to($solicitud->url_virtual);
+            }
+            $mensaje = "Canal no asignado";
+        }
+        return view('pages.canalNotFound',compact('mensaje'));
+        
+    }
+    public function identificacion(Request $request){
+        $archivo = $request->file;
+        $directorio = "solicitudes/tmp";
+        Storage::makeDirectory($directorio);
+        $path = $archivo->store($directorio);
+
+        return $this->sendResponse($path, 'SUCCESS');
+    }
+    public function guardarUrlVirtual(Request $request){
+        try{
+            $solicitud = Solicitud::find($request->solicitud_id);
+            $solicitud->url_virtual = $request->url_virtual;
+            $solicitud->save();
+            return $this->sendResponse("", 'SUCCESS');
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                 " Se emitió el siguiente mensaje: ". $e->getMessage().
