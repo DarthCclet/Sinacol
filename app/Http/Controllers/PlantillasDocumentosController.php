@@ -665,7 +665,7 @@ class PlantillasDocumentosController extends Controller
                         } else{
                           $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($parteId."/".$tipoParte."/".urlencode($parte['nombre_completo'])."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."//".$idSolicitante ."/".$idSolicitado."/").'</div>';
                         }
-                        if($parte['tipo_persona_id']==1){
+                        if($parte['tipo_persona_id']==1 && count($parte['compareciente']) > 0){
                           $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">'.$parte['qr_firma'].' </span></p>';
                           $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">_________________________________________</span></p>';
                           $firmasPartesQR .= '<p style="text-align: center;"><strong><span style="font-size: 10pt;">'.mb_strtoupper($parte['nombre_completo']).'</span></strong></p>';
