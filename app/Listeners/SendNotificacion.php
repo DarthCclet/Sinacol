@@ -69,7 +69,7 @@ class SendNotificacion
                 $fechaRecepcion = new \Carbon\Carbon($audiencia->fecha_audiencia);
                 $fechaAudiencia = self::ObtenerFechaAudienciaMulta($audiencia->fecha_audiencia,15);
                 $fechaCita = null;
-                $fechaLimite = new \Carbon\Carbon(self::ObtenerFechaLimiteNotificacionMulta($fechaAudiencia,$audiencia->expediente->solicitud));
+                $fechaLimite = new \Carbon\Carbon(self::ObtenerFechaLimiteNotificacionMulta($fechaAudiencia,$audiencia->expediente->solicitud,$audiencia->id));
                 $arreglo["fecha_recepcion"] = $fechaRecepcion->format("d/m/Y");
                 $arreglo["fecha_audiencia"] = $fechaAudiencia->format("d/m/Y");
                 $arreglo["fecha_ar"] = $fechaRecepcion->format("d/m/Y");
@@ -268,7 +268,7 @@ class SendNotificacion
     /**
      * 
      */
-    Public function ObtenerFechaLimiteNotificacionMulta($fecha_audiencia,$solicitud){
+    Public function ObtenerFechaLimiteNotificacionMulta($fecha_audiencia,$solicitud,$audiencia_id){
 //      obtenemos el domicilio del centro
         $domicilio_centro = auth()->user()->centro->domicilio;
 //      obtenemos el domicilio del citado
@@ -280,7 +280,11 @@ class SendNotificacion
                 break;
             }
         }
-        return self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$fecha_audiencia);
+        if($domicilio_citado->latitud == "" || $domicilio_citado->longitud == ""){
+            return date("Y-m-d");
+        }else{
+            return self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$fecha_audiencia);
+        }
     }
     public function ObtenerTipoNotificacion($audiencia){
         $clasificacion_multa = \App\ClasificacionArchivo::where("nombre","Acta de multa")->first();
