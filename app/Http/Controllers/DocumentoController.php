@@ -21,7 +21,6 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator as ValidationValidator;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
@@ -338,7 +337,6 @@ class DocumentoController extends Controller
 
     public function firmado(Request $request)
     {
-        DB::beginTransaction();
         try {
             
             $idParte = $request->get('persona_id');
@@ -419,14 +417,12 @@ class DocumentoController extends Controller
                     )
                 );
             }
-            DB::rollBack();
             return response()->json([
                 'success' => true,
                 'message' => 'OK',
             ], 200);
 
         } catch (\Throwable $e) {
-            DB::rollBack();
 
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensaje: ". $e->getMessage().

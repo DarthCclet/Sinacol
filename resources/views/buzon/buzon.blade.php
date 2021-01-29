@@ -589,7 +589,22 @@
                     contentType: false,
                     processData: false
                 }).done(function(res){
-                    console.log(res);
+                    if(res.success){
+                        $("#modal-firma").modal("hide");
+                        swal({
+                            title: 'Correcto',
+                            text: 'Documento firmado correctamente',
+                            icon: 'success',
+                        });
+                        setTimeout('', 5000);
+                        location.reload();
+                    }else{
+                        swal({
+                            title: 'Error',
+                            text: res.message,
+                            icon: 'error',
+                        });
+                    }
                 });
             }else{
                 swal({
