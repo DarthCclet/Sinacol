@@ -19,4 +19,7 @@ class FirmaDocumento extends Model
     {
         return $this->morphTo();
     }
+    public function documento(){
+        return $this->belongsTo(Documento::class);
+    }
 }

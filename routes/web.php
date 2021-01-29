@@ -236,6 +236,7 @@ Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialCo
  * Ruta para envío de certificados digitales desde el buzón
  */
 Route::post('documentos/firmado','DocumentoController@firmado');
+Route::get('documentos/firmado/obtener/{firma_documento_id}','DocumentoController@ObtenerFirmado');
 
 Route::get('solicitud_buzon','BuzonController@SolicitudBuzon')->name('solicitud_buzon');
 

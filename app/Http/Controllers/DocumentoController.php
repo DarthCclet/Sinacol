@@ -15,11 +15,13 @@ use App\Conciliador;
 use App\Events\GenerateDocumentResolution;
 use App\FirmaDocumento;
 use App\Parte;
+use App\TipoParte;
 use App\Traits\GenerateDocument;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator as ValidationValidator;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
@@ -336,7 +338,9 @@ class DocumentoController extends Controller
 
     public function firmado(Request $request)
     {
+        DB::beginTransaction();
         try {
+            
             $idParte = $request->get('persona_id');
             $tipoPersona = $request->get('tipo_persona');
             $idSolicitud = $request->get('solicitud_id');
@@ -415,13 +419,14 @@ class DocumentoController extends Controller
                     )
                 );
             }
-
+            DB::rollBack();
             return response()->json([
                 'success' => true,
                 'message' => 'OK',
             ], 200);
 
         } catch (\Throwable $e) {
+            DB::rollBack();
 
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensaje: ". $e->getMessage().
@@ -637,5 +642,36 @@ class DocumentoController extends Controller
         $text_a_firmar = strip_tags($elements[0]);
         return $text_a_firmar;
     }
-
+    
+    public function ObtenerFirmado(Request $request){
+//        Obtenemos la firma
+        $respuesta = [];
+        $firma = FirmaDocumento::find($request->firma_documento_id);
+        $parte = Parte::find($firma->firmable_id);
+        $respuesta["persona_id"] = $parte->id;
+        $tipo_persona_solicitante = TipoParte::where("nombre","SOLICITANTE")->first();
+        $tipo_persona_citado = TipoParte::where("nombre","CITADO")->first();
+        if($parte->tipo_parte_id == $tipo_persona_solicitante->id){
+            $respuesta["tipo_persona"] = "solicitante";
+            $respuesta["solicitante_id"] = $parte->id;
+            $respuesta["solicitado_id"] = null;
+            
+        }else if($parte->tipo_parte_id == $tipo_persona_citado->id){
+            $respuesta["tipo_persona"] = "citado";
+            $respuesta["solicitante_id"] = null;
+            $respuesta["solicitado_id"] = $parte->id;
+        }else{
+            $respuesta["tipo_persona"] = "representante legal";
+            $respuesta["solicitante_id"] = null;
+            $respuesta["solicitado_id"] = null;
+        }
+        $respuesta["audiencia_id"] = $firma->audiencia_id;
+        $respuesta["solicitud_id"] = $firma->solicitud_id;
+        $respuesta["plantilla_id"] = $firma->plantilla_id;
+        $respuesta["documento_id"] = $firma->documento_id;
+        $respuesta["tipo_firma"] = $firma->tipo_firma;
+        $respuesta["encoding_firmas"] = "post";
+        $respuesta["firma_documento_id"] = $request->firma_documento_id;
+        return $respuesta;
+    }
 }

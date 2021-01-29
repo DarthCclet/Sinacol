@@ -121,7 +121,7 @@
                                     @endif
                                 </tr>
                                 <tr>
-                                    <td class="text-nowrap" colspan="3">
+                                    <td class="text-nowrap" colspan="2">
                                         Movimientos:
                                         <ul>
                                             @foreach($audiencia->etapasResolucionAudiencia as $etapas)
@@ -136,6 +136,16 @@
                                                     @endforeach
                                                 </ul>
                                                 @endif
+                                            </li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                    <td class="text-nowrap">
+                                        Movimientos:
+                                        <ul>
+                                            @foreach($audiencia->documentos_firmar as $doc)
+                                            <li>
+                                                <a href="#" onclick="validarFirma({{$doc->id}},'{{$doc->firma}}','{{$doc->documento->uuid}}')">{{$doc->documento->clasificacionArchivo->nombre}}</a>
                                             </li>
                                             @endforeach
                                         </ul>
@@ -218,6 +228,61 @@
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="domicilioObj2.limpiarDomicilios()"><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" onclick="guardarDomicilio()"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="modal-firma" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Firma de documento</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body" id="domicilio-form">
+                <form enctype="multipart/form-data" id="formFirmar" method="post">
+                    <input type="hidden" name="persona_id" id="persona_id">
+                    <input type="hidden" name="tipo_persona" id="tipo_persona">
+                    <input type="hidden" name="audiencia_id" id="audiencia_id">
+                    <input type="hidden" name="solicitud_id" id="solicitud_id">
+                    <input type="hidden" name="plantilla_id" id="plantilla_id">
+                    <input type="hidden" name="documento_id" id="documento_id">
+                    <input type="hidden" name="solicitante_id" id="solicitante_id">
+                    <input type="hidden" name="solicitado_id" id="solicitado_id">
+                    <input type="hidden" name="firma_documento_id" id="firma_documento_id">
+                    <input type="hidden" name="tipo_firma" id="tipo_firma">
+                    <input type="hidden" name="encoding_firmas" id="encoding_firmas">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="cert" class="col-sm-6 control-label">Archivo .cer</label>
+                            <div class="col-sm-10">
+                                <input type="file" name="cert" id='cert' accept=".cer">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="key" class="col-sm-6 control-label">Archivo .key</label>
+                            <div class="col-sm-10">
+                                <input type="file" name="key" id='key' accept=".key">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="password" class="col-sm-6 control-label">Contraseña</label>
+                            <div class="col-sm-10">
+                                <input type="password" name="password" id='password' class="form-control">
+                            </div>
+                        </div>
+                    </div>                
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <button class="btn btn-primary btn-sm" data-dismiss="guardar" type="submit" form="formFirmar"><i class="fa fa-save"></i> Guardar</button>
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
                 </div>
             </div>
         </div>
@@ -432,6 +497,108 @@
                 });
             }
         }
+        function validarFirma(id,firma,uuid){
+            console.log(id);
+            console.log(firma);
+            console.log(uuid);
+            if(firma == "" || firma == null){
+                swal({
+                    title: 'Documento no firmado',
+                    text: '¿Que acción deseas realizar?',
+                    icon: 'info',
+                    buttons: {
+                        cancel: {
+                            text: 'cancelar',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true,
+                        },
+                        roll: {
+                            text: "Ver documento",
+                            value: 2,
+                            className: 'btn btn-warning',
+                            visible: true,
+                            closeModal: true
+                        },
+                        confirm: {
+                            text: 'Firmar',
+                            value: 1,
+                            visible: true,
+                            className: 'btn btn-warning',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(tipo){
+                    if(tipo == 1 || tipo == 2){
+                        if(tipo == 1){
+                            obtenerInformacionDocumento(id);
+                        }else{
+                            var archivo = document.createElement('a');
+                            archivo.href = '/api/documentos/getFile/'+uuid;
+                            archivo.taget = '_blank';
+                            archivo.click();
+                        }
+                    }
+                });
+            }else{
+                var archivo = document.createElement('a');
+                archivo.href = '/api/documentos/getFile/'+uuid;
+                archivo.taget = '_blank';
+                archivo.click();
+            }
+        }
+        function obtenerInformacionDocumento(firma_documento_id){
+            $.ajax({
+                url:"/documentos/firmado/obtener/"+firma_documento_id,
+                type:"GET",
+                dataType:"json",
+                async:true,
+                success:function(data){
+                    try{
+                        console.log(data);
+                        $("#persona_id").val(data.persona_id);
+                        $("#tipo_persona").val(data.tipo_persona);
+                        $("#solicitante_id").val(data.solicitante_id);
+                        $("#solicitado_id").val(data.solicitado_id);
+                        $("#audiencia_id").val(data.audiencia_id);
+                        $("#solicitud_id").val(data.solicitud_id);
+                        $("#plantilla_id").val(data.plantilla_id);
+                        $("#documento_id").val(data.documento_id);
+                        $("#tipo_firma").val(data.tipo_firma);
+                        $("#encoding_firmas").val(data.encoding_firmas);
+                        $("#firma_documento_id").val(data.firma_documento_id);
+                        $("#modal-firma").modal("show");
+                    }catch(error){
+                        console.log(error);
+                    }
+                }
+            });
+        }
+        $("#formFirmar").on("submit",function(e){
+            e.preventDefault();
+            if($("#cer").val() != "" && $("#key").val() != "" && $("#password").val() != ""){
+                var formData = new FormData(document.getElementById("formFirmar"));
+                formData.append("_token","{{ csrf_token() }}");
+                $.ajax({
+                    url: "/documentos/firmado",
+                    type: "POST",
+                    dataType: "json",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                }).done(function(res){
+                    console.log(res);
+                });
+            }else{
+                swal({
+                    title: 'Error',
+                    text: 'Llena todos los campos',
+                    icon: 'error',
+                });
+            }
+        });
     </script>
 @endpush
 
