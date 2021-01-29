@@ -64,7 +64,7 @@ trait GenerateDocument
                     Storage::move($archivo->ruta, $archivo->ruta.".old");
                   }
                 }else{
-                  $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid,"clasificacion_archivo_id" => $tipoArchivo->id]);
+                  $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid,"clasificacion_archivo_id" => $tipoArchivo->id,"firmado" => "false"]);
                 }
                 //generamos html del archivo
                 $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
@@ -74,7 +74,9 @@ trait GenerateDocument
                 $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
                 $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
                 $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
-
+                if($idDocumento != null){
+                  $firmantes = $archivo->total_firmantes;
+                }
                 //Hacemos el render del pdf y lo guardamos en $fullPath
                 $this->renderPDF($html, $plantilla->id, $fullPath);
 
@@ -86,8 +88,6 @@ trait GenerateDocument
                     "tipo_almacen" => "local",
                     "uri" => $path,
                     "longitud" => round(Storage::size($path) / 1024, 2),
-                    "firmado" => "false",
-
                     "total_firmantes" => $firmantes,
                 ]);
                 if($tipoArchivo->id == 18){
