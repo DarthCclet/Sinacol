@@ -301,7 +301,7 @@ class DocumentoController extends Controller
             $plantilla_id = $request->get('plantilla_id', 1);
             $idSolicitado = $request->get('solicitado_id');
             $idSolicitante = $request->get('solicitante_id');
-            
+
             $pdf = $request->exists('pdf');
 
             $solicitud = Solicitud::find($idSolicitud);
@@ -540,7 +540,7 @@ class DocumentoController extends Controller
         if(!Storage::exists($base_firmas_path)){
             Storage::makeDirectory($base_firmas_path);
         }
-        if(!$encoding_firmas) {
+        if($encoding_firmas=='post') {
             $key_path = storage_path('app/' . $request->file('key')->store('firmas'));
             $cert_path = storage_path('app/' . $request->file('cert')->store('firmas'));
         }
