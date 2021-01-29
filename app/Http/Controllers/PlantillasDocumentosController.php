@@ -357,6 +357,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'objeto_solicitudes');
                 array_push($columnNames,'prescripcion');
                 array_push($columnNames,'fecha_maxima_ratificacion');
+                array_push($columnNames,'firmas_partes_qr');
               }
               if($value->objeto =='Parte'){
                 if($value->id_tipo  =='1'){ // campos de datos laborales de solicitante
@@ -450,6 +451,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'citados_comparecientes');
                 array_push($columnNames,'solicitantes_comparecientes');
                 array_push($columnNames,'segunda_declaracion_convenio');
+                // array_push($columnNames,'firmas_partes_qr');
               }
 
               if($value->nombre =='Sala'){
@@ -580,6 +582,7 @@ class PlantillasDocumentosController extends Controller
             $audienciaId = $idAudiencia;
             $data = [];
             $solicitud = "";
+            $solicitudVirtual = "";
             foreach ($objetos as $objeto) {
               foreach ($jsonElementos['datos'] as $key=>$element) {
                 if($element['id']==$objeto){
@@ -588,6 +591,7 @@ class PlantillasDocumentosController extends Controller
                   $model_name = 'App\\' .$model;
                   if($model == 'Solicitud' ){
                     $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find($idSolicitud);
+                    $solicitudVirtual = $solicitud->virtual;
                     // $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
                     $objeto = new JsonResponse($solicitud);
                     $obj = json_decode($objeto->content(),true);
@@ -610,7 +614,7 @@ class PlantillasDocumentosController extends Controller
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
                     }else{
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->get();
-                    }
+                    }                    
                     $objeto = new JsonResponse($partes);
                     $obj = json_decode($objeto->content(),true);
                     $parte2 = [];
@@ -622,6 +626,7 @@ class PlantillasDocumentosController extends Controller
                     $solicitantesIdentificaciones = [];
                     $datoLaboral="";
                     $solicitanteIdentificacion = "";
+                    $firmasPartesQR = "";
                       // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
@@ -652,10 +657,22 @@ class PlantillasDocumentosController extends Controller
                       }else{
                         $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->first();
                       }
-                      if($firmaDocumento != null){
-                        $parte['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                      if($solicitudVirtual && $solicitudVirtual!="" ){
+                        if($firmaDocumento && $firmaDocumento->firma != null){
+                          $parte['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                        } elseif ($firmaDocumento && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
+                          $parte['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
+                        } else{
+                          $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($parteId."/".$tipoParte."/".urlencode($parte['nombre_completo'])."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."//".$idSolicitante ."/".$idSolicitado."/").'</div>';
+                        }
+                        if($parte['tipo_persona_id']==1){
+                          $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">'.$parte['qr_firma'].' </span></p>';
+                          $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">_________________________________________</span></p>';
+                          $firmasPartesQR .= '<p style="text-align: center;"><strong><span style="font-size: 10pt;">'.mb_strtoupper($parte['nombre_completo']).'</span></strong></p>';
+                          $firmasPartesQR .= '<p style="text-align: center;">&nbsp;</p>';
+                        }
                       }else{
-                        $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($parteId."|".$tipoParte."|".$parte['nombre_completo']."|".$audienciaId."|".$idSolicitud."|".$idPlantilla."|".$idSolicitante ."|".$idSolicitado).'</div>';
+                        $parte['qr_firma'] = "";
                       }
                       //domicilio de partes, excepto representante
                       if($parte['tipo_parte_id'] != 3 ){
@@ -750,6 +767,7 @@ class PlantillasDocumentosController extends Controller
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
                     $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
+                    $data = Arr::add( $data, 'firmas_partes_qr', $firmasPartesQR);
                 }elseif ($model == 'Expediente') {
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;

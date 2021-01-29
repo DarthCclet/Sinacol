@@ -64,7 +64,7 @@ trait GenerateDocument
                     Storage::move($archivo->ruta, $archivo->ruta.".old");
                   }
                 }else{
-                  $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid,"clasificacion_archivo_id" => $tipoArchivo->id,"firmado" => "false"]);
+                  $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid,"clasificacion_archivo_id" => $tipoArchivo->id]);
                 }
                 //generamos html del archivo
                 $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
@@ -74,9 +74,6 @@ trait GenerateDocument
                 $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
                 $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
                 $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
-                if($idDocumento != null){
-                  $firmantes = $archivo->total_firmantes;
-                }
                 //Hacemos el render del pdf y lo guardamos en $fullPath
                 $this->renderPDF($html, $plantilla->id, $fullPath);
 
@@ -88,6 +85,7 @@ trait GenerateDocument
                     "tipo_almacen" => "local",
                     "uri" => $path,
                     "longitud" => round(Storage::size($path) / 1024, 2),
+                    "firmado" => "false",
                     "total_firmantes" => $firmantes,
                 ]);
                 if($tipoArchivo->id == 18){
@@ -407,6 +405,7 @@ trait GenerateDocument
                     $solicitantesIdentificaciones = [];
                     $datoLaboral="";
                     $solicitanteIdentificacion = "";
+                    $firmasPartesQR="";
                       // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
@@ -441,12 +440,18 @@ trait GenerateDocument
                         }
                       }
                       if($solicitudVirtual && $solicitudVirtual!="" && $idDocumento){
-                        if($firmaDocumento && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
+                        if($firmaDocumento && $firmaDocumento->firma != null){
                           $parte['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
-                        } elseif ($firmaDocumento != null && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
+                        } elseif ($firmaDocumento && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
                           $parte['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
                         } else{
                           $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($parteId."/".$tipoParte."/".urlencode($parte['nombre_completo'])."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
+                        }
+                        if($parte['tipo_persona_id']==1){
+                          $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">'.$parte['qr_firma'].' </span></p>';
+                          $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">_________________________________________</span></p>';
+                          $firmasPartesQR .= '<p style="text-align: center;"><strong><span style="font-size: 10pt;">'.mb_strtoupper($parte['nombre_completo']).'</span></strong></p>';
+                          $firmasPartesQR .= '<p style="text-align: center;">&nbsp;</p>';
                         }
                       }else{
                         $parte['qr_firma'] = "";
@@ -550,6 +555,7 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
                     $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
+                    $data = Arr::add( $data, 'firmas_partes_qr', $firmasPartesQR);
                 }elseif ($model == 'Expediente') {
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;
