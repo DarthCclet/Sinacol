@@ -338,7 +338,7 @@ class DocumentoController extends Controller
     public function firmado(Request $request)
     {
         try {
-            
+
             $idParte = $request->get('persona_id');
             $tipoPersona = $request->get('tipo_persona');
             $idSolicitud = $request->get('solicitud_id');
@@ -352,10 +352,12 @@ class DocumentoController extends Controller
             $firmaBase64 = $request->get('img_firma');
             $tipo_firma = $request->get('tipo_firma');
             $firma = null;
+            $texto_firmado = null;
+            $nombre_owner = null;
 
             //Si firma con llave publica, FIEL o FIREL o certificado X.509
             if($tipo_firma == 'llave-publica' || $tipo_firma == null) {
-                list($firma, $texto_firmado) = $this->firmaConLlavePublica(
+                list($firma, $texto_firmado, $nombre_owner) = $this->firmaConLlavePublica(
                     $request,
                     $idAudiencia,
                     $idSolicitud,
@@ -386,7 +388,7 @@ class DocumentoController extends Controller
                 "plantilla_id" => $idPlantilla,
                 'tipo_firma' => $tipo_firma,
                 'texto_firmado' => $texto_firmado,
-                "firma" => $firma
+                "firma" => $nombre_owner.": ".$firma
             ]);
             // $updateOrCreate = ;
             // $firmaDocumento = FirmaDocumento::UpdateOrCreate($match, $updateOrCreate);
@@ -559,8 +561,10 @@ class DocumentoController extends Controller
 
         try {
             $texto_a_firmar = $this->textoQueSeFirma($idAudiencia, $idSolicitud, $idPlantilla);
-            $firma = Docsigner::setCredenciales($cert_path, $key_path, $password)->firma($texto_a_firmar);
-            return [$firma, $texto_a_firmar];
+            $ds = Docsigner::setCredenciales($cert_path, $key_path, $password);
+            $firma = $ds->firma($texto_a_firmar);
+            $nombre_owner = $ds->nombre();
+            return [$firma, $texto_a_firmar, $nombre_owner];
         } catch (\Exception $e) {
             $message = "No ha sido posible realizar la firma del documento. Favor de revisar la validéz de su clave, archivo .key y/o archivo.cer";
             throw new CredencialesParaFirmaNoValidosException($message);
@@ -638,7 +642,7 @@ class DocumentoController extends Controller
         $text_a_firmar = strip_tags($elements[0]);
         return $text_a_firmar;
     }
-    
+
     public function ObtenerFirmado(Request $request){
 //        Obtenemos la firma
         $respuesta = [];
@@ -651,7 +655,7 @@ class DocumentoController extends Controller
             $respuesta["tipo_persona"] = "solicitante";
             $respuesta["solicitante_id"] = $parte->id;
             $respuesta["solicitado_id"] = null;
-            
+
         }else if($parte->tipo_parte_id == $tipo_persona_citado->id){
             $respuesta["tipo_persona"] = "citado";
             $respuesta["solicitante_id"] = null;
