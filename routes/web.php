@@ -99,7 +99,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('audiencia/negarCancelacion/{audiencia_id}','AudienciaController@negarCancelacion');
     Route::Post('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
     Route::Post('audiencias/solicitar_nueva','AudienciaController@SolicitarNueva');
-    
+
     Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');
     Route::get('resolucionColectiva/{id}','AudienciaController@resolucionColectiva')->name('resolucionColectiva');
     Route::Post('audiencia/guardarAudienciaColectiva','AudienciaController@guardarAudienciaColectiva');
@@ -213,20 +213,29 @@ Route::middleware(['auth'])->group(function () {
      * descarga de calendario
      */
     Route::post('descargaCalendario','CentroController@descargarCalendario')->name("descargaCalendario");
-    
+
     /*
      * Centro
      */
     Route::post('centros/contactos','CentroController@ObtenerContactos');
     Route::post('centros/agregar_contacto','CentroController@AgregarContacto');
     Route::post('centros/contactos/eliminar','CentroController@EliminarContacto');
-    
+
     /*
      * Suspensión de virtuales
      */
     Route::get('audiencia/suspension/{audiencia_id}','AudienciaController@SuspensionVirtual');
+
+
 });
+
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
+
+
+/**
+ * Ruta para envío de certificados digitales desde el buzón
+ */
+Route::post('documentos/firmado','DocumentoController@firmado');
 
 Route::get('solicitud_buzon','BuzonController@SolicitudBuzon')->name('solicitud_buzon');
 
