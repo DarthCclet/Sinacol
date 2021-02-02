@@ -99,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('audiencia/negarCancelacion/{audiencia_id}','AudienciaController@negarCancelacion');
     Route::Post('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
     Route::Post('audiencias/solicitar_nueva','AudienciaController@SolicitarNueva');
+    Route::Post('audiencias/nuevaAudienciaNotificacion','AudienciaController@NuevaAudienciaNotificacion');
 
     Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');
     Route::get('resolucionColectiva/{id}','AudienciaController@resolucionColectiva')->name('resolucionColectiva');

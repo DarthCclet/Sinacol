@@ -121,6 +121,7 @@ class SendNotificacion
             Log::debug('Información de actores:'.json_encode($arreglo["Actores"]));
             //Buscamos a los demandados
             $demandados = self::getSolicitados($audiencia,$event->parte_id);
+            dump($demandados);
             foreach($demandados as $partes){
                 $parte =$partes->parte;
                 if($parte->tipo_persona_id == 1){
@@ -235,16 +236,19 @@ class SendNotificacion
     public function getSolicitados(Audiencia $audiencia,$audiencia_parte_id = null) {
         $solicitados = [];
         foreach ($audiencia->audienciaParte as $parte) {
-            if($audiencia_parte_id == null){
-                if ($parte->parte->tipo_parte_id == 2) {
-                    $solicitados[] = $parte;
-                }
-            }else{
-                if($parte->id == $audiencia_parte_id){
-                    $solicitados[] = $parte;
+            if($parte->finalizado == null){
+                if($audiencia_parte_id == null){
+                    if ($parte->parte->tipo_parte_id == 2) {
+                        $solicitados[] = $parte;
+                    }
+                }else{
+                    if($parte->id == $audiencia_parte_id){
+                        $solicitados[] = $parte;
+                    }
                 }
             }
         }
+        dd($solicitados);
         return $solicitados;
     }
 

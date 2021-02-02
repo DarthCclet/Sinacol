@@ -353,7 +353,8 @@ class AudienciaController extends Controller {
         }
         $documentos = $doc->sortBy('id');
         $virtual = $solicitud->virtual;
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id','estatus_solicitud_id','virtual'));
+        $partes = $solicitud->partes;
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id','estatus_solicitud_id','virtual','partes'));
     }
 
     /**
@@ -1613,6 +1614,88 @@ class AudienciaController extends Controller {
         return $audienciaN;
         
     }
+    
+    public function NuevaAudienciaNotificacion(Request $request){
+        DB::beginTransaction();
+        ##Obtenemos la audiencia origen
+        $audiencia = Audiencia::find($request->audiencia_id);
+        // buscamos disponibilidad en los proximos 15 a 18 días
+        if($request->tipo_notificacion == 1){            
+            $diasHabilesMin = 7;
+            $diasHabilesMax = 10;
+        }else{
+            $diasHabilesMin = 15;
+            $diasHabilesMax = 18;
+        }
+        if($audiencia->multiple){
+            $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$audiencia->conciliadoresAudiencias,$audiencia->expediente->solicitud->virtual);
+            $multiple = true;
+        }else{
+            $conciliador = $audiencia->conciliadoresAudiencias()->first()->conciliador;
+            $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$conciliador,$audiencia->expediente->solicitud->virtual);
+            $multiple = false;
+        }
+        
+        //Obtenemos el contador
+        $ContadorController = new ContadorController();
+        $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+        //creamos el registro de la audiencia
+        $audienciaN = Audiencia::create([
+            "expediente_id" => $audiencia->expediente_id,
+            "multiple" => $audiencia->multiple,
+            "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
+            "hora_inicio" => $datos_audiencia["hora_inicio"],
+            "hora_fin" => $datos_audiencia["hora_fin"],
+            "conciliador_id" =>  $datos_audiencia["conciliador_id"],
+            "numero_audiencia" => 2,
+            "reprogramada" => true,
+            "anio" => $folioAudiencia->anio,
+            "folio" => $folioAudiencia->contador,
+            "encontro_audiencia" => $datos_audiencia["encontro_audiencia"]
+        ]);
+        if($datos_audiencia["encontro_audiencia"]){
+            // guardamos la sala y el consiliador a la audiencia
+            ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $datos_audiencia["conciliador_id"],"solicitante" => true]);
+            SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $datos_audiencia["sala_id"],"solicitante" => true]);
+            if($audienciaN->multiple){
+                ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $datos_audiencia["conciliador2_id"],"solicitante" => false]);
+                SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $datos_audiencia["sala2_id"],"solicitante" => false]);
+            }
+        }
+        $notificar = 0;
+        foreach($audiencia->expediente->solicitud->partes as $parte){
+            $tipoNotificacion = $request->tipo_notificacion;
+            $fecha_notificacion = null;
+            $finalizado = null;
+            foreach($request->listaRelaciones as $sin_notificar){
+                if($parte->id == $sin_notificar){
+                    $tipoNotificacion = null;
+                    $fecha_notificacion = now();
+                    $finalizado = "Notificado al comparecer";
+                }
+            }
+            AudienciaParte::create([
+                "audiencia_id" => $audienciaN->id, 
+                "parte_id" => $parte->id,
+                "tipo_notificacion_id" => $tipoNotificacion,
+                "fecha_notificacion" => $fecha_notificacion,
+                "finalizado" => $finalizado
+            ]);
+            if($tipoNotificacion != null){
+                $notificar++;
+            }
+            if($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]){
+                event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud_id,14,4,null,$parte->id));
+            }
+        }
+        DB::commit();
+        if($request->tipo_notificacion != 1 && $request->tipo_notificacion != null && $datos_audiencia["encontro_audiencia"] && $notificar > 0 ){
+            event(new RatificacionRealizada($audiencia->id,"citatorio"));
+        }
+        //$expediente = Expediente::find($audiencia->expediente_id);
+        //event(new GenerateDocumentResolution($audiencia->id, $expediente->solicitud_id, 14, 4));
+        return $audienciaN;
+    }
 
     ############################### A partir de este punto comienzan las funciones para el chacklist ########################################
 
@@ -1628,10 +1711,12 @@ class AudienciaController extends Controller {
         if ($conciliador != null) {
             $audiencias = $conciliador->ConciliadorAudiencia;
             foreach ($audiencias as $audiencia) {
-                if(!$audiencia->audiencia->expediente->solicitud->incidencia){
-                    $start = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_inicio;
-                    $end = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_fin;
-                    array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->audiencia->folio . "/" . $audiencia->audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->audiencia->id));
+                if(isset($audiencia->audiencia->expediente)){
+                    if(!$audiencia->audiencia->expediente->solicitud->incidencia){
+                        $start = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_inicio;
+                        $end = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_fin;
+                        array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->audiencia->folio . "/" . $audiencia->audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->audiencia->id));
+                    }
                 }
             }
         }
