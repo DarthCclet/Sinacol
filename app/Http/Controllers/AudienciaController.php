@@ -1620,13 +1620,9 @@ class AudienciaController extends Controller {
         ##Obtenemos la audiencia origen
         $audiencia = Audiencia::find($request->audiencia_id);
         // buscamos disponibilidad en los proximos 15 a 18 días
-        if($request->tipo_notificacion == 1){            
-            $diasHabilesMin = 7;
-            $diasHabilesMax = 10;
-        }else{
-            $diasHabilesMin = 15;
-            $diasHabilesMax = 18;
-        }
+        $diasHabilesMin = 15;
+        $diasHabilesMax = 18;
+        
         if($audiencia->multiple){
             $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$audiencia->conciliadoresAudiencias,$audiencia->expediente->solicitud->virtual);
             $multiple = true;
@@ -1639,6 +1635,7 @@ class AudienciaController extends Controller {
         //Obtenemos el contador
         $ContadorController = new ContadorController();
         $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+        $etapa = \App\EtapaNotificacion::where("etapa","ilike","%Cambio de Fecha%")->first();
         //creamos el registro de la audiencia
         $audienciaN = Audiencia::create([
             "expediente_id" => $audiencia->expediente_id,
@@ -1651,7 +1648,8 @@ class AudienciaController extends Controller {
             "reprogramada" => true,
             "anio" => $folioAudiencia->anio,
             "folio" => $folioAudiencia->contador,
-            "encontro_audiencia" => $datos_audiencia["encontro_audiencia"]
+            "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
+            "etapa_notificacion_id" => $etapa->id
         ]);
         if($datos_audiencia["encontro_audiencia"]){
             // guardamos la sala y el consiliador a la audiencia
@@ -1663,37 +1661,42 @@ class AudienciaController extends Controller {
             }
         }
         $notificar = 0;
+        $partes_notificar = [];
+        $tipo_parte = TipoParte::where("nombre","ilike","%CITADO%")->first()->id;
         foreach($audiencia->expediente->solicitud->partes as $parte){
-            $tipoNotificacion = $request->tipo_notificacion;
+            $tipoNotificacion = \App\TipoNotificacion::whereNombre("B) El notificador del centro entrega citatorio a citaados")->first()->id;
             $fecha_notificacion = null;
             $finalizado = null;
-            foreach($request->listaRelaciones as $sin_notificar){
-                if($parte->id == $sin_notificar){
-                    $tipoNotificacion = null;
-                    $fecha_notificacion = now();
-                    $finalizado = "Notificado al comparecer";
+            if(isset($request->listaRelaciones)){
+                foreach($request->listaRelaciones as $sin_notificar){
+                    if($parte->id == $sin_notificar){
+                        $tipoNotificacion = null;
+                        $fecha_notificacion = now();
+                        $finalizado = "Notificado al comparecer";
+                    }
                 }
             }
-            AudienciaParte::create([
+            $audiencia_parte =AudienciaParte::create([
                 "audiencia_id" => $audienciaN->id, 
                 "parte_id" => $parte->id,
                 "tipo_notificacion_id" => $tipoNotificacion,
                 "fecha_notificacion" => $fecha_notificacion,
                 "finalizado" => $finalizado
             ]);
-            if($tipoNotificacion != null){
+            if($tipoNotificacion != null && $parte->tipo_parte_id == $tipo_parte){
                 $notificar++;
+                $partes_notificar[]=$audiencia_parte->id;
             }
             if($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]){
                 event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud_id,14,4,null,$parte->id));
             }
         }
         DB::commit();
-        if($request->tipo_notificacion != 1 && $request->tipo_notificacion != null && $datos_audiencia["encontro_audiencia"] && $notificar > 0 ){
-            event(new RatificacionRealizada($audiencia->id,"citatorio"));
+        if($notificar > 0 ){
+            foreach($partes_notificar as $parte){
+                event(new RatificacionRealizada($audienciaN->id,"citatorio",false,$parte));
+            }
         }
-        //$expediente = Expediente::find($audiencia->expediente_id);
-        //event(new GenerateDocumentResolution($audiencia->id, $expediente->solicitud_id, 14, 4));
         return $audienciaN;
     }
 

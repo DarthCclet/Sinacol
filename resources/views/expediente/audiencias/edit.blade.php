@@ -1155,20 +1155,6 @@
                         </div>
                         <div class="col-md-12" id="divPartesNotificar" style="display:none;">
                             <div class="col-md-12">
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" id="radioNotificacionA" value="1" name="radioNotificacion" class="custom-control-input">
-                                    <label class="custom-control-label" for="radioNotificacionA">A) El solicitante entrega el citatorio al citado(s)</label>
-                                </div>
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" id="radioNotificacionB" value="2" name="radioNotificacion" class="custom-control-input">
-                                    <label class="custom-control-label" for="radioNotificacionB">B) Un notificador del centro entrega el citatorio al citado(s)</label>
-                                </div>
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" id="radioNotificacionC" value="3" name="radioNotificacion" class="custom-control-input">
-                                    <label class="custom-control-label" for="radioNotificacionC">C) Agendar cita con el notificador para entrega del citatorio</label>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
                                 <table class="table table-striped table-bordered table-hover">
                                     <thead>
                                         <tr>
@@ -2273,9 +2259,6 @@
         function validarCrearNuevaAudiencia(){
             var pasa =true;
             var listaRelaciones = [];
-            if($('input[name=radioNotificacion]:checked').val() == undefined){
-                pasa = false;
-            }
             $(".parte_id").each(function(index){
                 if($("#radioNotificacionNo"+$(this).val()).is(":checked")){
                     listaRelaciones.push($(this).val());

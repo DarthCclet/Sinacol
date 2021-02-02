@@ -121,7 +121,6 @@ class SendNotificacion
             Log::debug('Información de actores:'.json_encode($arreglo["Actores"]));
             //Buscamos a los demandados
             $demandados = self::getSolicitados($audiencia,$event->parte_id);
-            dump($demandados);
             foreach($demandados as $partes){
                 $parte =$partes->parte;
                 if($parte->tipo_persona_id == 1){
@@ -248,7 +247,6 @@ class SendNotificacion
                 }
             }
         }
-        dd($solicitados);
         return $solicitados;
     }
 
