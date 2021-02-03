@@ -1332,6 +1332,26 @@
         </div>
     </div>
 </div>
+<!--Inicio modal para fechas de registro de citados-->
+<div class="modal" id="modal-parte" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                @include('expediente.solicitudes.agregarParte',['tipo_solicitud_id'=>0])
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarParte"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin de modal pagos diferidos-->
     <input type="hidden" id="parte_id">
     <input type="hidden" id="parte_representada_id">
     <input type="hidden" id="solicitud_id" value="{{$solicitud_id}}"/>
@@ -1344,6 +1364,7 @@
         }else{
             $("#virtual").val("false");
         }
+        comparece = false;
         var listaContactos=[];
         var listaConcepto=[];
         var finalizada=false;
@@ -2180,7 +2201,43 @@
         }
 
         $("#btnNuevaAudiencia").on("click",function(){
-            $("#modalNuevaAudiencia").modal("show");
+            swal({
+                title: 'Registro de citados',
+                text: '¿Deseas agregar nuevos citados?',
+                icon: 'info',
+                buttons: {
+                    cancel: {
+                        text: 'cancelar',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-default',
+                        closeModal: true,
+                    },
+                    roll: {
+                        text: "Si",
+                        value: 1,
+                        className: 'btn btn-warning',
+                        visible: true,
+                        closeModal: true
+                    },
+                    confirm: {
+                        text: 'No',
+                        value: 2,
+                        visible: true,
+                        className: 'btn btn-warning',
+                        closeModal: true
+                    }
+                }
+            }).then(function(tipo){
+                if(tipo == 1 || tipo == 2){
+                    if(tipo == 1){
+                        $("#modal-parte").modal("show");
+                    }else{
+                        $("#modalNuevaAudiencia").modal("show");
+                    }
+                }
+            });
+            
         });
         $("#notificar").on("change",function(){
             if($(this).is(":checked")){

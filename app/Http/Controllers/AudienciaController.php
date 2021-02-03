@@ -354,7 +354,14 @@ class AudienciaController extends Controller {
         $documentos = $doc->sortBy('id');
         $virtual = $solicitud->virtual;
         $partes = $solicitud->partes;
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id','estatus_solicitud_id','virtual','partes'));
+        $estados = Estado::all();
+        $tipos_vialidades = $this->cacheModel('tipos_vialidades', TipoVialidad::class);
+        $tipos_asentamientos = $this->cacheModel('tipos_asentamientos', TipoAsentamiento::class);
+        $lengua_indigena = $this->cacheModel('lengua_indigena',LenguaIndigena::class);
+        $generos = $this->cacheModel('generos',Genero::class);
+        $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
+        $nacionalidades = $this->cacheModel('nacionalidades',Nacionalidad::class);
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id','estatus_solicitud_id','virtual','partes',"estados",'generos','nacionalidades','tipos_vialidades','tipos_asentamientos','lengua_indigena','tipo_contacto'));
     }
 
     /**

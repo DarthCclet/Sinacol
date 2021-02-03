@@ -1441,6 +1441,7 @@
     var listaResolucionesIndividuales = [];
     var firstTimeStamp = "";
     var listVistaPrevia = [];
+    comparece = false;
     $(document).ready(function(){
         $( "#accordion" ).accordion();
 
