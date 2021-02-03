@@ -937,7 +937,11 @@ class PlantillasDocumentosController extends Controller
 
                             //Conceptos resolucion
                             if(sizeof($conceptos_pago)>0){
-                              $resolucion_conceptos = $conceptos_pago[$parteID];
+                              if(array_key_exists($parteID,$conceptos_pago)){
+                                $resolucion_conceptos = $conceptos_pago[$parteID];
+                              }else{
+                                $resolucion_conceptos = array();
+                              }
                             }else{
                               $resolucion_conceptos = ResolucionParteConcepto::where('audiencia_parte_id',$audiencia_parte->id)->get();
                             }
