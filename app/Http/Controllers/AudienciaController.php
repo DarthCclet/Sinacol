@@ -1671,7 +1671,7 @@ class AudienciaController extends Controller {
         $partes_notificar = [];
         $tipo_parte = TipoParte::where("nombre","ilike","%CITADO%")->first()->id;
         foreach($audiencia->expediente->solicitud->partes as $parte){
-            $tipoNotificacion = \App\TipoNotificacion::whereNombre("B) El notificador del centro entrega citatorio a citaados")->first()->id;
+            $tipoNotificacion = \App\TipoNotificacion::where("nombre","ilike","%B)%")->first()->id;
             $fecha_notificacion = null;
             $finalizado = null;
             if(isset($request->listaRelaciones)){
