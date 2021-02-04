@@ -937,7 +937,11 @@ class PlantillasDocumentosController extends Controller
 
                             //Conceptos resolucion
                             if(sizeof($conceptos_pago)>0){
-                              $resolucion_conceptos = $conceptos_pago[$parteID];
+                              if(array_key_exists($parteID,$conceptos_pago)){
+                                $resolucion_conceptos = $conceptos_pago[$parteID];
+                              }else{
+                                $resolucion_conceptos = array();
+                              }
                             }else{
                               $resolucion_conceptos = ResolucionParteConcepto::where('audiencia_parte_id',$audiencia_parte->id)->get();
                             }
@@ -946,10 +950,12 @@ class PlantillasDocumentosController extends Controller
                             $tablaConceptosConvenio .= '<tbody>';
                             $tablaConceptosActa .= '';
                             $parte = Parte::find($parteID);
-                            $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
-                            $tablaConceptosActa .= ' Propuesta para '.$nombreParte;
-                            $tablaConceptosActa .= '<table class="tbl">';
-                            $tablaConceptosActa .= '<tbody>';
+                            if(sizeof($parte->compareciente)>0){
+                              $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
+                              $tablaConceptosActa .= ' Propuesta para '.$nombreParte;
+                              $tablaConceptosActa .= '<table class="tbl">';
+                              $tablaConceptosActa .= '<tbody>';
+                            }
                             $totalPercepciones = 0;
                             foreach ($resolucion_conceptos as $concepto ) {
                               //foreach ($conceptos as $concepto ) {
@@ -969,13 +975,13 @@ class PlantillasDocumentosController extends Controller
                             $tablaConceptosConvenio .= '</tbody>';
                             $tablaConceptosConvenio .= '</table>';
                             $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
-
-                            $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
-                            $tablaConceptosActa .= '</tbody>';
-                            $tablaConceptosActa .= '</table>';
-                            $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
-                            $tablaConceptosActa .= '<br>';
-
+                            if(sizeof($parte->compareciente)>0){
+                              $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
+                              $tablaConceptosActa .= '</tbody>';
+                              $tablaConceptosActa .= '</table>';
+                              $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                              $tablaConceptosActa .= '<br>';
+                            }
                             // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                             $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
                             $totalPercepcion = explode('.', $totalPercepciones);
