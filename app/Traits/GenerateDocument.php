@@ -757,10 +757,12 @@ trait GenerateDocument
                             $tablaConceptosConvenio .= '<tbody>';
                             $tablaConceptosActa .= '';
                             $parte = Parte::find($parteID);
-                            $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
-                            $tablaConceptosActa .= ' Propuesta para '.$nombreParte;
-                            $tablaConceptosActa .= '<table class="tbl">';
-                            $tablaConceptosActa .= '<tbody>';
+                            if(sizeof($parte->compareciente)>0){
+                              $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
+                              $tablaConceptosActa .= ' Propuesta para '.$nombreParte;
+                              $tablaConceptosActa .= '<table class="tbl">';
+                              $tablaConceptosActa .= '<tbody>';
+                            }
 
                               $totalPercepciones = 0;
                             foreach ($resolucion_conceptos as $concepto ) {
@@ -779,12 +781,13 @@ trait GenerateDocument
                             $tablaConceptosConvenio .= '</tbody>';
                             $tablaConceptosConvenio .= '</table>';
                             $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
-
-                            $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
-                            $tablaConceptosActa .= '</tbody>';
-                            $tablaConceptosActa .= '</table>';
-                            $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
-                            $tablaConceptosActa .= '<br>';
+                            if(sizeof($parte->compareciente)>0){
+                              $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
+                              $tablaConceptosActa .= '</tbody>';
+                              $tablaConceptosActa .= '</table>';
+                              $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                              $tablaConceptosActa .= '<br>';
+                            }
 
                             $totalPercepciones = number_format($totalPercepciones, 2, '.', '');
                             $totalPercepcion = explode('.', $totalPercepciones);
