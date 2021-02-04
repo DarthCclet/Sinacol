@@ -329,21 +329,7 @@
                 if(!validacion.error){
                     var listaRelaciones = [];
                     if(origen == 'audiencias'){
-                        var pasa =true;
-                        $(".switchPartes").each(function(index){
-                            if($(this).is(":checked")){
-                                listaRelaciones.push({
-                                    id:$(this).data("id"),
-                                    parte_solicitante_id:$(this).data("parte_solicitante_id"),
-                                    parte_solicitada_id:$(this).data("parte_solicitada_id")
-                                });
-                            }
-                        });
-                        if(listaRelaciones.length == 0){
-                            swal({title: 'Error',text: 'Selecciona una relación al menos',icon: 'warning'});
-                            return false;
-                        }
-                        var url = '/audiencia/nuevaAudiencia';
+                        var url = '/audiencia/nuevaAudienciaCalendario';
                     }else{
                         var url = '/audiencia/calendarizar';
                     }
