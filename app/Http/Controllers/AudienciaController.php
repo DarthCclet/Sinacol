@@ -1724,6 +1724,58 @@ class AudienciaController extends Controller {
         }
         return $audienciaN;
     }
+    
+    public function NuevaAudienciaCalendario(Request $request){
+        DB::beginTransaction();
+        ##Obtenemos la audiencia origen
+        $audiencia = Audiencia::find($request->audiencia_id);
+
+        $fecha_audiencia = $request->fecha_audiencia;
+        $hora_inicio = $request->hora_inicio;
+        $hora_fin = $request->hora_fin;
+        if ($request->tipoAsignacion == 1) {
+            $multiple = false;
+        } else {
+            $multiple = true;
+        }
+        //Obtenemos el contador
+        $ContadorController = new ContadorController();
+        $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
+        ##creamos la resolución a partir de los datos ya existentes y los nuevos
+        $audienciaN = Audiencia::create([
+            "expediente_id" => $audiencia->expediente_id,
+            "multiple" => $multiple,
+            "fecha_audiencia" => $fecha_audiencia,
+            "hora_inicio" => $hora_inicio,
+            "hora_fin" => $hora_fin,
+            "conciliador_id" => $audiencia->conciliador_id,
+            "numero_audiencia" => 1,
+            "reprogramada" => true,
+            "anio" => $folio->anio,
+            "folio" => $folio->contador
+        ]);
+        ## si la audiencia se calendariza se deben guardar los datos recibidos en el arreglo, si no se copian los de la audiencia origen
+        foreach ($request->asignacion as $value) {
+            SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $value["sala"], "solicitante" => $value["resolucion"]]);
+        }
+        
+        foreach ($audiencia->conciliadoresAudiencias as $conciliador) {
+            ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $conciliador->conciliador_id, "solicitante" => $conciliador->solicitante]);
+        }
+
+        ##Finalmente guardamos los datos de las partes recibidas
+        $arregloPartesAgregadas = array();
+        $tipo_citado = TipoParte::where("nombre","ilike","%CITADO%")->first();
+        foreach ($audiencia->audienciaParte as $parte) {
+            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => null,"finalizada"=> "Notificado al comparecer","fecha_notificacion" => now()]);
+            if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
+                event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
+            }
+        }
+        DB::commit();
+        return $audienciaN;
+    }
+    
 
     ############################### A partir de este punto comienzan las funciones para el chacklist ########################################
 
