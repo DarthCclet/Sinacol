@@ -99,9 +99,9 @@ class Incidencia extends Model implements AuditableContract
     {
         $d = new Carbon($fecha);
         $fecha = $d->addDay()->format("Y-m-d");
-        if($max > 0){
+        if($max >= 0){
             if(self::hayIncidencia($fecha,$id,$incidencia_type)){
-                $max--;
+//                $max--;
                 $d = new Carbon($fecha);
                 $maniana = $d->format("Y-m-d");
                 return self::siguienteDiaHabil($maniana,$id,$incidencia_type,$max);
@@ -117,7 +117,6 @@ class Incidencia extends Model implements AuditableContract
     public static function siguienteDiaHabilMasDias($fecha,$id,$incidencia_type, $dias,$max)
     {
         $d = new Carbon($fecha);
-//        $fecha = $d->addDays($dias)->format("Y-m-d");
         $diasRecorridos = 1;
         while ($diasRecorridos < $dias){
             $sig = $d->addDay()->format("Y-m-d");

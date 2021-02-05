@@ -69,7 +69,7 @@ class SendNotificacion
                 $fechaRecepcion = new \Carbon\Carbon($audiencia->fecha_audiencia);
                 $fechaAudiencia = self::ObtenerFechaAudienciaMulta($audiencia->fecha_audiencia,15);
                 $fechaCita = null;
-                $fechaLimite = new \Carbon\Carbon(self::ObtenerFechaLimiteNotificacionMulta($fechaAudiencia,$audiencia->expediente->solicitud));
+                $fechaLimite = new \Carbon\Carbon(self::ObtenerFechaLimiteNotificacionMulta($fechaAudiencia,$audiencia->expediente->solicitud,$audiencia->id));
                 $arreglo["fecha_recepcion"] = $fechaRecepcion->format("d/m/Y");
                 $arreglo["fecha_audiencia"] = $fechaAudiencia->format("d/m/Y");
                 $arreglo["fecha_ar"] = $fechaRecepcion->format("d/m/Y");
@@ -120,7 +120,7 @@ class SendNotificacion
             }
             Log::debug('Información de actores:'.json_encode($arreglo["Actores"]));
             //Buscamos a los demandados
-            $demandados = self::getSolicitados($audiencia,$event->parte_id);
+            $demandados = self::getSolicitados($audiencia,$tipo_notificacion,$event->parte_id);
             foreach($demandados as $partes){
                 $parte =$partes->parte;
                 if($parte->tipo_persona_id == 1){
@@ -232,16 +232,18 @@ class SendNotificacion
      * @param Audiencia $audiencia
      * @return AudienciaParte $solicitado
      */
-    public function getSolicitados(Audiencia $audiencia,$audiencia_parte_id = null) {
+    public function getSolicitados(Audiencia $audiencia,$tipo_notificacion,$audiencia_parte_id = null) {
         $solicitados = [];
         foreach ($audiencia->audienciaParte as $parte) {
-            if($audiencia_parte_id == null){
-                if ($parte->parte->tipo_parte_id == 2) {
-                    $solicitados[] = $parte;
-                }
-            }else{
-                if($parte->id == $audiencia_parte_id){
-                    $solicitados[] = $parte;
+            if($parte->finalizado == null || $tipo_notificacion == "multa"){
+                if($audiencia_parte_id == null){
+                    if ($parte->parte->tipo_parte_id == 2) {
+                        $solicitados[] = $parte;
+                    }
+                }else{
+                    if($parte->id == $audiencia_parte_id){
+                        $solicitados[] = $parte;
+                    }
                 }
             }
         }
@@ -268,7 +270,7 @@ class SendNotificacion
     /**
      * 
      */
-    Public function ObtenerFechaLimiteNotificacionMulta($fecha_audiencia,$solicitud){
+    Public function ObtenerFechaLimiteNotificacionMulta($fecha_audiencia,$solicitud,$audiencia_id){
 //      obtenemos el domicilio del centro
         $domicilio_centro = auth()->user()->centro->domicilio;
 //      obtenemos el domicilio del citado
@@ -280,7 +282,11 @@ class SendNotificacion
                 break;
             }
         }
-        return self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$fecha_audiencia);
+        if($domicilio_citado->latitud == "" || $domicilio_citado->longitud == ""){
+            return date("Y-m-d");
+        }else{
+            return self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$fecha_audiencia);
+        }
     }
     public function ObtenerTipoNotificacion($audiencia){
         $clasificacion_multa = \App\ClasificacionArchivo::where("nombre","Acta de multa")->first();

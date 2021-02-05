@@ -29,7 +29,7 @@ class CentroController extends Controller
 
     public function __construct(Request $request)
     {
-        $this->middleware('auth');
+        // $this->middleware('auth');
         $this->request = $request;
     }
     /**
@@ -127,6 +127,7 @@ class CentroController extends Controller
         $tipos_asentamientos = array_pluck(TipoAsentamiento::all(),'nombre','id');
         $estados = Estado::all();
         $municipios = array_pluck(Municipio::all(),'municipio','id');
+        $tipo_contactos = array_pluck(\App\TipoContacto::all(),'nombre','id');
         if($centro->domicilio){
             $municipio_nombre = mb_strtoupper($centro->domicilio->municipio);
             $municipio_selected = Municipio::where('municipio','like','%'.$municipio_nombre.'%')->first();
@@ -134,7 +135,7 @@ class CentroController extends Controller
                 $municipio_id = $municipio_selected->id;
             }
         }
-        return view('centros.centros.edit', compact('centro','estados','tipos_asentamientos','tipos_vialidades','municipios','municipio_id'));
+        return view('centros.centros.edit', compact('centro','estados','tipos_asentamientos','tipos_vialidades','municipios','municipio_id','tipo_contactos'));
     }
 
     /**
@@ -481,5 +482,22 @@ class CentroController extends Controller
         }
         $conciliadoresResponse = substr($conciliadoresResponse,0,strlen($conciliadoresResponse)-1);
         return $conciliadoresResponse;
+    }
+    public function ObtenerContactos(){
+        $centro = Centro::find($this->request->centro_id);
+        return $centro->contactos()->with(['tipo_contacto'])->get();
+    }
+    public function AgregarContacto(){
+        $centro = Centro::find($this->request->centro_id);
+        $centro->contactos()->create(["tipo_contacto_id" => $this->request->tipo_contacto_id,"contacto" => $this->request->contacto]);
+        return $centro;
+    }
+    public function EliminarContacto(){
+        \App\Contacto::find($this->request->id)->delete();
+        return $this->request->id;
+    }
+    public function getAtiendeVirtual($estado_id){
+        $centro = Centro::find($estado_id);
+        return $centro;
     }
 }

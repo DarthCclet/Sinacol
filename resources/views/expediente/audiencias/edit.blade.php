@@ -357,6 +357,7 @@
                                                             <table class="table table-bordered" >
                                                                 <thead>
                                                                     <tr>
+                                                                        <th>Solicitante</th>
                                                                         <th>Fecha de pago</th>
                                                                         <th>Monto</th>
                                                                         <th>Estatus</th>
@@ -368,6 +369,11 @@
                                                                     
                                                                         @foreach($audiencia->pagosDiferidos as $fechaPago)
                                                                             <tr>
+                                                                            @if($fechaPago->solicitante)
+                                                                                <td>{{ $fechaPago->solicitante->nombre}} {{$fechaPago->solicitante->primer_apellido}} {{$fechaPago->solicitante->segundo_apellido}}</td>
+                                                                                @else
+                                                                                <td></td>
+                                                                            @endif
                                                                                 <td>{{ Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$fechaPago->fecha_pago)->format('d/m/Y')}}</td>
                                                                                 <td>{{$fechaPago->monto}}</td>
                                                                                 <td>
@@ -1137,71 +1143,77 @@
                         </p>
                     </div>
                     <div class="col-md-12">
-                        <h5>Relaciones con conflicto</h5>
+                        <h5>Generación de audiencia</h5>
                         <hr>
-                        <div class="col-md-12">
-                            <table class="table table-striped table-bordered table-td-valign-middle" id="table">
-                                <thead>
-                                    <tr>
-                                        <th class="text-nowrap" style="width: 10%;"></th>
-                                        <th class="text-nowrap">Solicitante</th>
-                                        <th class="text-nowrap">Citado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($audiencia->resolucionPartes as $resolucion)
-                                        @if($resolucion->terminacion_bilateral_id == 2)
-                                        <tr>
-                                            <td>
-                                            @if(!$resolucion->nuevaAudiencia)
-                                                <div class="col-md-2">
-                                                    <input type="checkbox" data-render="switchery" data-theme="warning" class="switchPartes"
-                                                    data-parte_solicitante_id="{{$resolucion->parteSolicitante->id}}"
-                                                    data-parte_solicitada_id="{{$resolucion->parteSolicitada->id}}"
-                                                    data-id="{{$resolucion->id}}"/>
-                                                </div>
-                                            @else
-                                                Ya asignado a otra audiencia
-                                            @endif
-                                            </td>
-                                            @if($resolucion->parteSolicitante->tipo_persona_id == 1)
-                                                <td>{{$resolucion->parteSolicitante->nombre}} {{$resolucion->parteSolicitante->primer_apellido}} {{$resolucion->parteSolicitante->segundo_apellido}}</td>
-                                            @else
-                                                <td>{{$resolucion->parteSolicitante->nombre_comercial}}</td>
-                                            @endif
-                                            @if($resolucion->parteSolicitada->tipo_persona_id == 1)
-                                                <td>{{$resolucion->parteSolicitada->nombre}} {{$resolucion->parteSolicitada->primer_apellido}} {{$resolucion->parteSolicitada->segundo_apellido}}</td>
-                                            @else
-                                                <td>{{$resolucion->parteSolicitada->nombre_comercial}}</td>
-                                            @endif
-                                        </tr>
-                                        @endif
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <h5>Agenda</h5>
-                        <hr>
+                        @if(!$obligar)
                         <div class="col-md-12 row">
                             <div class="col-md-1">
-                                <h6>Calendarizar</h6>
+                                <h6>Notificar</h6>
                             </div>
                             <div class="col-md-2">
-                                <input type="checkbox" value="1" data-id="" data-render="switchery" data-theme="default" id="calendarizar" name="calendarizar"/>
+                                <input type="checkbox" value="1" data-id="" data-render="switchery" data-theme="default" id="notificar" name="notificar"/>
                             </div>
                         </div>
+                        @endif
+                        <div class="col-md-12" id="divPartesNotificar" style="display:none;">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <td>Citado</td>
+                                            <td>Mapa</td>
+                                            <td>Tipo de notificación</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if(isset($partes))
+                                        @foreach($partes as $parte)
+                                        <tr>
+                                            @if($parte->tipo_parte_id == 2)
+                                                @if($parte->tipo_persona_id == 1)
+                                                <td>{{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}</td>
+                                                @else
+                                                <td>{{$parte->nombre_comercial}}</td>
+                                                @endif
+                                                <td>
+                                                    @if($parte->domicilios[0]->latitud != "" && $parte->domicilios[0]->longitud != "")
+                                                    <a href="https://maps.google.com/?q={{$parte->domicilios[0]->latitud}},{{$parte->domicilios[0]->longitud}}" target="_blank" class="btn btn-xs btn-primary"><i class="fa fa-map"></i></a>
+                                                    @else
+                                                    <legend>Sin datos</legend>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <input type="hidden" id="parte_id{{$parte->id}}" class="parte_id" value="{{$parte->id}}">
+                                                    <div class="custom-control custom-radio">
+                                                        @if($parte->asignado)
+                                                        <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" checked="checked">
+                                                        @else
+                                                        <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}">
+                                                        @endif
+                                                        <label for="radioNotificacionNo{{$parte->id}}">No notificar</label>
+                                                    </div>
+                                                </td>
+                                            @endif
+                                        </tr>
+                                        @endforeach
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        @if(!$obligar)
                         <div class="col-md-12 row">
-                            <div id="divResolucionInmediata"></div>
-                            <div id="divAgendarNuevaAudiencia" style="display: none;">
+                            <div id="divAgendarNuevaAudiencia">
                                 @include('expediente.audiencias.calendarioWizard')
                             </div>
                         </div>
+                        @endif
                     </div>
                 </div>
                 <div class="modal-footer">
                     <div class="text-right">
                         <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-ban"></i> Cancelar</a>
-                        <button class="btn btn-warning btn-sm" id="btnCrearNuevaAudiencia"><i class="fa fa-save"></i> Crear nueva Audiencia</button>
+                        <button class="btn btn-warning btn-sm" id="btnCrearNuevaAudiencia" style="display:none;"><i class="fa fa-save"></i> Crear nueva Audiencia</button>
                     </div>
                 </div>
             </div>
@@ -1328,12 +1340,45 @@
         </div>
     </div>
 </div>
+<!--Inicio modal para fechas de registro de citados-->
+<div class="modal" id="modal-parte" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                @include('expediente.solicitudes.agregarParte',['tipo_solicitud_id'=>0])
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarParte"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin de modal pagos diferidos-->
     <input type="hidden" id="parte_id">
     <input type="hidden" id="parte_representada_id">
     <input type="hidden" id="solicitud_id" value="{{$solicitud_id}}"/>
+    <input type="hidden" id="virtual"/>
 @endsection
 @push('scripts')
     <script>
+        if('{{$virtual}}'){
+            $("#virtual").val("true");
+        }else{
+            $("#virtual").val("false");
+        }
+        if('{{$obligar}}'){
+            $("#divPartesNotificar").show();
+            $("#btnCrearNuevaAudiencia").show();
+        }
+        console.log('{{$obligar}}');
+        comparece = false;
+        asignado = false;
         var listaContactos=[];
         var listaConcepto=[];
         var finalizada=false;
@@ -2170,19 +2215,58 @@
         }
 
         $("#btnNuevaAudiencia").on("click",function(){
-            $("#modalNuevaAudiencia").modal("show");
+            swal({
+                title: 'Registro de citados',
+                text: '¿Deseas agregar nuevos citados?',
+                icon: 'info',
+                buttons: {
+                    cancel: {
+                        text: 'cancelar',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-default',
+                        closeModal: true,
+                    },
+                    roll: {
+                        text: "Si",
+                        value: 1,
+                        className: 'btn btn-warning',
+                        visible: true,
+                        closeModal: true
+                    },
+                    confirm: {
+                        text: 'No',
+                        value: 2,
+                        visible: true,
+                        className: 'btn btn-warning',
+                        closeModal: true
+                    }
+                }
+            }).then(function(tipo){
+                if(tipo == 1 || tipo == 2){
+                    if(tipo == 1){
+                        $("#modal-parte").modal("show");
+                    }else{
+                        $("#modalNuevaAudiencia").modal("show");
+                    }
+                }
+            });
+            
         });
-        $("#calendarizar").on("change",function(){
-            if(!$(this).is(":checked")){
-                $("#divResolucionInmediata").show();
+        $("#notificar").on("change",function(){
+            if($(this).is(":checked")){
+                $("#divPartesNotificar").show();
+                $("#btnCrearNuevaAudiencia").show();
                 $("#divAgendarNuevaAudiencia").hide();
             }else{
-                $("#divResolucionInmediata").hide();
+                $("#divPartesNotificar").hide();
+                $("#btnCrearNuevaAudiencia").hide();
                 $("#divAgendarNuevaAudiencia").show();
             }
         });
         $("#btnCrearNuevaAudiencia").on("click",function(){
             var validacion = validarCrearNuevaAudiencia();
+            console.log(validacion);
             if(validacion.pasa){
                 swal({
                     title: 'Advertencia',
@@ -2207,14 +2291,14 @@
                 }).then(function(isConfirm){
                     if(isConfirm){
                         $.ajax({
-                            url:"/audiencia/nuevaAudiencia",
+                            url:"/audiencias/nuevaAudienciaNotificacion",
                             type:"POST",
                             global:true,
                             dataType:"json",
                             data:{
                                 audiencia_id:'{{ $audiencia->id }}',
-                                nuevaCalendarizacion:'N',
                                 listaRelaciones:validacion.listaRelaciones,
+                                tipo_notificacion: $('input[name=radioNotificacion]:checked').val(),
                                 _token:"{{ csrf_token() }}"
                             },
                             success:function(data){
@@ -2236,25 +2320,21 @@
                     }
                 });
             }else{
-
+                swal({
+                    title: 'Error',
+                    text: 'Selecciona todos los tipo de notificacion',
+                    icon: 'error'
+                });
             }
         });
         function validarCrearNuevaAudiencia(){
             var pasa =true;
             var listaRelaciones = [];
-            $(".switchPartes").each(function(index){
-                if($(this).is(":checked")){
-                    listaRelaciones.push({
-                        parte_solicitante_id:$(this).data("parte_solicitante_id"),
-                        parte_solicitada_id:$(this).data("parte_solicitada_id"),
-                        id:$(this).data("id")
-                    });
+            $(".parte_id").each(function(index){
+                if($("#radioNotificacionNo"+$(this).val()).is(":checked")){
+                    listaRelaciones.push($(this).val());
                 }
             });
-            if(listaRelaciones.length == 0){
-                pasa = false;
-                swal({title: 'Error',text: 'Selecciona una relación al menos',icon: 'warning'});
-            }
             return {
                 pasa:pasa,
                 listaRelaciones:listaRelaciones

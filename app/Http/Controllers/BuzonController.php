@@ -110,7 +110,9 @@ class BuzonController extends Controller
                             $solicitud->parte = $parte;
                             foreach($solicitud->expediente->audiencia as $audiencia){
                                 $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
+                                $audiencia->documentos_firmar = $parte->firmas()->where("audiencia_id",$audiencia->id)->get();
                             }
+                            
                             $solicitudes[]=$solicitud;
                         }
                     }
@@ -118,6 +120,7 @@ class BuzonController extends Controller
                     $estados = Estado::all();
                     $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
                     $municipios = array_pluck(Municipio::all(),'municipio','id');
+                    
                     return view("buzon.buzon", compact('solicitudes','tipos_asentamientos','estados','tipos_vialidades','municipios'));
                 }else{
                     return view("buzon.solicitud")->with("Error","Correo del que ingresas no coincide con el token");
