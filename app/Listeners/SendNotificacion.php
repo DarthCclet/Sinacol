@@ -120,7 +120,7 @@ class SendNotificacion
             }
             Log::debug('Información de actores:'.json_encode($arreglo["Actores"]));
             //Buscamos a los demandados
-            $demandados = self::getSolicitados($audiencia,$event->parte_id);
+            $demandados = self::getSolicitados($audiencia,$tipo_notificacion,$event->parte_id);
             foreach($demandados as $partes){
                 $parte =$partes->parte;
                 if($parte->tipo_persona_id == 1){
@@ -232,10 +232,10 @@ class SendNotificacion
      * @param Audiencia $audiencia
      * @return AudienciaParte $solicitado
      */
-    public function getSolicitados(Audiencia $audiencia,$audiencia_parte_id = null) {
+    public function getSolicitados(Audiencia $audiencia,$tipo_notificacion,$audiencia_parte_id = null) {
         $solicitados = [];
         foreach ($audiencia->audienciaParte as $parte) {
-            if($parte->finalizado == null){
+            if($parte->finalizado == null || $tipo_notificacion == "multa"){
                 if($audiencia_parte_id == null){
                     if ($parte->parte->tipo_parte_id == 2) {
                         $solicitados[] = $parte;
