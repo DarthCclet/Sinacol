@@ -1442,6 +1442,7 @@
     var firstTimeStamp = "";
     var listVistaPrevia = [];
     comparece = false;
+    asignado = true;
     $(document).ready(function(){
         $( "#accordion" ).accordion();
 

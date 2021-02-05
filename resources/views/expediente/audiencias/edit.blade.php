@@ -1145,6 +1145,7 @@
                     <div class="col-md-12">
                         <h5>Generación de audiencia</h5>
                         <hr>
+                        @if(!$obligar)
                         <div class="col-md-12 row">
                             <div class="col-md-1">
                                 <h6>Notificar</h6>
@@ -1153,6 +1154,7 @@
                                 <input type="checkbox" value="1" data-id="" data-render="switchery" data-theme="default" id="notificar" name="notificar"/>
                             </div>
                         </div>
+                        @endif
                         <div class="col-md-12" id="divPartesNotificar" style="display:none;">
                             <div class="col-md-12">
                                 <table class="table table-striped table-bordered table-hover">
@@ -1183,7 +1185,11 @@
                                                 <td>
                                                     <input type="hidden" id="parte_id{{$parte->id}}" class="parte_id" value="{{$parte->id}}">
                                                     <div class="custom-control custom-radio">
+                                                        @if($parte->asignado)
+                                                        <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" checked="checked">
+                                                        @else
                                                         <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}">
+                                                        @endif
                                                         <label for="radioNotificacionNo{{$parte->id}}">No notificar</label>
                                                     </div>
                                                 </td>
@@ -1191,15 +1197,17 @@
                                         </tr>
                                         @endforeach
                                         @endif
-                                    <tbody>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
+                        @if(!$obligar)
                         <div class="col-md-12 row">
                             <div id="divAgendarNuevaAudiencia">
                                 @include('expediente.audiencias.calendarioWizard')
                             </div>
                         </div>
+                        @endif
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1364,7 +1372,13 @@
         }else{
             $("#virtual").val("false");
         }
+        if('{{$obligar}}'){
+            $("#divPartesNotificar").show();
+            $("#btnCrearNuevaAudiencia").show();
+        }
+        console.log('{{$obligar}}');
         comparece = false;
+        asignado = false;
         var listaContactos=[];
         var listaConcepto=[];
         var finalizada=false;

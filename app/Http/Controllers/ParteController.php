@@ -110,7 +110,10 @@ class ParteController extends Controller
             $comparece = $request->get('comparece');
             $contactos = $request->get('contactos');
             $domicilios = $request->get('domicilios');
-
+            if(isset($request->asignado)){
+                $parte["asignado"] = $request->asignado;
+            }
+            
             $parteSaved = Parte::create($parte);
             if ($domicilios && count($domicilios) > 0) {
                 foreach ($domicilios as $key => $domicilio) {
