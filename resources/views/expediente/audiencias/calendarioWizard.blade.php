@@ -127,11 +127,11 @@
                                     @else
                                     <td>{{$parte->nombre_comercial}}</td>
                                     @endif
-                                    <td>{{$parte->domicilios->vialidad}} {{$parte->domicilios->num_ext}}, {{$parte->domicilios->asentamiento}} {{$parte->domicilios->municipio}}, {{$parte->domicilios->estado}}</td>
+                                    <td>{{$parte->domicilios[0]->vialidad}} {{$parte->domicilios[0]->num_ext}}, {{$parte->domicilios[0]->asentamiento}} {{$parte->domicilios[0]->municipio}}, {{$parte->domicilios[0]->estado}}</td>
                                     <td>
                                         <input type="hidden" id="parte_id{{$parte->id}}" class="hddParte_id" value="{{$parte->id}}">
-                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
-                                        <a href="https://maps.google.com/?q={{$parte->domicilios->latitud}},{{$parte->domicilios->longitud}}" target="_blank" class="btn btn-xs btn-primary"><i class="fa fa-map"></i></a>
+                                        @if($parte->domicilios[0]->latitud != "" && $parte->domicilios[0]->longitud != "")
+                                        <a href="https://maps.google.com/?q={{$parte->domicilios[0]->latitud}},{{$parte->domicilios[0]->longitud}}" target="_blank" class="btn btn-xs btn-primary"><i class="fa fa-map"></i></a>
                                         @else
                                         <legend>Sin datos</legend>
                                         @endif
@@ -141,7 +141,7 @@
                                             <input type="radio" id="radioNotificacionA{{$parte->id}}" value="1" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
                                             <label class="custom-control-label" for="radioNotificacionA{{$parte->id}}">A) El solicitante entrega el citatorio al citado(s)</label>
                                         </div>
-                                        @if($parte->domicilios->latitud != "" && $parte->domicilios->longitud != "")
+                                        @if($parte->domicilios[0]->latitud != "" && $parte->domicilios[0]->longitud != "")
                                         <div class="custom-control custom-radio">
                                             <input type="radio" id="radioNotificacionB{{$parte->id}}" value="2" name="radioNotificacion{{$parte->id}}" class="custom-control-input">
                                             <label class="custom-control-label" for="radioNotificacionB{{$parte->id}}">B) Un notificador del centro entrega el citatorio al citado(s)</label>
@@ -329,21 +329,7 @@
                 if(!validacion.error){
                     var listaRelaciones = [];
                     if(origen == 'audiencias'){
-                        var pasa =true;
-                        $(".switchPartes").each(function(index){
-                            if($(this).is(":checked")){
-                                listaRelaciones.push({
-                                    id:$(this).data("id"),
-                                    parte_solicitante_id:$(this).data("parte_solicitante_id"),
-                                    parte_solicitada_id:$(this).data("parte_solicitada_id")
-                                });
-                            }
-                        });
-                        if(listaRelaciones.length == 0){
-                            swal({title: 'Error',text: 'Selecciona una relación al menos',icon: 'warning'});
-                            return false;
-                        }
-                        var url = '/audiencia/nuevaAudiencia';
+                        var url = '/audiencia/nuevaAudienciaCalendario';
                     }else{
                         var url = '/audiencia/calendarizar';
                     }

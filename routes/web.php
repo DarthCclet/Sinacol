@@ -85,6 +85,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
     Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
     Route::Post('audiencia/nuevaAudiencia','AudienciaController@NuevaAudiencia');
+    Route::Post('audiencia/nuevaAudienciaCalendario','AudienciaController@NuevaAudienciaCalendario');
     Route::Post('audiencia/registrarPagoDiferido','AudienciaController@registrarPagoDiferido');
     Route::Post('audiencia/generarConstanciaNoPago','AudienciaController@generarConstanciaNoPago');
 
@@ -99,6 +100,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('audiencia/negarCancelacion/{audiencia_id}','AudienciaController@negarCancelacion');
     Route::Post('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
     Route::Post('audiencias/solicitar_nueva','AudienciaController@SolicitarNueva');
+    Route::Post('audiencias/nuevaAudienciaNotificacion','AudienciaController@NuevaAudienciaNotificacion');
 
     Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');
     Route::get('resolucionColectiva/{id}','AudienciaController@resolucionColectiva')->name('resolucionColectiva');

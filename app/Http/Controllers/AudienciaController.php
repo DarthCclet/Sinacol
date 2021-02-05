@@ -353,7 +353,15 @@ class AudienciaController extends Controller {
         }
         $documentos = $doc->sortBy('id');
         $virtual = $solicitud->virtual;
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id','estatus_solicitud_id','virtual'));
+        $partes = $solicitud->partes;
+        $estados = Estado::all();
+        $tipos_vialidades = $this->cacheModel('tipos_vialidades', TipoVialidad::class);
+        $tipos_asentamientos = $this->cacheModel('tipos_asentamientos', TipoAsentamiento::class);
+        $lengua_indigena = $this->cacheModel('lengua_indigena',LenguaIndigena::class);
+        $generos = $this->cacheModel('generos',Genero::class);
+        $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
+        $nacionalidades = $this->cacheModel('nacionalidades',Nacionalidad::class);
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante","documentos",'solicitud_id','estatus_solicitud_id','virtual','partes',"estados",'generos','nacionalidades','tipos_vialidades','tipos_asentamientos','lengua_indigena','tipo_contacto'));
     }
 
     /**
@@ -1613,6 +1621,142 @@ class AudienciaController extends Controller {
         return $audienciaN;
         
     }
+    
+    public function NuevaAudienciaCalendario(Request $request){
+        DB::beginTransaction();
+        ##Obtenemos la audiencia origen
+        $audiencia = Audiencia::find($request->audiencia_id);
+
+        $fecha_audiencia = $request->fecha_audiencia;
+        $hora_inicio = $request->hora_inicio;
+        $hora_fin = $request->hora_fin;
+        if ($request->tipoAsignacion == 1) {
+            $multiple = false;
+        } else {
+            $multiple = true;
+        }
+        //Obtenemos el contador
+        $ContadorController = new ContadorController();
+        $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
+        ##creamos la resolución a partir de los datos ya existentes y los nuevos
+        $audienciaN = Audiencia::create([
+            "expediente_id" => $audiencia->expediente_id,
+            "multiple" => $multiple,
+            "fecha_audiencia" => $fecha_audiencia,
+            "hora_inicio" => $hora_inicio,
+            "hora_fin" => $hora_fin,
+            "conciliador_id" => $audiencia->conciliador_id,
+            "numero_audiencia" => 1,
+            "reprogramada" => true,
+            "anio" => $folio->anio,
+            "folio" => $folio->contador
+        ]);
+        ## si la audiencia se calendariza se deben guardar los datos recibidos en el arreglo, si no se copian los de la audiencia origen
+        foreach ($request->asignacion as $value) {
+            SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $value["sala"], "solicitante" => $value["resolucion"]]);
+        }
+        
+        foreach ($audiencia->conciliadoresAudiencias as $conciliador) {
+            ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $conciliador->conciliador_id, "solicitante" => $conciliador->solicitante]);
+        }
+
+        ##Finalmente guardamos los datos de las partes recibidas
+        $arregloPartesAgregadas = array();
+        $tipo_citado = TipoParte::where("nombre","ilike","%CITADO%")->first();
+        foreach ($audiencia->audienciaParte as $parte) {
+            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => null,"finalizada"=> "Notificado al comparecer","fecha_notificacion" => now()]);
+            if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
+                event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
+            }
+        }
+        DB::commit();
+        return $audienciaN;
+    }
+    
+    public function NuevaAudienciaNotificacion(Request $request){
+        DB::beginTransaction();
+        ##Obtenemos la audiencia origen
+        $audiencia = Audiencia::find($request->audiencia_id);
+        // buscamos disponibilidad en los proximos 15 a 18 días
+        $diasHabilesMin = 15;
+        $diasHabilesMax = 18;
+        
+        if($audiencia->multiple){
+            $datos_audiencia = FechaAudienciaService::proximaFechaCitaDoble($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$audiencia->conciliadoresAudiencias,$audiencia->expediente->solicitud->virtual);
+            $multiple = true;
+        }else{
+            $conciliador = $audiencia->conciliadoresAudiencias()->first()->conciliador;
+            $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro,$diasHabilesMin,$diasHabilesMax,$conciliador,$audiencia->expediente->solicitud->virtual);
+            $multiple = false;
+        }
+        
+        //Obtenemos el contador
+        $ContadorController = new ContadorController();
+        $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+        $etapa = \App\EtapaNotificacion::where("etapa","ilike","%Cambio de Fecha%")->first();
+        //creamos el registro de la audiencia
+        $audienciaN = Audiencia::create([
+            "expediente_id" => $audiencia->expediente_id,
+            "multiple" => $audiencia->multiple,
+            "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
+            "hora_inicio" => $datos_audiencia["hora_inicio"],
+            "hora_fin" => $datos_audiencia["hora_fin"],
+            "conciliador_id" =>  $datos_audiencia["conciliador_id"],
+            "numero_audiencia" => 2,
+            "reprogramada" => true,
+            "anio" => $folioAudiencia->anio,
+            "folio" => $folioAudiencia->contador,
+            "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
+            "etapa_notificacion_id" => $etapa->id
+        ]);
+        if($datos_audiencia["encontro_audiencia"]){
+            // guardamos la sala y el consiliador a la audiencia
+            ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $datos_audiencia["conciliador_id"],"solicitante" => true]);
+            SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $datos_audiencia["sala_id"],"solicitante" => true]);
+            if($audienciaN->multiple){
+                ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $datos_audiencia["conciliador2_id"],"solicitante" => false]);
+                SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $datos_audiencia["sala2_id"],"solicitante" => false]);
+            }
+        }
+        $notificar = 0;
+        $partes_notificar = [];
+        $tipo_parte = TipoParte::where("nombre","ilike","%CITADO%")->first()->id;
+        foreach($audiencia->expediente->solicitud->partes as $parte){
+            $tipoNotificacion = \App\TipoNotificacion::where("nombre","ilike","%B)%")->first()->id;
+            $fecha_notificacion = null;
+            $finalizado = null;
+            if(isset($request->listaRelaciones)){
+                foreach($request->listaRelaciones as $sin_notificar){
+                    if($parte->id == $sin_notificar){
+                        $tipoNotificacion = null;
+                        $fecha_notificacion = now();
+                        $finalizado = "Notificado al comparecer";
+                    }
+                }
+            }
+            $audiencia_parte =AudienciaParte::create([
+                "audiencia_id" => $audienciaN->id, 
+                "parte_id" => $parte->id,
+                "tipo_notificacion_id" => $tipoNotificacion,
+                "fecha_notificacion" => $fecha_notificacion,
+                "finalizado" => $finalizado
+            ]);
+            if($tipoNotificacion != null && $parte->tipo_parte_id == $tipo_parte){
+                $notificar++;
+                $partes_notificar[]=$audiencia_parte->id;
+            }
+            if($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]){
+                event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud_id,14,4,null,$parte->id));
+            }
+        }
+        DB::commit();
+        if($notificar > 0 ){
+            foreach($partes_notificar as $parte){
+                event(new RatificacionRealizada($audienciaN->id,"citatorio",false,$parte));
+            }
+        }
+        return $audienciaN;
+    }
 
     ############################### A partir de este punto comienzan las funciones para el chacklist ########################################
 
@@ -1628,10 +1772,12 @@ class AudienciaController extends Controller {
         if ($conciliador != null) {
             $audiencias = $conciliador->ConciliadorAudiencia;
             foreach ($audiencias as $audiencia) {
-                if(!$audiencia->audiencia->expediente->solicitud->incidencia){
-                    $start = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_inicio;
-                    $end = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_fin;
-                    array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->audiencia->folio . "/" . $audiencia->audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->audiencia->id));
+                if(isset($audiencia->audiencia->expediente)){
+                    if(!$audiencia->audiencia->expediente->solicitud->incidencia){
+                        $start = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_inicio;
+                        $end = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_fin;
+                        array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->audiencia->folio . "/" . $audiencia->audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->audiencia->id));
+                    }
                 }
             }
         }

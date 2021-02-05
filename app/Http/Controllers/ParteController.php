@@ -107,6 +107,7 @@ class ParteController extends Controller
         try{
             $parte = Arr::except($request->all(), ['domicilios','_token','contactos']);
             $audiencia_id = $request->get('audiencia_id');
+            $comparece = $request->get('comparece');
             $contactos = $request->get('contactos');
             $domicilios = $request->get('domicilios');
 
@@ -123,8 +124,10 @@ class ParteController extends Controller
                     $contactoSaved = $parteSaved->contactos()->create($contacto);
                 }
             }
-            if($audiencia_id != ""){
-                AudienciaParte::create(["audiencia_id" => $audiencia_id, "parte_id" => $parteSaved->id, "tipo_notificacion_id" => 1]);
+            if($comparece){
+                if($audiencia_id != ""){
+                    AudienciaParte::create(["audiencia_id" => $audiencia_id, "parte_id" => $parteSaved->id, "tipo_notificacion_id" => 1]);
+                }
             }
             DB::commit();
             return $this->sendResponse($parteSaved, 'SUCCESS');
