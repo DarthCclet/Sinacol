@@ -473,11 +473,16 @@
                 <h5></h5>
                 <div class="col-md-12 row">
                     <div class="col-md-12" id="divConceptosAcordados" >
-                        <h5>Conceptos de pago para resolucion</h5><br>
+                        <div>
+                            <h5>Conceptos de pago para resolucion</h5>
+                            <div class="text-center col-md-4 offset-8">
+                                <button class="btn btn-warning text-white btn-sm" id='btnCopiarConceptosBase' onclick="copiarConceptosBase()"><i class="fa fa-plus"></i> Incluir Conceptos Base</button>
+                            </div><br>
+                        </div>
                         <label class="col-md-12 control-label">Ingresa los días a pagar o el monto por cada concepto de la propuesta. </label>
                         <div class="form-group">
                             <label for="concepto_pago_resoluciones_id" class="col-sm-6 control-label labelResolucion needed">Concepto de pago</label>
-                            <div class="col-sm-10  select-otro" >
+                            <div class="col-sm-12  select-otro" >
 
                                 <select id="concepto_pago_resoluciones_id" class="form-control select-element conceptosPago" >
                                     <option value="">-- Seleccione un concepto de pago</option>
@@ -3250,6 +3255,30 @@
             }
             // $("#dias").val("");
             // $("#monto").val("");
+        }
+//Agregar conceptos basicos de las propuestas
+        function copiarConceptosBase(){
+            let idSolicitante = $('#idSolicitante').val();
+            if(listaConfigConceptos[idSolicitante] == undefined ){
+                listaConfigConceptos[idSolicitante] = [];
+            }
+            $.each(listaPropuestas[idSolicitante].completa,function(index,concepto){
+                existeConcepto = listaConfigConceptos[idSolicitante].find(x=>x.concepto_pago_resoluciones_id == concepto.concepto_pago_resoluciones_id);
+                if(existeConcepto == null){
+                    if(concepto.concepto_pago_resoluciones_id == 2 || concepto.concepto_pago_resoluciones_id == 3 || concepto.concepto_pago_resoluciones_id == 4){
+                        listaConfigConceptos[idSolicitante].push({
+                            idSolicitante:idSolicitante,
+                            concepto_pago_resoluciones_id:concepto.concepto_pago_resoluciones_id.toString(),
+                            dias:((concepto.dias).toFixed(2)).toString(),
+                            monto:(concepto.monto).toString(),
+                            otro:"",
+                        });
+                    }
+                }else{
+                    swal({title: 'Error',text: 'El concepto de pago ya se encuentra registrado',icon: 'warning'});
+                }
+            });
+            cargarTablaConcepto(listaConfigConceptos[[idSolicitante]],idSolicitante);
         }
         /*
      * Aqui inician las funciones para administrar el paso 6
