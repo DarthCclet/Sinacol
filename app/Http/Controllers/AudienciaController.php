@@ -1359,7 +1359,7 @@ class AudienciaController extends Controller {
                             "audiencia_id" => $audiencia->id,
                             "solicitante_id" => $fechaPago["idSolicitante"],
                             "monto" => $fechaPago["monto_pago"],
-                            "fecha_pago" => Carbon::createFromFormat('d/m/Y', $fechaPago["fecha_pago"])->format('Y-m-d')
+                            "fecha_pago" => Carbon::createFromFormat('d/m/Y h:i', $fechaPago["fecha_pago"])->format('Y-m-d h:i')
                         ]);
                     }
                 }
