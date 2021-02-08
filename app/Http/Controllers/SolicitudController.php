@@ -1888,7 +1888,7 @@ class SolicitudController extends Controller {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                 " Se emitió el siguiente mensaje: ". $e->getMessage().
                 " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
-            return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
+            return $this->sendError(' Error no se pudo guardar la url ', 'Error');
         }
     }
 }

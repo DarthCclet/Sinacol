@@ -495,7 +495,7 @@ class DocumentoController extends Controller
 
         try{
 
-            $clasificacion_archivos = array_pluck(ClasificacionArchivo::whereIn('id',[13,14,15,16,17,18,40])->orderBy('nombre')->get(),'nombre','id');
+            $clasificacion_archivos = array_pluck(ClasificacionArchivo::whereIn('id',[13,14,15,16,17,18,40,45,41,19])->orderBy('nombre')->get(),'nombre','id');
             return view('herramientas.regenerar_documentos', compact('clasificacion_archivos'));
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
