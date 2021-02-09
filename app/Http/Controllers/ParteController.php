@@ -656,7 +656,7 @@ class ParteController extends Controller
     }
     
     public function getParteCurp(Request $request){
-        $Parte = Parte::where('curp',$request->curp)->order_by('id', 'desc')->first();
+        $Parte = Parte::where('curp',$request->curp)->orderBy('id', 'desc')->first();
         return $Parte;
     }
     public function EliminarContactoRepresentante(Request $request){

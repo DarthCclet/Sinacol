@@ -161,7 +161,7 @@ class AsesoriaController extends Controller
                 $paso_next = $paso;
                 $last = false;
                 if($paso >= $max_paso){
-                    $accion = '../solicitudes/create-public/?solicitud=2';
+                    $accion = '../solicitudes/create-public?solicitud=2';
                     $last = true;
                 }
                 return view('asesoria.a201010',  compact('accion', 'asset_paso', 'paso_next', 'origen', 'last'));
