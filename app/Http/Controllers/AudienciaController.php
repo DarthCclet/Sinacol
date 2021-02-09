@@ -1209,19 +1209,12 @@ class AudienciaController extends Controller {
                         $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
                     }
                     //Se consulta comparecencia de citado
-                    $parte = $solicitado->parte;
                     $comparecienteCit = null;
-                    if ($parte->tipo_persona_id == 1) {
-                        $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
-                    }
-                    if (!$comparecienteCit) {
-                        if ($parte->tipo_persona_id == 2) {
-                            $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
-                            if ($compareciente_parte != null) {
-                                $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
-                            } else {
-                                $comparecienteCit = null;
-                            }
+                    $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+                    if ($comparecienteCit == null) {
+                        $compareciente_parte = Parte::where("parte_representada_id", $solicitado->parte_id)->first();
+                        if($compareciente_parte){
+                            $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
                         }
                     }
 
