@@ -288,8 +288,20 @@
             "nombre": "Estatuto de los Sindicatos",
             "tipo_archivo_id":10,
             "entidad_emisora_id":null
+        },
+        {
+            "id": "49",
+            "nombre": "Constancia de pago parcial de convenio",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "50",
+            "nombre": "Constancia de pago parcial de convenio con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
         }
     ],
 
-    "numReg": 44
+    "numReg": 50
 }

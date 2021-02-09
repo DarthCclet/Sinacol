@@ -880,6 +880,8 @@ class PlantillasDocumentosController extends Controller
                         $tablaConceptosActa = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $totalPercepciones = 0;
                         $parteID= "";
+                        $totalPagosDiferidos=0;
+                        $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         foreach ($audiencia_partes as $key => $audiencia_parte) {
                           if ($audiencia_parte->parte->tipo_parte_id == 1) {
                             $parteID = $audiencia_parte->parte->id;
@@ -891,112 +893,132 @@ class PlantillasDocumentosController extends Controller
                             }else{
                               $datoLaborales =$datoLaborales->where('resolucion',false)->first();
                             }
-                          // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
-                          if($hayDatosLaborales >0){
-                            // $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
-                            // $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
-                            $remuneracionDiaria = $datoLaborales->remuneracion / $datoLaborales->periodicidad->dias;
-                            $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears($datoLaborales->fecha_salida);
-                            $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
-                            $salarios = SalarioMinimo::get('salario_minimo');
-                            $salarioMinimo = $salarios[0]->salario_minimo;
-                            $anioSalida = Carbon::parse($datoLaborales->fecha_salida)->startOfYear();
-                            $propAguinaldo = Carbon::parse($anioSalida)->floatDiffInYears($datoLaborales->fecha_salida);
-                            $vacacionesPorAnio = VacacionesAnio::all();
-                            $diasVacaciones = 0;
-                            foreach ($vacacionesPorAnio as $key => $vacaciones) {
-                                if($vacaciones->anios_laborados >= $anios_antiguedad ){
-                                    $diasVacaciones = $vacaciones->dias_vacaciones;
-                                    break;
-                                }
-                            }
-                            $pagoVacaciones = $propVacaciones * $diasVacaciones * $remuneracionDiaria;
-                            $salarioTopado = ($remuneracionDiaria > (2*$salarioMinimo) ? (2*$salarioMinimo) : $remuneracionDiaria);
-
-                            //Propuesta de convenio al 100% y 50%
-                            $prouestas = [];
-                            array_push($prouestas,array("concepto_pago"=> 'Indemnización constitucional', "montoCompleta"=>round($remuneracionDiaria * 90,2), "montoAl50"=>round($remuneracionDiaria * 45,2) )); //Indemnizacion constitucional = gratificacion A
-                            array_push($prouestas,array("concepto_pago"=> 'Aguinaldo', "montoCompleta"=>round($remuneracionDiaria * 15 * $propAguinaldo,2) ,  "montoAl50"=>round($remuneracionDiaria * 15 * $propAguinaldo,2) )); //Aguinaldo = dias de aguinaldo
-                            array_push($prouestas,array("concepto_pago"=> 'Vacaciones', "montoCompleta"=>round($pagoVacaciones,2), "montoAl50"=>round($pagoVacaciones,2))); //Vacaciones = dias vacaciones
-                            array_push($prouestas,array("concepto_pago"=> 'Prima vacacional', "montoCompleta"=>round($pagoVacaciones * 0.25,2), "montoAl50"=>round($pagoVacaciones * 0.25,2) )); //Prima Vacacional
-                            array_push($prouestas,array("concepto_pago"=> 'Prima antigüedad', "montoCompleta"=>round($salarioTopado * $anios_antiguedad *12,2), "montoAl50"=>round($salarioTopado * $anios_antiguedad *6,2) )); //Prima antiguedad = gratificacion C
-                            // $tablaConceptos = '<h4>Propuestas</h4>';
-                            $tablaConceptos .= '<table  class="tbl">';
-                            $tablaConceptos .= '<thead><tr><th>Prestación</th><th>Propuesta completa</th><th>Propuesta 45 días</th></tr></thead>';
-                            $tablaConceptos .= '<tbody >';
-                            $total50 = 0;
-                            $total100 = 0;
-                            foreach ($prouestas as $concepto ) {
-                              $tablaConceptos .= '<tr><td class="tbl">'.$concepto['concepto_pago'].'</td><td class="amount"> $'.$concepto['montoCompleta'].'</td><td class="amount"> $'.$concepto['montoAl50'].'</td> </tr>';
-                              $total100 += floatval($concepto['montoCompleta'] );
-                              $total50 += floatval($concepto['montoAl50'] );
-                            }
-                            $tablaConceptos .= '<tr ><th class="tbl"> TOTAL </th><td class="amount"> $'.$total100.'</td><td class="amount"> $'.$total50.'</td> </tr>';
-                            $tablaConceptos .= '</tbody>';
-                            $tablaConceptos .= '</table>';
-
-                            //Conceptos resolucion
-                            if(sizeof($conceptos_pago)>0){
-                              if(array_key_exists($parteID,$conceptos_pago)){
-                                $resolucion_conceptos = $conceptos_pago[$parteID];
-                              }else{
-                                $resolucion_conceptos = array();
-                              }
-                            }else{
-                              $resolucion_conceptos = ResolucionParteConcepto::where('audiencia_parte_id',$audiencia_parte->id)->get();
-                            }
-                            $tablaConceptosEConvenio = '';
-                            $tablaConceptosConvenio .= '<table class="tbl">';
-                            $tablaConceptosConvenio .= '<tbody>';
-                            $tablaConceptosActa .= '';
-                            $parte = Parte::find($parteID);
-                            if(sizeof($parte->compareciente)>0){
-                              $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
-                              $tablaConceptosActa .= ' Propuesta para '.$nombreParte;
-                              $tablaConceptosActa .= '<table class="tbl">';
-                              $tablaConceptosActa .= '<tbody>';
-                            }
-                            $totalPercepciones = 0;
-                            foreach ($resolucion_conceptos as $concepto ) {
-                              //foreach ($conceptos as $concepto ) {
-                                $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto['concepto_pago_resoluciones_id']);
-                                if($concepto['concepto_pago_resoluciones_id'] != 9){
-                                  $totalPercepciones += ($concepto['monto']!= null ) ? floatval($concepto['monto']) : 0;
-                                  if($parteID == $idSolicitante && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitante
-                                    $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto['monto'], 2, '.', ',').'</td></tr>';
+                            // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
+                            if($hayDatosLaborales >0){
+                              // $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
+                              // $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
+                              $remuneracionDiaria = $datoLaborales->remuneracion / $datoLaborales->periodicidad->dias;
+                              $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears($datoLaborales->fecha_salida);
+                              $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
+                              $salarios = SalarioMinimo::get('salario_minimo');
+                              $salarioMinimo = $salarios[0]->salario_minimo;
+                              $anioSalida = Carbon::parse($datoLaborales->fecha_salida)->startOfYear();
+                              $propAguinaldo = Carbon::parse($anioSalida)->floatDiffInYears($datoLaborales->fecha_salida);
+                              $vacacionesPorAnio = VacacionesAnio::all();
+                              $diasVacaciones = 0;
+                              foreach ($vacacionesPorAnio as $key => $vacaciones) {
+                                  if($vacaciones->anios_laborados >= $anios_antiguedad ){
+                                      $diasVacaciones = $vacaciones->dias_vacaciones;
+                                      break;
                                   }
-                                  $tablaConceptosActa .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto['monto'], 2, '.', ',').'</td></tr>';
+                              }
+                              $pagoVacaciones = $propVacaciones * $diasVacaciones * $remuneracionDiaria;
+                              $salarioTopado = ($remuneracionDiaria > (2*$salarioMinimo) ? (2*$salarioMinimo) : $remuneracionDiaria);
+
+                              //Propuesta de convenio al 100% y 50%
+                              $prouestas = [];
+                              array_push($prouestas,array("concepto_pago"=> 'Indemnización constitucional', "montoCompleta"=>round($remuneracionDiaria * 90,2), "montoAl50"=>round($remuneracionDiaria * 45,2) )); //Indemnizacion constitucional = gratificacion A
+                              array_push($prouestas,array("concepto_pago"=> 'Aguinaldo', "montoCompleta"=>round($remuneracionDiaria * 15 * $propAguinaldo,2) ,  "montoAl50"=>round($remuneracionDiaria * 15 * $propAguinaldo,2) )); //Aguinaldo = dias de aguinaldo
+                              array_push($prouestas,array("concepto_pago"=> 'Vacaciones', "montoCompleta"=>round($pagoVacaciones,2), "montoAl50"=>round($pagoVacaciones,2))); //Vacaciones = dias vacaciones
+                              array_push($prouestas,array("concepto_pago"=> 'Prima vacacional', "montoCompleta"=>round($pagoVacaciones * 0.25,2), "montoAl50"=>round($pagoVacaciones * 0.25,2) )); //Prima Vacacional
+                              array_push($prouestas,array("concepto_pago"=> 'Prima antigüedad', "montoCompleta"=>round($salarioTopado * $anios_antiguedad *12,2), "montoAl50"=>round($salarioTopado * $anios_antiguedad *6,2) )); //Prima antiguedad = gratificacion C
+                              // $tablaConceptos = '<h4>Propuestas</h4>';
+                              $tablaConceptos .= '<table  class="tbl">';
+                              $tablaConceptos .= '<thead><tr><th>Prestación</th><th>Propuesta completa</th><th>Propuesta 45 días</th></tr></thead>';
+                              $tablaConceptos .= '<tbody >';
+                              $total50 = 0;
+                              $total100 = 0;
+                              foreach ($prouestas as $concepto ) {
+                                $tablaConceptos .= '<tr><td class="tbl">'.$concepto['concepto_pago'].'</td><td class="amount"> $'.$concepto['montoCompleta'].'</td><td class="amount"> $'.$concepto['montoAl50'].'</td> </tr>';
+                                $total100 += floatval($concepto['montoCompleta'] );
+                                $total50 += floatval($concepto['montoAl50'] );
+                              }
+                              $tablaConceptos .= '<tr ><th class="tbl"> TOTAL </th><td class="amount"> $'.$total100.'</td><td class="amount"> $'.$total50.'</td> </tr>';
+                              $tablaConceptos .= '</tbody>';
+                              $tablaConceptos .= '</table>';
+
+                              //Conceptos resolucion
+                              if(sizeof($conceptos_pago)>0){
+                                if(array_key_exists($parteID,$conceptos_pago)){
+                                  $resolucion_conceptos = $conceptos_pago[$parteID];
                                 }else{
-                                  $tablaConceptosEConvenio .= $concepto['otro'].' ';
-                                  //$tablaConceptosEActa .= $concepto->otro.' ';
+                                  $resolucion_conceptos = array();
                                 }
+                              }else{
+                                $resolucion_conceptos = ResolucionParteConcepto::where('audiencia_parte_id',$audiencia_parte->id)->get();
+                              }
+                              $tablaConceptosEConvenio = '';
+                              $tablaConceptosConvenio .= '<table class="tbl">';
+                              $tablaConceptosConvenio .= '<tbody>';
+                              $tablaConceptosActa .= '';
+                              $parte = Parte::find($parteID);
+                              if(sizeof($parte->compareciente)>0){
+                                $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
+                                $tablaConceptosActa .= ' Propuesta para '.$nombreParte;
+                                $tablaConceptosActa .= '<table class="tbl">';
+                                $tablaConceptosActa .= '<tbody>';
+                              }
+                              $totalPercepciones = 0;
+                              foreach ($resolucion_conceptos as $concepto ) {
+                                //foreach ($conceptos as $concepto ) {
+                                  $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto['concepto_pago_resoluciones_id']);
+                                  if($concepto['concepto_pago_resoluciones_id'] != 9){
+                                    $totalPercepciones += ($concepto['monto']!= null ) ? floatval($concepto['monto']) : 0;
+                                    if($parteID == $idSolicitante && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitante
+                                      $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto['monto'], 2, '.', ',').'</td></tr>';
+                                    }
+                                    $tablaConceptosActa .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto['monto'], 2, '.', ',').'</td></tr>';
+                                  }else{
+                                    $tablaConceptosEConvenio .= $concepto['otro'].' ';
+                                    //$tablaConceptosEActa .= $concepto->otro.' ';
+                                  }
+                              }
+                              $tablaConceptosConvenio .= ($parteID == $idSolicitante)?'<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>':"";
+                              $tablaConceptosConvenio .= '</tbody>';
+                              $tablaConceptosConvenio .= '</table>';
+                              $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                              if(sizeof($parte->compareciente)>0){
+                                $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
+                                $tablaConceptosActa .= '</tbody>';
+                                $tablaConceptosActa .= '</table>';
+                                $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                $tablaConceptosActa .= '<br>';
+                              }
+                              // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
+                              $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
+                              $totalPercepcion = explode('.', $totalPercepciones);
+                              $intTotalPercepciones = $totalPercepcion[0];
+                              $decTotalPercepciones = $totalPercepcion[1];
+                              $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
+                              $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
+                              $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
+                              if($parteID == $idSolicitante ){
+                                $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
+                                $datosResolucion['total_percepciones_letra']= $cantidadTextual;
+                              }
                             }
-                            $tablaConceptosConvenio .= ($parteID == $idSolicitante)?'<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>':"";
-                            $tablaConceptosConvenio .= '</tbody>';
-                            $tablaConceptosConvenio .= '</table>';
-                            $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
-                            if(sizeof($parte->compareciente)>0){
-                              $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
-                              $tablaConceptosActa .= '</tbody>';
-                              $tablaConceptosActa .= '</table>';
-                              $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
-                              $tablaConceptosActa .= '<br>';
+                            //Fechas pago resolucion
+                            $tablaPagosDiferidos .= '<table class="tbl">';
+                            $tablaPagosDiferidos .= '<tbody>';
+                            if($resolucion_pagos && sizeof($resolucion_pagos)>0){
+                              $resolucion_pagos = $resolucion_pagos;
+                            }else{
+                              $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
                             }
-                            // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
-                            $totalPercepciones =number_format($totalPercepciones, 2, '.', '');
-                            $totalPercepcion = explode('.', $totalPercepciones);
-                            $intTotalPercepciones = $totalPercepcion[0];
-                            $decTotalPercepciones = $totalPercepcion[1];
-                            $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
-                            $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
-                            $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
-                            if($parteID == $idSolicitante ){
-                              $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
-                              $datosResolucion['total_percepciones_letra']= $cantidadTextual;
+
+                            foreach ($resolucion_pagos as $pago ) {
+                              if(($parteID == $pago['idSolicitante']) && ($parteID == $idSolicitante)){
+                                $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
+                                $totalPagosDiferidos +=1;
+                              }
                             }
+                            $tablaPagosDiferidos .= '</tbody>';
+                            $tablaPagosDiferidos .= '</table>';
+
+                            $datosResolucion['total_diferidos']= $totalPagosDiferidos;
+                            $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                           }
                         }
-                      }
                         // $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
                         // $cantidadTextual = str_replace("uno","un",$cantidadTextual);
                         // $cantidadTextual = str_replace("coma","punto",$cantidadTextual);
@@ -1006,29 +1028,28 @@ class PlantillasDocumentosController extends Controller
                         $datosResolucion['propuestas_acta']= $tablaConceptosActa;
                       }else if($etapa['etapa_resolucion_id'] == 5){
                         $datosResolucion['segunda_manifestacion']= $etapa['evidencia'];
-                      // }else if($etapa['etapa_resolucion_id'] == 6){
-                        // $datosResolucion['descripcion_pagos']= $etapa['evidencia'];
+                      }else if($etapa['etapa_resolucion_id'] == 6){
+                        $datosResolucion['descripcion_pagos']= $etapa['evidencia'];
                       }
-                      //Fechas pago resolucion
-                      $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
-                      $tablaPagosDiferidos .= '<table class="tbl">';
-                      $tablaPagosDiferidos .= '<tbody>';
-                      if($resolucion_pagos && sizeof($resolucion_pagos)>0){
-                        $resolucion_pagos = $resolucion_pagos;
-                      }else{
-                        $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
-                      }
-
-                      $totalPagosDiferidos=0;
-                      foreach ($resolucion_pagos as $pago ) {
-                          $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
-                          $totalPagosDiferidos +=1;
-                      }
-                      $tablaPagosDiferidos .= '</tbody>';
-                      $tablaPagosDiferidos .= '</table>';
-
-                      $datosResolucion['total_diferidos']= $totalPagosDiferidos;
-                      $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
+                        // //Fechas pago resolucion
+                        // $tablaPagosDiferidos = '<table class="tbl">';
+                        // $tablaPagosDiferidos .= '<tbody>';
+                        // if($resolucion_pagos && sizeof($resolucion_pagos)>0){
+                        //   $resolucion_pagos = $resolucion_pagos;
+                        // }else{
+                        //   $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
+                        // }
+                        // $totalPagosDiferidos=0;
+                        // foreach ($resolucion_pagos as $pago ) {
+                        //   if($parteID == $pago['idSolicitante']){
+                        //     $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
+                        //     $totalPagosDiferidos +=1;
+                        //   }
+                        // }
+                        // $tablaPagosDiferidos .= '</tbody>';
+                        // $tablaPagosDiferidos .= '</table>';
+                        // $datosResolucion['total_diferidos']= $totalPagosDiferidos;
+                        // $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                     }
                     // citados que convinieron comparecieron
                     $partes_convenio = Compareciente::where('audiencia_id',$audienciaId)->get();
@@ -1065,6 +1086,7 @@ class PlantillasDocumentosController extends Controller
                               $nombreRepresentanteLegal = $representanteLegalC['nombre'].' '.$representanteLegalC['primer_apellido'].$segundo_apellido_representante;
                               $representanteIdentificacion = "--";
                               $documentoRep = $representanteLegalC->documentos;
+                              $representanteInstrumento="";
                               if( sizeof($documentoRep) > 0 ){
                                 foreach ($documentoRep as $k => $docu) {
 
