@@ -1408,7 +1408,7 @@ class AudienciaController extends Controller {
             "pagado" => false
         ]);
         //Se genera el acta de no comparecencia en fecha de pago
-        event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11)); //11
+        event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11,$pagoDiferido->solicitante_id)); //11
         return $pagoDiferido;
     }
 
@@ -1420,13 +1420,15 @@ class AudienciaController extends Controller {
     function registrarPagoDiferido(Request $request) {
         try {
             $pagoDiferido = ResolucionPagoDiferido::find($request->idPagoDiferido);
-            $pagoDiferido->update([
-                "pagado" => true
-            ]);
-            //generar constacia de pago parcial
-            event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13));
+            if($pagoDiferido){
+                $pagoDiferido->update([
+                    "pagado" => true
+                ]);
+                //generar constacia de pago parcial
+                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,$pagoDiferido->solicitante_id));
+            }
 
-            $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->orderBy('fecha_pago')->get();
+            $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->where('solicitante_id',$pagoDiferido->solicitante_id)->orderBy('fecha_pago')->get();
             $ultimoPago = $pagos->last()->id;
             $pagados = true;
             foreach ($pagos as $pago) {
@@ -1434,15 +1436,12 @@ class AudienciaController extends Controller {
                     $pagados = false;
                 }
             }
-            //generar constacia de pago parcial
-            event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13, $pagoDiferido->solicitante_id));
-
             //si los pagos anteriores han sido pagados y es el ultimo pago
             //generar constancia de cumplimiento de convenio
             //if($pagados && ($ultimoPago == $request->idPagoDiferido)){
             if ($pagados) {
                 //generar constancia de cumplimiento de convenio
-                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12));
+                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12,$pagoDiferido->solicitante_id));
             }
             return $pagoDiferido;
         } catch (\Throwable $e) {
