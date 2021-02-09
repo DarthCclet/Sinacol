@@ -2931,6 +2931,11 @@
                 error =true;
                 mensaje = 'Debe seleccionar una propuesta para cada solicitante';
             }
+            existeFechaPago = listaConfigFechas.find(x=>x.idSolicitante == idSol);
+            if(existeFechaPago == null){
+                    error =true;
+                    mensaje = 'Debe registrar al menos una fecha de pago para cada solicitante';
+            }
         });
         //total pagos diferidos
         $.each(listaPropuestaConceptos, function (key, propuestaSolicitante) {
@@ -2953,7 +2958,7 @@
         if($('#solicitud_virual').val()){
             if(listaConfigFechas.length == 0){
                 error =true;
-                mensaje = "Debe seleccionar al menos una fecha de pago diferido.";
+                mensaje = "Debe registrar al menos una fecha de pago diferido.";
             }
         }
         if(error){
