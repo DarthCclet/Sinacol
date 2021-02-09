@@ -287,7 +287,7 @@ class AudienciaController extends Controller {
         //         $conceptosP = $concepto;
         //         $conceptosP->nombre = $concepto->ConceptoPagoResolucion->nombre;
         //         $conceptosP->idSolicitante = $resolucionParte->parteSolicitante->id;
-        //         array_push($conceptos,$conceptosP);   
+        //         array_push($conceptos,$conceptosP);
         //     }
         //     array_push($conceptos_pago,['idSolicitante'=>$resolucionParte->parteSolicitante->id, 'conceptos'=>$conceptos, 'totalConceptos'=>$totalConceptos]);
         // }
@@ -1359,7 +1359,7 @@ class AudienciaController extends Controller {
                             "audiencia_id" => $audiencia->id,
                             "solicitante_id" => $fechaPago["idSolicitante"],
                             "monto" => $fechaPago["monto_pago"],
-                            "fecha_pago" => Carbon::createFromFormat('d/m/Y', $fechaPago["fecha_pago"])->format('Y-m-d')
+                            "fecha_pago" => Carbon::createFromFormat('d/m/Y h:i', $fechaPago["fecha_pago"])->format('Y-m-d h:i')
                         ]);
                     }
                 }
@@ -1392,7 +1392,7 @@ class AudienciaController extends Controller {
         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3));
         if ($notificar) {
             foreach ($arrayMultadoNotificacion as $parte) {
-                event(new RatificacionRealizada($audiencia_notificar_id, "multa", false, $parte));
+                event(new RatificacionRealizada($audiencia->id, "multa", false, $parte));
             }
         }
     }
@@ -1408,7 +1408,7 @@ class AudienciaController extends Controller {
             "pagado" => false
         ]);
         //Se genera el acta de no comparecencia en fecha de pago
-        event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11)); //11
+        event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11,$pagoDiferido->solicitante_id)); //11
         return $pagoDiferido;
     }
 
@@ -1420,11 +1420,15 @@ class AudienciaController extends Controller {
     function registrarPagoDiferido(Request $request) {
         try {
             $pagoDiferido = ResolucionPagoDiferido::find($request->idPagoDiferido);
-            $pagoDiferido->update([
-                "pagado" => true
-            ]);
+            if($pagoDiferido){
+                $pagoDiferido->update([
+                    "pagado" => true
+                ]);
+                //generar constacia de pago parcial
+                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,$pagoDiferido->solicitante_id));
+            }
 
-            $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->orderBy('fecha_pago')->get();
+            $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->where('solicitante_id',$pagoDiferido->solicitante_id)->orderBy('fecha_pago')->get();
             $ultimoPago = $pagos->last()->id;
             $pagados = true;
             foreach ($pagos as $pago) {
@@ -1432,14 +1436,12 @@ class AudienciaController extends Controller {
                     $pagados = false;
                 }
             }
-            //generar constacia de pago parcial
-            event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13, $pagoDiferido->solicitante_id));
-
             //si los pagos anteriores han sido pagados y es el ultimo pago
             //generar constancia de cumplimiento de convenio
             //if($pagados && ($ultimoPago == $request->idPagoDiferido)){
             if ($pagados) {
-                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12));
+                //generar constancia de cumplimiento de convenio
+                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12,$pagoDiferido->solicitante_id));
             }
             return $pagoDiferido;
         } catch (\Throwable $e) {
@@ -1724,7 +1726,7 @@ class AudienciaController extends Controller {
         }
         return $audienciaN;
     }
-    
+
     public function NuevaAudienciaCalendario(Request $request){
         DB::beginTransaction();
         ##Obtenemos la audiencia origen
@@ -1758,7 +1760,7 @@ class AudienciaController extends Controller {
         foreach ($request->asignacion as $value) {
             SalaAudiencia::create(["audiencia_id" => $audienciaN->id, "sala_id" => $value["sala"], "solicitante" => $value["resolucion"]]);
         }
-        
+
         foreach ($audiencia->conciliadoresAudiencias as $conciliador) {
             ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $conciliador->conciliador_id, "solicitante" => $conciliador->solicitante]);
         }
@@ -1775,7 +1777,7 @@ class AudienciaController extends Controller {
         DB::commit();
         return $audienciaN;
     }
-    
+
 
     ############################### A partir de este punto comienzan las funciones para el chacklist ########################################
 
