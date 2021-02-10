@@ -366,7 +366,12 @@ class AudienciaController extends Controller {
         $generos = $this->cacheModel('generos', Genero::class);
         $tipo_contacto = $this->cacheModel('tipo_contacto', TipoContacto::class);
         $nacionalidades = $this->cacheModel('nacionalidades', Nacionalidad::class);
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante", "documentos", 'solicitud_id', 'estatus_solicitud_id', 'virtual', 'partes', "estados", 'generos', 'nacionalidades', 'tipos_vialidades', 'tipos_asentamientos', 'lengua_indigena', 'tipo_contacto','obligar'));
+        $permitir_crear = false;
+        $tipo_resolucion_reagendar = Resolucion::whereNombre("No hubo convenio, pero se desea realizar una nueva audiencia")->first()->id;
+        if($tipo_resolucion_reagendar == $audiencia->resolucion_id && !$solicitud->finalizada && !$audiencia->audiencia_creada){
+            $permitir_crear = true;
+        }
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante", "documentos", 'solicitud_id', 'estatus_solicitud_id', 'virtual', 'partes', "estados", 'generos', 'nacionalidades', 'tipos_vialidades', 'tipos_asentamientos', 'lengua_indigena', 'tipo_contacto','obligar','permitir_crear'));
     }
 
     /**
@@ -1538,7 +1543,7 @@ class AudienciaController extends Controller {
         DB::beginTransaction();
         ##Obtenemos la audiencia origen
         $audiencia = Audiencia::find($request->audiencia_id);
-
+        $audiencia->update(["audiencia_creada" => true]);
         ## Validamos si la audiencia se calendariza o solo es para guardar una resolución distinta
         if ($request->nuevaCalendarizacion == "S") {
             $fecha_audiencia = $request->fecha_audiencia;
@@ -1638,6 +1643,7 @@ class AudienciaController extends Controller {
         DB::beginTransaction();
         ##Obtenemos la audiencia origen
         $audiencia = Audiencia::find($request->audiencia_id);
+        $audiencia->update(["audiencia_creada" => true]);
         // buscamos disponibilidad en los proximos 15 a 18 días
         $diasHabilesMin = 15;
         $diasHabilesMax = 18;
@@ -1655,6 +1661,7 @@ class AudienciaController extends Controller {
         $ContadorController = new ContadorController();
         $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
         $etapa = \App\EtapaNotificacion::where("etapa", "ilike", "%Cambio de Fecha%")->first();
+        
         //creamos el registro de la audiencia
         $audienciaN = Audiencia::create([
                     "expediente_id" => $audiencia->expediente_id,
@@ -1724,7 +1731,8 @@ class AudienciaController extends Controller {
         DB::beginTransaction();
         ##Obtenemos la audiencia origen
         $audiencia = Audiencia::find($request->audiencia_id);
-
+        $audiencia->update(["audiencia_creada" => true]);
+        
         $fecha_audiencia = $request->fecha_audiencia;
         $hora_inicio = $request->hora_inicio;
         $hora_fin = $request->hora_fin;

@@ -570,9 +570,11 @@
                         @endforeach
                     </tbody>
                 </table>
+                @if($permitir_crear)
                 <div class="text-right">
                     <button class="btn btn-primary btn-sm m-l-5" id='btnNuevaAudiencia'><i class="fa fa-plus"></i> Nueva Audiencia</button>
                 </div>
+                @endif
             </div>
         </div>
         <div class="tab-pane fade" id="default-tab-5">
