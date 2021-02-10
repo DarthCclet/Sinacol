@@ -1042,101 +1042,109 @@
     }
 
     $("#btnRatificarIncompetencia").on("click",function(){
-        if(ratifican){
-            $.ajax({
-                url:'/solicitud/correos/'+$("#solicitud_id").val(),
-                type:'GET',
-                dataType:"json",
-                async:true,
-                success:function(data){
-                    if(data == null || data == ""){
-                        swal({
-                            title: '¿Estás seguro?',
-                            text: 'Al oprimir aceptar se emitirá la constancia de incompetencia correspondiente, de lo contrario oprime cancelar y actualiza la actividad en la soliciud.',
-                            icon: 'warning',
-                            buttons: {
-                                cancel: {
-                                    text: 'Cancelar',
-                                    value: null,
-                                    visible: true,
-                                    className: 'btn btn-default',
-                                    closeModal: true,
-                                },
-                                confirm: {
-                                    text: 'Aceptar',
-                                    value: true,
-                                    visible: true,
-                                    className: 'btn btn-danger',
-                                    closeModal: true
-                                }
-                            }
-                        }).then(function(isConfirm){
-                            if(isConfirm){
-                                $.ajax({
-                                    url:'/solicitud/ratificarIncompetencia',
-                                    type:'POST',
-                                    dataType:"json",
-                                    async:true,
-                                    data:{
-                                        id:$("#solicitud_id").val(),
-                                        _token:"{{ csrf_token() }}"
+        if("{{auth()->user()->hasRole('Administrador del centro')}}"){
+            if(ratifican){
+                $.ajax({
+                    url:'/solicitud/correos/'+$("#solicitud_id").val(),
+                    type:'GET',
+                    dataType:"json",
+                    async:true,
+                    success:function(data){
+                        if(data == null || data == ""){
+                            swal({
+                                title: '¿Estás seguro?',
+                                text: 'Al oprimir aceptar se emitirá la constancia de incompetencia correspondiente, de lo contrario oprime cancelar y actualiza la actividad en la soliciud.',
+                                icon: 'warning',
+                                buttons: {
+                                    cancel: {
+                                        text: 'Cancelar',
+                                        value: null,
+                                        visible: true,
+                                        className: 'btn btn-default',
+                                        closeModal: true,
                                     },
-                                    success:function(data){
-                                        if(data != null && data != ""){
-                                            $("#modalRatificacion").modal("hide");
-                                            swal({
-                                                title: 'Correcto',
-                                                text: 'Solicitud confirmada correctamente',
-                                                icon: 'success'
-                                            });
-                                            location.reload();
-                                        }else{
+                                    confirm: {
+                                        text: 'Aceptar',
+                                        value: true,
+                                        visible: true,
+                                        className: 'btn btn-danger',
+                                        closeModal: true
+                                    }
+                                }
+                            }).then(function(isConfirm){
+                                if(isConfirm){
+                                    $.ajax({
+                                        url:'/solicitud/ratificarIncompetencia',
+                                        type:'POST',
+                                        dataType:"json",
+                                        async:true,
+                                        data:{
+                                            id:$("#solicitud_id").val(),
+                                            _token:"{{ csrf_token() }}"
+                                        },
+                                        success:function(data){
+                                            if(data != null && data != ""){
+                                                $("#modalRatificacion").modal("hide");
+                                                swal({
+                                                    title: 'Correcto',
+                                                    text: 'Solicitud confirmada correctamente',
+                                                    icon: 'success'
+                                                });
+                                                location.reload();
+                                            }else{
+                                                swal({
+                                                    title: 'Error',
+                                                    text: 'No se pudo confirmar',
+                                                    icon: 'error'
+                                                });
+                                            }
+                                        },error:function(data){
                                             swal({
                                                 title: 'Error',
-                                                text: 'No se pudo confirmar',
+                                                text: data.responseJSON.message,
                                                 icon: 'error'
                                             });
                                         }
-                                    },error:function(data){
-                                        swal({
-                                            title: 'Error',
-                                            text: data.responseJSON.message,
-                                            icon: 'error'
-                                        });
-                                    }
-                                });
-                            }
-                        });
+                                    });
+                                }
+                            });
 
-                    }else{
-                        var tableSolicitantes = '';
-                        $.each(data, function(index,element){
-                            tableSolicitantes +='<tr>';
-                            if(element.tipo_persona_id == 1){
-                                tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
-                            }else{
-                                tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
-                            }
-                            tableSolicitantes += '  <td>';
-                            tableSolicitantes += '      <div class="col-md-12">';
-                            tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
-                            tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
-                            tableSolicitantes += '      </div>';
-                            tableSolicitantes += '  </td>';
-                            tableSolicitantes += '  <td>';
-                            tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
-                            tableSolicitantes += '  </td>';
-                            tableSolicitantes +='</tr>';
-                        });
-                        $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
-                        $("#modal-registro-correos").modal("show");
+                        }else{
+                            var tableSolicitantes = '';
+                            $.each(data, function(index,element){
+                                tableSolicitantes +='<tr>';
+                                if(element.tipo_persona_id == 1){
+                                    tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
+                                }else{
+                                    tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
+                                }
+                                tableSolicitantes += '  <td>';
+                                tableSolicitantes += '      <div class="col-md-12">';
+                                tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
+                                tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
+                                tableSolicitantes += '      </div>';
+                                tableSolicitantes += '  </td>';
+                                tableSolicitantes += '  <td>';
+                                tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
+                                tableSolicitantes += '  </td>';
+                                tableSolicitantes +='</tr>';
+                            });
+                            $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
+                            $("#modal-registro-correos").modal("show");
+                        }
                     }
-                }
-            });
+                });
+            }else{
+                swal({
+                    title: 'Error',
+                    text: 'Al menos un solicitante debe presentar documentos para confirmar',
+                    icon: 'warning'
+                });
+            }
         }else{
             swal({
-                title: 'Error',
-                text: 'Al menos un solicitante debe presentar documentos para confirmar',
+                title: 'Aviso',
+                text: 'Esta acción solo esta permitida para el director del centro',
                 icon: 'warning'
             });
         }
