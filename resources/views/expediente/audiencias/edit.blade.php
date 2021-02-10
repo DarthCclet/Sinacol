@@ -374,7 +374,7 @@
                                                                                 @else
                                                                                 <td></td>
                                                                             @endif
-                                                                                <td>{{ Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$fechaPago->fecha_pago)->format('d/m/Y')}}</td>
+                                                                                <td>{{ Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$fechaPago->fecha_pago)->format('d/m/Y H:i')}}</td>
                                                                                 <td>{{$fechaPago->monto}}</td>
                                                                                 <td>
 
