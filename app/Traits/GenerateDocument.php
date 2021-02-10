@@ -104,7 +104,15 @@ trait GenerateDocument
 
                 //Creamos el registro
                 $uuid = Str::uuid();
-                $archivo = $padre->documentos()->create(["descripcion" => "Documento de solicitud " . $tipoArchivo->nombre,"uuid"=>$uuid]);
+                if($idDocumento != null){
+                  $archivo = Documento::find($idDocumento);
+                  if(Storage::exists($archivo->ruta)){
+                    Storage::delete($archivo->ruta.".old");
+                    Storage::move($archivo->ruta, $archivo->ruta.".old");
+                  }
+                }else{
+                  $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid,"clasificacion_archivo_id" => $tipoArchivo->id]);
+                }
                 $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
                 $firmantes = substr_count($html, 'class="qr"');
                 $plantilla = PlantillaDocumento::find($plantilla->id);
