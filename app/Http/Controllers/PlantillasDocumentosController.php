@@ -475,6 +475,8 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'domicilio_completo');
                 array_push($columnNames,'telefono');
                 array_push($columnNames,'nombre_administrador');
+                array_push($columnNames,'administrador_qr_firma');
+                array_push($columnNames,'conciliador_generico_qr_firma');
                 array_push($columnNames,['nombre'=>'domicilio', 'columns'=>$columnDomicilio]);
               }
               $objetoDocumento [] =

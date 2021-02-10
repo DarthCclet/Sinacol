@@ -668,13 +668,80 @@ trait GenerateDocument
                       }
                     }
                     $nombreAdministrador = "";
+                    $personaId = "";
                     foreach ($usuarios_centro as $usuario ) {
                       if($usuario->hasRole('Administrador del centro')){
                         $userAdmin = $usuario->persona;
+                        $personaId= $userAdmin->id;
                         $nombreAdministrador = $userAdmin['nombre'].' '.$userAdmin['primer_apellido'].' '.$userAdmin['segundo_apellido'];
                       }
                     }
                     $centro['nombre_administrador'] = $nombreAdministrador;
+                    //Firma conciliador generico
+                    $solicitudFirma = Solicitud::find($idSolicitud);
+                    if($idDocumento){
+                      if($idAudiencia){
+                        $existe = $solicitudFirma->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }else{
+                        $existe = $solicitudFirma->firmas()->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }
+                      if($existe == null){
+                        if($idAudiencia){
+                          $solicitudFirma->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                        }else{
+                          $solicitudFirma->firmas()->create(['solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                        }
+                      }
+                    }
+                    if($solicitudVirtual && $solicitudVirtual!="" && $idDocumento){
+                      if($idAudiencia){
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->where('documento_id',$idDocumento)->first();
+                      }else{
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }
+                      if($firmaDocumento != null && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
+                          $centro['conciliador_generico_qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                        } elseif ($firmaDocumento != null && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
+                          $centro['conciliador_generico_qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
+                        }else{
+                          $centro['conciliador_generico_qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($idSolicitud."/conciliador//".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
+                        }
+                    }else{
+                      $centro['conciliador_generico_qr_firma'] = '';
+                    }
+
+                    //Firma administrador centro
+                    if($idDocumento){
+                      if($idAudiencia){
+                        $existe = $userAdmin->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }else{
+                        $existe = $userAdmin->firmas()->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }
+                      if($existe == null){
+                        if($idAudiencia){
+                          $userAdmin->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                        }else{
+                          $userAdmin->firmas()->create(['solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                        }
+                      }
+                    }
+                    if($solicitudVirtual && $solicitudVirtual!="" && $idDocumento){
+                      if($idAudiencia){
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$personaId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->where('documento_id',$idDocumento)->first();
+                      }else{
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$personaId)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }
+                      //dd($firmaDocumento);
+                      if($firmaDocumento != null && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
+                          $centro['administrador_qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                        } elseif ($firmaDocumento != null && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
+                          $centro['administrador_qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
+                        }else{
+                          $centro['administrador_qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($personaId."/administrador/".urlencode($nombreAdministrador)."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
+                        }
+                    }else{
+                      $centro['administrador_qr_firma'] = '';
+                    }
                     //Disponibilidad del centro horarios y dias
                     $disponibilidad_centro = new JsonResponse($disponibilidad_centro);
                     $disponibilidad_centro = json_decode($disponibilidad_centro->content(),true);
