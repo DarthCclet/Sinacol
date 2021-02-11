@@ -159,11 +159,14 @@ class StringTemplate
             if($vars['solicitud_estatus_solicitud_id'] != 1 ){ //solicitud ratificada o termindada
                 // texto de datos de acceso a buzon
                 $sliceRatificada = Str::after($string, '[SI_SOLICITUD_RATIFICADA]');
+                $sliceRatificada = Str::before($sliceRatificada, '[SI_SOLICITUD_NO_RATIFICADA]');
+
+                $string = $htmlA . $sliceRatificada . $htmlB;
+            }else{//solicitud no ratificada
+                $sliceRatificada = Str::after($string, '[SI_SOLICITUD_NO_RATIFICADA]');
                 $sliceRatificada = Str::before($sliceRatificada, '[FIN_SI_SOLICITUD_RATIFICADA]');
 
                 $string = $htmlA . $sliceRatificada . $htmlB;
-              }else{//solicitud no ratificada
-                $string = $htmlA . $htmlB;
             }
           }
         }

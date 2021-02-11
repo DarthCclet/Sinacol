@@ -57,4 +57,8 @@ class Persona extends Model implements AuditableContract
     public function getFullNameAttribute(){
         return "{$this->nombre} {$this->primer_apellido} {$this->segundo_apellido}";
     }
+    
+    public function firmas(){
+        return $this->morphMany(FirmaDocumento::class,'firmable');
+    }
 }
