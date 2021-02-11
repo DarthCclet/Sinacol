@@ -2190,13 +2190,15 @@
 
         $("#tbodyObjetoSol").html("");
         $("#tbodyObjetoSolRevision").html("");
-
+        var totalObjeto = arrayObjetoSolicitudes.filter(x=> x.activo == 1  ).length;
         $.each(arrayObjetoSolicitudes, function (key, value) {
             if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined" )){
                 html += "<tr>";
                 $("#objeto_solicitud_id").val(value.objeto_solicitud_id);
                 html += "<td> " + $("#objeto_solicitud_id :selected").text(); + " </td>";
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarObjetoSol("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                if(totalObjeto > 1){
+                    html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarObjetoSol("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                }
                 html += "</tr>";
             }
         });
@@ -2613,7 +2615,8 @@
                     return valido;
                 }
             }
-            if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 && arrayObjetoSolicitudes.length > 0 ){
+            let totalObjetosSolicitud = arrayObjetoSolicitudes.filter(x=> x.activo == 1  ).length;
+            if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 && totalObjetosSolicitud > 0 ){
 
                 var upd = "";
                 if($("#solicitud_id").val() == ""){
