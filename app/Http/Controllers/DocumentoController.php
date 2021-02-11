@@ -327,7 +327,7 @@ class DocumentoController extends Controller
             else{
                 echo $html; exit;
             }
-        } catch (\Throwable $th) {
+        } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensaje: ". $e->getMessage().
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());

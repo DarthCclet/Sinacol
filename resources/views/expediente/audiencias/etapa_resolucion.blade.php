@@ -890,7 +890,7 @@
                             <div class="col-sm-10">
                                 <select id="parte_solicitante_id" class="form-control select-element">
                                     <option value="">-- Seleccione un solicitante</option>
-                                    @foreach($audiencia->solicitantes as $parte)
+                                    @foreach($audiencia->solicitantesComparecientes as $parte)
                                         @if($parte->parte->tipo_persona_id == 1)
                                             <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
                                         @else
@@ -1319,7 +1319,7 @@
                                     <div class="col-sm-12">
                                         <select id="pago_solicitante_id" class="form-control select-element">
                                             <option value="">-- Seleccione un solicitante --</option>
-                                            @foreach($audiencia->solicitantes as $parte)
+                                            @foreach($audiencia->solicitantesComparecientes as $parte)
                                                 @if($parte->parte->tipo_persona_id == 1)
                                                     <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
                                                 @else
