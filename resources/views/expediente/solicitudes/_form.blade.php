@@ -2322,11 +2322,7 @@
     *@argument key posicion de array a eliminar
     */
     function eliminarObjetoSol(key){
-        if(arrayObjetoSolicitudes[key].id == ""){
             arrayObjetoSolicitudes.splice(key,1);
-        }else{
-            arrayObjetoSolicitudes[key].activo = 0;
-        }
         formarTablaObjetoSol();
     }
 

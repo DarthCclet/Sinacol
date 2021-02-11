@@ -295,6 +295,7 @@ class SolicitudController extends Controller {
         $solicitud = $request->input('solicitud');
         if($solicitud["tipo_solicitud_id"] == 1){
             $request->validate([
+                'objeto_solicitudes' => 'required',
                 'solicitud.fecha_conflicto' => 'required',
                 'solicitud.solicita_excepcion' => 'required',
                 'solicitud.tipo_solicitud_id' => 'required',
@@ -320,6 +321,7 @@ class SolicitudController extends Controller {
             ]);
         }else{
             $request->validate([
+                'objeto_solicitudes' => 'required',
                 'solicitud.fecha_conflicto' => 'required',
                 'solicitud.solicita_excepcion' => 'required',
                 'solicitud.tipo_solicitud_id' => 'required',
@@ -373,7 +375,6 @@ class SolicitudController extends Controller {
             }
             $solicitudSaved = Solicitud::create($solicitud);
             $objeto_solicitudes = $request->input('objeto_solicitudes');
-
             foreach ($objeto_solicitudes as $key => $value) {
                 $solicitudSaved->objeto_solicitudes()->attach($value['objeto_solicitud_id']);
             }
@@ -867,6 +868,7 @@ class SolicitudController extends Controller {
     public function update(Request $request, Solicitud $solicitud) {
         if($solicitud["tipo_solicitud_id"] == 1){
             $request->validate([
+                'objeto_solicitudes' => 'required',
                 'solicitud.fecha_conflicto' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
@@ -890,6 +892,7 @@ class SolicitudController extends Controller {
             ]);
         }else{
             $request->validate([
+                'objeto_solicitudes' => 'required',
                 'solicitud.fecha_conflicto' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
@@ -924,7 +927,6 @@ class SolicitudController extends Controller {
 
 
             $objeto_solicitudes = $request->input('objeto_solicitudes');
-
             $arrObjetoSolicitudes = [];
             foreach ($objeto_solicitudes as $key => $value) {
                 if ($value["activo"] == 1) {
