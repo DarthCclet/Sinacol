@@ -59,11 +59,11 @@
                 toolbar_items_size: 'small',
                 plugins: [
                     'noneditable advlist autolink lists link image imagetools preview',
-                    ' media table advtable paste uploadimage lineheight'
+                    ' media table advtable paste uploadimage lineheight code'
                 ],
                 toolbar1: botonesHeader + botonesBody + 'basicDateButton | mybutton | fontselect fontsizeselect textcolor| undo redo ' +
                 '| bold italic underline| alignleft aligncenter alignright alignjustify | bullist numlist ' +
-                '| outdent indent | lineheightselect | table | uploadimage image | forecolor backcolor',
+                '| outdent indent | lineheightselect | table | uploadimage image | forecolor backcolor | code',
                 toolbar2: "",
                 // paste_data_images: true,
               	images_upload_handler: function (blobInfo, success, failure) {
