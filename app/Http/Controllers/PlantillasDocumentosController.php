@@ -474,6 +474,9 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'dias');
                 array_push($columnNames,'domicilio_completo');
                 array_push($columnNames,'telefono');
+                array_push($columnNames,'nombre_administrador');
+                array_push($columnNames,'administrador_qr_firma');
+                array_push($columnNames,'conciliador_generico_qr_firma');
                 array_push($columnNames,['nombre'=>'domicilio', 'columns'=>$columnDomicilio]);
               }
               $objetoDocumento [] =
@@ -829,6 +832,7 @@ class PlantillasDocumentosController extends Controller
                   }elseif ($model == 'Centro') {
                     $objeto = $model_name::with('domicilio','disponibilidades','contactos')->find($centroId);
                     $dom_centro = $objeto->domicilio;
+                    $usuarios_centro = $objeto->user;
                     $contacto_centro = $objeto->contactos;
                     $disponibilidad_centro = $objeto->disponibilidades;
                     $objeto = new JsonResponse($objeto);
@@ -855,6 +859,14 @@ class PlantillasDocumentosController extends Controller
                         $centro['telefono'] = '--- -- -- ---';
                       }
                     }
+                    $nombreAdministrador = "";
+                    foreach ($usuarios_centro as $usuario ) {
+                      if($usuario->hasRole('Administrador del centro')){
+                        $userAdmin = $usuario->persona;
+                        $nombreAdministrador = $userAdmin['nombre'].' '.$userAdmin['primer_apellido'].' '.$userAdmin['segundo_apellido'];
+                      }
+                    }
+                    $centro['nombre_administrador'] = $nombreAdministrador;
                     //Disponibilidad del centro horarios y dias
                     $disponibilidad_centro = new JsonResponse($disponibilidad_centro);
                     $disponibilidad_centro = json_decode($disponibilidad_centro->content(),true);

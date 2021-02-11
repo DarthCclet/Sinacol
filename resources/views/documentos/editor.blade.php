@@ -196,6 +196,8 @@
                                       });
                                       if(cat['catalogo'] == "Notifica"){
                                         editor.insertContent('<strong class="mceNonEditable" data-nombre="">[SI_NO_NOTIFICA]</strong><br>&nbsp;');
+                                      }else if(cat['catalogo'] == "Ratificada"){
+                                        editor.insertContent('<strong class="mceNonEditable" data-nombre="">[SI_SOLICITUD_NO_RATIFICADA]</strong><br>&nbsp;');
                                       }else if(cat['catalogo'] == "Virtual"){
                                         editor.insertContent('<strong class="mceNonEditable" data-nombre="">[SI_SOLICITUD_NO_VIRTUAL]</strong><br>&nbsp;');
                                       }else if(cat['catalogo'] == "Atiende"){

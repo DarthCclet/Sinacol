@@ -187,4 +187,7 @@ class Solicitud extends Model implements Auditable
     public function solicitud(){
         return $this->belongsTo(Solicitud::class);
     }
+    public function firmas(){
+        return $this->morphMany(FirmaDocumento::class,'firmable');
+    }
 }
