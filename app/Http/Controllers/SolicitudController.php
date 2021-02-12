@@ -1861,13 +1861,13 @@ class SolicitudController extends Controller {
     }
 
     public function canal(Request $request){
-        $mensaje = "La solicitud no existe";
+        $mensaje = "El canal ingresado no es el correcto, verifica el canal asignado en tus documentos";
         $solicitud = Solicitud::where('canal',$request->canal)->first();
         if($solicitud){
             if(!empty($solicitud->url_virtual)){
                 return Redirect::to($solicitud->url_virtual);
             }
-            $mensaje = "Canal no asignado";
+            $mensaje = "No ha iniciado aún su videollamada programada con el funcionario del CFCRL. Favor de revisar la fecha y hora asignadas para la videollamada y entrar a esta liga en ese momento";
         }
         return view('pages.canalNotFound',compact('mensaje'));
         
