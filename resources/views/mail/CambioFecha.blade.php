@@ -81,32 +81,41 @@
                         <table class="table" style="border-collapse: collapse;border: 1px;">
                             <tr style="background-color: #9d244947">
                                 <th>Tipo de parte</th>
+                                <th>Nombre</th>
                                 <th>Conciliador</th>
                                 <th>Sala</th>
                             </tr>
-                            @if($audiencia->multiple){
-                                @foreach($audiencia->conciliadoresAudiencias as $conciliador)
+                            @foreach($audiencia->audienciaParte as $parte)
+                                @if($parte->parte->tipo_parte->nombre != "OTRO")
                                     <tr>
-                                    @if($conciliador->solicitante){
-                                        <td align="center">Solicitante(s)</td>
-                                    @else
-                                        <td align="center">Citado(s)</td>
-                                    @endif
-                                    <td align="center">{{$conciliador->conciliador->persona->nombre}} {{$conciliador->conciliador->persona->primer_apellido}} {{$conciliador->conciliador->persona->segundo_apellido}}</td>
-                                    @foreach($audiencia->salasAudiencias as $salas)
-                                        @if($salas->solicitante == $conciliador->solicitante){
-                                            <td align="center">{{$salas->sala->sala}}</td>
+                                        <td>{{$parte->parte->tipo_parte->nombre}}</td>
+                                        @if($parte->parte->tipo_parte->nombre != "FISICA")
+                                            <td>{{$parte->parte->nombre}} {{$parte->parte->primer_apellido}} {{$parte->parte->segundo_apellido}}</td>
+                                        @else
+                                            <td>{{$parte->parte->nombre_comercial}}</td>
                                         @endif
-                                    @endforeach
+                                        @if($audiencia->multiple){
+                                            @foreach($audiencia->conciliadoresAudiencias as $conciliador)
+                                                @if($conciliador->solicitante && $parte->parte->tipo_parte->nombre == "SOLICITANTE"){
+                                                    <td align="center">{{$conciliador->conciliador->persona->nombre}} {{$conciliador->conciliador->persona->primer_apellido}} {{$conciliador->conciliador->persona->segundo_apellido}}</td>
+                                                @elseif(!$conciliador->solicitante && $parte->parte->tipo_parte->nombre == "CITADO")
+                                                    <td align="center">{{$conciliador->conciliador->persona->nombre}} {{$conciliador->conciliador->persona->primer_apellido}} {{$conciliador->conciliador->persona->segundo_apellido}}</td>
+                                                @endif
+                                            @endforeach
+                                            @foreach($audiencia->salasAudiencias as $salas)
+                                                @if($salas->solicitante && $parte->parte->tipo_parte->nombre == "SOLICITANTE"){
+                                                    <td align="center">{{$salas->sala->sala}}</td>
+                                                @elseif(!$salas->solicitante && $parte->parte->tipo_parte->nombre == "CITADO")
+                                                    <td align="center">{{$salas->sala->sala}}</td>
+                                                @endif
+                                            @endforeach
+                                        @else
+                                           <td align="center">{{$audiencia->conciliadoresAudiencias[0]->conciliador->persona->nombre}} {{$audiencia->conciliadoresAudiencias[0]->conciliador->persona->primer_apellido}} {{$audiencia->conciliadoresAudiencias[0]->conciliador->persona->segundo_apellido}}</td>
+                                           <td align="center">{{$audiencia->salasAudiencias[0]->sala->sala}}</td>
+                                        @endif
                                     </tr>
-                                @endforeach
-                            @else
-                                <tr>
-                                   <td align="center">Solicitante(s) y citado(s)</td>
-                                   <td align="center">{{$audiencia->conciliadoresAudiencias[0]->conciliador->persona->nombre}} {{$audiencia->conciliadoresAudiencias[0]->conciliador->persona->primer_apellido}} {{$audiencia->conciliadoresAudiencias[0]->conciliador->persona->segundo_apellido}}</td>
-                                   <td align="center">{{$audiencia->salasAudiencias[0]->sala->sala}}</td>
-                                </tr>
-                            @endif
+                                @endif
+                            @endforeach
                         </table>
                     </center>
                 </p>         
