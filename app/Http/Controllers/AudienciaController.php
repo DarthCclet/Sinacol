@@ -2282,6 +2282,23 @@ class AudienciaController extends Controller {
                          * Se deberá regresar un mensaje para que el citado indique si desea continuar con la audiencia
                          *
                          */
+                         //Obtenemos a los citados
+                        $citados = $this->getSolicitados($audiencia);
+                        $arrayMultadoNotificacion = [];
+                        $tipo_parte = TipoParte::whereNombre("CITADO")->first();
+                        foreach($audiencia->audienciaParte as $parte_notificar){
+                            if($parte_notificar->parte->tipo_parte_id == $tipo_parte->id && $parte_notificar->finalizado == "FINALIZADO EXITOSAMENTE"){
+                                //buscamos si comparecio
+                                $compareciente = Compareciente::where("audiencia_id",$audiencia->id)->where("parte_id",$parte_notificar->parte_id)->first();
+                                if($compareciente == null){
+                                    $notificar = true;
+                                    $citatorio = false;
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null, $parte_notificar->parte_id));
+                                    array_push($arrayMultadoNotificacion, $parte_notificar->id);
+                                }
+                            }
+                        }
+                        
                         $response = array("tipo" => 5, "response" => null);
                     }
                 }
@@ -2374,6 +2391,7 @@ class AudienciaController extends Controller {
             $audiencia->tipo_terminacion_audiencia_id = 5;
             $audiencia->finalizada = true;
             $audiencia->save();
+                        
             $response = array("tipo" => 3, "response" => $audienciaN);
             DB::commit();
             return $this->sendResponse($response, 'SUCCESS');
