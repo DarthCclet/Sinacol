@@ -939,29 +939,25 @@ trait GenerateDocument
                     $hayPartesConvenio = count($partes_convenio);
                     if($hayPartesConvenio > 0){
                       $citadosConvenio = [];
+                      $clausulacitadosConvenio = [];
                       $solicitantesComparecientes = [];
                       $citadosComparecientes = [];
                       $nombreCitadoConvenio = "";
                       $nombreCitadoComparecientes = "";
                       $nombreSolicitanteComparecientes = "";
                       $idParteCitada = "";
-                      $clausulaCitadosConvenio = ($hayPartesConvenio >1)? ' ' : "";
-                      foreach ($partes_convenio as $key => $parteConvenio) {
+                      $clausula2citadosConvenio = ($hayPartesConvenio >1)? '' : "";
+                      foreach ($partes_convenio as $key => $parteConvenio) { 
                         $nombreCitadoComparecientes = "";
                         $nombreSolicitanteComparecientes = "";
                         $nombreCitadoConvenio = "";
+                        $clausulaCitadoConvenio = "";
                         //citados convenio
                         $parteC = $parteConvenio->parte;
-                        if($parteC->tipo_parte_id == 1){
-                          $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitante_id',$parteC->id)->first();
-                        }else if($parteC->tipo_parte_id == 2){
-                          $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parteC->id)->first();
-                        }
-
                         if($parteC->id != $idParteCitada){
                           $idParteCitada = $parteC->id;
                           if($parteC->tipo_persona_id == 1){//fisica
-                            if($parteC->tipo_parte_id == 3){
+                            if($parteC->tipo_parte_id == 3){//OTRO (representante)
                               $representanteLegalC = $parteC;
                               $parteRepresentada = Parte::find($representanteLegalC->parte_representada_id);
                               $segundo_apellido_representante = ($representanteLegalC['segundo_apellido']!="")?' '.$representanteLegalC['segundo_apellido']:"";
@@ -982,13 +978,14 @@ trait GenerateDocument
                                 }
                               }
                               $nombreRepresentada = ($parteRepresentada['tipo_persona_id']== 2)? $parteRepresentada['nombre_comercial']: $parteRepresentada['nombre'].' '.$parteRepresentada['primer_apellido'] .' '.$parteRepresentada['segundo_apellido'];
+                              $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parteRepresentada['id'])->first();
                               if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
-                                $nombreCitadoConvenio = $nombreRepresentada .' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                                  $nombreCitadoConvenio = $nombreRepresentada .' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                                  $clausulaCitadoConvenio = $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                               }
                               //$nombreCitadoComparecientes = $parteRepresentada['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
                               $nombreCitadoComparecientes = $nombreRepresentanteLegal .', en su carácter de representante legal de '. $nombreRepresentada . $representanteInstrumento .", ".$representanteIdentificacion;
-                              $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
-                            }else{
+                            }else{ // Solicitante o Citado
                               //if($parteC->tipo_parte_id == 2){
                                 foreach ($parteC->documentos as $k => $docu) {
                                   if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
@@ -998,11 +995,12 @@ trait GenerateDocument
                                 }
                                 $segundo_apellido = ($parteC['segundo_apellido']!="")?' '.$parteC['segundo_apellido']:"";
                               if($parteC->tipo_parte_id == 2){//citados
+                                $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parteC->id)->first();
                                 if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
-                                	$nombreCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido;
+                                    $nombreCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido;
+                                    $clausulaCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
                                 }
                                 $nombreCitadoComparecientes = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido. $parteIdentificacion;
-                                $clausulaCitadosConvenio .= $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
                               }else{
                                 $nombreSolicitanteComparecientes = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion;
                               }
@@ -1022,13 +1020,17 @@ trait GenerateDocument
                                 }
                               }
                             }
+                            $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parteC['id'])->first();
                             if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
                               $nombreCitadoConvenio = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                              $clausulaCitadoConvenio = $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteC['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                             }
                             $nombreCitadoComparecientes = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal' ; //$parteIdentificacion
-                            $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteC['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                           }
-                            if($nombreCitadoConvenio != ""){
+                          if($clausulaCitadoConvenio != ""){
+                            array_push($clausulacitadosConvenio, $clausulaCitadoConvenio );
+                          }
+                          if($nombreCitadoConvenio != ""){
                             array_push($citadosConvenio, $nombreCitadoConvenio );
                           }
                           if($nombreCitadoComparecientes != ""){
@@ -1038,8 +1040,11 @@ trait GenerateDocument
                             array_push($solicitantesComparecientes, $nombreSolicitanteComparecientes );
                           }
                         }
-					            }
+                      }
                       if($hayPartesConvenio > 1){
+                        $clausulacitadosConvenioA =  implode(", ",$clausulacitadosConvenio);
+                        $clausula2citadosConvenio = $clausulacitadosConvenioA;//$this->lreplace(',', ' y', $citadosConvenioA);
+
                         $citadosConvenioA =  implode(", ",$citadosConvenio);
                         $nombreCitadosConvenio = $citadosConvenioA;//$this->lreplace(',', ' y', $citadosConvenioA);
 
@@ -1055,13 +1060,13 @@ trait GenerateDocument
                     }else{
                       $nombreCitadosConvenio = "-";
                       $nombreCitadosComparecientes = "";
-                      $clausulaCitadosConvenio = "";
+                      $clausula2citadosConvenio = "";
 					          }
 
                     $datosResolucion['citados_comparecientes'] = $nombreCitadosComparecientes;
                     $datosResolucion['solicitantes_comparecientes'] = $nombreSolicitanteComparecientes;
                     $datosResolucion['citados_convenio'] = $nombreCitadosConvenio;
-                    $datosResolucion['segunda_declaracion_convenio'] = $clausulaCitadosConvenio;
+                    $datosResolucion['segunda_declaracion_convenio'] = $clausula2citadosConvenio;
                     $datosResolucion['primera_manifestacion'] = (isset($datosResolucion['primera_manifestacion']))? $datosResolucion['primera_manifestacion'] :"";
                     $datosResolucion['segunda_manifestacion'] = (isset($datosResolucion['segunda_manifestacion']))? $datosResolucion['segunda_manifestacion'] :"";
                     $datosResolucion['total_percepciones'] = (isset($datosResolucion['total_percepciones']))? $datosResolucion['total_percepciones'] :"";
