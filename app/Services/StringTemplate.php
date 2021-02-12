@@ -64,13 +64,7 @@ class StringTemplate
       }
       if(Str::contains($string, '[SI_')){
         $countSi = substr_count($string, '[FIN_SI');
-        $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
-        $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
-        $countSolicitudRatificada = substr_count($string,'[SI_SOLICITUD_RATIFICADA]');
-        $countSolicitudIndividual = substr_count($string,'[SI_SOLICITUD_TIPO_INDIVIDUAL]');
         $countPagosDiferidos = substr_count($string,'[SI_RESOLUCION_PAGO_DIFERIDO]');
-        $countSolicitudVirtual = substr_count($string,'[SI_SOLICITUD_VIRTUAL]');
-        $countCentroVirtual = substr_count($string,'[SI_CENTRO_ATIENDE_VIRTUAL]');
         if (isset($vars['resolucion_total_diferidos'])){
           if($countPagosDiferidos >0){
             for ($i=0; $i < $countPagosDiferidos; $i++) {
@@ -96,6 +90,7 @@ class StringTemplate
             }
           }
         }
+        $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
         if (isset($vars['solicitado_tipo_notificacion'])){
           if ($countTipoNotificacion >0 ){
             if($vars['solicitado_tipo_notificacion'] != null && $vars['solicitado_tipo_notificacion'] != "--"){
@@ -129,6 +124,7 @@ class StringTemplate
             }
           }
         }
+        $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
         if (isset($vars['audiencia_multiple'])){
           if($vars['audiencia_multiple'] != null && $countAudienciaSeparada > 0){
             for ($i=0; $i < $countAudienciaSeparada; $i++) {
@@ -152,6 +148,7 @@ class StringTemplate
             }
           }
         }
+        $countSolicitudRatificada = substr_count($string,'[SI_SOLICITUD_RATIFICADA]');
         if (isset($vars['solicitud_estatus_solicitud_id'])&& $countSolicitudRatificada > 0){
           for ($i=0; $i < $countSolicitudRatificada; $i++) {
             $htmlA = Str::before($string, '[SI_SOLICITUD_RATIFICADA');
@@ -170,22 +167,22 @@ class StringTemplate
             }
           }
         }
-        //dd($vars['solicitud_tipo_solicitud_id']);
-        // if (isset($vars['solicitud_tipo_solicitud_id'])&& $countSolicitudIndividual > 0){
-        //   for ($i=0; $i < $countSolicitudIndividual; $i++) {
-        //     $htmlA = Str::before($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
-        //     $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_TIPO]');
-        //     if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual
-        //         // texto para solicitud individual
-        //         $sliceIndividual = Str::after($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
-        //         $sliceIndividual = Str::before($sliceIndividual, '[FIN_SI_SOLICITUD_TIPO]');
-
-        //         $string = $htmlA . $sliceIndividual . $htmlB;
-        //       }else{//solicitud no individual
-        //         $string = $htmlA . $htmlB;
-        //     }
-        //   }
-        // }
+        $countSolicitudIndividual = substr_count($string,'[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+        if (isset($vars['solicitud_tipo_solicitud_id'])&& $countSolicitudIndividual > 0){
+          for ($i=0; $i < $countSolicitudIndividual; $i++) {
+            $htmlA = Str::before($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+            $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_TIPO]');
+            if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual  
+              // texto para solicitud individual
+              $sliceIndividual = Str::after($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+              $sliceIndividual = Str::before($sliceIndividual, '[FIN_SI_SOLICITUD_TIPO]');
+              $string = $htmlA . $sliceIndividual . $htmlB;
+            }else{//solicitud no individual
+              $string = $htmlA . $htmlB;
+            }
+          }
+        }
+        $countSolicitudVirtual = substr_count($string,'[SI_SOLICITUD_VIRTUAL]');
         if (isset($vars['solicitud_virtual'])&& $countSolicitudVirtual > 0){
           for ($i=0; $i < $countSolicitudVirtual; $i++) {
             if($vars['solicitud_virtual'] == 'Si'){ //solicitud es virtual
@@ -205,6 +202,7 @@ class StringTemplate
             }
           }
         }
+        $countCentroVirtual = substr_count($string,'[SI_CENTRO_ATIENDE_VIRTUAL]');
         if (isset($vars['centro_atiende_virtual'])&& $countCentroVirtual > 0){
           for ($i=0; $i < $countCentroVirtual; $i++) {
             if($vars['centro_atiende_virtual'] == 'Si' ){ //solicitud es virtual
