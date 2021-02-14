@@ -388,10 +388,10 @@ class SolicitudController extends Controller {
                 $contactos = Array();
                 $domicilios = Array();
                 unset($value['activo']);
-                if(isset($value['tmp_file'])){
+                if(isset($value['tmp_files'])){
                     $clasificacion_archivo_id = $value['clasificacion_archivo_id'];
-                    $tmp_file = $value['tmp_file'];
-                    unset($value['tmp_file']);
+                    $tmp_files = $value['tmp_files'];
+                    unset($value['tmp_files']);
                     unset($value['clasificacion_archivo_id']);
                 }
                 if(isset($value['dato_laboral'])){
@@ -413,30 +413,32 @@ class SolicitudController extends Controller {
                 if(isset($dato_laboral)){
                     $parteSaved->dato_laboral()->create($dato_laboral);
                 }
-                if(isset($tmp_file)){
-                    $solicitud_id = $solicitudSaved->id;
-                    $clasificacion_archivo= $clasificacion_archivo_id;
-                    $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parteSaved->id;
-                    $file_name = basename($tmp_file);
-                    $complete_path = $directorio."/".$file_name;
-                    Storage::makeDirectory($directorio);
-                    $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                    Storage::copy($tmp_file,$complete_path);
-                    $path = $complete_path;
-                    $uuid = Str::uuid();
-                    $documento = $parteSaved->documentos()->create([
-                        "nombre" => $file_name,
-                        "nombre_original" => $file_name,
-                        "descripcion" => $tipoArchivo->nombre,
-                        "ruta" => $path,
-                        "uuid" => $uuid,
-                        "tipo_almacen" => "local",
-                        "uri" => $path,
+                if(isset($tmp_files)){
+                    foreach ($tmp_files as $key => $tmp_file) { 
+                        $solicitud_id = $solicitudSaved->id;
+                        $clasificacion_archivo= $clasificacion_archivo_id;
+                        $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parteSaved->id;
+                        $file_name = basename($tmp_file);
+                        $complete_path = $directorio."/".$file_name;
+                        Storage::makeDirectory($directorio);
+                        $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                        Storage::copy($tmp_file,$complete_path);
+                        $path = $complete_path;
+                        $uuid = Str::uuid();
+                        $documento = $parteSaved->documentos()->create([
+                            "nombre" => $file_name,
+                            "nombre_original" => $file_name,
+                            "descripcion" => $tipoArchivo->nombre,
+                            "ruta" => $path,
+                            "uuid" => $uuid,
+                            "tipo_almacen" => "local",
+                            "uri" => $path,
                         "longitud" => round(Storage::size($path) / 1024, 2),
                         "firmado" => "false",
                         "clasificacion_archivo_id" => $tipoArchivo->id ,
-                    ]);
-                }                
+                        ]);
+                    }            
+                }
                 // foreach ($domicilios as $key => $domicilio) {
                 unset($domicilio['activo']);
                 $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
@@ -1873,12 +1875,20 @@ class SolicitudController extends Controller {
         
     }
     public function identificacion(Request $request){
+        $arrResponse = [];
         $archivo = $request->file;
         $directorio = "solicitudes/tmp";
         Storage::makeDirectory($directorio);
         $path = $archivo->store($directorio);
-
-        return $this->sendResponse($path, 'SUCCESS');
+        array_push($arrResponse,$path);
+        if($request->file2){
+            $archivo2 = $request->file2;
+            $directorio = "solicitudes/tmp";
+            Storage::makeDirectory($directorio);
+            $path2 = $archivo2->store($directorio);
+            array_push($arrResponse,$path2);
+        }
+        return $this->sendResponse($arrResponse, 'SUCCESS');
     }
     public function guardarUrlVirtual(Request $request){
         try{
