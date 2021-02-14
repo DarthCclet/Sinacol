@@ -229,10 +229,14 @@ trait GenerateDocument
                             $val = $val['nombre']; //catalogos
                            }elseif ($k == 'datos_laborales') {
                              foreach ($val as $n =>$v) {
-                               $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
-                               if($n == "comida_dentro"){
-                                $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
-                              }
+                                if($n == "comida_dentro"){
+                                  $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
+                                }
+                                $pos = strpos($n,'fecha');
+                                if ($pos !== false && $v != "--"){
+                                  $v = Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
+                                }
+                                $vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
                              }
                           }elseif ($k == 'nombre_completo') {
                             $vars[strtolower($key.'_'.$k)] = $val;
@@ -379,7 +383,7 @@ trait GenerateDocument
                     if($idSolicitante != "" && $idSolicitado != ""){
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
                     }else if($idSolicitante != "" && $idSolicitado == ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitante,2])->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id<>?)',[$idSolicitante,1])->get();
                     }else if($idSolicitante == "" && $idSolicitado != ""){
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
                     }else{
@@ -414,7 +418,7 @@ trait GenerateDocument
                     $datoLaboral="";
                     $solicitanteIdentificacion = "";
                     $firmasPartesQR="";
-                      // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
+                    // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
                         foreach ($parte['documentos'] as $k => $docu) {
@@ -456,10 +460,23 @@ trait GenerateDocument
                           $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($parteId."/".$tipoParte."/".urlencode($parte['nombre_completo'])."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
                         }
                         if($parte['tipo_persona_id']==1 && count($parte['compareciente']) > 0){
-                          $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">'.$parte['qr_firma'].' </span></p>';
-                          $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">_________________________________________</span></p>';
-                          $firmasPartesQR .= '<p style="text-align: center;"><strong><span style="font-size: 10pt;">'.mb_strtoupper($parte['nombre_completo']).'</span></strong></p>';
-                          $firmasPartesQR .= '<p style="text-align: center;">&nbsp;</p>';
+                          $siFirma= true;
+                          if($idPlantilla == 2 && $parte['tipo_parte_id']!=1){
+                            $parte_solicitada = $parteId;
+                            if($parte['tipo_parte_id'] == 3){
+                              $parte_solicitada = $parte['parte_representada_id'];
+                            }
+                            $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parte_solicitada)->first();
+                            if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id !=3){
+                              $siFirma=false;
+                            }
+                          }
+                          if($siFirma){
+                            $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">'.$parte['qr_firma'].' </span></p>';
+                            $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">_________________________________________</span></p>';
+                            $firmasPartesQR .= '<p style="text-align: center;"><strong><span style="font-size: 10pt;">'.mb_strtoupper($parte['nombre_completo']).'</span></strong></p>';
+                            $firmasPartesQR .= '<p style="text-align: center;">&nbsp;</p>';
+                          }
                         }
                       }else{
                         $parte['qr_firma'] = "";
