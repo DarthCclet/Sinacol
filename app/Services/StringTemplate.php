@@ -90,40 +90,7 @@ class StringTemplate
             }
           }
         }
-        $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
-        if (isset($vars['solicitado_tipo_notificacion'])){
-          if ($countTipoNotificacion >0 ){
-            if($vars['solicitado_tipo_notificacion'] != null && $vars['solicitado_tipo_notificacion'] != "--"){
-              for ($i=0; $i < $countTipoNotificacion; $i++) {
-                $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-                $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-                switch ($vars['solicitado_tipo_notificacion']) {
-                  case 1: // El solicitante entrega citatorio a solicitados
-                    // texto de notificacion por solicitante
-                    $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
-                    $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
 
-                    $string = $htmlA . $sliceNotificacion . $htmlB;
-                  break;
-                  default: //2 y 3
-                  // case 2: //El actuario del centro entrega citatorio a solicitados
-                    // texto de notificacion por actuario
-                    $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
-                    $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-                    $string = $htmlA . $sliceNotificacion . $htmlB;
-                  // default: // 3
-                    // $string = $htmlA . $htmlB;
-                  break;
-                }
-              }
-            }else{
-              $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-              $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-              $sliceNotificacion = "Las partes se presentan de manera voluntaria ante esta autoridad conciliatoria.";
-              $string = $htmlA . $sliceNotificacion . $htmlB;
-            }
-          }
-        }
         $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
         if (isset($vars['audiencia_multiple'])){
           if($vars['audiencia_multiple'] != null && $countAudienciaSeparada > 0){
@@ -223,8 +190,40 @@ class StringTemplate
             }
           }
         }
+        $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
+        if (isset($vars['solicitado_tipo_notificacion'])){
+          if ($countTipoNotificacion >0 ){
+            if($vars['solicitado_tipo_notificacion'] != null && $vars['solicitado_tipo_notificacion'] != "--"){
+              for ($i=0; $i < $countTipoNotificacion; $i++) {
+                $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                switch ($vars['solicitado_tipo_notificacion']) {
+                  case 1: // El solicitante entrega citatorio a solicitados
+                    // texto de notificacion por solicitante
+                    $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
+                    $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
 
-
+                    $string = $htmlA . $sliceNotificacion . $htmlB;
+                  break;
+                  default: //2 y 3
+                  // case 2: //El actuario del centro entrega citatorio a solicitados
+                    // texto de notificacion por actuario
+                    $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
+                    $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                    $string = $htmlA . $sliceNotificacion . $htmlB;
+                  // default: // 3
+                    // $string = $htmlA . $htmlB;
+                  break;
+                }
+              }
+            }else{
+              $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+              $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+              $sliceNotificacion = "Las partes se presentan de manera voluntaria ante esta autoridad conciliatoria.";
+              $string = $htmlA . $sliceNotificacion . $htmlB;
+            }
+          }
+        }
         $partes = ['solicitado','solicitante'];
         foreach ($partes as $key => $parteL) {
           $htmlA ="";
