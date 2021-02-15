@@ -1461,7 +1461,7 @@
         FormMultipleUpload.init();
         Gallery.init();
         // if($("#atiende_virtual").val() == 1){
-            if($("#virtual").val() == 1 && $("#url_virtual").val() == "")){
+            if($("#virtual").val() == 1 && $("#url_virtual").val() == ""){
                 $("#timeline_etapas").hide();
             }else{
                 $("#timeline_etapas").show();
