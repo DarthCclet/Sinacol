@@ -2270,7 +2270,7 @@ class AudienciaController extends Controller {
                                 $comparecio = false;
                                 if (isset($this->request->comparecientes)) {
                                     foreach ($this->request->comparecientes as $compareciente) {
-                                        if($compareciente == $audiencia_partes->parte_id){
+                                        if($compareciente == $audienciaP->parte_id){
                                             $comparecio = true;
                                         }
                                     }
