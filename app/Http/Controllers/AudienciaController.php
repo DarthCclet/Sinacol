@@ -55,6 +55,7 @@ use App\TipoAsentamiento;
 use App\TipoVialidad;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Nacionalidad;
 
 class AudienciaController extends Controller {
 
@@ -2266,12 +2267,16 @@ class AudienciaController extends Controller {
                         $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
                         foreach ($audiencia_partes as $key => $audienciaP) {
                             if ($audienciaP->parte->tipo_parte_id == 1) {
-                                $comparecio = Compareciente::where('audiencia_id', $audiencia_id)->where('parte_id', $audienciaP->parte_id)->first();
-                                if ($comparecio == null && $audiencia->expediente->solicitud->tipo_solicitud_id == 1) {
-                                    $solicitados = $this->getSolicitados($audiencia);
-                                    foreach ($solicitados as $key => $solicitado) {
-                                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $audienciaP->parte_id, $solicitado->parte_id));
+                                $comparecio = false;
+                                if (isset($this->request->comparecientes)) {
+                                    foreach ($this->request->comparecientes as $compareciente) {
+                                        if($compareciente == $audiencia_partes->parte_id){
+                                            $comparecio = true;
+                                        }
                                     }
+                                }
+                                if(!$comparecio){
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 41, 8,null, $audienciaP->parte_id));
                                 }
                             }
                         }
@@ -2282,6 +2287,23 @@ class AudienciaController extends Controller {
                          * Se deberá regresar un mensaje para que el citado indique si desea continuar con la audiencia
                          *
                          */
+                         //Obtenemos a los citados
+                        $citados = $this->getSolicitados($audiencia);
+                        $arrayMultadoNotificacion = [];
+                        $tipo_parte = TipoParte::whereNombre("CITADO")->first();
+                        foreach($audiencia->audienciaParte as $parte_notificar){
+                            if($parte_notificar->parte->tipo_parte_id == $tipo_parte->id && $parte_notificar->finalizado == "FINALIZADO EXITOSAMENTE"){
+                                //buscamos si comparecio
+                                $compareciente = Compareciente::where("audiencia_id",$audiencia->id)->where("parte_id",$parte_notificar->parte_id)->first();
+                                if($compareciente == null){
+                                    $notificar = true;
+                                    $citatorio = false;
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null, $parte_notificar->parte_id));
+                                    array_push($arrayMultadoNotificacion, $parte_notificar->id);
+                                }
+                            }
+                        }
+                        
                         $response = array("tipo" => 5, "response" => null);
                     }
                 }
@@ -2374,6 +2396,7 @@ class AudienciaController extends Controller {
             $audiencia->tipo_terminacion_audiencia_id = 5;
             $audiencia->finalizada = true;
             $audiencia->save();
+                        
             $response = array("tipo" => 3, "response" => $audienciaN);
             DB::commit();
             return $this->sendResponse($response, 'SUCCESS');
@@ -2543,7 +2566,6 @@ class AudienciaController extends Controller {
                     foreach ($parte->parte->contactos as $contacto) {
                         $tipo_mail = TipoContacto::where("nombre", "EMAIL")->first();
                         if ($contacto->tipo_contacto_id == $tipo_mail->id) {
-                            //                            Se envia la notificación por correo electronico
                             Mail::to($contacto->contacto)->send(new CambioFecha($audiencia, $parte->parte));
                             $envio = true;
                         }
@@ -2565,6 +2587,9 @@ class AudienciaController extends Controller {
             }
             return $sin_contactar;
         } catch (\Throwable $e) {
+            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
+                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
             return $sin_contactar;
         }
     }
