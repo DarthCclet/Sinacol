@@ -2322,11 +2322,11 @@
     *@argument key posicion de array a eliminar
     */
     function eliminarObjetoSol(key){
-        if(arrayObjetoSolicitudes[key].id == ""){
+        // if(arrayObjetoSolicitudes[key].id == ""){
             arrayObjetoSolicitudes.splice(key,1);
-        }else{
-            arrayObjetoSolicitudes[key].activo = 0;
-        }
+        // }else{
+        //     arrayObjetoSolicitudes[key].activo = 0;
+        // }
         formarTablaObjetoSol();
     }
 
@@ -2614,7 +2614,7 @@
                     return valido;
                 }
             }
-            if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 && arrayObjetoSolicitudes.length > 0 ){
+            if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 ){
 
                 var upd = "";
                 if($("#solicitud_id").val() == ""){
