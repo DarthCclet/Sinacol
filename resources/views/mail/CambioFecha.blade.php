@@ -67,7 +67,7 @@
                 </p>
                 <p>
                     <center>
-                        <table style="width:60%">
+                        <table style="width:90%">
                             <tr>
                                 <td><strong>Folio: </strong>{{$audiencia->folio}}/{{$audiencia->anio}}</td>
                                 <td><strong>Fecha de audiencia: </strong>{{$audiencia->fecha_audiencia}}</td>
@@ -78,7 +78,7 @@
                             </tr>
                         </table>
                         <br><br>
-                        <table class="table" style="border-collapse: collapse;border: 1px;">
+                        <table class="table" style="border-collapse: collapse;border: 1px;width:90%;">
                             <tr style="background-color: #9d244947">
                                 <th>Tipo de parte</th>
                                 <th>Nombre</th>
@@ -86,26 +86,26 @@
                                 <th>Sala</th>
                             </tr>
                             @foreach($audiencia->audienciaParte as $parte)
-                                @if($parte->parte->tipo_parte->nombre != "OTRO")
+                                @if($parte->parte->tipoParte->nombre != "OTRO")
                                     <tr>
-                                        <td>{{$parte->parte->tipo_parte->nombre}}</td>
-                                        @if($parte->parte->tipo_parte->nombre != "FISICA")
-                                            <td>{{$parte->parte->nombre}} {{$parte->parte->primer_apellido}} {{$parte->parte->segundo_apellido}}</td>
-                                        @else
+                                        <td>{{$parte->parte->tipoParte->nombre}}</td>
+                                        @if($parte->parte->tipoPersona->nombre != "FISICA")
                                             <td>{{$parte->parte->nombre_comercial}}</td>
+                                        @else
+                                            <td>{{$parte->parte->nombre}} {{$parte->parte->primer_apellido}} {{$parte->parte->segundo_apellido}}</td>
                                         @endif
                                         @if($audiencia->multiple){
                                             @foreach($audiencia->conciliadoresAudiencias as $conciliador)
-                                                @if($conciliador->solicitante && $parte->parte->tipo_parte->nombre == "SOLICITANTE"){
+                                                @if($conciliador->solicitante && $parte->parte->tipoParte->nombre == "SOLICITANTE"){
                                                     <td align="center">{{$conciliador->conciliador->persona->nombre}} {{$conciliador->conciliador->persona->primer_apellido}} {{$conciliador->conciliador->persona->segundo_apellido}}</td>
-                                                @elseif(!$conciliador->solicitante && $parte->parte->tipo_parte->nombre == "CITADO")
+                                                @elseif(!$conciliador->solicitante && $parte->parte->tipoParte->nombre == "CITADO")
                                                     <td align="center">{{$conciliador->conciliador->persona->nombre}} {{$conciliador->conciliador->persona->primer_apellido}} {{$conciliador->conciliador->persona->segundo_apellido}}</td>
                                                 @endif
                                             @endforeach
                                             @foreach($audiencia->salasAudiencias as $salas)
-                                                @if($salas->solicitante && $parte->parte->tipo_parte->nombre == "SOLICITANTE"){
+                                                @if($salas->solicitante && $parte->parte->tipoParte->nombre == "SOLICITANTE"){
                                                     <td align="center">{{$salas->sala->sala}}</td>
-                                                @elseif(!$salas->solicitante && $parte->parte->tipo_parte->nombre == "CITADO")
+                                                @elseif(!$salas->solicitante && $parte->parte->tipoParte->nombre == "CITADO")
                                                     <td align="center">{{$salas->sala->sala}}</td>
                                                 @endif
                                             @endforeach
