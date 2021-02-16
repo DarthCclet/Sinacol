@@ -543,7 +543,8 @@ class PlantillasDocumentosController extends Controller
           $resolucion_id = $request->resolucion_id;
           $conceptos_pago = $request->listaConceptos;
           $resolucion_pagos = $request->listaFechasPago;
-          $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla_id, $idSolicitante, $idSolicitado, $conceptos_pago, $resolucion_pagos,$resolucion_id);
+          $resolucionesIndividuales = $request->listaRelacion;
+          $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla_id, $idSolicitante, $idSolicitado, $conceptos_pago, $resolucion_pagos,$resolucion_id,$resolucionesIndividuales);
           // $html = file_get_contents(env('APP_URL').'/header/'.$plantilla_id) . $html . file_get_contents(env('APP_URL').'/footer/'.$plantilla_id);
           return $this->sendResponse($html, "Correcto");
           //return $this->renderPDF($html, $plantilla_id);
@@ -573,7 +574,7 @@ class PlantillasDocumentosController extends Controller
           return $pdf->inline();
       }
 
-      private function getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,  $conceptos_pago=null,$resolucion_pagos=null, $resolucion_id=null)
+      private function getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,  $conceptos_pago=null,$resolucion_pagos=null, $resolucion_id=null,$resolucionesIndividuales=null)
       {
         try {
             $plantilla = PlantillaDocumento::find($idPlantilla);
@@ -612,12 +613,12 @@ class PlantillasDocumentosController extends Controller
                     if($idSolicitante != "" && $idSolicitado != ""){
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
                     }else if($idSolicitante != "" && $idSolicitado == ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitante,2])->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id<>?)',[$idSolicitante,1])->get();
                     }else if($idSolicitante == "" && $idSolicitado != ""){
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
                     }else{
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->get();
-                    }                    
+                    }
                     $objeto = new JsonResponse($partes);
                     $obj = json_decode($objeto->content(),true);
                     $parte2 = [];
@@ -669,10 +670,28 @@ class PlantillasDocumentosController extends Controller
                           $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($parteId."/".$tipoParte."/".urlencode($parte['nombre_completo'])."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."//".$idSolicitante ."/".$idSolicitado."/").'</div>';
                         }
                         if($parte['tipo_persona_id']==1 && count($parte['compareciente']) > 0){
-                          $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">'.$parte['qr_firma'].' </span></p>';
-                          $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">_________________________________________</span></p>';
-                          $firmasPartesQR .= '<p style="text-align: center;"><strong><span style="font-size: 10pt;">'.mb_strtoupper($parte['nombre_completo']).'</span></strong></p>';
-                          $firmasPartesQR .= '<p style="text-align: center;">&nbsp;</p>';
+                          $siFirma= true;
+                          if($idPlantilla == 2 && $parte['tipo_parte_id']!=1){
+                            $resolucionParteRepresentada = false;
+                            if($resolucionesIndividuales != null && sizeof($resolucionesIndividuales)>0){
+                              foreach ($resolucionesIndividuales as $k => $resolucion) {
+                                if($resolucion['parte_solicitado_id'] == $parteId ){
+                                  $resolucionParteRepresentada = true;
+                                }
+                              }
+                            }else{
+                              $resolucionParteRepresentada = true;
+                            }
+                            if(!$resolucionParteRepresentada){
+                              $siFirma=false;
+                            }
+                          }
+                          if($siFirma){
+                            $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">'.$parte['qr_firma'].' </span></p>';
+                            $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">_________________________________________</span></p>';
+                            $firmasPartesQR .= '<p style="text-align: center;"><strong><span style="font-size: 10pt;">'.mb_strtoupper($parte['nombre_completo']).'</span></strong></p>';
+                            $firmasPartesQR .= '<p style="text-align: center;">&nbsp;</p>';
+                          }
                         }
                       }else{
                         $parte['qr_firma'] = "";
@@ -778,7 +797,7 @@ class PlantillasDocumentosController extends Controller
                     $expediente = json_decode($objeto->content(),true);
                     $expediente = Arr::except($expediente[0], ['id','updated_at','created_at','deleted_at']);
                     $data = Arr::add( $data, 'expediente', $expediente );
-                  }elseif ($model == 'Audiencia') {
+                }elseif ($model == 'Audiencia') {
                   if($solicitud!="" && $solicitud->estatus_solicitud_id != 1){
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;
@@ -1068,26 +1087,20 @@ class PlantillasDocumentosController extends Controller
                     $hayPartesConvenio = count($partes_convenio);
                     if($hayPartesConvenio > 0){
                       $citadosConvenio = [];
+                      $clausulacitadosConvenio = [];
                       $solicitantesComparecientes = [];
                       $citadosComparecientes = [];
                       $nombreCitadoConvenio = "";
                       $nombreCitadoComparecientes = "";
                       $idParteCitada = "";
-                      $clausulaCitadosConvenio = ($hayPartesConvenio >1)? ' ' : "";
+                      $clausula2citadosConvenio = ($hayPartesConvenio >1)? '' : "";;
                       foreach ($partes_convenio as $key => $parteConvenio) {
                         $nombreCitadoComparecientes = "";
                         $nombreSolicitanteComparecientes = "";
                         $nombreCitadoConvenio = "";
+                        $clausulaCitadoConvenio = "";
                         //citados convenio
                         $parteC = $parteConvenio->parte;
-                        if($resolucion_id == null){
-                          if($parteC->tipo_parte_id == 1){ //solicitante
-                            $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitante_id',$parteC->id)->first();
-                          }else if($parteC->tipo_parte_id == 2){//citado
-                            $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parteC->id)->first();
-                          }
-                        }
-
                         if($parteC->id != $idParteCitada){
                           $idParteCitada = $parteC->id;
                           if($parteC->tipo_persona_id == 1){//fisica
@@ -1111,17 +1124,31 @@ class PlantillasDocumentosController extends Controller
                                 }
                               }
                               $nombreRepresentada = ($parteRepresentada['tipo_persona_id']== 2)? $parteRepresentada['nombre_comercial']: $parteRepresentada['nombre'].' '.$parteRepresentada['primer_apellido'] .' '.$parteRepresentada['segundo_apellido'];
-                              if($resolucion_id == null){
-                                if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
-                                  $nombreCitadoConvenio = $nombreRepresentada.' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                              $resolucionParteRepresentada = false;
+                              if($resolucionesIndividuales != null && sizeof($resolucionesIndividuales)>0){
+                                foreach ($resolucionesIndividuales as $k => $resolucion) {
+                                  if($resolucion['parte_solicitado_id'] == $representanteLegalC->id."" ){
+                                    // dd($representanteLegalC->id);
+                                    $resolucionParteRepresentada = true;
+                                  }
                                 }
-                              }elseif($resolucion_id=="1"){
-                                $nombreCitadoConvenio = $nombreRepresentada.' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                              }
+                              if($resolucion_id == null){
+                                  $nombreCitadoConvenio = $nombreRepresentada.' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                              }elseif($resolucion_id=="1"){//Hubo convenio
+                                if($resolucionesIndividuales == null){
+                                  $nombreCitadoConvenio = $nombreRepresentada.' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                                  $clausulaCitadoConvenio = $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
+                                }else{
+                                  if($resolucionParteRepresentada){
+                                    $nombreCitadoConvenio = $nombreRepresentada.' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                                    $clausulaCitadoConvenio = $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
+                                  }
+                                }
                               }
                               //$nombreCitadoComparecientes = $parteRepresentada['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
                               $nombreCitadoComparecientes = $nombreRepresentanteLegal .', en su carácter de representante legal de '. $nombreRepresentada . $representanteInstrumento .", ".$representanteIdentificacion;
-                              $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
-                            }else{
+                            }else{//Solicitante o citado
                               foreach ($parteC->documentos as $k => $docu) {
                                 if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
                                   //$parteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quien se identifica con " .$docu->clasificacionArchivo->nombre: "";
@@ -1130,8 +1157,24 @@ class PlantillasDocumentosController extends Controller
                               }
                               $segundo_apellido = ($parteC['segundo_apellido']!="")?' '.$parteC['segundo_apellido']:"";
                               if($parteC->tipo_parte_id == 2){//citados
+                                $resolucionParteRepresentada = false;
+                                if($resolucionesIndividuales != null && sizeof($resolucionesIndividuales)>0){
+                                  foreach ($resolucionesIndividuales as $k => $resolucion) {
+                                    if($resolucion['parte_solicitado_id'] == $parteC['id'] ){
+                                      $resolucionParteRepresentada = true;
+                                    }
+                                  }
+                                }
+                                if($resolucionesIndividuales == null){
+                                  $nombreCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido;
+                                    $clausulaCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
+                                }else{
+                                  if($resolucionParteRepresentada ){
+                                    $nombreCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido;
+                                    $clausulaCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
+                                  }
+                                }
                                 $nombreCitadoComparecientes = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido. $parteIdentificacion;
-                                $clausulaCitadosConvenio .= $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
                               }else{//solicitantes
                                 $nombreSolicitanteComparecientes = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion;
                               }
@@ -1151,13 +1194,24 @@ class PlantillasDocumentosController extends Controller
                                 }
                               }
                             }
-                            if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
+                            $resolucionParteRepresentada = false;
+                            if($resolucionesIndividuales != null && sizeof($resolucionesIndividuales)>0){
+                              foreach ($resolucionesIndividuales as $k => $resolucion) {
+                                if($resolucion['parte_solicitado_id'] == $representanteLegalC->id."" ){
+                                  $resolucionParteRepresentada = true;
+                                }
+                              }
+                            }
+                            if($resolucionParteRepresentada && $resolucion_id =="1"){
                               $nombreCitadoConvenio = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                              $clausulaCitadoConvenio = $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteC['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                             }
                             $nombreCitadoComparecientes = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal' ; //$parteIdentificacion
-                            $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteC['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                           }
-                            if($nombreCitadoConvenio != ""){
+                          if($clausulaCitadoConvenio != ""){
+                            array_push($clausulacitadosConvenio, $clausulaCitadoConvenio );
+                          }
+                          if($nombreCitadoConvenio != ""){
                             array_push($citadosConvenio, $nombreCitadoConvenio );
                           }
                           if($nombreCitadoComparecientes != ""){
@@ -1169,6 +1223,9 @@ class PlantillasDocumentosController extends Controller
                         }
                       }
                       if($hayPartesConvenio > 1){
+                        $clausulacitadosConvenioA =  implode(", ",$clausulacitadosConvenio);
+                        $clausula2citadosConvenio = $clausulacitadosConvenioA;
+
                         $citadosConvenioA =  implode(", ",$citadosConvenio);
                         $nombreCitadosConvenio = $citadosConvenioA;//$this->lreplace(',', ' y', $citadosConvenioA);
 
@@ -1184,13 +1241,13 @@ class PlantillasDocumentosController extends Controller
                     }else{
                       $nombreCitadosConvenio = "-";
                       $nombreCitadosComparecientes = "";
-                      $clausulaCitadosConvenio = "";
+                      $clausula2citadosConvenio = "";
                     }
 
                     $datosResolucion['citados_comparecientes'] = $nombreCitadosComparecientes;
                     $datosResolucion['solicitantes_comparecientes'] = $nombreSolicitanteComparecientes;
                     $datosResolucion['citados_convenio'] = $nombreCitadosConvenio;
-                    $datosResolucion['segunda_declaracion_convenio'] = $clausulaCitadosConvenio;
+                    $datosResolucion['segunda_declaracion_convenio'] = $clausula2citadosConvenio;
                     $datosResolucion['primera_manifestacion'] = (isset($datosResolucion['primera_manifestacion']))? $datosResolucion['primera_manifestacion'] :"";
                     $datosResolucion['segunda_manifestacion'] = (isset($datosResolucion['segunda_manifestacion']))? $datosResolucion['segunda_manifestacion'] :"";
                     $datosResolucion['total_percepciones'] = (isset($datosResolucion['total_percepciones']))? $datosResolucion['total_percepciones'] :"";
@@ -1316,10 +1373,10 @@ class PlantillasDocumentosController extends Controller
           }
         }
 
-        public function renderDocumento($idAudiencia, $idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado, $conceptos_pago=null, $resolucion_pagos=null, $resolucion_id=null)
+        public function renderDocumento($idAudiencia, $idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado, $conceptos_pago=null, $resolucion_pagos=null, $resolucion_id=null,$resolucionesIndividuales=null)
         {
           $vars = [];
-          $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado, $conceptos_pago, $resolucion_pagos,$resolucion_id);
+          $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado, $conceptos_pago, $resolucion_pagos,$resolucion_id,$resolucionesIndividuales);
             if($data!=null){
                 $count =0;
                 foreach ($data as $key => $dato) { //solicitud
@@ -1400,10 +1457,18 @@ class PlantillasDocumentosController extends Controller
                                 $val = $val['nombre']; //catalogos
                               }elseif ($k == 'datos_laborales') {
                                 foreach ($val as $n =>$v) {
-                                  $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
                                   if($n == "comida_dentro"){
                                     $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
                                   }
+                                  $pos = strpos($n,'fecha');
+                                  if ($pos !== false && $v != "--"){
+                                    if($n == "fecha_salida"){
+                                      $v = ($resolucion_id = "1")?Carbon::now()->format('d/m/Y'): Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
+                                    }else{
+                                      $v = Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
+                                    }
+                                  }
+                                  $vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
                                 }
                               }elseif ($k == 'nombre_completo') {
                                 $vars[strtolower($key.'_'.$k)] = $val;
