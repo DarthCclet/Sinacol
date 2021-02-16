@@ -103,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencias/nuevaAudienciaNotificacion','AudienciaController@NuevaAudienciaNotificacion');
 
     Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');
+    Route::get('guiaPatronal/{id}','AudienciaController@guiaPatronal')->name('guiaPatronal');
     Route::get('resolucionColectiva/{id}','AudienciaController@resolucionColectiva')->name('resolucionColectiva');
     Route::Post('audiencia/guardarAudienciaColectiva','AudienciaController@guardarAudienciaColectiva');
     Route::get('calendario','AudienciaController@calendario');
