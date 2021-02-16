@@ -2344,18 +2344,35 @@ class AudienciaController extends Controller {
                          *
                          */
                          //Obtenemos a los citados
-                        $citados = $this->getSolicitados($audiencia);
                         $arrayMultadoNotificacion = [];
                         $tipo_parte = TipoParte::whereNombre("CITADO")->first();
-                        foreach($audiencia->audienciaParte as $parte_notificar){
-                            if($parte_notificar->parte->tipo_parte_id == $tipo_parte->id && $parte_notificar->finalizado == "FINALIZADO EXITOSAMENTE"){
-                                //buscamos si comparecio
-                                $compareciente = Compareciente::where("audiencia_id",$audiencia->id)->where("parte_id",$parte_notificar->parte_id)->first();
-                                if($compareciente == null){
-                                    $notificar = true;
-                                    $citatorio = false;
-                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null, $parte_notificar->parte_id));
-                                    array_push($arrayMultadoNotificacion, $parte_notificar->id);
+                        $tipo_parte_solicitante = TipoParte::whereNombre("SOLICITANTE")->first();
+                        
+                        $comparecientes = Compareciente::where("audiencia_id",$audiencia->id)->get();
+                        $comp = [];
+                        foreach($comparecientes as $compareciente_aud){
+                            if($compareciente_aud->parte->tipo_parte_id != $tipo_parte_solicitante->id){
+                                if($compareciente_aud->parte->tipo_parte_id == $tipo_parte->id){
+                                    $comp[] = $compareciente_aud->parte_id;
+                                }else{
+                                    $comp[] = $compareciente_aud->parte_id;
+                                    $comp[] = $compareciente_aud->parte->parte_representada_id;
+                                }
+                            }
+                        }
+                        
+                        $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
+                        foreach ($audiencia_partes as $key => $audienciaP) {
+                            if ($audienciaP->parte->tipo_parte_id == 2) {
+                                $comparecio = false;
+                                foreach ($comp as $comp_aud) {
+                                    if($comp_aud == $audienciaP->parte_id){
+                                        $comparecio = true;
+                                    }
+                                }
+                                if(!$comparecio){
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
+                                    array_push($arrayMultadoNotificacion, $audienciaP->parte_id);
                                 }
                             }
                         }
