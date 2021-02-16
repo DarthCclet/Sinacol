@@ -1053,20 +1053,30 @@
                     </div>
                     <div style="width: 100%; text-align:center;">
                         <div>
-                            <select class="form-control catSelect" id="clasificacion_archivo_id" name="clasificacion_archivo_id">
-                                <option value="">Seleccione una opci&oacute;n</option>
-                                @if(isset($clasificacion_archivo))
+                            <div>
+                                <select class="form-control catSelect" id="clasificacion_archivo_id" name="clasificacion_archivo_id">
+                                    <option value="">Seleccione una opci&oacute;n</option>
+                                    @if(isset($clasificacion_archivo))
                                     @foreach($clasificacion_archivo as $clasificacion)
-                                        <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                     @endforeach
-                                @endif
-                            </select>
-                            {!! $errors->first('clasificacion_archivo_id', '<span class=text-danger>:message</span>') !!}
-                            <p class="help-block needed">Tipo de identificaci&oacute;n</p>
+                                    @endif
+                                </select>
+                                {!! $errors->first('clasificacion_archivo_id', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Tipo de identificaci&oacute;n</p>
+                            </div>
                         </div>
-                        <span class='btn btn-primary fileinput-button' style="display: none;" id="boton_file_solicitante">Seleccionar identificaci&oacute;n<input type='file' id='fileIdentificacion' id_identificacion='' class='fileIdentificacion' name='files'></span>
-                        <br>
-                        <span style='margin-top: 1%;' id='labelIdentifAlone'></span>
+                        <div style="padding:3%; border: 1px black dotted;">
+                            <span class='btn btn-primary fileinput-button' style="display: none;" id="boton_file_solicitante">Seleccionar identificaci&oacute;n (Frente)<input type='file' id='fileIdentificacion' id_identificacion='' class='fileIdentificacion' name='files'></span>
+                            <br>
+                            <span style='margin-top: 1%;' id='labelIdentifAlone'></span>
+                        </div>
+                        <div style="padding:3%; border: 1px black dotted;">
+                            <label>Captura Opcional</label><br>
+                            <span class='btn btn-primary fileinput-button' style="display: none;" id="boton_file_solicitante2">Seleccionar identificaci&oacute;n (Reverso)<input type='file' id='fileIdentificacion2' id_identificacion='' class='fileIdentificacion' name='files'></span>
+                            <br>
+                            <span style='margin-top: 1%;' id='labelIdentifAlone2'></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2190,13 +2200,15 @@
 
         $("#tbodyObjetoSol").html("");
         $("#tbodyObjetoSolRevision").html("");
-
+        var totalObjeto = arrayObjetoSolicitudes.filter(x=> x.activo == 1  ).length;
         $.each(arrayObjetoSolicitudes, function (key, value) {
             if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined" )){
                 html += "<tr>";
                 $("#objeto_solicitud_id").val(value.objeto_solicitud_id);
                 html += "<td> " + $("#objeto_solicitud_id :selected").text(); + " </td>";
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarObjetoSol("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                if(totalObjeto > 1){
+                    html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarObjetoSol("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                }
                 html += "</tr>";
             }
         });
@@ -2320,11 +2332,7 @@
     *@argument key posicion de array a eliminar
     */
     function eliminarObjetoSol(key){
-        if(arrayObjetoSolicitudes[key].id == ""){
             arrayObjetoSolicitudes.splice(key,1);
-        }else{
-            arrayObjetoSolicitudes[key].activo = 0;
-        }
         formarTablaObjetoSol();
     }
 
@@ -2600,7 +2608,7 @@
             if($("#virtual").is(":checked")){
                 var valido = true;
                 $.each(arraySolicitantes, function (key, value) {
-                    if(value.tmp_file == undefined){
+                    if(value.tmp_files == undefined){
                         swal({
                             title: 'Error',
                             text: 'Es necesario agregar la identificación de todos los solicitantes',
@@ -2613,7 +2621,8 @@
                     return valido;
                 }
             }
-            if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 && arrayObjetoSolicitudes.length > 0 ){
+            let totalObjetosSolicitud = arrayObjetoSolicitudes.filter(x=> x.activo == 1  ).length;
+            if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 && totalObjetosSolicitud > 0 ){
 
                 var upd = "";
                 if($("#solicitud_id").val() == ""){
@@ -3264,6 +3273,10 @@
             var key = $("#fileIdentificacion").attr('id_identificacion');
             var file = $("#fileIdentificacion")[0].files[0];
             formData.append("file", file);
+            if($("#fileIdentificacion2").val() != ""){
+                var file2 = $("#fileIdentificacion2")[0].files[0];
+                formData.append("file2", file2);
+            }
             formData.append('_token', "{{ csrf_token() }}");
             arraySolicitantes[key].clasificacion_archivo_id = $("#clasificacion_archivo_id").val();
             $.ajax({
@@ -3291,27 +3304,27 @@
                     }
                 }, false);
                 // Upload progress
-                xhr.upload.addEventListener("progress", function(evt){
-                    if (evt.lengthComputable) {
-                        var percentComplete = evt.loaded / evt.total;
-                        //Do something with upload progress
-                        console.log(percentComplete);
-                        $('#progress-bar').show();
-                        var percent = parseInt(percentComplete * 100)
-                        $("#progressbar-ajax-value").text(percent+"%");;
-                        $('#progressbar-ajax').css({
-                            width: percent + '%'
-                        });
-                        if (percentComplete === 1) {
-                            $('#progress-bar').hide();
+                    xhr.upload.addEventListener("progress", function(evt){
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            //Do something with upload progress
+                            console.log(percentComplete);
+                            $('#progress-bar').show();
+                            var percent = parseInt(percentComplete * 100)
+                            $("#progressbar-ajax-value").text(percent+"%");;
                             $('#progressbar-ajax').css({
-                                width: '0%'
+                                width: percent + '%'
                             });
+                            if (percentComplete === 1) {
+                                $('#progress-bar').hide();
+                                $('#progressbar-ajax').css({
+                                    width: '0%'
+                                });
+                            }
                         }
-                    }
-                }, false);
-                return xhr;
-            },
+                    }, false);
+                    return xhr;
+                },
                 url:"/solicitud/identificacion",
                 type:"POST",
                 dataType:"json",
@@ -3320,8 +3333,7 @@
                 data:formData,
                 success:function(data){
                     try{
-                        console.log(data.data);
-                        arraySolicitantes[key].tmp_file = data.data;
+                        arraySolicitantes[key].tmp_files = data.data;
                         $("#labelIdentif"+key).html(" Registrado <i class='fa fa-check' style='color:green'></i> ");
                         $("#modal-identificacion-virtual").modal("hide");
                         swal({title: 'Correcto',text: ' Identificación guardada correctametne ',icon: 'success'});
@@ -3347,11 +3359,17 @@
     function loadModalFile(solicitante_id){
         $("#modal-identificacion-virtual").modal('show');
         $("#fileIdentificacion").attr('id_identificacion',solicitante_id);
+        $("#fileIdentificacion2").attr('id_identificacion',solicitante_id);
     }
     $(".fileIdentificacion").change(function(e){
         var id = $(this).attr('id_identificacion');
+        var idInput = $(this).attr('id');
         if(id != ""){
-            $("#labelIdentifAlone").html("<b>Archivo: </b>"+e.target.files[0].name);
+            if(idInput == "fileIdentificacion"){
+                $("#labelIdentifAlone").html("<b>Archivo: </b>"+e.target.files[0].name);
+            }else{
+                $("#labelIdentifAlone2").html("<b>Archivo: </b>"+e.target.files[0].name);
+            }
         }else{
             swal({title: 'Error',text: ' No selecciono un solicitante ',icon: 'warning'});
         }
@@ -3359,8 +3377,10 @@
     $("#clasificacion_archivo_id").change(function(e){
         if($(this).val() != ""){
             $("#boton_file_solicitante").show();
+            $("#boton_file_solicitante2").show();
         }else{
             $("#boton_file_solicitante").hide();
+            $("#boton_file_solicitante2").hide();
         }
     });
 

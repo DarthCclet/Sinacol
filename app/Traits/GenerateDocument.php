@@ -203,7 +203,8 @@ trait GenerateDocument
                           if($k == 'domicilios'){
                             $val = Arr::except($val[0],['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','hora_atencion_de','hora_atencion_a','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id']);
                             foreach ($val as $n =>$v) {
-                              $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                              // $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v === null)? "" : $v;
                             }
                           }else if($k =='contactos'){
                             foreach ($val as $n =>$v) {

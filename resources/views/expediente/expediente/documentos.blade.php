@@ -34,7 +34,7 @@
                         @if ($documento->tipo_doc == 1 || $documento->tipo_doc == 2 )    
                             @if($documento->clasificacion_archivo_id == 37)
                                 <tr>
-                                    <td>{{$documento->nombre}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">Descargar</a></td>
+                                    <td>{{isset($documento->nombre) ? $documento->nombre:""}} </td><td><a class="btn btn-link" href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">Descargar</a></td>
                                 </tr>
                             @else
                                 <tr>

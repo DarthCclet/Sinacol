@@ -109,7 +109,7 @@ class HerramientaServiceProvider extends ServiceProvider
                     return ['success'=>false,'msj'=>' La audiencia esta finalizada, no es posible hacer este proceso '];
                 }
                 
-            }else{
+            }else if($tipoRollback == 3){
                 $solicitud = Solicitud::find($solicitud_id);
                 if($solicitud != null && $solicitud->expediente){
                     $audiencias = $solicitud->expediente->audiencia;
@@ -177,6 +177,27 @@ class HerramientaServiceProvider extends ServiceProvider
                     return ['success'=>false,'msj'=>' Esta solicitud no esta confirmada, no es posible realizar el proceso '];
                 }
 
+            }else if($tipoRollback == 4){
+                $solicitud = Solicitud::find($solicitud_id);
+                if($solicitud != null && $solicitud->expediente){
+                    $expediente = $solicitud->expediente;
+                    $expediente->delete();
+                    $solicitud->estatus_solicitud_id = 1;
+                    $solicitud->ratificada = false;
+                    $solicitud->fecha_ratificacion = null;
+                    $solicitud->justificacion_incidencia = "";
+                    $solicitud->incidencia = false;
+                    $solicitud->save();
+                    $documentos = $solicitud->documentos->where('clasificacion_archivo_id',13);
+                    foreach ($documentos as $key => $documento) {
+                        $documento->delete();   
+                    }
+                }else{
+                    return ['success'=>false,'msj'=>' Esta solicitud no esta confirmada, no es posible realizar el proceso '];
+                }
+
+            }else{
+                return ['success'=>false,'msj'=>' No se selecciono proceso a ejecutar'];
             }
             DB::commit();
             return ['success'=>true,'msj'=>' Proceso realizado correctamente '];
