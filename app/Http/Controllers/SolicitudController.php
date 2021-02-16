@@ -527,7 +527,7 @@ class SolicitudController extends Controller {
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             if ($this->request->wantsJson()) {
-                return $this->sendError('Error al crear la solicitud'.$e->getMessage(), 'Error');
+                return $this->sendError('Error al crear la solicitud', 'Error');
             }
             return redirect('solicitudes')->with('error', 'Error al crear la solicitud');
         }
