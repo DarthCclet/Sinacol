@@ -1318,7 +1318,7 @@ class SolicitudController extends Controller {
                     "multiple" => false,
                     "fecha_audiencia" => now()->format('Y-m-d'),
                     "hora_inicio" => now()->format('H:i:s'),
-                    "hora_fin" => \Carbon\Carbon::now()->addHours(1)->format('H:i:s'),
+                    "hora_fin" => \Carbon\Carbon::now()->addHours(1)->addMinutes(30)->format('H:i:s'),
                     "conciliador_id" =>  $conciliador->id,
                     "numero_audiencia" => 1,
                     "reprogramada" => false,
