@@ -737,7 +737,7 @@ trait GenerateDocument
                     }
 
                     //Firma administrador centro
-                    if($idDocumento){
+                    if($idDocumento && $userAdmin!=null){
                       if($idAudiencia){
                         $existe = $userAdmin->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
                       }else{
