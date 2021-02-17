@@ -39,8 +39,15 @@
               "nombre": "Solicitud",
               "catalogos": [
                   {"catalogo":"Ratificada",
-                    "val":[""]}
-                    ]
+                    "val":[""]
+                  },
+                  {"catalogo":"Virtual",
+                      "val":[""]
+                  },
+                  {"catalogo":"Tipo",
+                    "val":["Individual"]
+                }
+              ]
           },
           {
             "id": "4",
@@ -49,8 +56,15 @@
                 {"catalogo":"Pago",
                   "val":["diferido","no_diferido"]}
                   ]
-        }
-
+          },
+          {
+            "id": "4",
+            "nombre": "Centro",
+            "catalogos": [
+                {"catalogo":"Atiende",
+                  "val":["Virtual"]}
+                  ]
+          }
       ]
     },
     {"tipoCondicion" : "Repetir",

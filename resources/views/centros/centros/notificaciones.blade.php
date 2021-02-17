@@ -34,8 +34,6 @@
                         <th>Evento origén</th>
                         <th>Fecha de petición</th>
                         <th>Notificada</th>
-                        <th>Fecha de notificación</th>
-                        <th>Respuesta</th>
                         <th>Envio de petición</th>
                     </tr>
                 </thead>
@@ -70,8 +68,6 @@
                         @else
                             <td>No</td>
                         @endif
-                        <td>{{$solicitud['parte']->fecha_notificacion ?? 'pendiente'}}</td>
-                        <td>{{$solicitud['parte']->finalizado ?? 'N/A'}}</td>
                         <td>
                         @if($solicitud['fecha_peticion_notificacion'] != null)
                             Enviada

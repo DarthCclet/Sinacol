@@ -94,4 +94,7 @@ class Conciliador extends Model implements Auditable
     public function conciliadorAudiencia(){
         return $this->hasMany(ConciliadorAudiencia::class);
     }
+    public function firmas(){
+        return $this->morphMany(FirmaDocumento::class,'firmable');
+    }
 }

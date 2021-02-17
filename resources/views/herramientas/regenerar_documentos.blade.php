@@ -521,9 +521,11 @@
                 }
             break;
             case "16":
-                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == ""  ){
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == "" ){
                     response.success = false;
                     response.msj = " Es necesario seleccionar Solicitud, Audiencia y un solicitante continuar";
+                }else{
+                    $("#solicitado_id").val('');
                 }
             break;
             case "15":
@@ -544,6 +546,18 @@
                     response.msj = " Es necesario seleccionar Solicitud, Audiencia y un solicitante para continuar";
                 }else{
                     
+                }
+            break;
+            case "19":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == ""  ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia";
+                }
+            break;
+            case "41":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitado_id").val() == "" || $("#solicitante_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante y un citado para continuar";
                 }
             break;
             default:

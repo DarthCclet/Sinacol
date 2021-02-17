@@ -107,9 +107,13 @@ class ParteController extends Controller
         try{
             $parte = Arr::except($request->all(), ['domicilios','_token','contactos']);
             $audiencia_id = $request->get('audiencia_id');
+            $comparece = $request->get('comparece');
             $contactos = $request->get('contactos');
             $domicilios = $request->get('domicilios');
-
+            if(isset($request->asignado)){
+                $parte["asignado"] = $request->asignado;
+            }
+            
             $parteSaved = Parte::create($parte);
             if ($domicilios && count($domicilios) > 0) {
                 foreach ($domicilios as $key => $domicilio) {
@@ -123,8 +127,10 @@ class ParteController extends Controller
                     $contactoSaved = $parteSaved->contactos()->create($contacto);
                 }
             }
-            if($audiencia_id != ""){
-                AudienciaParte::create(["audiencia_id" => $audiencia_id, "parte_id" => $parteSaved->id, "tipo_notificacion_id" => 1]);
+            if($comparece){
+                if($audiencia_id != ""){
+                    AudienciaParte::create(["audiencia_id" => $audiencia_id, "parte_id" => $parteSaved->id, "tipo_notificacion_id" => 1]);
+                }
             }
             DB::commit();
             return $this->sendResponse($parteSaved, 'SUCCESS');
@@ -650,7 +656,7 @@ class ParteController extends Controller
     }
     
     public function getParteCurp(Request $request){
-        $Parte = Parte::where('curp',$request->curp)->first();
+        $Parte = Parte::where('curp',$request->curp)->orderBy('id', 'desc')->first();
         return $Parte;
     }
     public function EliminarContactoRepresentante(Request $request){
@@ -665,6 +671,17 @@ class ParteController extends Controller
         $parte = Parte::find($this->request->id);
         return $parte->domicilios[0];
     }
+    public function getParteSolicitud($id){
+        $parte = Parte::find($id);
+        if($parte->tipo_parte_id == 3){// representante legal
+            $idParteSolicitud = $parte->parte_representada_id;
+        }else{
+            $idParteSolicitud = $parte->id;
+        }
+        return response()->json($idParteSolicitud, 200);
+        //return $idParteSolicitud;
+    }
+
     public function cambiarDomicilioParte(){
         $domicilio = Domicilio::find($this->request->domicilio["id"]);
         $dom =(array) $this->request->domicilio;

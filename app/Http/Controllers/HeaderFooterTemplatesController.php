@@ -23,15 +23,16 @@ class HeaderFooterTemplatesController extends Controller
         $idSolicitante = $request->get('solicitante_id');
         $idSolicitado = $request->get('solicitado_id');
         $idConciliador = $request->get('conciliador_id');
+        $idDocumento = $request->get('documento_id');
         $pdf = $request->exists('pdf');
 
         $solicitud = Solicitud::find($idSolicitud);
         if ($solicitud) {
             if (!$idAudiencia && isset($solicitud->expediente->audiencia->first()->id)) {
                 $idAudiencia = $solicitud->expediente->audiencia->first()->id;
-                if(!$idConciliador){
-                    $idConciliador = $solicitud->expediente->audiencia->first()->conciliador->id;
-                }
+                // if(!$idConciliador){
+                //     $idConciliador = $solicitud->expediente->audiencia->first()->conciliador->id;
+                // }
             }
             if(!$idSolicitante){
                 $idSolicitante =$solicitud->solicitantes->first()->id;
@@ -47,7 +48,8 @@ class HeaderFooterTemplatesController extends Controller
             $plantilla_id,
             $idSolicitante,
             $idSolicitado,
-            $idConciliador
+            $idConciliador,
+            $idDocumento
         );
 
         if($pdf) {
@@ -60,7 +62,7 @@ class HeaderFooterTemplatesController extends Controller
     public function preview(Request $request)
     {
         try{
-            $arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10];
+            $arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10,19=>11,41=>8];
             $idSolicitud = $request->get('solicitud_id',1);
 
             $idAudiencia = $request->get('audiencia_id');
@@ -76,7 +78,7 @@ class HeaderFooterTemplatesController extends Controller
                 $idSolicitado,
                 ""
             );
-            $html = file_get_contents(env('APP_URL').'/header/'.$plantilla_id) . $html . file_get_contents(env('APP_URL').'/footer/'.$plantilla_id);
+            //$html = file_get_contents(env('APP_URL').'/header/'.$plantilla_id) . $html . file_get_contents(env('APP_URL').'/footer/'.$plantilla_id);
             return $this->sendResponse($html, "Correcto");
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().

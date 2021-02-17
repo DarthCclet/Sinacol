@@ -10,6 +10,7 @@ use App\Compareciente;
 use App\ConceptoPagoResolucion;
 use App\DatoLaboral;
 use App\Disponibilidad;
+use App\Documento;
 use App\EtapaResolucionAudiencia;
 use App\Expediente;
 use App\FirmaDocumento;
@@ -42,7 +43,7 @@ trait GenerateDocument
      * Generar documento a partir de un modelo y de una plantilla
      * @return mixed
      */
-    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null)
+    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null,$idDocumento = null)
     {
     $plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
@@ -56,7 +57,15 @@ trait GenerateDocument
 
                 //Creamos el registro
                 $uuid = Str::uuid();
-                $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid]);
+                if($idDocumento != null){
+                  $archivo = Documento::find($idDocumento);
+                  if(Storage::exists($archivo->ruta)){
+                    Storage::delete($archivo->ruta.".old");
+                    Storage::move($archivo->ruta, $archivo->ruta.".old");
+                  }
+                }else{
+                  $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid,"clasificacion_archivo_id" => $tipoArchivo->id]);
+                }
                 //generamos html del archivo
                 $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
                 $firmantes = substr_count($html, 'class="qr"');
@@ -65,7 +74,6 @@ trait GenerateDocument
                 $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
                 $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
                 $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
-
                 //Hacemos el render del pdf y lo guardamos en $fullPath
                 $this->renderPDF($html, $plantilla->id, $fullPath);
 
@@ -78,7 +86,6 @@ trait GenerateDocument
                     "uri" => $path,
                     "longitud" => round(Storage::size($path) / 1024, 2),
                     "firmado" => "false",
-                    "clasificacion_archivo_id" => $tipoArchivo->id,
                     "total_firmantes" => $firmantes,
                 ]);
                 if($tipoArchivo->id == 18){
@@ -97,7 +104,15 @@ trait GenerateDocument
 
                 //Creamos el registro
                 $uuid = Str::uuid();
-                $archivo = $padre->documentos()->create(["descripcion" => "Documento de solicitud " . $tipoArchivo->nombre,"uuid"=>$uuid]);
+                if($idDocumento != null){
+                  $archivo = Documento::find($idDocumento);
+                  if(Storage::exists($archivo->ruta)){
+                    Storage::delete($archivo->ruta.".old");
+                    Storage::move($archivo->ruta, $archivo->ruta.".old");
+                  }
+                }else{
+                  $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid,"clasificacion_archivo_id" => $tipoArchivo->id]);
+                }
                 $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
                 $firmantes = substr_count($html, 'class="qr"');
                 $plantilla = PlantillaDocumento::find($plantilla->id);
@@ -130,7 +145,7 @@ trait GenerateDocument
     }
 
     public function renderDocumento($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idDocumento)
-    { 
+    {
       $vars = [];
       $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idDocumento);
         if($data!=null){
@@ -188,7 +203,8 @@ trait GenerateDocument
                           if($k == 'domicilios'){
                             $val = Arr::except($val[0],['id','updated_at','created_at','deleted_at','domiciliable_type','domiciliable_id','hora_atencion_de','hora_atencion_a','georeferenciable','tipo_vialidad_id','tipo_asentamiento_id']);
                             foreach ($val as $n =>$v) {
-                              $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                              // $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
+                              $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v === null)? "" : $v;
                             }
                           }else if($k =='contactos'){
                             foreach ($val as $n =>$v) {
@@ -214,10 +230,14 @@ trait GenerateDocument
                             $val = $val['nombre']; //catalogos
                            }elseif ($k == 'datos_laborales') {
                              foreach ($val as $n =>$v) {
-                               $vars[strtolower($key.'_'.$k.'_'.$n)] = $v;
-                               if($n == "comida_dentro"){
-                                $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
-                              }
+                                if($n == "comida_dentro"){
+                                  $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
+                                }
+                                $pos = strpos($n,'fecha');
+                                if ($pos !== false && $v != "--"){
+                                  $v = Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
+                                }
+                                $vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
                              }
                           }elseif ($k == 'nombre_completo') {
                             $vars[strtolower($key.'_'.$k)] = $val;
@@ -255,6 +275,7 @@ trait GenerateDocument
                   tfoot { display: table-row-group }
                   tr { page-break-inside: avoid }
                   #contenedor-firma {height: 5px;}
+                  .firma-llave-publica {text-align: center; font-size: xx-small; max-width: 1024px; overflow-wrap: break-word;}
                   body {
                         margin-left: 1cm;
                         margin-right: 1cm;
@@ -333,6 +354,9 @@ trait GenerateDocument
             $audienciaId = $idAudiencia;
             $data = [];
             $solicitud = "";
+            $solicitudVirtual = "";
+            $conciliadorId = "";
+            $centroId = "";
             foreach ($objetos as $objeto) {
               foreach ($jsonElementos['datos'] as $key=>$element) {
                 if($element['id']==$objeto){
@@ -341,7 +365,9 @@ trait GenerateDocument
                   $model_name = 'App\\' .$model;
                   if($model == 'Solicitud' ){
                     $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->find($idSolicitud);
+
                     // $solicitud = $model_name::with('estatusSolicitud','objeto_solicitudes')->first();
+                    $solicitudVirtual = $solicitud->virtual;
                     $objeto = new JsonResponse($solicitud);
                     $obj = json_decode($objeto->content(),true);
                     $idBase = intval($obj['id']);
@@ -358,12 +384,29 @@ trait GenerateDocument
                     if($idSolicitante != "" && $idSolicitado != ""){
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
                     }else if($idSolicitante != "" && $idSolicitado == ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitante,2])->get();
+                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id<>?)',[$idSolicitante,1])->get();
                     }else if($idSolicitante == "" && $idSolicitado != ""){
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
                     }else{
                       $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente')->where('solicitud_id',intval($idBase))->get();
                     }
+                    if($idDocumento){
+                      foreach($partes as $parteaFirma){
+                        if($idAudiencia){
+                          $existe = $parteaFirma->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        }else{
+                          $existe = $parteaFirma->firmas()->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        }
+                        if($existe == null){
+                          if($idAudiencia){
+                            $parteaFirma->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                          }else{
+                            $parteaFirma->firmas()->create(['solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                          }
+                        }
+                      }
+                    }
+
                     $objeto = new JsonResponse($partes);
                     $obj = json_decode($objeto->content(),true);
                     $parte2 = [];
@@ -372,8 +415,11 @@ trait GenerateDocument
                     $countSolicitado = 0;
                     $nombresSolicitantes = [];
                     $nombresSolicitados = [];
+                    $solicitantesIdentificaciones = [];
                     $datoLaboral="";
-                      // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
+                    $solicitanteIdentificacion = "";
+                    $firmasPartesQR="";
+                    // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
                         foreach ($parte['documentos'] as $k => $docu) {
@@ -398,15 +444,43 @@ trait GenerateDocument
                       }
                       //$idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idConciliador
                       $tipoParte = ($parte['tipo_parte_id'] == 1) ? 'solicitante':'citado';
-                      if($idAudiencia ==""){
-                        $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('solicitud_id',$idBase)->first();
-                      }else{
-                        $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->first();
+                      $firmaDocumento = null;
+                      if($idDocumento){
+                        if($idAudiencia =="" ){
+                          $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('solicitud_id',$idBase)->where('documento_id',$idDocumento)->first();
+                        }else{
+                          $firmaDocumento = FirmaDocumento::where('firmable_id',$parteId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->where('documento_id',$idDocumento)->first();
+                        }
                       }
-                      if($firmaDocumento != null){
-                        $parte['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                      if($solicitudVirtual && $solicitudVirtual!="" && $idDocumento){
+                        if($firmaDocumento && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
+                          $parte['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                        } elseif ($firmaDocumento && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
+                          $parte['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
+                        } else{
+                          $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($parteId."/".$tipoParte."/".urlencode($parte['nombre_completo'])."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
+                        }
+                        if($parte['tipo_persona_id']==1 && count($parte['compareciente']) > 0){
+                          $siFirma= true;
+                          if($idPlantilla == 2 && $parte['tipo_parte_id']!=1){
+                            $parte_solicitada = $parteId;
+                            if($parte['tipo_parte_id'] == 3){
+                              $parte_solicitada = $parte['parte_representada_id'];
+                            }
+                            $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parte_solicitada)->first();
+                            if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id !=3){
+                              $siFirma=false;
+                            }
+                          }
+                          if($siFirma){
+                            $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">'.$parte['qr_firma'].' </span></p>';
+                            $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">_________________________________________</span></p>';
+                            $firmasPartesQR .= '<p style="text-align: center;"><strong><span style="font-size: 10pt;">'.mb_strtoupper($parte['nombre_completo']).'</span></strong></p>';
+                            $firmasPartesQR .= '<p style="text-align: center;">&nbsp;</p>';
+                          }
+                        }
                       }else{
-                        $parte['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($parteId."|".$tipoParte."|".$parte['nombre_completo']."|".$audienciaId."|".$idSolicitud."|".$idPlantilla."|".$idDocumento ."|".$idSolicitante ."|".$idSolicitado).'</div>';
+                        $parte['qr_firma'] = "";
                       }
                       //domicilio de partes, excepto representante
                       if($parte['tipo_parte_id'] != 3 ){
@@ -420,7 +494,7 @@ trait GenerateDocument
                         $estado =  ($dom_parte['estado'] !== null)? $dom_parte['estado'] :"";
                         $parte['domicilios_completo'] = mb_strtoupper($tipo_vialidad.' '.$vialidad.' '.$num.', '.$municipio.', '.$estado);
                       }
-                      
+
                       if($parte['tipo_parte_id'] == 1 ){//Solicitante
                         //datos laborales del solicitante
                         $datoLaborales = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
@@ -452,6 +526,8 @@ trait GenerateDocument
                           $parte['datos_laborales_salario_mensual'] = $salarioMensual;
                           $parte['datos_laborales_salario_mensual_letra'] = $salarioMensualTextual;
                         }
+                        $solicitanteIdentificacion = $parte['nombre_completo'] ." quien se identifica con " .$parte['identificacion_documento']." expedida a su favor por ". $parte['identificacion_expedida_por'];
+                        array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
                         array_push($parte1, $parte);
                         array_push($nombresSolicitantes, $parte['nombre_completo'] );
                         $countSolicitante += 1;
@@ -504,6 +580,8 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
+                    $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
+                    $data = Arr::add( $data, 'firmas_partes_qr', $firmasPartesQR);
                 }elseif ($model == 'Expediente') {
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;
@@ -550,29 +628,53 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'sala', $salas );
                   }
                 }elseif ($model == 'Conciliador') {
-                    $objeto = $model_name::with('persona')->find($conciliadorId);
-                    $objeto = new JsonResponse($objeto);
-                    $conciliador = json_decode($objeto->content(),true);
-                    $conciliador = Arr::except($conciliador, ['id','updated_at','created_at','deleted_at']);
-                    $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
-                    $nombreConciliador = $conciliador['persona']['nombre']." ".$conciliador['persona']['primer_apellido']." ".$conciliador['persona']['segundo_apellido'];
-                    $firmaDocumento = FirmaDocumento::where('firmable_id',$conciliadorId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->first();
-                      if($firmaDocumento != null){
-                        $conciliador['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
-                      }else{
-                        $conciliador['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::size(100)->generate($conciliadorId."|conciliador|".$nombreConciliador."|".$audienciaId."|".$idSolicitud."|".$idPlantilla."|".$idDocumento ."|".$idSolicitante ."|".$idSolicitado).'</div>';
+                    if($conciliadorId != ""){
+                      $objeto = $model_name::with('persona')->find($conciliadorId);
+                      if($idDocumento){
+                        if($idAudiencia){
+                          $existe = $objeto->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        }else{
+                          $existe = $objeto->firmas()->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                        }
+                        if($existe == null){
+                          if($idAudiencia){
+                            $objeto->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                          }else{
+                            $objeto->firmas()->create(['solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                          }
+                        }
                       }
-                    $data = Arr::add( $data, 'conciliador', $conciliador );
+                      $objeto = new JsonResponse($objeto);
+                      $conciliador = json_decode($objeto->content(),true);
+                      $conciliador = Arr::except($conciliador, ['id','updated_at','created_at','deleted_at']);
+                      $conciliador['persona'] = Arr::except($conciliador['persona'], ['id','updated_at','created_at','deleted_at']);
+                      $nombreConciliador = $conciliador['persona']['nombre']." ".$conciliador['persona']['primer_apellido']." ".$conciliador['persona']['segundo_apellido'];
+                      if($solicitudVirtual && $solicitudVirtual!="" && $idDocumento){
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$conciliadorId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->where('documento_id',$idDocumento)->first();
+                          if($firmaDocumento != null && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
+                            $conciliador['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                          } elseif ($firmaDocumento != null && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
+                            $conciliador['qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
+                          }else{
+                            $conciliador['qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($conciliadorId."/conciliador/".urlencode($nombreConciliador)."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
+                          }
+                      }else{
+                        $conciliador['qr_firma'] = '';
+                      }
+                      $data = Arr::add( $data, 'conciliador', $conciliador );
+                    }
                   }elseif ($model == 'Centro') {
-                    $objeto = $model_name::with('domicilio','disponibilidades')->find($centroId);
+                    $objeto = $model_name::with('domicilio','disponibilidades','contactos')->find($centroId);
                     $dom_centro = $objeto->domicilio;
+                    $usuarios_centro = $objeto->user;
+                    $contacto_centro = $objeto->contactos;
                     $disponibilidad_centro = $objeto->disponibilidades;
                     $objeto = new JsonResponse($objeto);
                     $centro = json_decode($objeto->content(),true);
                     $centro = Arr::except($centro, ['id','updated_at','created_at','deleted_at']);
                     $dom_centro = new JsonResponse($dom_centro);
                     $dom_centro = json_decode($dom_centro->content(),true);
-                    $centro['domicilio'] = Arr::except($dom_centro, ['id','updated_at','created_at','deleted_at','domiciliable_id','domiciliable_type']); 
+                    $centro['domicilio'] = Arr::except($dom_centro, ['id','updated_at','created_at','deleted_at','domiciliable_id','domiciliable_type']);
                     $tipo_vialidad =  ($dom_centro['tipo_vialidad'] !== null)? $dom_centro['tipo_vialidad'] :"";
                     $vialidad =  ($dom_centro['vialidad'] !== null)? $tipo_vialidad." ". $dom_centro['vialidad'] :"";
                     $num_ext =  ($dom_centro['num_ext'] !== null)? " No. " . $dom_centro['num_ext'] :"";
@@ -582,6 +684,90 @@ trait GenerateDocument
                     $municipio =  ($dom_centro['municipio'] !== null)? $colonia . $dom_centro['municipio'] :"";
                     $estado =  ($dom_centro['estado'] !== null)? $dom_centro['estado'] :"";
                     $centro['domicilio_completo'] = mb_strtoupper($vialidad. $num.', '.$municipio.', '.$estado);
+                    $contacto_centro = new JsonResponse($contacto_centro);
+                    $contacto_centro = json_decode($contacto_centro->content(),true);
+                    foreach ($contacto_centro as $contacto ) {
+                      if($contacto['tipo_contacto_id'] == 1 || $contacto['tipo_contacto_id'] == 2 ){
+                        $centro['telefono'] = $contacto['contacto'];
+                      }else{
+                        $centro['telefono'] = '--- -- -- ---';
+                      }
+                    }
+                    $nombreAdministrador = "";
+                    $personaId = "";
+                    foreach ($usuarios_centro as $usuario ) {
+                      if($usuario->hasRole('Administrador del centro')){
+                        $userAdmin = $usuario->persona;
+                        $personaId= $userAdmin->id;
+                        $nombreAdministrador = $userAdmin['nombre'].' '.$userAdmin['primer_apellido'].' '.$userAdmin['segundo_apellido'];
+                      }
+                    }
+                    $centro['nombre_administrador'] = $nombreAdministrador;
+                    //Firma conciliador generico
+                    $solicitudFirma = Solicitud::find($idSolicitud);
+                    if($idDocumento){
+                      if($idAudiencia){
+                        $existe = $solicitudFirma->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }else{
+                        $existe = $solicitudFirma->firmas()->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }
+                      if($existe == null){
+                        if($idAudiencia){
+                          $solicitudFirma->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                        }else{
+                          $solicitudFirma->firmas()->create(['solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                        }
+                      }
+                    }
+                    if($solicitudVirtual && $solicitudVirtual!="" && $idDocumento){
+                      if($idAudiencia){
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->where('documento_id',$idDocumento)->first();
+                      }else{
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }
+                      if($firmaDocumento != null && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
+                          $centro['conciliador_generico_qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                        } elseif ($firmaDocumento != null && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
+                          $centro['conciliador_generico_qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
+                        }else{
+                          $centro['conciliador_generico_qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($idSolicitud."/conciliador//".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
+                        }
+                    }else{
+                      $centro['conciliador_generico_qr_firma'] = '';
+                    }
+
+                    //Firma administrador centro
+                    if($idDocumento){
+                      if($idAudiencia){
+                        $existe = $userAdmin->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }else{
+                        $existe = $userAdmin->firmas()->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }
+                      if($existe == null){
+                        if($idAudiencia){
+                          $userAdmin->firmas()->create(['audiencia_id'=>$idAudiencia,'solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                        }else{
+                          $userAdmin->firmas()->create(['solicitud_id'=>$idSolicitud,'plantilla_id'=>$idPlantilla,'documento_id'=>$idDocumento]);
+                        }
+                      }
+                    }
+                    if($solicitudVirtual && $solicitudVirtual!="" && $idDocumento){
+                      if($idAudiencia){
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$personaId)->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->where('documento_id',$idDocumento)->first();
+                      }else{
+                        $firmaDocumento = FirmaDocumento::where('firmable_id',$personaId)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
+                      }
+                      //dd($firmaDocumento);
+                      if($firmaDocumento != null && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
+                          $centro['administrador_qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
+                        } elseif ($firmaDocumento != null && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
+                          $centro['administrador_qr_firma'] = '<div style="text-align:center" class="firma-llave-publica">Firma Digital: '.$this->splitFirma($firmaDocumento->firma).'</div>';
+                        }else{
+                          $centro['administrador_qr_firma'] = '<div style="text-align:center" class="qr">'.QrCode::errorCorrection('H')->size(100)->generate($personaId."/administrador/".urlencode($nombreAdministrador)."/".$audienciaId."/".$idSolicitud."/".$idPlantilla."/".$idDocumento ."/".$idSolicitante ."/".$idSolicitado."/".$firmaDocumento->id).'</div>';
+                        }
+                    }else{
+                      $centro['administrador_qr_firma'] = '';
+                    }
                     //Disponibilidad del centro horarios y dias
                     $disponibilidad_centro = new JsonResponse($disponibilidad_centro);
                     $disponibilidad_centro = json_decode($disponibilidad_centro->content(),true);
@@ -606,116 +792,137 @@ trait GenerateDocument
                         $tablaConceptosActa = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $totalPercepciones = 0;
                         $parteID= "";
+                        $totalPagosDiferidos = 0;
+                        $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         foreach ($audiencia_partes as $key => $audiencia_parte) {
                           if ($audiencia_parte->parte->tipo_parte_id == 1) {
                             $parteID = $audiencia_parte->parte->id;
 
-                          //datos laborales del solicitante
-                          $datoLaborales = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteID)->get();
-                          $hayDatosLaborales = count($datoLaborales);
-                          if($hayDatosLaborales>1){
-                            $datoLaborales =$datoLaborales->where('resolucion',true)->first();
-                          }else{
-                            $datoLaborales =$datoLaborales->where('resolucion',false)->first();
-                          }
-                          // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
-                          if($hayDatosLaborales >0){
-
-                            // $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
-                            // $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
-                            $remuneracionDiaria = $datoLaborales->remuneracion / $datoLaborales->periodicidad->dias;
-                            $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears($datoLaborales->fecha_salida);
-                            $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
-                            $salarios = SalarioMinimo::get('salario_minimo');
-                            $salarioMinimo = $salarios[0]->salario_minimo;
-                            $anioSalida = Carbon::parse($datoLaborales->fecha_salida)->startOfYear();
-                            $propAguinaldo = Carbon::parse($anioSalida)->floatDiffInYears($datoLaborales->fecha_salida);
-                            $vacacionesPorAnio = VacacionesAnio::all();
-                            $diasVacaciones = 0;
-                            foreach ($vacacionesPorAnio as $key => $vacaciones) {
-                                if($vacaciones->anios_laborados >= $anios_antiguedad ){
-                                    $diasVacaciones = $vacaciones->dias_vacaciones;
-                                    break;
-                                }
+                            //datos laborales del solicitante
+                            $datoLaborales = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteID)->get();
+                            $hayDatosLaborales = count($datoLaborales);
+                            if($hayDatosLaborales>1){
+                              $datoLaborales =$datoLaborales->where('resolucion',true)->first();
+                            }else{
+                              $datoLaborales =$datoLaborales->where('resolucion',false)->first();
                             }
-                            $pagoVacaciones = $propVacaciones * $diasVacaciones * $remuneracionDiaria;
-                            $salarioTopado = ($remuneracionDiaria > (2*$salarioMinimo) ? (2*$salarioMinimo) : $remuneracionDiaria);
+                            // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
+                            if($hayDatosLaborales >0){  
 
-                            //Propuesta de convenio al 100% y 50%
-                            $prouestas = [];
-                            array_push($prouestas,array("concepto_pago"=> 'Indemnización constitucional', "montoCompleta"=>round($remuneracionDiaria * 90,2), "montoAl50"=>round($remuneracionDiaria * 45,2) )); //Indemnizacion constitucional = gratificacion A
-                            array_push($prouestas,array("concepto_pago"=> 'Aguinaldo', "montoCompleta"=>round($remuneracionDiaria * 15 * $propAguinaldo,2) ,  "montoAl50"=>round($remuneracionDiaria * 15 * $propAguinaldo,2) )); //Aguinaldo = dias de aguinaldo
-                            array_push($prouestas,array("concepto_pago"=> 'Vacaciones', "montoCompleta"=>round($pagoVacaciones,2), "montoAl50"=>round($pagoVacaciones,2))); //Vacaciones = dias vacaciones
-                            array_push($prouestas,array("concepto_pago"=> 'Prima vacacional', "montoCompleta"=>round($pagoVacaciones * 0.25,2), "montoAl50"=>round($pagoVacaciones * 0.25,2) )); //Prima Vacacional
-                            array_push($prouestas,array("concepto_pago"=> 'Prima antigüedad', "montoCompleta"=>round($salarioTopado * $anios_antiguedad *12,2), "montoAl50"=>round($salarioTopado * $anios_antiguedad *6,2) )); //Prima antiguedad = gratificacion C
+                              // $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
+                              // $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
+                              $remuneracionDiaria = $datoLaborales->remuneracion / $datoLaborales->periodicidad->dias;
+                              $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears($datoLaborales->fecha_salida);
+                              $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
+                              $salarios = SalarioMinimo::get('salario_minimo');
+                              $salarioMinimo = $salarios[0]->salario_minimo;
+                              $anioSalida = Carbon::parse($datoLaborales->fecha_salida)->startOfYear();
+                              $propAguinaldo = Carbon::parse($anioSalida)->floatDiffInYears($datoLaborales->fecha_salida);
+                              $vacacionesPorAnio = VacacionesAnio::all();
+                              $diasVacaciones = 0;
+                              foreach ($vacacionesPorAnio as $key => $vacaciones) {
+                                  if($vacaciones->anios_laborados >= $anios_antiguedad ){
+                                      $diasVacaciones = $vacaciones->dias_vacaciones;
+                                      break;
+                                  }
+                              }
+                              $pagoVacaciones = $propVacaciones * $diasVacaciones * $remuneracionDiaria;
+                              $salarioTopado = ($remuneracionDiaria > (2*$salarioMinimo) ? (2*$salarioMinimo) : $remuneracionDiaria);
 
-                            // $tablaConceptos = '<h4>Propuestas</h4>';
-                            $tablaConceptos .= '<table  class="tbl">';
-                            $tablaConceptos .= '<thead><tr><th>Prestación</th><th>Propuesta completa</th><th>Propuesta 45 días</th></tr></thead>';
-                            $tablaConceptos .= '<tbody >';
-                            $total50 = 0;
-                            $total100 = 0;
-                            foreach ($prouestas as $concepto ) {
-                              $tablaConceptos .= '<tr><td class="tbl">'.$concepto['concepto_pago'].'</td><td class="amount"> $'.$concepto['montoCompleta'].'</td><td class="amount"> $'.$concepto['montoAl50'].'</td> </tr>';
-                              $total100 += floatval($concepto['montoCompleta'] );
-                              $total50 += floatval($concepto['montoAl50'] );
-                            }
-                            $tablaConceptos .= '<tr ><th class="tbl"> TOTAL </th><td class="amount"> $'.$total100.'</td><td class="amount"> $'.$total50.'</td> </tr>';
-                            $tablaConceptos .= '</tbody>';
-                            $tablaConceptos .= '</table>';
+                              //Propuesta de convenio al 100% y 50%
+                              $prouestas = [];
+                              array_push($prouestas,array("concepto_pago"=> 'Indemnización constitucional', "montoCompleta"=>round($remuneracionDiaria * 90,2), "montoAl50"=>round($remuneracionDiaria * 45,2) )); //Indemnizacion constitucional = gratificacion A
+                              array_push($prouestas,array("concepto_pago"=> 'Aguinaldo', "montoCompleta"=>round($remuneracionDiaria * 15 * $propAguinaldo,2) ,  "montoAl50"=>round($remuneracionDiaria * 15 * $propAguinaldo,2) )); //Aguinaldo = dias de aguinaldo
+                              array_push($prouestas,array("concepto_pago"=> 'Vacaciones', "montoCompleta"=>round($pagoVacaciones,2), "montoAl50"=>round($pagoVacaciones,2))); //Vacaciones = dias vacaciones
+                              array_push($prouestas,array("concepto_pago"=> 'Prima vacacional', "montoCompleta"=>round($pagoVacaciones * 0.25,2), "montoAl50"=>round($pagoVacaciones * 0.25,2) )); //Prima Vacacional
+                              array_push($prouestas,array("concepto_pago"=> 'Prima antigüedad', "montoCompleta"=>round($salarioTopado * $anios_antiguedad *12,2), "montoAl50"=>round($salarioTopado * $anios_antiguedad *6,2) )); //Prima antiguedad = gratificacion C
 
-                            //Conceptos resolucion
-                            // $tablaConceptos .= '<h4>Propuesta Configurada </h4>';
-                            $resolucion_conceptos = ResolucionParteConcepto::where('audiencia_parte_id',$audiencia_parte->id)->get();
-                            $tablaConceptosEConvenio = '';
-                            //$tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
-                            $tablaConceptosConvenio .= '<table class="tbl">';
-                            $tablaConceptosConvenio .= '<tbody>';
-                            $tablaConceptosActa .= '';
-                            $parte = Parte::find($parteID);
-                            $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
-                            $tablaConceptosActa .= ' Propuesta para '.$nombreParte;
-                            $tablaConceptosActa .= '<table class="tbl">';
-                            $tablaConceptosActa .= '<tbody>';
-                            
+                              // $tablaConceptos = '<h4>Propuestas</h4>';
+                              $tablaConceptos .= '<table  class="tbl">';
+                              $tablaConceptos .= '<thead><tr><th>Prestación</th><th>Propuesta completa</th><th>Propuesta 45 días</th></tr></thead>';
+                              $tablaConceptos .= '<tbody >';
+                              $total50 = 0;
+                              $total100 = 0;
+                              foreach ($prouestas as $concepto ) {
+                                $tablaConceptos .= '<tr><td class="tbl">'.$concepto['concepto_pago'].'</td><td class="amount"> $'.$concepto['montoCompleta'].'</td><td class="amount"> $'.$concepto['montoAl50'].'</td> </tr>';
+                                $total100 += floatval($concepto['montoCompleta'] );
+                                $total50 += floatval($concepto['montoAl50'] );
+                              }
+                              $tablaConceptos .= '<tr ><th class="tbl"> TOTAL </th><td class="amount"> $'.$total100.'</td><td class="amount"> $'.$total50.'</td> </tr>';
+                              $tablaConceptos .= '</tbody>';
+                              $tablaConceptos .= '</table>';
+
+                              //Conceptos resolucion
+                              // $tablaConceptos .= '<h4>Propuesta Configurada </h4>';
+                              $resolucion_conceptos = ResolucionParteConcepto::where('audiencia_parte_id',$audiencia_parte->id)->get();
+                              $tablaConceptosEConvenio = '';
+                              //$tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                              $tablaConceptosConvenio .= '<table class="tbl">';
+                              $tablaConceptosConvenio .= '<tbody>';
+                              $tablaConceptosActa .= '';
+                              $parte = Parte::find($parteID);
+                              if(sizeof($parte->compareciente)>0){
+                                $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
+                                $tablaConceptosActa .= ' Propuesta para '.$nombreParte;
+                                $tablaConceptosActa .= '<table class="tbl">';
+                                $tablaConceptosActa .= '<tbody>';
+                              }
+
                               $totalPercepciones = 0;
-                            foreach ($resolucion_conceptos as $concepto ) {
-                              $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
-                              if($concepto->concepto_pago_resoluciones_id != 9){
-                                $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
-                                if($parteID == $idSolicitante){ //si resolucion pertenece al solicitante
-                                  $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
+                              foreach ($resolucion_conceptos as $concepto ) {
+                                $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
+                                if($concepto->concepto_pago_resoluciones_id != 9){
+                                  $totalPercepciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
+                                  if($parteID == $idSolicitante){ //si resolucion pertenece al solicitante
+                                    $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
+                                  }
+                                  $tablaConceptosActa .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
+                                }else{
+                                  $tablaConceptosEConvenio .= $concepto->otro.' ';
                                 }
-                                $tablaConceptosActa .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
-                              }else{
-                                $tablaConceptosEConvenio .= $concepto->otro.' ';
+                              }
+                              $tablaConceptosConvenio .= ($parteID == $idSolicitante)?'<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>':"";
+                              $tablaConceptosConvenio .= '</tbody>';
+                              $tablaConceptosConvenio .= '</table>';
+                              $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                              if(sizeof($parte->compareciente)>0){
+                                $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
+                                $tablaConceptosActa .= '</tbody>';
+                                $tablaConceptosActa .= '</table>';
+                                $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                $tablaConceptosActa .= '<br>';
+                              }
+
+                              $totalPercepciones = number_format($totalPercepciones, 2, '.', '');
+                              $totalPercepcion = explode('.', $totalPercepciones);
+                              $intTotalPercepciones = $totalPercepcion[0];
+                              $decTotalPercepciones = $totalPercepcion[1];
+                              $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
+                              $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
+                              $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
+                              if($parteID == $idSolicitante ){
+                              $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
+                              $datosResolucion['total_percepciones_letra']= $cantidadTextual;
                               }
                             }
-                            $tablaConceptosConvenio .= ($parteID == $idSolicitante)?'<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>':"";
-                            $tablaConceptosConvenio .= '</tbody>';
-                            $tablaConceptosConvenio .= '</table>';
-                            $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                            //Fechas pago resolucion
+                            $tablaPagosDiferidos .= '<table class="tbl">';
+                            $tablaPagosDiferidos .= '<tbody>';
+                            $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
 
-                            $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
-                            $tablaConceptosActa .= '</tbody>';
-                            $tablaConceptosActa .= '</table>';
-                            $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
-                            $tablaConceptosActa .= '<br>';  
-
-                            $totalPercepciones = number_format($totalPercepciones, 2, '.', '');
-                            $totalPercepcion = explode('.', $totalPercepciones);
-                            $intTotalPercepciones = $totalPercepcion[0];
-                            $decTotalPercepciones = $totalPercepcion[1];
-                            $intTotalPercepciones = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$intTotalPercepciones);
-                            $intTotalPercepciones = str_replace("uno","un",$intTotalPercepciones);
-                            $cantidadTextual = $intTotalPercepciones.' pesos '. $decTotalPercepciones.'/100';
-                            if($parteID == $idSolicitante ){
-                            $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
-                            $datosResolucion['total_percepciones_letra']= $cantidadTextual;
+                            foreach ($resolucion_pagos as $pago ) {
+                              if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitante)){
+                                $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
+                                $totalPagosDiferidos +=1;
+                              }
                             }
+                            $tablaPagosDiferidos .= '</tbody>';
+                            $tablaPagosDiferidos .= '</table>';
+
+                            $datosResolucion['total_diferidos']= $totalPagosDiferidos;
+                            $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                           }
                         }
-                      }
                         // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                         // $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
                         // $cantidadTextual = str_replace("uno","un",$cantidadTextual);
@@ -729,88 +936,94 @@ trait GenerateDocument
                       }else if($etapa['etapa_resolucion_id'] == 6){
                         $datosResolucion['descripcion_pagos']= $etapa['evidencia'];
                         //Fechas pago resolucion
-                        $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
-                        $tablaPagosDiferidos .= '<table class="tbl">';
-                        $tablaPagosDiferidos .= '<tbody>';
-                        $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
-                        $totalPagosDiferidos=0;
-                        foreach ($resolucion_pagos as $pago ) {
-                            $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y').' </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
-                            $totalPagosDiferidos +=1;
-                        }
-                        $tablaPagosDiferidos .= '</tbody>';
-                        $tablaPagosDiferidos .= '</table>';
-                        $datosResolucion['total_diferidos']= $totalPagosDiferidos;
-                        $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
+                        // $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                        // $tablaPagosDiferidos .= '<table class="tbl">';
+                        // $tablaPagosDiferidos .= '<tbody>';
+                        // $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
+                        // $totalPagosDiferidos=0;
+                        // foreach ($resolucion_pagos as $pago ) {
+                        //    $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y').' </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
+                        //    $totalPagosDiferidos +=1;
+                        // }
+                        // $tablaPagosDiferidos .= '</tbody>';
+                        // $tablaPagosDiferidos .= '</table>';
+                        // $datosResolucion['total_diferidos']= $totalPagosDiferidos;
+                        // $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                       }
                     }
 
                     // citados que convinieron comparecieron
-                    $partes_convenio = Compareciente::where('audiencia_id',$audienciaId)->get();  
+                    $partes_convenio = Compareciente::where('audiencia_id',$audienciaId)->get();
                     $hayPartesConvenio = count($partes_convenio);
                     if($hayPartesConvenio > 0){
                       $citadosConvenio = [];
+                      $clausulacitadosConvenio = [];
+                      $solicitantesComparecientes = [];
                       $citadosComparecientes = [];
                       $nombreCitadoConvenio = "";
                       $nombreCitadoComparecientes = "";
+                      $nombreSolicitanteComparecientes = "";
                       $idParteCitada = "";
-                      $clausulaCitadosConvenio = ($hayPartesConvenio >1)? ' ' : "";
-                      foreach ($partes_convenio as $key => $parteConvenio) {
+                      $clausula2citadosConvenio = ($hayPartesConvenio >1)? '' : "";
+                      foreach ($partes_convenio as $key => $parteConvenio) { 
                         $nombreCitadoComparecientes = "";
+                        $nombreSolicitanteComparecientes = "";
                         $nombreCitadoConvenio = "";
+                        $clausulaCitadoConvenio = "";
                         //citados convenio
                         $parteC = $parteConvenio->parte;
-                        if($parteC->tipo_parte_id == 1){
-                          $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitante_id',$parteC->id)->first();
-                        }else if($parteC->tipo_parte_id == 2){
-                          $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parteC->id)->first();
-                        }
-
                         if($parteC->id != $idParteCitada){
                           $idParteCitada = $parteC->id;
                           if($parteC->tipo_persona_id == 1){//fisica
-                            if($parteC->tipo_parte_id == 3){
+                            if($parteC->tipo_parte_id == 3){//OTRO (representante)
                               $representanteLegalC = $parteC;
                               $parteRepresentada = Parte::find($representanteLegalC->parte_representada_id);
-                              //dd($parteRepresentada);
                               $segundo_apellido_representante = ($representanteLegalC['segundo_apellido']!="")?' '.$representanteLegalC['segundo_apellido']:"";
                               $nombreRepresentanteLegal = $representanteLegalC['nombre'].' '.$representanteLegalC['primer_apellido'].$segundo_apellido_representante;
                               $representanteIdentificacion = "--";
                               $documentoRep = $representanteLegalC->documentos;
+                              $representanteInstrumento="";
                               //dd($documentoRep);
                               if( sizeof($documentoRep) > 0 ){
                                 foreach ($documentoRep as $k => $docu) {
-                                  
+
                                   if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
-                                    $representanteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
+                                    $representanteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quien se identifica con " .$docu->clasificacionArchivo->nombre: "";
                                   }else if($docu->clasificacionArchivo->tipo_archivo_id == 9){
-                                    $representantePoder = ($docu->clasificacionArchivo->nombre != null ) ? " en términos de " .$docu->clasificacionArchivo->nombre . ' poder que a la fecha de este convenio no le ha sido revocado. ' : "";
+                                    $representantePoder = ($docu->clasificacionArchivo->nombre != null ) ? " en términos de " .$docu->clasificacionArchivo->nombre . ', poder que a la fecha de este convenio no le ha sido revocado. ' : "";
                                     $representanteInstrumento = ($docu->clasificacionArchivo->nombre != null ) ? " circunstancia que se acredita con " .$docu->clasificacionArchivo->nombre ." ". $representanteLegalC->detalle_instrumento : "";
                                   }
                                 }
                               }
+                              $nombreRepresentada = ($parteRepresentada['tipo_persona_id']== 2)? $parteRepresentada['nombre_comercial']: $parteRepresentada['nombre'].' '.$parteRepresentada['primer_apellido'] .' '.$parteRepresentada['segundo_apellido'];
+                              $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parteRepresentada['id'])->first();
                               if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
-                                $nombreCitadoConvenio = $parteRepresentada['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
+                                  $nombreCitadoConvenio = $nombreRepresentada .' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                                  $clausulaCitadoConvenio = $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                               }
-                              //$nombreCitadoComparecientes = $parteRepresentada['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
-                              $nombreCitadoComparecientes = $nombreRepresentanteLegal .', en su carácter de representante legal de '. $parteRepresentada['nombre_comercial'] . $representanteInstrumento .", ".$representanteIdentificacion; 
-                              $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteRepresentada['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
-                            }else{
-                              if($parteC->tipo_parte_id == 2){
+                              //$nombreCitadoComparecientes = $parteRepresentada['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                              $nombreCitadoComparecientes = $nombreRepresentanteLegal .', en su carácter de representante legal de '. $nombreRepresentada . $representanteInstrumento .", ".$representanteIdentificacion;
+                            }else{ // Solicitante o Citado
+                              //if($parteC->tipo_parte_id == 2){
                                 foreach ($parteC->documentos as $k => $docu) {
                                   if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
-                                    $parteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
+                                    //$parteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quien se identifica con " .$docu->clasificacionArchivo->nombre: "";
+                                    $parteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quien se identifica con " .$docu->clasificacionArchivo->nombre . " expedida a su favor por ". $docu->clasificacionArchivo->entidad_emisora->nombre: "";
                                   }
                                 }
-                                $segundo_apellido_citado = ($parteC['segundo_apellido']!="")?' '.$parteC['segundo_apellido']:"";
+                                $segundo_apellido = ($parteC['segundo_apellido']!="")?' '.$parteC['segundo_apellido']:"";
+                              if($parteC->tipo_parte_id == 2){//citados
+                                $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parteC->id)->first();
                                 if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
-                                	$nombreCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado;
+                                    $nombreCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido;
+                                    $clausulaCitadoConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
                                 }
-                                $nombreCitadoComparecientes = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado;
-                                $clausulaCitadosConvenio .= $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido_citado . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
+                                $nombreCitadoComparecientes = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido. $parteIdentificacion;
+                              }else{
+                                $nombreSolicitanteComparecientes = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion;
                               }
                             }
-                          }else{ //moral
+                          }else{ //moral compareciente
                             $representanteLegalC = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteC->id)->where('tipo_parte_id',3)->get();
                             $representanteLegalC = $representanteLegalC[0];
                             $segundo_apellido_representante = ($representanteLegalC['segundo_apellido']!="")?' '.$representanteLegalC['segundo_apellido']:"";
@@ -819,32 +1032,45 @@ trait GenerateDocument
                             if( sizeof($representanteLegalC['documentos']) > 0 ){
                               foreach ($representanteLegalC['documentos'] as $k => $docu) {
                                 if($docu->clasificacionArchivo->tipo_archivo_id == 1){ //tipo identificacion
-                                  $representanteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quién se identifica con " .$docu->clasificacionArchivo->nombre: "";
+                                  $representanteIdentificacion = ($docu->clasificacionArchivo->nombre != null ) ? " quien se identifica con " .$docu->clasificacionArchivo->nombre: "";
                                 }else if($docu->clasificacionArchivo->tipo_archivo_id == 9){
-                                  $representantePoder = ($docu->clasificacionArchivo->nombre != null ) ? " en términos de " .$docu->clasificacionArchivo->nombre . ' poder que a la fecha de este convenio no le ha sido revocado. ' : "";
+                                  $representantePoder = ($docu->clasificacionArchivo->nombre != null ) ? " en términos de " .$docu->clasificacionArchivo->nombre . ', poder que a la fecha de este convenio no le ha sido revocado. ' : "";
                                 }
                               }
                             }
+                            $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parteC['id'])->first();
                             if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id ==3){
-                              $nombreCitadoConvenio = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal'; 
+                              $nombreCitadoConvenio = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
+                              $clausulaCitadoConvenio = $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteC['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                             }
-                            $nombreCitadoComparecientes = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal' ; //$parteIdentificacion 
-                            $clausulaCitadosConvenio .= $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $parteC['nombre_comercial'] .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
+                            $nombreCitadoComparecientes = $parteC['nombre_comercial'].' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal' ; //$parteIdentificacion
                           }
-                            if($nombreCitadoConvenio != ""){
+                          if($clausulaCitadoConvenio != ""){
+                            array_push($clausulacitadosConvenio, $clausulaCitadoConvenio );
+                          }
+                          if($nombreCitadoConvenio != ""){
                             array_push($citadosConvenio, $nombreCitadoConvenio );
                           }
                           if($nombreCitadoComparecientes != ""){
                               array_push($citadosComparecientes, $nombreCitadoComparecientes );
                           }
+                          if($nombreSolicitanteComparecientes != ""){
+                            array_push($solicitantesComparecientes, $nombreSolicitanteComparecientes );
+                          }
                         }
-					            }
+                      }
                       if($hayPartesConvenio > 1){
+                        $clausulacitadosConvenioA =  implode(", ",$clausulacitadosConvenio);
+                        $clausula2citadosConvenio = $clausulacitadosConvenioA;//$this->lreplace(',', ' y', $citadosConvenioA);
+
                         $citadosConvenioA =  implode(", ",$citadosConvenio);
                         $nombreCitadosConvenio = $citadosConvenioA;//$this->lreplace(',', ' y', $citadosConvenioA);
-                        
+
                         $citadosConvenioB =  implode(", ",$citadosComparecientes);
                         $nombreCitadosComparecientes = $citadosConvenioB;//$this->lreplace(',', ' y', $citadosConvenioA);
+
+                        $solicitantesB =  implode(", ",$solicitantesComparecientes);
+                        $nombreSolicitanteComparecientes = $solicitantesB;//$this->lreplace(',', ' y', $citadosConvenioA);
                       }else{
                         $nombreCitadosConvenio = $nombreCitadoConvenio;
                         $nombreCitadosComparecientes = $nombreCitadoComparecientes;
@@ -852,12 +1078,13 @@ trait GenerateDocument
                     }else{
                       $nombreCitadosConvenio = "-";
                       $nombreCitadosComparecientes = "";
-                      $clausulaCitadosConvenio = "";
+                      $clausula2citadosConvenio = "";
 					          }
-					
+
                     $datosResolucion['citados_comparecientes'] = $nombreCitadosComparecientes;
+                    $datosResolucion['solicitantes_comparecientes'] = $nombreSolicitanteComparecientes;
                     $datosResolucion['citados_convenio'] = $nombreCitadosConvenio;
-                    $datosResolucion['segunda_declaracion_convenio'] = $clausulaCitadosConvenio;
+                    $datosResolucion['segunda_declaracion_convenio'] = $clausula2citadosConvenio;
                     $datosResolucion['primera_manifestacion'] = (isset($datosResolucion['primera_manifestacion']))? $datosResolucion['primera_manifestacion'] :"";
                     $datosResolucion['segunda_manifestacion'] = (isset($datosResolucion['segunda_manifestacion']))? $datosResolucion['segunda_manifestacion'] :"";
                     $datosResolucion['total_percepciones'] = (isset($datosResolucion['total_percepciones']))? $datosResolucion['total_percepciones'] :"";
@@ -894,7 +1121,7 @@ trait GenerateDocument
     }
 
     /*
-    Calcular posible prescripcion de derechos 
+    Calcular posible prescripcion de derechos
       */
     private function calcularPrescripcion($objetoSolicitud,$fechaConflicto,$fechaRatificacion)
     {
@@ -918,7 +1145,7 @@ trait GenerateDocument
         return $prescripcion;
       } catch (\Throwable $th) {
         return "";
-      }  
+      }
     }
     /*
     Calcular la fecha m'axima para ratificar la solicitud (3 dias maximo)
@@ -935,13 +1162,13 @@ trait GenerateDocument
           array_push($diasDisponibilidad,$disponibilidad->dia);
         }
         while ($ndia <= 3) {
-          $fechaRecepcion = Carbon::parse($fechaRecepcion); 
-          if($ndia<3){ 
+          $fechaRecepcion = Carbon::parse($fechaRecepcion);
+          if($ndia<3){
             $fechaRecepcion = $fechaRecepcion->addDay();//sumar dia a fecha recepcion
             $dayOfTheWeek = $fechaRecepcion->dayOfWeek; //dia de la semana de la fecha de recepcion
           }
           $diaHabil = array_search($dayOfTheWeek, $diasDisponibilidad);
-          foreach ($incidencias_centro as $incidencia) {         
+          foreach ($incidencias_centro as $incidencia) {
             $diaConIncidencia = $fechaRecepcion->between($incidencia->fecha_inicio,$incidencia->fecha_fin);
           }
           if (false !== $diaHabil && !$diaConIncidencia) { //si dia agregado es dia disponble en centro y no tiene incidencia
@@ -949,11 +1176,11 @@ trait GenerateDocument
           }
         }
         //Do,lu,ma,mi,ju,vi,sa
-        // 0,1,2,3,4,5,6 
+        // 0,1,2,3,4,5,6
         return $fechaRecepcion->toDateTimeString();
       } catch (\Throwable $th) {
         return "";
-      }  
+      }
     }
 
     function eliminar_acentos($cadena){
@@ -1034,7 +1261,14 @@ trait GenerateDocument
         return $ddmmyy;
       } catch (\Throwable $th) {
         return "";
-      }  
+      }
+    }
+
+    public function splitFirma($firma)
+    {
+        $aFirma = str_split($firma,150);
+        $firma = implode("\n", $aFirma);
+        return $firma;
     }
 
     /**

@@ -12,13 +12,13 @@
         <div class="card">
             <div class="card-header  pointer-cursor d-flex align-items-center" data-toggle="collapse" data-target="#collapse{{$solicitud->id}}">
                 <div style="width: 100%">
-                    <i class="fa fa-circle fa-fw text-gold mr-2 f-s-8"></i> <strong>Expediente:</strong> {{$solicitud->expediente->folio}}/{{$solicitud->expediente->anio}}
+                    <i class="fa fa-circle fa-fw text-gold mr-2 f-s-8"></i> <strong>Expediente:</strong> {{$solicitud->expediente->folio}}
                 </div>
             </div>
             <div id="collapse{{$solicitud->id}}" class="collapse" data-parent="#accordion">
                 <div class="card-body">
                     <ul>
-                        <li>Confirmaci&oacute;n:
+                        <li><strong>Confirmaci&oacute;n:</strong>
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
                                     <td class="text-nowrap"><strong>Fecha de Solicitud:</strong> {{\Carbon\Carbon::parse($solicitud->fecha_solicitud)->format('d/m/Y')}}</td>
@@ -49,13 +49,13 @@
                                 @endforeach
                                 <tr>
                                     <td class="text-nowrap" colspan="5">
-                                        Documentos:<br>
+                                        <strong>Documentos:</strong><br>
                                         <ul>
                                         @if($solicitud->expediente->audiencia != null)
                                         @foreach($solicitud->expediente->audiencia as $key => $audiencia)
                                             @if($key == 0)
                                                 @foreach($audiencia->documentos as $documento)
-                                                @if($documento->clasificacion_archivo_id == 14 || $documento->clasificacion_archivo_id == 18 || $documento->clasificacion_archivo_id == 19)
+                                                @if($documento->clasificacion_archivo_id == 14 || $documento->clasificacion_archivo_id == 18 || $documento->clasificacion_archivo_id == 19 || $documento->clasificacion_archivo_id == 25 || $documento->clasificacion_archivo_id == 29 || $documento->clasificacion_archivo_id == 30)
                                                     <li><a href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">{{$documento->clasificacionArchivo->nombre}}</a></li>
                                                 @endif
                                                 @endforeach
@@ -68,7 +68,7 @@
                             </table>
                         @if($solicitud->expediente->audiencia != null)
                         @foreach($solicitud->expediente->audiencia as $key => $audiencia)
-                        <li>Audiencia: {{$audiencia->folio}}/{{$audiencia->anio}}
+                        <li><strong>Audiencia:</strong> {{$audiencia->folio}}/{{$audiencia->anio}}
                             @if($key == 0)
                                 @if($solicitud->expediente != null)
                                     @if(count($solicitud->expediente->audiencia) > 0)
@@ -82,30 +82,30 @@
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>
                                     <td class="text-nowrap">
-                                        Fecha de audiencia: {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->format('d/m/Y')}}
+                                        <strong>Fecha de audiencia:</strong> {{\Carbon\Carbon::parse($audiencia->fecha_audiencia)->format('d/m/Y')}}
                                     </td>
-                                    <td class="text-nowrap">Hora de inicio: {{$audiencia->hora_inicio}}</td>
-                                    <td class="text-nowrap">Hora de t&eacute;rmino: {{$audiencia->hora_fin}}</td>
+                                    <td class="text-nowrap"><strong>Hora de inicio:</strong> {{$audiencia->hora_inicio}}</td>
+                                    <td class="text-nowrap"><strong>Hora de t&eacute;rmino:</strong> {{$audiencia->hora_fin}}</td>
                                 </tr>
                                 <tr>
                                     @foreach($audiencia->audienciaParte as $parte)
                                         @if($parte->parte_id == $solicitud->parte->id)
                                             @if(!$audiencia->multiple)
-                                                <td class="text-nowrap">Sala: {{ $audiencia->salasAudiencias[0]->sala->sala }}</td>
-                                                <td class="text-nowrap">Conciliador: {{ $audiencia->conciliadoresAudiencias[0]->conciliador->persona->nombre }} {{ $audiencia->conciliadoresAudiencias[0]->conciliador->persona->primer_apellido }} {{ $audiencia->conciliadoresAudiencias[0]->conciliador->persona->segundo_apellido }}</td>
+                                                <td class="text-nowrap"><strong>Sala:</strong> {{ $audiencia->salasAudiencias[0]->sala->sala }}</td>
+                                                <td class="text-nowrap"><strong>Conciliador:</strong> {{ $audiencia->conciliadoresAudiencias[0]->conciliador->persona->nombre }} {{ $audiencia->conciliadoresAudiencias[0]->conciliador->persona->primer_apellido }} {{ $audiencia->conciliadoresAudiencias[0]->conciliador->persona->segundo_apellido }}</td>
                                             @elseif($audiencia->multiple && $audiencia->multiple != null)
                                                 @foreach($audiencia->salas as $sala)
                                                     @if($sala->solicitante and $parte->tipo_parte_id == 1)
-                                                        <td class="text-nowrap">Sala: {{ $sala->sala->sala }}</td>
+                                                        <td class="text-nowrap"><strong>Sala:</strong> {{ $sala->sala->sala }}</td>
                                                     @elseif(!$sala->solicitante and $parte->tipo_parte_id != 1)
-                                                        <td class="text-nowrap">Sala: {{ $sala->sala->sala }}</td>
+                                                        <td class="text-nowrap"><strong>Sala:</strong> {{ $sala->sala->sala }}</td>
                                                     @endif
                                                 @endforeach
                                                 @foreach($audiencia->conciliadoresAudiencias as $conciliador)
                                                     @if($conciliador->solicitante && $parte->tipoParte->id == 1)
-                                                        <td class="text-nowrap">Conciliador: {{ $conciliador->conciliador->persona->nombre }} {{ $conciliador->conciliador->persona->primer_apellido }} {{ $conciliador->conciliador->persona->segundo_apellido }}</td>
+                                                        <td class="text-nowrap"><strong>Conciliador:</strong> {{ $conciliador->conciliador->persona->nombre }} {{ $conciliador->conciliador->persona->primer_apellido }} {{ $conciliador->conciliador->persona->segundo_apellido }}</td>
                                                     @elseif(!$conciliador->solicitante and $parte->tipo_parte_id != 1)
-                                                        <td class="text-nowrap">Conciliador: {{ $conciliador->conciliador->persona->nombre }} {{ $conciliador->conciliador->persona->primer_apellido }} {{ $conciliador->conciliador->persona->segundo_apellido }}</td>
+                                                        <td class="text-nowrap"><strong>Conciliador:</strong> {{ $conciliador->conciliador->persona->nombre }} {{ $conciliador->conciliador->persona->primer_apellido }} {{ $conciliador->conciliador->persona->segundo_apellido }}</td>
                                                     @endif
                                                 @endforeach
                                             @else
@@ -115,14 +115,14 @@
                                         @endif
                                     @endforeach
                                     @if($audiencia->resolucion_id != null)
-                                    <td class="text-nowrap">Resolución: {{$audiencia->resolucion->nombre}}</td>
+                                        <td class="text-nowrap"><strong>Resolución:</strong> {{$audiencia->resolucion->nombre}}</td>
                                     @else
-                                    <td class="text-nowrap">Resolución: Audiencia no celebrada</td>
+                                        <td class="text-nowrap"><strong>Resolución:</strong> Audiencia no celebrada</td>
                                     @endif
                                 </tr>
                                 <tr>
-                                    <td class="text-nowrap" colspan="3">
-                                        Movimientos:
+                                    <td class="text-nowrap" colspan="2">
+                                        <strong>Movimientos:</strong>
                                         <ul>
                                             @foreach($audiencia->etapasResolucionAudiencia as $etapas)
                                             <li>
@@ -137,6 +137,18 @@
                                                 </ul>
                                                 @endif
                                             </li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                    <td class="text-nowrap">
+                                        <strong>Documentos por firmar:</strong>
+                                        <ul>
+                                            @foreach($audiencia->documentos_firmar as $doc)
+                                            @if($doc->firma == "" && $doc->firma == null && $doc->documento->clasificacionArchivo->nombre != "Citatorio")
+                                            <li>
+                                                <a href="#" onclick="validarFirma({{$doc->id}},'{{$doc->firma}}','{{$doc->documento->uuid}}')">{{$doc->documento->clasificacionArchivo->nombre}}</a>
+                                            </li>
+                                            @endif
                                             @endforeach
                                         </ul>
                                     </td>
@@ -218,6 +230,61 @@
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="domicilioObj2.limpiarDomicilios()"><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" onclick="guardarDomicilio()"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="modal-firma" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Firma de documento</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body" id="domicilio-form">
+                <form enctype="multipart/form-data" id="formFirmar" method="post">
+                    <input type="hidden" name="persona_id" id="persona_id">
+                    <input type="hidden" name="tipo_persona" id="tipo_persona">
+                    <input type="hidden" name="audiencia_id" id="audiencia_id">
+                    <input type="hidden" name="solicitud_id" id="solicitud_id">
+                    <input type="hidden" name="plantilla_id" id="plantilla_id">
+                    <input type="hidden" name="documento_id" id="documento_id">
+                    <input type="hidden" name="solicitante_id" id="solicitante_id">
+                    <input type="hidden" name="solicitado_id" id="solicitado_id">
+                    <input type="hidden" name="firma_documento_id" id="firma_documento_id">
+                    <input type="hidden" name="tipo_firma" id="tipo_firma">
+                    <input type="hidden" name="encoding_firmas" id="encoding_firmas">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="cert" class="col-sm-6 control-label">Archivo .cer</label>
+                            <div class="col-sm-10">
+                                <input type="file" name="cert" id='cert' accept=".cer">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="key" class="col-sm-6 control-label">Archivo .key</label>
+                            <div class="col-sm-10">
+                                <input type="file" name="key" id='key' accept=".key">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="password" class="col-sm-6 control-label">Contraseña</label>
+                            <div class="col-sm-10">
+                                <input type="password" name="password" id='password' class="form-control">
+                            </div>
+                        </div>
+                    </div>                
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <button class="btn btn-primary btn-sm" data-dismiss="guardar" type="submit" form="formFirmar"><i class="fa fa-save"></i> Guardar</button>
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
                 </div>
             </div>
         </div>
@@ -432,6 +499,123 @@
                 });
             }
         }
+        function validarFirma(id,firma,uuid){
+            console.log(id);
+            console.log(firma);
+            console.log(uuid);
+            if(firma == "" || firma == null){
+                swal({
+                    title: 'Documento no firmado',
+                    text: '¿Que acción deseas realizar?',
+                    icon: 'info',
+                    buttons: {
+                        cancel: {
+                            text: 'cancelar',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true,
+                        },
+                        roll: {
+                            text: "Ver documento",
+                            value: 2,
+                            className: 'btn btn-warning',
+                            visible: true,
+                            closeModal: true
+                        },
+                        confirm: {
+                            text: 'Firmar',
+                            value: 1,
+                            visible: true,
+                            className: 'btn btn-warning',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(tipo){
+                    if(tipo == 1 || tipo == 2){
+                        if(tipo == 1){
+                            obtenerInformacionDocumento(id);
+                        }else{
+                            var archivo = document.createElement('a');
+                            archivo.href = '/api/documentos/getFile/'+uuid;
+                            archivo.taget = '_blank';
+                            archivo.click();
+                        }
+                    }
+                });
+            }else{
+                var archivo = document.createElement('a');
+                archivo.href = '/api/documentos/getFile/'+uuid;
+                archivo.taget = '_blank';
+                archivo.click();
+            }
+        }
+        function obtenerInformacionDocumento(firma_documento_id){
+            $.ajax({
+                url:"/documentos/firmado/obtener/"+firma_documento_id,
+                type:"GET",
+                dataType:"json",
+                async:true,
+                success:function(data){
+                    try{
+                        console.log(data);
+                        $("#persona_id").val(data.persona_id);
+                        $("#tipo_persona").val(data.tipo_persona);
+                        $("#solicitante_id").val(data.solicitante_id);
+                        $("#solicitado_id").val(data.solicitado_id);
+                        $("#audiencia_id").val(data.audiencia_id);
+                        $("#solicitud_id").val(data.solicitud_id);
+                        $("#plantilla_id").val(data.plantilla_id);
+                        $("#documento_id").val(data.documento_id);
+                        $("#tipo_firma").val(data.tipo_firma);
+                        $("#encoding_firmas").val(data.encoding_firmas);
+                        $("#firma_documento_id").val(data.firma_documento_id);
+                        $("#modal-firma").modal("show");
+                    }catch(error){
+                        console.log(error);
+                    }
+                }
+            });
+        }
+        $("#formFirmar").on("submit",function(e){
+            e.preventDefault();
+            if($("#cer").val() != "" && $("#key").val() != "" && $("#password").val() != ""){
+                var formData = new FormData(document.getElementById("formFirmar"));
+                formData.append("_token","{{ csrf_token() }}");
+                $.ajax({
+                    url: "/documentos/firmado",
+                    type: "POST",
+                    dataType: "json",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                }).done(function(res){
+                    if(res.success){
+                        $("#modal-firma").modal("hide");
+                        swal({
+                            title: 'Correcto',
+                            text: 'Documento firmado correctamente',
+                            icon: 'success',
+                        });
+                        setTimeout('', 5000);
+                        location.reload();
+                    }else{
+                        swal({
+                            title: 'Error',
+                            text: res.message,
+                            icon: 'error',
+                        });
+                    }
+                });
+            }else{
+                swal({
+                    title: 'Error',
+                    text: 'Llena todos los campos',
+                    icon: 'error',
+                });
+            }
+        });
     </script>
 @endpush
 

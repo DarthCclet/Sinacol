@@ -49,10 +49,23 @@
 <!-- end page-header -->
 <h1 class="badge badge-secondary col-md-2 offset-10" style="position: fixed; font-size: 2rem; z-index:999;" onclick="startTimer();"><span class="countdown">00:00:00</span></h1>
 <input type="hidden" id="audiencia_id" name="audiencia_id" value="{{$audiencia->id}}" />
+{{-- <input type="hidden" id="atiende_virtual" name="atiende_virtual" value="{{$atiende_virtual}}" /> --}}
+<input type="hidden" id="virtual" name="virtual" value="{{$virtual}}" />
 
 @if(auth()->user()->persona_id == $conciliador->persona_id)
 <!-- begin timeline -->
-<ul class="timeline">
+{{-- <div id="confirmacion_virtual" class="col-md-12 row" style="{{($atiende_virtual && $virtual) ? '' : 'display:none'}}"> --}}
+<div id="confirmacion_virtual" class="col-md-12 row" style="{{($virtual) ? '' : 'display:none'}}">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <h5>Proceso virtual</h5>
+        <hr class="red">
+        <input type="text" id="url_virtual" class="form-control" placeholder="Url virtual" value="{{$url_virtual}}">
+        <p class="help-block needed">Url virtual</p>
+        <button class="btn btn-primary" onclick="guardarUrlVirtual()">Guardar</button>
+    </div>
+</div>
+<ul class="timeline" id="timeline_etapas" >
     @foreach($etapa_resolucion as $etapa)
         @if($etapa->paso == 1)
             <li style="" id="step{{$etapa->paso}}">
@@ -130,7 +143,7 @@
 
 
                                 <!--<input type="text" id="evidencia{{$etapa->paso}}" />-->
-                                <button class="btn btn-primary" align="center" id="btnCargarComparecientes">Continuar </button>
+                                <button class="btn btn-primary btnPasos" align="center" id="btnCargarComparecientes">Continuar </button>
                                 @break
                             @case(2)
                                 <div id="divPaso1" class="col-md-12">
@@ -207,7 +220,7 @@
                                             <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="explico_acta" name='explico_acta'/>
                                         </div>
                                     </div>
-                                    <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="if($('#explico_acta').is(':checked')){nextStep({{$etapa->paso}})}else{swal({title: 'Error',text: 'Es necesario validar la explicación para continuar',icon: 'error'});}">Continuar </button>
+                                    <button class="btn btn-primary btnPaso{{$etapa->paso}} btnPasos" onclick="if($('#explico_acta').is(':checked')){nextStep({{$etapa->paso}})}else{swal({title: 'Error',text: 'Es necesario validar la explicación para continuar',icon: 'error'});}">Continuar </button>
                                 </div>
                             @break
                             @case(3)
@@ -216,7 +229,7 @@
                                 <p>Al terminar las partes sus primeras manifestaciones usted debe redactar en el espacio indicado un resumen de lo dicho. Las partes deben estar de acuerdo con este resumen, que se transcribirá por sistema en el acta de audiencia. </p>
                                 <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
-                                <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="nextStep({{$etapa->paso}})">Continuar </button>
+                                <button class="btn btn-primary btnPaso{{$etapa->paso}} btnPasos" onclick="nextStep({{$etapa->paso}})">Continuar </button>
 
                             @break
                             @case(4)
@@ -335,7 +348,7 @@
                                 <p> El conciliador debe incluir una explicación y motivación breve de la propuesta que fue negociada entre las partes, acreditando que en este caso no hubo renuncia de derechos.</p>
                                 <textarea class="form-control textarea" placeholder="Comentarios ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
-                                <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="nextStep({{$etapa->paso}})">Continuar </button>
+                                <button class="btn btn-primary btnPaso{{$etapa->paso}} btnPasos" onclick="nextStep({{$etapa->paso}})">Continuar </button>
                             @break
                             @case(5)
                                 <p>Darle la palabra a la parte solicitante y luego a la parte citada. </p>
@@ -343,7 +356,7 @@
                                 <p>Al terminar las partes sus segundas manifestaciones, usted debe redactar en el espacio indicado un resumen de lo dicho. Las partes deben estar de acuerdo con este resumen,  que se transcribirá por sistema en el acta de audiencia. </p>
                                 <textarea class="form-control textarea" placeholder="Describir resumen de lo sucedido ..." type="text" id="evidencia{{$etapa->paso}}" >
                                 </textarea>
-                                <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="nextStep({{$etapa->paso}})">Continuar </button>
+                                <button class="btn btn-primary btnPaso{{$etapa->paso}} btnPasos" onclick="nextStep({{$etapa->paso}})">Continuar </button>
                             @break
                             @case(6)
                                 <label>Debe indicar cuál de las siguientes resoluciones de audiencia procede:</label>
@@ -418,6 +431,7 @@
                                             <table class="table table-bordered" >
                                                 <thead>
                                                     <tr>
+                                                        <th>Solicitante</th>
                                                         <th>Fecha de pago</th>
                                                         <th>Monto</th>
                                                         <th>Acciones</th>
@@ -431,7 +445,7 @@
                                     </div>
                                 </div>
                                 {{-- <button class="btn btn-primary btnPaso{{$etapa->paso}}" onclick="finalizar({{$etapa->paso}})">Finalizar </button> --}}
-                                <button class="btn btn-primary" onclick="finalizar()">Finalizar</button>
+                                <button class="btn btn-primary btnPasos" onclick="finalizar()">Finalizar</button>
                             @break
                             @default
 
@@ -460,14 +474,19 @@
                 <h5></h5>
                 <div class="col-md-12 row">
                     <div class="col-md-12" id="divConceptosAcordados" >
-                        <h5>Conceptos de pago para resolucion</h5><br>
+                        <div>
+                            <h5>Conceptos de pago para resolucion</h5>
+                            <div class="text-center col-md-4 offset-8">
+                                <button class="btn btn-warning text-white btn-sm" id='btnCopiarConceptosBase' onclick="copiarConceptosBase()"><i class="fa fa-plus"></i> Incluir Conceptos Base</button>
+                            </div><br>
+                        </div>
                         <label class="col-md-12 control-label">Ingresa los días a pagar o el monto por cada concepto de la propuesta. </label>
                         <div class="form-group">
                             <label for="concepto_pago_resoluciones_id" class="col-sm-6 control-label labelResolucion needed">Concepto de pago</label>
-                            <div class="col-sm-10  select-otro" >
+                            <div class="col-sm-12  select-otro" >
 
                                 <select id="concepto_pago_resoluciones_id" class="form-control select-element conceptosPago" >
-                                    <option value="">-- Selecciona un concepto de pago</option>
+                                    <option value="">-- Seleccione un concepto de pago</option>
                                     @foreach($concepto_pago_resoluciones as $concepto)
                                         <option value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
                                     @endforeach
@@ -475,7 +494,7 @@
                             </div>
                             <div class="col-sm-10 select-reinstalacion">
                                 <select id="concepto_pago_reinstalacion_id" class="form-control select-element conceptosPago" style="display:none">
-                                    <option value="">-- Selecciona un concepto de pago</option>
+                                    <option value="">-- Seleccione un concepto de pago</option>
                                     @foreach($concepto_pago_reinstalacion as $concepto)
                                         <option value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
                                     @endforeach
@@ -582,7 +601,7 @@
                     <div class="col-md-6">
                         <label for="genero_id" class="col-sm-6 control-label needed">Género</label>
                         <select id="genero_id" class="form-control select-element">
-                            <option value="">-- Selecciona un género</option>
+                            <option value="">-- Seleccione un género</option>
                         </select>
                     </div>
                     <div class="col-md-12 row">
@@ -626,7 +645,7 @@
                         <div class="form-group">
                             <label for="clasificacion_archivo_id_representante" class="control-label needed">Instrumento</label>
                             <select id="clasificacion_archivo_id_representante" class="form-control select-element">
-                                <option value="">-- Selecciona un instrumento</option>
+                                <option value="">-- Seleccione un instrumento</option>
                                 @foreach($clasificacion_archivos_Representante as $clasificacion)
                                 <option class='{{($clasificacion->tipo_archivo_id == 10) ? "archivo_sindical" : ""}}' value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                 @endforeach
@@ -661,7 +680,7 @@
                     <div class="col-md-5">
                         <label for="tipo_contacto_id" class="col-sm-6 control-label">Tipo de contacto</label>
                         <select id="tipo_contacto_id" class="form-control select-element">
-                            <option value="">-- Selecciona un género</option>
+                            <option value="">-- Seleccione un género</option>
                         </select>
                     </div>
                     <div class="col-md-5">
@@ -871,8 +890,8 @@
                             <label for="parte_solicitante_id" class="col-sm-6 control-label labelResolucion">Solicitante</label>
                             <div class="col-sm-10">
                                 <select id="parte_solicitante_id" class="form-control select-element">
-                                    <option value="">-- Selecciona un solicitante</option>
-                                    @foreach($audiencia->solicitantes as $parte)
+                                    <option value="">-- Seleccione un solicitante</option>
+                                    @foreach($audiencia->solicitantesComparecientes as $parte)
                                         @if($parte->parte->tipo_persona_id == 1)
                                             <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
                                         @else
@@ -888,7 +907,7 @@
                             <label for="parte_solicitado_id" class="col-sm-6 control-label labelResolucion">Citado</label>
                             <div class="col-sm-10">
                                 <select id="parte_solicitado_id" class="form-control select-element">
-                                    <option value="">-- Selecciona un citado</option>
+                                    <option value="">-- Seleccione un citado</option>
                                     @foreach($audiencia->solicitados as $parte)
                                         @if($parte->parte->tipo_persona_id == 1)
                                             <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
@@ -905,7 +924,7 @@
                             <label for="motivo_archivado_id" class="col-sm-6 control-label labelResolucion">Motivo de archivo</label>
                             <div class="col-sm-10">
                                 <select id="motivo_archivado_id" class="form-control select-element">
-                                    <option value="">-- Selecciona un motivo de archivado</option>
+                                    <option value="">-- Seleccione un motivo de archivado</option>
                                     @foreach($motivos_archivo as $motivo)
                                         <option value="{{ $motivo->id }}">{{ $motivo->descripcion }}</option>
                                     @endforeach
@@ -958,7 +977,7 @@
                             <label for="parte_solicitado_id" class="col-sm-6 control-label labelResolucion">Solicitado</label>
                             <div class="col-sm-10">
                                 <select id="parte_solicitado_id" class="form-control select-element">
-                                    <option value="">-- Selecciona un solicitado</option>
+                                    <option value="">-- Seleccione un solicitado</option>
                                     @foreach($audiencia->solicitados as $parte)
                                         @if($parte->parte->tipo_persona_id == 1)
                                             <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
@@ -1284,7 +1303,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Pagos diferidos</h4>
+                <h4 class="modal-title">Fechas para Pagos diferidos</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
@@ -1294,15 +1313,33 @@
                 </div><br> --}}
                 <div class="col-md-12 row">
                     <div class="col-md-12" id="divPagosDiferidos" >
-                        <h5>Fechas para pagos diferidos</h5>
                         <div class="row">
-                            <div class="form-group col-md-6">
-                                <label for="fecha_pago" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
-                                <div class="col-sm-12">
-                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control fecha" autocomplete="off" />
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="pago_solicitante_id" class="col-sm-6 control-label labelResolucion">Solicitante</label>
+                                    <div class="col-sm-12">
+                                        <select id="pago_solicitante_id" class="form-control select-element">
+                                            <option value="">-- Seleccione un solicitante --</option>
+                                            @foreach($audiencia->solicitantesComparecientes as $parte)
+                                                @if($parte->parte->tipo_persona_id == 1)
+                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
+                                                @else
+                                                    <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre_comercial }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group col-md-6">
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-7">
+                                <label for="fecha_pago" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control " autocomplete="off" />
+                                </div>
+                            </div>
+                            <div class="form-group col-md-5">
                                 <label for="monto_pago" class="col-sm-6 control-label labelResolucion">Monto a pagar</label>
                                 <div class="col-sm-12">
                                     <input type="text" id="monto_pago" placeholder="Monto a pagar" class="form-control numero" />
@@ -1319,6 +1356,7 @@
                             <table class="table table-bordered" >
                                 <thead>
                                     <tr>
+                                        <th>Solicitante</th>
                                         <th>Fecha</th>
                                         <th>Monto</th>
                                         <th>Acciones</th>
@@ -1409,6 +1447,8 @@
     var listaResolucionesIndividuales = [];
     var firstTimeStamp = "";
     var listVistaPrevia = [];
+    comparece = false;
+    asignado = true;
     $(document).ready(function(){
         $( "#accordion" ).accordion();
 
@@ -1420,6 +1460,15 @@
         cargarTipoContactos();
         FormMultipleUpload.init();
         Gallery.init();
+        // if($("#atiende_virtual").val() == 1){
+            if($("#virtual").val() == 1 && $("#url_virtual").val() == ""){
+                $("#timeline_etapas").hide();
+            }else{
+                $("#timeline_etapas").show();
+            }
+        // }else{
+        //     $("#timeline_etapas").show();
+        // }
     });
     $(".dateBirth").datepicker({
         changeMonth: true,
@@ -1710,9 +1759,7 @@
         $.each(etapas, function (key, value) {
             var pasoActual = value.etapa_resolucion_id;
             $(".showTime"+pasoActual).text(value.updated_at);
-            if(value.updated_at != ""){
-                $('.btnPaso'+pasoActual).hide();
-            }
+            
             var siguiente = pasoActual+1;
             switch (pasoActual) {
                 case 1:
@@ -1731,6 +1778,7 @@
                     // $('.btnPaso').hide();
                     break;
                 case 6:
+                $('.btnPasos').hide();
                 if(value.elementos_adicionales == "true"){
                         if(!$("#switchAdicionales").is(":checked")){
                             $("#switchAdicionales").click();
@@ -2393,7 +2441,7 @@
             success:function(data){
                 try{
 
-                    $("#genero_id").html("<option value=''>-- Selecciona un género</option>");
+                    $("#genero_id").html("<option value=''>-- Seleccione un género</option>");
                     if(data.data.length > 0){
                         $.each(data.data,function(index,element){
                             $("#genero_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
@@ -2415,12 +2463,12 @@
             success:function(data){
                 try{
                     if(data.data.total > 0){
-                        $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                        $("#tipo_contacto_id").html("<option value=''>-- Seleccione un tipo de contacto</option>");
                         $.each(data.data.data,function(index,element){
                             $("#tipo_contacto_id").append("<option value='"+element.id+"'>"+element.nombre+"</option>");
                         });
                     }else{
-                        $("#tipo_contacto_id").html("<option value=''>-- Selecciona un tipo de contacto</option>");
+                        $("#tipo_contacto_id").html("<option value=''>-- Seleccione un tipo de contacto</option>");
                     }
                     $("#tipo_contacto_id").trigger("change");
                 }catch(error){
@@ -2864,6 +2912,7 @@
         let listaPropuestaConceptos = {};
         totalConceptosPago = 0;
         error =false;
+        mensaje =false;
         $('.collapseSolicitante').each(function() {
             // let idSolicitante =$("#idSolicitante").val();
             idSol=$(this).attr('idSolicitante');
@@ -2881,7 +2930,12 @@
                 }
             }else{
                 error =true;
-                swal({title: 'Error',text: 'Debe seleccionar una propuesta para cada solicitante',icon: 'error'});
+                mensaje = 'Debe seleccionar una propuesta para cada solicitante';
+            }
+            existeFechaPago = listaConfigFechas.find(x=>x.idSolicitante == idSol);
+            if(existeFechaPago == null){
+                    error =true;
+                    mensaje = 'Debe registrar al menos una fecha de pago para cada solicitante';
             }
         });
         //total pagos diferidos
@@ -2902,6 +2956,15 @@
         //     error =true;
         //     swal({title: 'Error',text: 'El monto total de pagos diferidos debe ser igual al total convenido',icon: 'error'});
         // }
+        if($('#solicitud_virual').val()){
+            if(listaConfigFechas.length == 0){
+                error =true;
+                mensaje = "Debe registrar al menos una fecha de pago diferido.";
+            }
+        }
+        if(error){
+            swal({title: 'Error',text: mensaje ,icon: 'error'});
+        }
         return error;
     }
 
@@ -3198,6 +3261,30 @@
             }
             // $("#dias").val("");
             // $("#monto").val("");
+        }
+//Agregar conceptos basicos de las propuestas
+        function copiarConceptosBase(){
+            let idSolicitante = $('#idSolicitante').val();
+            if(listaConfigConceptos[idSolicitante] == undefined ){
+                listaConfigConceptos[idSolicitante] = [];
+            }
+            $.each(listaPropuestas[idSolicitante].completa,function(index,concepto){
+                existeConcepto = listaConfigConceptos[idSolicitante].find(x=>x.concepto_pago_resoluciones_id == concepto.concepto_pago_resoluciones_id);
+                if(existeConcepto == null){
+                    if(concepto.concepto_pago_resoluciones_id == 2 || concepto.concepto_pago_resoluciones_id == 3 || concepto.concepto_pago_resoluciones_id == 4){
+                        listaConfigConceptos[idSolicitante].push({
+                            idSolicitante:idSolicitante,
+                            concepto_pago_resoluciones_id:concepto.concepto_pago_resoluciones_id.toString(),
+                            dias:((concepto.dias).toFixed(2)).toString(),
+                            monto:(concepto.monto).toString(),
+                            otro:"",
+                        });
+                    }
+                }else{
+                    swal({title: 'Error',text: 'El concepto de pago ya se encuentra registrado',icon: 'warning'});
+                }
+            });
+            cargarTablaConcepto(listaConfigConceptos[[idSolicitante]],idSolicitante);
         }
         /*
      * Aqui inician las funciones para administrar el paso 6
@@ -3504,39 +3591,45 @@
             var fpago = new Date(fechaP[1]+'/'+fechaP[0]+'/'+fechaP[2]);
 
             if(fpago <= _45dias){
-                let idSolicitante =$("#idSolicitante").val();
-                if( $("#fecha_pago").val() != "" && $("#monto_pago").val() != ""){
-                    let existe = false;
-                    $.each(listaConfigFechas,function(index,fecha){
-                        if(fecha.fecha_pago == $("#fecha_pago").val() ){
-                            existe= true;
-                        }
-                    });
-                    if(existe){
-                        swal({title: 'Error',text: 'La fecha de pago ya se encuentra registrada',icon: 'warning'});
-                    }else{
-                        if(listaConfigFechas == undefined ){
-                            listaConfigFechas = [];
-                        }
-                        if(isNaN($("#monto_pago").val()) ){
-                            swal({
-                                title: 'Alerta',
-                                text: 'El campo monto a pagar sólo puede contener números y punto decimal',
-                                icon: 'warning'
-                            });
+                let idSolicitante =$("#pago_solicitante_id").val();
+                if(idSolicitante != ""){
+                    if( $("#fecha_pago").val() != "" && $("#monto_pago").val() != ""){
+                        let existe = false;
+                        $.each(listaConfigFechas,function(index,fecha){
+                            if(fecha.fecha_pago == $("#fecha_pago").val() && fecha.idSolicitante ==idSolicitante ){
+                                existe= true;
+                            }
+                        });
+                        if(existe){
+                            swal({title: 'Error',text: 'La fecha de pago para esta parte ya se encuentra registrada',icon: 'warning'});
                         }else{
-                            listaConfigFechas.push({
-                                //idSolicitante:$("#idSolicitante").val(),
-                                fecha_pago:$("#fecha_pago").val(),
-                                monto_pago:$("#monto_pago").val(),
-                            });
+                            if(listaConfigFechas == undefined ){
+                                listaConfigFechas = [];
+                            }
+                            if(isNaN($("#monto_pago").val()) ){
+                                swal({
+                                    title: 'Alerta',
+                                    text: 'El campo monto a pagar sólo puede contener números y punto decimal',
+                                    icon: 'warning'
+                                });
+                            }else{
+                                listaConfigFechas.push({
+                                    idSolicitante:$("#pago_solicitante_id").val(),
+                                    fecha_pago:$("#fecha_pago").val(),
+                                    monto_pago:$("#monto_pago").val(),
+                                });
+                            }   
+                            $("#fecha_pago").val('');
+                            $("#monto_pago").val('');
+                            cargarTablaFechasPago(listaConfigFechas);
+                            $("#pago_solicitante_id").val("");
+                            $("#pago_solicitante_id").trigger("change");
                         }
-                        $("#fecha_pago").val('');
-                        $("#monto_pago").val('');
-                        cargarTablaFechasPago(listaConfigFechas);
+                    }else{
+                        swal({title: 'Error',text: 'Debe ingresar fecha y monto de pago',icon: 'warning'});
                     }
                 }else{
-                    swal({title: 'Error',text: 'Debe ingresar fecha y monto de pago',icon: 'warning'});
+                        swal({title: 'Error',text: 'Debe seleccionar un solicitante',icon: 'warning'});
                 }
             }else{
                 swal({title: 'Error',text: 'La fecha de pago no puede exceder 45 d&iacute;as',icon: 'warning'});
@@ -3554,7 +3647,9 @@
         $.each(listaConfigFechas,function(index,fechaPago){
 
             idSolicitante = fechaPago.idSolicitante;
+            $("#pago_solicitante_id").val(idSolicitante);
             table +='<tr>';
+                table +='<td>'+$("#pago_solicitante_id option:selected").text(),+'</td>';
                 table +='<td>'+fechaPago.fecha_pago+'</td>';
                 table +='<td>'+(fechaPago.monto_pago)+'</td>';
                 table +='<td>';
@@ -3774,9 +3869,11 @@
                 $('#parte_solicitado_id > option').each(function() {
                     let solicitadoId = this.value;
                     if( solicitadoId !=null && solicitadoId !="" ){
+                        solicitadoId = getParteSolicitud(solicitadoId);
                         $('#parte_solicitante_id > option').each(function() { //mostrar convenio por cada solicitante
                             let solicitanteId = this.value;
                             if( solicitanteId !=null && solicitanteId !="" ){
+                                solicitanteId = getParteSolicitud(solicitanteId);
                                 listVistaPrevia.push({
                                     plantilla_id : 1, // acta de no conciliacion
                                     parte_solicitante_id: solicitanteId,
@@ -3810,6 +3907,24 @@
         }
         vistaPrevia(listVistaPrevia[numDoc].plantilla_id, listVistaPrevia[numDoc].parte_solicitante_id, listVistaPrevia[numDoc].parte_solicitado_id );
         $('#noDocumento').val(numDoc+1);
+    }
+
+    function getParteSolicitud(idParte){
+        var idParteSolicitud = idParte;
+        $.ajax({
+            url:"/partes/getParteSolicitud/"+idParte,
+            type:"GET",
+            dataType:"json",
+            async:false,
+            success:function(data){
+                try{
+                    idParteSolicitud = data;
+                }catch(error){
+                    console.log(error);
+                }
+            }
+        });
+        return idParteSolicitud;
     }
 
     function vistaPrevia(plantilla_id,solicitante_id = null,citado_id = null){
@@ -3849,7 +3964,7 @@
                 audiencia_id:'{{ $audiencia->id }}',
                 solicitud_id:'{{ $solicitud_id }}',
                 solicitante_id:solicitante_id,
-                solicitado_id:citado_id,
+                citado_id:citado_id,
                 plantilla_id: plantilla_id,
                 convenio:$("#convenio").val(),
                 desahogo:$("#desahogo").val(),
@@ -3938,6 +4053,35 @@
             });
         }
     }
+    function guardarUrlVirtual(){
+        if($("#url_virtual").val() != ""){
+            $.ajax({
+                url:"/guardarUrlVirtual",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    url_virtual:$("#url_virtual").val(),
+                    solicitud_id:'{{$solicitud_id}}',
+                    _token:"{{ csrf_token() }}"
+                },
+                async:true,
+                success:function(data){
+                    try{
+                        if(data.success){
+                            swal({ title: 'Éxito', text: 'Url guardada correctamente', icon: 'success'});
+                            $("#timeline_etapas").show();
+                        }else{
+                            swal({title: 'Error',text: 'No se pudo guardar la url',icon: 'error'});
+                        }
+                    }catch(error){
+                        console.log(error);
+                    }
+                }
+            });
+        }else{
+            swal({title: 'Error',text: 'Es necesario ingresar la url',icon: 'error'});
+        }
+    }
     $('.upper').on('keyup', function () {
         var valor = $(this).val();
         $(this).val(valor.toUpperCase());
@@ -3953,7 +4097,23 @@
         format:'dd/mm/yyyy',
     });
     $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
-    $("#fecha_pago").datepicker({minDate: new Date()});
+    // $.fn.datetimepicker.dates['es'] = {
+    //     days: ["Domin", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    //     daysShort: ["Dom", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    //     daysMin: ["Do", "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+    //     months: ["Enero", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    //     monthsShort: ["Ene", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    //     today: "Today"
+    // };
+    $("#fecha_pago").datetimepicker({
+        locale: 'es',
+        inline: true,
+        sideBySide: true,
+        minDate: new Date(),
+        format: 'DD/MM/YYYY hh:mm',
+        });
 </script>
+<script src="/assets/plugins/moment/moment.js"></script>
+<script src='/assets/plugins/moment/locale/es.js'></script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush

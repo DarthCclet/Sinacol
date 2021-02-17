@@ -64,11 +64,7 @@ class StringTemplate
       }
       if(Str::contains($string, '[SI_')){
         $countSi = substr_count($string, '[FIN_SI');
-        $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
-        $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
-        $countSolicitudRatificada = substr_count($string,'[SI_SOLICITUD_RATIFICADA]');
         $countPagosDiferidos = substr_count($string,'[SI_RESOLUCION_PAGO_DIFERIDO]');
-
         if (isset($vars['resolucion_total_diferidos'])){
           if($countPagosDiferidos >0){
             for ($i=0; $i < $countPagosDiferidos; $i++) {
@@ -76,7 +72,7 @@ class StringTemplate
                 // texto de pagos diferidos
                 $sliceDiferido = Str::after($string, '[SI_RESOLUCION_PAGO_DIFERIDO]');
                 $sliceDiferido = Str::before($sliceDiferido, '[SI_RESOLUCION_PAGO_NO_DIFERIDO]');
-                $htmlA = Str::before($string, '[SI_RESOLUCION_');
+                $htmlA = Str::before($string, '[SI_RESOLUCION_PAGO');
                 $htmlB = Str::after($string, '[FIN_SI_RESOLUCION_PAGO]');
 
                 $string = $htmlA . $sliceDiferido . $htmlB;
@@ -94,41 +90,8 @@ class StringTemplate
             }
           }
         }
-        if (isset($vars['solicitado_tipo_notificacion'])){
-          if ($countTipoNotificacion >0 ){
-            if($vars['solicitado_tipo_notificacion'] != null && $vars['solicitado_tipo_notificacion'] != "--"){
-              for ($i=0; $i < $countTipoNotificacion; $i++) {
-                $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-                $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-                switch ($vars['solicitado_tipo_notificacion']) {
-                  case 1: // El solicitante entrega citatorio a solicitados
-                    // texto de notificacion por solicitante
-                    $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
-                    $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
 
-                    $string = $htmlA . $sliceNotificacion . $htmlB;
-                  break;
-                  default: //2 y 3
-                  // case 2: //El actuario del centro entrega citatorio a solicitados
-                    // texto de notificacion por actuario
-                    $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
-                    $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-
-
-                    $string = $htmlA . $sliceNotificacion . $htmlB;
-                  // default: // 3
-                    // $string = $htmlA . $htmlB;
-                  break;
-                }
-              }
-            }else{
-              $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
-              $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-              $sliceNotificacion = "Las partes se presentan de manera voluntaria ante esta autoridad conciliatoria.";
-              $string = $htmlA . $sliceNotificacion . $htmlB;
-            }
-          }
-        }
+        $countAudienciaSeparada = substr_count($string,'[SI_AUDIENCIA_POR_SEPARADO]');
         if (isset($vars['audiencia_multiple'])){
           if($vars['audiencia_multiple'] != null && $countAudienciaSeparada > 0){
             for ($i=0; $i < $countAudienciaSeparada; $i++) {
@@ -152,6 +115,7 @@ class StringTemplate
             }
           }
         }
+        $countSolicitudRatificada = substr_count($string,'[SI_SOLICITUD_RATIFICADA]');
         if (isset($vars['solicitud_estatus_solicitud_id'])&& $countSolicitudRatificada > 0){
           for ($i=0; $i < $countSolicitudRatificada; $i++) {
             $htmlA = Str::before($string, '[SI_SOLICITUD_RATIFICADA');
@@ -159,15 +123,107 @@ class StringTemplate
             if($vars['solicitud_estatus_solicitud_id'] != 1 ){ //solicitud ratificada o termindada
                 // texto de datos de acceso a buzon
                 $sliceRatificada = Str::after($string, '[SI_SOLICITUD_RATIFICADA]');
+                $sliceRatificada = Str::before($sliceRatificada, '[SI_SOLICITUD_NO_RATIFICADA]');
+
+                $string = $htmlA . $sliceRatificada . $htmlB;
+            }else{//solicitud no ratificada
+                $sliceRatificada = Str::after($string, '[SI_SOLICITUD_NO_RATIFICADA]');
                 $sliceRatificada = Str::before($sliceRatificada, '[FIN_SI_SOLICITUD_RATIFICADA]');
 
                 $string = $htmlA . $sliceRatificada . $htmlB;
-              }else{//solicitud no ratificada
-                $string = $htmlA . $htmlB;
             }
           }
         }
+        $countSolicitudIndividual = substr_count($string,'[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+        if (isset($vars['solicitud_tipo_solicitud_id'])&& $countSolicitudIndividual > 0){
+          for ($i=0; $i < $countSolicitudIndividual; $i++) {
+            $htmlA = Str::before($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+            $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_TIPO]');
+            if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual  
+              // texto para solicitud individual
+              $sliceIndividual = Str::after($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+              $sliceIndividual = Str::before($sliceIndividual, '[FIN_SI_SOLICITUD_TIPO]');
+              $string = $htmlA . $sliceIndividual . $htmlB;
+            }else{//solicitud no individual
+              $string = $htmlA . $htmlB;
+            }
+          }
+        }
+        $countSolicitudVirtual = substr_count($string,'[SI_SOLICITUD_VIRTUAL]');
+        if (isset($vars['solicitud_virtual'])&& $countSolicitudVirtual > 0){
+          for ($i=0; $i < $countSolicitudVirtual; $i++) {
+            if($vars['solicitud_virtual'] == 'Si'){ //solicitud es virtual
+                $htmlA = Str::before($string, '[SI_SOLICITUD_VIRTUAL');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_VIRTUAL]');
+                $sliceVirtual = Str::after($string, '[SI_SOLICITUD_VIRTUAL]');
+                $sliceVirtual = Str::before($sliceVirtual, '[SI_SOLICITUD_NO_VIRTUAL]');
 
+                $string = $htmlA . $sliceVirtual . $htmlB;
+              }else if($vars['solicitud_virtual']== 'No'){//solicitud no virtual
+                $htmlA = Str::before($string, '[SI_SOLICITUD_VIRTUAL');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_VIRTUAL]');
+                $sliceVirtual = Str::after($string, '[SI_SOLICITUD_NO_VIRTUAL]');
+                $sliceVirtual = Str::before($sliceVirtual, '[FIN_SI_SOLICITUD_VIRTUAL]');
+
+                $string = $htmlA . $sliceVirtual . $htmlB;
+            }
+          }
+        }
+        $countCentroVirtual = substr_count($string,'[SI_CENTRO_ATIENDE_VIRTUAL]');
+        if (isset($vars['centro_atiende_virtual'])&& $countCentroVirtual > 0){
+          for ($i=0; $i < $countCentroVirtual; $i++) {
+            if($vars['centro_atiende_virtual'] == 'Si' ){ //solicitud es virtual
+              $htmlA = Str::before($string, '[SI_CENTRO_ATIENDE_VIRTUAL');
+              $htmlB = Str::after($string, '[FIN_SI_CENTRO_ATIENDE]');
+                $sliceCentroVirtual = Str::after($string, '[SI_CENTRO_ATIENDE_VIRTUAL]');
+                $sliceCentroVirtual = Str::before($sliceCentroVirtual, '[SI_CENTRO_NO_ATIENDE_VIRTUAL]');
+
+                $string = $htmlA . $sliceCentroVirtual . $htmlB;
+              }else if($vars['centro_atiende_virtual'] == 'No' ){//solicitud no virtual
+                $htmlA = Str::before($string, '[SI_CENTRO_ATIENDE_VIRTUAL');
+                $htmlB = Str::after($string, '[FIN_SI_CENTRO_ATIENDE]');
+
+                $sliceCentroVirtual = Str::after($string, '[SI_CENTRO_NO_ATIENDE_VIRTUAL]');
+                $sliceCentroVirtual = Str::before($sliceCentroVirtual, '[FIN_SI_CENTRO_ATIENDE]');
+
+                $string = $htmlA . $sliceCentroVirtual . $htmlB;
+            }
+          }
+        }
+        $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
+        if (isset($vars['solicitado_tipo_notificacion'])){
+          if ($countTipoNotificacion >0 ){
+            if($vars['solicitado_tipo_notificacion'] != null && $vars['solicitado_tipo_notificacion'] != "--"){
+              for ($i=0; $i < $countTipoNotificacion; $i++) {
+                $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+                $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                switch ($vars['solicitado_tipo_notificacion']) {
+                  case 1: // El solicitante entrega citatorio a solicitados
+                    // texto de notificacion por solicitante
+                    $sliceNotificacion = Str::after($string, '[SI_SOLICITANTE_NOTIFICA]');
+                    $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NO_NOTIFICA]');
+
+                    $string = $htmlA . $sliceNotificacion . $htmlB;
+                  break;
+                  default: //2 y 3
+                  // case 2: //El actuario del centro entrega citatorio a solicitados
+                    // texto de notificacion por actuario
+                    $sliceNotificacion = Str::after($string, '[SI_NO_NOTIFICA]');
+                    $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+                    $string = $htmlA . $sliceNotificacion . $htmlB;
+                  // default: // 3
+                    // $string = $htmlA . $htmlB;
+                  break;
+                }
+              }
+            }else{
+              $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+              $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+              $sliceNotificacion = "Las partes se presentan de manera voluntaria ante esta autoridad conciliatoria.";
+              $string = $htmlA . $sliceNotificacion . $htmlB;
+            }
+          }
+        }
         $partes = ['solicitado','solicitante'];
         foreach ($partes as $key => $parteL) {
           $htmlA ="";

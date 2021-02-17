@@ -22,8 +22,11 @@ Route::get('/asesoria/{accion}', 'AsesoriaController@index');
 Route::get('/solicitudes/create-public','SolicitudController@create');
 Route::post('/solicitudes/store-public','SolicitudController@store');
 Route::Get('solicitudes/documentos/{solicitud_id}/acuse','SolicitudController@getAcuseSolicitud');
+Route::post('/solicitud/identificacion','SolicitudController@identificacion');
 Route::get('/aviso-privacidad','DocumentoController@aviso_privacidad');
 Route::get('/version','HomeController@version');
+Route::get('centro/getAtiendeVirtual/{estado_id}','CentroController@getAtiendeVirtual');
+Route::Get('canal/{canal}','SolicitudController@canal');
 Route::middleware(['auth'])->group(function () {
 
 
@@ -64,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('solicitud/correos/{solicitud_id}','SolicitudController@validarCorreos');
     Route::POST('solicitud/correos','SolicitudController@cargarCorreos');
     Route::Get('solicitudes/documentos/{solicitud_id}','SolicitudController@getDocumentosSolicitud');
+    Route::POST('guardarUrlVirtual','SolicitudController@guardarUrlVirtual');
     Route::resource('expedientes','ExpedienteController');
     Route::resource('audiencias','AudienciaController');
     Route::resource('audiencia','AudienciaController');
@@ -81,6 +85,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
     Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
     Route::Post('audiencia/nuevaAudiencia','AudienciaController@NuevaAudiencia');
+    Route::Post('audiencia/nuevaAudienciaCalendario','AudienciaController@NuevaAudienciaCalendario');
     Route::Post('audiencia/registrarPagoDiferido','AudienciaController@registrarPagoDiferido');
     Route::Post('audiencia/generarConstanciaNoPago','AudienciaController@generarConstanciaNoPago');
 
@@ -95,6 +100,8 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('audiencia/negarCancelacion/{audiencia_id}','AudienciaController@negarCancelacion');
     Route::Post('audiencias/cambiar_fecha','AudienciaController@cambiarFecha');
     Route::Post('audiencias/solicitar_nueva','AudienciaController@SolicitarNueva');
+    Route::Post('audiencias/nuevaAudienciaNotificacion','AudienciaController@NuevaAudienciaNotificacion');
+
     Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');
     Route::get('resolucionColectiva/{id}','AudienciaController@resolucionColectiva')->name('resolucionColectiva');
     Route::Post('audiencia/guardarAudienciaColectiva','AudienciaController@guardarAudienciaColectiva');
@@ -111,6 +118,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('partes/representante/contacto','ParteController@AgregarContactoRepresentante');
     Route::Post('partes/representante/contacto/eliminar','ParteController@EliminarContactoRepresentante');
     Route::GET('partes/getComboDocumentos/{solicitud_id}','ParteController@getPartesComboDocumentos');
+    Route::Get('partes/getParteSolicitud/{parte_id}','ParteController@getParteSolicitud');
     Route::resource('roles-atencion','RolAtencionController');
     Route::resource('objeto-solicitud','ObjetoSolicitudController');
     Route::resource('estatus-solicitud','EstatusSolicitudController');
@@ -207,14 +215,30 @@ Route::middleware(['auth'])->group(function () {
      * descarga de calendario
      */
     Route::post('descargaCalendario','CentroController@descargarCalendario')->name("descargaCalendario");
-    
+
     /*
      * Centro
      */
     Route::post('centros/contactos','CentroController@ObtenerContactos');
     Route::post('centros/agregar_contacto','CentroController@AgregarContacto');
+    Route::post('centros/contactos/eliminar','CentroController@EliminarContacto');
+
+    /*
+     * Suspensión de virtuales
+     */
+    Route::get('audiencia/suspension/{audiencia_id}','AudienciaController@SuspensionVirtual');
+
+
 });
+
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
+
+
+/**
+ * Ruta para envío de certificados digitales desde el buzón
+ */
+Route::post('documentos/firmado','DocumentoController@firmado');
+Route::get('documentos/firmado/obtener/{firma_documento_id}','DocumentoController@ObtenerFirmado');
 
 Route::get('solicitud_buzon','BuzonController@SolicitudBuzon')->name('solicitud_buzon');
 
