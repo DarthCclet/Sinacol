@@ -233,10 +233,10 @@ trait GenerateDocument
                                 if($n == "comida_dentro"){
                                   $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
                                 }
-                                $pos = strpos($n,'fecha');
-                                if ($pos !== false && $v != "--"){
-                                  $v = Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
-                                }
+                                // $pos = strpos($n,'fecha');
+                                // if ($pos !== false && $v != "--"){
+                                //   $v = Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
+                                // }
                                 $vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
                              }
                           }elseif ($k == 'nombre_completo') {
@@ -737,7 +737,7 @@ trait GenerateDocument
                     }
 
                     //Firma administrador centro
-                    if($idDocumento){
+                    if($idDocumento && $userAdmin!=null){
                       if($idAudiencia){
                         $existe = $userAdmin->firmas()->where('audiencia_id',$idAudiencia)->where('solicitud_id',$idSolicitud)->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
                       }else{
