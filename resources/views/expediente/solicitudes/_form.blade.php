@@ -3061,7 +3061,7 @@
                 }
             break;
             case 3:
-                if($('#divMapaSolicitante').parsley().validate()){
+                if($('#divMapaSolicitante').parsley().validate() && $("#asentamientosolicitante").val() != "" ){
                     if($("#tipo_solicitud_id").val() == 1){
                         $('#divDatoLaboralSolicitante').show();
                         $('#divBotonesSolicitante').show();
@@ -3115,7 +3115,7 @@
                 // if($("#tipo_solicitud_id").val() == "2"){
                 //     $('#divDatoLaboralCitado').show();
                 // }
-                if($('#divMapaSolicitado').parsley().validate()){
+                if($('#divMapaSolicitado').parsley().validate() && $("#asentamientosolicitado").val() != "" ){
                     $('#divBotonesSolicitado').show();
                     $('#continuarSolicitado3').hide();
                 }else{
