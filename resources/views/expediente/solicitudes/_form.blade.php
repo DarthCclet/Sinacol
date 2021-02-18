@@ -2998,17 +2998,17 @@
             async:true,
             success:function(data){
                 try{
-                    if(data.atiende_virtual){
-                        $("#divPasoFinal").hide();
-                        $("#btnGuardar").hide();
-                        $(".atiendeVirtual").show();
-                        $("#atiende_virtual").val(true);
-                    }else{
+                    if(data.tipo_atencion_centro_id == 2){
                         $("#divPasoFinal").show();
                         $("#btnGuardar").show();
                         $(".atiendeVirtual").hide();
                         $("#atiende_virtual").val(false);
                         $("#radioVirtual1").prop("checked", false);
+                    }else{
+                        $("#divPasoFinal").hide();
+                        $("#btnGuardar").hide();
+                        $(".atiendeVirtual").show();
+                        $("#atiende_virtual").val(true);
                     }
                 }catch(error){
                     console.log(error);
