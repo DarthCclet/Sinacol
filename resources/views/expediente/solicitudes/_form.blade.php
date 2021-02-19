@@ -2687,7 +2687,7 @@
                         }else{
                             swal({
                                 title: 'Error',
-                                text: ' Error al capturar la solicitud',
+                                text: ' '+data.responseJSON.message,
                                 icon: 'error'
                             });
                         }

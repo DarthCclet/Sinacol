@@ -9,7 +9,12 @@
                 <hr class="red">
             </div>
             <input type="hidden" id="dato_laboral_id">
-
+            <div style="font-size: .9rem; margin-bottom: 2%;" class="col-md-12" >
+                
+                    <p>A continuación se le piden datos laborales para realizar una cuantificación sencilla para el caso de un(a) trabajador(a) que sufre un despido injustificado. </p>
+                    <p>Se cuantifican solamente los conceptos de indemnización constitucional, vacaciones y prima vacacional proporcionales al último periodo laborado, aguinaldo proporcional al último año laborado y prima de antigüedad. </p>
+                    <p>Para esta cuantificación, el salario que ingrese debe ser su salario base. Dicho salario se utiliza para la cuantificación de vacaciones, prima vacacional, aguinaldo y prima de antigüedad. Para la indemnización constitucional, el sistema emplea el salario integrado con base en su salario base y la integración de la prima vacacional y el aguinaldo de manera proporcional.</p>
+            </div>
             <div class="col-md-12 row">
                 <div class="col-md-4">
                     <input class="form-control numero required" required data-parsley-type='number' id="remuneracion" max="99999999" placeholder="¿Cu&aacute;nto te pagan?" type="text" value="">
@@ -59,7 +64,9 @@
         <input type="hidden" id="antiguedad"/>
         <div>
             @if($origen == "10101010")
-                <p>La propuesta completa reúne las indemnizaciones por despido, que incluyen la indemnización constitucional y la prima de antigüedad, al 100%. Se suman a esta propuesta el 100% de las prestaciones adquiridas de aguinaldo, vacaciones y prima vacacional. La propuesta de 45 días incluye la mitad de la indemnización constitucional, la mitad de la prima de antigüedad y al 100% de las prestaciones adquiridas. Generalmente en la pláticas y audiencias de conciliación, se arregla el conflicto de despido en una rango entre estas dos propuestas.</p>
+            <div style="font-size: .9rem; margin-bottom: 2%;" class="col-md-12" >
+                <p>La propuesta completa reúne las indemnizaciones por despido, que incluyen la indemnización constitucional y la prima de antigüedad al 100%.  Se suman a esta propuesta el 100% de las prestaciones adquiridas de aguinaldo, vacaciones y prima vacacional.</p> <p>La propuesta de 45 días incluye la mitad de la indemnización constitucional, la mitad de la prima de antigüedad (sólo si la antigüedad es menor a 15 años, sino se considera el 100%) y el 100% de las prestaciones adquiridas. <p> Generalmente en las pláticas conciliatorias y audiencias de conciliación, el conflicto de despido se arregla en un rango entre estas dos propuestas.Recuerde que existen casos más complejos en los que el(la) trabajador(a) tiene derecho a más o mayores prestaciones. Por lo tanto, estos cálculos son aproximados y no son necesariamente exactos para su caso en particular.</p> <p> Usted deberá exponer con detalle las prestaciones de su relación de trabajo a el(la) funcionario(a) conciliador(a) durante su proceso de conciliación prejudicial.</p>
+            </div>
             @elseif($origen == "10201010" || $origen == "10301010")
                 <p>PRESTACIONES: Se muestran el cálculo las prestaciones de la Ley Federal del Trabajo, el aguinaldo, las vacaciones y la prima vacacional, proporcionales en cada caso al año en curso. En caso de que haya laborado 15 años o más, se muestra adicionalmente la prima de antigüedad porque ésta vuelve una prestación adquirida. El finiquito de ley en caso de que haya renunciado de manera voluntaria, incluye estas prestaciones (sin o con la prima de antigüedad dependiendo de no haber o haber cumplido 15 años de servicio) además de cualquier salario u otra prestación devengada (ejemplo: días laborados que no se pagaron, aguinaldo del año anterior, etc.)</p>
             @elseif($origen == "10401010")
