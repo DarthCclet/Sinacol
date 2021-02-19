@@ -1341,7 +1341,7 @@ class PlantillasDocumentosController extends Controller
         {
           try {
             if($tipo!=3){ //no es hora
-              $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noivembre", "Diciembre"];
+              $monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio","Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
               $hh= "";
               if(strpos($fecha, " ") ){
                 $date = explode(' ', $fecha);
