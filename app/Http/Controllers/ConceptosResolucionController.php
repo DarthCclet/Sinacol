@@ -141,7 +141,7 @@ class ConceptosResolucionController extends Controller
             $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
             $labora_actualmente = $datoLaborales->labora_actualmente;
             if($labora_actualmente == false){
-                $fechaSalida = Carbon::parse($datoLaborales->fecha_salida)->addHours(24)->format('d/m/Y');
+                $fechaSalida = Carbon::parse($datoLaborales->fecha_salida)->addHours(24);
                 $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears($fechaSalida);
             }else{
                 $fechaSalida = "Labora actualmente";
