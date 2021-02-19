@@ -2308,15 +2308,17 @@ class AudienciaController extends Controller {
                         $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
                         foreach ($audiencia_partes as $key => $audienciaP) {
                             if ($audienciaP->parte->tipo_parte_id == 2) {
-                                $comparecio = false;
-                                foreach ($comp as $comp_aud) {
-                                    if($comp_aud == $audienciaP->parte_id){
-                                        $comparecio = true;
+                                if(!$audienciaP->parte->multado){
+                                    $comparecio = false;
+                                    foreach ($comp as $comp_aud) {
+                                        if($comp_aud == $audienciaP->parte_id){
+                                            $comparecio = true;
+                                        }
                                     }
-                                }
-                                if(!$comparecio){
-                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
-                                    array_push($arrayMultadoNotificacion, $audienciaP->parte_id);
+                                    if(!$comparecio && $audienciaP->finalizado == "FINALIZADO EXITOSAMENTE"){
+                                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
+                                        array_push($arrayMultadoNotificacion, $audienciaP->parte_id);
+                                    }
                                 }
                             }
                         }
@@ -2332,6 +2334,7 @@ class AudienciaController extends Controller {
                     event(new RatificacionRealizada($audiencia_notificar_id, "citatorio"));
                 } else {
                     foreach ($arrayMultadoNotificacion as $parte) {
+                        Parte::find($parte)->update(["multado" => true]);
                         event(new RatificacionRealizada($audiencia_notificar_id, "multa", false, $parte));
                     }
                 }
