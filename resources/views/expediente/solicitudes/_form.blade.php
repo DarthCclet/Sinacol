@@ -836,15 +836,22 @@
                         <div class="col-md-12 atiendeVirtual row" style="display: none; margin:2%;">
                             <div class="col-md-12">
                                 <h3 for='virtual'>Llevar procedimiento v&iacute;a remota</h3>
-                                <p style="font-size: large;">
-                                    Conforme al <a target="_blank" href="https://www.dof.gob.mx/nota_detalle.php?codigo=5608350&fecha=21/12/2020 ">Acuerdo</a> por el que se establece la suspensión de plazos y términos en el Centro Federal de Conciliación y Registro Laboral publicado el 21 de diciembre de 2020 en el Diario Oficial de la Federación, se declara la suspensión de plazos y términos en las entidades federativas que se encuentren o que pasen a color rojo en el semáforo epidemiológico. 
-                                </p>
-                                <p style="font-size: large;">
-                                    Con base en lo anterior, si usted elige llevar el procedimiento de conciliación de forma presencial podrá guardar su solicitud y recibirá el correspondiente acuse, pero no podrá continuar con el procedimiento de conciliación hasta que la entidad federativa donde se encuentra la Oficina Estatal competente pase a color naranja en el semáforo epidemiológico.
-                                </p>
-                                <p style="font-size: large;">
-                                    En caso de seleccionar la conciliación en línea se seguir&aacute; el procedimiento conforme a los t&eacute;rminos establecidos en la Ley.
-                                </p>
+                                <div id="solo_virtual" style="display: none">
+                                    <p style="font-size: large;">
+                                        Actualmente se encuentran suspendidos los plazos y t&eacute;rminos para la conciliaci&oacute;n presencial en su entidad federativa. Por lo tanto, si usted elige llevar el procedimiento de conciliaci&oacute;n de forma presencial podr&aacute; guardar su solicitud y recibir&aacute; el correspondiente acuse, pero no podr&aacute; continua con el procedimiento de conciliaci&oacute;n hasta que la conciliaci&oacute;n presencial sea autorizada en la Oficina Estatal competente en su entidad. 
+                                    </p>
+                                    <p style="font-size: large;">
+                                        En caso de seleccionar la conciliaci&oacute;n v&iacute;a remota se seguir&aacute; el procedimiento conforme a los t&eacute;rminos establecidos en la Ley.
+                                    </p>
+                                </div>
+                                <div id="atiende_mixta" style="display: none">
+                                    <p style="font-size: large;">
+                                        En su entidad federativa existe la posibilidad de llevar el proceso de conciliación de manera presencial o v&iacute;a remota. Si escoge la modalidad presencial, tendr&aacute; que acudir a la Oficina Estatal competente para la confirmaci&oacute;n de su solicitud y para cada audiencia o tr&aacute;mite de su procedimiento. 
+                                    </p>
+                                    <p style="font-size: large;">
+                                        Si escoge la modalidad v&iacute;a remota, podr&aacute; adjuntar su identificación oficial a la solicitud, llevar a cabo la confirmación de la solicitud v&iacute;a remota y realizar todas las audiencias y tr&aacute;mites de su procedimiento v&iacute;a remota.
+                                    </p>
+                                </div>
                                 <div style="margin-left: auto;">
                                     {{-- <label style="font-size: large;" for="virtual">Aceptar procedimiento v&iacute;a remota</label>
                                     <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="virtual" name='virtual'/> --}}
@@ -859,7 +866,7 @@
                                     <ul>
                                         <li style="font-size: large;" > Si desea llevar a cabo el procedimiento v&iacute;a remota se requiere que a continuaci&oacute;n cargue una identificación por cada solicitante. La identificaci&oacute;n la deber&aacute; cargar en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto a su nombre. </li>
                                         <li style="font-size: large;" > Usted deber&aacute; seguir las instrucciones detalladas en el acuse para confirmar la solicitud y que se genere la fecha y hora de la audiencia de conciliaci&oacute;n v&iacute;a remota, misma que, posteriormente, se le deber&aacute; notificar al citado. Todo el procedimiento se har&aacute; por medio de una liga &uacute;nica que se le proporcionar&aacute; en el acuse de solicitud </li>
-                                        <li style="font-size: large;" > Una vez asignada la fecha y hora para la celebraci&oacute;n de la audiencia v&iacute;a remota usted comparecerá a trav&eacute;s de la liga única proporcionada. </li>
+                                        <li style="font-size: large;" > Una vez asignada la fecha y hora para la celebraci&oacute;n de la audiencia v&iacute;a remota usted comparecer&aacute; a trav&eacute;s de la liga única proporcionada. </li>
                                     </ul>
                                 </div>
                                 <div class="col-md-12 row">
@@ -3008,6 +3015,13 @@
                         $("#divPasoFinal").hide();
                         $("#btnGuardar").hide();
                         $(".atiendeVirtual").show();
+                        if(data.tipo_atencion_centro_id == 1){
+                            $("#solo_virtual").show();
+                            $("#atiende_mixta").hide();
+                        }else if(data.tipo_atencion_centro_id == 3){
+                            $("#atiende_mixta").show();
+                            $("#solo_virtual").hide();
+                        }
                         $("#atiende_virtual").val(true);
                     }
                 }catch(error){
