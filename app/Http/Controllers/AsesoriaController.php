@@ -116,7 +116,7 @@ class AsesoriaController extends Controller
                 //este es el calculo del pre registro
                 $jornadas = array_pluck(Jornada::all(),'nombre','id');
                 $periodicidades = array_pluck(Periodicidad::all(),'nombre','id');
-                $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
+                $ocupaciones = array_pluck(Ocupacion::orderBy('nombre')->get(),'nombre','id');
                 $origen = $this->request->origen;
                 return view('asesoria.presolicitud', compact('jornadas','periodicidades','ocupaciones','origen'));
                 break;
@@ -138,7 +138,7 @@ class AsesoriaController extends Controller
             case 'presolicitud':
                 $jornadas = array_pluck(Jornada::all(),'nombre','id');
                 $periodicidades = array_pluck(Periodicidad::all(),'nombre','id');
-                $ocupaciones = array_pluck(Ocupacion::all(),'nombre','id');
+                $ocupaciones = array_pluck(Ocupacion::orderBy('nombre')->get(),'nombre','id');
                 $origen = $this->request->origen;
                 return view('asesoria.presolicitud', compact('jornadas','periodicidades','ocupaciones','origen'));
             break;
