@@ -1463,7 +1463,7 @@ class PlantillasDocumentosController extends Controller
                                   $pos = strpos($n,'fecha');
                                   if ($pos !== false && $v != "--"){
                                     if($n == "fecha_salida"){
-                                      $v = ($resolucion_id = "1")?Carbon::now()->format('d/m/Y'): Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
+                                      $v = ($resolucion_id = "1" && $v=="") ?Carbon::now()->format('d/m/Y'): Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
                                     }else{
                                       $v = Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
                                     }
