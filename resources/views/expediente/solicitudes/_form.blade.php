@@ -846,7 +846,7 @@
                                 </div>
                                 <div id="atiende_mixta" style="display: none">
                                     <p style="font-size: large;">
-                                        En su entidad federativa existe la posibilidad de llevar el proceso de conciliación de manera presencial o v&iacute;a remota. Si escoge la modalidad presencial, tendr&aacute; que acudir a la Oficina Estatal competente para la confirmaci&oacute;n de su solicitud y para cada audiencia o tr&aacute;mite de su procedimiento. 
+                                        En su entidad federativa existe la posibilidad de llevar el procedimiento de conciliación de manera presencial o v&iacute;a remota. Si escoge la modalidad presencial, tendr&aacute; que acudir a la Oficina Estatal competente para la confirmaci&oacute;n de su solicitud y para cada audiencia o tr&aacute;mite de su procedimiento. 
                                     </p>
                                     <p style="font-size: large;">
                                         Si escoge la modalidad v&iacute;a remota, podr&aacute; adjuntar su identificación oficial a la solicitud, llevar a cabo la confirmación de la solicitud v&iacute;a remota y realizar todas las audiencias y tr&aacute;mites de su procedimiento v&iacute;a remota.
