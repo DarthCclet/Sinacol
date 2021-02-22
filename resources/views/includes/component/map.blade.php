@@ -65,7 +65,7 @@
             <select id="estado_id{{$identificador}}" required="" class="form-control estadoSelect{{$identificador}} direccionUpd{{$identificador}} " name="domicilio[estado_id]" >
                 <option value="">Seleccione una opción</option>
                 @foreach ($estados as $estado)
-                    <option class="{{ $estado->en_vigor ? '' : 'no_enVigor'}}" value="{{$estado->id}}">{{$estado->nombre}}</option>
+                    <option class="{{ $estado->en_vigor ? '' : 'no_enVigor'}}" {{(isset($domicilio->estado_id) && $estado->id == $domicilio->estado_id ) ? 'selected' : '' }}  value="{{$estado->id}}">{{$estado->nombre}}</option>
                 @endforeach
             </select>
             {!! $errors->first('domicilio[estado_id]', '<span class=text-danger>:message</span>') !!}
@@ -103,10 +103,15 @@
         <p class="help-block">Número interior</p>
     </div>
     <div class="col-md-5" title="Escribe el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Si escoges la correcta se llenarán de forma automática los demás campos." data-toggle="tooltip" data-placement="top">
-        <select name="asentamientoAutoc" placeholder="Seleccione" value='{{isset($domicilio) ? $domicilio->asentamiento : ""}}' id="asentamientoAutoc{{$identificador}}" class="form-control"></select>
+        <select name="asentamientoAutoc" placeholder="Seleccione"  id="asentamientoAutoc{{$identificador}}" class="form-control">
+            @if(isset($domicilio) && isset($domicilio->asentamiento))
+                <option value='{{isset($domicilio) ? $domicilio->asentamiento : ""}}' selected='selected'>{{$domicilio->asentamiento}}</option>
+            @endif
+        </select>
         <input type="hidden" id="term{{$identificador}}">
         <p class="help-block upper needed">Escribe el nombre de tu colonia.</p>
-        <input type="hidden" name="domicilio[asentamiento]" id="asentamiento{{$identificador}}" >
+        <input type="hidden" name="domicilio[asentamiento]" value='{{isset($domicilio) ? $domicilio->asentamiento : ""}}' id="asentamiento{{$identificador}}" >
+        
     </div>
 
     {{-- <div class="col-md-4">
@@ -285,6 +290,14 @@
         }
 
         domicilio.getDomicilio = function(){
+            if($("#asentamiento"+identifier).val() == ""){
+                swal({
+                    title: '',
+                    text: 'seleccione una colonia para continuar',
+                    icon: 'warning'
+                });
+                return ;
+            }
             var domicilioLoc = {};
             domicilioLoc.id = $("#domicilio_id"+identifier).val();
             domicilioLoc.num_ext = $("#num_ext"+identifier).val();
@@ -526,7 +539,11 @@
                         return data.asentamiento;
                     }
                 }
-                $("#asentamiento"+identifier).val(data.text);
+                if(data.text != "Seleccione una opción"){
+                    $("#asentamiento"+identifier).val(data.text);
+                }else{
+                    $("#asentamiento"+identifier).val("");
+                }
                 return data.text;
             },
             placeholder:'Seleccione una opción',

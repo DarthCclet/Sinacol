@@ -1821,7 +1821,7 @@ class AudienciaController extends Controller {
         }
         $solicitud_id = $audiencia->expediente->solicitud->id;
         $virtual = $audiencia->expediente->solicitud->virtual;
-        $atiende_virtual = $audiencia->expediente->solicitud->centro->atiende_virtual;
+        $atiende_virtual = $audiencia->expediente->solicitud->centro->tipo_atencion_centro_id == 2 ? false : true ;
         $url_virtual = $audiencia->expediente->solicitud->url_virtual;
         $audiencia->partes = $partes;
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
