@@ -170,9 +170,9 @@ class StringTemplate
           }
         }
         $countCentroVirtual = substr_count($string,'[SI_CENTRO_ATIENDE_VIRTUAL]');
-        if (isset($vars['tipo_atencion_centro_id'])&& $countCentroVirtual > 0){
+        if (isset($vars['centro_tipo_atencion_centro_id'])&& $countCentroVirtual > 0){
           for ($i=0; $i < $countCentroVirtual; $i++) {
-            if($vars['tipo_atencion_centro_id'] == 1 ){ //centro atiende unicamente virtual
+            if($vars['centro_tipo_atencion_centro_id'] == 1 ){ //centro atiende unicamente virtual
               $htmlA = Str::before($string, '[SI_CENTRO_ATIENDE_VIRTUAL');
               $htmlB = Str::after($string, '[FIN_SI_CENTRO_ATIENDE]');
                 $sliceCentroVirtual = Str::after($string, '[SI_CENTRO_ATIENDE_VIRTUAL]');
