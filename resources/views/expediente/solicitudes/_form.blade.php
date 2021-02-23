@@ -1392,10 +1392,16 @@
 
                     var domicilio = {};
                     domicilio = domicilioObj.getDomicilio();
-
-
-                    solicitante.domicilios = [domicilio];
-
+                    if(domicilio != undefined){
+                        solicitante.domicilios = [domicilio];
+                    }else{
+                        swal({
+                            title: 'Error',
+                            text: ' Domicilio incorrecto revisa los datos ',
+                            icon: 'error',
+                        });
+                        return;
+                    }
                     //domicilio
 
                     //contactos del solicitante
@@ -2556,8 +2562,19 @@
             // if(key == ""){
             //     arrayDomiciliosSolicitado.push(domicilioObj2.getDomicilio());
             // }else{
-                arrayDomiciliosSolicitado[0] = domicilioObj2.getDomicilio();
+                
             // }
+            var domicilio =domicilioObj2.getDomicilio()
+            if(domicilio != undefined){
+                arrayDomiciliosSolicitado[0] = domicilio;
+            }else{
+                swal({
+                    title: 'Error',
+                    text: ' Domicilio incorrecto revisa los datos ',
+                    icon: 'error',
+                });
+                return;
+            }
 
             formarTablaDomiciliosSolicitado();
             $('#modal-domicilio').modal('hide');
@@ -3102,6 +3119,12 @@
                         // $('#divBotonesCitado').hide();
                         // $(".requiredLaboralCitado").removeAttr('required',true);
                     }
+                }else{
+                    swal({
+                        title: '',
+                        text: 'seleccione una colonia para continuar',
+                        icon: 'warning'
+                    });
                 }
             break;
             default:
