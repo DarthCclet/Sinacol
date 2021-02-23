@@ -355,21 +355,22 @@
                         htmlPartes+="<h4>";
                         htmlPartes+="Solicitantes";
                         htmlPartes+="</h4>";
-                        $.each(data.solicitados,function(key, value){
+                        $.each(data.solicitantes,function(key, value){
                             if(value.tipo_persona_id == 1){
-                                htmlPartes+=' - '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "");
+                                htmlPartes+=' - '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "")+ "<br>";
                             }else{
-                                htmlPartes+=' - '+value.nombre_comercial;
+                                htmlPartes+=' - '+value.nombre_comercial+ "<br>";
                             }
                         });
+                        
                         htmlPartes+="<h4>";
                         htmlPartes+="Citados";
                         htmlPartes+="</h4>";
-                        $.each(data.solicitantes,function(key, value){
+                        $.each(data.solicitados,function(key, value){
                             if(value.tipo_persona_id == 1){
-                                htmlPartes+=' - '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "");
+                                htmlPartes+=' - '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "")+ "<br>";
                             }else{
-                                htmlPartes+=' - '+value.nombre_comercial;
+                                htmlPartes+=' - '+value.nombre_comercial+ "<br>";
                             }
                         });
                         htmlPartes += "</div>";
