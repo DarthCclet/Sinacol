@@ -247,7 +247,7 @@
                                     <div class="card">
                                     <div class="card-header" id="headingOne">
                                         <h2 class="mb-0">
-                                        <button id='coll{{$solicitante->parte->id}}' class="btn btn-link card-header collapseSolicitante" idSolicitante="{{$solicitante->parte->id}}" type="button" data-toggle="collapse" data-target="#collapse{{$solicitante->parte->id}}" aria-expanded="true" aria-controls="collapseOne" parteSelect={{$solicitante->parte->id}} onclick="getDatosLaboralesParte({{$solicitante->parte->id}});" >
+                                        <button id='coll{{$solicitante->parte->id}}' class="btn btn-link card-header collapseSolicitante" idCitado="{{$solicitante->parte->id}}" type="button" data-toggle="collapse" data-target="#collapse{{$solicitante->parte->id}}" aria-expanded="true" aria-controls="collapseOne" parteSelect={{$solicitante->parte->id}} onclick="getDatosLaboralesParte({{$solicitante->parte->id}});" >
                                             @if($solicitante->parte->tipo_persona_id == 1)
                                                 {{ $solicitante->parte->nombre }} {{ $solicitante->parte->primer_apellido }} {{ $solicitante->parte->segundo_apellido }}
                                             @else
@@ -263,7 +263,7 @@
                                             <input type="hidden" id="salarioMinimo"/>
                                             <input type="hidden" id="antiguedad"/>
                                             <input type="hidden" id="tiempoVencido"/>
-                                            <input type="hidden" id="idSolicitante"/>
+                                            <input type="hidden" id="idCitado"/>
                                             <div>
                                                 Datos laborales:
                                                 <ul>
@@ -427,7 +427,7 @@
                                             <table class="table table-bordered" >
                                                 <thead>
                                                     <tr>
-                                                        <th>Solicitante</th>
+                                                        <th>Citado</th>
                                                         <th>Fecha de pago</th>
                                                         <th>Monto</th>
                                                         <th>Acciones</th>
@@ -878,11 +878,11 @@
                 <div class="col-md-12 row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="parte_solicitante_id" class="col-sm-6 control-label labelResolucion">Solicitante</label>
+                            <label for="parte_solicitante_id" class="col-sm-6 control-label labelResolucion">Citado</label>
                             <div class="col-sm-10">
                                 <select id="parte_solicitante_id" class="form-control select-element">
-                                    <option value="">-- Selecciona un solicitante</option>
-                                    @foreach($audiencia->solicitantes as $parte)
+                                    <option value="">-- Selecciona un citado</option>
+                                    @foreach($audiencia->solicitados as $parte)
                                         @if($parte->parte->tipo_persona_id == 1)
                                             <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
                                         @else
@@ -1307,11 +1307,11 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="pago_solicitante_id" class="col-sm-6 control-label labelResolucion">Solicitante</label>
+                                    <label for="pago_citado_id" class="col-sm-6 control-label labelResolucion">Citado</label>
                                     <div class="col-sm-12">
-                                        <select id="pago_solicitante_id" class="form-control select-element">
-                                            <option value="">-- Selecciona un solicitante --</option>
-                                            @foreach($audiencia->solicitantes as $parte)
+                                        <select id="pago_citado_id" class="form-control select-element">
+                                            <option value="">-- Selecciona un citado --</option>
+                                            @foreach($audiencia->solicitados as $parte)
                                                 @if($parte->parte->tipo_persona_id == 1)
                                                     <option value="{{ $parte->parte->id }}">{{ $parte->parte->nombre }} {{ $parte->parte->primer_apellido }} {{ $parte->parte->segundo_apellido }}</option>
                                                 @else
@@ -1327,7 +1327,7 @@
                             <div class="form-group col-md-6">
                                 <label for="fecha_pago" class="col-sm-6 control-label labelResolucion">Fecha de pago</label>
                                 <div class="col-sm-12">
-                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control fecha" autocomplete="off" />
+                                    <input type="text" id="fecha_pago" placeholder="Fecha de pago" class="form-control" autocomplete="off" />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
@@ -1347,7 +1347,7 @@
                             <table class="table table-bordered" >
                                 <thead>
                                     <tr>
-                                        <th>Solicitante</th>
+                                        <th>Citado</th>
                                         <th>Fecha</th>
                                         <th>Monto</th>
                                         <th>Acciones</th>
@@ -2536,7 +2536,7 @@
         }
     });
     $("#btnGuardarPropuestaConvenio").on("click",function(){
-        let idSol = parseInt($("#idSolicitante").val());
+        let idSol = parseInt($("#idCitado").val());
         if((Object.keys(listaConfigConceptos).length  <= 0) || (typeof(listaConfigConceptos[idSol])!=='undefined') && (Object.keys(listaConfigConceptos[idSol]).length <= 0)) {
             swal({
                 title: 'Error',
@@ -2876,7 +2876,7 @@
         let listaPropuestaConceptos = {};        
         error =false;
         $('.collapseSolicitante').each(function() {
-            idSol=$(this).attr('idSolicitante');
+            idSol=$(this).attr('idCitado');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
                 if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
@@ -2903,8 +2903,8 @@
         totalConceptosPago = 0;
         error =false;
         $('.collapseSolicitante').each(function() {
-            // let idSolicitante =$("#idSolicitante").val();
-            idSol=$(this).attr('idSolicitante');
+            // let idCitado =$("#idCitado").val();
+            idSol=$(this).attr('idCitado');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
                 if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
@@ -3054,10 +3054,10 @@
             comboConceptos = $("#concepto_pago_resoluciones_id");
         }
         if( comboConceptos.val() != "" ){
-            let idSolicitante =$("#idSolicitante").val();
+            let idCitado =$("#idCitado").val();
             if( comboConceptos.val() == 7 || comboConceptos.val() == 10 || ( ($("#otro").val() != "") || ($("#monto").val() != "")  || ($("#monto").val() != "" && comboConceptos.val() == 8) ) ){
                 let existe = false;
-                $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
+                $.each(listaConfigConceptos[idCitado],function(index,concepto){
                     if(concepto.concepto_pago_resoluciones_id == comboConceptos.val() ){
                         existe= true;
                     }
@@ -3072,17 +3072,17 @@
                             icon: 'warning'
                         });
                     }else{
-                        if(listaConfigConceptos[idSolicitante] == undefined ){
-                            listaConfigConceptos[idSolicitante] = [];
+                        if(listaConfigConceptos[idCitado] == undefined ){
+                            listaConfigConceptos[idCitado] = [];
                         }
-                        listaConfigConceptos[idSolicitante].push({
-                            idSolicitante:$("#idSolicitante").val(),
+                        listaConfigConceptos[idCitado].push({
+                            idCitado:$("#idCitado").val(),
                             concepto_pago_resoluciones_id:comboConceptos.val(),
                             dias:$("#dias").val(),
                             monto:$("#monto").val(),
                             otro:$("#otro").val(),
                         });
-                        cargarTablaConcepto(listaConfigConceptos[[idSolicitante]],idSolicitante);
+                        cargarTablaConcepto(listaConfigConceptos[[idCitado]],idCitado);
                     }
                     limpiarConcepto();
                 }
@@ -3093,11 +3093,11 @@
             swal({title: 'Error',text: 'Debe seleccionar el concepto de pago',icon: 'warning'});
         }
     });
-        function cargarTablaConcepto(listaConfigConceptos,idSolicitante){
+        function cargarTablaConcepto(listaConfigConceptos,idCitado){
             // $("#tbodyConcepto").html("");
-            // $("#tbodyConceptoPrincipal"+idSolicitante).html("");
+            // $("#tbodyConceptoPrincipal"+idCitado).html("");
             let table = '';
-            //let idSolicitante = '';
+            //let idCitado = '';
             if( $('#radioReinstalacion').is(':checked') ){
                 comboConceptos = 'concepto_pago_reinstalacion_id';
             }else{
@@ -3105,7 +3105,7 @@
             }
             totalConceptos = 0 ;
             $.each(listaConfigConceptos,function(index,concepto){
-                //idSolicitante = concepto.idSolicitante;
+                //idCitado = concepto.idCitado;
 
                 table +='<tr>';
                     $("#"+comboConceptos).val(concepto.concepto_pago_resoluciones_id);
@@ -3116,7 +3116,7 @@
                     table +='<td class="amount">'+ conceptoMonto +'</td>';
                     table +='<td>'+concepto.otro+'</td>';
                     table +='<td>';
-                        table +='<button onclick="eliminarConcepto('+idSolicitante+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
+                        table +='<button onclick="eliminarConcepto('+idCitado+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
                             table +='<i class="fa fa-trash"></i>';
                         table +='</button>';
                     table +='</td>';
@@ -3126,12 +3126,12 @@
             $("#totalConfig").val(totalConceptos.toFixed(2));
             tableTotal = '<tr><b><td>TOTAL</td><td colspan="4" class="amount"zoozoo>'+totalConceptos.toFixed(2)+'</td></b></tr>';
             $("#tbodyConcepto").html(table);
-            $("#tbodyConceptoPrincipal"+idSolicitante).html(table+tableTotal);
+            $("#tbodyConceptoPrincipal"+idCitado).html(table+tableTotal);
         }
 
-        function eliminarConcepto(idSolicitante,indice){
-            listaConfigConceptos[idSolicitante].splice(indice,1);
-            cargarTablaConcepto(listaConfigConceptos[idSolicitante],idSolicitante);
+        function eliminarConcepto(idCitado,indice){
+            listaConfigConceptos[idCitado].splice(indice,1);
+            cargarTablaConcepto(listaConfigConceptos[idCitado],idCitado);
         }
         function limpiarConcepto(){
             $("#concepto_pago_resoluciones_id").val("");
@@ -3179,8 +3179,8 @@
                         if(isConfirm){
                             listaConfigConceptos = {};
                             cargarConfigConceptos();
-                            let idSolicitante = $('#idSolicitante').val();
-                            $("#tbodyConceptoPrincipal"+idSolicitante).html("");
+                            let idCitado = $('#idCitado').val();
+                            $("#tbodyConceptoPrincipal"+idCitado).html("");
                             radioRO = actual;
                         }else{
                             if(esReinstalacion){
@@ -3200,8 +3200,8 @@
         });
 
         function cargarConfigConceptos(){
-            let idSolicitante = $('#idSolicitante').val();
-            if( $('input[name="radiosPropuesta'+idSolicitante+'"]:checked').length > 0 ){
+            let idCitado = $('#idCitado').val();
+            if( $('input[name="radiosPropuesta'+idCitado+'"]:checked').length > 0 ){
                 $("#tbodyConcepto").html("");
                 $('#modal-propuesta-convenio').modal('show');
                 if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
@@ -3213,7 +3213,7 @@
                 }
                 let table = '';
 
-                $.each(listaConfigConceptos[idSolicitante],function(index,concepto){
+                $.each(listaConfigConceptos[idCitado],function(index,concepto){
                     table +='<tr>';
                         $("#concepto_pago_resoluciones_id").val(concepto.concepto_pago_resoluciones_id);
                         table +='<td>'+$("#concepto_pago_resoluciones_id option:selected").text()+'</td>';
@@ -3222,7 +3222,7 @@
                         table +='<td class="amount" > $'+concepto.monto+'</td>';
                         table +='<td>'+concepto.otro+'</td>';
                         table +='<td>';
-                            table +='<button onclick="eliminarConcepto('+idSolicitante+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
+                            table +='<button onclick="eliminarConcepto('+idCitado+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
                                 table +='<i class="fa fa-trash"></i>';
                             table +='</button>';
                         table +='</td>';
@@ -3250,7 +3250,7 @@
         error =false;
         mensaje = "";
         $('.collapseSolicitante').each(function() {
-            idSol=$(this).attr('idSolicitante');
+            idSol=$(this).attr('idCitado');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
                 if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
@@ -3385,8 +3385,9 @@
                     listaPropuestas[dato.idParte]['completa'] = [];
                     listaPropuestas[dato.idParte]['al50'] = [];
                     $.each(dato.propuestaCompleta,function(index,propuesta){
+                        console.log(propuesta);
                         listaPropuestas[propuesta.idSolicitante]['completa'].push({
-                            'idSolicitante':propuesta.idSolicitante,
+                            'idCitado':propuesta.idSolicitante,
                             'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
                             'dias':propuesta.dias,
                             'monto':propuesta.monto,
@@ -3395,7 +3396,7 @@
                     });
                     $.each(dato.propuestaAl50,function(index,propuesta){
                         listaPropuestas[propuesta.idSolicitante]['al50'].push({
-                            'idSolicitante':propuesta.idSolicitante,
+                            'idCitado':propuesta.idSolicitante,
                             'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
                             'dias':propuesta.dias,
                             'monto':propuesta.monto,
@@ -3407,7 +3408,7 @@
                     $('#salarioMinimo').val(dato.salarioMinimo);
                     $('#antiguedad').val(dato.antiguedad);
                     $('#tiempoVencido').val(dato.tiempoVencido);
-                    $('#idSolicitante').val(dato.idParte);
+                    $('#idCitado').val(dato.idParte);
 
                     $('#salario'+idParte).html(" Remuneraci&oacute;n "+ dato.salario);
                     $('#fechaIngreso'+idParte).html(" Fecha de ingreso: " + dato.fechaIngreso);
@@ -3542,11 +3543,11 @@
             var fpago = new Date(fechaP[1]+'/'+fechaP[0]+'/'+fechaP[2]);
 
             if(fpago <= _45dias){
-                let idSolicitante =$("#pago_solicitante_id").val();
+                let idCitado =$("#pago_citado_id").val();
                 if( $("#fecha_pago").val() != "" && $("#monto_pago").val() != ""){
                     let existe = false;
                     $.each(listaConfigFechas,function(index,fecha){
-                        if(fecha.fecha_pago == $("#fecha_pago").val() && fecha.idSolicitante ==idSolicitante ){
+                        if(fecha.fecha_pago == $("#fecha_pago").val() && fecha.idCitado ==idCitado ){
                             existe= true;
                         }
                     });
@@ -3564,7 +3565,7 @@
                             });
                         }else{
                             listaConfigFechas.push({
-                                idSolicitante:$("#pago_solicitante_id").val(),
+                                idCitado:$("#pago_citado_id").val(),
                                 fecha_pago:$("#fecha_pago").val(),
                                 monto_pago:$("#monto_pago").val(),
                             });
@@ -3586,22 +3587,22 @@
 
     function cargarTablaFechasPago(listaConfigFechas){
         let table = '';
-        let idSolicitante = '';
+        let idCitado = '';
         let totalPagoFechas = 0;
 
         $.each(listaConfigFechas,function(index,fechaPago){
 
-            idSolicitante = fechaPago.idSolicitante;
-            $("#pago_solicitante_id").val(idSolicitante);
+            idCitado = fechaPago.idCitado;
+            $("#pago_citado_id").val(idCitado);
             table +='<tr>';
-                table +='<td>'+$("#pago_solicitante_id option:selected").text(),+'</td>';
+                table +='<td>'+$("#pago_citado_id option:selected").text(),+'</td>';
                 table +='<td>'+fechaPago.fecha_pago+'</td>';
                 table +='<td>'+(fechaPago.monto_pago)+'</td>';
                 table +='<td>';
-                // table +='<button onclick="eliminarFechaPago('+idSolicitante+','+index+')" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago" style="display:none;">';
+                // table +='<button onclick="eliminarFechaPago('+idCitado+','+index+')" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago" style="display:none;">';
                 //     table +='<i class="fa fa-eye"></i>';
                 // table +='</button>';
-                table +='<button onclick="eliminarFechaPago('+idSolicitante+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
+                table +='<button onclick="eliminarFechaPago('+idCitado+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
                     table +='<i class="fa fa-trash"></i>';
                 table +='</button>';
                 table +='</td>';
@@ -3613,7 +3614,7 @@
         $("#tbodyFechaPago").html(table);
         $("#tbodyFechaPagoPrincipal").html(table);
     }
-    function eliminarFechaPago(idSolicitante,indice){
+    function eliminarFechaPago(idCitado,indice){
         listaConfigFechas.splice(indice,1);
         cargarTablaFechasPago(listaConfigFechas);
     }
@@ -3715,8 +3716,8 @@
         // totalConceptosPago = 0;
         error =false;
         $('.collapseSolicitante').each(function() {
-            // let idSolicitante =$("#idSolicitante").val();
-            idSol=$(this).attr('idSolicitante');
+            // let idCitado =$("#idCitado").val();
+            idSol=$(this).attr('idCitado');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
                 if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
@@ -3737,7 +3738,7 @@
 
         if(!error){
             $.ajax({
-                url:"/audiencia/resolucion",
+                url:"/audiencia/resolucionPatronal",
                 type:"POST",
                 dataType:"json",
                 global:true,
@@ -3880,8 +3881,8 @@
         let listaPropuestaConceptos = {};
         error =false;
         $('.collapseSolicitante').each(function() {
-            // let idSolicitante =$("#idSolicitante").val();
-            idSol=$(this).attr('idSolicitante');
+            // let idCitado =$("#idCitado").val();
+            idSol=$(this).attr('idCitado');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
                 if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
@@ -4042,7 +4043,13 @@
         format:'dd/mm/yyyy',
     });
     $(".fecha").datetimepicker({format:"DD/MM/YYYY"});
-    $("#fecha_pago").datepicker({minDate: new Date()});
+    $("#fecha_pago").datetimepicker({
+        locale: 'es',
+        inline: true,
+        sideBySide: true,
+        minDate: new Date(),
+        format: 'DD/MM/YYYY hh:mm',
+        });
 </script>
 <script src="/assets/js/demo/timeline.demo.js"></script>
 @endpush

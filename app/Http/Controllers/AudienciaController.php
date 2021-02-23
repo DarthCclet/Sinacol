@@ -56,6 +56,7 @@ use App\TipoVialidad;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Nacionalidad;
+use App\Providers\AudienciaServiceProvider;
 
 class AudienciaController extends Controller {
 
@@ -1810,6 +1811,7 @@ class AudienciaController extends Controller {
         return $response;
     }
 
+    // Inicia Seccion relacionada a la guia patronal
     public function guiaPatronal($id) {
         $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
         $audiencia = Audiencia::find($id);
@@ -1864,6 +1866,54 @@ class AudienciaController extends Controller {
         $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
         $nacionalidades = $this->cacheModel('nacionalidades',Nacionalidad::class);
         return view('expediente.audiencias.etapa_resolucion_patronal', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id','conciliador','estados','tipos_vialidades','tipos_asentamientos','lengua_indigena','generos','tipo_contacto','nacionalidades','virtual','url_virtual','atiende_virtual'));
+    }
+
+    /**
+     * Funcion para guardar la resolución de la audiencia patronal
+     * @param id $centro_id
+     * @return array
+     */
+    function ResolucionPatronal(Request $request) {
+        try {
+            DB::beginTransaction();
+            $user_id = auth()->user()->id;
+
+            $audiencia = Audiencia::find($request->audiencia_id);
+            if (!$audiencia->finalizada) {
+
+                if ($request->timeline) {
+                    $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1));
+                } else {
+                    $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1));
+                    foreach ($request->comparecientes as $compareciente) {
+                        Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
+                    }
+                }
+                if ($audiencia->resolucion_id != 2) {
+                    $solicitud = $audiencia->expediente->solicitud;
+                    $solicitud->update([
+                        "estatus_solicitud_id" => 3,
+                        "user_id" => $user_id
+                    ]);
+                }
+                $evidencia = ($request->evidencia) ? $request->evidencia : "";
+                $etapaAudiencia = EtapaResolucionAudiencia::create([
+                            "etapa_resolucion_id" => 6,
+                            "audiencia_id" => $audiencia->id,
+                            "evidencia" => $evidencia
+                ]);
+                AudienciaServiceProvider::guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago);
+            }
+
+            DB::commit();
+            return $audiencia;
+        } catch (\Throwable $e) {
+            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
+                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
+            DB::rollback();
+            return $this->sendError('Error al registrar la resolucion', 'Error');
+        }
     }
 
     public function guiaAudiencia($id) {
