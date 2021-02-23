@@ -11,6 +11,7 @@ use App\SalarioMinimo;
 use App\VacacionesAnio;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ConceptosResolucionController extends Controller
 {
@@ -245,10 +246,13 @@ class ConceptosResolucionController extends Controller
             if ($this->request->wantsJson()) {
                 return $this->sendResponse($datosL, 'SUCCESS');
             }
-        } catch (\Throwable $th) {
+        } catch (\Throwable $e) {
+            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
+                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
             $datosL = [];
             $datosL['error']= true;
-            $datosL['mensaje']= "No se encontraron datos". $th;
+            $datosL['mensaje']= "No se encontraron datos". $e;
 
             if ($this->request->wantsJson()) {
                 return $this->sendResponse($datosL, 'ERROR');
@@ -363,10 +367,13 @@ class ConceptosResolucionController extends Controller
             if ($this->request->wantsJson()) {
                 return $this->sendResponse($datosL, 'SUCCESS');
             }
-        } catch (\Throwable $th) {
+        } catch (\Throwable $e) {
+            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
+                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
             $datosL = [];
             $datosL['error']= true;
-            $datosL['mensaje']= "No se encontraron datos". $th;
+            $datosL['mensaje']= "No se encontraron datos". $e;
 
             if ($this->request->wantsJson()) {
                 return $this->sendResponse($datosL, 'ERROR');

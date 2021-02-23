@@ -445,10 +445,15 @@ class SolicitudController extends Controller {
                 if($key == 0 && ($tipo_solicitud_id == 2 ||$tipo_solicitud_id == 3 )){
                     $domiciliop = $domicilio["estado_id"];
                     $centro = $this->getCentroId($domicilio["estado_id"],$domicilio['municipio']);
-                    $estadoSelect = Centro::find($centro);
-                    // if(!$estadoSelect->en_vigor){
-                    //     return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
-                    // }
+                    $domicilioCentro = Centro::find($centro)->domicilio;
+                    if($domicilioCentro){
+                        $estadoSelect = Estado::find($domicilioCentro->estado_id);
+                        if(!$estadoSelect->en_vigor){
+                            return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                        }
+                    }else{
+                        return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                    }
                 }
                 // }
                 if (count($contactos) > 0) {
@@ -473,10 +478,15 @@ class SolicitudController extends Controller {
                     if($key == 0 && ($tipo_solicitud_id == 1 ||$tipo_solicitud_id == 4 )){
                         $domiciliop = $domicilios[0]["estado_id"];
                         $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilios[0]['municipio']);
-                        $estadoSelect = Centro::find($centro);
-                        // if(!$estadoSelect->en_vigor){
-                        //     return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
-                        // }
+                        $domicilioCentro = Centro::find($centro)->domicilio;
+                        if($domicilioCentro){
+                            $estadoSelect = Estado::find($domicilioCentro->estado_id);
+                            if(!$estadoSelect->en_vigor){
+                                return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                            }
+                        }else{
+                            return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                        }
                     }
                 }
                 if (isset($value["contactos"])) {

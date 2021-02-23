@@ -62,6 +62,7 @@ class HerramientaServiceProvider extends ServiceProvider
                     $audiencia->tipo_terminacion_audiencia_id = null;
                     $audiencia->resolucion_id = null;
                     $audiencia->reprogramada = false;
+                    $audiencia->fecha_resolucion = null;
                     $audiencia->save();
                 }else{
                     return ['success'=>false,'msj'=>' La audiencia no esta finalizada, no es posible hacer este proceso '];
@@ -104,6 +105,7 @@ class HerramientaServiceProvider extends ServiceProvider
                     $audiencia->resolucion_id = null;
                     $audiencia->tipo_terminacion_audiencia_id = null;
                     $audiencia->reprogramada = false;
+                    $audiencia->fecha_resolucion = null;
                     $audiencia->save();
                 }else{
                     return ['success'=>false,'msj'=>' La audiencia esta finalizada, no es posible hacer este proceso '];
