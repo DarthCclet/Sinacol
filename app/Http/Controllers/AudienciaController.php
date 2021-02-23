@@ -2075,6 +2075,7 @@ class AudienciaController extends Controller {
             $notificar = false;
             $citatorio = false;
             $audiencia_notificar_id = null;
+            $tipo_solicitud_individual = \App\TipoSolicitud::whereNombre("Trabajador")->first();
             if (!$audiencia->finalizada) {
                 $totalCitados = 0;
                 foreach ($audiencia->audienciaParte as $parte) {
@@ -2166,14 +2167,16 @@ class AudienciaController extends Controller {
                                 ]);
                                 //Se genera constancia de no conciliacion
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
-                                $multable = false;
-                                $audienciaParte = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id', $solicitado->parte_id)->first();
-                                if ($audienciaParte && $audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE") {
-                                    if (array_search($solicitado->parte_id, $arrayMultado) === false && $audiencia->expediente->solicitud->tipo_solicitud_id == 1) {
-                                        // Se genera archivo de acta de multa
-                                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
-                                        array_push($arrayMultado, $solicitado->parte_id);
-                                        array_push($arrayMultadoNotificacion, $audienciaParte->id);
+                                if($tipo_solicitud_individual->id == $audiencia->expediente->solicitud->tipo_solicitud_id){
+                                    $multable = false;
+                                    $audienciaParte = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id', $solicitado->parte_id)->first();
+                                    if ($audienciaParte && $audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE") {
+                                        if (array_search($solicitado->parte_id, $arrayMultado) === false && $audiencia->expediente->solicitud->tipo_solicitud_id == 1) {
+                                            // Se genera archivo de acta de multa
+                                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
+                                            array_push($arrayMultado, $solicitado->parte_id);
+                                            array_push($arrayMultadoNotificacion, $audienciaParte->id);
+                                        }
                                     }
                                 }
                             }
@@ -2298,41 +2301,42 @@ class AudienciaController extends Controller {
                          *
                          */
                          //Obtenemos a los citados
-                        $arrayMultadoNotificacion = [];
-                        $tipo_parte = TipoParte::whereNombre("CITADO")->first();
-                        $tipo_parte_solicitante = TipoParte::whereNombre("SOLICITANTE")->first();
-                        
-                        $comparecientes = Compareciente::where("audiencia_id",$audiencia->id)->get();
-                        $comp = [];
-                        foreach($comparecientes as $compareciente_aud){
-                            if($compareciente_aud->parte->tipo_parte_id != $tipo_parte_solicitante->id){
-                                if($compareciente_aud->parte->tipo_parte_id == $tipo_parte->id){
-                                    $comp[] = $compareciente_aud->parte_id;
-                                }else{
-                                    $comp[] = $compareciente_aud->parte_id;
-                                    $comp[] = $compareciente_aud->parte->parte_representada_id;
+                        if($tipo_solicitud_individual->id == $audiencia->expediente->solicitud->tipo_solicitud_id){
+                            $arrayMultadoNotificacion = [];
+                            $tipo_parte = TipoParte::whereNombre("CITADO")->first();
+                            $tipo_parte_solicitante = TipoParte::whereNombre("SOLICITANTE")->first();
+
+                            $comparecientes = Compareciente::where("audiencia_id",$audiencia->id)->get();
+                            $comp = [];
+                            foreach($comparecientes as $compareciente_aud){
+                                if($compareciente_aud->parte->tipo_parte_id != $tipo_parte_solicitante->id){
+                                    if($compareciente_aud->parte->tipo_parte_id == $tipo_parte->id){
+                                        $comp[] = $compareciente_aud->parte_id;
+                                    }else{
+                                        $comp[] = $compareciente_aud->parte_id;
+                                        $comp[] = $compareciente_aud->parte->parte_representada_id;
+                                    }
                                 }
                             }
-                        }
-                        
-                        $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
-                        foreach ($audiencia_partes as $key => $audienciaP) {
-                            if ($audienciaP->parte->tipo_parte_id == 2) {
-                                if(!$audienciaP->parte->multado){
-                                    $comparecio = false;
-                                    foreach ($comp as $comp_aud) {
-                                        if($comp_aud == $audienciaP->parte_id){
-                                            $comparecio = true;
+
+                            $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
+                            foreach ($audiencia_partes as $key => $audienciaP) {
+                                if ($audienciaP->parte->tipo_parte_id == 2) {
+                                    if(!$audienciaP->parte->multado){
+                                        $comparecio = false;
+                                        foreach ($comp as $comp_aud) {
+                                            if($comp_aud == $audienciaP->parte_id){
+                                                $comparecio = true;
+                                            }
+                                        }
+                                        if(!$comparecio && $audienciaP->finalizado == "FINALIZADO EXITOSAMENTE"){
+                                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
+                                            array_push($arrayMultadoNotificacion, $audienciaP->parte_id);
                                         }
                                     }
-                                    if(!$comparecio && $audienciaP->finalizado == "FINALIZADO EXITOSAMENTE"){
-                                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
-                                        array_push($arrayMultadoNotificacion, $audienciaP->parte_id);
-                                    }
                                 }
                             }
                         }
-                        
                         $response = array("tipo" => 5, "response" => null);
                     }
                 }
