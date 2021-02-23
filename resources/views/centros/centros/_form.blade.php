@@ -31,5 +31,13 @@
             <p class="help-block">Es la duración promedio de una audiencia</p>
         </div>
     </div>
+    <div class=" col-md-4 ">
+        <div class="form-group">
+            <label for="centro[tipo_atencion_centro_id]" class="control-label">Atencion centro</label>
+            {!! Form::select('centro[tipo_atencion_centro_id]', isset($tipo_atencion_centro) ? $tipo_atencion_centro  : [] , isset($centro) && $centro->tipo_atencion_centro_id ? $centro->tipo_atencion_centro_id : null, ['id'=>'tipo_atencion_centro_id','required','placeholder' => 'Seleccione una opción', 'class' => 'form-control']);  !!}
+            {!! $errors->first('centro.tipo_atencion_centro_id', '<span class=text-danger>:message</span>') !!}
+            <p class="help-block">Tipo de atenci&oacute;n del centro</p>
+        </div>
+    </div>
     @include('includes.component.map',['identificador' => '', 'instancia' => '1','domicilio'=>isset($centro->domicilio) ? $centro->domicilio : null,'needsMaps'=>"false"])
 </div>

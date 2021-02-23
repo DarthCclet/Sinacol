@@ -32,7 +32,7 @@
         <button class="btn btn-primary btn-sm m-l-5" id='btnAgregarArchivo'><i class="fa fa-plus"></i> Agregar documento</button>
     </div>
     <input type="hidden" id="centro_id" value="{{Auth::user()->centro_id}}">
-    <input type="hidden" id="atiende_virtual" value="{{Auth::user()->centro->atiende_virtual}}">
+    <input type="hidden" id="atiende_virtual" value="{{Auth::user()->centro->tipo_atencion_centro_id}}">
     <input type="hidden" id="oficina_central" value="{{(auth()->user()->hasRole('Orientador Central')) ? 'true':'false'}}">
     <div class="col-md-12">
         <div id="gallery" class="gallery row"></div>
@@ -850,8 +850,8 @@
                                     buttons += '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-4" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
                                 }
                                     buttons += '<div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+rutaConsulta.replace('/-rutaConsulta',"/"+row[0])+'" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div>';
-                                
-                                if(row[1] == 1 && (row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true") && ($("#atiende_virtual").val() == "1" && row[9] || $("#atiende_virtual").val() == "")){
+
+                                if(row[1] == 1 && (row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true") && ($("#atiende_virtual").val() == "1" && row[9] || $("#atiende_virtual").val() == "2" || $("#atiende_virtual").val() == "3")){
                                     buttons += '<div title="Confirmar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><button onclick="continuarRatificacion('+row[0]+')" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></button></div>';
                                 }
                                 if(row[1] == 1 && $("#atiende_virtual").val() == "1"  && !row[9]){
@@ -859,7 +859,7 @@
                                 }
                                 return buttons;
                             }
-                        // "defaultContent": '<div style="display: inline-block;"><a href="{{route("solicitudes.edit",['+row[0]+'])}}" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a>&nbsp;<button class="btn btn-xs btn-danger btn-borrar"><i class="fa fa-trash btn-borrar"></i></button></div>',
+                        
                     }
                 ],
                 "serverSide": true,

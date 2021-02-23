@@ -1821,7 +1821,7 @@ class AudienciaController extends Controller {
         }
         $solicitud_id = $audiencia->expediente->solicitud->id;
         $virtual = $audiencia->expediente->solicitud->virtual;
-        $atiende_virtual = $audiencia->expediente->solicitud->centro->atiende_virtual;
+        $atiende_virtual = $audiencia->expediente->solicitud->centro->tipo_atencion_centro_id == 2 ? false : true ;
         $url_virtual = $audiencia->expediente->solicitud->url_virtual;
         $audiencia->partes = $partes;
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
@@ -2264,15 +2264,25 @@ class AudienciaController extends Controller {
                          * Aquí aplica el caso en el que todos acuden a la audiencia y se debe celebrar sin ningun problema
                          * En esta sección permite que siga el flujo de manera normal
                          */
+                        $tipo_parte_otro = TipoParte::whereNombre("OTRO")->first();
+                        $comparecientes = Compareciente::where("audiencia_id",$audiencia->id)->get();
+                        $comp = [];
+                        foreach($comparecientes as $compareciente_aud){
+                            if($compareciente_aud->parte->tipo_parte_id != $tipo_parte_otro->id){
+                                $comp[] = $compareciente_aud->parte_id;
+                            }else{
+                                $comp[] = $compareciente_aud->parte_id;
+                                $comp[] = $compareciente_aud->parte->parte_representada_id;
+                            }
+                        }
+                        
                         $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
                         foreach ($audiencia_partes as $key => $audienciaP) {
                             if ($audienciaP->parte->tipo_parte_id == 1) {
                                 $comparecio = false;
-                                if (isset($this->request->comparecientes)) {
-                                    foreach ($this->request->comparecientes as $compareciente) {
-                                        if($compareciente == $audienciaP->parte_id){
-                                            $comparecio = true;
-                                        }
+                                foreach ($comp as $compareciente) {
+                                    if($compareciente == $audienciaP->parte_id){
+                                        $comparecio = true;
                                     }
                                 }
                                 if(!$comparecio){
@@ -2308,15 +2318,17 @@ class AudienciaController extends Controller {
                         $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
                         foreach ($audiencia_partes as $key => $audienciaP) {
                             if ($audienciaP->parte->tipo_parte_id == 2) {
-                                $comparecio = false;
-                                foreach ($comp as $comp_aud) {
-                                    if($comp_aud == $audienciaP->parte_id){
-                                        $comparecio = true;
+                                if(!$audienciaP->parte->multado){
+                                    $comparecio = false;
+                                    foreach ($comp as $comp_aud) {
+                                        if($comp_aud == $audienciaP->parte_id){
+                                            $comparecio = true;
+                                        }
                                     }
-                                }
-                                if(!$comparecio){
-                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
-                                    array_push($arrayMultadoNotificacion, $audienciaP->parte_id);
+                                    if(!$comparecio && $audienciaP->finalizado == "FINALIZADO EXITOSAMENTE"){
+                                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
+                                        array_push($arrayMultadoNotificacion, $audienciaP->parte_id);
+                                    }
                                 }
                             }
                         }
@@ -2332,6 +2344,7 @@ class AudienciaController extends Controller {
                     event(new RatificacionRealizada($audiencia_notificar_id, "citatorio"));
                 } else {
                     foreach ($arrayMultadoNotificacion as $parte) {
+                        Parte::find($parte)->update(["multado" => true]);
                         event(new RatificacionRealizada($audiencia_notificar_id, "multa", false, $parte));
                     }
                 }
