@@ -35,6 +35,7 @@
                     <thead>
                         <tr>
                             <th>Folio de solicitud</th>
+                            <th>Expediente</th>
                             <th>Centro</th>
                             <th>Partes</th>
                             <th>Raz&oacute;n de la Incidencia</th>
@@ -47,12 +48,14 @@
                     @foreach($solicitudes as $solicitud)
                         <tr class="odd gradeX">
                             <td width="1%" class="f-s-600 text-inverse">{{$solicitud->folio}}/{{$solicitud->anio}}</td>
+                            <td>{{$solicitud->expediente ? $solicitud->expediente->folio: ""}}</td>
                             <td>{{$solicitud->centro ? $solicitud->centro->nombre : "" }}</td>
                             <td >
+                                
                                 @foreach ($solicitud->partes as $parte)
                                     @if($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 2)
                                         @if($parte->tipo_persona_id == 1)
-                                           - {{$parte->nombre}} {{$parte->apellido_paterno}} {{$parte->apellido_materno}}   
+                                           - {{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}   
                                         @else
                                            - {{$parte->nombre_comercial}}
                                         @endif
