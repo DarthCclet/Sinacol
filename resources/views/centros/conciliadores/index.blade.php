@@ -253,7 +253,7 @@
     <script type="text/javascript">
         $(document).ready(function() {
             $(".horas").datetimepicker({format:"HH:mm"});
-            $('#fecha_fin,#fecha_inicio').datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm'});
+            $('#fecha_fin,#fecha_inicio').datetimepicker({useCurrent: false,format:'DD/MM/YYYY'});
             $("#fecha_inicio").on("dp.change", function (e) {
                 $('#fecha_fin').data("DateTimePicker").minDate(e.date);
             });
@@ -533,8 +533,8 @@
                         id:$("#id").val(),
                         incidencia_id:$("#incidencia_id").val(),
                         justificacion:$("#justificacion").val(),
-                        fecha_inicio:$("#fecha_inicio").val(),
-                        fecha_fin:$("#fecha_fin").val(),
+                        fecha_inicio:dateFormat($("#fecha_inicio").val()),
+                        fecha_fin:dateFormat($("#fecha_fin").val()),
                         _token:"{{ csrf_token() }}"
                     },
                     success:function(data){
