@@ -141,7 +141,7 @@ class ConceptosResolucionController extends Controller
             $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
             $labora_actualmente = $datoLaborales->labora_actualmente;
             if($labora_actualmente == false){
-                $fechaSalida = Carbon::parse($datoLaborales->fecha_salida)->addHours(24)->format('d/m/Y');
+                $fechaSalida = Carbon::parse($datoLaborales->fecha_salida)->addHours(24);
                 $anios_antiguedad = Carbon::parse($datoLaborales->fecha_ingreso)->floatDiffInYears($fechaSalida);
             }else{
                 $fechaSalida = "Labora actualmente";
@@ -153,8 +153,8 @@ class ConceptosResolucionController extends Controller
                 $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
             }
             if($request->ocupacion_id != "" && $request->ocupacion_id != null){
-                $salarios = Ocupacion::find($request->ocupacion_id)->get('salario_resto_del_pais');
-                $salarioMinimo = $salarios[0]->salario_resto_del_pais;
+                $salarios = Ocupacion::find($request->ocupacion_id);
+                $salarioMinimo = $salarios->salario_resto_del_pais;
             }else{
                 $salarios = SalarioMinimo::get('salario_minimo');
                 $salarioMinimo = $salarios[0]->salario_minimo;
@@ -278,8 +278,8 @@ class ConceptosResolucionController extends Controller
                 $propVacaciones = $anios_antiguedad - floor($anios_antiguedad);
             }
             if($request->ocupacion_id != "" && $request->ocupacion_id != null){
-                $salarios = Ocupacion::find($request->ocupacion_id)->get('salario_resto_del_pais');
-                $salarioMinimo = $salarios[0]->salario_resto_del_pais;
+                $salarios = Ocupacion::find($request->ocupacion_id);
+                $salarioMinimo = $salarios->salario_resto_del_pais;
             }else{
                 $salarios = SalarioMinimo::get('salario_minimo');
                 $salarioMinimo = $salarios[0]->salario_minimo;

@@ -443,9 +443,9 @@ class SolicitudController extends Controller {
                     }
                     $centro = $this->getCentroId($domicilio["estado_id"],$domicilio['municipio']);
                     $estadoSelect = Centro::find($centro);
-                    if(!$estadoSelect->en_vigor){
-                        return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
-                    }
+                    // if(!$estadoSelect->en_vigor){
+                    //     return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                    // }
                 }
                 //Se agrega el registro de los contactos del solicitante
                 $contactos = [];
@@ -484,9 +484,9 @@ class SolicitudController extends Controller {
                         }
                         $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilios[0]['municipio']);
                         $estadoSelect = Centro::find($centro);
-                        if(!$estadoSelect->en_vigor){
-                            return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
-                        }
+                        // if(!$estadoSelect->en_vigor){
+                        //     return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                        // }
                     }
                     if (count($domicilios) > 0) {
                         foreach ($domicilios as $domicilio) {
@@ -1298,7 +1298,7 @@ class SolicitudController extends Controller {
                     "multiple" => false,
                     "fecha_audiencia" => now()->format('Y-m-d'),
                     "hora_inicio" => now()->format('H:i:s'),
-                    "hora_fin" => \Carbon\Carbon::now()->addHours(1)->format('H:i:s'),
+                    "hora_fin" => \Carbon\Carbon::now()->addHours(1)->addMinutes(30)->format('H:i:s'),
                     "conciliador_id" =>  $conciliador->id,
                     "numero_audiencia" => 1,
                     "reprogramada" => false,

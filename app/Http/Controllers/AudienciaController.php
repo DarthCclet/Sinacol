@@ -1927,7 +1927,7 @@ class AudienciaController extends Controller {
         }
         $solicitud_id = $audiencia->expediente->solicitud->id;
         $virtual = $audiencia->expediente->solicitud->virtual;
-        $atiende_virtual = $audiencia->expediente->solicitud->centro->atiende_virtual;
+        $atiende_virtual = $audiencia->expediente->solicitud->centro->tipo_atencion_centro_id == 2 ? false : true ;
         $url_virtual = $audiencia->expediente->solicitud->url_virtual;
         $audiencia->partes = $partes;
         $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
@@ -2370,15 +2370,25 @@ class AudienciaController extends Controller {
                          * Aquí aplica el caso en el que todos acuden a la audiencia y se debe celebrar sin ningun problema
                          * En esta sección permite que siga el flujo de manera normal
                          */
+                        $tipo_parte_otro = TipoParte::whereNombre("OTRO")->first();
+                        $comparecientes = Compareciente::where("audiencia_id",$audiencia->id)->get();
+                        $comp = [];
+                        foreach($comparecientes as $compareciente_aud){
+                            if($compareciente_aud->parte->tipo_parte_id != $tipo_parte_otro->id){
+                                $comp[] = $compareciente_aud->parte_id;
+                            }else{
+                                $comp[] = $compareciente_aud->parte_id;
+                                $comp[] = $compareciente_aud->parte->parte_representada_id;
+                            }
+                        }
+                        
                         $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
                         foreach ($audiencia_partes as $key => $audienciaP) {
                             if ($audienciaP->parte->tipo_parte_id == 1) {
                                 $comparecio = false;
-                                if (isset($this->request->comparecientes)) {
-                                    foreach ($this->request->comparecientes as $compareciente) {
-                                        if($compareciente == $audienciaP->parte_id){
-                                            $comparecio = true;
-                                        }
+                                foreach ($comp as $compareciente) {
+                                    if($compareciente == $audienciaP->parte_id){
+                                        $comparecio = true;
                                     }
                                 }
                                 if(!$comparecio){

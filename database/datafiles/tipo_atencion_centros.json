@@ -1,0 +1,21 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "Virtual",
+            "descripcion": " El centro atiende exclusivamente solicitudes virtuales "
+        },
+        {
+            "id": "2",
+            "nombre": "Presencial",
+            "descripcion": " El centro atiende exclusivamente solicitudes presenciales "
+        },
+        {
+            "id": "3",
+            "nombre": "Mixto",
+            "descripcion": " El centro atiende tanto solicitudes virtuales como presenciales  "
+        }
+
+    ],
+    "numReg": 3
+}

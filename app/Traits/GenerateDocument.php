@@ -694,6 +694,7 @@ trait GenerateDocument
                     }
                     $nombreAdministrador = "";
                     $personaId = "";
+                    $userAdmin = null;
                     foreach ($usuarios_centro as $usuario ) {
                       if($usuario->hasRole('Administrador del centro')){
                         $userAdmin = $usuario->persona;

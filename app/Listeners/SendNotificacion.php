@@ -49,7 +49,7 @@ class SendNotificacion
                 $arreglo["exhorto_num"] = "";
                 //Validamos el tipo de notificación
                 $fechaIngreso = new \Carbon\Carbon($audiencia->expediente->solicitud->created_at);
-                if($event->tipo_notificacion == "citatorio"){
+                if($tipo_notificacion == "citatorio"){
                     $fechaRecepcion = new \Carbon\Carbon($audiencia->expediente->solicitud->fecha_ratificacion);
                     $fechaAudiencia = new \Carbon\Carbon($audiencia->fecha_audiencia);
                     $fechaCita = null;

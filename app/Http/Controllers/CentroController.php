@@ -128,6 +128,7 @@ class CentroController extends Controller
         $estados = Estado::all();
         $municipios = array_pluck(Municipio::all(),'municipio','id');
         $tipo_contactos = array_pluck(\App\TipoContacto::all(),'nombre','id');
+        $tipo_atencion_centro = array_pluck(\App\TipoAtencionCentro::all(),'nombre','id');
         if($centro->domicilio){
             $municipio_nombre = mb_strtoupper($centro->domicilio->municipio);
             $municipio_selected = Municipio::where('municipio','like','%'.$municipio_nombre.'%')->first();
@@ -135,7 +136,7 @@ class CentroController extends Controller
                 $municipio_id = $municipio_selected->id;
             }
         }
-        return view('centros.centros.edit', compact('centro','estados','tipos_asentamientos','tipos_vialidades','municipios','municipio_id','tipo_contactos'));
+        return view('centros.centros.edit', compact('centro','estados','tipos_asentamientos','tipos_vialidades','municipios','municipio_id','tipo_contactos','tipo_atencion_centro'));
     }
 
     /**
