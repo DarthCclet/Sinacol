@@ -311,11 +311,39 @@
                     slotDuration:'01:30:00',
                     eventClick: function(info) {
                         console.log(info);
+                        if(info.tipo == "audiencia"){
                             if(info.audiencia_id != null){
                                 obtenerAudiencia(info.audiencia_id);
                                 $("#calendarioReagendar").hide();
                             }
+                        }else{
+                            if(info.audiencia_id != null){
+                                swal({
+                                    title: 'Confirmar',
+                                    text: '¿Desea proceder al registro del pago?',
+                                    icon: 'warning',
+                                    buttons: {
+                                        cancel: {
+                                            text: 'No',
+                                            value: null,
+                                            visible: true,
+                                            className: 'btn btn-default',
+                                            closeModal: true,
+                                        },
+                                        confirm: {
+                                            text: 'Si',
+                                            value: true,
+                                            visible: true,
+                                            className: 'btn btn-warning',
+                                            closeModal: true
+                                        }
+                                    }
+                                }).then(function(isConfirm){
+                                    location.href='/audiencias/'+info.audiencia_id+'/edit';
+                                });
+                            }
                         }
+                    }
                 });
             }
             function obtenerAudiencia(audiencia_id, fuente = "calendarizada"){

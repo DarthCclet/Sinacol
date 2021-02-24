@@ -1050,7 +1050,12 @@ class AudienciaController extends Controller {
         foreach ($audiencias as $audiencia) {
             $start = $audiencia->fecha_audiencia . " " . $audiencia->hora_inicio;
             $end = $audiencia->fecha_audiencia . " " . $audiencia->hora_fin;
-            array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->folio . "/" . $audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->id));
+            array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->folio . "/" . $audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->id,"tipo" => "audiencia"));
+            foreach($audiencia->pagosDiferidos as $pago){
+                $fechaInicio = new Carbon($pago->fecha_pago);
+                $fechaFin = $fechaInicio->addMinutes(15);
+                array_push($arrayEventos, array("start" => $pago->fecha_pago, "end" => $fechaFin->format("Y-m-d H:i:s"), "title" => $audiencia->folio . "/" . $audiencia->anio, "color" => "#ffa500", "audiencia_id" => $audiencia->id,"tipo" => "pago"));
+        }   
         }
         return $arrayEventos;
     }
