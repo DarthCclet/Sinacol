@@ -40,7 +40,7 @@ class FechaAudienciaService{
             }
             $conciliadores = $centro->conciliadores()->join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")->where("roles_conciliador.rol_atencion_id",$rol->id)->select("conciliadores.*")->get();
             foreach($arreglo_horas as $hora_inicio){
-                $hora_fin = date("H:i:s",strtotime($hora_inicio) + 3600);
+                $hora_fin = date("H:i:s",strtotime($hora_inicio) + 5400);
                 if($virtual){
                     $encontroSala=true;
                     $sala_id = $sala_virtual->id;
@@ -617,8 +617,8 @@ class FechaAudienciaService{
             $hora_fin_time = strtotime($disponibilidad->hora_fin);
             $arregloHoras[]=$date = date('H:i:s', $hora_actual_time);
             while($hora_fin_time > $hora_actual_time){
-                $arregloHoras[]=$date = date('H:i:s', $hora_actual_time + 3600);
-                $hora_actual_time = $hora_actual_time + 3600;
+                $arregloHoras[]=$date = date('H:i:s', $hora_actual_time + 5400);
+                $hora_actual_time = $hora_actual_time + 5400;
             }
             return $arregloHoras;
         }else{
