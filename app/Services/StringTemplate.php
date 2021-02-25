@@ -139,7 +139,7 @@ class StringTemplate
           for ($i=0; $i < $countSolicitudIndividual; $i++) {
             $htmlA = Str::before($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
             $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_TIPO]');
-            if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual  
+            if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual
               // texto para solicitud individual
               $sliceIndividual = Str::after($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
               $sliceIndividual = Str::before($sliceIndividual, '[FIN_SI_SOLICITUD_TIPO]');
@@ -219,7 +219,7 @@ class StringTemplate
             }else{
               $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
               $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
-              $sliceNotificacion = "Las partes se presentan de manera voluntaria ante esta autoridad conciliatoria.";
+              $sliceNotificacion = "";
               $string = $htmlA . $sliceNotificacion . $htmlB;
             }
           }
