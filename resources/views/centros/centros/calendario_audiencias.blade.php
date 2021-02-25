@@ -535,9 +535,9 @@
                 var view = $('#calendarioAgenda').fullCalendar('getView');
                 $("#vista").val($('#calendarioAgenda').fullCalendar('getDate'));
                 //Obtenemos la fecha inicio en el calendario
-                $("#fecha_inicio").val($('#calendarioAgenda').fullCalendar('getView').start.format('Y/MM/DD'));
+                $("#fecha_inicio").val($('#calendarioAgenda').fullCalendar('getView').intervalStart.format('Y/MM/DD'));
                 //Obtenemos la fecha fin del calendario
-                $("#fecha_fin").val($('#calendarioAgenda').fullCalendar('getView').end.format('Y/MM/DD'));
+                $("#fecha_fin").val($('#calendarioAgenda').fullCalendar('getView').intervalEnd.subtract(1, 'd').format('Y/MM/DD'));
                 $("#frmDescargaCalendario").submit();
             });
             $("#btnSuspension").on("click",function(){
