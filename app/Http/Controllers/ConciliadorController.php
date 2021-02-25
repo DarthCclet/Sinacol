@@ -180,10 +180,10 @@ class ConciliadorController extends Controller
     public function incidencia(Request $request){
         $conciliador = Conciliador::find($request->id);
         if($request->incidencia_id == ""){
-            $conciliador->incidencias()->create(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio,"fecha_fin" => $request->fecha_fin]);
+            $conciliador->incidencias()->create(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio." 00:00:00","fecha_fin" => $request->fecha_fin." 23:59:59"]);
         }else{
             $incidencia = Incidencia::find($request->incidencia_id);
-            $incidencia->update(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio,"fecha_fin" => $request->fecha_fin]);
+            $incidencia->update(["justificacion" => $request->justificacion,"fecha_inicio" => $request->fecha_inicio." 00:00:00","fecha_fin" => $request->fecha_fin." 23:59:59"]);
         }
         return $conciliador;
     }
