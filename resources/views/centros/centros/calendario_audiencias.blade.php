@@ -96,6 +96,7 @@
                     <label id="labelFinalizada" style="color: red;font-size: 1.2em;">Esta audiencia ya fue finalizada</label>
                     <button class="btn btn-primary btn-sm m-l-5" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-arrow-down"></i> Cerrar</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnCambiarConciliador"><i class="fa fa-user-friends"></i> Cambiar Conciliador</button>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnPago"><i class="fa fa-money-bill"></i> Registrar pago</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnFinalizarRatificacion"><i class="fa fa-calendar"></i> Reprogramar</button>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnSuspension" title="suspensión de audiencia vía remota por falta de aceptación del citado"><i class="fa fa-calendar"></i> Suspensión de audiencia</button>
                 </div>
@@ -248,6 +249,7 @@
 @push('scripts')
         <script>
             var multiple = false;
+            var audiencia_id = null;
             $(document).ready(function(){
                 $.ajax({
                     url:"/audiencia/getCalendario",
@@ -311,42 +313,40 @@
                     slotDuration:'01:30:00',
                     eventClick: function(info) {
                         console.log(info);
-                        if(info.tipo == "audiencia"){
-                            if(info.audiencia_id != null){
-                                obtenerAudiencia(info.audiencia_id);
-                                $("#calendarioReagendar").hide();
-                            }
-                        }else{
-                            if(info.audiencia_id != null){
-                                swal({
-                                    title: 'Confirmar',
-                                    text: '¿Desea proceder al registro del pago?',
-                                    icon: 'warning',
-                                    buttons: {
-                                        cancel: {
-                                            text: 'No',
-                                            value: null,
-                                            visible: true,
-                                            className: 'btn btn-default',
-                                            closeModal: true,
-                                        },
-                                        confirm: {
-                                            text: 'Si',
-                                            value: true,
-                                            visible: true,
-                                            className: 'btn btn-warning',
-                                            closeModal: true
-                                        }
-                                    }
-                                }).then(function(isConfirm){
-                                    location.href='/audiencias/'+info.audiencia_id+'/edit';
-                                });
-                            }
+                        if(info.audiencia_id != null){
+                            audiencia_id = info.audiencia_id;
+                            obtenerAudiencia(info.audiencia_id,info.tipo);
+                            $("#calendarioReagendar").hide();
                         }
                     }
                 });
             }
-            function obtenerAudiencia(audiencia_id, fuente = "calendarizada"){
+            $("#btnPago").on("click",function(){
+                swal({
+                    title: 'Confirmar',
+                    text: '¿Desea proceder al registro del pago?',
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'No',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true,
+                        },
+                        confirm: {
+                            text: 'Si',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-warning',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(isConfirm){
+                    location.href='/audiencias/'+audiencia_id+'/edit';
+                });
+            });
+            function obtenerAudiencia(audiencia_id,tipo = "audiencia" ,fuente = "calendarizada"){
                 $.ajax({
                     url:"/info_audiencia/"+audiencia_id,
                     type:"GET",
@@ -355,20 +355,29 @@
                         try{
                             console.log(data);
                             if(data != null && data != ""){
-                                if(data.finalizada){
-                                    $("#btnFinalizarRatificacion").hide();
-                                    $("#btnCambiarConciliador").hide();
-                                    $("#btnSuspension").hide();
-                                    $("#labelFinalizada").show();
-                                }else{
-                                    $("#btnFinalizarRatificacion").show();
-                                    $("#btnCambiarConciliador").show();
-                                    $("#labelFinalizada").hide();
-                                    if(data.virtual){
-                                        $("#btnSuspension").show()
+                                if(tipo == "audiencia"){
+                                    if(data.finalizada){
+                                        $("#btnFinalizarRatificacion").hide();
+                                        $("#btnCambiarConciliador").hide();
+                                        $("#btnSuspension").hide();
+                                        $("#labelFinalizada").show();
                                     }else{
-                                        $("#btnSuspension").hide()
+                                        $("#btnFinalizarRatificacion").show();
+                                        $("#btnCambiarConciliador").show();
+                                        $("#labelFinalizada").hide();
+                                        if(data.virtual){
+                                            $("#btnSuspension").show()
+                                        }else{
+                                            $("#btnSuspension").hide()
+                                        }
                                     }
+                                    $("#btnPago").hide();
+                                }else{
+                                    $("#btnFinalizarRatificacion").hide();
+                                    $("#btnCambiarConciliador").show();
+                                    $("#btnSuspension").hide();
+                                    $("#labelFinalizada").hide();
+                                    $("#btnPago").show();
                                 }
                                 if(!data.multiple){
                                     $("#divAsignarUnoCambiar").show();
