@@ -83,9 +83,34 @@ class FechaAudienciaService{
                                 ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
                                 ->get();
                         if(count($audiencias) == 0){
-                            $encontroConciliador = true;
-                            $conciliador_id = $conciliador->id;
-                            break;
+                            $audienciasQ = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                ->select('audiencias.*')
+                                ->where("audiencias.fecha_audiencia",$diaHabilCentro["dia"])
+                                ->where("conciliadores_audiencias.conciliador_id",$conciliador->id)
+                                ->orderBy('audiencias.hora_fin', 'asc')
+                                ->get();
+                            if(count($audienciasQ) > 0){
+                                $choca_audiencia = false;
+                                foreach($audienciasQ as $audienciaQ){
+                                    $hora_inicio_audiencia = $audienciaQ->hora_inicio;
+                                    $hora_fin_audiencia = $audienciaQ->hora_fin;
+                                    $hora_inicio_audiencia_nueva = $hora_inicio;
+                                    $hora_fin_audiencia_nueva = $hora_fin;
+
+                                    if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
+                                        $choca_audiencia = true;
+                                    }
+                                }
+                                if(!$choca_audiencia){
+                                    $encontroConciliador = true;
+                                    $conciliador_id = $conciliador->id;
+                                    break;
+                                }
+                            }else{
+                                $encontroConciliador = true;
+                                $conciliador_id = $conciliador->id;
+                                break;
+                            }
                         }
                     }
                 }
