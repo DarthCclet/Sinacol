@@ -3118,9 +3118,9 @@
                 }
             break;
             case 3:
-                // if($("#tipo_solicitud_id").val() == "2"){
-                //     $('#divDatoLaboralCitado').show();
-                // }
+                if($("#tipo_solicitud_id").val() == "2"){
+                    $('#divDatoLaboralCitado').show();
+                }
                 if($('#divMapaSolicitado').parsley().validate() && $("#asentamientosolicitado").val() != "" ){
                     $('#divBotonesSolicitado').show();
                     $('#continuarSolicitado3').hide();

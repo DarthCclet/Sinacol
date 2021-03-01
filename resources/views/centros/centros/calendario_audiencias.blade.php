@@ -311,11 +311,39 @@
                     slotDuration:'01:30:00',
                     eventClick: function(info) {
                         console.log(info);
+                        if(info.tipo == "audiencia"){
                             if(info.audiencia_id != null){
                                 obtenerAudiencia(info.audiencia_id);
                                 $("#calendarioReagendar").hide();
                             }
+                        }else{
+                            if(info.audiencia_id != null){
+                                swal({
+                                    title: 'Confirmar',
+                                    text: '¿Desea proceder al registro del pago?',
+                                    icon: 'warning',
+                                    buttons: {
+                                        cancel: {
+                                            text: 'No',
+                                            value: null,
+                                            visible: true,
+                                            className: 'btn btn-default',
+                                            closeModal: true,
+                                        },
+                                        confirm: {
+                                            text: 'Si',
+                                            value: true,
+                                            visible: true,
+                                            className: 'btn btn-warning',
+                                            closeModal: true
+                                        }
+                                    }
+                                }).then(function(isConfirm){
+                                    location.href='/audiencias/'+info.audiencia_id+'/edit';
+                                });
+                            }
                         }
+                    }
                 });
             }
             function obtenerAudiencia(audiencia_id, fuente = "calendarizada"){
@@ -507,9 +535,9 @@
                 var view = $('#calendarioAgenda').fullCalendar('getView');
                 $("#vista").val($('#calendarioAgenda').fullCalendar('getDate'));
                 //Obtenemos la fecha inicio en el calendario
-                $("#fecha_inicio").val($('#calendarioAgenda').fullCalendar('getView').start.format('Y/MM/DD'));
+                $("#fecha_inicio").val($('#calendarioAgenda').fullCalendar('getView').intervalStart.format('Y/MM/DD'));
                 //Obtenemos la fecha fin del calendario
-                $("#fecha_fin").val($('#calendarioAgenda').fullCalendar('getView').end.format('Y/MM/DD'));
+                $("#fecha_fin").val($('#calendarioAgenda').fullCalendar('getView').intervalEnd.subtract(1, 'd').format('Y/MM/DD'));
                 $("#frmDescargaCalendario").submit();
             });
             $("#btnSuspension").on("click",function(){
