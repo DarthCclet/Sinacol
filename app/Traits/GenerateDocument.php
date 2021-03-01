@@ -896,7 +896,15 @@ trait GenerateDocument
                                   }
                                   $tablaConceptosActa .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
                                 }else{
-                                  $tablaConceptosEConvenio .= $concepto->otro.' ';
+                                  if($tipoSolicitud == 1){ //solicitud individual
+                                    if($parteID == $idSolicitante){ //si resolucion pertenece al solicitante
+                                      $tablaConceptosEConvenio .= $concepto->otro.' ';
+                                    }else{
+                                      if($parteID == $idSolicitado){ //si resolucion pertenece al citado
+                                        $tablaConceptosEConvenio .= $concepto->otro.' ';
+                                      }
+                                    }
+                                  }
                                 }
                               }
                               if($tipoSolicitud == 1){ //solicitud individual
