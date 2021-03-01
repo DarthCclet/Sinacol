@@ -441,16 +441,17 @@ class SolicitudController extends Controller {
                 }
                 //Si la solicitud es de tipo 2 (Patron individual) o 3 (Patron colectivo) se selecciona el centro del solicitante
                 if($key == 0 && ($tipo_solicitud_id == 2 ||$tipo_solicitud_id == 3 )){
-                    $estadoSelect = Estado::find($domicilio["estado_id"]);
-                    
-                    if(!$estadoSelect->en_vigor){
+                    $domiciliop = $domicilio["estado_id"];
+                    $centro = $this->getCentroId($domicilio["estado_id"],$domicilio['municipio']);
+                    $domicilioCentro = Centro::find($centro)->domicilio;
+                    if($domicilioCentro){
+                        $estadoSelect = Estado::find($domicilioCentro->estado_id);
+                        if(!$estadoSelect->en_vigor){
+                            return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                        }
+                    }else{
                         return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
                     }
-                    $centro = $this->getCentroId($domicilio["estado_id"],$domicilio['municipio']);
-                    $estadoSelect = Centro::find($centro);
-                    // if(!$estadoSelect->en_vigor){
-                    //     return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
-                    // }
                 }
                 //Se agrega el registro de los contactos del solicitante
                 $contactos = [];
@@ -483,15 +484,17 @@ class SolicitudController extends Controller {
                     $domicilios = $solicitado["domicilios"];
                     //Si la solicitud es de tipo 1 (Trabajador individual) o 4 (Sindical) se selecciona el centro del solicitante
                     if($key == 0 && ($tipo_solicitud_id == 1 ||$tipo_solicitud_id == 4 )){
-                        $estadoSelect = Estado::find($domicilios[0]["estado_id"]);
-                        if(!$estadoSelect->en_vigor){
+                        $domiciliop = $domicilios[0]["estado_id"];
+                        $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilios[0]['municipio']);
+                        $domicilioCentro = Centro::find($centro)->domicilio;
+                        if($domicilioCentro){
+                            $estadoSelect = Estado::find($domicilioCentro->estado_id);
+                            if(!$estadoSelect->en_vigor){
+                                return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                            }
+                        }else{
                             return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
                         }
-                        $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilios[0]['municipio']);
-                        $estadoSelect = Centro::find($centro);
-                        // if(!$estadoSelect->en_vigor){
-                        //     return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
-                        // }
                     }
                     if (count($domicilios) > 0) {
                         foreach ($domicilios as $domicilio) {
