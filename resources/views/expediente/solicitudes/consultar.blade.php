@@ -173,7 +173,9 @@
                                             @if(auth()->user()->hasRole("Personal conciliador"))
                                                 @if($solicitud->tipo_solicitud_id == 1)
                                                     <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaAudiencia",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
-                                                @else
+                                                @elseif($solicitud->tipo_solicitud_id == 2)
+                                                    <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaPatronal",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
+                                                @else 
                                                     <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("resolucionColectiva",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
                                                 @endif
                                             @endif

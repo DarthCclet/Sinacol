@@ -921,7 +921,9 @@
                                     </table>
                                 </div>
                                 <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
+                                @if($tipo_solicitud_id == 2)
                                 <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
+                                @endif
                                 <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                                     <table class="table table-bordered" >
                                         <thead>
@@ -1417,38 +1419,42 @@
                     }else{
                         var btnText = "Capturar Citado(s)";
                     }
-                    swal({
-                        title: '¿Quieres seguir capturando solicitante(s) o proceder a '+btnText+'?',
-                        text: '',
-                        icon: '',
-                        buttons: {
-                            cancel: {
-                                text: 'Capturar otro solicitante',
-                                value: null,
-                                visible: true,
-                                className: 'btn btn-primary',
-                                closeModal: true,
-                            },
-                            confirm: {
-                                text: btnText,
-                                value: true,
-                                visible: true,
-                                className: 'btn btn-primary',
-                                closeModal: true
+                    if($("#tipo_solicitud_id").val() == "2"){
+                        $('#wizard').smartWizard('goToStep', 2);
+                    }else{
+                        swal({
+                            title: '¿Quieres seguir capturando solicitante(s) o proceder a '+btnText+'?',
+                            text: '',
+                            icon: '',
+                            buttons: {
+                                cancel: {
+                                    text: 'Capturar otro solicitante',
+                                    value: null,
+                                    visible: true,
+                                    className: 'btn btn-primary',
+                                    closeModal: true,
+                                },
+                                confirm: {
+                                    text: btnText,
+                                    value: true,
+                                    visible: true,
+                                    className: 'btn btn-primary',
+                                    closeModal: true
+                                }
                             }
-                        }
-                    }).then(function(isConfirm){
-                        if(isConfirm){
-                            getAtiendeVirtual();
-                            if(!editCitado){
-                                editCitado = true;
-                                $('#wizard').smartWizard('goToStep', 2);
+                        }).then(function(isConfirm){
+                            if(isConfirm){
+                                getAtiendeVirtual();
+                                if(!editCitado){
+                                    editCitado = true;
+                                    $('#wizard').smartWizard('goToStep', 2);
+                                }else{
+                                    $('#wizard').smartWizard('goToStep', 3);
+                                }
                             }else{
-                                $('#wizard').smartWizard('goToStep', 3);
                             }
-                        }else{
-                        }
-                    });
+                        });
+                    }
 
                 }else{
                     swal({
@@ -1534,6 +1540,7 @@
                         $('#divContactoSolicitado').hide();
                         $('#divMapaSolicitado').hide();
                         $('#divBotonesSolicitado').hide();
+                        $('#divDatoLaboralCitado').hide();
                         $("#tipo_persona_fisica_solicitado").click().trigger('change');
                         $(".pasoSolicitado").show();
                         $("#divCancelarSolicitante").hide();
@@ -1886,7 +1893,9 @@
                     // console.log(excepcion);
                     // $(".step-6").show();
                     if(data.ratificada){
-                        $("#btnAgregarNuevoSolicitante").hide();
+                        if($("#tipo_solicitud_id").val() != 2){
+                            $("#btnAgregarNuevoSolicitante").hide();
+                        }
                         $("#btnRatificarSolicitud").hide();
                         $("#expediente_id").val(data.expediente.id);
                         expedientee = true;
