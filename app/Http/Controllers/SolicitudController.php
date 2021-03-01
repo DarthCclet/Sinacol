@@ -389,6 +389,7 @@ class SolicitudController extends Controller {
             $centro = null;
             // Se recorren todos los solicitantes
             foreach ($solicitantes as $key => $solicitante) {
+                
                 $solicitante['solicitud_id'] = $solicitudSaved['id'];
                 $solicitudFilter = Arr::except($solicitante, ['activo','domicilios','contactos','dato_laboral','tmp_file','clasificacion_archivo_id']);
                 $parteSaved = Parte::create($solicitante);
@@ -399,34 +400,39 @@ class SolicitudController extends Controller {
                     $parteSaved->dato_laboral()->create($dato_laboral);
                 }
                 //Si hay archivo temporal se agrega para cada solicitante
-                if(isset($solicitante['tmp_file'])){
-                    $clasificacion_archivo_id = $solicitante['clasificacion_archivo_id'];
-                    $tmp_file = $solicitante['tmp_file'];
-
-                    $solicitud_id = $solicitudSaved->id;
-                    $clasificacion_archivo= $clasificacion_archivo_id;
-                    $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parteSaved->id;
-                    $file_name = basename($tmp_file);
-                    $complete_path = $directorio."/".$file_name;
-                    Storage::makeDirectory($directorio);
-                    $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                    Storage::copy($tmp_file,$complete_path);
-                    $path = $complete_path;
-                    $uuid = Str::uuid();
-                    $documento = $parteSaved->documentos()->create([
-                        "nombre" => $file_name,
-                        "nombre_original" => $file_name,
-                        "descripcion" => $tipoArchivo->nombre,
-                        "ruta" => $path,
-                        "uuid" => $uuid,
-                        "tipo_almacen" => "local",
-                        "uri" => $path,
+                if(isset($value['tmp_files'])){
+                    $clasificacion_archivo_id = $value['clasificacion_archivo_id'];
+                    $tmp_files = $value['tmp_files'];
+                    unset($value['tmp_files']);
+                    unset($value['clasificacion_archivo_id']);
+                }
+                if(isset($tmp_files)){
+                    dd($tmp_files);
+                    foreach ($tmp_files as $key => $tmp_file) { 
+                        $solicitud_id = $solicitudSaved->id;
+                        $clasificacion_archivo= $clasificacion_archivo_id;
+                        $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parteSaved->id;
+                        $file_name = basename($tmp_file);
+                        $complete_path = $directorio."/".$file_name;
+                        Storage::makeDirectory($directorio);
+                        $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
+                        Storage::copy($tmp_file,$complete_path);
+                        $path = $complete_path;
+                        $uuid = Str::uuid();
+                        $documento = $parteSaved->documentos()->create([
+                            "nombre" => $file_name,
+                            "nombre_original" => $file_name,
+                            "descripcion" => $tipoArchivo->nombre,
+                            "ruta" => $path,
+                            "uuid" => $uuid,
+                            "tipo_almacen" => "local",
+                            "uri" => $path,
                         "longitud" => round(Storage::size($path) / 1024, 2),
                         "firmado" => "false",
                         "clasificacion_archivo_id" => $tipoArchivo->id ,
-                    ]);
-                }                
-
+                        ]);
+                    }            
+                }
                 //Se agrega el registro de los domicilios del solicitante
                 $domicilios = [];
                 if($solicitante["domicilios"] && $solicitante["domicilios"][0]){
@@ -1173,6 +1179,14 @@ class SolicitudController extends Controller {
             }
             $user_id = Auth::user()->id;
             $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"justificacion_incidencia"=>"Ratificada con incompetencia","tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
+
+            // Obtenemos la sala virtual
+            $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
+            if($sala == null){
+                DB::rollBack();
+                return $this->sendError('No hay salas virtuales disponibles', 'Error');
+            }
+            $sala_id = $sala->id;
             //obtenemos al conciliador disponible
             $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
             $conciliadoresDisponibles = array();
@@ -1843,24 +1857,32 @@ class SolicitudController extends Controller {
     }
 
     public function canal(Request $request){
-        $mensaje = "La solicitud no existe";
+        $mensaje = "El canal ingresado no es el correcto, verifica el canal asignado en tus documentos";
         $solicitud = Solicitud::where('canal',$request->canal)->first();
         if($solicitud){
             if(!empty($solicitud->url_virtual)){
                 return Redirect::to($solicitud->url_virtual);
             }
-            $mensaje = "Canal no asignado";
+            $mensaje = "No ha iniciado aún su videollamada programada con el funcionario del CFCRL. Favor de revisar la fecha y hora asignadas para la videollamada y entrar a esta liga en ese momento";
         }
         return view('pages.canalNotFound',compact('mensaje'));
         
     }
     public function identificacion(Request $request){
+        $arrResponse = [];
         $archivo = $request->file;
         $directorio = "solicitudes/tmp";
         Storage::makeDirectory($directorio);
         $path = $archivo->store($directorio);
-
-        return $this->sendResponse($path, 'SUCCESS');
+        array_push($arrResponse,$path);
+        if($request->file2){
+            $archivo2 = $request->file2;
+            $directorio = "solicitudes/tmp";
+            Storage::makeDirectory($directorio);
+            $path2 = $archivo2->store($directorio);
+            array_push($arrResponse,$path2);
+        }
+        return $this->sendResponse($arrResponse, 'SUCCESS');
     }
     public function guardarUrlVirtual(Request $request){
         try{
@@ -1872,7 +1894,7 @@ class SolicitudController extends Controller {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                 " Se emitió el siguiente mensaje: ". $e->getMessage().
                 " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
-            return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
+            return $this->sendError(' Error no se pudo guardar la url ', 'Error');
         }
     }
 }
