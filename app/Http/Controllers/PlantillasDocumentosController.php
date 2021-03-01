@@ -1006,7 +1006,7 @@ class PlantillasDocumentosController extends Controller
                                         $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto['monto'], 2, '.', ',').'</td></tr>';
                                       }
                                     }else{
-                                      if($parteID == $idSolicitado && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitante
+                                      if($parteID == $idSolicitado && $parteID == $concepto['idCitado']){ //si resolucion pertenece al solicitante
                                         $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto['monto'], 2, '.', ',').'</td></tr>';
                                       }
                                     }

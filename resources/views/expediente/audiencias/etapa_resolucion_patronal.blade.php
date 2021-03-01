@@ -3793,30 +3793,30 @@
             });
             if(resolucion == 1){//hubo convenio
                 if(listaResolucionesIndividuales.length == 0){ // se convino con todos los citados
-                    $('#parte_solicitante_id > option').each(function() { //mostrar convenio por cada solicitante
+                    $('#parte_solicitado_id > option').each(function() { //mostrar convenio por cada solicitante
                         if( this.value !=null && this.value !="" ){
                             listVistaPrevia.push({
-                                plantilla_id : 2, // convenio
-                                parte_solicitante_id: this.value,
-                                parte_solicitado_id: null,
+                                plantilla_id : 14, // convenio
+                                parte_solicitante_id: null,
+                                parte_solicitado_id: this.value,
                             });
                         }
                     });
                 }else{
                     $.each(listaResolucionesIndividuales, function (key, value) {
                         listVistaPrevia.push({
-                            plantilla_id : 2, // convenio
-                            parte_solicitante_id: value.parte_solicitante_id,
-                            parte_solicitado_id: null,
+                            plantilla_id : 14, // convenio
+                            parte_solicitante_id: null,
+                            parte_solicitado_id: value.parte_solicitado_id,
                         });
                     });
                 }
             }else if(resolucion==3){//no hubo convenio
-                $('#parte_solicitado_id > option').each(function() {
+                $('#parte_solicitante_id > option').each(function() {
                     let solicitadoId = this.value;
                     if( solicitadoId !=null && solicitadoId !="" ){
                         solicitadoId = getParteSolicitud(solicitadoId);
-                        $('#parte_solicitante_id > option').each(function() { //mostrar convenio por cada solicitante
+                        $('#parte_solicitado_id > option').each(function() { //mostrar convenio por cada solicitado
                             let solicitanteId = this.value;
                             if( solicitanteId !=null && solicitanteId !="" ){
                                 solicitanteId = getParteSolicitud(solicitanteId);
