@@ -3076,7 +3076,7 @@
                             listaConfigConceptos[idCitado] = [];
                         }
                         listaConfigConceptos[idCitado].push({
-                            idCitado:$("#idCitado").val(),
+                            idSolicitante:$("#idCitado").val(),
                             concepto_pago_resoluciones_id:comboConceptos.val(),
                             dias:$("#dias").val(),
                             monto:$("#monto").val(),
@@ -3387,7 +3387,7 @@
                     $.each(dato.propuestaCompleta,function(index,propuesta){
                         console.log(propuesta);
                         listaPropuestas[propuesta.idSolicitante]['completa'].push({
-                            'idCitado':propuesta.idSolicitante,
+                            'idSolicitante':propuesta.idSolicitante,
                             'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
                             'dias':propuesta.dias,
                             'monto':propuesta.monto,
@@ -3396,7 +3396,7 @@
                     });
                     $.each(dato.propuestaAl50,function(index,propuesta){
                         listaPropuestas[propuesta.idSolicitante]['al50'].push({
-                            'idCitado':propuesta.idSolicitante,
+                            'idSolicitante':propuesta.idSolicitante,
                             'concepto_pago_resoluciones_id':propuesta.concepto_pago_resoluciones_id,
                             'dias':propuesta.dias,
                             'monto':propuesta.monto,
