@@ -391,7 +391,7 @@ class SolicitudController extends Controller {
             foreach ($solicitantes as $key => $solicitante) {
                 
                 $solicitante['solicitud_id'] = $solicitudSaved['id'];
-                $solicitudFilter = Arr::except($solicitante, ['activo','domicilios','contactos','dato_laboral','tmp_file','clasificacion_archivo_id']);
+                $solicitudFilter = Arr::except($solicitante, ['activo','domicilios','contactos','dato_laboral','tmp_files','clasificacion_archivo_id']);
                 $parteSaved = Parte::create($solicitante);
                 //Se agrega el registro de los datos laborales del solicitante
                 $dato_laboral = [];
@@ -400,14 +400,13 @@ class SolicitudController extends Controller {
                     $parteSaved->dato_laboral()->create($dato_laboral);
                 }
                 //Si hay archivo temporal se agrega para cada solicitante
-                if(isset($value['tmp_files'])){
-                    $clasificacion_archivo_id = $value['clasificacion_archivo_id'];
-                    $tmp_files = $value['tmp_files'];
-                    unset($value['tmp_files']);
-                    unset($value['clasificacion_archivo_id']);
+                if(isset($solicitante['tmp_files'])){
+                    $clasificacion_archivo_id = $solicitante['clasificacion_archivo_id'];
+                    $tmp_files = $solicitante['tmp_files'];
+                    unset($solicitante['tmp_files']);
+                    unset($solicitante['clasificacion_archivo_id']);
                 }
                 if(isset($tmp_files)){
-                    dd($tmp_files);
                     foreach ($tmp_files as $key => $tmp_file) { 
                         $solicitud_id = $solicitudSaved->id;
                         $clasificacion_archivo= $clasificacion_archivo_id;
