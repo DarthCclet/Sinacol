@@ -1456,7 +1456,7 @@
                             });
                             if(data.tipo_solicitud_id == 1){
                                 window.location.href = "/guiaAudiencia/"+data.id;
-                            }else if(data.tipo_solicitud_id == 1){
+                            }else if(data.tipo_solicitud_id == 2){
                                 window.location.href = "/guiaPatronal/"+data.id;
                             }else{
                                 window.location.href = "/resolucionColectiva/"+data.id;   
