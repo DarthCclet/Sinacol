@@ -407,7 +407,7 @@ class SolicitudController extends Controller {
                     unset($solicitante['clasificacion_archivo_id']);
                 }
                 if(isset($tmp_files)){
-                    foreach ($tmp_files as $key => $tmp_file) { 
+                    foreach ($tmp_files as $index => $tmp_file) { 
                         $solicitud_id = $solicitudSaved->id;
                         $clasificacion_archivo= $clasificacion_archivo_id;
                         $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parteSaved->id;
