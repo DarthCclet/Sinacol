@@ -864,7 +864,11 @@
                                 </div>
                                 <div class="col-md-12">
                                     <ul>
-                                        <li style="font-size: large;" > Si desea llevar a cabo el procedimiento v&iacute;a remota se requiere que a continuaci&oacute;n cargue una identificación por cada solicitante. La identificaci&oacute;n la deber&aacute; cargar en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto a su nombre. </li>
+                                        @if($tipo_solicitud_id == 2)
+                                            <li style="font-size: large;" > Si desea llevar a cabo el procedimiento v&iacute;a remota se requiere que a continuaci&oacute;n cargue la identificaci&oacute;n oficial del representante legal del patr&oacute;n solicitante. Deber&aacute; cargar la identificaci&oacute;n en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto al nombre del solicitante. </li>
+                                        @else
+                                            <li style="font-size: large;" > Si desea llevar a cabo el procedimiento v&iacute;a remota se requiere que a continuaci&oacute;n cargue una identificación por cada solicitante. La identificaci&oacute;n la deber&aacute; cargar en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto a su nombre. </li>
+                                        @endif
                                         <li style="font-size: large;" > Usted deber&aacute; seguir las instrucciones detalladas en el acuse para confirmar la solicitud y que se genere la fecha y hora de la audiencia de conciliaci&oacute;n v&iacute;a remota, misma que, posteriormente, se le deber&aacute; notificar al citado. Todo el procedimiento se har&aacute; por medio de una liga &uacute;nica que se le proporcionar&aacute; en el acuse de solicitud </li>
                                         <li style="font-size: large;" > Una vez asignada la fecha y hora para la celebraci&oacute;n de la audiencia v&iacute;a remota usted comparecer&aacute; a trav&eacute;s de la liga única proporcionada. </li>
                                     </ul>
@@ -921,9 +925,12 @@
                                     </table>
                                 </div>
                                 <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
-                                @if($tipo_solicitud_id == 2)
-                                <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
-                                @endif
+                                <div class="col-md-12 row"> <div>
+                                    <h4>Solicitantes</h4></div> 
+                                    @if($tipo_solicitud_id != 2)
+                                    <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div>
+                                    @endif
+                                </div>
                                 <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                                     <table class="table table-bordered" >
                                         <thead>
@@ -1062,20 +1069,35 @@
                     </div>
                     <div style="width: 100%; text-align:center;">
                         <div>
-                            <select class="form-control catSelect" id="clasificacion_archivo_id" name="clasificacion_archivo_id">
-                                <option value="">Seleccione una opci&oacute;n</option>
-                                @if(isset($clasificacion_archivo))
+                            @if($tipo_solicitud_id == 2)
+                            <div>
+                                <label >Subir documento de identificaci&oacute;n oficial del representante legal quien confirmar&aacute; la solicitud</label>
+                            </div>
+                            @endif
+                            <div>
+                                <select class="form-control catSelect" id="clasificacion_archivo_id" name="clasificacion_archivo_id">
+                                    <option value="">Seleccione una opci&oacute;n</option>
+                                    @if(isset($clasificacion_archivo))
                                     @foreach($clasificacion_archivo as $clasificacion)
-                                        <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
+                                    <option value="{{$clasificacion->id}}">{{$clasificacion->nombre}}</option>
                                     @endforeach
-                                @endif
-                            </select>
-                            {!! $errors->first('clasificacion_archivo_id', '<span class=text-danger>:message</span>') !!}
-                            <p class="help-block needed">Tipo de identificaci&oacute;n</p>
+                                    @endif
+                                </select>
+                                {!! $errors->first('clasificacion_archivo_id', '<span class=text-danger>:message</span>') !!}
+                                <p class="help-block needed">Tipo de identificaci&oacute;n</p>
+                            </div>
+                       </div>
+                        <div style="padding:3%; border: 1px black dotted;">
+                            <span class='btn btn-primary fileinput-button' style="display: none;" id="boton_file_solicitante">Seleccionar identificaci&oacute;n (Frente)<input type='file' id='fileIdentificacion' id_identificacion='' class='fileIdentificacion' name='files'></span>
+                            <br>
+                            <span style='margin-top: 1%;' id='labelIdentifAlone'></span>
                         </div>
-                        <span class='btn btn-primary fileinput-button' style="display: none;" id="boton_file_solicitante">Seleccionar identificaci&oacute;n<input type='file' id='fileIdentificacion' id_identificacion='' class='fileIdentificacion' name='files'></span>
-                        <br>
-                        <span style='margin-top: 1%;' id='labelIdentifAlone'></span>
+                        <div style="padding:3%; border: 1px black dotted;">
+                            <label>Captura Opcional</label><br>
+                            <span class='btn btn-primary fileinput-button' style="display: none;" id="boton_file_solicitante2">Seleccionar identificaci&oacute;n (Reverso)<input type='file' id='fileIdentificacion2' id_identificacion='' class='fileIdentificacion' name='files'></span>
+                            <br>
+                            <span style='margin-top: 1%;' id='labelIdentifAlone2'></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1733,7 +1755,7 @@
                 localStorage.clear();
             }
         }
-        
+
         // getGironivel("",1,"girosNivel1solicitante");
         if($("#tipo_solicitud_id").val() == 4){
             $("#labelTipoSolicitante").text("Sindicato");
@@ -2208,13 +2230,15 @@
 
         $("#tbodyObjetoSol").html("");
         $("#tbodyObjetoSolRevision").html("");
-
+        var totalObjeto = arrayObjetoSolicitudes.filter(x=> x.activo == 1  ).length;
         $.each(arrayObjetoSolicitudes, function (key, value) {
             if(value.activo == "1" || (value.id != "" && typeof value.activo == "undefined" )){
                 html += "<tr>";
                 $("#objeto_solicitud_id").val(value.objeto_solicitud_id);
                 html += "<td> " + $("#objeto_solicitud_id :selected").text(); + " </td>";
-                html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarObjetoSol("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                if(totalObjeto > 1){
+                    html += "<td style='text-align: center;'><a class='btn btn-xs btn-danger' onclick='eliminarObjetoSol("+key+")' ><i class='fa fa-trash'></i></a></td>";
+                }
                 html += "</tr>";
             }
         });
@@ -2338,11 +2362,7 @@
     *@argument key posicion de array a eliminar
     */
     function eliminarObjetoSol(key){
-        // if(arrayObjetoSolicitudes[key].id == ""){
             arrayObjetoSolicitudes.splice(key,1);
-        // }else{
-        //     arrayObjetoSolicitudes[key].activo = 0;
-        // }
         formarTablaObjetoSol();
     }
 
@@ -2617,7 +2637,7 @@
             if($("#virtual").is(":checked")){
                 var valido = true;
                 $.each(arraySolicitantes, function (key, value) {
-                    if(value.tmp_file == undefined){
+                    if(value.tmp_files == undefined){
                         swal({
                             title: 'Error',
                             text: 'Es necesario agregar la identificación de todos los solicitantes',
@@ -2630,7 +2650,8 @@
                     return valido;
                 }
             }
-            if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 ){
+            let totalObjetosSolicitud = arrayObjetoSolicitudes.filter(x=> x.activo == 1  ).length;
+            if($('#step-4').parsley().validate() && arraySolicitados.length > 0 && arraySolicitantes.length > 0 && $("#countObservaciones").val() <= 200 && totalObjetosSolicitud > 0 ){
 
                 var upd = "";
                 if($("#solicitud_id").val() == ""){
@@ -3288,6 +3309,10 @@
             var key = $("#fileIdentificacion").attr('id_identificacion');
             var file = $("#fileIdentificacion")[0].files[0];
             formData.append("file", file);
+            if($("#fileIdentificacion2").val() != ""){
+                var file2 = $("#fileIdentificacion2")[0].files[0];
+                formData.append("file2", file2);
+            }
             formData.append('_token', "{{ csrf_token() }}");
             arraySolicitantes[key].clasificacion_archivo_id = $("#clasificacion_archivo_id").val();
             $.ajax({
@@ -3344,8 +3369,7 @@
                 data:formData,
                 success:function(data){
                     try{
-                        console.log(data.data);
-                        arraySolicitantes[key].tmp_file = data.data;
+                        arraySolicitantes[key].tmp_files = data.data;
                         $("#labelIdentif"+key).html(" Registrado <i class='fa fa-check' style='color:green'></i> ");
                         $("#modal-identificacion-virtual").modal("hide");
                         swal({title: 'Correcto',text: ' Identificación guardada correctametne ',icon: 'success'});
@@ -3371,11 +3395,17 @@
     function loadModalFile(solicitante_id){
         $("#modal-identificacion-virtual").modal('show');
         $("#fileIdentificacion").attr('id_identificacion',solicitante_id);
+        $("#fileIdentificacion2").attr('id_identificacion',solicitante_id);
     }
     $(".fileIdentificacion").change(function(e){
         var id = $(this).attr('id_identificacion');
+        var idInput = $(this).attr('id');
         if(id != ""){
-            $("#labelIdentifAlone").html("<b>Archivo: </b>"+e.target.files[0].name);
+            if(idInput == "fileIdentificacion"){
+                $("#labelIdentifAlone").html("<b>Archivo: </b>"+e.target.files[0].name);
+            }else{
+                $("#labelIdentifAlone2").html("<b>Archivo: </b>"+e.target.files[0].name);
+            }
         }else{
             swal({title: 'Error',text: ' No selecciono un solicitante ',icon: 'warning'});
         }
@@ -3383,8 +3413,10 @@
     $("#clasificacion_archivo_id").change(function(e){
         if($(this).val() != ""){
             $("#boton_file_solicitante").show();
+            $("#boton_file_solicitante2").show();
         }else{
             $("#boton_file_solicitante").hide();
+            $("#boton_file_solicitante2").hide();
         }
     });
 
