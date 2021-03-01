@@ -985,6 +985,7 @@ class PlantillasDocumentosController extends Controller
                                 $resolucion_conceptos = ResolucionParteConcepto::where('audiencia_parte_id',$audiencia_parte->id)->get();
                               }
                               $tablaConceptosEConvenio = '';
+                              $tablaConceptosEActa = '';
                               $tablaConceptosConvenio .= '<table class="tbl">';
                               $tablaConceptosConvenio .= '<tbody>';
                               $tablaConceptosActa .= '';
@@ -1021,7 +1022,7 @@ class PlantillasDocumentosController extends Controller
                                         $tablaConceptosEConvenio .= $concepto['otro'].'';
                                       }
                                     }  
-                                    //$tablaConceptosEActa .= $concepto->otro.' ';
+                                    $tablaConceptosEActa .= $concepto['otro'].' ';
                                   }
                               }
                               if($tipoSolicitud == 1){
@@ -1031,12 +1032,20 @@ class PlantillasDocumentosController extends Controller
                               }
                               $tablaConceptosConvenio .= '</tbody>';
                               $tablaConceptosConvenio .= '</table>';
-                              $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                              if($tipoSolicitud == 1){
+                                if($parteID == $idSolicitante && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitante
+                                  $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                }
+                              }else{
+                                if($parteID == $idSolicitado && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitante
+                                  $tablaConceptosConvenio .= ($concepto['otro']!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                }
+                              }
                               if(sizeof($parte->compareciente)>0){
                                 $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
                                 $tablaConceptosActa .= '</tbody>';
                                 $tablaConceptosActa .= '</table>';
-                                $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                $tablaConceptosActa .= ($tablaConceptosEActa!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
                                 $tablaConceptosActa .= '<br>';
                               }
                               // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);

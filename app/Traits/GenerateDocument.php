@@ -868,6 +868,7 @@ trait GenerateDocument
                               // $tablaConceptos .= '<h4>Propuesta Configurada </h4>';
                               $resolucion_conceptos = ResolucionParteConcepto::where('audiencia_parte_id',$audiencia_parte->id)->get();
                               $tablaConceptosEConvenio = '';
+                              $tablaConceptosEActa = '';
                               //$tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                               $tablaConceptosConvenio .= '<table class="tbl">';
                               $tablaConceptosConvenio .= '<tbody>';
@@ -899,12 +900,13 @@ trait GenerateDocument
                                   if($tipoSolicitud == 1){ //solicitud individual
                                     if($parteID == $idSolicitante){ //si resolucion pertenece al solicitante
                                       $tablaConceptosEConvenio .= $concepto->otro.' ';
-                                    }else{
-                                      if($parteID == $idSolicitado){ //si resolucion pertenece al citado
-                                        $tablaConceptosEConvenio .= $concepto->otro.' ';
-                                      }
+                                    }
+                                  }else{
+                                    if($parteID == $idSolicitado){ //si resolucion pertenece al citado
+                                      $tablaConceptosEConvenio .= $concepto->otro.' ';
                                     }
                                   }
+                                  $tablaConceptosEActa .= $concepto->otro.' ';
                                 }
                               }
                               if($tipoSolicitud == 1){ //solicitud individual
@@ -914,12 +916,20 @@ trait GenerateDocument
                               }
                               $tablaConceptosConvenio .= '</tbody>';
                               $tablaConceptosConvenio .= '</table>';
-                              $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                              if($tipoSolicitud == 1){ //solicitud individual
+                                if($parteID == $idSolicitante){ //si resolucion pertenece al solicitante
+                                  $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                }
+                              }else{
+                                if($parteID == $idSolicitado){ //si resolucion pertenece al citado
+                                  $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                }
+                              }
                               if(sizeof($parte->compareciente)>0){
                                 $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
                                 $tablaConceptosActa .= '</tbody>';
                                 $tablaConceptosActa .= '</table>';
-                                $tablaConceptosActa .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                $tablaConceptosActa .= ($tablaConceptosEActa!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
                                 $tablaConceptosActa .= '<br>';
                               }
 
