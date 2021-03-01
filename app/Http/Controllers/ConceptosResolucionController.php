@@ -189,7 +189,7 @@ class ConceptosResolucionController extends Controller
             
             //Propuesta de convenio al 100%
             $prouestaCompleta = [];
-            array_push($prouestaCompleta,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 5, "dias"=>90, "monto"=>round($remuneracionDiaria * 90,2))); //Indemnizacion constitucional = gratificacion A
+            array_push($prouestaCompleta,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 5, "dias"=>90, "monto"=>round(($remuneracionDiaria * (1 + (15/365) + ($diasVacaciones * .25/365))) * 90,2))); //Indemnizacion constitucional = gratificacion A
             array_push($prouestaCompleta,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 4, "dias"=>15 * $propAguinaldo, "monto"=>round($remuneracionDiaria * 15 * $propAguinaldo,2))); //Aguinaldo = dias de aguinaldo
             array_push($prouestaCompleta,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 2, "dias"=>$propVacaciones * $diasVacaciones, "monto"=>round($pagoVacaciones,2))); //Vacaciones = dias vacaciones
             array_push($prouestaCompleta,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 3, "dias"=> $propVacaciones * $diasVacaciones * 0.25, "monto"=>round($pagoVacaciones * 0.25,2))); //Prima Vacacional
@@ -212,7 +212,7 @@ class ConceptosResolucionController extends Controller
             
             //Propuesta de convenio al 50%
             $prouestaAl50 = [];
-            array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 5, "dias"=>45, "monto"=>round($remuneracionDiaria * 45,2)));
+            array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 5, "dias"=>45, "monto"=>round(($remuneracionDiaria * (1 + (15/365) + ($diasVacaciones * .25/365))) * 45,2)));
             array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 4, "dias"=>15 * $propAguinaldo, "monto"=>round($remuneracionDiaria * 15 * $propAguinaldo,2)));
             array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 2, "dias"=>$propVacaciones * $diasVacaciones, "monto"=>round($pagoVacaciones,2)));
             array_push($prouestaAl50,array("idSolicitante" => $id, "concepto_pago_resoluciones_id"=> 3, "dias"=> $propVacaciones * $diasVacaciones * 0.25, "monto"=>round($pagoVacaciones * 0.25,2)));
@@ -307,7 +307,7 @@ class ConceptosResolucionController extends Controller
             $salarioTopado = ($remuneracionDiaria > (2*$salarioMinimo) ? (2*$salarioMinimo) : $remuneracionDiaria);
             //Propuesta de convenio al 100%
             $prouestaCompleta = [];
-            array_push($prouestaCompleta,array( "concepto_pago_resoluciones_id"=> 5, "dias"=>90, "monto"=>round($remuneracionDiaria * 90,2))); //Indemnizacion constitucional = gratificacion A
+            array_push($prouestaCompleta,array( "concepto_pago_resoluciones_id"=> 5, "dias"=>90, "monto"=>round(($remuneracionDiaria * (1 + (15/365) + ($diasVacaciones * .25/365))) * 90,2))); //Indemnizacion constitucional = gratificacion A
             array_push($prouestaCompleta,array( "concepto_pago_resoluciones_id"=> 4, "dias"=>15 * $propAguinaldo, "monto"=>round($remuneracionDiaria * 15 * $propAguinaldo,2))); //Aguinaldo = dias de aguinaldo
             array_push($prouestaCompleta,array( "concepto_pago_resoluciones_id"=> 2, "dias"=>$propVacaciones * $diasVacaciones, "monto"=>round($pagoVacaciones,2))); //Vacaciones = dias vacaciones
             array_push($prouestaCompleta,array( "concepto_pago_resoluciones_id"=> 3, "dias"=> $propVacaciones * $diasVacaciones * 0.25, "monto"=>round($pagoVacaciones * 0.25,2))); //Prima Vacacional
@@ -331,7 +331,7 @@ class ConceptosResolucionController extends Controller
             $datosL['anios_antiguedad']= $anios_antiguedad_int;
             //Propuesta de convenio al 50%
             $prouestaAl50 = [];
-            array_push($prouestaAl50,array( "concepto_pago_resoluciones_id"=> 5, "dias"=>45, "monto"=>round($remuneracionDiaria * 45,2)));
+            array_push($prouestaAl50,array( "concepto_pago_resoluciones_id"=> 5, "dias"=>45, "monto"=>round(($remuneracionDiaria * (1 + (15/365) + ($diasVacaciones * .25/365))) * 45,2)));
             array_push($prouestaAl50,array( "concepto_pago_resoluciones_id"=> 4, "dias"=>15 * $propAguinaldo, "monto"=>round($remuneracionDiaria * 15 * $propAguinaldo,2)));
             array_push($prouestaAl50,array( "concepto_pago_resoluciones_id"=> 2, "dias"=>$propVacaciones * $diasVacaciones, "monto"=>round($pagoVacaciones,2)));
             array_push($prouestaAl50,array( "concepto_pago_resoluciones_id"=> 3, "dias"=> $propVacaciones * $diasVacaciones * 0.25, "monto"=>round($pagoVacaciones * 0.25,2)));
