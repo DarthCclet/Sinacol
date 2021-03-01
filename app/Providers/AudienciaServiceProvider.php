@@ -201,7 +201,7 @@ class AudienciaServiceProvider extends ServiceProvider
                     $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('parte_solicitada_id', $solicitado->parte_id)->where('terminacion_bilateral_id', 3)->first();
                     if ($convenio != null) {
                         //generar convenio
-                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id, $solicitado->parte_id));
+                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 14, $solicitante->parte_id, $solicitado->parte_id));
                     } else {
                         // $noConciliacion = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 5)->first();
                         // if ($noConciliacion != null) {
