@@ -19,8 +19,8 @@ class AddConvenioPatronalToPlantillaDocumentosTable extends Migration
         //crear plantilla CONSTANCIA DE PAGO PARCIAL DE CONVENIO
         $plantillaDoc = PlantillaDocumento::create(
         [
-            'nombre_plantilla'=> 'CONSTANCIA DE PAGO PARCIAL DE CONVENIO',
-            'descripcion'=>'CONSTANCIA DE PAGO PARCIAL DE CONVENIO',
+            'nombre_plantilla'=> 'CONVENIO PATRONAL',
+            'descripcion'=>'CONVENIO PATRONAL',
             'plantilla_header'=>$plantillaOrigen->plantilla_header,
             'plantilla_body'=>'<p style="line-height: 8pt; text-align: justify;">&nbsp;</p>
             <p style="line-height: 8pt;"><span style="font-family: Montserrat, sans-serif; font-size: 12pt;"><strong>CENTRO FEDERAL DE CONCILIACI&Oacute;N Y REGISTRO LABORAL</strong></span></p>
