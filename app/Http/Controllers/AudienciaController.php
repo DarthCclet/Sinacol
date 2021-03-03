@@ -1413,7 +1413,12 @@ class AudienciaController extends Controller {
             "pagado" => false
         ]);
         //Se genera el acta de no comparecencia en fecha de pago
-        event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11,$pagoDiferido->solicitante_id)); //11
+        $solicitud = Solicitud::find($request->solicitud_id);
+        if($solicitud->tipo_solicitud_id == 1){//solicitud individual
+            event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11,$pagoDiferido->solicitante_id));
+        }else{
+            event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11,null,$pagoDiferido->solicitante_id)); 
+        }
         return $pagoDiferido;
     }
 
@@ -1424,13 +1429,18 @@ class AudienciaController extends Controller {
      */
     function registrarPagoDiferido(Request $request) {
         try {
+            $solicitud = Solicitud::find($request->solicitud_id);
             $pagoDiferido = ResolucionPagoDiferido::find($request->idPagoDiferido);
             if($pagoDiferido){
                 $pagoDiferido->update([
                     "pagado" => true
                 ]);
                 //generar constacia de pago parcial
-                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,$pagoDiferido->solicitante_id));
+                if($solicitud->tipo_solicitud_id == 1){//solicitud individual
+                    event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,$pagoDiferido->solicitante_id));
+                }else{
+                    event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,null,$pagoDiferido->solicitante_id));
+                }
             }
 
             $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->where('solicitante_id',$pagoDiferido->solicitante_id)->orderBy('fecha_pago')->get();
@@ -1446,7 +1456,11 @@ class AudienciaController extends Controller {
             //if($pagados && ($ultimoPago == $request->idPagoDiferido)){
             if ($pagados) {
                 //generar constancia de cumplimiento de convenio
-                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12,$pagoDiferido->solicitante_id));
+                if($solicitud->tipo_solicitud_id == 1){//solicitud individual
+                    event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12,$pagoDiferido->solicitante_id));
+                }else{
+                    event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12,null,$pagoDiferido->solicitante_id));
+                }
             }
             return $pagoDiferido;
         } catch (\Throwable $e) {
