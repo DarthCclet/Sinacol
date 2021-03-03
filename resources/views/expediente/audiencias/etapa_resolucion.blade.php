@@ -63,7 +63,7 @@
         <button class="btn btn-primary" onclick="guardarUrlVirtual()">Guardar</button>
     </div>
 </div>
-<ul class="timeline" id="timeline_etapas" style="display:none">
+<ul class="timeline" id="timeline_etapas" >
     @foreach($etapa_resolucion as $etapa)
         @if($etapa->paso == 1)
             <li style="" id="step{{$etapa->paso}}">
