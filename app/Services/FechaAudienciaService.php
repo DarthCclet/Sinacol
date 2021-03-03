@@ -645,6 +645,7 @@ class FechaAudienciaService{
                 $arregloHoras[]=$date = date('H:i:s', $hora_actual_time + 5400);
                 $hora_actual_time = $hora_actual_time + 5400;
             }
+            array_pop($arregloHoras);
             return $arregloHoras;
         }else{
             return array();
