@@ -1437,6 +1437,7 @@
                         title: '¿Quieres seguir capturando solicitante(s) o proceder a '+btnText+'?',
                         text: '',
                         icon: '',
+                        closeOnClickOutside: false,
                         buttons: {
                             cancel: {
                                 text: 'Capturar otro solicitante',
@@ -1557,6 +1558,7 @@
                             title: '¿Quieres seguir capturando citados?',
                             text: '',
                             icon: '',
+                            closeOnClickOutside: false,
                             buttons: {
                                 cancel: {
                                     text: 'Capturar otro citado',
