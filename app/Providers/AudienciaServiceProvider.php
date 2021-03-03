@@ -111,7 +111,7 @@ class AudienciaServiceProvider extends ServiceProvider
                     } else if ($audiencia->resolucion_id == 2) {
                         //no hubo convenio pero se agenda nueva audiencia, guarda para todos las partes
                         $terminacion = 2;
-                        // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
+                        // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,52,2,$solicitante->parte_id,$solicitado->parte_id));
                     }
                     $resolucionParte = ResolucionPartes::create([
                                 "audiencia_id" => $audiencia->id,
@@ -201,7 +201,7 @@ class AudienciaServiceProvider extends ServiceProvider
                     $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('parte_solicitada_id', $solicitado->parte_id)->where('terminacion_bilateral_id', 3)->first();
                     if ($convenio != null) {
                         //generar convenio
-                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 14, $solicitante->parte_id, $solicitado->parte_id));
+                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 52, 14, $solicitante->parte_id, $solicitado->parte_id));
                     } else {
                         // $noConciliacion = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 5)->first();
                         // if ($noConciliacion != null) {
