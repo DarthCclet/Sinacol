@@ -262,8 +262,11 @@
 
     $("#btnGuardarParte").click(function(){
         var arrayDomiciliosSolicitado = []; // Array de domicilios para el citado
-        arrayDomiciliosSolicitado[0] = domicilioObj2.getDomicilio();
-        if(arrayDomiciliosSolicitado.length > 0){
+        $domicilio = domicilioObj2.getDomicilio();
+        if($domicilio != undefined){
+            arrayDomiciliosSolicitado[0] = $domicilio;
+        }
+        if(arrayDomiciliosSolicitado.length > 0 ){
             $.ajax({
                 url:"/parte",
                 type:"POST",
@@ -318,6 +321,12 @@
                         icon: 'error'
                     });
                 }
+            });
+        }else{
+            swal({
+                title: 'Error',
+                text: 'Es necesario agregar el domicilio para continuar',
+                icon: 'error'
             });
         }
     });
