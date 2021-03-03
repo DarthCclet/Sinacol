@@ -535,7 +535,8 @@ trait GenerateDocument
                         //representante legal solicitado
                         $representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
                         if(count($representanteLegal) > 0){
-                          $parte['asistencia'] =  (count($representanteLegal[0]->compareciente)>0) ? 'Si':'No';
+                          $comparecenciaAudiencia = $representanteLegal[0]->compareciente()->where('audiencia_id',$idAudiencia)->get();   
+                          $parte['asistencia'] =  (count($comparecenciaAudiencia)>0) ? 'Si':'No';
                           $objeto = new JsonResponse($representanteLegal);
                           $representanteLegal = json_decode($objeto->content(),true);
                           $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);
@@ -553,7 +554,8 @@ trait GenerateDocument
                           }
                           $parte['representante_legal'] = $representanteLegal;
                         }else{
-                          $parte['asistencia'] =  (count($parte['compareciente'])>0) ? 'Si':'No';
+                          $countParteAsistencia = Compareciente::where('parte_id', $parteId)->where('audiencia_id',$audienciaId)->count();
+                          $parte['asistencia'] =  ($countParteAsistencia >0) ? 'Si':'No';
                         }
                           //tipoNotificacion solicitado
                         if($audienciaId!=""){
