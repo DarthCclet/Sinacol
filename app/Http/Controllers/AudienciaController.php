@@ -2456,7 +2456,7 @@ class AudienciaController extends Controller {
                                         }
                                         if(!$comparecio && $audienciaP->finalizado == "FINALIZADO EXITOSAMENTE"){
                                             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
-                                            array_push($arrayMultadoNotificacion, $audienciaP->parte_id);
+                                            array_push($arrayMultadoNotificacion, $audienciaP->id);
                                         }
                                     }
                                 }
@@ -2473,7 +2473,8 @@ class AudienciaController extends Controller {
                     event(new RatificacionRealizada($audiencia_notificar_id, "citatorio"));
                 } else {
                     foreach ($arrayMultadoNotificacion as $parte) {
-                        Parte::find($parte)->update(["multado" => true]);
+                        $ap = AudienciaParte::find($parte);
+                        Parte::find($ap->parte_id)->update(["multado" => true]);
                         event(new RatificacionRealizada($audiencia_notificar_id, "multa", false, $parte));
                     }
                 }
@@ -2720,28 +2721,33 @@ class AudienciaController extends Controller {
         $sin_contactar = array();
         try {
             foreach ($audiencia->audienciaParte as $parte) {
-                if ($parte->parte->contactos != null) {
-                    $envio = false;
-                    foreach ($parte->parte->contactos as $contacto) {
-                        $tipo_mail = TipoContacto::where("nombre", "EMAIL")->first();
-                        if ($contacto->tipo_contacto_id == $tipo_mail->id) {
-                            Mail::to($contacto->contacto)->send(new CambioFecha($audiencia, $parte->parte));
-                            $envio = true;
+                if($parte->finalizado != "FINALIZADO EXITOSAMENTE"){
+                    event(new RatificacionRealizada($audiencia->id, "citatorio",false,$parte->id));
+                    $envio = true;
+                }else{
+                    if ($parte->parte->contactos != null) {
+                        $envio = false;
+                        foreach ($parte->parte->contactos as $contacto) {
+                            $tipo_mail = TipoContacto::where("nombre", "EMAIL")->first();
+                            if ($contacto->tipo_contacto_id == $tipo_mail->id) {
+                                Mail::to($contacto->contacto)->send(new CambioFecha($audiencia, $parte->parte));
+                                $envio = true;
+                            }
                         }
-                    }
-                    if (!$envio) {
+                        if (!$envio) {
+                            $parte->parte->contactos = $parte->parte->contactos;
+                            foreach ($parte->parte->contactos as $contactos) {
+                                $contactos->tipo_contacto = $contactos->tipo_contacto;
+                            }
+                            array_push($sin_contactar, $parte->parte);
+                        }
+                    } else {
                         $parte->parte->contactos = $parte->parte->contactos;
                         foreach ($parte->parte->contactos as $contactos) {
                             $contactos->tipo_contacto = $contactos->tipo_contacto;
                         }
                         array_push($sin_contactar, $parte->parte);
                     }
-                } else {
-                    $parte->parte->contactos = $parte->parte->contactos;
-                    foreach ($parte->parte->contactos as $contactos) {
-                        $contactos->tipo_contacto = $contactos->tipo_contacto;
-                    }
-                    array_push($sin_contactar, $parte->parte);
                 }
             }
             return $sin_contactar;
