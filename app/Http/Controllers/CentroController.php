@@ -322,6 +322,7 @@ class CentroController extends Controller
                                     $sol_array["notificada"] = $notificada;
                                     $sol_array["parte"] = $parte->parte;
                                     $sol_array["audiencia_id"] = $audiencia->id;
+                                    $sol_array["audiencia_parte_id"] = $parte->id;
                                     $solicitudes[] = $sol_array;   
                                 }
                             }
@@ -365,6 +366,7 @@ class CentroController extends Controller
                                 $sol_array["notificada"] = $notificada;
                                 $sol_array["parte"] = $parte->parte;
                                 $sol_array["audiencia_id"] = $audiencia->id;
+                                $sol_array["audiencia_parte_id"] = $parte->id;
                                 $solicitudes[] = $sol_array;   
                             }
                         }
