@@ -964,8 +964,8 @@ trait GenerateDocument
                                   $totalPagosDiferidos +=1;
                                 }
                               }else{
-                                if(($parteID == $pago['idCitado']) && ($parteID == $idSolicitado)){
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
+                                if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitado)){
+                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
                                   $totalPagosDiferidos +=1;
                                 }
                               }
