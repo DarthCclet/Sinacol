@@ -1077,7 +1077,7 @@ class SolicitudController extends Controller {
                         $parteSaved->update($citadoSave);
                         // Se valida si se existen datos laborales si no se agregan
                         if(isset($citado['dato_laboral'])){
-                            $dato_laboral = $citado['dato_laboral'][0];
+                            $dato_laboral = $citado['dato_laboral'];
                             if (isset($dato_laboral["id"]) && $dato_laboral["id"] != "") {
                                 $dato_laboralUp = DatoLaboral::find($dato_laboral["id"]);
                                 $dato_laboralUp->update($dato_laboral);
