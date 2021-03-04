@@ -1442,7 +1442,11 @@
                         var btnText = "Capturar Citado(s)";
                     }
                     if($("#tipo_solicitud_id").val() == "2"){
-                        $('#wizard').smartWizard('goToStep', 2);
+                        if(if(edit){){
+                            $('#wizard').smartWizard('goToStep', 3);
+                        }else{
+                            $('#wizard').smartWizard('goToStep', 2);
+                        }
                     }else{
                         swal({
                             title: '¿Quieres seguir capturando solicitante(s) o proceder a '+btnText+'?',
