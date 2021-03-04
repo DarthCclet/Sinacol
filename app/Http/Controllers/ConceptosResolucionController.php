@@ -135,7 +135,7 @@ class ConceptosResolucionController extends Controller
             if(count($datoLaboral) > 1){
                 $datoLaborales =$datoLaboral->where('resolucion',true)->first();
             }else{
-                $datoLaborales =$datoLaboral->where('resolucion',false)->first();
+                $datoLaborales =$datoLaboral->first();
             }
             $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
             $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;

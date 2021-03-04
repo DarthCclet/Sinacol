@@ -1442,7 +1442,11 @@
                         var btnText = "Capturar Citado(s)";
                     }
                     if($("#tipo_solicitud_id").val() == "2"){
-                        $('#wizard').smartWizard('goToStep', 2);
+                        if(edit){
+                            $('#wizard').smartWizard('goToStep', 3);
+                        }else{
+                            $('#wizard').smartWizard('goToStep', 2);
+                        }
                     }else{
                         swal({
                             title: '¿Quieres seguir capturando solicitante(s) o proceder a '+btnText+'?',
@@ -2508,7 +2512,7 @@
         formarTablaContacto();
         arrayContactoSolicitados = arraySolicitados[key].contactos;
         // datos laborales en la solicitante
-        if(arraySolicitados[key].dato_laboral != undefined){
+        if(arraySolicitados[key].dato_laboral.length > 0){
             if($.isArray(arraySolicitados[key].dato_laboral)){
                 arraySolicitados[key].dato_laboral = arraySolicitados[key].dato_laboral[0];
             }

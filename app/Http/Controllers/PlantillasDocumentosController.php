@@ -718,7 +718,7 @@ class PlantillasDocumentosController extends Controller
                         if($hayDatosLaborales>1){
                           $datoLaborales =$datoLaborales->where('resolucion',true)->first();
                         }else{
-                          $datoLaborales =$datoLaborales->where('resolucion',false)->first();
+                          $datoLaborales =$datoLaborales->first();
                         }
                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                         if($hayDatosLaborales >0){
@@ -928,7 +928,7 @@ class PlantillasDocumentosController extends Controller
                             if($hayDatosLaborales>1){
                               $datoLaborales =$datoLaborales->where('resolucion',true)->first();
                             }else{
-                              $datoLaborales =$datoLaborales->where('resolucion',false)->first();
+                              $datoLaborales =$datoLaborales->first();
                             }
                             // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                             if($hayDatosLaborales >0){

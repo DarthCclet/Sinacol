@@ -246,7 +246,11 @@ class ParteController extends Controller
         }else{
             $datos_laborales = $datos_laborales->first();
         }
-        return $datos_laborales;
+        if($datos_laborales){
+            return $datos_laborales;
+        }else{
+            return [];
+        }
     }
     /**
      * Funcion para obtener el representante legal de una parte
