@@ -141,7 +141,7 @@ class FechaAudienciaService{
                 "encontro_audiencia" => false);
         }
     }
-    public static function obtenerFechaAudienciaDoble(string $hoy,Centro $centro,$min,$max){
+    public static function obtenerFechaAudienciaDoble(string $hoy,Centro $centro,$min,$max,$virtual = false){
         $diaHabilCentro = Incidencia::siguienteDiaHabilMasDias($hoy,$centro->id ,"App\Centro",$min,$max);
         if($diaHabilCentro["dia"] != "nada"){
             $d = new Carbon($diaHabilCentro["dia"]);
