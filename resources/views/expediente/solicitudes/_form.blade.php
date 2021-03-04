@@ -741,13 +741,13 @@
                                         <div style="margin-top: 2%;" class="col-md-12">
                                         </div>
                                     </div>
-                                    {{-- <div class="col-md-12 pasoCitado"id="continuarCitado3">
+                                     <div class="col-md-12 pasoCitado"id="continuarCitado3" style="display: none;">
                                         <button style="float: right;" class="btn btn-primary" onclick="pasoSolicitado(3)" type="button" > Validar <i class="fa fa-arrow-right"></i></button>
-                                    </div> --}}
+                                    </div> 
                                 </div>
                                     <!-- end seccion de domicilios citado -->
                                     <!-- Seccion de Datos laborales -->
-                                {{-- <div id="divDatoLaboralCitado" style="display: none;"  class="col-md-12 row">
+                                <div id="divDatoLaboralCitado" style="display: none;"  class="col-md-12 row">
                                     <div class="col-md-12 mt-4">
                                         <h4>Datos Laborales</h4>
                                         <hr class="red">
@@ -809,7 +809,7 @@
                                     <div>
                                         <a style="font-size: medium;" onclick="$('#modal-jornada').modal('show');"><i class="fa fa-question-circle"></i></a>
                                     </div>
-                                </div> --}}
+                                </div> 
                                 <!-- end Seccion de Datos laborales -->
                                 <hr style="margin-top:5%;">
                                 <div id="divBotonesSolicitado" style="display: none;">
@@ -864,7 +864,11 @@
                                 </div>
                                 <div class="col-md-12">
                                     <ul>
-                                        <li style="font-size: large;" > Si desea llevar a cabo el procedimiento v&iacute;a remota se requiere que a continuaci&oacute;n cargue una identificación por cada solicitante. La identificaci&oacute;n la deber&aacute; cargar en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto a su nombre. </li>
+                                        @if($tipo_solicitud_id == 2)
+                                            <li style="font-size: large;" > Si desea llevar a cabo el procedimiento v&iacute;a remota se requiere que a continuaci&oacute;n cargue la identificaci&oacute;n oficial del representante legal del patr&oacute;n solicitante. Deber&aacute; cargar la identificaci&oacute;n en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto al nombre del solicitante. </li>
+                                        @else
+                                            <li style="font-size: large;" > Si desea llevar a cabo el procedimiento v&iacute;a remota se requiere que a continuaci&oacute;n cargue una identificación por cada solicitante. La identificaci&oacute;n la deber&aacute; cargar en el &iacute;cono <span class='btn btn-primary fileinput-button btn-xs'><i class='fa fa-fw fa-id-card'></i></span> junto a su nombre. </li>
+                                        @endif
                                         <li style="font-size: large;" > Usted deber&aacute; seguir las instrucciones detalladas en el acuse para confirmar la solicitud y que se genere la fecha y hora de la audiencia de conciliaci&oacute;n v&iacute;a remota, misma que, posteriormente, se le deber&aacute; notificar al citado. Todo el procedimiento se har&aacute; por medio de una liga &uacute;nica que se le proporcionar&aacute; en el acuse de solicitud </li>
                                         <li style="font-size: large;" > Una vez asignada la fecha y hora para la celebraci&oacute;n de la audiencia v&iacute;a remota usted comparecer&aacute; a trav&eacute;s de la liga única proporcionada. </li>
                                     </ul>
@@ -921,7 +925,12 @@
                                     </table>
                                 </div>
                                 <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
-                                <div class="col-md-12 row"> <div><h4>Solicitantes</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div></div>
+                                <div class="col-md-12 row"> <div>
+                                    <h4>Solicitantes</h4></div> 
+                                    @if($tipo_solicitud_id != 2)
+                                    <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div>
+                                    @endif
+                                </div>
                                 <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                                     <table class="table table-bordered" >
                                         <thead>
@@ -1060,6 +1069,11 @@
                     </div>
                     <div style="width: 100%; text-align:center;">
                         <div>
+                            @if($tipo_solicitud_id == 2)
+                            <div>
+                                <label >Subir documento de identificaci&oacute;n oficial del representante legal quien confirmar&aacute; la solicitud</label>
+                            </div>
+                            @endif
                             <div>
                                 <select class="form-control catSelect" id="clasificacion_archivo_id" name="clasificacion_archivo_id">
                                     <option value="">Seleccione una opci&oacute;n</option>
@@ -1072,7 +1086,7 @@
                                 {!! $errors->first('clasificacion_archivo_id', '<span class=text-danger>:message</span>') !!}
                                 <p class="help-block needed">Tipo de identificaci&oacute;n</p>
                             </div>
-                        </div>
+                       </div>
                         <div style="padding:3%; border: 1px black dotted;">
                             <span class='btn btn-primary fileinput-button' style="display: none;" id="boton_file_solicitante">Seleccionar identificaci&oacute;n (Frente)<input type='file' id='fileIdentificacion' id_identificacion='' class='fileIdentificacion' name='files'></span>
                             <br>
@@ -1418,7 +1432,7 @@
                     $('#divContactoSolicitante').hide();
                     $('#divMapaSolicitante').hide();
                     $('#divDatoLaboralSolicitante').hide();
-                    // $('#divDatoLaboralCitado').hide();
+                    $('#divDatoLaboralCitado').hide();
                     $('#divBotonesSolicitante').hide();
                     $(".pasoSolicitante").show();
                     $("#divCancelarCitado").hide();
@@ -1427,38 +1441,42 @@
                     }else{
                         var btnText = "Capturar Citado(s)";
                     }
-                    swal({
-                        title: '¿Quieres seguir capturando solicitante(s) o proceder a '+btnText+'?',
-                        text: '',
-                        icon: '',
-                        buttons: {
-                            cancel: {
-                                text: 'Capturar otro solicitante',
-                                value: null,
-                                visible: true,
-                                className: 'btn btn-primary',
-                                closeModal: true,
-                            },
-                            confirm: {
-                                text: btnText,
-                                value: true,
-                                visible: true,
-                                className: 'btn btn-primary',
-                                closeModal: true
+                    if($("#tipo_solicitud_id").val() == "2"){
+                        $('#wizard').smartWizard('goToStep', 2);
+                    }else{
+                        swal({
+                            title: '¿Quieres seguir capturando solicitante(s) o proceder a '+btnText+'?',
+                            text: '',
+                            icon: '',
+                            buttons: {
+                                cancel: {
+                                    text: 'Capturar otro solicitante',
+                                    value: null,
+                                    visible: true,
+                                    className: 'btn btn-primary',
+                                    closeModal: true,
+                                },
+                                confirm: {
+                                    text: btnText,
+                                    value: true,
+                                    visible: true,
+                                    className: 'btn btn-primary',
+                                    closeModal: true
+                                }
                             }
-                        }
-                    }).then(function(isConfirm){
-                        if(isConfirm){
-                            getAtiendeVirtual();
-                            if(!editCitado){
-                                editCitado = true;
-                                $('#wizard').smartWizard('goToStep', 2);
+                        }).then(function(isConfirm){
+                            if(isConfirm){
+                                getAtiendeVirtual();
+                                if(!editCitado){
+                                    editCitado = true;
+                                    $('#wizard').smartWizard('goToStep', 2);
+                                }else{
+                                    $('#wizard').smartWizard('goToStep', 3);
+                                }
                             }else{
-                                $('#wizard').smartWizard('goToStep', 3);
                             }
-                        }else{
-                        }
-                    });
+                        });
+                    }
 
                 }else{
                     swal({
@@ -1505,23 +1523,23 @@
                         solicitado.tipo_parte_id = 2;
                         solicitado.rfc = $("#idSolicitadoRfc").val();
                         solicitado.activo = 1;
-                        // if($("#tipo_solicitud_id").val() == "2"){
-                        //     var dato_laboral = {};
-                        //     dato_laboral.id = $("#dato_laboral_idCitado").val();
-                        //     dato_laboral.ocupacion_id = $("#ocupacion_idCitado").val();
-                        //     dato_laboral.puesto = $("#puestoCitado").val();
-                        //     dato_laboral.nss = $("#nssCitado").val();
-                        //     dato_laboral.no_issste = "";//$("#no_issste").val();
-                        //     dato_laboral.remuneracion = $("#remuneracionCitado").val();
-                        //     dato_laboral.periodicidad_id = $("#periodicidad_idCitado").val();
-                        //     dato_laboral.labora_actualmente = $("#labora_actualmenteCitado").is(":checked");
-                        //     dato_laboral.fecha_ingreso = dateFormat($("#fecha_ingresoCitado").val());
-                        //     dato_laboral.fecha_salida = dateFormat($("#fecha_salidaCitado").val());
-                        //     dato_laboral.jornada_id = $("#jornada_idCitado").val();
-                        //     dato_laboral.horas_semanales = $("#horas_semanalesCitado").val();
-                        //     dato_laboral.resolucion = false;
-                        //     solicitado.dato_laboral = dato_laboral;
-                        // }
+                        if($("#tipo_solicitud_id").val() == "2"){
+                            var dato_laboral = {};
+                            dato_laboral.id = $("#dato_laboral_idCitado").val();
+                            dato_laboral.ocupacion_id = $("#ocupacion_idCitado").val();
+                            dato_laboral.puesto = $("#puestoCitado").val();
+                            dato_laboral.nss = $("#nssCitado").val();
+                            dato_laboral.no_issste = "";//$("#no_issste").val();
+                            dato_laboral.remuneracion = $("#remuneracionCitado").val();
+                            dato_laboral.periodicidad_id = $("#periodicidad_idCitado").val();
+                            dato_laboral.labora_actualmente = $("#labora_actualmenteCitado").is(":checked");
+                            dato_laboral.fecha_ingreso = dateFormat($("#fecha_ingresoCitado").val());
+                            dato_laboral.fecha_salida = dateFormat($("#fecha_salidaCitado").val());
+                            dato_laboral.jornada_id = $("#jornada_idCitado").val();
+                            dato_laboral.horas_semanales = $("#horas_semanalesCitado").val();
+                            dato_laboral.resolucion = false;
+                            solicitado.dato_laboral = dato_laboral;
+                        }
                         solicitado.domicilios = arrayDomiciliosSolicitado;
                         //contactos del solicitado
                         solicitado.contactos = arrayContactoSolicitados;
@@ -1544,6 +1562,7 @@
                         $('#divContactoSolicitado').hide();
                         $('#divMapaSolicitado').hide();
                         $('#divBotonesSolicitado').hide();
+                        $('#divDatoLaboralCitado').hide();
                         $("#tipo_persona_fisica_solicitado").click().trigger('change');
                         $(".pasoSolicitado").show();
                         $("#divCancelarSolicitante").hide();
@@ -1736,6 +1755,7 @@
                 localStorage.clear();
             }
         }
+
         // getGironivel("",1,"girosNivel1solicitante");
         if($("#tipo_solicitud_id").val() == 4){
             $("#labelTipoSolicitante").text("Sindicato");
@@ -1750,6 +1770,7 @@
             $("#labelTipoSolicitud").text("Patrón (colectiva)");
             $(".estadoSelectsolicitado").select2({width: '100%'});
         }else if($("#tipo_solicitud_id").val() == 2){
+            $("#continuarCitado3").show();
             $("#labelTipoSolicitante").text("Patrón (individual)");
             $("#labelTipoSolicitud").text("Patrón (individual)");
             $(".estadoSelectsolicitado").select2({width: '100%'});
@@ -1894,7 +1915,9 @@
                     // console.log(excepcion);
                     // $(".step-6").show();
                     if(data.ratificada){
-                        $("#btnAgregarNuevoSolicitante").hide();
+                        if($("#tipo_solicitud_id").val() != 2){
+                            $("#btnAgregarNuevoSolicitante").hide();
+                        }
                         $("#btnRatificarSolicitud").hide();
                         $("#expediente_id").val(data.expediente.id);
                         expedientee = true;
@@ -1951,20 +1974,20 @@
         $("#jornada_id").val("");
         $("#horas_semanales").val("");
 
-        // $("#dato_laboral_idCitado").val("");
-        // $("#ocupacion_idCitado").val("");
-        // $("#puestoCitado").val("");
-        // $("#nssCitado").val("");
-        // $("#no_isssteCitado").val("");
-        // $("#remuneracionCitado").val("");
-        // $("#periodicidad_idCitado").val("");
-        // if($("#labora_actualmenteCitado").is(":checked")){
-        //     $("#labora_actualmenteCitado").trigger('click');
-        // }
-        // $("#fecha_ingresoCitado").val("");
-        // $("#fecha_salidaCitado").val("");
-        // $("#jornada_idCitado").val("");
-        // $("#horas_semanalesCitado").val("");
+        $("#dato_laboral_idCitado").val("");
+        $("#ocupacion_idCitado").val("");
+        $("#puestoCitado").val("");
+        $("#nssCitado").val("");
+        $("#no_isssteCitado").val("");
+        $("#remuneracionCitado").val("");
+        $("#periodicidad_idCitado").val("");
+        if($("#labora_actualmenteCitado").is(":checked")){
+            $("#labora_actualmenteCitado").trigger('click');
+        }
+        $("#fecha_ingresoCitado").val("");
+        $("#fecha_salidaCitado").val("");
+        $("#jornada_idCitado").val("");
+        $("#horas_semanalesCitado").val("");
         
         $("#genero_id_solicitante").val("");
         $("#nacionalidad_id_solicitante").val("");
@@ -2483,33 +2506,32 @@
         $("input[name='tipo_persona_solicitado']").trigger("change");
         arrayContactoSolicitados = arraySolicitados[key].contactos ? arraySolicitados[key].contactos : [];
         formarTablaContacto();
-        // arrayContactoSolicitados = arraySolicitados[key].contactos;
+        arrayContactoSolicitados = arraySolicitados[key].contactos;
         // datos laborales en la solicitante
-        // if(arraySolicitados[key].dato_laboral != undefined){
-        //     if($.isArray(arraySolicitados[key].dato_laboral)){
-        //         arraySolicitados[key].dato_laboral = arraySolicitados[key].dato_laboral[0];
-        //     }
-        //     $("#dato_laboral_idCitado").val(arraySolicitados[key].dato_laboral.id);
-        //     $('#divDatoLaboralCitado').show();
-        //     // getGiroEditar("solicitante");
-        //     $("#ocupacion_idCitado").val(arraySolicitados[key].dato_laboral.ocupacion_id);
-        //     $("#puestoCitado").val(arraySolicitados[key].dato_laboral.puesto);
-        //     $("#nssCitado").val(arraySolicitados[key].dato_laboral.nss);
-        //     $("#no_isssteCitado").val(arraySolicitados[key].dato_laboral.no_issste);
-        //     $("#remuneracionCitado").val(arraySolicitados[key].dato_laboral.remuneracion);
-        //     $("#periodicidad_idCitado").val(arraySolicitados[key].dato_laboral.periodicidad_id);
-        //     if(arraySolicitados[key].dato_laboral.labora_actualmente != $("#labora_actualmenteCitado").is(":checked")){
-        //         $("#labora_actualmenteCitado").click();
-        //     }
-            
-        //     $("input[name='tipo_persona_solicitanteCitado']").trigger("change");
-        //     $("#fecha_ingresoCitado").val(dateFormat(arraySolicitados[key].dato_laboral.fecha_ingreso,4));
-        //     $("#fecha_salidaCitado").val(dateFormat(arraySolicitados[key].dato_laboral.fecha_salida,4));
-        //     $("#jornada_idCitado").val(arraySolicitados[key].dato_laboral.jornada_id);
-        //     $("#horas_semanalesCitado").val(arraySolicitados[key].dato_laboral.horas_semanales);
-        // }else{
-        //     $(".requiredLaboralCitado").removeAttr('required');
-        // }
+        if(arraySolicitados[key].dato_laboral != undefined){
+            if($.isArray(arraySolicitados[key].dato_laboral)){
+                arraySolicitados[key].dato_laboral = arraySolicitados[key].dato_laboral[0];
+            }
+            $("#dato_laboral_idCitado").val(arraySolicitados[key].dato_laboral.id);
+            $('#divDatoLaboralCitado').show();
+            // getGiroEditar("solicitante");
+            $("#ocupacion_idCitado").val(arraySolicitados[key].dato_laboral.ocupacion_id);
+            $("#puestoCitado").val(arraySolicitados[key].dato_laboral.puesto);
+            $("#nssCitado").val(arraySolicitados[key].dato_laboral.nss);
+            $("#no_isssteCitado").val(arraySolicitados[key].dato_laboral.no_issste);
+            $("#remuneracionCitado").val(arraySolicitados[key].dato_laboral.remuneracion);
+            $("#periodicidad_idCitado").val(arraySolicitados[key].dato_laboral.periodicidad_id);
+            if(arraySolicitados[key].dato_laboral.labora_actualmente != $("#labora_actualmenteCitado").is(":checked")){
+                $("#labora_actualmenteCitado").click();
+            }
+            $("input[name='tipo_persona_solicitanteCitado']").trigger("change");
+            $("#fecha_ingresoCitado").val(dateFormat(arraySolicitados[key].dato_laboral.fecha_ingreso,4));
+            $("#fecha_salidaCitado").val(dateFormat(arraySolicitados[key].dato_laboral.fecha_salida,4));
+            $("#jornada_idCitado").val(arraySolicitados[key].dato_laboral.jornada_id);
+            $("#horas_semanalesCitado").val(arraySolicitados[key].dato_laboral.horas_semanales);
+        }else{
+            $(".requiredLaboralCitado").removeAttr('required');
+        }
         arrayDomiciliosSolicitado = arraySolicitados[key].domicilios;
         cargarEditarDomicilioSolicitado(0);
         formarTablaDomiciliosSolicitado();
@@ -2924,30 +2946,30 @@
         date2.setDate(date2.getDate()+1);
         $('#fecha_salida').datepicker("option", "minDate", date2);
     });
-    // $('#fecha_ingresoCitado').datepicker({
-    //     format: "dd/mm/yyyy",
-    //     changeMonth: true,
-    //     changeYear: true,
-    //     maxDate:0,
-    //     yearRange: "c-80:",
-    //     language: 'es',
-    //     autoclose: true,
-    // });
-    // var a = $('#fecha_ingresoCitado').datepicker("getDate");
-    // $('#fecha_salidaCitado').datepicker({
-    //     format: "dd/mm/yyyy",
-    //     language: "es",
-    //     yearRange: "c-80:",
-    //     changeMonth: true,
-    //     changeYear: true,
-    //     autoclose: true
-    // });
+    $('#fecha_ingresoCitado').datepicker({
+        format: "dd/mm/yyyy",
+        changeMonth: true,
+        changeYear: true,
+        maxDate:0,
+        yearRange: "c-80:",
+        language: 'es',
+        autoclose: true,
+    });
+    var a = $('#fecha_ingresoCitado').datepicker("getDate");
+    $('#fecha_salidaCitado').datepicker({
+        format: "dd/mm/yyyy",
+        language: "es",
+        yearRange: "c-80:",
+        changeMonth: true,
+        changeYear: true,
+        autoclose: true
+    });
 
-    // $('#fecha_ingresoCitado').datepicker().on('change', function (ev) {
-    //     var date2 = $('#fecha_ingresoCitado').datepicker('getDate');
-    //     date2.setDate(date2.getDate()+1);
-    //     $('#fecha_salidaCitado').datepicker("option", "minDate", date2);
-    // });
+    $('#fecha_ingresoCitado').datepicker().on('change', function (ev) {
+        var date2 = $('#fecha_ingresoCitado').datepicker('getDate');
+        date2.setDate(date2.getDate()+1);
+        $('#fecha_salidaCitado').datepicker("option", "minDate", date2);
+    });
 
     $(".date").datepicker({useCurrent: false,format:'dd/mm/yyyy'});
     $(".dateTime").datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm:ss'});
@@ -3081,26 +3103,26 @@
                         $('#divBotonesSolicitante').show();
                         $(".requiredLaboral").attr('required',true);
                         $('#continuar3').hide();
-                    //     $('#divDatoLaboralCitado').hide();
-                    //     $('#divBotonesCitado').hide();
-                    //     $(".requiredLaboralCitado").removeAttr('required',true);
-                    // }else if($("#tipo_solicitud_id").val() == 2){
-                    //     $("#divDatoLaboralSolicitante").removeAttr('data-parsley-validate');
-                    //     $(".requiredLaboral").removeAttr('required');
-                    //     $('#divBotonesSolicitante').show();
-                    //     $('#continuarCitado3').show();
-                    //     $('#continuar3').hide();
-                    //     $('#divDatoLaboralCitado').show();
-                    //     $('#divBotonesCitado').show();
-                    //     $(".requiredLaboralCitado").attr('required',true);
+                        $('#divDatoLaboralCitado').hide();
+                        $('#divBotonesCitado').hide();
+                        $(".requiredLaboralCitado").removeAttr('required',true);
+                    }else if($("#tipo_solicitud_id").val() == 2){
+                        $("#divDatoLaboralSolicitante").removeAttr('data-parsley-validate');
+                        $(".requiredLaboral").removeAttr('required');
+                        $('#divBotonesSolicitante').show();
+                        $('#continuarCitado3').show();
+                        $('#continuar3').hide();
+                        $('#divDatoLaboralCitado').show();
+                        $('#divBotonesCitado').show();
+                        $(".requiredLaboralCitado").attr('required',true);
                     }else{
                         $("#divDatoLaboralSolicitante").removeAttr('data-parsley-validate');
                         $(".requiredLaboral").removeAttr('required');
                         $('#divBotonesSolicitante').show();
                         $('#continuar3').hide();
-                        // $('#divDatoLaboralCitado').hide();
-                        // $('#divBotonesCitado').hide();
-                        // $(".requiredLaboralCitado").removeAttr('required',true);
+                        $('#divDatoLaboralCitado').hide();
+                        $('#divBotonesCitado').hide();
+                        $(".requiredLaboralCitado").removeAttr('required',true);
                     }
                 }
             break;
@@ -3119,16 +3141,16 @@
                 break;
             case 2:
                 $('#divMapaSolicitado').show();
-                // if($("#tipo_solicitud_id").val() == "2"){
-                //     $('#continuarCitado3').show();
-                // }else{
+                if($("#tipo_solicitud_id").val() == "2"){
+                    $('#continuarCitado3').show();
+                }else{
                     $('#divBotonesSolicitado').show();
-                // }
+                }
             break;
             case 3:
-                // if($("#tipo_solicitud_id").val() == "2"){
-                //     $('#divDatoLaboralCitado').show();
-                // }
+                if($("#tipo_solicitud_id").val() == "2"){
+                    $('#divDatoLaboralCitado').show();
+                }
                 if($('#divMapaSolicitado').parsley().validate() && $("#asentamientosolicitado").val() != "" ){
                     $('#divBotonesSolicitado').show();
                     $('#continuarSolicitado3').hide();
@@ -3318,27 +3340,27 @@
                     }
                 }, false);
                 // Upload progress
-                    xhr.upload.addEventListener("progress", function(evt){
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            //Do something with upload progress
-                            console.log(percentComplete);
-                            $('#progress-bar').show();
-                            var percent = parseInt(percentComplete * 100)
-                            $("#progressbar-ajax-value").text(percent+"%");;
+                xhr.upload.addEventListener("progress", function(evt){
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total;
+                        //Do something with upload progress
+                        console.log(percentComplete);
+                        $('#progress-bar').show();
+                        var percent = parseInt(percentComplete * 100)
+                        $("#progressbar-ajax-value").text(percent+"%");;
+                        $('#progressbar-ajax').css({
+                            width: percent + '%'
+                        });
+                        if (percentComplete === 1) {
+                            $('#progress-bar').hide();
                             $('#progressbar-ajax').css({
-                                width: percent + '%'
+                                width: '0%'
                             });
-                            if (percentComplete === 1) {
-                                $('#progress-bar').hide();
-                                $('#progressbar-ajax').css({
-                                    width: '0%'
-                                });
-                            }
                         }
-                    }, false);
-                    return xhr;
-                },
+                    }
+                }, false);
+                return xhr;
+            },
                 url:"/solicitud/identificacion",
                 type:"POST",
                 dataType:"json",

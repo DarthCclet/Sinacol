@@ -56,6 +56,7 @@ use App\TipoVialidad;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Nacionalidad;
+use App\Providers\AudienciaServiceProvider;
 
 class AudienciaController extends Controller {
 
@@ -1412,7 +1413,12 @@ class AudienciaController extends Controller {
             "pagado" => false
         ]);
         //Se genera el acta de no comparecencia en fecha de pago
-        event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11,$pagoDiferido->solicitante_id)); //11
+        $solicitud = Solicitud::find($request->solicitud_id);
+        if($solicitud->tipo_solicitud_id == 1){//solicitud individual
+            event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11,$pagoDiferido->solicitante_id));
+        }else{
+            event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 19, 11,null,$pagoDiferido->solicitante_id)); 
+        }
         return $pagoDiferido;
     }
 
@@ -1423,13 +1429,18 @@ class AudienciaController extends Controller {
      */
     function registrarPagoDiferido(Request $request) {
         try {
+            $solicitud = Solicitud::find($request->solicitud_id);
             $pagoDiferido = ResolucionPagoDiferido::find($request->idPagoDiferido);
             if($pagoDiferido){
                 $pagoDiferido->update([
                     "pagado" => true
                 ]);
                 //generar constacia de pago parcial
-                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,$pagoDiferido->solicitante_id));
+                if($solicitud->tipo_solicitud_id == 1){//solicitud individual
+                    event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,$pagoDiferido->solicitante_id));
+                }else{
+                    event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,null,$pagoDiferido->solicitante_id));
+                }
             }
 
             $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->where('solicitante_id',$pagoDiferido->solicitante_id)->orderBy('fecha_pago')->get();
@@ -1445,7 +1456,11 @@ class AudienciaController extends Controller {
             //if($pagados && ($ultimoPago == $request->idPagoDiferido)){
             if ($pagados) {
                 //generar constancia de cumplimiento de convenio
-                event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12,$pagoDiferido->solicitante_id));
+                if($solicitud->tipo_solicitud_id == 1){//solicitud individual
+                    event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12,$pagoDiferido->solicitante_id));
+                }else{
+                    event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12,null,$pagoDiferido->solicitante_id));
+                }
             }
             return $pagoDiferido;
         } catch (\Throwable $e) {
@@ -1813,6 +1828,111 @@ class AudienciaController extends Controller {
         $maxMinDisponibilidad = $this->getMinMaxConciliador($conciliador);
         $response = array("eventos" => $arrayEventos, "minTime" => $maxMinDisponibilidad["hora_inicio"], "maxTime" => $maxMinDisponibilidad["hora_fin"]);
         return $response;
+    }
+
+    // Inicia Seccion relacionada a la guia patronal
+    public function guiaPatronal($id) {
+        $etapa_resolucion = EtapaResolucion::orderBy('paso')->get();
+        $audiencia = Audiencia::find($id);
+        $partes = array();
+        $citadosComparecientes = array();
+        foreach ($audiencia->audienciaParte as $key => $parte) {
+            $parte->parte->tipoParte = $parte->parte->tipoParte;
+            $partes[$key] = $parte->parte;
+        }
+        $solicitud_id = $audiencia->expediente->solicitud->id;
+        $virtual = $audiencia->expediente->solicitud->virtual;
+        $atiende_virtual = $audiencia->expediente->solicitud->centro->atiende_virtual;
+        $url_virtual = $audiencia->expediente->solicitud->url_virtual;
+        $audiencia->partes = $partes;
+        $periodicidades = $this->cacheModel('periodicidades', Periodicidad::class);
+        $ocupaciones = $this->cacheModel('ocupaciones', Ocupacion::class);
+        $jornadas = $this->cacheModel('jornadas', Jornada::class);
+        $giros_comerciales = $this->cacheModel('giros_comerciales', GiroComercial::class);
+        $resoluciones = $this->cacheModel('resoluciones', Resolucion::class);
+        $terminacion_bilaterales = $this->cacheModel('terminacion_bilaterales', TerminacionBilateral::class);
+        $audiencia->solicitantes = $this->getSolicitantes($audiencia);
+
+        foreach ($audiencia->comparecientes as $key => $compareciente) {
+            $compareciente->parte = $compareciente->parte;
+            $parteRep = [];
+            //representante legal
+            if ($compareciente->parte->tipo_parte_id == 3 && $compareciente->parte->parte_representada_id != null) {
+                $parteRep = Parte::find($compareciente->parte->parte_representada_id);
+            }
+            $compareciente->parte->parteRepresentada = $parteRep;
+            $comparecientes[$key] = $compareciente;
+            // if ($compareciente->parte->tipo_parte_id == 1){
+            //     $solicitantesComparecientes[$key] = $compareciente;
+            // }
+            if($compareciente->parte->tipo_parte_id == 2){
+                $citadosComparecientes[$key] = $compareciente;
+            }
+        }
+        $audiencia->citadosComparecientes = $citadosComparecientes;
+        $audiencia->solicitados = $this->getSolicitados($audiencia);
+        $conciliador = Conciliador::find($audiencia->conciliador_id);
+        $motivos_archivo = MotivoArchivado::all();
+        $concepto_pago_resoluciones = ConceptoPagoResolucion::where('id', '<=', 9)->get();
+        $concepto_pago_reinstalacion = ConceptoPagoResolucion::whereIn('id', [8, 9, 10])->get();
+        $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
+        $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->get();
+        $estados = Estado::all();
+        $tipos_vialidades = $this->cacheModel('tipos_vialidades', TipoVialidad::class);
+        $tipos_asentamientos = $this->cacheModel('tipos_asentamientos', TipoAsentamiento::class);
+        $lengua_indigena = $this->cacheModel('lengua_indigena',LenguaIndigena::class);
+        $generos = $this->cacheModel('generos',Genero::class);
+        $tipo_contacto = $this->cacheModel('tipo_contacto',TipoContacto::class);
+        $nacionalidades = $this->cacheModel('nacionalidades',Nacionalidad::class);
+        return view('expediente.audiencias.etapa_resolucion_patronal', compact('etapa_resolucion', 'audiencia', 'periodicidades', 'ocupaciones', 'jornadas', 'giros_comerciales', 'resoluciones', 'concepto_pago_resoluciones', 'concepto_pago_reinstalacion', 'motivos_archivo', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'terminacion_bilaterales', 'solicitud_id','conciliador','estados','tipos_vialidades','tipos_asentamientos','lengua_indigena','generos','tipo_contacto','nacionalidades','virtual','url_virtual','atiende_virtual'));
+    }
+
+    /**
+     * Funcion para guardar la resolución de la audiencia patronal
+     * @param id $centro_id
+     * @return array
+     */
+    function ResolucionPatronal(Request $request) {
+        try {
+            DB::beginTransaction();
+            $user_id = auth()->user()->id;
+
+            $audiencia = Audiencia::find($request->audiencia_id);
+            if (!$audiencia->finalizada) {
+
+                if ($request->timeline) {
+                    $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1));
+                } else {
+                    $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1));
+                    foreach ($request->comparecientes as $compareciente) {
+                        Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
+                    }
+                }
+                if ($audiencia->resolucion_id != 2) {
+                    $solicitud = $audiencia->expediente->solicitud;
+                    $solicitud->update([
+                        "estatus_solicitud_id" => 3,
+                        "user_id" => $user_id
+                    ]);
+                }
+                $evidencia = ($request->evidencia) ? $request->evidencia : "";
+                $etapaAudiencia = EtapaResolucionAudiencia::create([
+                            "etapa_resolucion_id" => 6,
+                            "audiencia_id" => $audiencia->id,
+                            "evidencia" => $evidencia
+                ]);
+                AudienciaServiceProvider::guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago);
+            }
+
+            DB::commit();
+            return $audiencia;
+        } catch (\Throwable $e) {
+            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
+                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
+            DB::rollback();
+            return $this->sendError('Error al registrar la resolucion', 'Error');
+        }
     }
 
     public function guiaAudiencia($id) {

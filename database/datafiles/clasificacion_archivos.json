@@ -300,6 +300,36 @@
             "nombre": "Constancia de pago parcial de convenio con firma autógrafa",
             "tipo_archivo_id":5,
             "entidad_emisora_id":8
+        },
+        {
+            "id": "51",
+            "nombre": "Cartilla Militar",
+            "tipo_archivo_id":1,
+            "entidad_emisora_id":null
+        },
+        {
+            "id": "52",
+            "nombre": "Convenio Patronal",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "53",
+            "nombre": "Convenio patronal con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "54",
+            "nombre": "Convenio de reinstalación patronal",
+            "tipo_archivo_id":4,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "55",
+            "nombre": "Convenio de reinstalación patronal con firma autógrafa",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
         }
     ],
 

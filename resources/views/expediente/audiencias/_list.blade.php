@@ -125,6 +125,8 @@
                                 if(row[7] == false){
                                     if(row[12].solicitud.tipo_solicitud_id == 1){
                                         guia = '<div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="'+ruta.replace('/audiencias/1/edit',"/guiaAudiencia/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>';
+                                    }else if(row[12].solicitud.tipo_solicitud_id == 2){
+                                        guia = '<div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="'+ruta.replace('/audiencias/1/edit',"/guiaPatronal/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>';
                                     }else{
                                         guia = '<div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="'+ruta.replace('/audiencias/1/edit',"/resolucionColectiva/"+row[0]+"")+'" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>';
                                         

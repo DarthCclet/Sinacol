@@ -173,7 +173,9 @@
                                             @if(auth()->user()->hasRole("Personal conciliador"))
                                                 @if($solicitud->tipo_solicitud_id == 1)
                                                     <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaAudiencia",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
-                                                @else
+                                                @elseif($solicitud->tipo_solicitud_id == 2)
+                                                    <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("guiaPatronal",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
+                                                @else 
                                                     <div style="display: inline-block;" class="m-2"><a title="Iniciar proceso de audiencia" href="{!! route("resolucionColectiva",["id"=>"$audiencia->id"]) !!}" class="btn btn-xs btn-primary"><i class="fa fa-tasks"></i></a></div>
                                                 @endif
                                             @endif
@@ -401,6 +403,13 @@
                             }
                         }
                     })
+                    $.each(arraySolicitados ,function(key,value){
+                        if(arraySolicitados[key].dato_laboral){
+                            if($.isArray(arraySolicitados[key].dato_laboral)){
+                                arraySolicitados[key].dato_laboral = arraySolicitados[key].dato_laboral[0];
+                            }
+                        }
+                    })
 
                     $.each(data.objeto_solicitudes, function (key, value) {
                         var objeto_solicitud = {};
@@ -548,8 +557,10 @@
                     html += "</ul>";
                 html += "</div>";
                 html += "<div class='col-md-12'>";
-                    html += "<b>Observaciones:</b>";
-                        html += "<p>"+solicitudObj.observaciones+"</p>";
+                    if(solicitudObj.observaciones){
+                        html += "<b>Observaciones:</b>";
+                        html += "<p>"+solicitudObj.observaciones +"</p>";
+                    }
                 html += "</div>";
             html += "</div>";
         html += "</div>";
@@ -670,6 +681,19 @@
                                     });
                                     html+='</ul>';
                                 html+='</div>';
+                                if(value.dato_laboral){
+                                html+='<div class="col-md-12 row">';
+                                    html+='<label class="col-md-12"><b>Datos Laborales</b></label><br>';
+                                    html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Puesto:</b>'+value.dato_laboral.puesto+'</label><br>';
+                                    if(value.dato_laboral.nss){
+                                        html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;N&uacute;mero de seguro social:</b>'+(value.dato_laboral.nss|| "")+'</label><br>';
+                                    }
+                                    html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Ingreso:</b>'+dateFormat(value.dato_laboral.fecha_ingreso,4)+'</label><br>';
+                                    if(!value.dato_laboral.labora_actualmente){
+                                        html+='<label class="col-md-6"><b> &nbsp;&nbsp;&nbsp;&nbsp;Fecha de Salida:</b>'+dateFormat(value.dato_laboral.fecha_salida,4)+'</label><br>';
+                                    }
+                                html+='</div>';
+                                }
                             html+='</div>';
                         html+='</div>';
                     html+='</div>';

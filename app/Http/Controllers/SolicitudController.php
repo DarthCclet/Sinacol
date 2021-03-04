@@ -235,7 +235,10 @@ class SolicitudController extends Controller {
      */
     public function create()
     {
-        $tipo_solicitud_id = isset($this->request->solicitud) ?$this->request->solicitud : 1;
+        $tipo_solicitud_id = isset($this->request->solicitud) ? intval($this->request->solicitud) : 1;
+        if($tipo_solicitud_id > 4){
+            $tipo_solicitud_id =1;
+        }
         if($tipo_solicitud_id == 1){
             $tipo_objeto_solicitudes_id = 1;
         }else if($tipo_solicitud_id == 2){
@@ -347,14 +350,15 @@ class SolicitudController extends Controller {
         }
 
         DB::beginTransaction();
-        $domiciliop ="";
         try {
             // Solicitud
             $userAuth = Auth::user();
             if($userAuth){
                 $solicitud['user_id'] = Auth::user()->id;
             }
+            // Se registra la solicitud con estatus sin ratificar
             $solicitud['estatus_solicitud_id'] = 1;
+            // Si no esta seleccionado el tipo de solicitud se pone la 1  - Trabajador individual
             if(!isset($solicitud['tipo_solicitud_id'])){
                 $solicitud['tipo_solicitud_id'] = 1;
             }
@@ -362,12 +366,13 @@ class SolicitudController extends Controller {
             $date = new \DateTime();
             $solicitud['fecha_recepcion'] = $date->format('Y-m-d H:i:s');
             $solicitud['centro_id'] = $this->getCentroId();
-            //Obtenemos el contador
+            //Obtenemos el contador para solicitud, se manda tipo contador (1 solicitud) y centro_id
             $ContadorController = new ContadorController();
             $folio = $ContadorController->getContador(1, 1);
             $solicitud['folio'] = $folio->contador;
             $solicitud['anio'] = $folio->anio;
             $solicitud['ratificada'] = false;
+            // Si es solicitud virtual se asigna canal unico para liga unica
             if($solicitud['virtual'] == "true"){
                 $canal = CanalFolio::inRandomOrder()->first();
                 $solicitud['canal'] = $canal->folio;
@@ -382,39 +387,27 @@ class SolicitudController extends Controller {
             $solicitantes = $request->input('solicitantes');
 
             $centro = null;
-
-            foreach ($solicitantes as $key => $value) {
-                $value['solicitud_id'] = $solicitudSaved['id'];
-                $contactos = Array();
-                $domicilios = Array();
-                unset($value['activo']);
-                if(isset($value['tmp_files'])){
-                    $clasificacion_archivo_id = $value['clasificacion_archivo_id'];
-                    $tmp_files = $value['tmp_files'];
-                    unset($value['tmp_files']);
-                    unset($value['clasificacion_archivo_id']);
-                }
-                if(isset($value['dato_laboral'])){
-                    $dato_laboral = $value['dato_laboral'];
-                    unset($value['dato_laboral']);
-                }
-
-                if (isset($value["domicilios"])) {
-                    $domicilio = $value["domicilios"][0];
-                    unset($value['domicilios']);
-                }
-                $contactos = [];
-                if (isset($value["contactos"])) {
-                    $contactos = $value["contactos"];
-                    unset($value['contactos']);
-                }
-
-                $parteSaved = Parte::create($value);
-                if(isset($dato_laboral)){
+            // Se recorren todos los solicitantes
+            foreach ($solicitantes as $key => $solicitante) {
+                
+                $solicitante['solicitud_id'] = $solicitudSaved['id'];
+                $solicitudFilter = Arr::except($solicitante, ['activo','domicilios','contactos','dato_laboral','tmp_files','clasificacion_archivo_id']);
+                $parteSaved = Parte::create($solicitante);
+                //Se agrega el registro de los datos laborales del solicitante
+                $dato_laboral = [];
+                if(isset($solicitante['dato_laboral'])){
+                    $dato_laboral = $solicitante['dato_laboral'];
                     $parteSaved->dato_laboral()->create($dato_laboral);
                 }
+                //Si hay archivo temporal se agrega para cada solicitante
+                if(isset($solicitante['tmp_files'])){
+                    $clasificacion_archivo_id = $solicitante['clasificacion_archivo_id'];
+                    $tmp_files = $solicitante['tmp_files'];
+                    unset($solicitante['tmp_files']);
+                    unset($solicitante['clasificacion_archivo_id']);
+                }
                 if(isset($tmp_files)){
-                    foreach ($tmp_files as $key => $tmp_file) { 
+                    foreach ($tmp_files as $index => $tmp_file) { 
                         $solicitud_id = $solicitudSaved->id;
                         $clasificacion_archivo= $clasificacion_archivo_id;
                         $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parteSaved->id;
@@ -439,71 +432,86 @@ class SolicitudController extends Controller {
                         ]);
                     }            
                 }
-                // foreach ($domicilios as $key => $domicilio) {
-                unset($domicilio['activo']);
-                $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                //Se agrega el registro de los domicilios del solicitante
+                $domicilios = [];
+                if($solicitante["domicilios"] && $solicitante["domicilios"][0]){
+                    $domicilio = $solicitante["domicilios"][0];
+                    unset($domicilio['activo']);
+                    $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                }
+                //Si la solicitud es de tipo 2 (Patron individual) o 3 (Patron colectivo) se selecciona el centro del solicitante
                 if($key == 0 && ($tipo_solicitud_id == 2 ||$tipo_solicitud_id == 3 )){
                     $domiciliop = $domicilio["estado_id"];
                     $centro = $this->getCentroId($domicilio["estado_id"],$domicilio['municipio']);
-                    $estadoSelect = Centro::find($centro);
-                    // if(!$estadoSelect->en_vigor){
-                    //     return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
-                    // }
+                    $domicilioCentro = Centro::find($centro)->domicilio;
+                    if($domicilioCentro){
+                        $estadoSelect = Estado::find($domicilioCentro->estado_id);
+                        if(!$estadoSelect->en_vigor){
+                            return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                        }
+                    }else{
+                        return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                    }
                 }
-                // }
-                if (count($contactos) > 0) {
-                    foreach ($contactos as $key => $contacto) {
-                        unset($contacto['activo']);
-                        $contactoSaved = $parteSaved->contactos()->create($contacto);
+                //Se agrega el registro de los contactos del solicitante
+                $contactos = [];
+                if (isset($solicitante["contactos"])) {
+                    $contactos = $solicitante["contactos"];
+                    if (count($contactos) > 0) {
+                        foreach ($contactos as $key2 => $contacto) {
+                            unset($contacto['activo']);
+                            $contactoSaved = $parteSaved->contactos()->create($contacto);
+                        }
                     }
                 }
             }
 
-
-
             $solicitados = $request->input('solicitados');
-
-            foreach ($solicitados as $key => $value) {
-                unset($value['activo']);
-                $contactos = Array();
-                $domicilios = Array();
-                if (isset($value["domicilios"])) {
-                    $domicilios = $value["domicilios"];
-                    unset($value['domicilios']);
+            // Se recorren todos los citados
+            foreach ($solicitados as $key => $solicitado) {
+                $solicitado['solicitud_id'] = $solicitudSaved['id'];
+                $solicitudFilter = Arr::except($solicitado, ['activo','domicilios','contactos','dato_laboral']);
+                $parteSaved = Parte::create($solicitudFilter);
+                //Se agrega el registro de los datos laborales del citado
+                $dato_laboral = [];
+                if(isset($solicitado['dato_laboral'])){
+                    $dato_laboral = $solicitado['dato_laboral'];
+                    $parteSaved->dato_laboral()->create($dato_laboral);
+                }
+                //Se agrega el registro de los domicilios del citado
+                $domicilios = [];
+                if (isset($solicitado["domicilios"])) {
+                    $domicilios = $solicitado["domicilios"];
+                    //Si la solicitud es de tipo 1 (Trabajador individual) o 4 (Sindical) se selecciona el centro del solicitante
                     if($key == 0 && ($tipo_solicitud_id == 1 ||$tipo_solicitud_id == 4 )){
                         $domiciliop = $domicilios[0]["estado_id"];
                         $centro = $this->getCentroId($domicilios[0]["estado_id"],$domicilios[0]['municipio']);
-                        $estadoSelect = Centro::find($centro);
-                        // if(!$estadoSelect->en_vigor){
-                        //     return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
-                        // }
+                        $domicilioCentro = Centro::find($centro)->domicilio;
+                        if($domicilioCentro){
+                            $estadoSelect = Estado::find($domicilioCentro->estado_id);
+                            if(!$estadoSelect->en_vigor){
+                                return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                            }
+                        }else{
+                            return $this->sendError(' Lamentamos que su estado no esté incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
+                        }
+                    }
+                    if (count($domicilios) > 0) {
+                        foreach ($domicilios as $domicilio) {
+                            $domicilio = Arr::except($domicilio, ['activo']);
+                            $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                        }
                     }
                 }
-                if (isset($value["contactos"])) {
-                    $contactos = $value["contactos"];
-                    unset($value['contactos']);
-                }
-                // if(isset($value['dato_laboral'])){
-                //     $dato_laboral = $value['dato_laboral'];
-                //     unset($value['dato_laboral']);
-                // }
-
-                $value['solicitud_id'] = $solicitudSaved['id'];
-                $parteSaved = Parte::create($value);
-                
-                // if(isset($dato_laboral)){
-                //     $parteSaved->dato_laboral()->create($dato_laboral);
-                // }
-                if (count($domicilios) > 0) {
-                    foreach ($domicilios as $key => $domicilio) {
-                        unset($domicilio['activo']);
-                        $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
-                    }
-                }
-                if (count($contactos) > 0) {
-                    foreach ($contactos as $key => $contacto) {
-                        unset($contacto['activo']);
-                        $contactoSaved = $parteSaved->contactos()->create($contacto);
+                //Se agrega el registro de los contactos del citado
+                $contactos = [];
+                if (isset($solicitado["contactos"])) {
+                    $contactos = $solicitado["contactos"];
+                    if (count($contactos) > 0) {
+                        foreach ($contactos as $contacto) {
+                            $contacto = Arr::except($contacto, ['activo']);
+                            $contactoSaved = $parteSaved->contactos()->create($contacto);
+                        }
                     }
                 }
             }
@@ -513,7 +521,6 @@ class SolicitudController extends Controller {
                 DB::rollback();
                 return $this->sendError(' Lamentamos que su municipio no está incluido en la etapa actual de la implementación de la reforma a la justicia laboral ', 'Error');
             }
-
             // // Para cada objeto obtenido cargamos sus relaciones.
             $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
                 $solicitudSaved->loadDataFromRequest();
@@ -596,7 +603,7 @@ class SolicitudController extends Controller {
         }
         $solicitados = $partes->where('tipo_parte_id', 2);
         foreach ($solicitados as $key => $value) {
-            // $value->dato_laboral;
+            $value->dato_laboral;
             $value->domicilios;
             $value->contactos;
             $solicitados[$key]["activo"] = 1;
@@ -727,11 +734,7 @@ class SolicitudController extends Controller {
 
         $conciliadores = array_pluck(Conciliador::with('persona')->get(),"persona.nombre",'id');
         $giros = GiroComercial::where("parent_id",1)->orderBy('nombre')->get();
-        // $conciliadores = $this->cacheModel('conciliadores',Conciliador::class);
-
         // consulta de documentos
-
-
         return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits','municipios','partes','motivo_excepciones','conciliadores','clasificacion_archivo','tipo_solicitud_id','clasificacion_archivos_Representante','giros'));
     }
     /**
@@ -946,45 +949,42 @@ class SolicitudController extends Controller {
             $solicitudSaved->objeto_solicitudes()->sync($arrObjetoSolicitudes);
 
             $solicitantes = $request->input('solicitantes');
-
-            foreach ($solicitantes as $key => $value) {
-                $value['solicitud_id'] = $solicitudSaved['id'];
-                if ($value['activo'] == "1") {
-                    unset($value['activo']);
-                    if(isset($value['dato_laboral'])){
-                        $dato_laboral = $value['dato_laboral'];
-
-                        unset($value['dato_laboral']);
-                    }
-                    if (isset($value["domicilios"])) {
-                        $domicilio = $value["domicilios"][0];
-                        unset($value['domicilios']);
-                    }
-                    if (isset($value["contactos"])) {
-                        $contactos = $value["contactos"];
-                        unset($value['contactos']);
-                    }
-
-
-                    if (!isset($value["id"]) || $value["id"] == "") {
-                        if(isset($dato_laboral)){
-                            $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
+            // Se recorren todos los solicitantes
+            foreach ($solicitantes as $key => $solicitante) {
+                $solicitante['solicitud_id'] = $solicitudSaved['id'];
+                if ($solicitante['activo'] == "1") {
+                    unset($solicitante['activo']);
+                    $domicilio = $solicitante["domicilios"][0];
+                    // Se revisa si la parte no tiene un id para crearla
+                    if (!isset($solicitante["id"]) || $solicitante["id"] == "") {
+                        $solicitanteSave = Arr::except($solicitante, ['activo','domicilios','contactos','dato_laboral','clasificacion_archivo_id']);    
+                        $parteSaved = Parte::create($solicitanteSave);
+                        // Si tiene se registra dato laboral 
+                        if(isset($solicitante['dato_laboral'])){
+                            $dato_laboral = $solicitante['dato_laboral'];
+                            $parteSaved = ($parteSaved->dato_laboral()->create($dato_laboral)->parte);
                         }
-                        // foreach ($domicilios as $key => $domicilio) {
-
                         unset($domicilio['activo']);
+                        // Si tiene se registra domicilio
                         $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
-                        if (count($contactos) > 0) {
-                            foreach ($contactos as $key => $contacto) {
-                                unset($contacto['activo']);
-                                $contactoSaved = $parteSaved->contactos()->create($contacto);
+                        if (isset($solicitante["contactos"])) {
+                            $contactos = $solicitante["contactos"];
+                            if (count($contactos) > 0) {
+                                foreach ($contactos as $key => $contacto) {
+                                    unset($contacto['activo']);
+                                    $contactoSaved = $parteSaved->contactos()->create($contacto);
+                                }
                             }
                         }
                     } else {
-                        $parteSaved = Parte::find($value['id']);
-                        $parteUpdated = $parteSaved->update($value);
-                        $parteSaved = Parte::find($value['id']);
-                        if(isset($dato_laboral)){
+                        // Si la parte ya existe solo se actualiza la información
+                        $parteSaved = Parte::find($solicitante['id']);
+                        $solicitante = Arr::except($solicitante, ['activo','domicilios','contactos','dato_laboral','clasificacion_archivo_id']);    
+                        $parteUpdated = $parteSaved->update($solicitante);
+                        $parteSaved = Parte::find($solicitante['id']);
+                        // Se valida si existen datos laborales si no se registra uno nuevo
+                        if(isset($solicitante['dato_laboral'])){
+                            $dato_laboral = $solicitante['dato_laboral'];
                             if (isset($dato_laboral["id"]) && $dato_laboral["id"] != "") {
                                 $dato_laboralUp = DatoLaboral::find($dato_laboral["id"]);
                                 $dato_laboralUp->update($dato_laboral);
@@ -993,74 +993,74 @@ class SolicitudController extends Controller {
                             }
                         }
                         unset($domicilio['activo']);
+                        // Se valida si se existe domicilio si no se agrega
                         if (isset($domicilio["id"]) && $domicilio["id"] != "") {
                             $domicilioUp = Domicilio::find($domicilio["id"]);
-
                             $domicilioUp->update($domicilio);
                         } else {
                             $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
                         }
-
-                        foreach ($contactos as $key => $contacto) {
-                            if ($contacto["id"] != "") {
-
-                                $contactoUp = Contacto::find($contacto["id"]);
-
-                                if (isset($contacto["activo"]) && $contacto["activo"] == 0) {
-                                    $contactoUp->delete();
+                        // Se valida si se existen contactos si no se agregan
+                        if (isset($solicitante["contactos"])) {
+                            $contactos = $solicitante["contactos"];
+                            foreach ($contactos as $key => $contacto) {
+                                if ($contacto["id"] != "") {
+                                    $contactoUp = Contacto::find($contacto["id"]);
+                                    if (isset($contacto["activo"]) && $contacto["activo"] == 0) {
+                                        $contactoUp->delete();
+                                    } else {
+                                        unset($contacto['activo']);
+                                        $contactoUp->update($contacto);
+                                    }
                                 } else {
                                     unset($contacto['activo']);
-                                    $contactoUp->update($contacto);
+                                    $contactoSaved = $parteSaved->contactos()->create($contacto);
                                 }
-                            } else {
-                                unset($contacto['activo']);
-                                $contactoSaved = $parteSaved->contactos()->create($contacto);
                             }
                         }
                     }
                 } else {
-                    $parteSaved = Parte::find($value['id']);
+                    // Si la variable activo esta en 0 se elimina la parte
+                    $parteSaved = Parte::find($solicitante['id']);
                     $parteSaved = $parteSaved->delete();
                 }
             }
 
             $solicitados = $request->input('solicitados');
-
-            foreach ($solicitados as $key => $value) {
-                if ($value['activo'] == "1") {
-                    unset($value['activo']);
-                    // if(isset($value['dato_laboral'])){
-                    //     $dato_laboral = $value['dato_laboral'];
-
-                    //     unset($value['dato_laboral']);
-                    // }
+            // Se recorren todos los citados
+            foreach ($solicitados as $key => $citado) {
+                if ($citado['activo'] == "1") {
+                    
                     $domicilios = Array();
-                    if (isset($value["domicilios"])) {
-                        $domicilios = $value["domicilios"];
-                        unset($value['domicilios']);
-                    }
                     $contactos = Array();
-                    if (isset($value["contactos"])) {
-                        $contactos = $value["contactos"];
-                        unset($value['contactos']);
-                    }
-
-                    $value['solicitud_id'] = $solicitudSaved['id'];
-                    if (!isset($value["id"]) || $value["id"] == "") {
-                        $parteSaved = Parte::create($value);
-                        // if(isset($dato_laboral)){
-                        //     $parteSaved = (Parte::create($value)->dato_laboral()->create($dato_laboral)->parte);
-                        // }
-                        if (count($domicilios) > 0) {
-                            foreach ($domicilios as $key => $domicilio) {
-                                unset($domicilio['activo']);
-                                $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                    $citado['solicitud_id'] = $solicitudSaved['id'];
+                    if (!isset($citado["id"]) || $citado["id"] == "") {
+                        $citadoSave = Arr::except($citado, ['activo','domicilios','contactos','dato_laboral','clasificacion_archivo_id']);    
+                        $parteSaved = Parte::create($citadoSave);
+                        // Se valida si se existen datos laborales si no se agregan
+                        if(isset($citado['dato_laboral'])){
+                            $dato_laboral = $citado['dato_laboral'];
+                            $parteSaved = ($parteSaved->dato_laboral()->create($dato_laboral)->parte);
+                        }
+                        // Se valida si se existen domicilios si no se agregan
+                        if (isset($citado["domicilios"])) {
+                            $domicilios = $citado["domicilios"];
+                            if (count($domicilios) > 0) {
+                                foreach ($domicilios as $key => $domicilio) {
+                                    unset($domicilio['activo']);
+                                    $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                                }
                             }
                         }
-                        foreach ($contactos as $key => $contacto) {
-                            unset($contacto['activo']);
-                            $contactoSaved = $parteSaved->contactos()->create($contacto);
+                        // Se valida si se existen contactos si no se agregan
+                        if (isset($citado["contactos"])) {
+                            $contactos = $citado["contactos"];
+                            foreach ($contactos as $key => $contacto) {
+                                unset($contacto['activo']);
+                                $contactoSaved = $parteSaved->contactos()->create($contacto);
+                            }
                         }
+                        // Si ya hay audiencias registradas se busca la ultima y se agrega el citado a al audiencia y se envian todos los citatorios 
                         if($solicitudSaved->ratificada && $solicitudSaved->expediente){
                             $audiencias = $solicitudSaved->expediente->audiencia()->orderBy('id','desc');
                             if(!empty($audiencias)){
@@ -1072,52 +1072,63 @@ class SolicitudController extends Controller {
                             }
                         }
                     } else {
-                        $parteSaved = Parte::find($value['id']);
-                        $parteSaved->update($value);
-                        // if(isset($dato_laboral)){
-                        //     if (isset($dato_laboral["id"]) && $dato_laboral["id"] != "") {
-                        //         $dato_laboralUp = DatoLaboral::find($dato_laboral["id"]);
-                        //         $dato_laboralUp->update($dato_laboral);
-                        //     } else {
-                        //         $dato_laboral = ($parteSaved->dato_laboral()->create($dato_laboral));
-                        //     }
-                        // }
-                        foreach ($domicilios as $key => $domicilio) {
-                            if ($domicilio["id"] != "") {
-                                $domicilioUp = Domicilio::find($domicilio["id"]);
-                                if (isset($domicilio["activo"]) && $domicilio["activo"] == 0) {
-                                    $domicilioUp->delete();
-                                } else {
-                                    unset($domicilio['activo']);
-                                    $domicilioUp = Domicilio::find($domicilio["id"]);
-                                    $domicilioUp->update($domicilio);
-                                }
+                        $parteSaved = Parte::find($citado['id']);
+                        $citadoSave = Arr::except($citado, ['activo','domicilios','contactos','dato_laboral','clasificacion_archivo_id']);    
+                        $parteSaved->update($citadoSave);
+                        // Se valida si se existen datos laborales si no se agregan
+                        if(isset($citado['dato_laboral'])){
+                            $dato_laboral = $citado['dato_laboral'][0];
+                            if (isset($dato_laboral["id"]) && $dato_laboral["id"] != "") {
+                                $dato_laboralUp = DatoLaboral::find($dato_laboral["id"]);
+                                $dato_laboralUp->update($dato_laboral);
                             } else {
-                                unset($domicilio['activo']);
-                                $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                                $dato_laboral = $parteSaved->dato_laboral()->create($dato_laboral);
                             }
                         }
-                        foreach ($contactos as $key => $contacto) {
-                            if ($contacto["id"] != "") {
-                                $contactoUp = Contacto::find($contacto["id"]);
-                                if (isset($contacto["activo"]) && $contacto["activo"] == 0) {
-                                    $contactoUp->delete();
+                        // Se valida si se existen domicilios si no se agregan
+                        if (isset($citado["domicilios"])) {
+                            $domicilios = $citado["domicilios"];
+                            foreach ($domicilios as $key => $domicilio) {
+                                if ($domicilio["id"] != "") {
+                                    $domicilioUp = Domicilio::find($domicilio["id"]);
+                                    if (isset($domicilio["activo"]) && $domicilio["activo"] == 0) {
+                                        $domicilioUp->delete();
+                                    } else {
+                                        unset($domicilio['activo']);
+                                        $domicilioUp = Domicilio::find($domicilio["id"]);
+                                        $domicilioUp->update($domicilio);
+                                    }
+                                } else {
+                                    unset($domicilio['activo']);
+                                    $domicilioSaved = $parteSaved->domicilios()->create($domicilio);
+                                }
+                            }
+                        }
+                        // Se valida si se existen contactos si no se agregan
+                        if (isset($citado["contactos"])) {
+                            $contactos = $citado["contactos"];
+                            foreach ($contactos as $key => $contacto) {
+                                if ($contacto["id"] != "") {
+                                    $contactoUp = Contacto::find($contacto["id"]);
+                                    if (isset($contacto["activo"]) && $contacto["activo"] == 0) {
+                                        $contactoUp->delete();
+                                    } else {
+                                        unset($contacto['activo']);
+                                        $contactoUp->update($contacto);
+                                    }
                                 } else {
                                     unset($contacto['activo']);
-                                    $contactoUp->update($contacto);
+                                    $contactoSaved = $parteSaved->contactos()->create($contacto);
                                 }
-                            } else {
-                                unset($contacto['activo']);
-                                $contactoSaved = $parteSaved->contactos()->create($contacto);
                             }
                         }
                     }
                 } else {
-                    $parteSaved = Parte::find($value['id']);
+                    // Si la variable activo esta en 0 se elimina la parte
+                    $parteSaved = Parte::find($citado['id']);
                     $parteSaved->delete();
                 }
             }
-
             // // Para cada objeto obtenido cargamos sus relaciones.
             $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
                 $solicitudSaved->loadDataFromRequest();
@@ -1129,7 +1140,6 @@ class SolicitudController extends Controller {
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             if ($this->request->wantsJson()) {
-
                 return $this->sendError('Error'.$e->getMessage());
             }
             return redirect('solicitudes')->with('error', 'Error al crear la solicitud');
@@ -1200,30 +1210,8 @@ class SolicitudController extends Controller {
                 DB::rollBack();
                 return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
             }
-
-            // Registramos la audiencia
-            //Obtenemos el contador
-            //$folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
-            //creamos el registro de la audiencia
-            // $audiencia = Audiencia::create([
-            //     "expediente_id" => $expediente->id,
-            //     "multiple" => false,
-            //     "fecha_audiencia" => now()->format('Y-m-d'),
-            //     "hora_inicio" => now()->format('H:i:s'),
-            //     "hora_fin" => \Carbon\Carbon::now()->addHours(1)->format('H:i:s'),
-            //     "conciliador_id" =>  $conciliador->id,
-            //     "numero_audiencia" => 1,
-            //     "reprogramada" => false,
-            //     "anio" => $folioAudiencia->anio,
-            //     "folio" => $folioAudiencia->contador
-            // ]);
-
-            // guardamos la sala y el conciliador a la audiencia
-            // ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id,"solicitante" => true]);
-            // SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
             $partes = $solicitud->partes;
             foreach($partes as $parte){
-                // AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => 1]);
                 if($parte->tipo_parte_id == 1){
                     //generar constancia de incompetencia por solicitante
                     event(new GenerateDocumentResolution(null,$solicitud->id,13,10,$parte->id,null));

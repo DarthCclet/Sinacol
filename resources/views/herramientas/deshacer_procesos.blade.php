@@ -170,19 +170,12 @@
                             solicitudObj.anio = data.anio;
                             solicitudObj.centro = data.centro.nombre;
                             solicitudObj.tipoSolicitud = data.tipoSolicitud.nombre;
-                            solicitudObj.ratificada = data.ratificada;
-                            solicitudObj.incidencia = data.incidencia;
-                            if(!solicitudObj.ratificada){
-                                $("#labeltipoRollback").html("La solicitud no esta confirmada, no se puede hacer ningun proceso");
-                            }
-                            if(solicitudObj.incidencia && solicitudObj.ratificada){
-                                $("#labeltipoRollback").html("Quitar incidencia");
-                                $("#tipoRollback").val(4);
-                            }
-                            if(data.audiencias && data.audiencias.length > 0){
+                            if(data.audiencias){
                                 ArrAudiencias = data.audiencias;
                                 var htmlAudiencia = formatoAudiencia();
                                 $("#divAudienciaConsulta").html(htmlAudiencia);
+                            }else{
+                                $("#labeltipoRollback").html("La solicitud no esta confirmada, no se puede hacer ningun proceso");
                             }
                             var htmlSolicitud = formatoSolicitud();
                             var htmlSolicitantes = formarSolicitantes();
@@ -378,7 +371,7 @@
                     text: ' No se puede realizar ningun procedimiento sobre esta solicitud, por que tiene mas de una audiencia ',
                     icon: 'warning'
                 });
-                $("#tipoRollback").val("");
+                $("#tipoRollback").val();
                 $("#labeltipoRollback").html("La solicitud tiene mas de una audiencia, por lo tanto no puede quitarse la confirmaci&oacute;n de esta");
             }
         }
@@ -413,62 +406,38 @@
         return html;
     }
     function rollback(){
-        if($("#solicitud_id").val() != "" && $("#tipoRollback").val() != "" && ($("#audiencia_id").val() != "" || $("#tipoRollback").val() == "4")){
-        swal({
-            title: '¿Estas seguro de hacer este proceso?',
-            text: '',
-            icon: '',
-            buttons: {
-                cancel: {
-                    text: 'No',
-                    value: null,
-                    visible: true,
-                    className: 'btn btn-primary',
-                    closeModal: true,
+        if($("#solicitud_id").val() != "" && $("#audiencia_id").val() != "" && $("#tipoRollback").val() != ""){
+            $.ajax({
+                url:'/rollback_proceso',
+                type:"POST",
+                dataType:"json",
+                async:false,
+                data:{
+                    solicitud_id:$("#solicitud_id").val(),
+                    audiencia_id: $("#audiencia_id").val(),
+                    tipoRollback: $("#tipoRollback").val(),
+                    _token:$("input[name=_token]").val()
                 },
-                confirm: {
-                    text: "Si",
-                    value: true,
-                    visible: true,
-                    className: 'btn btn-primary',
-                    closeModal: true
-                }
-            }
-        }).then(function(isConfirm){
-            if(isConfirm){
-                $.ajax({
-                    url:'/rollback_proceso',
-                    type:"POST",
-                    dataType:"json",
-                    async:false,
-                    data:{
-                        solicitud_id:$("#solicitud_id").val(),
-                        audiencia_id: $("#audiencia_id").val(),
-                        tipoRollback: $("#tipoRollback").val(),
-                        _token:$("input[name=_token]").val()
-                    },
-                    success:function(json){
-                        try{
-                            swal({
-                                title: 'Correcto',
-                                text: ' Se realizo el proceso sobre la solicitud: '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
-                                icon: 'success'
-                            });
-                            window.location.reload();
-                        }catch(error){
-                            console.log(error);
-                        }
-                    },
-                    error:function(){
+                success:function(json){
+                    try{
                         swal({
-                            title: 'Error',
-                            text: ' No se pudo realizar el proceso de la solicitud: '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
-                            icon: 'warning'
+                            title: 'Correcto',
+                            text: ' Se realizo el proceso sobre la solicitud: '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
+                            icon: 'success'
                         });
+                        window.location.reload();
+                    }catch(error){
+                        console.log(error);
                     }
-                });
-            }
-        });
+                },
+                error:function(){
+                    swal({
+                        title: 'Error',
+                        text: ' No se pudo realizar el proceso de la solicitud: '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
+                        icon: 'warning'
+                    });
+                }
+            });
         }else{
             swal({
                 title: 'Error',
