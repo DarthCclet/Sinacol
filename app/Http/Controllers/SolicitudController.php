@@ -979,8 +979,8 @@ class SolicitudController extends Controller {
                     } else {
                         // Si la parte ya existe solo se actualiza la información
                         $parteSaved = Parte::find($solicitante['id']);
-                        $solicitante = Arr::except($solicitante, ['activo','domicilios','contactos','dato_laboral','clasificacion_archivo_id']);    
-                        $parteUpdated = $parteSaved->update($solicitante);
+                        $solicitanteUpd = Arr::except($solicitante, ['activo','domicilios','contactos','dato_laboral','clasificacion_archivo_id']);    
+                        $parteUpdated = $parteSaved->update($solicitanteUpd);
                         $parteSaved = Parte::find($solicitante['id']);
                         // Se valida si existen datos laborales si no se registra uno nuevo
                         if(isset($solicitante['dato_laboral'])){
