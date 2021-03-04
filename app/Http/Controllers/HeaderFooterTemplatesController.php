@@ -62,7 +62,8 @@ class HeaderFooterTemplatesController extends Controller
     public function preview(Request $request)
     {
         try{
-            $arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10];
+            $arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10,19=>11,41=>8]
+            ;
             $idSolicitud = $request->get('solicitud_id',1);
 
             $idAudiencia = $request->get('audiencia_id');
