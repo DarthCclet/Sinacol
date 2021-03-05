@@ -3126,14 +3126,14 @@
             case 3:
                 if($('#divMapaSolicitante').parsley().validate() && $("#asentamientosolicitante").val() != "" ){
                     if($("#tipo_solicitud_id").val() == 1){
+                        $("#divDatoLaboralCitado").removeAttr('data-parsley-validate');
+                        $(".requiredLaboralCitado").removeAttr('required',true);
                         $('#divDatoLaboralSolicitante').show();
                         $('#divBotonesSolicitante').show();
                         $(".requiredLaboral").attr('required',true);
                         $('#continuar3').hide();
                         $('#divDatoLaboralCitado').hide();
-                        $("#divDatoLaboralCitado").removeAttr('data-parsley-validate');
                         $('#divBotonesCitado').hide();
-                        $(".requiredLaboralCitado").removeAttr('required',true);
                     }else if($("#tipo_solicitud_id").val() == 2){
                         $("#divDatoLaboralSolicitante").removeAttr('data-parsley-validate');
                         $(".requiredLaboral").removeAttr('required');
@@ -3146,7 +3146,7 @@
                     }else{
                         $("#divDatoLaboralSolicitante").removeAttr('data-parsley-validate');
                         $("#divDatoLaboralCitado").removeAttr('data-parsley-validate');
-                        $(".requiredLaboral").removeAttr('required');
+                        $(".requiredLaboral").removeAttr('required',true);
                         $('#divBotonesSolicitante').show();
                         $('#continuar3').hide();
                         $('#divDatoLaboralCitado').hide();
@@ -3175,6 +3175,16 @@
                 }
                 break;
             case 2:
+                if($("#tipo_solicitud_id").val() == 1){
+                    $("#divDatoLaboralCitado").removeAttr('data-parsley-validate');
+                    $(".requiredLaboralCitado").removeAttr('required',true);
+                    $('#divDatoLaboralSolicitante').show();
+                    $('#divBotonesSolicitante').show();
+                    $(".requiredLaboral").attr('required',true);
+                    $('#continuar3').hide();
+                    $('#divDatoLaboralCitado').hide();
+                    $('#divBotonesCitado').hide();
+                }
                 $('#divMapaSolicitado').show();
                 if($("#tipo_solicitud_id").val() == "2"){
                     $('#continuarCitado3').show();
