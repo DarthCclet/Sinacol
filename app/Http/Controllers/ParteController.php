@@ -246,7 +246,11 @@ class ParteController extends Controller
         }else{
             $datos_laborales = $datos_laborales->first();
         }
-        return $datos_laborales;
+        if($datos_laborales){
+            return $datos_laborales;
+        }else{
+            return [];
+        }
     }
     /**
      * Funcion para obtener el representante legal de una parte
@@ -345,15 +349,17 @@ class ParteController extends Controller
                     $solicitud = Solicitud::find($request->solicitud_id);
                     
                     try{
+                        $existe = false;
                         $deleted = false;
                         $documentos = $parte->documentos;
                         foreach($documentos as $documento ){
                             if($documento->clasificacionArchivo->tipo_archivo_id == 1){
+                                $doc_del_id = $documento->id;
                                 $existe = true;
                             }
                         }
                         if($existe){
-                            $parte->documentos[0]->delete();
+                            $parte->documentos()->find($doc_del_id)->delete();
                             $deleted = true;
                         }
                         if(!$existe || $deleted){
@@ -403,13 +409,14 @@ class ParteController extends Controller
                         $existeInst = false;
                         foreach($documentos as $documento ){
                             if($documento->clasificacionArchivo->tipo_archivo_id == 9){
+                                $doc_del_idInst = $documento->id;
                                 $existeInst = true;
                             }
                         }
                         
                         if($existeInst){
                             
-                            $parte->documentos[0]->delete();
+                            $parte->documentos()->find($doc_del_idInst)->delete();
                             $deleted = true;
                         }
                         if(!$existeInst || $deleted){
@@ -456,19 +463,20 @@ class ParteController extends Controller
                     try{
                         $deleted = false;
                         $documentos = $parte->documentos;
-                        $existeInst = false;
+                        $existeCed = false;
                         foreach($documentos as $documento ){
                             if($documento->clasificacionArchivo->tipo_archivo_id == 9){
-                                $existeInst = true;
+                                $doc_del_idCed = $documento->id;
+                                $existeCed = true;
                             }
                         }
                         
-                        if($existeInst){
+                        if($existeCed){
                             
-                            $parte->documentos[0]->delete();
+                            $parte->documentos()->find($doc_del_idCed)->delete();
                             $deleted = true;
                         }
-                        if(!$existeInst || $deleted){
+                        if(!$existeCed || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
                                 $archivo = $request->fileCedula;
@@ -640,6 +648,9 @@ class ParteController extends Controller
             }
             
         }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Error al capturar representante', 'Error');
 

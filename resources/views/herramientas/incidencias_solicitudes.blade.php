@@ -35,6 +35,7 @@
                     <thead>
                         <tr>
                             <th>Folio de solicitud</th>
+                            <th>Expediente</th>
                             <th>Centro</th>
                             <th>Partes</th>
                             <th>Raz&oacute;n de la Incidencia</th>
@@ -47,12 +48,14 @@
                     @foreach($solicitudes as $solicitud)
                         <tr class="odd gradeX">
                             <td width="1%" class="f-s-600 text-inverse">{{$solicitud->folio}}/{{$solicitud->anio}}</td>
+                            <td>{{$solicitud->expediente ? $solicitud->expediente->folio: ""}}</td>
                             <td>{{$solicitud->centro ? $solicitud->centro->nombre : "" }}</td>
                             <td >
+                                
                                 @foreach ($solicitud->partes as $parte)
                                     @if($parte->tipo_parte_id == 1 || $parte->tipo_parte_id == 2)
                                         @if($parte->tipo_persona_id == 1)
-                                           - {{$parte->nombre}} {{$parte->apellido_paterno}} {{$parte->apellido_materno}}   
+                                           - {{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}   
                                         @else
                                            - {{$parte->nombre_comercial}}
                                         @endif
@@ -352,21 +355,22 @@
                         htmlPartes+="<h4>";
                         htmlPartes+="Solicitantes";
                         htmlPartes+="</h4>";
-                        $.each(data.solicitados,function(key, value){
+                        $.each(data.solicitantes,function(key, value){
                             if(value.tipo_persona_id == 1){
-                                htmlPartes+=' - '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "");
+                                htmlPartes+=' - '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "")+ "<br>";
                             }else{
-                                htmlPartes+=' - '+value.nombre_comercial;
+                                htmlPartes+=' - '+value.nombre_comercial+ "<br>";
                             }
                         });
+                        
                         htmlPartes+="<h4>";
                         htmlPartes+="Citados";
                         htmlPartes+="</h4>";
-                        $.each(data.solicitantes,function(key, value){
+                        $.each(data.solicitados,function(key, value){
                             if(value.tipo_persona_id == 1){
-                                htmlPartes+=' - '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "");
+                                htmlPartes+=' - '+value.nombre + " " + value.primer_apellido+" "+(value.segundo_apellido|| "")+ "<br>";
                             }else{
-                                htmlPartes+=' - '+value.nombre_comercial;
+                                htmlPartes+=' - '+value.nombre_comercial+ "<br>";
                             }
                         });
                         htmlPartes += "</div>";

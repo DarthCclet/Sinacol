@@ -71,7 +71,7 @@
                         <td>
                         @if($solicitud['fecha_peticion_notificacion'] != null)
                             Enviada
-                            <button onclick="enviar_notificacion({{$solicitud['audiencia_id']}},{{$solicitud['parte']->audiencia_parte_id}})" class="btn btn-xs btn-primary incidencia" title="Reenviar notificación">
+                            <button onclick="enviar_notificacion({{$solicitud['audiencia_id']}},{{$solicitud["audiencia_parte_id"]}})" class="btn btn-xs btn-primary incidencia" title="Reenviar notificación">
                                 <i class="fa fa-share-square"></i>
                             </button>
                         @else
@@ -80,7 +80,7 @@
                                 <i class="fa fa-paper-plane"></i>
                             </button>
                         @endif
-                            <button onclick="obtenerHistorial({{$solicitud['parte']->audiencia_parte_id}})" class="btn btn-xs btn-primary incidencia" title="Historial">
+                            <button onclick="obtenerHistorial({{$solicitud["audiencia_parte_id"]}})" class="btn btn-xs btn-primary incidencia" title="Historial">
                                 <i class="fa fa-history"></i>
                             </button>
                         </td>

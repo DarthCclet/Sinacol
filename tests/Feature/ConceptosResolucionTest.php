@@ -44,7 +44,7 @@ class ConceptosResolucionTest extends TestCase
             if(count($datoLaboral) >1){
                 $datoLaboral =$datoLaboral->where('resolucion',true)->first();
             }else{
-                $datoLaboral =$datoLaboral->where('resolucion',false)->first();
+                $datoLaboral =$datoLaboral->first();
             }
 
             $diasPeriodicidad = Periodicidad::where('id', $datoLaboral->periodicidad_id)->first();
@@ -92,7 +92,7 @@ class ConceptosResolucionTest extends TestCase
             if(count($datoLaboral) >1){
                 $datoLaboral =$datoLaboral->where('resolucion',true)->first();
             }else{
-                $datoLaboral =$datoLaboral->where('resolucion',false)->first();
+                $datoLaboral =$datoLaboral->first();
             }
 
             $diasPeriodicidad = Periodicidad::where('id', $datoLaboral->periodicidad_id)->first();
@@ -140,7 +140,7 @@ class ConceptosResolucionTest extends TestCase
             if(count($datoLaboral) >1){
                 $datoLaboral =$datoLaboral->where('resolucion',true)->first();
             }else{
-                $datoLaboral =$datoLaboral->where('resolucion',false)->first();
+                $datoLaboral =$datoLaboral->first();
             }
             $diasPeriodicidad = Periodicidad::where('id', $datoLaboral->periodicidad_id)->first();
             $remuneracionDiaria = $datoLaboral->remuneracion / $diasPeriodicidad->dias;
@@ -233,7 +233,7 @@ class ConceptosResolucionTest extends TestCase
             if(count($datoLaboral) >1){
                 $datoLaboral =$datoLaboral->where('resolucion',true)->first();
             }else{
-                $datoLaboral =$datoLaboral->where('resolucion',false)->first();
+                $datoLaboral =$datoLaboral->first();
             }
             $diasPeriodicidad = Periodicidad::where('id', $datoLaboral->periodicidad_id)->first();
             //  dd($diasPeriodicidad);
