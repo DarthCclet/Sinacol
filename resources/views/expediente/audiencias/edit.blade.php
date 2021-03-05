@@ -357,7 +357,7 @@
                                                             <table class="table table-bordered" >
                                                                 <thead>
                                                                     <tr>
-                                                                        <th>Solicitante</th>
+                                                                        <th>Trabajador</th>
                                                                         <th>Fecha de pago</th>
                                                                         <th>Monto</th>
                                                                         <th>Estatus</th>

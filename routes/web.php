@@ -84,6 +84,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencia/getCalendarioColectivas','AudienciaController@getCalendarioColectivas');
     Route::Post('audiencia/getAgenda','AudienciaController@getAgenda');
     Route::Post('audiencia/resolucion','AudienciaController@Resolucion');
+    Route::Post('audiencia/resolucionPatronal','AudienciaController@ResolucionPatronal');
     Route::Post('audiencia/nuevaAudiencia','AudienciaController@NuevaAudiencia');
     Route::Post('audiencia/nuevaAudienciaCalendario','AudienciaController@NuevaAudienciaCalendario');
     Route::Post('audiencia/registrarPagoDiferido','AudienciaController@registrarPagoDiferido');
@@ -103,6 +104,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('audiencias/nuevaAudienciaNotificacion','AudienciaController@NuevaAudienciaNotificacion');
 
     Route::get('guiaAudiencia/{id}','AudienciaController@guiaAudiencia')->name('guiaAudiencia');
+    Route::get('guiaPatronal/{id}','AudienciaController@guiaPatronal')->name('guiaPatronal');
     Route::get('resolucionColectiva/{id}','AudienciaController@resolucionColectiva')->name('resolucionColectiva');
     Route::Post('audiencia/guardarAudienciaColectiva','AudienciaController@guardarAudienciaColectiva');
     Route::get('calendario','AudienciaController@calendario');

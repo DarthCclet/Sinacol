@@ -38,7 +38,7 @@ class FechaAudienciaService{
             }else{
                 $rol = \App\RolAtencion::where("nombre","Conciliador en sala")->first();
             }
-            $conciliadores = $centro->conciliadores()->join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")->where("roles_conciliador.rol_atencion_id",$rol->id)->select("conciliadores.*")->get();
+            $conciliadores = self::obtenerConciliadores($centro,$rol);
             foreach($arreglo_horas as $hora_inicio){
                 $hora_fin = date("H:i:s",strtotime($hora_inicio) + 5400);
                 if($virtual){
@@ -141,7 +141,7 @@ class FechaAudienciaService{
                 "encontro_audiencia" => false);
         }
     }
-    public static function obtenerFechaAudienciaDoble(string $hoy,Centro $centro,$min,$max){
+    public static function obtenerFechaAudienciaDoble(string $hoy,Centro $centro,$min,$max,$virtual = false){
         $diaHabilCentro = Incidencia::siguienteDiaHabilMasDias($hoy,$centro->id ,"App\Centro",$min,$max);
         if($diaHabilCentro["dia"] != "nada"){
             $d = new Carbon($diaHabilCentro["dia"]);
@@ -158,7 +158,7 @@ class FechaAudienciaService{
             }else{
                 $rol = \App\RolAtencion::where("nombre","Conciliador en sala")->first();
             }
-            $conciliadores = $centro->conciliadores()->join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")->where("roles_conciliador.rol_atencion_id",$rol->id)->select("conciliadores.*")->get();
+            $conciliadores = self::obtenerConciliadores($centro,$rol);
             foreach($arreglo_horas as $hora_inicio){
                 $hora_fin = date("H:i:s",strtotime($hora_inicio) + 3600);
                 if($virtual){
@@ -651,6 +651,25 @@ class FechaAudienciaService{
             return array();
         }
         
+    }
+    public static function obtenerConciliadores(Centro $centro,$rol){
+//        Validamos si es la primer confirmación del día
+        $audiencias = Audiencia::whereBetween('created_at', [date("Y-m-d")." 00:00:00", date("Y-m-d")." 23:59:59"])->count();
+        if($audiencias == 0){
+            $conciliadores = Conciliador::where("centro_id" , $centro->id)->inRandomOrder()->get();
+            $i = 1;
+            foreach($conciliadores as $conciliador){
+                $conciliador->update(["orden" => $i]);
+                $i++;
+            }
+        }
+        $conciliadores = $centro->conciliadores()
+                ->join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")
+                ->where("roles_conciliador.rol_atencion_id",$rol->id)
+                ->select("conciliadores.*")
+                ->orderBy('orden','asc')
+                ->get();
+        return $conciliadores;
     }
     
 }
