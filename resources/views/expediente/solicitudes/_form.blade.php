@@ -2524,7 +2524,7 @@
         formarTablaContacto();
         arrayContactoSolicitados = arraySolicitados[key].contactos;
         // datos laborales en la solicitante
-        if(arraySolicitados[key].dato_laboral.length > 0){
+        if(arraySolicitantes[key].dato_laboral != undefined){
             if($.isArray(arraySolicitados[key].dato_laboral)){
                 arraySolicitados[key].dato_laboral = arraySolicitados[key].dato_laboral[0];
             }
