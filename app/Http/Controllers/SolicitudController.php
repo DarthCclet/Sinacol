@@ -1796,12 +1796,12 @@ class SolicitudController extends Controller {
             if($request->solicitud_asociada_id){
                 $solicitud->solicitud_id = $request->solicitud_asociada_id;
             }
-            if($request->tipo_incidencia_solicitud_id == 4){
+            if($request->tipo_incidencia_solicitud_id == 4 || $request->tipo_incidencia_solicitud_id == 6){
                 if($solicitud->expediente){
                     $audiencia =$solicitud->expediente->audiencia()->orderBy('id','desc')->first();
                     if($audiencia){
-                        $response = HerramientaServiceProvider::rollback($solicitud->id,$audiencia->id,2);
-                        if($response["success"]){
+                        //$response = HerramientaServiceProvider::rollback($solicitud->id,$audiencia->id,2);
+                        // if($response["success"]){
                             $solicitud->estatus_solicitud_id = 3;
                             $solicitud->incidencia = true;
                             $partes = $solicitud->partes;
@@ -1811,10 +1811,10 @@ class SolicitudController extends Controller {
                                     event(new GenerateDocumentResolution(null,$solicitud->id,13,10,$parte->id,null));
                                 }
                             }
-                        }else{
-                            DB::rollback();
-                            return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
-                        }
+                        // }else{
+                        //     DB::rollback();
+                        //     return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
+                        // }
                     }else{
                         $solicitud->estatus_solicitud_id = 3;
                         $solicitud->incidencia = true;
@@ -1826,6 +1826,9 @@ class SolicitudController extends Controller {
                             }
                         }
                     }
+                }else{
+                    DB::rollback();
+                    return $this->sendError(' Esta solicitud no tiene audiencias, crear incompetencia en proceso de confirmación ', 'Error');
                 }
             }
             $solicitud->save();
