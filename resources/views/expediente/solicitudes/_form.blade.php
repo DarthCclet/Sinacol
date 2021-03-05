@@ -3131,6 +3131,7 @@
                         $(".requiredLaboral").attr('required',true);
                         $('#continuar3').hide();
                         $('#divDatoLaboralCitado').hide();
+                        $("#divDatoLaboralCitado").removeAttr('data-parsley-validate');
                         $('#divBotonesCitado').hide();
                         $(".requiredLaboralCitado").removeAttr('required',true);
                     }else if($("#tipo_solicitud_id").val() == 2){
@@ -3144,6 +3145,7 @@
                         $(".requiredLaboralCitado").attr('required',true);
                     }else{
                         $("#divDatoLaboralSolicitante").removeAttr('data-parsley-validate');
+                        $("#divDatoLaboralCitado").removeAttr('data-parsley-validate');
                         $(".requiredLaboral").removeAttr('required');
                         $('#divBotonesSolicitante').show();
                         $('#continuar3').hide();
