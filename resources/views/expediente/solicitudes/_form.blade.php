@@ -1859,6 +1859,11 @@
                     $("#datosIdentificacionSolicitado").show();
                     $("#ratificada").val(data.ratificada);
                     arraySolicitados = Object.values(data.solicitados);
+                    $.each(arraySolicitados ,function(key,value){
+                        if($.isArray(arraySolicitados[key].dato_laboral)){
+                            arraySolicitados[key].dato_laboral = arraySolicitados[key].dato_laboral[0];
+                        }
+                    })
                     formarTablaSolicitado();
                     arraySolicitantes = Object.values(data.solicitantes);
                     $.each(arraySolicitantes ,function(key,value){
