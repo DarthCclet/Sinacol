@@ -536,30 +536,33 @@ trait GenerateDocument
                         // $countSolicitante += 1;
                       // }elseif ($parte['tipo_parte_id'] == 2 ) {//Citado
                         //representante legal solicitado
-                        $representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
-                        if(count($representanteLegal) > 0){
-                          $comparecenciaAudiencia = $representanteLegal[0]->compareciente()->where('audiencia_id',$idAudiencia)->get();   
-                          $parte['asistencia'] =  (count($comparecenciaAudiencia)>0) ? 'Si':'No';
-                          $objeto = new JsonResponse($representanteLegal);
-                          $representanteLegal = json_decode($objeto->content(),true);
-                          $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);
-                          $representanteLegal['nombre_completo'] = $representanteLegal['nombre'].' '.$representanteLegal['primer_apellido'].' '.$representanteLegal['segundo_apellido'];
-                          if( sizeof($representanteLegal['documentos']) > 0 ){
-                            foreach ($representanteLegal['documentos'] as $k => $docu) {
-                              if($docu['clasificacion_archivo']['tipo_archivo_id'] == 1){ //tipo identificacion
-                                $representanteLegal['identificacion_documento'] = ($docu['clasificacion_archivo']['nombre'] != null ) ? $docu['clasificacion_archivo']['nombre']: "--";
-                                $representanteLegal['identificacion_expedida_por'] = ($docu['clasificacion_archivo']['entidad_emisora']['nombre']!= null ) ? $docu['clasificacion_archivo']['entidad_emisora']['nombre']: "---";
+                        if($audienciaId != "" && $audienciaId != null){
+                          $representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
+                          if(count($representanteLegal) > 0){
+                            $comparecenciaAudiencia = $representanteLegal[0]->compareciente()->where('audiencia_id',$idAudiencia)->get();   
+                            $parte['asistencia'] =  (count($comparecenciaAudiencia)>0) ? 'Si':'No';
+                            $objeto = new JsonResponse($representanteLegal);
+                            $representanteLegal = json_decode($objeto->content(),true);
+                            $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);
+                            $representanteLegal['nombre_completo'] = $representanteLegal['nombre'].' '.$representanteLegal['primer_apellido'].' '.$representanteLegal['segundo_apellido'];
+                            if( sizeof($representanteLegal['documentos']) > 0 ){
+                              foreach ($representanteLegal['documentos'] as $k => $docu) {
+                                if($docu['clasificacion_archivo']['tipo_archivo_id'] == 1){ //tipo identificacion
+                                  $representanteLegal['identificacion_documento'] = ($docu['clasificacion_archivo']['nombre'] != null ) ? $docu['clasificacion_archivo']['nombre']: "--";
+                                  $representanteLegal['identificacion_expedida_por'] = ($docu['clasificacion_archivo']['entidad_emisora']['nombre']!= null ) ? $docu['clasificacion_archivo']['entidad_emisora']['nombre']: "---";
+                                }
                               }
+                            }else{
+                              $representanteLegal['identificacion_documento'] = "---";
+                              $representanteLegal['identificacion_expedida_por'] = "---";
                             }
+                            $parte['representante_legal'] = $representanteLegal;
                           }else{
-                            $representanteLegal['identificacion_documento'] = "---";
-                            $representanteLegal['identificacion_expedida_por'] = "---";
+                            $countParteAsistencia = Compareciente::where('parte_id', $parteId)->where('audiencia_id',$audienciaId)->count();
+                            $parte['asistencia'] =  ($countParteAsistencia >0) ? 'Si':'No';
                           }
-                          $parte['representante_legal'] = $representanteLegal;
-                        }else{
-                          $countParteAsistencia = Compareciente::where('parte_id', $parteId)->where('audiencia_id',$audienciaId)->count();
-                          $parte['asistencia'] =  ($countParteAsistencia >0) ? 'Si':'No';
                         }
+
                           //tipoNotificacion solicitado
                         if($audienciaId!=""){
                           $audienciaParte = AudienciaParte::with('tipo_notificacion')->where('audiencia_id',$audienciaId)->where('parte_id',$parteId)->get();
