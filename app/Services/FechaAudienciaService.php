@@ -26,7 +26,10 @@ class FechaAudienciaService{
         $diaHabilCentro = Incidencia::siguienteDiaHabilMasDias($hoy,$centro->id ,"App\Centro",$min,$max);
         if($diaHabilCentro["dia"] != "nada"){
             $d = new Carbon($diaHabilCentro["dia"]);
-            $arreglo_horas = self::obtener_horas($centro->disponibilidades,$d->weekDay());
+            list($hours, $minutes, $seg) = explode(':', $centro->duracionAudiencia);
+            $duracion = $hours . '.' . $minutes / 60 * 100;
+            $tiempoAdd = $duracion * 3600;
+            $arreglo_horas = self::obtener_horas($centro->disponibilidades,$d->weekDay(),$tiempoAdd);
             //obtenemos el arreglo de las horas
             $encontroSala = false;
             $encontroConciliador = false;
@@ -40,7 +43,7 @@ class FechaAudienciaService{
             }
             $conciliadores = self::obtenerConciliadores($centro,$rol);
             foreach($arreglo_horas as $hora_inicio){
-                $hora_fin = date("H:i:s",strtotime($hora_inicio) + 5400);
+                $hora_fin = date("H:i:s",strtotime($hora_inicio) + $tiempoAdd);
                 if($virtual){
                     $encontroSala=true;
                     $sala_id = $sala_virtual->id;
@@ -632,18 +635,20 @@ class FechaAudienciaService{
 
       return ($end1 <= $start2) || ($end2 <= $start1);
     }
-    public static function obtener_horas($disponibilidades,$dia){
+    public static function obtener_horas($disponibilidades,$dia,$duracion){
         $arregloHoras = [];
         //Obtenemos la disponibilidad corresponidiente al día
         $disponibilidad = $disponibilidades->where("dia",$dia)->first();
         if($disponibilidad != null){
+            
             //Obtenemos la hora inicio que será la primer hora en el arreglo
+            
             $hora_actual_time = strtotime($disponibilidad->hora_inicio);
             $hora_fin_time = strtotime($disponibilidad->hora_fin);
             $arregloHoras[]=$date = date('H:i:s', $hora_actual_time);
             while($hora_fin_time > $hora_actual_time){
-                $arregloHoras[]=$date = date('H:i:s', $hora_actual_time + 5400);
-                $hora_actual_time = $hora_actual_time + 5400;
+                $arregloHoras[]=$date = date('H:i:s', $hora_actual_time + $duracion);
+                $hora_actual_time = $hora_actual_time + $duracion;
             }
             array_pop($arregloHoras);
             return $arregloHoras;

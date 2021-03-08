@@ -296,6 +296,7 @@
                     businessHours: arregloGeneral.laboresCentro,
                     events: arregloGeneral.incidenciasCentro,
                     eventConstraint: "businessHours",
+                    slotDuration:arregloGeneral.duracionPromedio,
                     eventClick: function(info) {
                         console.log(info);
                         if(info.audiencia_id != null){

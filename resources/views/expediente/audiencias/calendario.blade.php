@@ -182,8 +182,7 @@
                     },
                     selectable: true,
                     selectHelper: true,
-//                    slotDuration:arregloGeneral.duracionPromedio,
-                    slotDuration:"01:00:00",
+                    slotDuration:arregloGeneral.duracionPromedio,
                     select: function(start, end,a,b) {
                         var ahora = new Date();
                         end=moment(end).format('Y-MM-DD HH:mm:ss');

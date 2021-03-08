@@ -78,7 +78,7 @@
                     allDaySlot:false,
                     eventLimit: false,
                     events: arregloGeneral.eventos,
-                    slotDuration:'01:00:00',
+                    slotDuration:arregloGeneral.duracionPromedio,
                     eventConstraint: "businessHours"
                 });
             }

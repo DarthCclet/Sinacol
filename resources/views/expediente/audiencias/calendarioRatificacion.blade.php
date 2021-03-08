@@ -167,7 +167,7 @@
                     selectHelper: true,
                     minTime: arregloGeneral.minTime,
                     maxTime: arregloGeneral.maxtime,
-                    slotDuration:'01:00:00',
+                    slotDuration:arregloGeneral.duracionPromedio,
                     select: function(start, end,a,b) {
                         var validarRatificacion = RatificacionValidar();
                         if(!validarRatificacion.error){

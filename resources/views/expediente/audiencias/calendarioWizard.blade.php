@@ -252,7 +252,7 @@
                     editable: false,
                     allDaySlot:false,
                     eventLimit: false,
-                    slotDuration:'01:30:00',
+                    slotDuration:arregloGeneral.duracionPromedio,
                     businessHours: arregloGeneral.laboresCentro,
                     events: arregloGeneral.incidenciasCentro,
                     eventConstraint: "businessHours"
