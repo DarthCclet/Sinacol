@@ -560,6 +560,36 @@
                     response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante y un citado para continuar";
                 }
             break;
+            case "43":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia y un solicitante para continuar";
+                }
+            break;
+            case "45":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia y un solicitante para continuar";
+                }
+            break;
+            case "49":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia y un solicitante para continuar";
+                }
+            break;
+            case "52":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitado_id").val() == "" || $("#solicitante_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante y un citado para continuar";
+                }
+            break;
+            case "54":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitado_id").val() == "" || $("#solicitante_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante y un citado para continuar";
+                }
+            break;
             default:
                 response.success = false;
                 response.msj = " No se seleccionó el tipo de documento a generar";
