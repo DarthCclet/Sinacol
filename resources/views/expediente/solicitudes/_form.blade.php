@@ -419,7 +419,7 @@
                                         <hr class="red">
                                     </div>
                                     <input type="hidden" id="dato_laboral_id">
-                                    {{-- <input type="hidden" id="dato_laboral_idCitado"> --}}
+                                    <input type="hidden" id="dato_laboral_idCitado">
                                     <div class="col-md-6">
                                         <input class="form-control numero" maxlength="11" minlength="11" length="11" data-parsley-type='integer' id="nss" placeholder="N&uacute;mero de seguro social"  type="text" value="">
                                         <p class="help-block ">N&uacute;mero de seguro social</p>
