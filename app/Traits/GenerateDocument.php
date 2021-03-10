@@ -232,12 +232,13 @@ trait GenerateDocument
                              foreach ($val as $n =>$v) {
                                 if($n == "comida_dentro"){
                                   $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
+                                }else{
+                                  $vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
                                 }
                                 // $pos = strpos($n,'fecha');
                                 // if ($pos !== false && $v != "--"){
                                 //   $v = Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
                                 // }
-                                $vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
                              }
                           }elseif ($k == 'nombre_completo') {
                             $vars[strtolower($key.'_'.$k)] = $val;

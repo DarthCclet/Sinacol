@@ -1516,16 +1516,17 @@ class PlantillasDocumentosController extends Controller
                                 foreach ($val as $n =>$v) {
                                   if($n == "comida_dentro"){
                                     $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
-                                  }
-                                  $pos = strpos($n,'fecha');
-                                  if ($pos !== false && $v != "--"){
-                                    if($n == "fecha_salida"){
-                                      $v = ($resolucion_id = "1" && $v=="") ?Carbon::now()->format('d/m/Y'): Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
-                                    }else{
-                                      $v = Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
+                                  }else{
+                                    $pos = strpos($n,'fecha');
+                                    if ($pos !== false && $v != "--"){
+                                      if($n == "fecha_salida"){
+                                        $v = ($resolucion_id = "1" && $v=="") ?Carbon::now()->format('d/m/Y'): Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
+                                      }else{
+                                        $v = Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
+                                      }
                                     }
+                                    $vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
                                   }
-                                  $vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
                                 }
                               }elseif ($k == 'nombre_completo') {
                                 $vars[strtolower($key.'_'.$k)] = $val;
