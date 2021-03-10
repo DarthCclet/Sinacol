@@ -327,7 +327,10 @@ class FechaAudienciaService{
         $diaHabilCentro = Incidencia::siguienteDiaHabilMasDias($hoy,$centro->id ,"App\Centro",$min,$max);
         if($diaHabilCentro["dia"] != "nada"){
             $d = new Carbon($diaHabilCentro["dia"]);
-            $arreglo_horas = self::obtener_horas($centro->disponibilidades,$d->weekDay());
+            list($hours, $minutes, $seg) = explode(':', $centro->duracionAudiencia);
+            $duracion = $hours . '.' . $minutes / 60 * 100;
+            $tiempoAdd = $duracion * 3600;
+            $arreglo_horas = self::obtener_horas($centro->disponibilidades,$d->weekDay(),$tiempoAdd);
             //obtenemos el arreglo de las horas
             $encontroSala = false;
             $encontroConciliador = false;
@@ -416,7 +419,10 @@ class FechaAudienciaService{
         $diaHabilCentro = Incidencia::siguienteDiaHabilMasDias($hoy,$centro->id ,"App\Centro",$min,$max);
         if($diaHabilCentro["dia"] != "nada"){
             $d = new Carbon($diaHabilCentro["dia"]);
-            $arreglo_horas = self::obtener_horas($centro->disponibilidades,$d->weekDay());
+            list($hours, $minutes, $seg) = explode(':', $centro->duracionAudiencia);
+            $duracion = $hours . '.' . $minutes / 60 * 100;
+            $tiempoAdd = $duracion * 3600;
+            $arreglo_horas = self::obtener_horas($centro->disponibilidades,$d->weekDay(),$tiempoAdd);
             //obtenemos el arreglo de las horas
             $encontroSala = false;
             $encontroConciliador = false;
