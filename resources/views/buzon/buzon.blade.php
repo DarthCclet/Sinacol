@@ -56,7 +56,7 @@
                                             @if($key == 0)
                                                 @foreach($audiencia->documentos as $documento)
                                                 @if($documento->clasificacion_archivo_id == 14 || $documento->clasificacion_archivo_id == 18 || $documento->clasificacion_archivo_id == 19 || $documento->clasificacion_archivo_id == 25 || $documento->clasificacion_archivo_id == 29 || $documento->clasificacion_archivo_id == 30)
-                                                    <li><a href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">{{$documento->clasificacionArchivo->nombre}}</a></li>
+                                                    <li><a href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">{{ isset($documento->clasificacionArchivo->nombre)?$documento->clasificacionArchivo->nombre: "N/A"}}</a></li>
                                                 @endif
                                                 @endforeach
                                             @endif
@@ -131,7 +131,7 @@
                                                 <ul>
                                                     @foreach($audiencia->documentos as $key => $documento)
                                                     @if($documento->clasificacion_archivo_id == 15 || $documento->clasificacion_archivo_id == 16 || $documento->clasificacion_archivo_id == 17)
-                                                    <li><a href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">{{$documento->clasificacionArchivo->nombre}}</a></li>
+                                                    <li><a href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">{{ isset($documento->clasificacionArchivo->nombre)?$documento->clasificacionArchivo->nombre: "N/A"}}</a></li>
                                                     @endif
                                                     @endforeach
                                                 </ul>
@@ -144,10 +144,12 @@
                                         <strong>Documentos por firmar:</strong>
                                         <ul>
                                             @foreach($audiencia->documentos_firmar as $doc)
-                                            @if($doc->firma == "" && $doc->firma == null && $doc->documento->clasificacionArchivo->nombre != "Citatorio")
+                                            @if($doc->firma == "" && $doc->firma == null)
+                                            @if(isset($doc->documento->clasificacionArchivo) && $doc->documento->clasificacionArchivo->nombre != "Citatorio")
                                             <li>
                                                 <a href="#" onclick="validarFirma({{$doc->id}},'{{$doc->firma}}','{{$doc->documento->uuid}}')">{{$doc->documento->clasificacionArchivo->nombre}}</a>
                                             </li>
+                                            @endif
                                             @endif
                                             @endforeach
                                         </ul>

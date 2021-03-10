@@ -525,9 +525,9 @@ class SolicitudController extends Controller {
             $solicitudSaved = tap($solicitudSaved)->each(function ($solicitudSaved) {
                 $solicitudSaved->loadDataFromRequest();
             });
+            DB::commit();
             // generar acuse de solicitud
             event(new GenerateDocumentResolution("",$solicitudSaved->id,40,6));
-            DB::commit();
         } catch (\Throwable $e) {
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensale: ". $e->getMessage().
