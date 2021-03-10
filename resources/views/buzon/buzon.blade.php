@@ -144,10 +144,12 @@
                                         <strong>Documentos por firmar:</strong>
                                         <ul>
                                             @foreach($audiencia->documentos_firmar as $doc)
-                                            @if($doc->firma == "" && $doc->firma == null && $doc->documento->clasificacionArchivo->nombre != "Citatorio")
+                                            @if($doc->firma == "" && $doc->firma == null)
+                                            @if(isset($doc->documento->clasificacionArchivo) && $doc->documento->clasificacionArchivo->nombre != "Citatorio")
                                             <li>
                                                 <a href="#" onclick="validarFirma({{$doc->id}},'{{$doc->firma}}','{{$doc->documento->uuid}}')">{{$doc->documento->clasificacionArchivo->nombre}}</a>
                                             </li>
+                                            @endif
                                             @endif
                                             @endforeach
                                         </ul>
