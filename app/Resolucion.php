@@ -14,7 +14,7 @@ class Resolucion extends Model implements AuditableContract
     use \App\Traits\CambiarEventoAudit;
     
     protected $table = 'resoluciones';
-    protected $guarded = ['id','created_at','updated_at','deleted_at'];
+    protected $guarded = ['created_at','updated_at','deleted_at'];
     public function transformAudit($data):array
     {
         $data = $this->cambiarEvento($data);
