@@ -629,31 +629,35 @@ class SolicitudController extends Controller {
     public function getSolicitudByFolio(Request $request) {
         try{
             $solicitud = Solicitud::with('expediente','giroComercial','estatusSolicitud','centro','tipoIncidenciaSolicitud','giroComercial.ambito','objeto_solicitudes')->where('folio',$request->folio)->where('anio',$request->anio)->first();
-            $partes = $solicitud->partes()->with('dato_laboral','domicilios','contactos','lenguaIndigena')->get(); 
-            $solicitantes = $partes->where('tipo_parte_id', 1);
-            
-            foreach ($solicitantes as $key => $value) {
-                $solicitantes[$key]["activo"] = 1;
-            }
-            $solicitados = $partes->where('tipo_parte_id', 2);
-            foreach ($solicitados as $key => $value) {
-                $solicitados[$key]["activo"] = 1;
-            }
-            $solicitud["solicitados"] = $solicitados;
-            $solicitud["solicitantes"] = $solicitantes;
-            if($solicitud->expediente){
-                $solicitud->audiencias = $solicitud->expediente->audiencia()->orderBy('id','asc')->get();
-                foreach($solicitud->audiencias as $audiencia){
-                    if($audiencia->conciliador){
-                        $audiencia->conciliador->persona;
-                    }
-                    $audiencia->iniciada = false;
-                    if(count($audiencia->comparecientes) > 0){
-                        $audiencia->iniciada = true;
+            if($solicitud){
+                $partes = $solicitud->partes()->with('dato_laboral','domicilios','contactos','lenguaIndigena')->get(); 
+                $solicitantes = $partes->where('tipo_parte_id', 1);
+                
+                foreach ($solicitantes as $key => $value) {
+                    $solicitantes[$key]["activo"] = 1;
+                }
+                $solicitados = $partes->where('tipo_parte_id', 2);
+                foreach ($solicitados as $key => $value) {
+                    $solicitados[$key]["activo"] = 1;
+                }
+                $solicitud["solicitados"] = $solicitados;
+                $solicitud["solicitantes"] = $solicitantes;
+                if($solicitud->expediente){
+                    $solicitud->audiencias = $solicitud->expediente->audiencia()->orderBy('id','asc')->get();
+                    foreach($solicitud->audiencias as $audiencia){
+                        if($audiencia->conciliador){
+                            $audiencia->conciliador->persona;
+                        }
+                        $audiencia->iniciada = false;
+                        if(count($audiencia->comparecientes) > 0){
+                            $audiencia->iniciada = true;
+                        }
                     }
                 }
+                return response()->json(['success' => true, 'message' => 'Se genero el documento correctamente', 'data' => $solicitud], 200);
+            }else{
+                return response()->json(['success' => false, 'message' => 'No se encontraron datos relacionados', 'data' => null], 200);
             }
-            return response()->json(['success' => true, 'message' => 'Se genero el documento correctamente', 'data' => $solicitud], 200);
         }catch(Exception $e ){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensale: ". $e->getMessage().
