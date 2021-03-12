@@ -806,6 +806,7 @@ trait GenerateDocument
                         $datosResolucion['justificacion_propuesta']= $etapa['evidencia'];
                         $tablaConceptos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                        $tablaRetencionesConvenio = '';
                         $tablaConceptosActa = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $totalPercepciones = 0;
                         $parteID= "";
@@ -875,6 +876,7 @@ trait GenerateDocument
                               $tablaConceptosEConvenio = '';
                               $tablaConceptosEActa = '';
                               //$tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                              $tablaRetencionesConvenio = '<tr><td colspan="2" style="text-align: center;font-weight:bold;"> RETENCIONES </td></tr>';
                               $tablaConceptosConvenio .= '<table class="tbl">';
                               $tablaConceptosConvenio .= '<tbody>';
                               $tablaConceptosActa .= '';
@@ -890,8 +892,8 @@ trait GenerateDocument
                               $totalDeducciones = 0;
                               foreach ($resolucion_conceptos as $concepto ) {
                                 $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto->concepto_pago_resoluciones_id);
-                                if($concepto->concepto_pago_resoluciones_id != 9 && $concepto->concepto_pago_resoluciones_id != 11){
-                                  if($concepto->concepto_pago_resoluciones_id == 12 || $concepto->concepto_pago_resoluciones_id == 13){
+                                if($concepto->concepto_pago_resoluciones_id != 9 && $concepto->concepto_pago_resoluciones_id != 11){//en especie
+                                  if($concepto->concepto_pago_resoluciones_id == 12 || $concepto->concepto_pago_resoluciones_id == 13){//otro pago o deduccion
                                     $conceptoName->nombre = $concepto->otro;
                                     if($concepto->concepto_pago_resoluciones_id == 13){
                                       $totalDeducciones += ($concepto->monto!= null ) ? floatval($concepto->monto) : 0;
@@ -903,7 +905,11 @@ trait GenerateDocument
                                   }
                                   if($tipoSolicitud == 1){ //solicitud individual
                                     if($parteID == $idSolicitante){ //si resolucion pertenece al solicitante
-                                      $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
+                                      if($concepto['concepto_pago_resoluciones_id'] == 13){
+                                        $tablaRetencionesConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
+                                      }else{
+                                        $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
+                                      }
                                     }
                                   }else{
                                     if($parteID == $idSolicitado){ //si resolucion pertenece al citado
@@ -926,6 +932,7 @@ trait GenerateDocument
                               }
                               $totalPercepciones = $totalPercepciones - $totalDeducciones;
                               if($tipoSolicitud == 1){ //solicitud individual
+                                $tablaConceptosConvenio .= ($parteID == $idSolicitante)? $tablaRetencionesConvenio:"";
                                 $tablaConceptosConvenio .= ($parteID == $idSolicitante)?'<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>':"";
                               }else{
                                 $tablaConceptosConvenio .= ($parteID == $idSolicitado)?'<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>':"";
