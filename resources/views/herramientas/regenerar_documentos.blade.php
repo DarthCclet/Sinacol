@@ -193,14 +193,14 @@
                             $("#datosIdentificacionSolicitado").show();
                             arraySolicitados = Object.values(data.solicitados);
                             arraySolicitantes = Object.values(data.solicitantes); 
-                            solicitudObj.estatus_solicitud = data.estatusSolicitud.nombre;
+                            solicitudObj.estatus_solicitud = data.estatus_solicitud.nombre;
                             solicitudObj.fecha_ratificacion = dateFormat(data.fecha_ratificacion,2);
                             solicitudObj.fecha_recepcion = dateFormat(data.fecha_recepcion,2);
                             solicitudObj.fecha_conflicto = dateFormat(data.fecha_conflicto,4);
                             solicitudObj.folio = data.folio;
                             solicitudObj.anio = data.anio;
                             solicitudObj.centro = data.centro.nombre;
-                            solicitudObj.tipoSolicitud = data.tipoSolicitud.nombre;
+                            solicitudObj.tipoSolicitud = data.tipo_solicitud.nombre;
                             var htmlSolicitud = formatoSolicitud();
                             var htmlSolicitantes = formarSolicitantes();
                             var htmlCitados = formarCitados();

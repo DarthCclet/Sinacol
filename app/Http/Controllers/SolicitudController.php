@@ -628,7 +628,7 @@ class SolicitudController extends Controller {
      */
     public function getSolicitudByFolio(Request $request) {
         try{
-            $solicitud = Solicitud::with('expediente','giroComercial','estatusSolicitud','centro','tipoIncidenciaSolicitud','giroComercial.ambito','objeto_solicitudes')->where('folio',$request->folio)->where('anio',$request->anio)->first();
+            $solicitud = Solicitud::with('expediente','giroComercial','estatusSolicitud','centro','tipoIncidenciaSolicitud','tipoSolicitud','giroComercial.ambito','objeto_solicitudes')->where('folio',$request->folio)->where('anio',$request->anio)->first();
             if($solicitud){
                 $partes = $solicitud->partes()->with('dato_laboral','domicilios','contactos','lenguaIndigena')->get(); 
                 $solicitantes = $partes->where('tipo_parte_id', 1);
