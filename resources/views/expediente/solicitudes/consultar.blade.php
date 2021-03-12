@@ -426,12 +426,12 @@
                         expedientee = true;
                         expediente_id = $('#expediente_id').val();
                     }
-                    solicitudObj.estatus_solicitud = data.estatusSolicitud.nombre;
+                    solicitudObj.estatus_solicitud = data.estatus_solicitud.nombre;
                     solicitudObj.fecha_ratificacion = dateFormat(data.fecha_ratificacion,2);
                     solicitudObj.fecha_recepcion = dateFormat(data.fecha_recepcion,2);
                     solicitudObj.fecha_conflicto = dateFormat(data.fecha_conflicto,4);
                     solicitudObj.giro_comercial_id = data.giro_comercial_id;
-                    solicitudObj.giro_comercial = data.giroComercial.nombre;
+                    solicitudObj.giro_comercial = data.giro_comercial.nombre;
                     solicitudObj.observaciones = data.observaciones;
                     if(data.expediente){
                         solicitudObj.expediente = data.expediente.folio;

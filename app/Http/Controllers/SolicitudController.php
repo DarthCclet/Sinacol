@@ -587,38 +587,36 @@ class SolicitudController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show($id) {
-        $solicitud = Solicitud::find($id);
-        $parte = Parte::all()->where('solicitud_id', $solicitud->id);
-
-        $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
+        $solicitud = Solicitud::with('expediente','giroComercial','estatusSolicitud','centro','tipoIncidenciaSolicitud','giroComercial.ambito','objeto_solicitudes')->find($id);
+        $partes = $solicitud->partes()->with('dato_laboral','domicilios','contactos','lenguaIndigena')->get(); 
 
         $solicitantes = $partes->where('tipo_parte_id', 1);
 
         foreach ($solicitantes as $key => $value) {
-            $value->dato_laboral;
-            $value->domicilios;
-            $value->contactos;
-            $value->lenguaIndigena;
+            // $value->dato_laboral;
+            // $value->domicilios;
+            // $value->contactos;
+            // $value->lenguaIndigena;
             $solicitantes[$key]["activo"] = 1;
         }
         $solicitados = $partes->where('tipo_parte_id', 2);
         foreach ($solicitados as $key => $value) {
-            $value->dato_laboral;
-            $value->domicilios;
-            $value->contactos;
+            // $value->dato_laboral;
+            // $value->domicilios;
+            // $value->contactos;
             $solicitados[$key]["activo"] = 1;
         }
-        $solicitud->objeto_solicitudes;
         $solicitud["solicitados"] = $solicitados;
         $solicitud["solicitantes"] = $solicitantes;
-        $solicitud->expediente = $solicitud->expediente;
-        $solicitud->giroComercial = $solicitud->giroComercial;
-        $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
-        $solicitud->centro = $solicitud->centro;
-        $solicitud->tipoIncidenciaSolicitud = $solicitud->tipoIncidenciaSolicitud;
-        if($solicitud->giroComercial){
-            $solicitud->giroComercial->ambito;
-        }
+        //$solicitud->objeto_solicitudes;
+        // $solicitud->expediente = $solicitud->expediente;
+        // $solicitud->giroComercial = $solicitud->giroComercial;
+        // $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
+        // $solicitud->centro = $solicitud->centro;
+        // $solicitud->tipoIncidenciaSolicitud = $solicitud->tipoIncidenciaSolicitud;
+        // if($solicitud->giroComercial){
+        //     $solicitud->giroComercial->ambito;
+        // }
         return $solicitud;
     }
 
@@ -630,34 +628,19 @@ class SolicitudController extends Controller {
      */
     public function getSolicitudByFolio(Request $request) {
         try{
-
-            $solicitud = Solicitud::where('folio',$request->folio)->where('anio',$request->anio)->first();
-            
-            $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
-            
+            $solicitud = Solicitud::with('expediente','giroComercial','estatusSolicitud','centro','tipoIncidenciaSolicitud','giroComercial.ambito','objeto_solicitudes')->where('folio',$request->folio)->where('anio',$request->anio)->first();
+            $partes = $solicitud->partes()->with('dato_laboral','domicilios','contactos','lenguaIndigena')->get(); 
             $solicitantes = $partes->where('tipo_parte_id', 1);
             
             foreach ($solicitantes as $key => $value) {
-                $value->dato_laboral;
-                $value->domicilios;
-                $value->contactos;
-                $value->lenguaIndigena;
                 $solicitantes[$key]["activo"] = 1;
             }
             $solicitados = $partes->where('tipo_parte_id', 2);
             foreach ($solicitados as $key => $value) {
-                $value->domicilios;
-                $value->contactos;
                 $solicitados[$key]["activo"] = 1;
             }
-            $solicitud->objeto_solicitudes;
             $solicitud["solicitados"] = $solicitados;
             $solicitud["solicitantes"] = $solicitantes;
-            $solicitud->expediente = $solicitud->expediente;
-            $solicitud->giroComercial = $solicitud->giroComercial;
-            $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
-            $solicitud->centro = $solicitud->centro;
-            $solicitud->tipoSolicitud = $solicitud->tipoSolicitud;
             if($solicitud->expediente){
                 $solicitud->audiencias = $solicitud->expediente->audiencia()->orderBy('id','asc')->get();
                 foreach($solicitud->audiencias as $audiencia){
@@ -669,9 +652,6 @@ class SolicitudController extends Controller {
                         $audiencia->iniciada = true;
                     }
                 }
-            }
-            if($solicitud->giroComercial){
-                $solicitud->giroComercial->ambito;
             }
             return response()->json(['success' => true, 'message' => 'Se genero el documento correctamente', 'data' => $solicitud], 200);
         }catch(Exception $e ){
@@ -746,35 +726,22 @@ class SolicitudController extends Controller {
     public function consulta($id) {
         try{
             $doc= collect();
-            
+            $solicitud = Solicitud::with('expediente','giroComercial','estatusSolicitud','centro','tipoIncidenciaSolicitud','giroComercial.ambito','objeto_solicitudes')->find($id);
+            $partes = $solicitud->partes()->with('dato_laboral','domicilios','contactos','lenguaIndigena')->get(); 
             //Consulta de solicitud con relaciones
-            $solicitud = Solicitud::find($id);
-
-            $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
 
             $solicitantes = $partes->where('tipo_parte_id', 1);
 
             foreach ($solicitantes as $key => $value) {
-                $value->dato_laboral;
-                $value->domicilios;
-                $value->contactos;
                 $solicitantes[$key]["activo"] = 1;
             }
             $solicitados = $partes->where('tipo_parte_id', 2);
             foreach ($solicitados as $key => $value) {
-                $value->domicilios;
-                $value->contactos;
                 $solicitados[$key]["activo"] = 1;
             }
-            $solicitud->objeto_solicitudes;
             $solicitud["solicitados"] = $solicitados;
             $solicitud["solicitantes"] = $solicitantes;
-            $solicitud->expediente = $solicitud->expediente;
-            $solicitud->giroComercial = $solicitud->giroComercial;
             $estatus_solicitud_id = $solicitud->estatus_solicitud_id;
-            if($solicitud->giroComercial){
-                $solicitud->giroComercial->ambito;
-            }
             //Consulta de solicitud con relaciones
 
             $expediente_id = '';
