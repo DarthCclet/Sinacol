@@ -57,6 +57,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Nacionalidad;
 use App\Providers\AudienciaServiceProvider;
+use Illuminate\Support\Arr;
 
 class AudienciaController extends Controller {
 
@@ -1188,12 +1189,16 @@ class AudienciaController extends Controller {
                             $huboConvenio = true;
                             // se genera convenio
                             // event(new GenerateDocumentResolution($audiencia->id,$audiencia->expediente->solicitud->id,16,2,$solicitante->parte_id,$solicitado->parte_id));
-                            $bandera = false;
                         } else {
-
-                            $bandera = false;
-                            $terminacion = 4;
+                            $collectRelaciones = collect($arrayRelaciones);
+                            $convino = $collectRelaciones->where('parte_solicitante_id',$solicitante->parte_id)->first();
+                            if($convino){
+                                $terminacion =4;
+                            }else{
+                                $terminacion = 5;
+                            }
                         }
+                        $bandera = false;
                         $resolucionParte = ResolucionPartes::create([
                                     "audiencia_id" => $audiencia->id,
                                     "parte_solicitante_id" => $solicitante->parte_id,
