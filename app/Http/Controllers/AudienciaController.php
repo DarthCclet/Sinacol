@@ -1056,7 +1056,7 @@ class AudienciaController extends Controller {
                 $fechaInicio = new Carbon($pago->fecha_pago);
                 $fechaFin = $fechaInicio->addMinutes(15);
                 array_push($arrayEventos, array("start" => $pago->fecha_pago, "end" => $fechaFin->format("Y-m-d H:i:s"), "title" => $audiencia->folio . "/" . $audiencia->anio, "color" => "#ffa500", "audiencia_id" => $audiencia->id,"tipo" => "pago"));
-        }   
+            }   
         }
         return $arrayEventos;
     }
@@ -1826,7 +1826,7 @@ class AudienciaController extends Controller {
         }
         // obtenemos el horario menor y mayor del conciliador
         $maxMinDisponibilidad = $this->getMinMaxConciliador($conciliador);
-        $response = array("eventos" => $arrayEventos, "minTime" => $maxMinDisponibilidad["hora_inicio"], "maxTime" => $maxMinDisponibilidad["hora_fin"]);
+        $response = array("eventos" => $arrayEventos, "minTime" => $maxMinDisponibilidad["hora_inicio"], "maxTime" => $maxMinDisponibilidad["hora_fin"],"duracionPromedio" => auth()->user()->centro->duracionAudiencia);
         return $response;
     }
 
@@ -2682,6 +2682,9 @@ class AudienciaController extends Controller {
                     $id_conciliador = null;
                     foreach ($audiencia->conciliadoresAudiencias as $conciliador) {
                         $conciliador->delete();
+                    }
+                    foreach($audiencia->salasAudiencias as $sala){
+                        $sala->delete();
                     }
                     foreach ($this->request->asignacion as $value) {
                         if ($value["resolucion"]) {

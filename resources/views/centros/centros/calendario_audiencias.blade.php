@@ -295,10 +295,10 @@
                     maxTime: arregloGeneral.maxtime,
                     select: function(start, end,a,b) {
                         $('#calendarioAgenda').fullCalendar('unselect');
+                        $("#fecha_audiencia").val(start);
                         if(b.type == "month"){ // si es la vista de mes, abrir la vista de semana
                             $('#calendarioAgenda').fullCalendar("gotoDate",start);
                             $(".fc-agendaWeek-button").click();
-                            $("#fecha_audiencia").val(start);
                         }
                     },
                     selectOverlap: function(event) {
@@ -310,7 +310,7 @@
                     businessHours: arregloGeneral.laboresCentro,
                     events: arregloGeneral.incidenciasCentro,
                     eventConstraint: "businessHours",
-                    slotDuration:'01:30:00',
+                    slotDuration:arregloGeneral.duracionPromedio,
                     eventClick: function(info) {
                         console.log(info);
                         if(info.audiencia_id != null){

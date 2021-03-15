@@ -168,13 +168,13 @@
                         console.log(end);
                         start=moment(start).format('Y-MM-DD HH:mm:ss');
                         var startVal = new Date(start);
-                            if(b.type == "month"){ // si es la vista de mes, abrir la vista de semana
-                                $('#calendarioCambioAudiencia').fullCalendar("gotoDate",start);
-                                $(".fc-agendaWeek-button").click();
-                                $("#fecha_audiencia").val(start);
-                            }else{
+                        $("#fecha_audiencia").val(start);
+                        if(b.type == "month"){ // si es la vista de mes, abrir la vista de semana
+                            $('#calendarioCambioAudiencia').fullCalendar("gotoDate",start);
+                            $(".fc-agendaWeek-button").click();
+                        }else{
 //                                if(startVal >= ahora){ //validar si la fecha es mayor que hoy
-                                    SolicitarAudiencia(start,end);
+                            SolicitarAudiencia(start,end);
 //                                }else{
 //                                    swal({
 //                                        title: 'Error',
@@ -182,7 +182,7 @@
 //                                        icon: 'warning'
 //                                    });
 //                                }
-                            }
+                        }
                         $('#calendarioCambioAudiencia').fullCalendar('unselect');
                     },
                     selectOverlap: function(event) {
@@ -191,7 +191,7 @@
                     editable: false,
                     allDaySlot:false,
                     eventLimit: false,
-                    slotDuration:'01:30:00',
+                    slotDuration:arregloGeneral.duracionPromedio,
                     businessHours: arregloGeneral.laboresCentro,
                     events: arregloGeneral.incidenciasCentro,
                     eventConstraint: "businessHours"

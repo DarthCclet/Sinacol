@@ -167,7 +167,7 @@
                     selectHelper: true,
                     minTime: arregloGeneral.minTime,
                     maxTime: arregloGeneral.maxtime,
-                    slotDuration:'01:00:00',
+                    slotDuration:arregloGeneral.duracionPromedio,
                     select: function(start, end,a,b) {
                         var validarRatificacion = RatificacionValidar();
                         if(!validarRatificacion.error){
@@ -177,12 +177,11 @@
                             start=moment(start).format('Y-MM-DD HH:mm:ss');
                             var startVal = new Date(start);
                             if(startVal > ahora){ //validar si la fecha es mayor que hoy
+                                $("#fecha_audiencia").val(start);
                                 if(b.type == "month"){ // si es la vista de mes, abrir la vista de semana
                                     $('#calendar').fullCalendar("gotoDate",start);
                                     $(".fc-agendaWeek-button").click();
-                                    $("#fecha_audiencia").val(start);
                                 }else{
-                                    $("#fecha_audiencia").val(start);
                                     SolicitarAudiencia(start,end);
                                 }
                             }else{

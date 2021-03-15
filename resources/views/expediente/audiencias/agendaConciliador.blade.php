@@ -78,6 +78,7 @@
                     },
                     allDaySlot:false,
                     events: audiencias.eventos,
+                    slotDuration:audiencias.duracionPromedio,
                     eventConstraint: "businessHours",
                     eventClick: function(info) {
                         var today = moment().format('DD/MM/YYYY');;

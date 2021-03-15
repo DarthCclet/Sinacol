@@ -508,7 +508,7 @@ class DocumentoController extends Controller
     public function storeRegenerarDocumento(Request $request){
 
         try{
-            $arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10,41=>8,19=>11]
+            $arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10,19=>11,41=>8,43=>9,52=>14,54=>15,45=>12,49=>13]
             ;
             $idSolicitud = $request->get('solicitud_id',1);
             $idAudiencia = $request->get('audiencia_id');

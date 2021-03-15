@@ -182,8 +182,7 @@
                     },
                     selectable: true,
                     selectHelper: true,
-//                    slotDuration:arregloGeneral.duracionPromedio,
-                    slotDuration:"01:00:00",
+                    slotDuration:arregloGeneral.duracionPromedio,
                     select: function(start, end,a,b) {
                         var ahora = new Date();
                         end=moment(end).format('Y-MM-DD HH:mm:ss');
@@ -191,10 +190,10 @@
                         start=moment(start).format('Y-MM-DD HH:mm:ss');
                         var startVal = new Date(start);
                         if(startVal > ahora){ //validar si la fecha es mayor que hoy
+                            $("#fecha_audiencia").val(start);
                             if(b.type == "month"){ // si es la vista de mes, abrir la vista de semana
                                 $('#calendar').fullCalendar("gotoDate",start);
                                 $(".fc-agendaWeek-button").click();
-                                $("#fecha_audiencia").val(start);
                             }else{
                                 SolicitarAudiencia(start,end);
                             }
