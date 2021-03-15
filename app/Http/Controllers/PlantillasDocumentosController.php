@@ -1027,7 +1027,11 @@ class PlantillasDocumentosController extends Controller
                                       }
                                     }else{
                                       if($parteID == $idSolicitado && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitante
-                                        $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto['monto'], 2, '.', ',').'</td></tr>';
+                                        if($concepto['concepto_pago_resoluciones_id'] == 13){
+                                          $tablaRetencionesConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto['monto'], 2, '.', ',').'</td></tr>';
+                                        }else{
+                                          $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto['monto'], 2, '.', ',').'</td></tr>';
+                                        }
                                       }
                                     }
                                     $tablaConceptosActa .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto['monto'], 2, '.', ',').'</td></tr>';
@@ -1037,7 +1041,7 @@ class PlantillasDocumentosController extends Controller
                                         $tablaConceptosEConvenio .= $concepto['otro'].'';
                                       }
                                     }else{
-                                      if($parteID == $idSolicitado && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitante
+                                      if($parteID == $idSolicitado && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitado
                                         $tablaConceptosEConvenio .= $concepto['otro'].'';
                                       }
                                     }  
@@ -1049,6 +1053,7 @@ class PlantillasDocumentosController extends Controller
                                 $tablaConceptosConvenio .= ($parteID == $idSolicitante)? $tablaRetencionesConvenio:"";
                                 $tablaConceptosConvenio .= ($parteID == $idSolicitante)?'<tr><td style="font-weight:bold;"> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>':"";
                               }else{
+                                $tablaConceptosConvenio .= ($parteID == $idSolicitado)? $tablaRetencionesConvenio:"";
                                 $tablaConceptosConvenio .= ($parteID == $idSolicitado)?'<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>':"";
                               }
                               $tablaConceptosConvenio .= '</tbody>';
@@ -1059,7 +1064,7 @@ class PlantillasDocumentosController extends Controller
                                 }
                               }else{
                                 if($parteID == $idSolicitado && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitante
-                                  $tablaConceptosConvenio .= ($concepto['otro']!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                  $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
                                 }
                               }
                               if(sizeof($parte->compareciente)>0){
