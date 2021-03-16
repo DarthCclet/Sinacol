@@ -84,7 +84,7 @@
                         console.log(info);
                         var today = moment().format('DD/MM/YYYY');;
                         var eventDate = info.start.format('DD/MM/YYYY');;
-                        if(today != eventDate){
+                        if(today == eventDate){
                             confirmarInicio(info);
                         }else{
                             confirmarRevision(info);
