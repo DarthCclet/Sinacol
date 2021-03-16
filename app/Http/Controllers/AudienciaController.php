@@ -1819,7 +1819,7 @@ class AudienciaController extends Controller {
                     if (!$audiencia->audiencia->expediente->solicitud->incidencia) {
                         $start = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_inicio;
                         $end = $audiencia->audiencia->fecha_audiencia . " " . $audiencia->audiencia->hora_fin;
-                        array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->audiencia->folio . "/" . $audiencia->audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->audiencia->id));
+                        array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->audiencia->folio . "/" . $audiencia->audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->audiencia->id,"tipo_solicitud" => $audiencia->audiencia->expediente->solicitud->tipoSolicitud->nombre));
                     }
                 }
             }
