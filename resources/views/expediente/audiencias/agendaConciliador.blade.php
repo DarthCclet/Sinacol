@@ -81,6 +81,7 @@
                     slotDuration:audiencias.duracionPromedio,
                     eventConstraint: "businessHours",
                     eventClick: function(info) {
+                        console.log(info);
                         var today = moment().format('DD/MM/YYYY');;
                         var eventDate = info.start.format('DD/MM/YYYY');;
                         if(today == eventDate){
@@ -114,7 +115,13 @@
                     }
                 }).then(function(isConfirm){
                     if(isConfirm){
-                        window.location.href = "/guiaAudiencia/"+info.audiencia_id;
+                        if(info.tipo_solicitud == "Trabajador"){
+                            window.location.href = "/guiaAudiencia/"+info.audiencia_id;
+                        }else if(info.tipo_solicitud == "Patron individual"){
+                            window.location.href = "/guiaPatronal/"+info.audiencia_id;
+                        }else{
+                            window.location.href = "/resolucionColectiva/"+info.audiencia_id;
+                        }
                     }
                 });
             }
