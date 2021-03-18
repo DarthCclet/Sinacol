@@ -46,7 +46,6 @@ class BuzonController extends Controller
                     Cache::put($token, $busqueda,now()->addMinutes(50));
                 }
                 $respuesta = Cache::get($token);
-//                dd($respuesta);
                 $parte->token = $token;
                 $parte->email = $correo;
                 $composicion = base64_encode($token)."/".base64_encode($correo);
@@ -84,7 +83,6 @@ class BuzonController extends Controller
             $estados = Estado::all();
             $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
             $municipios = array_pluck(Municipio::all(),'municipio','id');
-           
             return view("buzon.buzon", compact('solicitudes','tipos_asentamientos','estados','tipos_vialidades','municipios'));
         }else{
             return redirect()->back();
@@ -112,7 +110,6 @@ class BuzonController extends Controller
                                 $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
                                 $audiencia->documentos_firmar = $parte->firmas()->where("audiencia_id",$audiencia->id)->get();
                             }
-                            
                             $solicitudes[]=$solicitud;
                         }
                     }
@@ -120,7 +117,6 @@ class BuzonController extends Controller
                     $estados = Estado::all();
                     $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
                     $municipios = array_pluck(Municipio::all(),'municipio','id');
-                    
                     return view("buzon.buzon", compact('solicitudes','tipos_asentamientos','estados','tipos_vialidades','municipios'));
                 }else{
                     return view("buzon.solicitud")->with("Error","Correo del que ingresas no coincide con el token");
@@ -132,20 +128,7 @@ class BuzonController extends Controller
             return view("buzon.solicitud")->with("Error","La estructura de la liga no es correcta");
         }
     }
-    public function BuzonElectronico(){
-//        Obtenemos todas las solicitudes de la persona
-        $partes = Parte::where("rfc","SAZE941229ED8")->get();
-        $solicitudes = [];
-        foreach($partes as $parte){
-            $solicitud = $parte->solicitud;
-            if($solicitud->expediente != null){
-                $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
-                $solicitud->parte = $parte;
-                $solicitudes[]=$solicitud;
-            }
-        }
-        return view("buzon.buzon", compact('solicitudes'));
-    }
+
     private function getAcciones(Solicitud $solicitud,$partes,$expediente){
 //         Obtenemos las acciones de la solicitud
         $SolicitudAud = $solicitud->audits()->get();
@@ -162,7 +145,6 @@ class BuzonController extends Controller
                 }
             }
         }
-        
         $SolicitudAud = $SolicitudAud->sortBy('created_at');
         $audits = array();
         foreach ($SolicitudAud as $audit) {
