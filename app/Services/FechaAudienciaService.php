@@ -403,7 +403,7 @@ class FechaAudienciaService{
                     "conciliador_id" => $conciliador_id,
                     "encontro_audiencia" => true);
             }else{
-                return self::proximaFechaCita($diaHabilCentro["dia"], $centro, 0,$diaHabilCentro["max"],$conciliador);
+                return self::proximaFechaCita($diaHabilCentro["dia"], $centro, 0,$diaHabilCentro["max"],$conciliador,$virtual);
             }
         }else{
             return array(
@@ -514,7 +514,7 @@ class FechaAudienciaService{
                     "encontro_audiencia" => true
                 );
             }else{
-                return self::obtenerFechaAudiencia($diaHabilCentro["dia"], $centro, 0,$diaHabilCentro["max"]);
+                return self::proximaFechaCitaDoble($diaHabilCentro["dia"],$centro,0,$diaHabilCentro["max"],$conciliadoresAudiencia,$virtual);
             }
         }else{
             return array(
