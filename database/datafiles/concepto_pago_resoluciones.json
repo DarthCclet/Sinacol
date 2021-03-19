@@ -18,7 +18,7 @@
         },
         {
             "id": "5",
-            "nombre": "Gratificación 'A'"
+            "nombre": "Gratificación 'A' (con base en el salario integrado)"
         },
         {
             "id": "6",
@@ -39,8 +39,20 @@
         {
             "id": "10",
             "nombre": "Salarios vencidos"
+        },
+        {
+            "id": "11",
+            "nombre": "Gratificación General 'F' (Reconocimiento de derechos)"
+        },
+        {
+            "id": "12",
+            "nombre": "Otro concepto de pago"
+        },
+        {
+            "id": "13",
+            "nombre": "Deducción"
         }
     ],
 
-    "numReg": 8
+    "numReg": 13
 }
