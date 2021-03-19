@@ -49,7 +49,7 @@
     <input type="hidden" id="estado{{$identificador}}" value="{{isset($domicilio->estado) ? $domicilio->estado : '' }}" name="domicilio[estado]">
     <input type="hidden" id="georeferenciable{{$identificador}}" value="{{isset($domicilio->georeferenciable) ? $domicilio->georeferenciable : 'false' }}" name="domicilio[georeferenciable]">
 
-    @if( isset($tipo_solicitud) && ((($tipo_solicitud == 1 || $tipo_solicitud == 3) && $instancia == 1) || (($tipo_solicitud == 2 || $tipo_solicitud == 4) && $instancia == 2)) )
+    @if( isset($tipo_solicitud) && ((($tipo_solicitud == 1 || $tipo_solicitud == 4) && $instancia == 1) || (($tipo_solicitud == 2 || $tipo_solicitud == 3) && $instancia == 2)) )
         <div class="col-md-3" title="Especifica el Estado o Entidad Federativa donde se encuentra el domicilio." data-toggle="tooltip" data-placement="top">
             <select id="estado_id{{$identificador}}" required="" class="form-control estadoSelect{{$identificador}} direccionUpd{{$identificador}} " name="domicilio[estado_id]" >
                 <option value="">Seleccione una opción</option>
@@ -65,7 +65,7 @@
             <select id="estado_id{{$identificador}}" required="" class="form-control estadoSelect{{$identificador}} direccionUpd{{$identificador}} " name="domicilio[estado_id]" >
                 <option value="">Seleccione una opción</option>
                 @foreach ($estados as $estado)
-                    <option class="{{ $estado->en_vigor ? '' : 'no_enVigor'}}" {{(isset($domicilio->estado_id) && $estado->id == $domicilio->estado_id ) ? 'selected' : '' }}  value="{{$estado->id}}">{{$estado->nombre}}</option>
+                    <option class="{{ $estado->en_vigor ? 'otro' : 'no_enVigor'}}" {{(isset($domicilio->estado_id) && $estado->id == $domicilio->estado_id ) ? 'selected' : '' }}  value="{{$estado->id}}">{{$estado->nombre}}</option>
                 @endforeach
             </select>
             {!! $errors->first('domicilio[estado_id]', '<span class=text-danger>:message</span>') !!}
