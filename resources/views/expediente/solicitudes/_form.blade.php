@@ -927,8 +927,8 @@
                                 <button class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 0);"><i class="fa fa-pencil-alt" ></i> Editar datos de solicitud</button>
                                 <div class="col-md-12 row"> <div>
                                     <h4>Solicitantes</h4></div> 
-                                    @if($tipo_solicitud_id != 2)
-                                    <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div>
+                                    @if($solicitud->estatus_solicitud_id == 1 && $tipo_solicitud_id != 2)
+                                        <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoSolicitante" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 1); $('#divCancelarSolicitante').show()"><i class="fa fa-plus" ></i> Agregar solicitante</button></div>
                                     @endif
                                 </div>
                                 <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
@@ -945,7 +945,11 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="col-md-12 row"> <div><h4>Citados</h4></div> <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoCitado" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div></div>
+                                <div class="col-md-12 row"> <div><h4>Citados</h4></div> 
+                                @if($solicitud->estatus_solicitud_id == 1)
+                                <div style="float: left; margin-left: 2%" ><button id="btnAgregarNuevoCitado" class="btn btn-primary pull-right" onclick="$('#wizard').smartWizard('goToStep', 2);$('#divCancelarCitado').show()"><i class="fa fa-plus" ></i> Agregar citado</button></div>
+                                    @endif
+                                </div>
                                 <div class="col-md-10 offset-md-1" style="margin-top: 3%;" >
                                     <table class="table table-bordered" >
                                         <thead>
@@ -1585,6 +1589,10 @@
                         $("#tipo_persona_fisica_solicitado").click().trigger('change');
                         $(".pasoSolicitado").show();
                         $("#divCancelarSolicitante").hide();
+                        visibleCapturaOtro = true;
+                        if($("#ratificada").val() == "true"){
+                            visibleCapturaOtro = false;
+                        }
                         swal({
                             title: '¿Quieres seguir capturando citados?',
                             text: '',
@@ -1594,7 +1602,7 @@
                                 cancel: {
                                     text: 'Capturar otro citado',
                                     value: null,
-                                    visible: true,
+                                    visible: visibleCapturaOtro,
                                     className: 'btn btn-primary',
                                     closeModal: true,
                                 },
