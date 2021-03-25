@@ -172,6 +172,7 @@
                             solicitudObj.tipoSolicitud = data.tipo_solicitud.nombre;
                             solicitudObj.ratificada = data.ratificada;
                             solicitudObj.incidencia = data.incidencia;
+                            solicitudObj.expediente = data.expediente.folio;
                             if(!solicitudObj.ratificada){
                                 $("#labeltipoRollback").html("La solicitud no esta confirmada, no se puede hacer ningun proceso");
                             }
