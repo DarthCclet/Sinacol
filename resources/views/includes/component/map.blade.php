@@ -86,7 +86,7 @@
         <p class="help-block needed">Nombre de la vialidad o calle</p>
     </div>
     <div class="col-md-4" style="display: none;" title="Un asentamiento no siempre es una colonia, puede ser una unidad habitacional, un ejido, un barrio, etc." data-toggle="tooltip" data-placement="top">
-        {!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'placeholder' => 'Seleccione una opción', 'class' => 'upper form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
+        {!! Form::select('domicilio[tipo_asentamiento_id]', isset($tipos_asentamientos) ? $tipos_asentamientos : [] , isset($domicilio->tipo_asentamiento_id) ? $domicilio->tipo_asentamiento_id : null, ['id'=>'tipo_asentamiento_id'.$identificador,'placeholder' => ' ', 'class' => 'upper form-control catSelect'.$identificador.' direccionUpd'.$identificador]);  !!}
         {!! $errors->first('domicilio[tipo_asentamiento_id]', '<span class=text-danger>:message</span>') !!}
         <p class="help-block needed">Tipo de asentamiento</p>
     </div>
@@ -103,7 +103,7 @@
         <p class="help-block">Número interior</p>
     </div>
     <div class="col-md-5" title="Escribe el nombre de tu colonia, aparecerá una lista de las colonias con este nombre en tu entidad. Si escoges la correcta se llenarán de forma automática los demás campos." data-toggle="tooltip" data-placement="top">
-        <select name="asentamientoAutoc" placeholder="Seleccione"  id="asentamientoAutoc{{$identificador}}" class="form-control">
+        <select name="asentamientoAutoc" placeholder=" "  id="asentamientoAutoc{{$identificador}}" class="form-control">
             @if(isset($domicilio) && isset($domicilio->asentamiento))
                 <option value='{{isset($domicilio) ? $domicilio->asentamiento : ""}}' selected='selected'>{{$domicilio->asentamiento}}</option>
             @endif
