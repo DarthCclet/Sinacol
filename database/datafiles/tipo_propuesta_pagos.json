@@ -1,0 +1,30 @@
+{
+    "datos": [
+        {
+            "id": "1",
+            "nombre": "100% de indemnización",
+            "descripcion": "Pago completo de prestaciones, considerando indemnización, partes proporcionales de prestaciones y prima de antigüedad."
+        },
+        {
+            "id": "2",
+            "nombre": "50% de indemnización",
+            "descripcion": " Pago parcial de prestaciones, considerando 50% de la indemnización constitucional, 50% de la prima de antigüedad y el 100% de las partes proporcionales de vacaciones, prima vacacional y aguinaldo "
+        },
+        {
+            "id": "3",
+            "nombre": "Otra propuesta configurada",
+            "descripcion": "Con base en las negociaciones entre las partes"
+        },
+        {
+            "id": "4",
+            "nombre": "Reinstalación",
+            "descripcion": "Propuesta de reinstalación laboral"
+        },
+        {
+            "id": "5",
+            "nombre": "Pago de prestaciones",
+            "descripcion": "Propuesta de prestaciones laborales"
+        }
+    ],
+    "numReg": 5
+}
