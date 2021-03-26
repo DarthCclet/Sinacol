@@ -64,6 +64,24 @@ class StringTemplate
       }
       if(Str::contains($string, '[SI_')){
         $countSi = substr_count($string, '[FIN_SI');
+
+        $countHayPagos = substr_count($string,'[SI_RESOLUCION_PAGOS]');
+        if (isset($vars['resolucion_pagos'])&& $countHayPagos > 0){
+          for ($i=0; $i < $countHayPagos; $i++) {
+            $htmlA = Str::before($string, '[SI_RESOLUCION_PAGOS]');
+            $htmlB = Str::after($string, '[FIN_SI_RESOLUCION_PAGOS]');
+            if($vars['resolucion_pagos'] == 'Si'){ //resolucion tiene pagos
+              // texto para pagos en resolucion
+              $sliceHayPagos = Str::after($string, '[SI_RESOLUCION_PAGOS]');
+              $sliceHayPagos = Str::before($sliceHayPagos, '[FIN_SI_RESOLUCION_PAGOS]');
+              // dd($sliceHayPagos);
+              $string = $htmlA . $sliceHayPagos . $htmlB;
+            }else{//solicitud no individual
+              $string = $htmlA . $htmlB;
+            }
+          }
+        }
+
         $countPagosDiferidos = substr_count($string,'[SI_RESOLUCION_PAGO_DIFERIDO]');
         if (isset($vars['resolucion_total_diferidos'])){
           if($countPagosDiferidos >0){
