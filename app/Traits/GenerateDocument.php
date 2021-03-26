@@ -883,6 +883,7 @@ trait GenerateDocument
                               $tablaConceptosConvenio .= '<tbody>';
                               $tablaConceptosActa .= '';
                               $hayRetenciones = false;
+                              $hayConceptosPago = false;
                               $parte = Parte::find($parteID);
                               if(sizeof($parte->compareciente)>0){
                                 $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
@@ -914,6 +915,7 @@ trait GenerateDocument
                                         $hayRetenciones = true;
                                       }else{
                                         $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
+                                        $hayConceptosPago = true;
                                       }
                                     }
                                   }else{
@@ -923,6 +925,7 @@ trait GenerateDocument
                                         $hayRetenciones = true;
                                       }else{
                                         $tablaConceptosConvenio .= '<tr><td class="tbl"> '.$conceptoName->nombre.' </td><td style="text-align:right;">     $'.number_format($concepto->monto, 2, '.', ',').'</td></tr>';
+                                        $hayConceptosPago = true;
                                       }
                                     }
                                   }
@@ -958,10 +961,12 @@ trait GenerateDocument
                               if($tipoSolicitud == 1){ //solicitud individual
                                 if($parteID == $idSolicitante){ //si resolucion pertenece al solicitante
                                   $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                  $hayConceptosPago = true;
                                 }
                               }else{
                                 if($parteID == $idSolicitado){ //si resolucion pertenece al citado
                                   $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                  $hayConceptosPago = true;
                                 }
                               }
                               if(sizeof($parte->compareciente)>0){
@@ -1015,6 +1020,7 @@ trait GenerateDocument
 
                             $datosResolucion['total_diferidos']= $totalPagosDiferidos;
                             $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
+                            $datosResolucion['pagos']= $hayConceptosPago;
                           }
                         }
                         // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
