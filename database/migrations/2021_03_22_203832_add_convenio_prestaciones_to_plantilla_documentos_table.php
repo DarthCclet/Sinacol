@@ -16,15 +16,15 @@ class AddConvenioPrestacionesToPlantillaDocumentosTable extends Migration
     {
         //plantilla para obtener header y footer
         $plantillaOrigen = PlantillaDocumento::find(1);
-        $existePlantilla = PlantillaDocumento::where('nombre_plantilla','CONVENIO DE PRESTACIONES')->first();
+        $existePlantilla = PlantillaDocumento::where('nombre_plantilla','CONVENIO DE RECONOCIMIENTO DE DERECHOS')->first();
         if($existePlantilla){
             //no se crea nuevo registro
         }else{
             //crear plantilla CONVENIO de prestaciones
             $plantillaDoc = PlantillaDocumento::create(
             [
-                'nombre_plantilla'=> 'CONVENIO DE PRESTACIONES',
-                'descripcion'=>'CONVENIO DE PRESTACIONES',
+                'nombre_plantilla'=> 'CONVENIO DE RECONOCIMIENTO DE DERECHOS',
+                'descripcion'=>'CONVENIO DE RECONOCIMIENTO DE DERECHOS',
                 'plantilla_header'=>$plantillaOrigen->plantilla_header,
                 'plantilla_body'=>'<p style="line-height: 8pt;">&nbsp;</p>
                 <p style="line-height: 8pt; text-align: right;">&nbsp;</p>
