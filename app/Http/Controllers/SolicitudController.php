@@ -299,7 +299,7 @@ class SolicitudController extends Controller {
         if($solicitud["tipo_solicitud_id"] == 1){
             $request->validate([
                 'objeto_solicitudes' => 'required',
-                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.fecha_conflicto' => 'required|date_format:Y-m-d',
                 'solicitud.solicita_excepcion' => 'required',
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
@@ -310,7 +310,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
                 'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
                 'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|date_format:Y-m-d',
                 'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.dato_laboral' => 'required',
                 'solicitantes.*.domicilios' => 'required',
@@ -325,7 +325,7 @@ class SolicitudController extends Controller {
         }else{
             $request->validate([
                 'objeto_solicitudes' => 'required',
-                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.fecha_conflicto' => 'required|date_format:Y-m-d',
                 'solicitud.solicita_excepcion' => 'required',
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
@@ -335,7 +335,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
                 'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
-                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|date_format:Y-m-d',
                 'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.domicilios' => 'required',
@@ -853,7 +853,7 @@ class SolicitudController extends Controller {
         if($solicitud["tipo_solicitud_id"] == 1){
             $request->validate([
                 'objeto_solicitudes' => 'required',
-                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.fecha_conflicto' => 'required|date_format:m/d/Y',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.rfc' => ['nullable'],
@@ -862,7 +862,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
                 'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
                 'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|date_format:Y-m-d',
                 'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.dato_laboral' => 'required',
                 'solicitantes.*.domicilios' => 'required',
@@ -877,7 +877,7 @@ class SolicitudController extends Controller {
         }else{
             $request->validate([
                 'objeto_solicitudes' => 'required',
-                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.fecha_conflicto' => 'required|date_format:Y-m-d',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.rfc' => ['nullable'],
@@ -885,7 +885,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
                 'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
-                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|date_format:Y-m-d',
                 'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.domicilios' => 'required',

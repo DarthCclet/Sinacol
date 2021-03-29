@@ -1809,8 +1809,9 @@ class AudienciaController extends Controller {
         ##Finalmente guardamos los datos de las partes recibidas
         $arregloPartesAgregadas = array();
         $tipo_citado = TipoParte::where("nombre","ilike","%CITADO%")->first();
+        $tipo_notificacion = \App\TipoNotificacion::where("nombre","ilike","%D)%")->first();
         foreach ($audiencia->audienciaParte as $parte) {
-            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => null,"finalizada"=> "Notificado al comparecer","fecha_notificacion" => now()]);
+            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizada"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
             if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
                 event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
             }
