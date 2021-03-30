@@ -287,7 +287,7 @@ class CentroController extends Controller
         $tipo_parte = \App\TipoParte::where("nombre","ilike","CITADO")->first();
         $estatus_solicitud = \App\EstatusSolicitud::where("nombre","ilike","CONCLUIDA")->first();
         if($rolActual != "Orientador"){
-            $solicitudesTodas = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->where("estatus_solicitud_id",$estatus_solicitud->id)->with(['partes','expediente','expediente.audiencia','expediente.audiencia.audienciaParte','expediente.audiencia.etapa_notificacion','expediente.audiencia.audienciaParte.parte','expediente.audiencia.audienciaParte.tipo_notificacion'])->get();
+            $solicitudesTodas = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->with(['partes','expediente','expediente.audiencia','expediente.audiencia.audienciaParte','expediente.audiencia.etapa_notificacion','expediente.audiencia.audienciaParte.parte','expediente.audiencia.audienciaParte.tipo_notificacion'])->get();
     //        dd($solicitudesTodas);
             $solicitudes = [];
             //En caso de ser conciliador buscamos el registro
