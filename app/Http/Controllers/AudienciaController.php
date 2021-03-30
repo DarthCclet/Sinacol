@@ -1247,7 +1247,7 @@ class AudienciaController extends Controller {
                         if ($compareciente == null) {
                             $multable = false;
                             $audienciaParte = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id', $solicitado->parte_id)->first();
-                            if ($audienciaParte && $audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE") {
+                            if ($audienciaParte && ($audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaParte->finalizado == "EXITOSO POR INSTRUCTIVO")) {
                                 if (array_search($solicitado->parte_id, $arrayMultado) === false) {
                                     // Se genera archivo de acta de multa
                                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
@@ -2296,7 +2296,7 @@ class AudienciaController extends Controller {
                                 if($tipo_solicitud_individual->id == $audiencia->expediente->solicitud->tipo_solicitud_id){
                                     $multable = false;
                                     $audienciaParte = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id', $solicitado->parte_id)->first();
-                                    if ($audienciaParte && $audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE") {
+                                    if ($audienciaParte && ($audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaParte->finalizado == "EXITOSO POR INSTRUCTIVO")) {
                                         if (array_search($solicitado->parte_id, $arrayMultado) === false && $audiencia->expediente->solicitud->tipo_solicitud_id == 1) {
                                             // Se genera archivo de acta de multa
                                             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
@@ -2455,7 +2455,7 @@ class AudienciaController extends Controller {
                                                 $comparecio = true;
                                             }
                                         }
-                                        if(!$comparecio && $audienciaP->finalizado == "FINALIZADO EXITOSAMENTE"){
+                                        if(!$comparecio && ($audienciaP->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaP->finalizado == "EXITOSO POR INSTRUCTIVO")){
                                             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
                                             array_push($arrayMultadoNotificacion, $audienciaP->id);
                                         }
@@ -2725,7 +2725,7 @@ class AudienciaController extends Controller {
         $sin_contactar = array();
         try {
             foreach ($audiencia->audienciaParte as $parte) {
-                if($parte->finalizado != "FINALIZADO EXITOSAMENTE"){
+                if($parte->finalizado != "FINALIZADO EXITOSAMENTE" && $parte->finalizado != "EXITOSO POR INSTRUCTIVO"){
                     event(new RatificacionRealizada($audiencia->id, "citatorio",false,$parte->id));
                     $envio = true;
                 }else{
