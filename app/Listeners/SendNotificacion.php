@@ -49,8 +49,8 @@ class SendNotificacion
                 $arreglo["exhorto_num"] = "";
                 //Validamos el tipo de notificación
                 $fechaIngreso = new \Carbon\Carbon($audiencia->expediente->solicitud->created_at);
-                if($tipo_notificacion == "citatorio"){
-                    $fechaRecepcion = new \Carbon\Carbon($audiencia->expediente->solicitud->fecha_ratificacion);
+                if($tipo_notificacion["tipo_notificacion"] == "citatorio"){
+                    $fechaRecepcion = new \Carbon\Carbon($tipo_notificacion["fecha_recepcion"]);
                     $fechaAudiencia = new \Carbon\Carbon($audiencia->fecha_audiencia);
                     $fechaCita = null;
                     if($audiencia->fecha_cita != null && $audiencia->fecha_cita != ""){
@@ -67,7 +67,7 @@ class SendNotificacion
                     }
                     $arreglo["fecha_limite"] = $fechaLimite->format("d/m/Y");
                 }else{
-                    $fechaRecepcion = new \Carbon\Carbon($audiencia->fecha_audiencia);
+                    $fechaRecepcion = new \Carbon\Carbon($tipo_notificacion["fecha_recepcion"]);
                     $fechaAudiencia = self::ObtenerFechaAudienciaMulta($audiencia->fecha_audiencia,15);
                     $fechaCita = null;
                     $fechaLimite = new \Carbon\Carbon(self::ObtenerFechaLimiteNotificacionMulta($fechaAudiencia,$audiencia->expediente->solicitud,$audiencia->id));
@@ -80,7 +80,7 @@ class SendNotificacion
                 $arreglo["fecha_ingreso"] = $fechaIngreso->format("d/m/Y");
                 $arreglo["nombre_junta"] = $audiencia->expediente->solicitud->centro->nombre;
                 $arreglo["junta_id"] = $audiencia->expediente->solicitud->centro_id;
-                $arreglo["tipo_notificacion"] = $tipo_notificacion;
+                $arreglo["tipo_notificacion"] = $tipo_notificacion["tipo_notificacion"];
                 //Buscamos a los actores
                 Log::debug('Información de solicitud:'.json_encode($arreglo));
                 $actores = self::getSolicitantes($audiencia);
@@ -121,7 +121,7 @@ class SendNotificacion
                 }
                 Log::debug('Información de actores:'.json_encode($arreglo["Actores"]));
                 //Buscamos a los demandados
-                $demandados = self::getSolicitados($audiencia,$tipo_notificacion,$event->parte_id);
+                $demandados = self::getSolicitados($audiencia,$tipo_notificacion["tipo_notificacion"],$event->parte_id);
                 foreach($demandados as $partes){
                     $parte =$partes->parte;
                     if($parte->tipo_persona_id == 1){
@@ -293,15 +293,27 @@ class SendNotificacion
     }
     public function ObtenerTipoNotificacion($audiencia){
         $clasificacion_multa = \App\ClasificacionArchivo::where("nombre","Acta de multa")->first();
-//        dump($audiencia->documentos);
+        $clasificacion_citatorio = \App\ClasificacionArchivo::where("nombre","Citatorio")->first();
+        $docCitatorio = $audiencia->documentos()->where("clasificacion_archivo_id",$clasificacion_citatorio->id)->first();
         if(isset($audiencia->documentos)){
             $doc = $audiencia->documentos()->where("clasificacion_archivo_id",$clasificacion_multa->id)->first();
             if($doc == null){
-                return "citatorio";
+                if($docCitatorio != null){
+                    return array([
+                        "tipo_notificacion" => "citatorio",
+                        "fecha_recepcion" => $docCitatorio->created_at,
+                    ]);
+                }
             }else{
-                return "multa";
+                return array([
+                    "tipo_notificacion" => "multa",
+                    "fecha_recepcion" => $doc->created_at,
+                ]);
             }
         }
-        return "citatorio";
+        return array([
+            "tipo_notificacion" => "citatorio",
+            "fecha_recepcion" => $audiencia->expediente->solicitud->fecha_ratificacion,
+        ]);
     }
 }
