@@ -299,21 +299,21 @@ class SendNotificacion
             $doc = $audiencia->documentos()->where("clasificacion_archivo_id",$clasificacion_multa->id)->first();
             if($doc == null){
                 if($docCitatorio != null){
-                    return array([
+                    return array(
                         "tipo_notificacion" => "citatorio",
                         "fecha_recepcion" => $docCitatorio->created_at,
-                    ]);
+                    );
                 }
             }else{
-                return array([
+                return array(
                     "tipo_notificacion" => "multa",
                     "fecha_recepcion" => $doc->created_at,
-                ]);
+                );
             }
         }
-        return array([
+        return array(
             "tipo_notificacion" => "citatorio",
             "fecha_recepcion" => $audiencia->expediente->solicitud->fecha_ratificacion,
-        ]);
+        );
     }
 }
