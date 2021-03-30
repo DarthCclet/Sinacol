@@ -298,10 +298,12 @@ class SendNotificacion
         if(isset($audiencia->documentos)){
             $doc = $audiencia->documentos()->where("clasificacion_archivo_id",$clasificacion_multa->id)->first();
             if($doc == null){
-                return array([
-                    "tipo_notificacion" => "citatorio",
-                    "fecha_recepcion" => $docCitatorio->created_at,
-                ]);
+                if($docCitatorio != null){
+                    return array([
+                        "tipo_notificacion" => "citatorio",
+                        "fecha_recepcion" => $docCitatorio->created_at,
+                    ]);
+                }
             }else{
                 return array([
                     "tipo_notificacion" => "multa",
