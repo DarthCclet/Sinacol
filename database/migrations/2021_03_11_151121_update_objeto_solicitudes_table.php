@@ -40,7 +40,7 @@ class UpdateObjetoSolicitudesTable extends Migration
                     }
                 }
             });
-            Artisan::call('cache:clear'); 
+            Artisan::call('cache:clear');
         });
     }
 
