@@ -238,10 +238,14 @@ class SendNotificacion
     public function getSolicitados(Audiencia $audiencia,$tipo_notificacion,$audiencia_parte_id = null) {
         $solicitados = [];
         foreach ($audiencia->audienciaParte as $parte) {
-            if($parte->finalizado == null || $tipo_notificacion == "multa"){
+            if ($parte->parte->tipo_parte_id == 2) {
                 if($audiencia_parte_id == null){
-                    if ($parte->parte->tipo_parte_id == 2) {
+                    if($tipo_notificacion == "multa"){
                         $solicitados[] = $parte;
+                    }else{
+                        if($parte->finalizado != "FINALIZADO EXITOSAMENTE" && $parte->finalizado != "EXITOSO POR INSTRUCTIVO"){
+                            $solicitados[] = $parte;
+                        }
                     }
                 }else{
                     if($parte->id == $audiencia_parte_id){
