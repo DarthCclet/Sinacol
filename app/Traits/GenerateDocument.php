@@ -382,7 +382,7 @@ trait GenerateDocument
                     $obj['tipo_solicitud'] =  mb_strtoupper(($obj['tipo_solicitud_id'] == 1) ? "Individual" :  (($obj['tipo_solicitud_id'] == 2) ? "Patronal Individual" : (($obj['tipo_solicitud_id'] == 3) ? "Patronal Colectiva" : "Sindical")));
                     $obj['prescripcion'] = $this->calcularPrescripcion($solicitud->objeto_solicitudes, $solicitud->fecha_conflicto,$solicitud->fecha_ratificacion);
                     $obj['fecha_maxima_ratificacion'] = $this->calcularFechaMaximaRatificacion($solicitud->fecha_recepcion,$centroId);
-                    $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at','tipo_solicitud_id']);
+                    $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
                     if($idSolicitante != "" && $idSolicitado != ""){

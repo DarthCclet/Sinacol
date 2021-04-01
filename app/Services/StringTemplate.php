@@ -152,21 +152,6 @@ class StringTemplate
             }
           }
         }
-        $countSolicitudIndividual = substr_count($string,'[SI_SOLICITUD_TIPO_INDIVIDUAL]');
-        if (isset($vars['solicitud_tipo_solicitud_id'])&& $countSolicitudIndividual > 0){
-          for ($i=0; $i < $countSolicitudIndividual; $i++) {
-            $htmlA = Str::before($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
-            $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_TIPO]');
-            if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual
-              // texto para solicitud individual
-              $sliceIndividual = Str::after($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
-              $sliceIndividual = Str::before($sliceIndividual, '[FIN_SI_SOLICITUD_TIPO]');
-              $string = $htmlA . $sliceIndividual . $htmlB;
-            }else{//solicitud no individual
-              $string = $htmlA . $htmlB;
-            }
-          }
-        }
         $countSolicitudVirtual = substr_count($string,'[SI_SOLICITUD_VIRTUAL]');
         if (isset($vars['solicitud_virtual'])&& $countSolicitudVirtual > 0){
           for ($i=0; $i < $countSolicitudVirtual; $i++) {
@@ -184,6 +169,21 @@ class StringTemplate
                 $sliceVirtual = Str::before($sliceVirtual, '[FIN_SI_SOLICITUD_VIRTUAL]');
 
                 $string = $htmlA . $sliceVirtual . $htmlB;
+            }
+          }
+        }
+        $countSolicitudIndividual = substr_count($string,'[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+        if (isset($vars['solicitud_tipo_solicitud_id'])&& $countSolicitudIndividual > 0){
+          for ($i=0; $i < $countSolicitudIndividual; $i++) {
+            $htmlA = Str::before($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+            $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_TIPO]');
+            if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual
+              // texto para solicitud individual
+              $sliceIndividual = Str::after($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+              $sliceIndividual = Str::before($sliceIndividual, '[FIN_SI_SOLICITUD_TIPO]');
+              $string = $htmlA . $sliceIndividual . $htmlB;
+            }else{//solicitud no individual
+              $string = $htmlA . $htmlB;
             }
           }
         }
