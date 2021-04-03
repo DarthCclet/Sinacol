@@ -2689,7 +2689,7 @@ class AudienciaController extends Controller {
                                                 $comparecio = true;
                                             }
                                         }
-                                        if(!$comparecio && ($audienciaP->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaP->finalizado == "EXITOSO POR INSTRUCTIVO")){
+                                        if(!$comparecio && ($audienciaP->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaP->finalizado == "EXITOSO POR INSTRUCTIVO") && $audienciaP->parte->tipo_parte_id == $tipo_parte->id){
                                             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
                                             array_push($arrayMultadoNotificacion, $audienciaP->id);
                                             $notificar = true;
@@ -2960,9 +2960,10 @@ class AudienciaController extends Controller {
         //Buscamos un correo electronico de las partes solicitadas
         $contactados = array();
         $sin_contactar = array();
+        $tipo_parte = TipoParte::whereNombre("CITADO")->first();
         try {
             foreach ($audiencia->audienciaParte as $parte) {
-                if($parte->finalizado != "FINALIZADO EXITOSAMENTE" && $parte->finalizado != "EXITOSO POR INSTRUCTIVO"){
+                if($parte->finalizado != "FINALIZADO EXITOSAMENTE" && $parte->finalizado != "EXITOSO POR INSTRUCTIVO" && $parte->parte->tipo_parte_id == $tipo_parte->id){
                     event(new RatificacionRealizada($audiencia->id, "citatorio",false,$parte->id));
                     $envio = true;
                 }else{
