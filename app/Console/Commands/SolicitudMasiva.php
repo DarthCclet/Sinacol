@@ -16,6 +16,7 @@ use Illuminate\Console\Command;
 use GuzzleHttp\Client;
 use Akeneo\Component\SpreadsheetParser\SpreadsheetParser;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class SolicitudMasiva extends Command
 {
@@ -103,6 +104,9 @@ class SolicitudMasiva extends Command
                     echo ($resp->getBody()."\n");
                     fputs($savedSol, "Num. Correcto: ".$correctos." ".$resp->getBody()."\n");
             }catch(Exception $e){
+                Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensale: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
                 $erroneos++;
                 $error = "Num. erroneo: ".$erroneos." Renglon: ".($key+1)." CURP: ".$value[0]." Error:".$e->getMessage();
                 echo ($error."\n");
