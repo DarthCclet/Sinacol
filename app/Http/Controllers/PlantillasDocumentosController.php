@@ -935,6 +935,7 @@ class PlantillasDocumentosController extends Controller
                               $datoLaborales =$datoLaborales->first();
                             }
                             // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
+                            $hayConceptosPago = false;
                             if($hayDatosLaborales >0){
                               // $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
                               // $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;

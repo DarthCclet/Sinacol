@@ -826,6 +826,7 @@ trait GenerateDocument
                             }else{
                               $datoLaborales =$datoLaborales->first();
                             }
+                            $hayConceptosPago = false;
                             // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                             if($hayDatosLaborales >0){  
 
