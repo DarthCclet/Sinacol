@@ -19,7 +19,6 @@ use Carbon\Carbon;
 
 class SolicitudMasiva extends Command
 {
-    const API_SOLICITUDES = "http://192.168.10.10/";
     /**
      * The name and signature of the console command.
      *
@@ -62,7 +61,7 @@ class SolicitudMasiva extends Command
         foreach ($workbook->createRowIterator(0) as $rowIndex => $values) {
             array_push($partesCitado,$values);
         }
-        $client = new Client(['base_uri' => self::API_SOLICITUDES]);
+        $client = new Client(['base_uri' => env('APP_URL')]);
         $savedSol = fopen(__DIR__."/../../../public/savedSol.txt", 'w');
         $failedSol = fopen(__DIR__."/../../../public/failedSol.txt", 'w');
         
