@@ -237,6 +237,7 @@ class SendNotificacion
      */
     public function getSolicitados(Audiencia $audiencia,$tipo_notificacion,$audiencia_parte_id = null) {
         $solicitados = [];
+        $i = 0;
         foreach ($audiencia->audienciaParte as $parte) {
             if ($parte->parte->tipo_parte_id == 2) {
                 if($audiencia_parte_id == null){
