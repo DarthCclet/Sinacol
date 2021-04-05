@@ -65,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
     Route::POST('solicitud/ratificarIncompetencia','SolicitudController@ratificarIncompetencia');
     Route::POST('solicitud/excepcion','SolicitudController@ExcepcionConciliacion');
     Route::Get('solicitud/correos/{solicitud_id}','SolicitudController@validarCorreos');
+    Route::Get('parte/correo/{parte_id}','ParteController@validarCorreoParte');
     Route::POST('solicitud/correos','SolicitudController@cargarCorreos');
     Route::Get('solicitudes/documentos/{solicitud_id}','SolicitudController@getDocumentosSolicitud');
     Route::POST('guardarUrlVirtual','SolicitudController@guardarUrlVirtual');

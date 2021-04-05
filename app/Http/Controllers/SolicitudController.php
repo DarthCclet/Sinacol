@@ -1609,13 +1609,21 @@ class SolicitudController extends Controller {
             DB::beginTransaction();
             foreach ($this->request->listaCorreos as $listaCorreos){
                 $parte = Parte::find($listaCorreos["parte_id"]);
-                if($listaCorreos["crearAcceso"]){
+                if(isset($listaCorreos['rfcCurp']) && $listaCorreos['rfcCurp'] != ''){
+                    if($parte->tipo_persona_id == 1){
+                        $parte->update(['curp'=>$listaCorreos['rfcCurp']]);
+                    }else{
+                        $parte->update(['rfc'=>$listaCorreos['rfcCurp']]);
+                    }
+                }
+                if($listaCorreos["crearAcceso"] === true || $listaCorreos["crearAcceso"] === "true"){
                     $arrayCorreo = $this->construirCorreo($parte);
                     $parte->update([
                         "correo_buzon" => $arrayCorreo["correo"],
                         "password_buzon" => $arrayCorreo["password"]
-                    ]);
+                        ]);
                 }else{
+                    
                     $parte->contactos()->create([
                         "tipo_contacto_id" => 3,
                         "contacto" => $listaCorreos["correo"]

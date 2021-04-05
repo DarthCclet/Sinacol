@@ -705,4 +705,21 @@ class ParteController extends Controller
         $partes = $solicitud->partes()->whereIn("tipo_parte_id",[1,2,3])->get();
         return $partes;
     }
+    public function validarCorreoParte(){
+        $parte = Parte::find($this->request->parte_id);
+        $array = array();
+        $pasa = false;
+        foreach($parte->contactos as $contacto){
+            if($contacto->tipo_contacto_id == 3){ //si tiene email
+                $pasa = true;
+            }
+        }
+        if($parte->correo_buzon){
+            $pasa = true;
+        }
+            //devuelve partes sin email
+        
+        $parte->tieneCorreo = $pasa;
+        return $parte;
+    }
 }

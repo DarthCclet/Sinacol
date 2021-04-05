@@ -264,6 +264,14 @@
                         <tbody>
                     </table>
                 </div>
+                <div class="col-md-4">
+                    <div >
+                        <span class="text-muted m-l-5 m-r-20" for='switch1'>Acepto notificacion por buzon</span>
+                    </div>
+                    <div >
+                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="aceptar_notif_buzon" name='aceptar_notif_buzon'/>
+                    </div>
+                </div>
                 <div class="col-md-12" id="divCalendarioCentral">
                     <h5>Calendario de oficina central</h5>
                     <hr class="red">
@@ -820,7 +828,6 @@
                     {
                         "targets": -2,
                         "render": function (data, type, row) {
-                                // console.log(row[0]);
                                 if(row[1] == "2" && row[5] != null){
                                     var d = new Date();
                                     var dateToday = d.getFullYear()+"-"+String(d.getMonth() + 1).padStart(2, '0')+"-"+String(d.getDate()).padStart(2, '0');
@@ -845,7 +852,6 @@
                         "targets": -1,
                         "render": function (data, type, row) {
                                 var buttons = '';
-                                console.log(row);
                                 if((row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true") && row[1] != 3){
                                     buttons += '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="'+ruta.replace('/1/',"/"+row[0]+"/")+'#step-4" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
                                 }
@@ -1001,7 +1007,6 @@
             $("#divNoGeolocalizable").show();
             $("#divGeolocalizable").hide();
         }
-        console.log(solicitudObj.tipo_solicitud_id);
         if(solicitudObj.tipo_solicitud_id == 3 || solicitudObj.tipo_solicitud_id == 4){
             $(".archivo_sindical").show();
             $("#btnGuardarRatificar").hide();
@@ -1391,6 +1396,10 @@
         if(!ratifican){
             error = true;
             msg = "Al menos un solicitante debe presentar documentos para confirmar";
+        }
+        if(!$("#aceptar_notif_buzon").is(":checked") ){
+            error = true;
+            msg = "No se acepto notificacion por buzon";
         }
         if($("#aradioNotificacionA1").is(":checked")){
             var tipo_notificacion_id=1;
@@ -2125,7 +2134,6 @@
                         if (evt.lengthComputable) {
                             var percentComplete = evt.loaded / evt.total;
                             // Do something with download progress
-                            console.log(percentComplete);
                             $('#progress-bar').show();
                             var percent = parseInt(percentComplete * 100)
                             $("#progressbar-ajax-value").text(percent+"%");;
@@ -2145,7 +2153,6 @@
                         if (evt.lengthComputable) {
                             var percentComplete = evt.loaded / evt.total;
                             //Do something with upload progress
-                            console.log(percentComplete);
                             $('#progress-bar').show();
                             var percent = parseInt(percentComplete * 100)
                             $("#progressbar-ajax-value").text(percent+"%");;
@@ -2291,7 +2298,7 @@
             });
         }
         $("#btnGuardarConvenio").on("click",function(){
-        if("{{auth()->user()->hasRole('Personal conciliador')}}"){
+        if("{{auth()->user()->hasRole('Personal conciliador')}}" && $("#aceptar_notif_buzon").is(":checked")){
             if(ratifican){
                 $.ajax({
                     url:'/solicitud/correos/'+$("#solicitud_id").val(),
@@ -2339,11 +2346,20 @@
                 });
             }
         }else{
-            swal({
-                title: 'Error',
-                text: 'La confirmaci&oacute;n de esta solicitud solo se puede realizar por el conciliador que la llevará acabo',
-                icon: 'warning'
-            });
+            
+            if(!$("#aceptar_notif_buzon").is(":checked")){
+                swal({
+                    title: 'Error',
+                    text: 'No se acepto por buzon',
+                    icon: 'warning'
+                }); 
+            }else{
+                swal({
+                    title: 'Error',
+                    text: 'La confirmaci&oacute;n de esta solicitud solo se puede realizar por el conciliador que la llevará acabo',
+                    icon: 'warning'
+                });
+            }
         }
     });
     /**
@@ -2422,8 +2438,6 @@
                         $("#confirmacion_virtual").show();
                         $("#div_confirmacion").hide();
                         $("#btnVirtual").hide();
-                        console.log(data.url_virtual);
-                        console.log(data.url_virtual != "" && data.url_virtual != null);
                         if(data.url_virtual != "" && data.url_virtual != null){
                             $("#url_virtual").val(data.url_virtual);
                             $("#div_confirmacion").show();
