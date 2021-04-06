@@ -1621,7 +1621,7 @@ class AudienciaController extends Controller {
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 43, 9, $solicitante->parte_id));
                     }elseif($convenio->tipo_propuesta_pago_id == 5){
                         //generar convenio de prestaciones
-                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 19, $solicitante->parte_id));
+                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 16, $solicitante->parte_id));
                     }else{
                         //generar convenio
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id));

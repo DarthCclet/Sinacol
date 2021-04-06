@@ -320,7 +320,7 @@
                                                         <div class="form-check row" style="margin-top: 2%;">
                                                             <input class="form-check-input radiosPropuestas" type="radio" name="radiosPropuesta{{$solicitante->parte->id}}" id="radioPrestaciones" value="prestaciones">
                                                             <label class="form-check-label" for="radioPrestaciones">
-                                                                Prestaciones
+                                                                Reconocimiento de derechos
                                                             </label>
                                                         </div>
                                                         </div>
@@ -3966,7 +3966,7 @@
                     $.each(listaResolucionesIndividuales, function (key, value) {
                         idPlantilla = ( $("input[name='radiosPropuesta"+value.parte_solicitante_id+"']:checked").val()=='reinstalacion') ? 9: ( $("input[name='radiosPropuesta"+value.parte_solicitante_id+"']:checked").val()=='prestaciones' )? 16 : 2;
                         listVistaPrevia.push({
-                            plantilla_id : 2, // convenio
+                            plantilla_id : idPlantilla, // convenio
                             parte_solicitante_id: value.parte_solicitante_id,
                             parte_solicitado_id: null,
                         });
