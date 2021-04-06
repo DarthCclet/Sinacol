@@ -25,7 +25,7 @@ class SolicitudMasiva extends Command
      *
      * @var string
      */
-    protected $signature = 'solicitudMasiva';
+    protected $signature = 'solicitudMasiva {nombre}';
 
     /**
      * The console command description.
@@ -53,48 +53,55 @@ class SolicitudMasiva extends Command
      *
      * @return mixed
      */
+    //
     public function handle()
     {
-        $archivo = __DIR__."/../../../database/datafiles/BDTrabajadoresFCA.xlsx";
-        $partesCitado = array(
-        );
-        $workbook = SpreadsheetParser::open($archivo, 'xlsx');
-        foreach ($workbook->createRowIterator(0) as $rowIndex => $values) {
-            array_push($partesCitado,$values);
-        }
-        $client = new Client(['base_uri' => env('APP_URL')]);
-        $savedSol = fopen(__DIR__."/../../../public/savedSol.txt", 'w');
-        $failedSol = fopen(__DIR__."/../../../public/failedSol.txt", 'w');
-        
-        $solicitudObj = array(
-            "fecha_conflicto"=>"2021-04-06",
-            "giro_comercial"=>"Automot",
-            "virtual"=>false,
-        );
-        $objeto_solicitud = ObjetoSolicitud::whereRaw("nombre ilike '%Terminación voluntaria de la relación de trabajo%'")->first();
-        $partesSolicitante = array(
-            "Moral","FCA MÉXICO S.A DE C.V.","CME720930GM9","5579503914","7222795000","nombre@ejemplo.com","Estado de México","CARRETERA","MEXICO -TOLUCA KM","60.5","","ZONA INDUSTRIAL","TOLUCA","50071"
-        );
-        
-        $correctos = 0;
-        $erroneos = 0;
-        foreach ($partesCitado as $key => $value) {
-            try{
-                $solicitud = self::getSolicitud($solicitudObj);
-                $objeto_solicitudObj = array(
-                    "id" => null,
-                    "objeto_solicitud_id" => $objeto_solicitud->id,
-                    "activo" => "1"
-                );
-                $citado = self::getCitado($value);
-                $solicitante = self::getSolicitante($partesSolicitante); 
-                $resp = $client->request('POST','api/solicitud',[
+        $nombreArchivo = $this->argument('nombre');
+        $archivo = __DIR__."/../../../".$nombreArchivo;
+        $existe = file_exists($archivo);
+        if(!empty($nombreArchivo) && $existe){
+
+            $partesCitado = array(
+            );
+            $workbook = SpreadsheetParser::open($archivo, 'xlsx');
+            
+            foreach ($workbook->createRowIterator(0) as $rowIndex => $values) {
+                array_push($partesCitado,$values);
+            }
+            $client = new Client(['base_uri' => env('APP_URL')]);
+            $savedSol = fopen(__DIR__."/../../../public/savedSol.txt", 'w');
+            $failedSol = fopen(__DIR__."/../../../public/failedSol.txt", 'w');
+            
+            $solicitudObj = array(
+                "fecha_conflicto"=>"2021-04-06",
+                "giro_comercial"=>"Automot",
+                "virtual"=>false,
+            );
+            $objeto_solicitud = ObjetoSolicitud::whereRaw("nombre ilike '%Terminación voluntaria de la relación de trabajo%'")->first();
+            $partesSolicitante = array(
+                "Moral","FCA MÉXICO S.A DE C.V.","CME720930GM9","5579503914","7222795000","nombre@ejemplo.com","Estado de México","CARRETERA","MEXICO -TOLUCA KM","60.5","","ZONA INDUSTRIAL","TOLUCA","50071"
+            );
+            
+            $correctos = 0;
+            $erroneos = 0;
+            foreach ($partesCitado as $key => $value) {
+                try{
+                    $solicitud = self::getSolicitud($solicitudObj);
+                    $objeto_solicitudObj = array(
+                        "id" => null,
+                        "objeto_solicitud_id" => $objeto_solicitud->id,
+                        "activo" => "1"
+                    );
+                    $citado = self::getCitado($value);
+                    $solicitante = self::getSolicitante($partesSolicitante); 
+                    $resp = $client->request('POST','api/solicitud',[
                     "json" => [
                         "solicitud"=>$solicitud,
                         "objeto_solicitudes" => [$objeto_solicitudObj],
                         "solicitados" => [$citado],
                         "solicitantes"=>[$solicitante]
                     ],
+                    'verify' => false ,
                     'headers' => [
                         'Accept' => 'application/json',
                         'Authorization' => 'Bearer ' . session('token'),
@@ -103,15 +110,18 @@ class SolicitudMasiva extends Command
                     $correctos++;
                     echo ($resp->getBody()."\n");
                     fputs($savedSol, "Num. Correcto: ".$correctos." ".$resp->getBody()."\n");
-            }catch(Exception $e){
-                Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
-                " Se emitió el siguiente mensale: ". $e->getMessage().
-                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
-                $erroneos++;
-                $error = "Num. erroneo: ".$erroneos." Renglon: ".($key+1)." CURP: ".$value[0]." Error:".$e->getMessage();
-                echo ($error."\n");
-                fputs($failedSol, $error."\n");
+                }catch(Exception $e){
+                    Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                    " Se emitió el siguiente mensale: ". $e->getMessage().
+                    " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+                    $erroneos++;
+                    $error = "Num. erroneo: ".$erroneos." Renglon: ".($key+1)." CURP: ".$value[0]." Error:".$e->getMessage();
+                    echo ($error."\n");
+                    fputs($failedSol, $error."\n");
+                }
             }
+        }else{
+            echo "No se encontro el archivo";
         }
     }
 
