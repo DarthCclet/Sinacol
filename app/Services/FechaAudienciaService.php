@@ -148,7 +148,10 @@ class FechaAudienciaService{
         $diaHabilCentro = Incidencia::siguienteDiaHabilMasDias($hoy,$centro->id ,"App\Centro",$min,$max);
         if($diaHabilCentro["dia"] != "nada"){
             $d = new Carbon($diaHabilCentro["dia"]);
-            $arreglo_horas = self::obtener_horas($centro->disponibilidades,$d->weekDay());
+            list($hours, $minutes, $seg) = explode(':', $centro->duracionAudiencia);
+            $duracion = $hours . '.' . $minutes / 60 * 100;
+            $tiempoAdd = $duracion * 3600;
+            $arreglo_horas = self::obtener_horas($centro->disponibilidades,$d->weekDay(),$tiempoAdd);
             //obtenemos el arreglo de las horas
             $encontroSala = false;
             $encontroConciliador = false;
@@ -163,7 +166,7 @@ class FechaAudienciaService{
             }
             $conciliadores = self::obtenerConciliadores($centro,$rol);
             foreach($arreglo_horas as $hora_inicio){
-                $hora_fin = date("H:i:s",strtotime($hora_inicio) + 3600);
+                $hora_fin = date("H:i:s",strtotime($hora_inicio) + $tiempoAdd);
                 if($virtual){
                     $encontroSala=true;
                     $sala_id1 = $sala_virtual->id;
@@ -342,7 +345,7 @@ class FechaAudienciaService{
                 $salas = $centro->salas()->orderBy('id','asc')->get();
             }
             foreach($arreglo_horas as $hora_inicio){
-                $hora_fin = date("H:i:s",strtotime($hora_inicio) + 3600);
+                $hora_fin = date("H:i:s",strtotime($hora_inicio) + $tiempoAdd);
                 if($virtual){
                     $encontroSala=true;
                     $sala_id = $sala_virtual->id;
@@ -438,7 +441,7 @@ class FechaAudienciaService{
                 $salas = $centro->salas()->orderBy('id','asc')->get();
             }
             foreach($arreglo_horas as $hora_inicio){
-                $hora_fin = date("H:i:s",strtotime($hora_inicio) + 3600);
+                $hora_fin = date("H:i:s",strtotime($hora_inicio) + $tiempoAdd);
                 if($virtual){
                     $encontroSala=true;
                     $sala_id1 = $sala_virtual->id;
@@ -651,9 +654,9 @@ class FechaAudienciaService{
             
             $hora_actual_time = strtotime($disponibilidad->hora_inicio);
             $hora_fin_time = strtotime($disponibilidad->hora_fin);
-            $arregloHoras[]=$date = date('H:i:s', $hora_actual_time);
+            $arregloHoras[]= date('H:i:s', $hora_actual_time);
             while($hora_fin_time > $hora_actual_time){
-                $arregloHoras[]=$date = date('H:i:s', $hora_actual_time + $duracion);
+                $arregloHoras[]= date('H:i:s', $hora_actual_time + $duracion);
                 $hora_actual_time = $hora_actual_time + $duracion;
             }
             array_pop($arregloHoras);
