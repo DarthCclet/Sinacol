@@ -604,10 +604,10 @@
                         console.log(error);
                     }
                 },
-                error:function(){
+                error:function(json){
                     swal({
                         title: 'Error',
-                        text: ' No se pudo agregar la incidencia de la solicitud: '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
+                        text: json.responseJSON.message+'. Solicitud: '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
                         icon: 'warning'
                     });
                 }
