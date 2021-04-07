@@ -315,6 +315,12 @@
                                                                 Reinstalaci&oacute;n
                                                             </label>
                                                         </div>
+                                                        <div class="form-check row" style="margin-top: 2%;">
+                                                            <input class="form-check-input radiosPropuestas" type="radio" name="radiosPropuesta{{$solicitante->parte->id}}" id="radioPrestaciones" value="prestaciones">
+                                                            <label class="form-check-label" for="radioPrestaciones">
+                                                                Reconocimiento de derechos
+                                                            </label>
+                                                        </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2896,13 +2902,13 @@
         $('.collapseSolicitante').each(function() {
             idSol=$(this).attr('idCitado');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked").val()=='reinstalacion' || $("input[name='radiosPropuesta"+idSol+"']:checked").val()=='prestaciones'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                     if(Object.keys(listaConfigConceptos).length <= 0){
                         error =true;
                         swal({title: 'Error',text: 'Debe agregar conceptos de pago para la propuesta seleccionada.',icon: 'error'});
                     }
-                }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
+                }else if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
                 }else{
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
@@ -2924,13 +2930,13 @@
             // let idCitado =$("#idCitado").val();
             idSol=$(this).attr('idCitado');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked").val()=='reinstalacion' || $("input[name='radiosPropuesta"+idSol+"']:checked").val()=='prestaciones'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                     if(Object.keys(listaConfigConceptos).length <= 0){
                         error =true;
                         swal({title: 'Error',text: 'Debe agregar conceptos de pago para la propuesta seleccionada.',icon: 'error'});
                     }
-                }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
+                }else if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
                 }else{
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
@@ -3193,8 +3199,13 @@
             cargarTablaConcepto(listaConfigConceptos[idCitado],idCitado);
         }
         function limpiarConcepto(){
-            $("#concepto_pago_resoluciones_id").val("");
-            $("#concepto_pago_resoluciones_id").trigger("change");
+            if ($('#radioReinstalacion').is(':checked')){
+                $("#concepto_pago_reinstalacion_id").val("");
+                $("#concepto_pago_reinstalacion_id").trigger("change");
+            }else{
+                $("#concepto_pago_resoluciones_id").val("");
+                $("#concepto_pago_resoluciones_id").trigger("change");
+            }
             $("#dias").val("");
             $("#monto").val("");
         }
@@ -3207,8 +3218,11 @@
             // }
             if(radioRO != $(this).val()){
                 var esReinstalacion = false;
+                var esPrestaciones = false;
                 if(radioRO == 'reinstalacion'){
                     esReinstalacion = true;
+                }else if(radioRO == 'prestaciones'){
+                    esPrestaciones = true;
                 }
                 var actual = $(this).val();
 
@@ -3216,7 +3230,7 @@
                 if(Object.keys(listaConfigConceptos).length > 0){
                     swal({
                         title: 'Descartar propuesta',
-                        text: '¿Está seguro que desea descartar la propuesta '+nombrePropuesta+'?',
+                        text: '¿Está seguro que desea descartar la propuesta?',
                         icon: 'warning',
                         buttons: {
                             cancel: {
@@ -3245,6 +3259,9 @@
                             if(esReinstalacion){
                                 $('#radioReinstalacion').prop('checked',true);
                                 radioRO = 'reinstalacion';
+                            }else if(esPrestaciones){
+                                $('#radioPrestaciones').prop('checked',true);
+                                radioRO = 'prestaciones'
                             }else{
                                 $('#radioOtro').prop('checked',true);
                                 radioRO = 'otra'
@@ -3264,9 +3281,11 @@
                 $("#tbodyConcepto").html("");
                 $('#modal-propuesta-convenio').modal('show');
                 if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
+                    $('#btnCopiarConceptosBase').hide();
                     $(".select-reinstalacion").show();
                     $(".select-otro").hide();
                 }else{
+                    $('#btnCopiarConceptosBase').show();
                     $(".select-otro").show();
                     $(".select-reinstalacion").hide();
                 }
@@ -3311,13 +3330,13 @@
         $('.collapseSolicitante').each(function() {
             idSol=$(this).attr('idCitado');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked").val()=='reinstalacion'|| $("input[name='radiosPropuesta"+idSol+"']:checked").val()=='prestaciones'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                     if(Object.keys(listaConfigConceptos).length <= 0){
                         error =true;
                         mensaje = 'Debe agregar conceptos de pago para la propuesta seleccionada.';
                     }
-                }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
+                }else if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
                 }else{
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
@@ -3580,7 +3599,7 @@
     });
     
     $("#hayDeducciones").on("change",function(){
-        if( $('#hayDeducciones').is(':checked') ){ //si es reinstalacion
+        if( $('#hayDeducciones').is(':checked') ){ //si hay deducciones
             //$('#concepto_pago_resoluciones_id option[value="13"]').remove();
             $('#concepto_pago_resoluciones_id option[value="13"]').show();
             $("#concepto_pago_resoluciones_id").trigger("change");
@@ -3802,22 +3821,26 @@
     //$("#btnGuardarResolucionMuchas").on("click",function(){
     function GuardarResolucionMuchas(){
         let listaPropuestaConceptos = {};
+        let listaPartePropuesta = {};
         // totalConceptosPago = 0;
         error =false;
         $('.collapseSolicitante').each(function() {
             // let idCitado =$("#idCitado").val();
             idSol=$(this).attr('idCitado');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked").val()=='reinstalacion' || $("input[name='radiosPropuesta"+idSol+"']:checked").val()=='prestaciones'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
+                    listaPartePropuesta[idSol] = ($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='otra') ? 3 : $("input[name='radiosPropuesta"+idSol+"']:checked").val()=='reinstalacion'? 4 : 5 ; //3- Otra propuesta configurada o  4-Reinstalación 5-Prestaciones
                     if(Object.keys(listaConfigConceptos).length <= 0){
                         error =true;
                         swal({title: 'Error',text: 'Debe agregar conceptos de pago para la propuesta seleccionada.',icon: 'error'});
                     }
-                }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
+                }else if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
+                    listaPartePropuesta[idSol] = 1;//100% de indemnización
                 }else{
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
+                    listaPartePropuesta[idSol] = 2;//50% de indemnización
                 }
             }else{
                 error =true;
@@ -3840,6 +3863,7 @@
                     timeline:true,
                     listaRelacion:listaResolucionesIndividuales,
                     listaConceptos:listaPropuestaConceptos,
+                    listaTipoPropuestas:listaPartePropuesta,
                     listaFechasPago:listaConfigFechas,
                     _token:"{{ csrf_token() }}"
                 },
@@ -3883,9 +3907,10 @@
             if(resolucion == 1){//hubo convenio
                 if(listaResolucionesIndividuales.length == 0){ // se convino con todos los citados
                     $('#parte_solicitado_id > option').each(function() { //mostrar convenio por cada solicitante
+                        idPlantilla = ( $("input[name='radiosPropuesta"+this.value+"']:checked").val()=='reinstalacion') ? 15: ( $("input[name='radiosPropuesta"+this.value+"']:checked").val()=='prestaciones' )? 17 : 14; //15
                         if( this.value !=null && this.value !="" ){
                             listVistaPrevia.push({
-                                plantilla_id : 14, // convenio
+                                plantilla_id : idPlantilla, // convenio
                                 parte_solicitante_id: null,
                                 parte_solicitado_id: this.value,
                             });
@@ -3893,8 +3918,9 @@
                     });
                 }else{
                     $.each(listaResolucionesIndividuales, function (key, value) {
+                        idPlantilla = ( $("input[name='radiosPropuesta"+value.parte_solicitante_id+"']:checked").val()=='reinstalacion') ? 9: ( $("input[name='radiosPropuesta"+value.parte_solicitante_id+"']:checked").val()=='prestaciones' )? 16 : 2;
                         listVistaPrevia.push({
-                            plantilla_id : 14, // convenio
+                            plantilla_id : idPlantilla, // convenio
                             parte_solicitante_id: null,
                             parte_solicitado_id: value.parte_solicitado_id,
                         });
@@ -3973,13 +3999,13 @@
             // let idCitado =$("#idCitado").val();
             idSol=$(this).attr('idCitado');
             if ($('input[name="radiosPropuesta'+idSol+'"]:checked').length > 0) {
-                if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='reinstalacion'){
+                if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='otra' || $("input[name='radiosPropuesta"+idSol+"']:checked").val()=='reinstalacion' || $("input[name='radiosPropuesta"+idSol+"']:checked").val()=='prestaciones'){
                     listaPropuestaConceptos[idSol] = listaConfigConceptos[idSol];
                     if(Object.keys(listaConfigConceptos).length <= 0){
                         error =true;
                         swal({title: 'Error',text: 'Debe agregar conceptos de pago para la propuesta seleccionada.',icon: 'error'});
                     }
-                }else if($("input[name='radiosPropuesta"+idSol+"']:checked"). val()=='completa'){
+                }else if($("input[name='radiosPropuesta"+idSol+"']:checked").val()=='completa'){
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].completa;
                 }else{
                     listaPropuestaConceptos[idSol]=listaPropuestas[idSol].al50;
