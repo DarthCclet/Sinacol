@@ -1141,7 +1141,7 @@ class AudienciaController extends Controller {
                             "audiencia_id" => $audiencia->id,
                             "evidencia" => $evidencia
                 ]);
-                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago, $request->listaTipoPropuestas);
+                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago);
             }
 
             DB::commit();
@@ -1406,7 +1406,7 @@ class AudienciaController extends Controller {
     //         }
     //     }
     // }
-    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array(), $listaFechasPago = array(), $listaTipoPropuestas = array()) {
+    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array(), $listaFechasPago = array()) {
         $solicitantes = $this->getSolicitantes($audiencia);
         $solicitados = $this->getSolicitados($audiencia);
         $arrayMultado = [];
@@ -1576,16 +1576,6 @@ class AudienciaController extends Controller {
                                 }
                             }
                         }
-                        foreach ($listaTipoPropuestas as $key => $listaPropuesta) {//solicitantes
-                            if ($key == $solicitante->parte_id) {
-                                $resolucionParte = ResolucionPartes::where("audiencia_id",$audiencia->id)->where("parte_solicitante_id",$solicitante->parte_id)->get();
-                                foreach ($resolucionParte as $resolucion) {//solicitantes
-                                    $resolucion->update([
-                                        "tipo_propuesta_pago_id" => $listaPropuesta
-                                    ]);
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -1616,21 +1606,12 @@ class AudienciaController extends Controller {
                 //Se valida si hubo convenio para esta parte para generar convenio o si se genera acta de no conciliacion
                 $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 3)->first();
                 if ($convenio != null) {
-                    if($convenio->tipo_propuesta_pago_id == 4){
-                        //generar convenio reinstalacion
-                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 43, 9, $solicitante->parte_id));
-                    }elseif($convenio->tipo_propuesta_pago_id == 5){
-                        //generar convenio de prestaciones
-                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 16, $solicitante->parte_id));
-                    }else{
-                        //generar convenio
-                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id));
-                    }
+                    //generar convenio
+                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id));
                 } else {
                     $noConciliacion = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 5)->first();
                     if ($noConciliacion != null) {
                         foreach ($solicitados as $solicitado) {
-                            //generar constancia de no conciliacion
                             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
                         }
                     }
@@ -2148,9 +2129,9 @@ class AudienciaController extends Controller {
             if (!$audiencia->finalizada) {
 
                 if ($request->timeline) {
-                    $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1));
+                    $audiencia->update(array("resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1,'fecha_resolucion'=>now()));
                 } else {
-                    $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1));
+                    $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1,'fecha_resolucion'=>now()));
                     foreach ($request->comparecientes as $compareciente) {
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
                     }
@@ -2483,10 +2464,10 @@ class AudienciaController extends Controller {
                 if (!$solicitantes) {
                     // Aqui aplica el caso 1 donde no comparece el solicitante y se finaliza la solicitud por no comparecencia
                     //Archivado y se genera formato de acta de archivado por no comparecencia
-                    if (!$citados) {//Archivado por no comparecencia de citado ni solicitante
-                        $audiencia->update(array("resolucion_id" => 4, "finalizada" => true, "tipo_terminacion_audiencia_id" => 4));
-                    } else {//Archivado por solicitante
-                        $audiencia->update(array("resolucion_id" => 4, "finalizada" => true, "tipo_terminacion_audiencia_id" => 2));
+                    if (!$citados) {
+                        $audiencia->update(array("resolucion_id" => 4, "finalizada" => true, "tipo_terminacion_audiencia_id" => 4,'fecha_resolucion'=>now()));
+                    } else {
+                        $audiencia->update(array("resolucion_id" => 4, "finalizada" => true, "tipo_terminacion_audiencia_id" => 2,'fecha_resolucion'=>now()));
                     }
                     $solicitantesA = $this->getSolicitantes($audiencia);
                     $solicitados = $this->getSolicitados($audiencia);
@@ -2498,7 +2479,7 @@ class AudienciaController extends Controller {
                                         "parte_solicitada_id" => $solicitado->parte_id,
                                         "terminacion_bilateral_id" => 1
                             ]);
-                            if ($audiencia->expediente->solicitud->tipo_solicitud_id == 1 || $audiencia->expediente->solicitud->tipo_solicitud_id == 2) {
+                            if ($audiencia->expediente->solicitud->tipo_solicitud_id == 1) {
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $solicitante->parte_id, $solicitado->parte_id));
                             }
                         }
@@ -2511,7 +2492,7 @@ class AudienciaController extends Controller {
 //                    dd($solicitantes);
                 }
                 if ($solicitantes && !$citados) {
-                    $audiencia->update(array("resolucion_id" => 3, "finalizada" => true, "tipo_terminacion_audiencia_id" => 3));
+                    $audiencia->update(array("resolucion_id" => 3, "finalizada" => true, "tipo_terminacion_audiencia_id" => 3,'fecha_resolucion'=>now()));
                     $solicitados = $this->getSolicitados($audiencia);
                     $tipo_notificacion = $tipo_notificacion_solicitante->id;
                     $conNotificador = false;
@@ -2812,6 +2793,7 @@ class AudienciaController extends Controller {
             }
             $audiencia->tipo_terminacion_audiencia_id = 5;
             $audiencia->finalizada = true;
+            $audiencia->fecha_resolucion = now();
             $audiencia->save();
                         
             $response = array("tipo" => 3, "response" => $audienciaN);
