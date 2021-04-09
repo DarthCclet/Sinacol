@@ -64,6 +64,24 @@ class StringTemplate
       }
       if(Str::contains($string, '[SI_')){
         $countSi = substr_count($string, '[FIN_SI');
+
+        $countHayPagos = substr_count($string,'[SI_RESOLUCION_PAGOS]');
+        if (isset($vars['resolucion_pagos'])&& $countHayPagos > 0){
+          for ($i=0; $i < $countHayPagos; $i++) {
+            $htmlA = Str::before($string, '[SI_RESOLUCION_PAGOS]');
+            $htmlB = Str::after($string, '[FIN_SI_RESOLUCION_PAGOS]');
+            if($vars['resolucion_pagos'] == 'Si'){ //resolucion tiene pagos
+              // texto para pagos en resolucion
+              $sliceHayPagos = Str::after($string, '[SI_RESOLUCION_PAGOS]');
+              $sliceHayPagos = Str::before($sliceHayPagos, '[FIN_SI_RESOLUCION_PAGOS]');
+              // dd($sliceHayPagos);
+              $string = $htmlA . $sliceHayPagos . $htmlB;
+            }else{//solicitud no individual
+              $string = $htmlA . $htmlB;
+            }
+          }
+        }
+
         $countPagosDiferidos = substr_count($string,'[SI_RESOLUCION_PAGO_DIFERIDO]');
         if (isset($vars['resolucion_total_diferidos'])){
           if($countPagosDiferidos >0){
@@ -134,21 +152,6 @@ class StringTemplate
             }
           }
         }
-        $countSolicitudIndividual = substr_count($string,'[SI_SOLICITUD_TIPO_INDIVIDUAL]');
-        if (isset($vars['solicitud_tipo_solicitud_id'])&& $countSolicitudIndividual > 0){
-          for ($i=0; $i < $countSolicitudIndividual; $i++) {
-            $htmlA = Str::before($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
-            $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_TIPO]');
-            if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual
-              // texto para solicitud individual
-              $sliceIndividual = Str::after($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
-              $sliceIndividual = Str::before($sliceIndividual, '[FIN_SI_SOLICITUD_TIPO]');
-              $string = $htmlA . $sliceIndividual . $htmlB;
-            }else{//solicitud no individual
-              $string = $htmlA . $htmlB;
-            }
-          }
-        }
         $countSolicitudVirtual = substr_count($string,'[SI_SOLICITUD_VIRTUAL]');
         if (isset($vars['solicitud_virtual'])&& $countSolicitudVirtual > 0){
           for ($i=0; $i < $countSolicitudVirtual; $i++) {
@@ -166,6 +169,21 @@ class StringTemplate
                 $sliceVirtual = Str::before($sliceVirtual, '[FIN_SI_SOLICITUD_VIRTUAL]');
 
                 $string = $htmlA . $sliceVirtual . $htmlB;
+            }
+          }
+        }
+        $countSolicitudIndividual = substr_count($string,'[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+        if (isset($vars['solicitud_tipo_solicitud_id'])&& $countSolicitudIndividual > 0){
+          for ($i=0; $i < $countSolicitudIndividual; $i++) {
+            $htmlA = Str::before($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+            $htmlB = Str::after($string, '[FIN_SI_SOLICITUD_TIPO]');
+            if($vars['solicitud_tipo_solicitud_id'] == 1 ){ //solicitud individual
+              // texto para solicitud individual
+              $sliceIndividual = Str::after($string, '[SI_SOLICITUD_TIPO_INDIVIDUAL]');
+              $sliceIndividual = Str::before($sliceIndividual, '[FIN_SI_SOLICITUD_TIPO]');
+              $string = $htmlA . $sliceIndividual . $htmlB;
+            }else{//solicitud no individual
+              $string = $htmlA . $htmlB;
             }
           }
         }
