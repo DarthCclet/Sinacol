@@ -1125,6 +1125,7 @@ class AudienciaController extends Controller {
                 } else {
                     $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1,'fecha_resolucion'=>now()));
                     foreach ($request->comparecientes as $compareciente) {
+                        Parte::find($compareciente)->update(['notificacion_buzon'=>true]);
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
                     }
                 }
@@ -2133,6 +2134,7 @@ class AudienciaController extends Controller {
                 } else {
                     $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1,'fecha_resolucion'=>now()));
                     foreach ($request->comparecientes as $compareciente) {
+                        Parte::find($compareciente)->update(['notificacion_buzon'=>true]);
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
                     }
                 }
@@ -2458,6 +2460,7 @@ class AudienciaController extends Controller {
                                 $totalCitadosComparecen++;
                             }
                         }
+                        Parte::find($compareciente)->update(['notificacion_buzon'=>true]);
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $this->request->audiencia_id, "presentado" => true]);
                     }
                 }
