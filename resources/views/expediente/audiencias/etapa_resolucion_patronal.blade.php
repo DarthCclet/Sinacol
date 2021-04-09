@@ -503,8 +503,8 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-sm-10 select-reinstalacion">
-                                <select id="concepto_pago_reinstalacion_id" class="form-control conceptosPago" style="display:none">
+                            <div class="col-sm-10 select-reinstalacion" style="display:none">
+                                <select id="concepto_pago_reinstalacion_id" class="form-control conceptosPago">
                                     <option value="">-- Selecciona un concepto de pago</option>
                                     @foreach($concepto_pago_reinstalacion as $concepto)
                                         @if($concepto->id == 13 )
@@ -3918,7 +3918,7 @@
                     });
                 }else{
                     $.each(listaResolucionesIndividuales, function (key, value) {
-                        idPlantilla = ( $("input[name='radiosPropuesta"+value.parte_solicitante_id+"']:checked").val()=='reinstalacion') ? 9: ( $("input[name='radiosPropuesta"+value.parte_solicitante_id+"']:checked").val()=='prestaciones' )? 16 : 2;
+                        idPlantilla = ( $("input[name='radiosPropuesta"+this.value+"']:checked").val()=='reinstalacion') ? 15: ( $("input[name='radiosPropuesta"+this.value+"']:checked").val()=='prestaciones' )? 17 : 14; //15
                         listVistaPrevia.push({
                             plantilla_id : idPlantilla, // convenio
                             parte_solicitante_id: null,
