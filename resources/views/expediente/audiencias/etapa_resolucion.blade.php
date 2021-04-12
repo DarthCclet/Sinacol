@@ -736,7 +736,7 @@
     </div>
 </div>
 <!--Fin de modal de representante legal-->
-<!--inicio modal para representante legal-->
+<!--inicio modal para datos laborales-->
 <div class="modal" id="modal-dato-laboral" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -855,7 +855,7 @@
         </div>
     </div>
 </div>
-<!--Fin de modal de representante legal-->
+<!--Fin de modal de datos laborales-->
 <!-- Inicio Modal de comparecientes y resolución individual-->
 <div class="modal" id="modal-comparecientes" data-backdrop="static" data-keyboard="false" style="display:none;">
     <div class="modal-dialog modal-xl">
@@ -2172,7 +2172,9 @@
                                 if(element.parte.parteRepresentada.tipo_parte_id == 1){
                                     htmlSolicitantes += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
                                 }else{
-                                    htmlCitados += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                                    nombreRepresentado = "";
+                                    nombreRepresentado = (element.parte.parteRepresentada.tipo_persona_id == 1) ?' ('+element.parte.parteRepresentadanombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')' : ' ('+element.parte.parteRepresentada.nombre_comercial+')' ;
+                                    htmlCitados += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+nombreRepresentado+"</option>"
                                 }
                                 if(element.parte.parteRepresentada.tipo_persona_id == 1){
                                     html +='<td>Si ('+element.parte.parteRepresentadanombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')</td>';
