@@ -334,7 +334,7 @@ class AudienciaController extends Controller {
                 $documento->tipo_doc = 2;
                 $doc->push($documento);
             }
-            if(!$parte->asignado){
+            if(!$parte->asignado || !$parte->notificacion_buzon){
                 $obligar = true;
             }
         }
