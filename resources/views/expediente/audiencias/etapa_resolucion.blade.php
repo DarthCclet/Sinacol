@@ -871,8 +871,8 @@
                             <tr>
                                 <th>Tipo Parte</th>
                                 <th>Nombre</th>
-                                <th>Primer Apellido</th>
-                                <th>Segundo Apellido</th>
+                                {{-- <th>Primer Apellido</th>
+                                <th>Segundo Apellido</th> --}}
                                 <th>Comparecio</th>
                             </tr>
                         </thead>
@@ -2238,9 +2238,17 @@
                     $.each(data, function(index,element){
                         table +='<tr>';
                         table +='   <td>'+element.tipo_parte.nombre+'</td>';
-                        table +='   <td>'+element.nombre+'</td>';
-                        table +='   <td>'+element.primer_apellido+'</td>';
-                        table +='   <td>'+(element.segundo_apellido || "")+'</td>';
+                        // table +='   <td>'+element.nombre+'</td>';
+                        // table +='   <td>'+element.primer_apellido+'</td>';
+                        nombreParteRepresentada = "";
+                        if(element.parteRepresentada != undefined){
+                            if(element.parteRepresentada.tipo_persona_id == 2){
+                                nombreParteRepresentada = ' en representación de ' + element.parteRepresentada.nombre_comercial;
+                            }else{
+                                nombreParteRepresentada = ' en representación de ' + element.parteRepresentada.nombre + ' '+ element.parteRepresentada.primer_apellido + ' '+ element.parteRepresentada.segundo_apellido;
+                            }
+                        }
+                        table +='   <td>'+element.nombre+' '+element.primer_apellido +' '+(element.segundo_apellido || "")+ nombreParteRepresentada +'</td>';
                         if(element.documentos.length >= 1){
                             table +='   <td>';
                             table +='       <div class="col-md-2">';
