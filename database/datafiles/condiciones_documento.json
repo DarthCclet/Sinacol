@@ -54,8 +54,12 @@
             "nombre": "Resolucion",
             "catalogos": [
                 {"catalogo":"Pago",
-                  "val":["diferido","no_diferido"]}
-                  ]
+                  "val":["diferido","no_diferido"]
+                },
+                {"catalogo":"Pagos",
+                    "val":[""]
+                }
+              ]
           },
           {
             "id": "4",
