@@ -2173,11 +2173,11 @@
                                     htmlSolicitantes += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
                                 }else{
                                     nombreRepresentado = "";
-                                    nombreRepresentado = (element.parte.parteRepresentada.tipo_persona_id == 1) ?' ('+element.parte.parteRepresentadanombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')' : ' ('+element.parte.parteRepresentada.nombre_comercial+')' ;
+                                    nombreRepresentado = (element.parte.parteRepresentada.tipo_persona_id == 1) ?' ('+element.parte.parteRepresentada.nombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')' : ' ('+element.parte.parteRepresentada.nombre_comercial+')' ;
                                     htmlCitados += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+nombreRepresentado+"</option>"
                                 }
                                 if(element.parte.parteRepresentada.tipo_persona_id == 1){
-                                    html +='<td>Si ('+element.parte.parteRepresentadanombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')</td>';
+                                    html +='<td>Si ('+element.parte.parteRepresentada.nombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')</td>';
 
                                 }else{
                                     html +='<td>Si ('+element.parte.parteRepresentada.nombre_comercial+')</td>';
