@@ -1718,12 +1718,15 @@ class AudienciaController extends Controller {
      * @return array Partes $partes
      */
     public function GetPartesFisicas($audiencia_id) {
-        $audiencia = Audiencia::find($audiencia_id);
+        $audiencia = Audiencia::find($audiencia_id);        
 //        dd($audiencia->expediente->solicitud->partes);
         $partes = [];
         foreach ($audiencia->audienciaParte as $audienciaParte) {
             if ($audienciaParte->parte->tipo_persona_id == 1) {
                 $audienciaParte->parte->tipoParte = $audienciaParte->parte->tipoParte;
+                if ($audienciaParte->parte->tipoParte->id == 3) {
+                   $audienciaParte->parte->parteRepresentada = Parte::find($audienciaParte->parte->parte_representada_id);
+                }
                 $audienciaParte->parte->documentos;
                 $partes[] = $audienciaParte->parte;
             }
