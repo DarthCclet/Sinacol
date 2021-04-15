@@ -1151,7 +1151,7 @@ class SolicitudController extends Controller {
                 }
             }
             $user_id = Auth::user()->id;
-            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"justificacion_incidencia"=>"Ratificada con incompetencia","tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
+            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"fecha_incidencia"=>now(),"justificacion_incidencia"=>"Ratificada con incompetencia","tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
 
             // Obtenemos la sala virtual
             $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
@@ -1739,6 +1739,7 @@ class SolicitudController extends Controller {
             $user_id = Auth::user()->id;
             $solicitud = Solicitud::find($request->solicitud_id);
             $solicitud->incidencia = true;
+            $solicitud->fecha_incidencia = now();
             $solicitud->tipo_incidencia_solicitud_id = $request->tipo_incidencia_solicitud_id;
             $solicitud->justificacion_incidencia = $request->justificacion_incidencia;
             $solicitud->user_id = $user_id;
@@ -1753,6 +1754,7 @@ class SolicitudController extends Controller {
                         // if($response["success"]){
                             $solicitud->estatus_solicitud_id = 3;
                             $solicitud->incidencia = true;
+                            $solicitud->fecha_incidencia = now();
                             $partes = $solicitud->partes;
                             foreach($partes as $parte){
                                 if($parte->tipo_parte_id == 1){
@@ -1767,6 +1769,7 @@ class SolicitudController extends Controller {
                     }else{
                         $solicitud->estatus_solicitud_id = 3;
                         $solicitud->incidencia = true;
+                        $solicitud->fecha_incidencia = now();
                         $partes = $solicitud->partes;
                         foreach($partes as $parte){
                             if($parte->tipo_parte_id == 1){
@@ -1779,6 +1782,9 @@ class SolicitudController extends Controller {
                     DB::rollback();
                     return $this->sendError(' Esta solicitud no tiene audiencias, crear incompetencia en proceso de confirmación ', 'Error');
                 }
+            }
+            if($request->tipo_incidencia_solicitud_id == 7){
+                //event(new GenerateDocumentResolution(null,$solicitud->id,13,10,$parte->id,null));
             }
             $solicitud->save();
             DB::commit();
