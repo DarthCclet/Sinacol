@@ -24,8 +24,18 @@
             "id": "5",
             "nombre": "Otro",
             "descripcion": " Opción que no esta en el catalogo "
+        },
+        {
+            "id": "6",
+            "nombre": "Incompetencia inciada la audiencia",
+            "descripcion": " Opción que no esta en el catalogo "
+        },
+        {
+            "id": "7",
+            "nombre": "Acuerdo de no admisión y/o trámite de solicitud",
+            "descripcion": " Acuerdo de no admisión y/o trámite de solicitud "
         }
 
     ],
-    "numReg": 3
+    "numReg": 7
 }
