@@ -1962,17 +1962,23 @@
                         }else if(data.data.tipo == 5){
                             swal({
                                 title: '¿Qué deseas hacer?',
-                                text: 'Detectamos que no todos los citados comparecieron, ¿Deseas continuar con el proceso de audiencia?, de indicar que no, se generará una nueva audiencia',
+                                text: 'Detectamos que no todos los citados comparecieron ¿desea celebrar la audiencia actual o agendar una nueva?',
                                 icon: 'info',
                                 buttons: {
-                                    roll: {
-                                        text: "No",
+                                    cancel: {
+                                        text: 'Cancelar',
+                                        value: null,
+                                        visible: true,
+                                        className: 'btn btn-default',
+                                        closeModal: true,
+                                    },roll: {
+                                        text: "No deseo celebrar la audiencia. Agendar una nueva fecha.",
                                         value: 2,
                                         className: 'btn btn-warning',
                                         visible: true,
                                         closeModal: true
                                     },confirm: {
-                                        text: 'Si',
+                                        text: 'Celebrar audiencia actual. ',
                                         value: 1,
                                         visible: true,
                                         className: 'btn btn-danger',
