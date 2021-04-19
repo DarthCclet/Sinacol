@@ -166,6 +166,24 @@ class Solicitud extends Model implements Auditable
     public function documentos(){
         return $this->morphMany(Documento::class,'documentable');
     }
+
+    /**
+     * El usuario comentó un documento que subió manualmente como incompetencia en su descripción
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function documentosComentadosComoIncompetencia(){
+        return $this->morphMany(Documento::class,'documentable')->whereRaw('documentos.descripcion ilike '."'%incompetencia%'");
+    }
+
+    /**
+     * Documentos con clase de archivo incompetencia
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function documentosClasificadossComoIncompetencia(){
+        $incompetencia_id = 13; //ID de incompetencia en el catalogo de clasificacion_archivos
+        return $this->morphMany(Documento::class,'documentable')->where('clasificacion_archivo_id',$incompetencia_id);
+    }
+
     /**
      * Funcion para asociar con modelo Estado
      * Utilizando belongsTo para relaciones 1 a 1

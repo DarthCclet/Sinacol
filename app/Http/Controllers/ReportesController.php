@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\ObjetoSolicitud;
+use App\Services\ExcelReportesService;
 use App\Services\ReportesService;
 use App\Traits\EstilosSpreadsheets;
 use Illuminate\Http\Request;
@@ -82,268 +83,77 @@ class ReportesController extends Controller
         return view('reportes.index', compact('tipoObjetos','centros', 'grupo_etario'));
     }
 
-    public function reporte(ReportesService $reportesService)
+    public function reporte(ReportesService $reportesService, ExcelReportesService $excelReportesService)
     {
         $spreadsheet = new Spreadsheet();
         $writer = new Xlsx($spreadsheet);
 
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Solicitudes presentadas');
 
         // SOLICITUDES PRESENTADAS
+        $sheet->setTitle('Solicitudes presentadas');
         $solicitudes = $reportesService->solicitudesPresentadas($this->request);
-
-        $sheet->getStyle('A1')->applyFromArray($this->tituloH1());
-        $sheet->getStyle('A3:B3')->applyFromArray($this->th1());
-        $sheet->getColumnDimension('B')->setAutoSize(true);
-
-        $sheet->setCellValue('A1', 'SOLICITUDES PRESENTADAS');
-        $sheet->setCellValue('A3', 'CENTRO');
-        $sheet->setCellValue('B3', 'PRESENTADAS');
-        $c = 4;
-        foreach ($solicitudes->toArray() as $centro => $cantidad){
-            if (in_array($centro, $this->noImp)) continue;
-            $sheet->setCellValue('A'.$c, $centro);
-            $sheet->setCellValue('B'.$c, $cantidad);
-            $c++;
-        }
-        $sheet->setCellValue('A'.$c, 'Total');
-        $sheet->setCellValue('B'.$c, "=SUM(B3:B$c)")
-            ->getStyle('B'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $sheet->getStyle('A3:B'.$c)->applyFromArray($this->tbody());
-        $sheet->getStyle('A'.$c.':B'.$c)->applyFromArray($this->tf1());
+        $excelReportesService->solicitudesPresentadas($sheet, $solicitudes, $this->request);
 
 
         // SOLICITUDES CONFIRMADAS
-        list($inmediata, $normal) = $reportesService->solicitudesConfirmadas($this->request);
-
+        $solicitudes_confirmadas = $reportesService->solicitudesConfirmadas($this->request);
         $solicitudesPresentadasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Solicitudes confirmadas');
         $spreadsheet->addSheet($solicitudesPresentadasWorkSheet, 1);
-        $solicitudesPresentadasWorkSheet->getStyle('A1')->applyFromArray($this->tituloH1());
-        $solicitudesPresentadasWorkSheet->getStyle('A3:D3')->applyFromArray($this->th1());
-        $solicitudesPresentadasWorkSheet->getColumnDimension('B')->setAutoSize(true);
-        $solicitudesPresentadasWorkSheet->getColumnDimension('C')->setAutoSize(true);
-        $solicitudesPresentadasWorkSheet->getColumnDimension('D')->setAutoSize(true);
-
-        $solicitudesPresentadasWorkSheet->setCellValue('A1', 'SOLICITUDES CONFIRMADAS');
-
-        $solicitudesPresentadasWorkSheet->setCellValue('A3', 'CENTRO');
-        $solicitudesPresentadasWorkSheet->setCellValue('B3', 'Ratificación de convenio');
-        $solicitudesPresentadasWorkSheet->setCellValue('C3', 'Procedimiento normal');
-        $solicitudesPresentadasWorkSheet->setCellValue('D3', 'Total');
-
-        $c = 4;
-        foreach ($this->imp as $centro){
-            $solicitudesPresentadasWorkSheet->setCellValue('A'.$c, $centro);
-            $solicitudesPresentadasWorkSheet->setCellValue('B' . $c, isset($inmediata[$centro]) ? count($inmediata[$centro]) : 0);
-            $solicitudesPresentadasWorkSheet->setCellValue('C' . $c, isset($normal[$centro]) ? count($normal[$centro]) : 0);
-            $solicitudesPresentadasWorkSheet->setCellValue('D' . $c, "=SUM(B$c:C$c)");
-            $c++;
-        }
-        $solicitudesPresentadasWorkSheet->setCellValue('A'.$c, 'Total');
-        $solicitudesPresentadasWorkSheet->setCellValue('B'.$c, "=SUM(B4:B$c)")
-            ->getStyle('B'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $solicitudesPresentadasWorkSheet->setCellValue('C'.$c, "=SUM(C4:C$c)")
-            ->getStyle('C'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $solicitudesPresentadasWorkSheet->setCellValue('D'.$c, "=SUM(D4:D$c)")
-            ->getStyle('D'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
+        $excelReportesService->solicitudesConfirmadas($solicitudesPresentadasWorkSheet, $solicitudes_confirmadas, $this->request);
 
 
         // CITATORIOS EMITIDOS
         $citatorios = $reportesService->citatoriosEmitidos($this->request);
-
         $citatoriosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Citatorios');
-        $spreadsheet->addSheet($citatoriosWorkSheet, 2);
-        $citatoriosWorkSheet->getStyle('A1')->applyFromArray($this->tituloH1());
-        $citatoriosWorkSheet->getStyle('F2')->applyFromArray($this->boldcenter());
-        $citatoriosWorkSheet->getStyle('A3:I3')->applyFromArray($this->th1());
-        $citatoriosWorkSheet->getColumnDimension('B')->setAutoSize(true);
-        $citatoriosWorkSheet->getColumnDimension('C')->setAutoSize(true);
-        $citatoriosWorkSheet->getColumnDimension('D')->setAutoSize(true);
-        $citatoriosWorkSheet->getColumnDimension('E')->setAutoSize(true);
-        $citatoriosWorkSheet->getColumnDimension('F')->setAutoSize(true);
-        $citatoriosWorkSheet->getColumnDimension('G')->setAutoSize(true);
-        $citatoriosWorkSheet->getColumnDimension('H')->setAutoSize(true);
-        $citatoriosWorkSheet->getColumnDimension('I')->setAutoSize(true);
-
-        $citatoriosWorkSheet->setCellValue('A1', 'CITATORIOS EMITIDOS');
-
-        $citatoriosWorkSheet->setCellValue('A3', 'CENTRO');
-        $citatoriosWorkSheet->setCellValue('B3', 'Entrega solicitante');
-        $citatoriosWorkSheet->setCellValue('C3', 'Entrega notificador');
-        $citatoriosWorkSheet->setCellValue('D3', 'Cita con notificador');
-        $citatoriosWorkSheet->setCellValue('E3', 'Total Citatorios');
-        $citatoriosWorkSheet->setCellValue('F3', '1as audiencias');
-        $citatoriosWorkSheet->setCellValue('G3', '2as audiencias');
-        $citatoriosWorkSheet->setCellValue('H3', '3as audiencias');
-        $citatoriosWorkSheet->setCellValue('I3', 'Total audiencias');
-        $citatoriosWorkSheet->mergeCells('F2:I2');
-        $citatoriosWorkSheet->setCellValue('F2', 'Número de audiencias para las que se emitió citatorio');
-        $c = 4;
-        foreach ($this->imp as $centro){
-            $citatoriosWorkSheet->setCellValue('A'.$c, $centro);
-            $citatoriosWorkSheet->setCellValue('B' . $c, isset($citatorios['entrega_solicitante'][$centro]) ? $citatorios['entrega_solicitante'][$centro] : 0);
-            $citatoriosWorkSheet->setCellValue('C' . $c, isset($citatorios['entrega_notificador'][$centro]) ? $citatorios['entrega_notificador'][$centro] : 0);
-            $citatoriosWorkSheet->setCellValue('D' . $c, isset($citatorios['entrega_notificador_cita'][$centro]) ? $citatorios['entrega_notificador_cita'][$centro] : 0);
-            $citatoriosWorkSheet->setCellValue('E' . $c, "=SUM(B$c:D$c)");
-
-            $citatoriosWorkSheet->setCellValue('F' . $c, isset($citatorios['citatorio_en_primera_audiencia'][$centro]) ? $citatorios['citatorio_en_primera_audiencia'][$centro] : 0);
-            $citatoriosWorkSheet->setCellValue('G' . $c, isset($citatorios['citatorio_en_segunda_audiencia'][$centro]) ? $citatorios['citatorio_en_segunda_audiencia'][$centro] : 0);
-            $citatoriosWorkSheet->setCellValue('H' . $c, isset($citatorios['citatorio_en_tercera_audiencia'][$centro]) ? $citatorios['citatorio_en_tercera_audiencia'][$centro] : 0);
-
-            $citatoriosWorkSheet->setCellValue('I' . $c, "=SUM(F$c:H$c)");
-
-            $c++;
-        }
-        $citatoriosWorkSheet->setCellValue('A'.$c, 'Total');
-        $citatoriosWorkSheet->setCellValue('B'.$c, "=SUM(B4:B$c)")
-            ->getStyle('B'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $citatoriosWorkSheet->setCellValue('C'.$c, "=SUM(C4:C$c)")
-            ->getStyle('C'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $citatoriosWorkSheet->setCellValue('D'.$c, "=SUM(D4:D$c)")
-            ->getStyle('D'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $citatoriosWorkSheet->setCellValue('E'.$c, "=SUM(E4:E$c)")
-            ->getStyle('E'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $citatoriosWorkSheet->setCellValue('F'.$c, "=SUM(F4:F$c)")
-            ->getStyle('F'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $citatoriosWorkSheet->setCellValue('G'.$c, "=SUM(G4:G$c)")
-            ->getStyle('G'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $citatoriosWorkSheet->setCellValue('H'.$c, "=SUM(H4:H$c)")
-            ->getStyle('H'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $citatoriosWorkSheet->setCellValue('I'.$c, "=SUM(I4:I$c)")
-            ->getStyle('I'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
+        $spreadsheet->addSheet($citatoriosWorkSheet, 3);
+        $excelReportesService->citatoriosEmitidos($citatoriosWorkSheet, $citatorios, $this->request);
 
 
         // INCOMPETENCIAS
         $incompetencias = $reportesService->incompetencias($this->request);
-
         $incompetenciasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Incompetencias');
-        $spreadsheet->addSheet($incompetenciasWorkSheet, 3);
-
-        $incompetenciasWorkSheet->getStyle('A1')->applyFromArray($this->tituloH1());
-        $incompetenciasWorkSheet->getStyle('A3:D3')->applyFromArray($this->th1());
-        $incompetenciasWorkSheet->getColumnDimension('B')->setAutoSize(true);
-        $incompetenciasWorkSheet->getColumnDimension('C')->setAutoSize(true);
-        $incompetenciasWorkSheet->getColumnDimension('D')->setAutoSize(true);
-
-        $incompetenciasWorkSheet->setCellValue('A1', 'INCOMPETENCIAS');
-        $incompetenciasWorkSheet->setCellValue('A3', 'CENTRO');
-        $incompetenciasWorkSheet->setCellValue('B3', 'INCOMPETENCIA');
-        $incompetenciasWorkSheet->setCellValue('C3', 'DETECTADA EN AUDIENCIA');
-        $incompetenciasWorkSheet->setCellValue('D3', 'TOTAL');
-
-        $c = 4;
-        foreach ($this->imp as $centro){
-            $incompetenciasWorkSheet->setCellValue('A'.$c, $centro);
-            $incompetenciasWorkSheet->setCellValue(
-                'B' . $c,
-                isset($incompetencias['en_ratificacion'][$centro]) ? $incompetencias['en_ratificacion'][$centro] : 0
-            );
-            $incompetenciasWorkSheet->setCellValue(
-                'C' . $c,
-                isset($incompetencias['en_audiencia'][$centro]) ? $incompetencias['en_audiencia'][$centro] : 0
-            );
-            $incompetenciasWorkSheet->setCellValue(
-                'D' . $c,
-                "=SUM(B$c:C$c)"
-            );
-            $c++;
-        }
-        $incompetenciasWorkSheet->setCellValue('A'.$c, 'Total');
-        $incompetenciasWorkSheet->setCellValue('B'.$c, "=SUM(B3:B$c)")
-            ->getStyle('B'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $incompetenciasWorkSheet->setCellValue('C'.$c, "=SUM(C3:C$c)")
-            ->getStyle('C'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-        $incompetenciasWorkSheet->setCellValue('D'.$c, "=SUM(D3:D$c)")
-            ->getStyle('D'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-
+        $spreadsheet->addSheet($incompetenciasWorkSheet, 2);
+        $excelReportesService->incompetencias($incompetenciasWorkSheet, $incompetencias, $this->request);
 
         // ARCHIVADOS POR FALTA DE INTERES
         $archivados = $reportesService->archivadoPorFaltaDeInteres($this->request);
         $archivadosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Archivo X Falta Interés');
         $spreadsheet->addSheet($archivadosWorkSheet, 4);
-
-        $archivadosWorkSheet->getStyle('A1')->applyFromArray($this->tituloH1());
-        $archivadosWorkSheet->getStyle('A3:B3')->applyFromArray($this->th1());
-        $archivadosWorkSheet->getColumnDimension('B')->setAutoSize(true);
-
-        $archivadosWorkSheet->setCellValue('A1', 'ARCHIVO POR FALTA DE INTERÉS');
-        $archivadosWorkSheet->setCellValue('A3', 'CENTRO');
-        $archivadosWorkSheet->setCellValue('B3', 'SOLICITUDES');
-
-        $c = 4;
-        foreach ($this->imp as $centro){
-            $archivadosWorkSheet->setCellValue('A'.$c, $centro);
-            $archivadosWorkSheet->setCellValue(
-                'B' . $c,
-                isset($archivados[$centro]) ? $archivados[$centro] : 0
-            );
-            $c++;
-        }
-        $archivadosWorkSheet->setCellValue('A'.$c, 'Total');
-        $archivadosWorkSheet->setCellValue('B'.$c, "=SUM(B3:B$c)")
-            ->getStyle('B'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0');
-
+        $excelReportesService->archivoPorFaltaInteres($archivadosWorkSheet, $archivados, $this->request);
 
         // CONVENIOS CONCILIACION
         $convenios = $reportesService->conveniosConciliacion($this->request);
-
         $conveniosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Convenios conciliación');
         $spreadsheet->addSheet($conveniosWorkSheet, 5);
+        $excelReportesService->convenios($conveniosWorkSheet, $convenios, $this->request);
 
-        $conveniosWorkSheet->getStyle('A1')->applyFromArray($this->tituloH1());
-        $conveniosWorkSheet->getStyle('A3:C3')->applyFromArray($this->th1());
-        $conveniosWorkSheet->getColumnDimension('B')->setAutoSize(true);
-        $conveniosWorkSheet->getColumnDimension('C')->setAutoSize(true);
+        // CONVENIOS RATIFICACIÓN
+        $conveniosRatificacion = $reportesService->conveniosRatificacion($this->request);
+        $conveniosRatificacionWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Convenios ratificación');
+        $spreadsheet->addSheet($conveniosRatificacionWorkSheet, 6);
+        $excelReportesService->conveniosRatificacion($conveniosRatificacionWorkSheet, $conveniosRatificacion, $this->request);
 
-        $conveniosWorkSheet->setCellValue('A1', 'CONVENIOS');
-        $conveniosWorkSheet->setCellValue('A3', 'CENTRO');
-        $conveniosWorkSheet->setCellValue('B3', 'SOLICITUDES');
-        $conveniosWorkSheet->setCellValue('C3', 'IMPORTES');
+        // NO CONCILIACIÓN
+        $noConciliacion = $reportesService->noConciliacion($this->request);
+        $noConciliacionWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'No conciliación');
+        $spreadsheet->addSheet($noConciliacionWorkSheet, 7);
+        $excelReportesService->noConciliacion($noConciliacionWorkSheet, $noConciliacion, $this->request);
 
-        $c = 4;
-        foreach ($this->imp as $centro){
-            $conveniosWorkSheet->setCellValue('A'.$c, $centro);
-            //TODO: completar este dato
-            $conveniosWorkSheet->setCellValue('B'.$c, 0);
-            $conveniosWorkSheet->setCellValue(
-                'C' . $c,
-                isset($convenios[$centro]) ? $convenios[$centro] : 0
-            );
-            $c++;
-        }
-        $conveniosWorkSheet->setCellValue('A'.$c, 'Total');
-        $conveniosWorkSheet->setCellValue('B'.$c, "=SUM(B3:B$c)")
-            ->getStyle('B'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0.00');
-        $conveniosWorkSheet->setCellValue('C'.$c, "=SUM(C3:C$c)")
-            ->getStyle('C'.$c)->getNumberFormat()
-            ->setFormatCode('#,##0.00');
+        // AUDIENCIAS
+        $audiencias = $reportesService->audiencias($this->request);
+        $audienciasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Audiencias');
+        $spreadsheet->addSheet($audienciasWorkSheet, 8);
+        $excelReportesService->audiencias($audienciasWorkSheet, $audiencias, $this->request);
+
+        // PAGOS DIFERIDOS
+        $pagosdiferidos = $reportesService->pagosDiferidos($this->request);
+        $pagosdiferidosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Pagos diferidos');
+        $spreadsheet->addSheet($pagosdiferidosWorkSheet, 9);
+        $excelReportesService->pagosDiferidos($pagosdiferidosWorkSheet, $pagosdiferidos, $this->request);
 
 
-
-
-
-
-
-
-
+        // Descarga del excel
         $spreadsheet->setActiveSheetIndex(0);
         return $this->descargaExcel($writer);
 
@@ -363,4 +173,6 @@ class ReportesController extends Controller
         $response->headers->set('Cache-Control','max-age=0');
         return $response;
     }
+
+
 }

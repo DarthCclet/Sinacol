@@ -21,10 +21,15 @@ class AudienciaParteFilter extends Filter
      */
     public function handleCentroIdFilter($centro_id)
     {
-        if(!trim($centro_id)) return;
+        if(empty($centro_id)) return;
         $this->query->whereHas('expediente.audiencia.solicitud', function($q) use($centro_id){
             //Solo se toman en cuenta los solicitantes
-            $q->where('centro_id',$centro_id);
+            if(is_array($centro_id)) {
+                $q->whereIn('centro_id', $centro_id);
+            }
+            else {
+                $q->where('centro_id', $centro_id);
+            }
         });
     }
 
@@ -34,8 +39,16 @@ class AudienciaParteFilter extends Filter
      */
     public function handleCentroFilter($abreviatura)
     {
-        if(!trim($abreviatura)) return;
-        $this->query->where('centros.abreviatura', strtoupper($abreviatura));
+        if(empty($abreviatura)) return;
+        if(is_array($abreviatura)) {
+            $centros = collect($abreviatura)->map(function ($item, $key) {
+                return strtoupper($item);
+            });
+            $this->query->whereIn('centros.abreviatura', $centros->all()->toArray());
+        }
+        else{
+            $this->query->where('centro_id', strtoupper($abreviatura));
+        }
     }
 
 }

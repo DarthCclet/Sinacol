@@ -40,8 +40,14 @@ class SolicitudFilter extends Filter
      */
     public function handleCentroFilter($abreviatura)
     {
-        if(!trim($abreviatura)) return;
-        $this->query->where('centros.abreviatura', strtoupper($abreviatura));
+        if(is_array($abreviatura)) {
+            if(!count($abreviatura)) return;
+            $this->query->whereIn('centros.abreviatura', $abreviatura);
+        }
+        else {
+            if(!trim($abreviatura)) return;
+            $this->query->where('centros.abreviatura', strtoupper($abreviatura));
+        }
     }
 
     /**
@@ -50,9 +56,25 @@ class SolicitudFilter extends Filter
      */
     public function handleObjetoSolicitudIdFilter($objeto_solicitud_id)
     {
-        if(!trim($objeto_solicitud_id)) return;
-        $this->query->whereHas('objeto_solicitudes', function($q) use($objeto_solicitud_id){
-            $q->where('objeto_solicitud_id', $objeto_solicitud_id);
-        });
+        if(is_array($objeto_solicitud_id)){
+            if(empty($objeto_solicitud_id)) return;
+            $this->query->whereHas(
+                'objeto_solicitudes',
+                function ($q) use ($objeto_solicitud_id) {
+                    $q->whereIn('objeto_solicitud_id', $objeto_solicitud_id);
+                }
+            );
+        }
+        else {
+            if (!trim($objeto_solicitud_id)) {
+                return;
+            }
+            $this->query->whereHas(
+                'objeto_solicitudes',
+                function ($q) use ($objeto_solicitud_id) {
+                    $q->where('objeto_solicitud_id', $objeto_solicitud_id);
+                }
+            );
+        }
     }
 }

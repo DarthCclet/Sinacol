@@ -54,7 +54,7 @@ class NotificacionServiceController extends Controller
                         if(!$encontro_identico){
                             $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia->id;
                             Storage::makeDirectory($directorio);
-    
+
                             $fullPath = $directorio.'/notificacion'.$parteDemandado->id.'.pdf';
                             $dir = Storage::put($fullPath, $image);
                             $uuid = Str::uuid();
@@ -75,7 +75,7 @@ class NotificacionServiceController extends Controller
                             ]);
                         }
                         $documentoResolucion = $parteDemandado->documentos()->where("clasificacion_archivo_id",$clasificacion->id)->orderBy("id","desc")->first();
-                        
+
 //                        Guardamos la información en el historico
                         $historico = HistoricoNotificacion::where("audiencia_parte_id",$parteDemandado->id)->where("tipo_notificacion",$arreglo->tipo_notificacion)->first();
                         if($historico == null){
