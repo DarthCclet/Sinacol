@@ -349,6 +349,8 @@ class SolicitudController extends Controller {
             ]);
         }
 
+        $ContadorController = new ContadorController();
+        $folio = $ContadorController->getContador(1, 1);
         DB::beginTransaction();
         try {
             // Solicitud
@@ -367,8 +369,6 @@ class SolicitudController extends Controller {
             $solicitud['fecha_recepcion'] = $date->format('Y-m-d H:i:s');
             $solicitud['centro_id'] = $this->getCentroId();
             //Obtenemos el contador para solicitud, se manda tipo contador (1 solicitud) y centro_id
-            $ContadorController = new ContadorController();
-            $folio = $ContadorController->getContador(1, 1);
             $solicitud['folio'] = $folio->contador;
             $solicitud['anio'] = $folio->anio;
             $solicitud['ratificada'] = false;
@@ -1208,12 +1208,13 @@ class SolicitudController extends Controller {
             return $this->sendError('No se ha configurado el centro', 'Error');
             exit;
         }
+        $solicitud = Solicitud::find($request->id);
+        $ContadorController = new ContadorController();
+        $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
+        $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
         DB::beginTransaction();
         try{
-            $solicitud = Solicitud::find($request->id);
-            $ContadorController = new ContadorController();
             //Obtenemos el contador
-            $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
             $edo_folio = $solicitud->centro->abreviatura;
             $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
             //Creamos el expediente de la solicitud
@@ -1272,7 +1273,6 @@ class SolicitudController extends Controller {
 //                }
                 // Registramos la audiencia
                 //Obtenemos el contador
-                $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                 //creamos el registro de la audiencia
                 if($request->fecha_cita == "" || $request->fecha_cita == null){
                     $fecha_cita = null;
@@ -1348,7 +1348,6 @@ class SolicitudController extends Controller {
                 }
 
                 //Obtenemos el contador
-                $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                 //creamos el registro de la audiencia
                 if($request->fecha_cita == "" || $request->fecha_cita == null){
                     $fecha_cita = null;
