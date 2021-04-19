@@ -736,7 +736,7 @@
     </div>
 </div>
 <!--Fin de modal de representante legal-->
-<!--inicio modal para representante legal-->
+<!--inicio modal para datos laborales-->
 <div class="modal" id="modal-dato-laboral" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -855,7 +855,7 @@
         </div>
     </div>
 </div>
-<!--Fin de modal de representante legal-->
+<!--Fin de modal de datos laborales-->
 <!-- Inicio Modal de comparecientes y resolución individual-->
 <div class="modal" id="modal-comparecientes" data-backdrop="static" data-keyboard="false" style="display:none;">
     <div class="modal-dialog modal-xl">
@@ -871,8 +871,8 @@
                             <tr>
                                 <th>Tipo Parte</th>
                                 <th>Nombre</th>
-                                <th>Primer Apellido</th>
-                                <th>Segundo Apellido</th>
+                                {{-- <th>Primer Apellido</th>
+                                <th>Segundo Apellido</th> --}}
                                 <th>Comparecio</th>
                             </tr>
                         </thead>
@@ -1962,17 +1962,23 @@
                         }else if(data.data.tipo == 5){
                             swal({
                                 title: '¿Qué deseas hacer?',
-                                text: 'Detectamos que no todos los citados comparecieron, ¿Deseas continuar con el proceso de audiencia?, de indicar que no, se generará una nueva audiencia',
+                                text: 'Detectamos que no todos los citados comparecieron ¿desea celebrar la audiencia actual o agendar una nueva?',
                                 icon: 'info',
                                 buttons: {
-                                    roll: {
-                                        text: "No",
+                                    cancel: {
+                                        text: 'Cancelar',
+                                        value: null,
+                                        visible: true,
+                                        className: 'btn btn-default',
+                                        closeModal: true,
+                                    },roll: {
+                                        text: "No deseo celebrar la audiencia. Agendar una nueva fecha.",
                                         value: 2,
                                         className: 'btn btn-warning',
                                         visible: true,
                                         closeModal: true
                                     },confirm: {
-                                        text: 'Si',
+                                        text: 'Celebrar audiencia actual. ',
                                         value: 1,
                                         visible: true,
                                         className: 'btn btn-danger',
@@ -2172,10 +2178,12 @@
                                 if(element.parte.parteRepresentada.tipo_parte_id == 1){
                                     htmlSolicitantes += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
                                 }else{
-                                    htmlCitados += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+"</option>"
+                                    nombreRepresentado = "";
+                                    nombreRepresentado = (element.parte.parteRepresentada.tipo_persona_id == 1) ?' ('+element.parte.parteRepresentada.nombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')' : ' ('+element.parte.parteRepresentada.nombre_comercial+')' ;
+                                    htmlCitados += "<option value='"+element.parte.id+"'>"+element.parte.nombre+' '+element.parte.primer_apellido+' '+(element.parte.segundo_apellido || "")+nombreRepresentado+"</option>"
                                 }
                                 if(element.parte.parteRepresentada.tipo_persona_id == 1){
-                                    html +='<td>Si ('+element.parte.parteRepresentadanombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')</td>';
+                                    html +='<td>Si ('+element.parte.parteRepresentada.nombre+' '+element.parte.parteRepresentada.primer_apellido+' '+(element.parte.parteRepresentada.segundo_apellido || '')+')</td>';
 
                                 }else{
                                     html +='<td>Si ('+element.parte.parteRepresentada.nombre_comercial+')</td>';
@@ -2236,9 +2244,17 @@
                     $.each(data, function(index,element){
                         table +='<tr>';
                         table +='   <td>'+element.tipo_parte.nombre+'</td>';
-                        table +='   <td>'+element.nombre+'</td>';
-                        table +='   <td>'+element.primer_apellido+'</td>';
-                        table +='   <td>'+(element.segundo_apellido || "")+'</td>';
+                        // table +='   <td>'+element.nombre+'</td>';
+                        // table +='   <td>'+element.primer_apellido+'</td>';
+                        nombreParteRepresentada = "";
+                        if(element.parteRepresentada != undefined){
+                            if(element.parteRepresentada.tipo_persona_id == 2){
+                                nombreParteRepresentada = ' en representación de ' + element.parteRepresentada.nombre_comercial;
+                            }else{
+                                nombreParteRepresentada = ' en representación de ' + element.parteRepresentada.nombre + ' '+ element.parteRepresentada.primer_apellido + ' '+ element.parteRepresentada.segundo_apellido;
+                            }
+                        }
+                        table +='   <td>'+element.nombre+' '+element.primer_apellido +' '+(element.segundo_apellido || "")+ nombreParteRepresentada +'</td>';
                         if(element.documentos.length >= 1){
                             table +='   <td>';
                             table +='       <div class="col-md-2">';
