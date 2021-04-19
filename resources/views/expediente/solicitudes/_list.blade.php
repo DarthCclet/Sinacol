@@ -2413,9 +2413,9 @@
                     solicitudObj.fecha_recepcion = dateFormat(data.fecha_recepcion,2);
                     solicitudObj.fecha_conflicto = dateFormat(data.fecha_conflicto,4);
                     solicitudObj.giro_comercial_id = data.giro_comercial_id;
-                    solicitudObj.giro_comercial = data.giroComercial.nombre;
-                    solicitudObj.ambito_id = data.giroComercial.ambito_id;
-                    solicitudObj.ambito_nombre = data.giroComercial.ambito.nombre;
+                    solicitudObj.giro_comercial = data.giro_comercial.nombre;
+                    solicitudObj.ambito_id = data.giro_comercial.ambito_id;
+                    solicitudObj.ambito_nombre = data.giro_comercial.ambito.nombre;
                     solicitudObj.tipo_solicitud_id = data.tipo_solicitud_id;
                     $("#url_virtual").val("");
                     if(data.virtual){

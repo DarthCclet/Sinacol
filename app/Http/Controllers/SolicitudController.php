@@ -299,7 +299,7 @@ class SolicitudController extends Controller {
         if($solicitud["tipo_solicitud_id"] == 1){
             $request->validate([
                 'objeto_solicitudes' => 'required',
-                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.fecha_conflicto' => 'required|date_format:Y-m-d',
                 'solicitud.solicita_excepcion' => 'required',
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
@@ -310,7 +310,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
                 'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
                 'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|date_format:Y-m-d',
                 'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.dato_laboral' => 'required',
                 'solicitantes.*.domicilios' => 'required',
@@ -325,7 +325,7 @@ class SolicitudController extends Controller {
         }else{
             $request->validate([
                 'objeto_solicitudes' => 'required',
-                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.fecha_conflicto' => 'required|date_format:Y-m-d',
                 'solicitud.solicita_excepcion' => 'required',
                 'solicitud.tipo_solicitud_id' => 'required',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
@@ -335,7 +335,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
                 'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
-                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|date_format:Y-m-d',
                 'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.domicilios' => 'required',
@@ -587,38 +587,36 @@ class SolicitudController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show($id) {
-        $solicitud = Solicitud::find($id);
-        $parte = Parte::all()->where('solicitud_id', $solicitud->id);
-
-        $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
+        $solicitud = Solicitud::with('expediente','giroComercial','estatusSolicitud','centro','tipoIncidenciaSolicitud','giroComercial.ambito','objeto_solicitudes')->find($id);
+        $partes = $solicitud->partes()->with('dato_laboral','domicilios','contactos','lenguaIndigena')->get(); 
 
         $solicitantes = $partes->where('tipo_parte_id', 1);
 
         foreach ($solicitantes as $key => $value) {
-            $value->dato_laboral;
-            $value->domicilios;
-            $value->contactos;
-            $value->lenguaIndigena;
+            // $value->dato_laboral;
+            // $value->domicilios;
+            // $value->contactos;
+            // $value->lenguaIndigena;
             $solicitantes[$key]["activo"] = 1;
         }
         $solicitados = $partes->where('tipo_parte_id', 2);
         foreach ($solicitados as $key => $value) {
-            $value->dato_laboral;
-            $value->domicilios;
-            $value->contactos;
+            // $value->dato_laboral;
+            // $value->domicilios;
+            // $value->contactos;
             $solicitados[$key]["activo"] = 1;
         }
-        $solicitud->objeto_solicitudes;
         $solicitud["solicitados"] = $solicitados;
         $solicitud["solicitantes"] = $solicitantes;
-        $solicitud->expediente = $solicitud->expediente;
-        $solicitud->giroComercial = $solicitud->giroComercial;
-        $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
-        $solicitud->centro = $solicitud->centro;
-        $solicitud->tipoIncidenciaSolicitud = $solicitud->tipoIncidenciaSolicitud;
-        if($solicitud->giroComercial){
-            $solicitud->giroComercial->ambito;
-        }
+        //$solicitud->objeto_solicitudes;
+        // $solicitud->expediente = $solicitud->expediente;
+        // $solicitud->giroComercial = $solicitud->giroComercial;
+        // $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
+        // $solicitud->centro = $solicitud->centro;
+        // $solicitud->tipoIncidenciaSolicitud = $solicitud->tipoIncidenciaSolicitud;
+        // if($solicitud->giroComercial){
+        //     $solicitud->giroComercial->ambito;
+        // }
         return $solicitud;
     }
 
@@ -630,50 +628,36 @@ class SolicitudController extends Controller {
      */
     public function getSolicitudByFolio(Request $request) {
         try{
-
-            $solicitud = Solicitud::where('folio',$request->folio)->where('anio',$request->anio)->first();
-            
-            $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
-            
-            $solicitantes = $partes->where('tipo_parte_id', 1);
-            
-            foreach ($solicitantes as $key => $value) {
-                $value->dato_laboral;
-                $value->domicilios;
-                $value->contactos;
-                $value->lenguaIndigena;
-                $solicitantes[$key]["activo"] = 1;
-            }
-            $solicitados = $partes->where('tipo_parte_id', 2);
-            foreach ($solicitados as $key => $value) {
-                $value->domicilios;
-                $value->contactos;
-                $solicitados[$key]["activo"] = 1;
-            }
-            $solicitud->objeto_solicitudes;
-            $solicitud["solicitados"] = $solicitados;
-            $solicitud["solicitantes"] = $solicitantes;
-            $solicitud->expediente = $solicitud->expediente;
-            $solicitud->giroComercial = $solicitud->giroComercial;
-            $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
-            $solicitud->centro = $solicitud->centro;
-            $solicitud->tipoSolicitud = $solicitud->tipoSolicitud;
-            if($solicitud->expediente){
-                $solicitud->audiencias = $solicitud->expediente->audiencia()->orderBy('id','asc')->get();
-                foreach($solicitud->audiencias as $audiencia){
-                    if($audiencia->conciliador){
-                        $audiencia->conciliador->persona;
-                    }
-                    $audiencia->iniciada = false;
-                    if(count($audiencia->comparecientes) > 0){
-                        $audiencia->iniciada = true;
+            $solicitud = Solicitud::with('expediente','giroComercial','estatusSolicitud','centro','tipoIncidenciaSolicitud','tipoSolicitud','giroComercial.ambito','objeto_solicitudes')->where('folio',$request->folio)->where('anio',$request->anio)->first();
+            if($solicitud){
+                $partes = $solicitud->partes()->with('dato_laboral','domicilios','contactos','lenguaIndigena')->get(); 
+                $solicitantes = $partes->where('tipo_parte_id', 1);
+                
+                foreach ($solicitantes as $key => $value) {
+                    $solicitantes[$key]["activo"] = 1;
+                }
+                $solicitados = $partes->where('tipo_parte_id', 2);
+                foreach ($solicitados as $key => $value) {
+                    $solicitados[$key]["activo"] = 1;
+                }
+                $solicitud["solicitados"] = $solicitados;
+                $solicitud["solicitantes"] = $solicitantes;
+                if($solicitud->expediente){
+                    $solicitud->audiencias = $solicitud->expediente->audiencia()->orderBy('id','asc')->get();
+                    foreach($solicitud->audiencias as $audiencia){
+                        if($audiencia->conciliador){
+                            $audiencia->conciliador->persona;
+                        }
+                        $audiencia->iniciada = false;
+                        if(count($audiencia->comparecientes) > 0){
+                            $audiencia->iniciada = true;
+                        }
                     }
                 }
+                return response()->json(['success' => true, 'message' => 'Se genero el documento correctamente', 'data' => $solicitud], 200);
+            }else{
+                return response()->json(['success' => false, 'message' => 'No se encontraron datos relacionados', 'data' => null], 200);
             }
-            if($solicitud->giroComercial){
-                $solicitud->giroComercial->ambito;
-            }
-            return response()->json(['success' => true, 'message' => 'Se genero el documento correctamente', 'data' => $solicitud], 200);
         }catch(Exception $e ){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensale: ". $e->getMessage().
@@ -746,35 +730,22 @@ class SolicitudController extends Controller {
     public function consulta($id) {
         try{
             $doc= collect();
-            
+            $solicitud = Solicitud::with('expediente','giroComercial','estatusSolicitud','centro','tipoIncidenciaSolicitud','giroComercial.ambito','objeto_solicitudes')->find($id);
+            $partes = $solicitud->partes()->with('dato_laboral','domicilios','contactos','lenguaIndigena')->get(); 
             //Consulta de solicitud con relaciones
-            $solicitud = Solicitud::find($id);
-
-            $partes = $solicitud->partes()->get(); //->where('tipo_parte_id',3)->get()->first()
 
             $solicitantes = $partes->where('tipo_parte_id', 1);
 
             foreach ($solicitantes as $key => $value) {
-                $value->dato_laboral;
-                $value->domicilios;
-                $value->contactos;
                 $solicitantes[$key]["activo"] = 1;
             }
             $solicitados = $partes->where('tipo_parte_id', 2);
             foreach ($solicitados as $key => $value) {
-                $value->domicilios;
-                $value->contactos;
                 $solicitados[$key]["activo"] = 1;
             }
-            $solicitud->objeto_solicitudes;
             $solicitud["solicitados"] = $solicitados;
             $solicitud["solicitantes"] = $solicitantes;
-            $solicitud->expediente = $solicitud->expediente;
-            $solicitud->giroComercial = $solicitud->giroComercial;
             $estatus_solicitud_id = $solicitud->estatus_solicitud_id;
-            if($solicitud->giroComercial){
-                $solicitud->giroComercial->ambito;
-            }
             //Consulta de solicitud con relaciones
 
             $expediente_id = '';
@@ -882,7 +853,7 @@ class SolicitudController extends Controller {
         if($solicitud["tipo_solicitud_id"] == 1){
             $request->validate([
                 'objeto_solicitudes' => 'required',
-                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.fecha_conflicto' => 'required|date_format:m/d/Y',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.rfc' => ['nullable'],
@@ -891,7 +862,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
                 'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
                 'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
-                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|date_format:Y-m-d',
                 'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.dato_laboral' => 'required',
                 'solicitantes.*.domicilios' => 'required',
@@ -906,7 +877,7 @@ class SolicitudController extends Controller {
         }else{
             $request->validate([
                 'objeto_solicitudes' => 'required',
-                'solicitud.fecha_conflicto' => 'required',
+                'solicitud.fecha_conflicto' => 'required|date_format:Y-m-d',
                 'solicitantes.*.nombre' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.primer_apellido' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.rfc' => ['nullable'],
@@ -914,7 +885,7 @@ class SolicitudController extends Controller {
                 'solicitantes.*.tipo_persona_id' => 'required',
                 'solicitantes.*.curp' => ['exclude_if:solicitantes.*.tipo_persona_id,2|required', new Curp],
                 'solicitantes.*.edad' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|Integer',
-                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
+                'solicitantes.*.fecha_nacimiento' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required|date_format:Y-m-d',
                 'solicitantes.*.genero_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.nacionalidad_id' => 'exclude_if:solicitantes.*.tipo_persona_id,2|required',
                 'solicitantes.*.domicilios' => 'required',

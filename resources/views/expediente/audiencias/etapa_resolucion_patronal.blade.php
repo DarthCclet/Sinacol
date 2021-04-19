@@ -114,7 +114,7 @@
                                                         <td class="text-nowrap">{{ $parte->nombre_comercial }}</td>
                                                     @endif
                                                     <td>
-                                                        @if(($parte->tipo_persona_id == 2) || ($parte->tipo_parte_id == 2 && $parte->tipo_persona_id == 2))
+                                                        @if(($parte->tipo_persona_id == 2) || ($parte->tipo_parte_id == 1 && $parte->tipo_persona_id == 1))
                                                         <div class="md-2" style="display: inline-block;">
                                                             <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante Legal" data-toggle="tooltip" data-placement="top">
                                                                 <i class="fa fa-plus"></i>
@@ -471,23 +471,41 @@
                 <div class="col-md-12 row">
                     <div class="col-md-12" id="divConceptosAcordados" >
                         <h5>Conceptos de pago para resolucion</h5><br>
+                        <div class="col-md-12 row">
+                            <div class="col-md-8">
+                                <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="hayDeducciones" name='hayDeducciones'/>
+                                <label for="hayDeducciones" class="col-sm-6 control-label labelResolucion">Se registrarán cantidades brutas y deducciones</label>
+                            </div>
+                            <div class="text-center col-md-4">
+                                <button class="btn btn-warning text-white btn-sm" id='btnCopiarConceptosBase' onclick="copiarConceptosBase()"><i class="fa fa-plus"></i> Incluir Conceptos Base</button>
+                            </div>
+                        </div>
+                        <br>
                         <label class="col-md-12 control-label">Ingresa los días a pagar o el monto por cada concepto de la propuesta. </label>
                         <div class="form-group">
                             <label for="concepto_pago_resoluciones_id" class="col-sm-6 control-label labelResolucion needed">Concepto de pago</label>
                             <div class="col-sm-10  select-otro" >
 
-                                <select id="concepto_pago_resoluciones_id" class="form-control select-element conceptosPago" >
+                                <select id="concepto_pago_resoluciones_id" class="form-control conceptosPago" >
                                     <option value="">-- Selecciona un concepto de pago</option>
                                     @foreach($concepto_pago_resoluciones as $concepto)
-                                        <option value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
+                                        @if($concepto->id == 13 )
+                                            <option style="display:none" value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
+                                        @else
+                                            <option value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
+                                        @endif
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-sm-10 select-reinstalacion">
-                                <select id="concepto_pago_reinstalacion_id" class="form-control select-element conceptosPago" style="display:none">
+                                <select id="concepto_pago_reinstalacion_id" class="form-control conceptosPago" style="display:none">
                                     <option value="">-- Selecciona un concepto de pago</option>
                                     @foreach($concepto_pago_reinstalacion as $concepto)
-                                        <option value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
+                                        @if($concepto->id == 13 )
+                                            <option style="display:none" value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
+                                        @else
+                                            <option value="{{ $concepto->id }}">{{ $concepto->nombre }}</option>
+                                        @endif
                                     @endforeach
                                 </select>
                             </div>
@@ -506,7 +524,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-md-12">
-                                <label for="otro" class="col-sm-6 control-label labelResolucion">Descripci&oacute;n Concepto</label>
+                                <label for="otro" class="col-sm-6 control-label labelResolucion labelDesc">Descripci&oacute;n Concepto</label>
                                 <div class="col-sm-12">
                                     <input type="text" id="otro" placeholder="Descripci&oacute;n Concepto" class="form-control" />
                                 </div>
@@ -3057,13 +3075,41 @@
             let idCitado =$("#idCitado").val();
             if( comboConceptos.val() == 7 || comboConceptos.val() == 10 || ( ($("#otro").val() != "") || ($("#monto").val() != "")  || ($("#monto").val() != "" && comboConceptos.val() == 8) ) ){
                 let existe = false;
+                let countOtro = 0;
+                let countDeduccion = 0;
+                let errorMsj = ""
+                let error = false;
+                let totalConceptos = 0;
+                let totalDeducciones = 0;
+                if( (comboConceptos.val() == 12 || comboConceptos.val() == 13) && ($("#otro").val() == "" || $("#monto").val() == "" ) ){
+                    error = true;
+                    errorMsj = 'Debe registrar el nombre del concepto o deducción y el monto correspondiente';
+                }
                 $.each(listaConfigConceptos[idCitado],function(index,concepto){
                     if(concepto.concepto_pago_resoluciones_id == comboConceptos.val() ){
-                        existe= true;
+                        if(concepto.concepto_pago_resoluciones_id  == 12 ){//otra prestacion
+                            countOtro += 1;
+                        }else if(concepto.concepto_pago_resoluciones_id  == 13 ){ //deducciones
+                            countDeduccion += 1;
+                        }else{
+                            existe= true;
+                        }
                     }
                 });
+                if(countOtro>=10){
+                    error = true;
+                    errorMsj = 'No es posible registrar más conceptos personalizados';
+                }
+                if(countDeduccion>=5){
+                    error = true;
+                    errorMsj = 'No es posible registrar más deducciones';
+                }
                 if(existe){
-                    swal({title: 'Error',text: 'El concepto de pago ya se encuentra registrado',icon: 'warning'});
+                    error = true;
+                    errorMsj = 'El concepto de pago ya se encuentra registrado';
+                }
+                if(error){
+                    swal({title: 'Error',text: errorMsj, icon: 'warning'});
                 }else{
                     if(isNaN($("#monto").val()) ){
                         swal({
@@ -3104,27 +3150,40 @@
                 comboConceptos = "concepto_pago_resoluciones_id";
             }
             totalConceptos = 0 ;
+            totalDeducciones = 0;
             $.each(listaConfigConceptos,function(index,concepto){
                 //idCitado = concepto.idCitado;
 
                 table +='<tr>';
                     $("#"+comboConceptos).val(concepto.concepto_pago_resoluciones_id);
-                    table +='<td>'+$("#"+comboConceptos+" option:selected").text()+'</td>';
-                    $("#"+comboConceptos).val("");
+                    if(concepto.concepto_pago_resoluciones_id == 12 || concepto.concepto_pago_resoluciones_id == 13){
+                        table +='<td>'+ concepto.otro +'</td>';
+                    }else{
+                        table +='<td>'+$("#"+comboConceptos+" option:selected").text()+'</td>';
+                        $("#"+comboConceptos).val("");
+                    }
                     table +='<td>'+concepto.dias+'</td>';
                     conceptoMonto = (concepto.monto != "") ? parseFloat(concepto.monto).toFixed(2): ""
                     table +='<td class="amount">'+ conceptoMonto +'</td>';
-                    table +='<td>'+concepto.otro+'</td>';
+                    if(concepto.concepto_pago_resoluciones_id == 12 || concepto.concepto_pago_resoluciones_id == 13){
+                        table +='<td></td>';
+                    }else{
+                        table +='<td>'+concepto.otro+'</td>';
+                    }
                     table +='<td>';
                         table +='<button onclick="eliminarConcepto('+idCitado+','+index+')" class="btn btn-xs btn-warning" title="Eliminar">';
                             table +='<i class="fa fa-trash"></i>';
                         table +='</button>';
                     table +='</td>';
                 table +='</tr>';
-                totalConceptos+= (concepto.monto != "") ? parseFloat(concepto.monto): 0;
+                if(concepto.concepto_pago_resoluciones_id == 13){
+                    totalDeducciones += (concepto.monto != "") ? parseFloat(concepto.monto): 0;
+                }else{
+                    totalConceptos += (concepto.monto != "") ? parseFloat(concepto.monto): 0;
+                }
             });
             $("#totalConfig").val(totalConceptos.toFixed(2));
-            tableTotal = '<tr><b><td>TOTAL</td><td colspan="4" class="amount"zoozoo>'+totalConceptos.toFixed(2)+'</td></b></tr>';
+            tableTotal = '<tr><b><td>TOTAL</td><td colspan="4" class="amount"zoozoo>'+(totalConceptos-totalDeducciones).toFixed(2)+'</td></b></tr>';
             $("#tbodyConcepto").html(table);
             $("#tbodyConceptoPrincipal"+idCitado).html(table+tableTotal);
         }
@@ -3447,6 +3506,7 @@
         if( $('#radioReinstalacion').is(':checked') ){ //si es reinstalacion
             concepto = $("#concepto_pago_reinstalacion_id").val();
         }else{
+            $('.labelDesc').text('Descripción del concepto');
             concepto = $("#concepto_pago_resoluciones_id").val();
         }
     // $("#concepto_pago_resoluciones_id").on("change",function(){
@@ -3478,12 +3538,12 @@
                 $('#monto').val(monto);
                 break;
             case '8':    //Gratificacion D
-                //$('#monto').removeAttr('disabled');
+                $('#monto').removeAttr('disabled');
                 $('#dias').attr('disabled',true);
                 $('#otro').attr('disabled',true);
                 break;
             case '9':    //Gratificacion E
-                //$('#monto').attr('disabled',true);
+                $('#monto').attr('disabled',true);
                 $('#dias').attr('disabled',true);
                 $('#otro').removeAttr('disabled');
                 break;
@@ -3494,11 +3554,40 @@
                 // $('#dias').attr('disabled',true);
                 $('#otro').attr('disabled',true);
                 break;
+            case '11':    //Gratificacion F
+                $('#monto').attr('disabled',true);
+                $('#dias').attr('disabled',true);
+                $('#otro').removeAttr('disabled');
+                break;
+            case '12':    //Otro
+                $('#monto').removeAttr('disabled');
+                $('#dias').attr('disabled',true);
+                $('#otro').removeAttr('disabled');
+                $('.labelDesc').text('Nombre del concepto');
+                break;
+            case '13':    //Deduccion
+                $('#monto').removeAttr('disabled');
+                $('#dias').attr('disabled',true);
+                $('#otro').removeAttr('disabled');
+                $('.labelDesc').text('Nombre de la deducción');
+                break;
             default: //Dias de sueldo, Dias de vacaciones
                 //$('#monto').attr('disabled',true);
                 $('#otro').attr('disabled',true);
                 $('#dias').removeAttr('disabled');
                 break;
+        }
+    });
+    
+    $("#hayDeducciones").on("change",function(){
+        if( $('#hayDeducciones').is(':checked') ){ //si es reinstalacion
+            //$('#concepto_pago_resoluciones_id option[value="13"]').remove();
+            $('#concepto_pago_resoluciones_id option[value="13"]').show();
+            $("#concepto_pago_resoluciones_id").trigger("change");
+        }else{
+            //$("#concepto_pago_resoluciones_id").append('<option value="13">Deduccion</option>');
+            $('#concepto_pago_resoluciones_id option[value="13"]').hide();
+            $("#concepto_pago_resoluciones_id").trigger("change");
         }
     });
 
