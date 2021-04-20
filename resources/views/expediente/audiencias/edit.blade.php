@@ -1187,10 +1187,14 @@
                                                 <td>
                                                     <input type="hidden" id="parte_id{{$parte->id}}" class="parte_id" value="{{$parte->id}}">
                                                     <div class="custom-control custom-radio">
-                                                        @if($parte->asignado)
+                                                        @if(!$parte->asignado)
                                                         <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" checked="checked">
                                                         @else
-                                                        <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}">
+                                                            @if($parte->notificacion_buzon)
+                                                            <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" disabled="disabled">
+                                                            @else
+                                                            <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" disabled="disabled" checked="checked">
+                                                            @endif
                                                         @endif
                                                         <label for="radioNotificacionNo{{$parte->id}}">No notificar</label>
                                                     </div>

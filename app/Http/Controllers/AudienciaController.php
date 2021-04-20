@@ -334,7 +334,7 @@ class AudienciaController extends Controller {
                 $documento->tipo_doc = 2;
                 $doc->push($documento);
             }
-            if(!$parte->asignado){
+            if(!$parte->asignado || !$parte->notificacion_buzon){
                 $obligar = true;
             }
         }
@@ -1132,7 +1132,11 @@ class AudienciaController extends Controller {
                 } else {
                     $audiencia->update(array("convenio" => $request->convenio, "desahogo" => $request->desahogo, "resolucion_id" => $request->resolucion_id, "finalizada" => true, "tipo_terminacion_audiencia_id" => 1,'fecha_resolucion'=>now()));
                     foreach ($request->comparecientes as $compareciente) {
-                        Parte::find($compareciente)->update(['notificacion_buzon'=>true]);
+                        $parteComparece = Parte::find($compareciente);
+                        $parteComparece->update(['notificacion_buzon'=>true]);
+                        if($parteComparece->parte_representada_id != null){
+                            Parte::find($parteComparece->parte_representada_id)->update(['notificacion_buzon'=>true]);
+                        }
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $audiencia->id, "presentado" => true]);
                     }
                 }
@@ -1950,14 +1954,17 @@ class AudienciaController extends Controller {
         $tipo_parte = TipoParte::where("nombre", "ilike", "%CITADO%")->first()->id;
         foreach ($audiencia->expediente->solicitud->partes as $parte) {
             $tipoNotificacion = \App\TipoNotificacion::where("nombre", "ilike", "%B)%")->first()->id;
+            $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%d)%")->first()->id;
             $fecha_notificacion = null;
             $finalizado = null;
             if (isset($request->listaRelaciones)) {
                 foreach ($request->listaRelaciones as $sin_notificar) {
                     if ($parte->id == $sin_notificar) {
-                        $tipoNotificacion = null;
-                        $fecha_notificacion = now();
-                        $finalizado = "Notificado al comparecer";
+                        if($parte->notificacion_buzon){
+                            $tipoNotificacion = $tipoNotificacionBuzon;
+                            $fecha_notificacion = now();
+                            $finalizado = "FINALIZADO EXITOSAMENTE";
+                        }
                     }
                 }
             }
@@ -2030,7 +2037,11 @@ class AudienciaController extends Controller {
         $tipo_citado = TipoParte::where("nombre","ilike","%CITADO%")->first();
         $tipo_notificacion = \App\TipoNotificacion::where("nombre","ilike","%D)%")->first();
         foreach ($audiencia->audienciaParte as $parte) {
-            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizada"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+            if($parte->parte->notificacion_buzon){
+                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+            }else{
+                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id]); 
+            }
             if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
                 event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
             }
@@ -2470,7 +2481,11 @@ class AudienciaController extends Controller {
                                 $totalCitadosComparecen++;
                             }
                         }
-                        Parte::find($compareciente)->update(['notificacion_buzon'=>true]);
+                        $parteComparece = Parte::find($compareciente);
+                        $parteComparece->update(['notificacion_buzon'=>true]);
+                        if($parteComparece->parte_representada_id != null){
+                            Parte::find($parteComparece->parte_representada_id)->update(['notificacion_buzon'=>true]);
+                        }
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $this->request->audiencia_id, "presentado" => true]);
                     }
                 }
@@ -2790,8 +2805,13 @@ class AudienciaController extends Controller {
             if ($acuse != null) {
                 $acuse->delete();
             }
+            $tipo_notificacion = \App\TipoNotificacion::where("nombre","ilike","%D)%")->first();
             foreach ($audiencia->audienciaParte as $parte) {
-                AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 3]);
+                if($parte->parte->notificacion_buzon){
+                    $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                }else{
+                    $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]); 
+                }
                 if ($parte->parte->tipo_parte_id == 2) {
                     event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->parte_id));
                 }
