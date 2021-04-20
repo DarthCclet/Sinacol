@@ -73,19 +73,36 @@
                             <td class="text-nowrap">No asignado</td>
                         @endif
                         <td>
-                            @if(($parte->tipo_persona_id == 2) || ($parte->tipo_parte_id == 2 && $parte->tipo_persona_id == 1))
-                            <div class="md-2" style="display: inline-block;">
-                                <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante" data-toggle="tooltip" data-placement="top">
-                                    <i class="fa fa-plus"></i>
-                                </button>
-                            </div>
-                            @endif
-                            @if($parte->tipo_parte_id == 1)
-                            <div class="md-2" style="display: inline-block;" >
-                                <button onclick="DatosLaborales({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Verificar Datos Laborales" data-toggle="tooltip" data-placement="top">
-                                    <i class="fa fa-briefcase"></i>
-                                </button>
-                            </div>
+                            @if($audiencia->expediente->solicitud->tipo_solicitud_id == 1)
+                                @if(($parte->tipo_persona_id == 2) || ($parte->tipo_parte_id == 2 && $parte->tipo_persona_id == 1))
+                                <div class="md-2" style="display: inline-block;">
+                                    <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante" data-toggle="tooltip" data-placement="top">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                                @endif
+                                @if($parte->tipo_parte_id == 1)
+                                <div class="md-2" style="display: inline-block;" >
+                                    <button onclick="DatosLaborales({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Verificar Datos Laborales" data-toggle="tooltip" data-placement="top">
+                                        <i class="fa fa-briefcase"></i>
+                                    </button>
+                                </div>
+                                @endif
+                            @else
+                                @if(($parte->tipo_persona_id == 2) || ($parte->tipo_parte_id == 1 && $parte->tipo_persona_id == 1))
+                                <div class="md-2" style="display: inline-block;">
+                                    <button onclick="AgregarRepresentante({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Agregar Representante Legal" data-toggle="tooltip" data-placement="top">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                                @endif
+                                @if($parte->tipo_parte_id == 2)
+                                <div class="md-2" style="display: inline-block;">
+                                    <button onclick="DatosLaborales({{$parte->id}})" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Verificar Datos Laborales" data-toggle="tooltip" data-placement="top">
+                                        <i class="fa fa-briefcase"></i>
+                                    </button>
+                                </div>
+                                @endif
                             @endif
                         </td>
                     </tr>
