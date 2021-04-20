@@ -40,6 +40,7 @@
                             <th>Partes</th>
                             <th>Raz&oacute;n de la Incidencia</th>
                             <th>Justificaci&oacute;n</th>
+                            <th>Fecha de incidencia</th>
                             <th>Solicitud asociada</th>
                             <th>Acciones</th>
                         </tr>
@@ -65,6 +66,7 @@
                             </td>
                             <td>{{$solicitud->tipoIncidenciaSolicitud ? $solicitud->tipoIncidenciaSolicitud->nombre: ""}}</td>
                             <td>{{$solicitud->justificacion_incidencia ? substr($solicitud->justificacion_incidencia,0,50).'...'   :"" }}</td>
+                            <td>{{$solicitud->fecha_incidencia ? $solicitud->fecha_incidencia : "" }}</td>
                             <td>{{$solicitud->solicitud ? $solicitud->solicitud->folio."/".$solicitud->solicitud->anio : "" }}</td>
                             <td>
                                 <button title="Detalle de la incidencia" data-toggle="tooltip" data-placement="top" class="btn btn-xs btn-warning btn-primary" onclick="getIncidencia('{{$solicitud->id}}')"><i class="fa fa-eye"></i></button>
@@ -182,6 +184,9 @@
             </div>
             <div class="modal-body" >
                 <div class="col-md-12 row">
+                    <div class="col-md-12">
+                        <h2>Fecha de Incidencia: <span id="fecha_incidencia"></span></h2>
+                    </div>
                     <div class="col-md-12">
                         <h5>Razón:</h5>
                         <label id="razon_incidencia"></label>
@@ -689,7 +694,8 @@
                 try{
                    console.log(json);
                    $("#folio_consulta").html(json.folio+"/"+json.anio);
-                   $("#razon_incidencia").html(json.tipoIncidenciaSolicitud.nombre);
+                   $("#fecha_incidencia").html(json.fecha_incidencia);
+                   $("#razon_incidencia").html(json.tipo_incidencia_solicitud.nombre);
                    $("#justificacion_consulta").html(json.justificacion_incidencia);
                    $("#modal-consulta-incidencia").modal('show');
                 }catch(error){

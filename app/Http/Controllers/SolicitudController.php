@@ -349,6 +349,8 @@ class SolicitudController extends Controller {
             ]);
         }
 
+        $ContadorController = new ContadorController();
+        $folio = $ContadorController->getContador(1, 1);
         DB::beginTransaction();
         try {
             // Solicitud
@@ -367,8 +369,6 @@ class SolicitudController extends Controller {
             $solicitud['fecha_recepcion'] = $date->format('Y-m-d H:i:s');
             $solicitud['centro_id'] = $this->getCentroId();
             //Obtenemos el contador para solicitud, se manda tipo contador (1 solicitud) y centro_id
-            $ContadorController = new ContadorController();
-            $folio = $ContadorController->getContador(1, 1);
             $solicitud['folio'] = $folio->contador;
             $solicitud['anio'] = $folio->anio;
             $solicitud['ratificada'] = false;
@@ -1151,7 +1151,7 @@ class SolicitudController extends Controller {
                 }
             }
             $user_id = Auth::user()->id;
-            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"justificacion_incidencia"=>"Ratificada con incompetencia","tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
+            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"fecha_incidencia"=>now(),"justificacion_incidencia"=>"Ratificada con incompetencia","tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
 
             // Obtenemos la sala virtual
             $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
@@ -1208,12 +1208,13 @@ class SolicitudController extends Controller {
             return $this->sendError('No se ha configurado el centro', 'Error');
             exit;
         }
+        $solicitud = Solicitud::find($request->id);
+        $ContadorController = new ContadorController();
+        $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
+        $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
         DB::beginTransaction();
         try{
-            $solicitud = Solicitud::find($request->id);
-            $ContadorController = new ContadorController();
             //Obtenemos el contador
-            $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
             $edo_folio = $solicitud->centro->abreviatura;
             $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
             //Creamos el expediente de la solicitud
@@ -1272,7 +1273,6 @@ class SolicitudController extends Controller {
 //                }
                 // Registramos la audiencia
                 //Obtenemos el contador
-                $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                 //creamos el registro de la audiencia
                 if($request->fecha_cita == "" || $request->fecha_cita == null){
                     $fecha_cita = null;
@@ -1348,7 +1348,6 @@ class SolicitudController extends Controller {
                 }
 
                 //Obtenemos el contador
-                $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                 //creamos el registro de la audiencia
                 if($request->fecha_cita == "" || $request->fecha_cita == null){
                     $fecha_cita = null;
@@ -1747,6 +1746,7 @@ class SolicitudController extends Controller {
             $user_id = Auth::user()->id;
             $solicitud = Solicitud::find($request->solicitud_id);
             $solicitud->incidencia = true;
+            $solicitud->fecha_incidencia = now();
             $solicitud->tipo_incidencia_solicitud_id = $request->tipo_incidencia_solicitud_id;
             $solicitud->justificacion_incidencia = $request->justificacion_incidencia;
             $solicitud->user_id = $user_id;
@@ -1761,6 +1761,7 @@ class SolicitudController extends Controller {
                         // if($response["success"]){
                             $solicitud->estatus_solicitud_id = 3;
                             $solicitud->incidencia = true;
+                            $solicitud->fecha_incidencia = now();
                             $partes = $solicitud->partes;
                             foreach($partes as $parte){
                                 if($parte->tipo_parte_id == 1){
@@ -1775,6 +1776,7 @@ class SolicitudController extends Controller {
                     }else{
                         $solicitud->estatus_solicitud_id = 3;
                         $solicitud->incidencia = true;
+                        $solicitud->fecha_incidencia = now();
                         $partes = $solicitud->partes;
                         foreach($partes as $parte){
                             if($parte->tipo_parte_id == 1){
@@ -1787,6 +1789,9 @@ class SolicitudController extends Controller {
                     DB::rollback();
                     return $this->sendError(' Esta solicitud no tiene audiencias, crear incompetencia en proceso de confirmación ', 'Error');
                 }
+            }
+            if($request->tipo_incidencia_solicitud_id == 7){
+                //event(new GenerateDocumentResolution(null,$solicitud->id,13,10,$parte->id,null));
             }
             $solicitud->save();
             DB::commit();
