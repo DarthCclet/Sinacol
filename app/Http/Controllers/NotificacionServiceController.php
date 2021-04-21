@@ -41,7 +41,11 @@ class NotificacionServiceController extends Controller
                             "fecha_notificacion" => $demandado->fecha_notificacion
                         ]);
                         $image = base64_decode($demandado->documento);
-                        $clasificacion = ClasificacionArchivo::where("nombre","Razón de notificación citatorio")->first();
+                        if($arreglo->tipo_notificacion == "citatorio"){
+                            $clasificacion = ClasificacionArchivo::where("nombre","Razón de notificación citatorio")->first();
+                        }else{
+                            $clasificacion = ClasificacionArchivo::where("nombre","Razón de notificación multa")->first();
+                        }
                         $encontro_identico = false;
                         foreach($parteDemandado->documentos as $documento){
                             if($documento->clasificacion_archivo_id == $clasificacion->id){
