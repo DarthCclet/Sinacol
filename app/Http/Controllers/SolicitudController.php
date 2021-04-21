@@ -1097,6 +1097,7 @@ class SolicitudController extends Controller {
                 } else {
                     // Si la variable activo esta en 0 se elimina la parte
                     $parteSaved = Parte::find($citado['id']);
+                    event(new GenerateDocumentResolution(null,$solicitudSaved->id,59,21,null,$parteSaved->id));
                     $parteSaved->delete();
                 }
             }
@@ -1783,7 +1784,7 @@ class SolicitudController extends Controller {
                 }
             }
             if($request->tipo_incidencia_solicitud_id == 7){
-                //event(new GenerateDocumentResolution(null,$solicitud->id,13,10,$parte->id,null));
+                event(new GenerateDocumentResolution(null,$solicitud->id,61,23,$parte->id,null));
             }
             $solicitud->save();
             DB::commit();
@@ -1836,6 +1837,23 @@ class SolicitudController extends Controller {
             return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
         }
     }
+    public function delete_audiencia(Request $request){
+        try{
+            $solicitud_id = $request->solicitud_id;
+            $audiencia_id = $request->audiencia_id;
+            $response = HerramientaServiceProvider::delete_audiencia($solicitud_id,$audiencia_id);
+            if($response["success"]){
+                return $this->sendResponse(null, $response["msj"]);
+            }else{
+                return $this->sendError($response["msj"]);
+            }
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensaje: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return $this->sendError(' Error, no se pudo eliminar la audiencia ', 'Error');
+        }
+    }
 
     public function canal(Request $request){
         $mensaje = "El canal ingresado no es el correcto, verifica el canal asignado en tus documentos";
@@ -1877,5 +1895,8 @@ class SolicitudController extends Controller {
                 " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             return $this->sendError(' Error no se pudo guardar la url ', 'Error');
         }
+    }
+    public function eliminar_audiencias(){
+        return view('herramientas.eliminar_audiencias');
     }
 }
