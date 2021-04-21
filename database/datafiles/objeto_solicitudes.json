@@ -149,7 +149,12 @@
             "id": "30",
           "nombre": "Sustitución Patronal",
           "tipo_objeto_solicitudes_id" : "3"
+        },
+        {
+            "id": "31",
+          "nombre": "Ratificación de convenio",
+          "tipo_objeto_solicitudes_id" : "3"
         }
    ],
-    "numReg": 30
+    "numReg": 31
 }
