@@ -379,7 +379,8 @@ trait GenerateDocument
                     }else{
                       $centroId = intval($obj['centro_id']);
                     }
-                    $obj['tipo_solicitud'] =  mb_strtoupper(($obj['tipo_solicitud_id'] == 1) ? "Individual" :  (($obj['tipo_solicitud_id'] == 2) ? "Patronal Individual" : (($obj['tipo_solicitud_id'] == 3) ? "Patronal Colectiva" : "Sindical")));
+                    //$obj['tipo_solicitud'] =  mb_strtoupper(($obj['tipo_solicitud_id'] == 1) ? "Conciliación Prejudicial Individual " :  (($obj['tipo_solicitud_id'] == 2) ? "Conciliación Prejudicial Patronal Individual" : (($obj['tipo_solicitud_id'] == 3) ? "Patronal Colectiva" : "Sindical")));
+                    $obj['tipo_solicitud'] =  mb_strtoupper(($obj['tipo_solicitud_id'] == 1) ? "Conciliación Prejudicial Individual " :  (($obj['tipo_solicitud_id'] == 2) ? "Conciliación Prejudicial Patronal Individual" : "Conciliación Colectiva"));
                     $obj['prescripcion'] = $this->calcularPrescripcion($solicitud->objeto_solicitudes, $solicitud->fecha_conflicto,$solicitud->fecha_ratificacion);
                     $obj['fecha_maxima_ratificacion'] = $this->calcularFechaMaximaRatificacion($solicitud->fecha_recepcion,$centroId);
                     $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
@@ -541,7 +542,7 @@ trait GenerateDocument
                         if($audienciaId != "" && $audienciaId != null){
                           $representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
                           if(count($representanteLegal) > 0){
-                            $comparecenciaAudiencia = $representanteLegal[0]->compareciente()->where('audiencia_id',$idAudiencia)->get();   
+                            $comparecenciaAudiencia = $representanteLegal[0]->compareciente()->where('audiencia_id',$idAudiencia)->get();
                             $parte['asistencia'] =  (count($comparecenciaAudiencia)>0) ? 'Si':'No';
                             $objeto = new JsonResponse($representanteLegal);
                             $representanteLegal = json_decode($objeto->content(),true);
@@ -828,7 +829,7 @@ trait GenerateDocument
                             }
                             $hayConceptosPago = false;
                             // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
-                            if($hayDatosLaborales >0){  
+                            if($hayDatosLaborales >0){
 
                               // $diasPeriodicidad = Periodicidad::where('id', $datoLaborales->periodicidad_id)->first();
                               // $remuneracionDiaria = $datoLaborales->remuneracion / $diasPeriodicidad->dias;
@@ -1066,7 +1067,7 @@ trait GenerateDocument
                       $nombreSolicitanteComparecientes = "";
                       $idParteCitada = "";
                       $clausula2citadosConvenio = ($hayPartesConvenio >1)? '' : "";
-                      foreach ($partes_convenio as $key => $parteConvenio) { 
+                      foreach ($partes_convenio as $key => $parteConvenio) {
                         $nombreCitadoComparecientes = "";
                         $nombreSolicitanteComparecientes = "";
                         $nombreCitadoConvenio = "";
