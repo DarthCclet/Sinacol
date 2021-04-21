@@ -379,7 +379,8 @@ trait GenerateDocument
                     }else{
                       $centroId = intval($obj['centro_id']);
                     }
-                    $obj['tipo_solicitud'] =  mb_strtoupper(($obj['tipo_solicitud_id'] == 1) ? "Individual" :  (($obj['tipo_solicitud_id'] == 2) ? "Patronal Individual" : (($obj['tipo_solicitud_id'] == 3) ? "Patronal Colectiva" : "Sindical")));
+                    //$obj['tipo_solicitud'] =  mb_strtoupper(($obj['tipo_solicitud_id'] == 1) ? "Conciliación Prejudicial Individual " :  (($obj['tipo_solicitud_id'] == 2) ? "Conciliación Prejudicial Patronal Individual" : (($obj['tipo_solicitud_id'] == 3) ? "Patronal Colectiva" : "Sindical")));
+                    $bj['tipo_solicitud'] =  mb_strtoupper(($obj['tipo_solicitud_id'] == 1) ? "Conciliación Prejudicial Individual " :  (($obj['tipo_solicitud_id'] == 2) ? "Conciliación Prejudicial Patronal Individual" : "Conciliación Colectiva"));
                     $obj['prescripcion'] = $this->calcularPrescripcion($solicitud->objeto_solicitudes, $solicitud->fecha_conflicto,$solicitud->fecha_ratificacion);
                     $obj['fecha_maxima_ratificacion'] = $this->calcularFechaMaximaRatificacion($solicitud->fecha_recepcion,$centroId);
                     $obj = Arr::except($obj, ['id','updated_at','created_at','deleted_at']);
