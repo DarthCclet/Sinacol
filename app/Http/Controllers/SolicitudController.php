@@ -1784,7 +1784,7 @@ class SolicitudController extends Controller {
                 }
             }
             if($request->tipo_incidencia_solicitud_id == 7){
-                event(new GenerateDocumentResolution(null,$solicitud->id,61,23,$parte->id,null));
+                event(new GenerateDocumentResolution(null,$solicitud->id,61,24,$parte->id,null));
             }
             $solicitud->save();
             DB::commit();
