@@ -41,6 +41,7 @@ class NotificacionServiceController extends Controller
                             "fecha_notificacion" => $demandado->fecha_notificacion
                         ]);
                         $image = base64_decode($demandado->documento);
+                        $imgMd5 = md5($image);
                         if($arreglo->tipo_notificacion == "citatorio"){
                             $clasificacion = ClasificacionArchivo::where("nombre","Razón de notificación citatorio")->first();
                         }else{
@@ -50,7 +51,7 @@ class NotificacionServiceController extends Controller
                         foreach($parteDemandado->documentos as $documento){
                             if($documento->clasificacion_archivo_id == $clasificacion->id){
                                 $archivo_existente = Storage::get($documento->ruta);
-                                if(md5($image) == md5($archivo_existente) ){
+                                if($imgMd5 == md5($archivo_existente) ){
                                     $encontro_identico = true;
                                 }
                             }
@@ -59,12 +60,12 @@ class NotificacionServiceController extends Controller
                             $directorio = 'expedientes/'.$audiencia->expediente_id.'/audiencias/'.$audiencia->id;
                             Storage::makeDirectory($directorio);
     
-                            $fullPath = $directorio.'/notificacion'.$parteDemandado->id.'.pdf';
-                            $dir = Storage::put($fullPath, $image);
                             $uuid = Str::uuid();
+                            $fullPath = $directorio.'/notificacion'.$uuid.'.pdf';
+                            $dir = Storage::put($fullPath, $image);
                             $parteDemandado->documentos()->create([
-                                "nombre" => "Notificacion".$parteDemandado->id,
-                                "nombre_original" => "Notificacion".$parteDemandado->id,
+                                "nombre" => "Notificacion".$uuid,
+                                "nombre_original" => "Notificacion".$uuid,
                                 "descripcion" => "documento generado en el sistema de notificaciones",
                                 "nombre" => str_replace($directorio."/", '',$fullPath),
                                 "nombre_original" => str_replace($directorio."/", '',$fullPath),
