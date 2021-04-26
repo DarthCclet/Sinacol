@@ -1214,213 +1214,219 @@ class SolicitudController extends Controller {
         $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
         DB::beginTransaction();
         try{
-            //Obtenemos el contador
-            $edo_folio = $solicitud->centro->abreviatura;
-            $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
-            //Creamos el expediente de la solicitud
-            $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
-            foreach ($solicitud->partes as $key => $parte) {
-                if(count($parte->documentos) == 0){
-                    $parte->ratifico = true;
-                    $parte->update();
-                }
-            }
-            $tipo_notificacion_id = null;
-            if($request->inmediata == "true"){
-                $user_id = Auth::user()->id;
-                $solicitud->update(["estatus_solicitud_id" => 2,"url_virtual" => null, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => true,'user_id'=>$user_id]);
-                // Obtenemos la sala virtual
-                $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
-                if($sala == null){
-                    DB::rollBack();
-                    return $this->sendError('No hay salas virtuales disponibles', 'Error');
-                }
-                $sala_id = $sala->id;
-//                Validamos que el que ratifica sea conciliador
-                if(!auth()->user()->hasRole('Personal conciliador')){
-                    DB::rollBack();
-                    return $this->sendError('La solicitud con convenio solo puede ser confirmada por personal conciliador', 'Error');
-                }else{
-                    //Buscamos el conciliador del usuario
-                    if(isset(auth()->user()->persona->conciliador)){
-                        $conciliador = auth()->user()->persona->conciliador;
-                    }else{
-                        DB::rollBack();
-                        return $this->sendError('El usuario no esta dado de alta en la lista de conciliadores', 'Error');
-                    }
-                }
-
-                //obtenemos al conciliador disponible
-//                $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
-//                $conciliadoresDisponibles = array();
-//                foreach($conciliadores as $conciliador){
-//                    $conciliadorDisponible = false;
-//                    foreach($conciliador->rolesConciliador as $roles){
-//                        if($roles->rol_atencion_id == 2){
-//                            $conciliadorDisponible = true;
-//                        }
-//                    }
-//                    if($conciliadorDisponible){
-//                        $conciliadoresDisponibles[]=$conciliador;
-//                    }
-//                }
-//                $conciliador_id = null;
-//                if(count($conciliadoresDisponibles) > 0){
-//                    $conciliador = Arr::random($conciliadoresDisponibles);
-//                }else{
-//                    DB::rollBack();
-//                    return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
-//                }
-                // Registramos la audiencia
+//            Validamos si ya hay un expediente
+            if($solicitud->expediente == null){
+                
                 //Obtenemos el contador
-                //creamos el registro de la audiencia
-                if($request->fecha_cita == "" || $request->fecha_cita == null){
-                    $fecha_cita = null;
-                }else{
-                    $fechaC = explode("/", $request->fecha_cita);
-                    $fecha_cita = $fechaC["2"]."-".$fechaC["1"]."-".$fechaC["0"];
-                }
-                $audiencia = Audiencia::create([
-                    "expediente_id" => $expediente->id,
-                    "multiple" => false,
-                    "fecha_audiencia" => now()->format('Y-m-d'),
-                    "hora_inicio" => now()->format('H:i:s'),
-                    "hora_fin" => \Carbon\Carbon::now()->addHours(1)->addMinutes(30)->format('H:i:s'),
-                    "conciliador_id" =>  $conciliador->id,
-                    "numero_audiencia" => 1,
-                    "reprogramada" => false,
-                    "anio" => $folioAudiencia->anio,
-                    "folio" => $folioAudiencia->contador,
-                    "fecha_cita" => $fecha_cita
-                ]);
-
-                // guardamos la sala y el conciliador a la audiencia
-                ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id,"solicitante" => true]);
-                SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
-                // Guardamos todas las Partes en la audiencia
-                $partes = $solicitud->partes;
-                foreach($partes as $parte){
-                    AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => null]);
-                    if($parte->tipo_parte_id == 2){
-                        // generar citatorio de conciliacion
-                        event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
+                $edo_folio = $solicitud->centro->abreviatura;
+                $folio = $edo_folio. "/CJ/I/". $folioC->anio."/".sprintf("%06d", $folioC->contador);
+                //Creamos el expediente de la solicitud
+                $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
+                foreach ($solicitud->partes as $key => $parte) {
+                    if(count($parte->documentos) == 0){
+                        $parte->ratifico = true;
+                        $parte->update();
                     }
                 }
-                $audiencia->tipo_solicitud_id = $audiencia->expediente->solicitud->tipo_solicitud_id;
+                $tipo_notificacion_id = null;
+                if($request->inmediata == "true"){
+                    $user_id = Auth::user()->id;
+                    $solicitud->update(["estatus_solicitud_id" => 2,"url_virtual" => null, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => true,'user_id'=>$user_id]);
+                    // Obtenemos la sala virtual
+                    $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
+                    if($sala == null){
+                        DB::rollBack();
+                        return $this->sendError('No hay salas virtuales disponibles', 'Error');
+                    }
+                    $sala_id = $sala->id;
+    //                Validamos que el que ratifica sea conciliador
+                    if(!auth()->user()->hasRole('Personal conciliador')){
+                        DB::rollBack();
+                        return $this->sendError('La solicitud con convenio solo puede ser confirmada por personal conciliador', 'Error');
+                    }else{
+                        //Buscamos el conciliador del usuario
+                        if(isset(auth()->user()->persona->conciliador)){
+                            $conciliador = auth()->user()->persona->conciliador;
+                        }else{
+                            DB::rollBack();
+                            return $this->sendError('El usuario no esta dado de alta en la lista de conciliadores', 'Error');
+                        }
+                    }
+
+                    //obtenemos al conciliador disponible
+    //                $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
+    //                $conciliadoresDisponibles = array();
+    //                foreach($conciliadores as $conciliador){
+    //                    $conciliadorDisponible = false;
+    //                    foreach($conciliador->rolesConciliador as $roles){
+    //                        if($roles->rol_atencion_id == 2){
+    //                            $conciliadorDisponible = true;
+    //                        }
+    //                    }
+    //                    if($conciliadorDisponible){
+    //                        $conciliadoresDisponibles[]=$conciliador;
+    //                    }
+    //                }
+    //                $conciliador_id = null;
+    //                if(count($conciliadoresDisponibles) > 0){
+    //                    $conciliador = Arr::random($conciliadoresDisponibles);
+    //                }else{
+    //                    DB::rollBack();
+    //                    return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
+    //                }
+                    // Registramos la audiencia
+                    //Obtenemos el contador
+                    //creamos el registro de la audiencia
+                    if($request->fecha_cita == "" || $request->fecha_cita == null){
+                        $fecha_cita = null;
+                    }else{
+                        $fechaC = explode("/", $request->fecha_cita);
+                        $fecha_cita = $fechaC["2"]."-".$fechaC["1"]."-".$fechaC["0"];
+                    }
+                    $audiencia = Audiencia::create([
+                        "expediente_id" => $expediente->id,
+                        "multiple" => false,
+                        "fecha_audiencia" => now()->format('Y-m-d'),
+                        "hora_inicio" => now()->format('H:i:s'),
+                        "hora_fin" => \Carbon\Carbon::now()->addHours(1)->addMinutes(30)->format('H:i:s'),
+                        "conciliador_id" =>  $conciliador->id,
+                        "numero_audiencia" => 1,
+                        "reprogramada" => false,
+                        "anio" => $folioAudiencia->anio,
+                        "folio" => $folioAudiencia->contador,
+                        "fecha_cita" => $fecha_cita
+                    ]);
+
+                    // guardamos la sala y el conciliador a la audiencia
+                    ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id,"solicitante" => true]);
+                    SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id,"solicitante" => true]);
+                    // Guardamos todas las Partes en la audiencia
+                    $partes = $solicitud->partes;
+                    foreach($partes as $parte){
+                        AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => null]);
+                        if($parte->tipo_parte_id == 2){
+                            // generar citatorio de conciliacion
+                            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
+                        }
+                    }
+                    $audiencia->tipo_solicitud_id = $audiencia->expediente->solicitud->tipo_solicitud_id;
+                    DB::commit();
+                    return $audiencia;
+                }else{
+                    if((int)$request->tipo_notificacion_id == 1){
+                        $diasHabilesMin = 7;
+                        $diasHabilesMax = 10;
+                    }else{
+                        $diasHabilesMin = 15;
+                        $diasHabilesMax = 18;
+                    }
+    //                obtenemos el domicilio del centro
+                    $domicilio_centro = auth()->user()->centro->domicilio;
+    //                obtenemos el domicilio del citado
+                    $partes = $solicitud->partes;
+                    $domicilio_citado = null;
+                    foreach($partes as $parte){
+                        if($parte->tipo_parte_id == 2){
+                            $domicilio_citado = $parte->domicilios()->first();
+                            break;
+                        }
+                    }
+                    $user_id = Auth::user()->id;
+                    $solicitud->update(["estatus_solicitud_id" => 2,"url_virtual" => null, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
+                    $centroResponsable = auth()->user()->centro;
+                    if($solicitud->tipo_solicitud_id == 3 || $solicitud->tipo_solicitud_id == 4){
+                        $centroResponsable = Centro::where("abreviatura","OCCFCRL")->first();
+                    }
+                    if($request->separados == "true"){
+                        $datos_audiencia = FechaAudienciaService::obtenerFechaAudienciaDoble(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax,$solicitud->virtual);
+                        $multiple = true;
+                    }else{
+                        $datos_audiencia = FechaAudienciaService::obtenerFechaAudiencia(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax,$solicitud->virtual);
+                        $multiple = false;
+                    }
+    //                Solicitamos la fecha limite de notificacion solo cuando el tipo de notificación es por notificador sin cita
+                    $fecha_notificacion = null;
+                    if((int)$request->tipo_notificacion_id == 2){
+                        $fecha_notificacion = self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$datos_audiencia["fecha_audiencia"]);
+                    }
+
+                    //Obtenemos el contador
+                    //creamos el registro de la audiencia
+                    if($request->fecha_cita == "" || $request->fecha_cita == null){
+                        $fecha_cita = null;
+                    }else{
+                        $fechaC = explode("/", $request->fecha_cita);
+                        $fecha_cita = $fechaC["2"]."-".$fechaC["1"]."-".$fechaC["0"];
+                    }
+                    //Agregamos el la etapa de notificación
+                    $etapa = \App\EtapaNotificacion::where("etapa","ilike","%Ratificación%")->first();
+
+                    $audiencia = Audiencia::create([
+                        "expediente_id" => $expediente->id,
+                        "multiple" => $multiple,
+                        "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
+                        "fecha_limite_audiencia" => $fecha_notificacion,
+                        "hora_inicio" => $datos_audiencia["hora_inicio"],
+                        "hora_fin" => $datos_audiencia["hora_fin"],
+                        "conciliador_id" =>  $datos_audiencia["conciliador_id"],
+                        "numero_audiencia" => 1,
+                        "reprogramada" => false,
+                        "anio" => $folioAudiencia->anio,
+                        "folio" => $folioAudiencia->contador,
+                        "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
+                        "fecha_cita" => $fecha_cita,
+                        "etapa_notificacion_id" => $etapa->id,
+                    ]);
+                    if($datos_audiencia["encontro_audiencia"]){
+                        // guardamos la sala y el consiliador a la audiencia
+                        ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $datos_audiencia["conciliador_id"],"solicitante" => true]);
+                        SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $datos_audiencia["sala_id"],"solicitante" => true]);
+                        if($request->separados == "true"){
+                            ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $datos_audiencia["conciliador2_id"],"solicitante" => false]);
+                            SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $datos_audiencia["sala2_id"],"solicitante" => false]);
+                        }
+                    }
+                    // Guardamos todas las Partes en la audiencia
+
+    //                dd($partes);
+
+                    foreach($partes as $parte){
+                        if($parte->tipo_parte_id != 1){
+                            $tipo_notificacion_id = $this->request->tipo_notificacion_id;
+                        }
+                        AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
+                        if($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]){
+                            event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
+                        }
+                    }
+    //                if($datos_audiencia["encontro_audiencia"] && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
+    //                    event(new RatificacionRealizada($audiencia->id,"citatorio"));
+    //                }
+                    $expediente = Expediente::find($request->expediente_id);
+                }
+
+                $salas = [];
+                foreach($audiencia->salasAudiencias as $sala){
+                    $sala->sala;
+                }
+                foreach($audiencia->conciliadoresAudiencias as $conciliador){
+                    $conciliador->conciliador->persona;
+                }
+                $acuse = Documento::where('documentable_type','App\Solicitud')->where('documentable_id',$solicitud->id)->where('clasificacion_archivo_id',40)->first();
+                if($acuse != null){
+                    $acuse->delete();
+                }
                 DB::commit();
+                if($request->inmediata != "true" && $audiencia->encontro_audiencia && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
+                    event(new RatificacionRealizada($audiencia->id,"citatorio"));
+                }
+                event(new GenerateDocumentResolution("",$solicitud->id,40,6));
                 return $audiencia;
             }else{
-                if((int)$request->tipo_notificacion_id == 1){
-                    $diasHabilesMin = 7;
-                    $diasHabilesMax = 10;
-                }else{
-                    $diasHabilesMin = 15;
-                    $diasHabilesMax = 18;
-                }
-//                obtenemos el domicilio del centro
-                $domicilio_centro = auth()->user()->centro->domicilio;
-//                obtenemos el domicilio del citado
-                $partes = $solicitud->partes;
-                $domicilio_citado = null;
-                foreach($partes as $parte){
-                    if($parte->tipo_parte_id == 2){
-                        $domicilio_citado = $parte->domicilios()->first();
-                        break;
-                    }
-                }
-                $user_id = Auth::user()->id;
-                $solicitud->update(["estatus_solicitud_id" => 2,"url_virtual" => null, "ratificada" => true, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
-                $centroResponsable = auth()->user()->centro;
-                if($solicitud->tipo_solicitud_id == 3 || $solicitud->tipo_solicitud_id == 4){
-                    $centroResponsable = Centro::where("abreviatura","OCCFCRL")->first();
-                }
-                if($request->separados == "true"){
-                    $datos_audiencia = FechaAudienciaService::obtenerFechaAudienciaDoble(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax,$solicitud->virtual);
-                    $multiple = true;
-                }else{
-                    $datos_audiencia = FechaAudienciaService::obtenerFechaAudiencia(date("Y-m-d"), $centroResponsable,$diasHabilesMin,$diasHabilesMax,$solicitud->virtual);
-                    $multiple = false;
-                }
-//                Solicitamos la fecha limite de notificacion solo cuando el tipo de notificación es por notificador sin cita
-                $fecha_notificacion = null;
-                if((int)$request->tipo_notificacion_id == 2){
-                    $fecha_notificacion = self::obtenerFechaLimiteNotificacion($domicilio_centro,$domicilio_citado,$datos_audiencia["fecha_audiencia"]);
-                }
-
-                //Obtenemos el contador
-                //creamos el registro de la audiencia
-                if($request->fecha_cita == "" || $request->fecha_cita == null){
-                    $fecha_cita = null;
-                }else{
-                    $fechaC = explode("/", $request->fecha_cita);
-                    $fecha_cita = $fechaC["2"]."-".$fechaC["1"]."-".$fechaC["0"];
-                }
-                //Agregamos el la etapa de notificación
-                $etapa = \App\EtapaNotificacion::where("etapa","ilike","%Ratificación%")->first();
-                
-                $audiencia = Audiencia::create([
-                    "expediente_id" => $expediente->id,
-                    "multiple" => $multiple,
-                    "fecha_audiencia" => $datos_audiencia["fecha_audiencia"],
-                    "fecha_limite_audiencia" => $fecha_notificacion,
-                    "hora_inicio" => $datos_audiencia["hora_inicio"],
-                    "hora_fin" => $datos_audiencia["hora_fin"],
-                    "conciliador_id" =>  $datos_audiencia["conciliador_id"],
-                    "numero_audiencia" => 1,
-                    "reprogramada" => false,
-                    "anio" => $folioAudiencia->anio,
-                    "folio" => $folioAudiencia->contador,
-                    "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
-                    "fecha_cita" => $fecha_cita,
-                    "etapa_notificacion_id" => $etapa->id,
-                ]);
-                if($datos_audiencia["encontro_audiencia"]){
-                    // guardamos la sala y el consiliador a la audiencia
-                    ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $datos_audiencia["conciliador_id"],"solicitante" => true]);
-                    SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $datos_audiencia["sala_id"],"solicitante" => true]);
-                    if($request->separados == "true"){
-                        ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $datos_audiencia["conciliador2_id"],"solicitante" => false]);
-                        SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $datos_audiencia["sala2_id"],"solicitante" => false]);
-                    }
-                }
-                // Guardamos todas las Partes en la audiencia
-
-//                dd($partes);
-                
-                foreach($partes as $parte){
-                    if($parte->tipo_parte_id != 1){
-                        $tipo_notificacion_id = $this->request->tipo_notificacion_id;
-                    }
-                    AudienciaParte::create(["audiencia_id" => $audiencia->id,"parte_id" => $parte->id,"tipo_notificacion_id" => $tipo_notificacion_id]);
-                    if($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]){
-                        event(new GenerateDocumentResolution($audiencia->id,$solicitud->id,14,4,null,$parte->id));
-                    }
-                }
-//                if($datos_audiencia["encontro_audiencia"] && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
-//                    event(new RatificacionRealizada($audiencia->id,"citatorio"));
-//                }
-                $expediente = Expediente::find($request->expediente_id);
+                DB::commit();
+                return $solicitud->expediente->audiencia->first();
             }
-
-            $salas = [];
-            foreach($audiencia->salasAudiencias as $sala){
-                $sala->sala;
-            }
-            foreach($audiencia->conciliadoresAudiencias as $conciliador){
-                $conciliador->conciliador->persona;
-            }
-            $acuse = Documento::where('documentable_type','App\Solicitud')->where('documentable_id',$solicitud->id)->where('clasificacion_archivo_id',40)->first();
-            if($acuse != null){
-                $acuse->delete();
-            }
-            DB::commit();
-            if($request->inmediata != "true" && $audiencia->encontro_audiencia && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
-                event(new RatificacionRealizada($audiencia->id,"citatorio"));
-            }
-            event(new GenerateDocumentResolution("",$solicitud->id,40,6));
-            return $audiencia;
         }catch(\Throwable $e){
-//            dd($e);
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensale: ". $e->getMessage().
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
