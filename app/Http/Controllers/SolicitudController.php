@@ -1151,7 +1151,7 @@ class SolicitudController extends Controller {
                 }
             }
             $user_id = Auth::user()->id;
-            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"fecha_incidencia"=>now(),"justificacion_incidencia"=>"Ratificada con incompetencia","tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
+            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"fecha_incidencia"=>now(),"justificacion_incidencia"=>$this->request->justificacion,"tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
 
             // Obtenemos la sala virtual
             $sala = Sala::where("centro_id",$solicitud->centro_id)->where("virtual",true)->first();
@@ -1208,11 +1208,11 @@ class SolicitudController extends Controller {
             return $this->sendError('No se ha configurado el centro', 'Error');
             exit;
         }
+        DB::beginTransaction();
         $solicitud = Solicitud::find($request->id);
         $ContadorController = new ContadorController();
         $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
         $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
-        DB::beginTransaction();
         try{
 //            Validamos si ya hay un expediente
             if($solicitud->expediente == null){
@@ -1423,8 +1423,8 @@ class SolicitudController extends Controller {
                 event(new GenerateDocumentResolution("",$solicitud->id,40,6));
                 return $audiencia;
             }else{
-                DB::commit();
-                return $solicitud->expediente->audiencia->first();
+                DB::rollback();
+                return $solicitud->expediente->audiencia()->with('audienciaParte','conciliadoresAudiencias','conciliadoresAudiencias.conciliador.persona','salasAudiencias','salasAudiencias.sala')->first();;
             }
         }catch(\Throwable $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
