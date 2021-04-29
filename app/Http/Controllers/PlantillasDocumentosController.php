@@ -1568,7 +1568,7 @@ class PlantillasDocumentosController extends Controller
                                         $v = Carbon::createFromFormat('Y-m-d',$v)->format('d/m/Y');
                                       }
                                     }
-                                    $vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
+                                    $vars[strtolower($key.'_'.$k.'_'.$n)]  = ($v!= null)?$v:"";
                                   }
                                 }
                               }elseif ($k == 'nombre_completo') {

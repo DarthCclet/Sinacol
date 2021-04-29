@@ -233,7 +233,8 @@ trait GenerateDocument
                                 if($n == "comida_dentro"){
                                   $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
                                 }else{
-                                  $vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
+                                  //$vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
+                                  $vars[strtolower($key.'_'.$k.'_'.$n)]  = ($v!= null)?$v:"";
                                 }
                                 // $pos = strpos($n,'fecha');
                                 // if ($pos !== false && $v != "--"){
