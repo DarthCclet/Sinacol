@@ -1208,11 +1208,11 @@ class SolicitudController extends Controller {
             return $this->sendError('No se ha configurado el centro', 'Error');
             exit;
         }
+        $ContadorController = new ContadorController();
+        $folioC = $ContadorController->getContador(1,auth()->user()->centro_id);
+        $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
         DB::beginTransaction();
         $solicitud = Solicitud::find($request->id);
-        $ContadorController = new ContadorController();
-        $folioC = $ContadorController->getContador(1,$solicitud->centro->id);
-        $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
         try{
 //            Validamos si ya hay un expediente
             if($solicitud->expediente == null){
