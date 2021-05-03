@@ -421,6 +421,7 @@ trait GenerateDocument
                     $countSolicitado = 0;
                     $nombresSolicitantes = [];
                     $nombresSolicitados = [];
+                    $solicitantesNSS = [];
                     $solicitantesIdentificaciones = [];
                     $datoLaboral="";
                     $solicitanteIdentificacion = "";
@@ -532,6 +533,7 @@ trait GenerateDocument
                           $parte['datos_laborales'] = $datoLaboral;
                           $parte['datos_laborales_salario_mensual'] = $salarioMensual;
                           $parte['datos_laborales_salario_mensual_letra'] = $salarioMensualTextual;
+                          $nss = $datoLaborales->nss;
                         }
                         $solicitanteIdentificacion = $parte['nombre_completo'] ." quien se identifica con " .$parte['identificacion_documento']." expedida a su favor por ". $parte['identificacion_expedida_por'];
                         // array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
@@ -584,6 +586,7 @@ trait GenerateDocument
                           array_push($parte1, $parte);
                           array_push($nombresSolicitantes, $parte['nombre_completo'] );
                           array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
+                          array_push($solicitantesNSS, $nss);
                           $countSolicitante += 1;
                         }
 
@@ -600,6 +603,7 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
+                    $data = Arr::add( $data, 'nss_solicitantes', implode(", ",$solicitantesNSS));
                     $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
                     $data = Arr::add( $data, 'firmas_partes_qr', $firmasPartesQR);
                 }elseif ($model == 'Expediente') {

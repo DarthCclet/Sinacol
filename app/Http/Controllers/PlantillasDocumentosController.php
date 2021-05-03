@@ -354,6 +354,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'total_solicitantes');
                 array_push($columnNames,'nombres_solicitados');
                 array_push($columnNames,'nombres_solicitantes');
+                array_push($columnNames,'nss_solicitantes');
                 array_push($columnNames,'objeto_solicitudes');
                 array_push($columnNames,'prescripcion');
                 array_push($columnNames,'fecha_maxima_ratificacion');
@@ -630,6 +631,7 @@ class PlantillasDocumentosController extends Controller
                     $countSolicitado = 0;
                     $nombresSolicitantes = [];
                     $nombresSolicitados = [];
+                    $solicitantesNSS = [];
                     $solicitantesIdentificaciones = [];
                     $datoLaboral="";
                     $solicitanteIdentificacion = "";
@@ -738,6 +740,7 @@ class PlantillasDocumentosController extends Controller
                           $parte['datos_laborales'] = $datoLaboral;
                           $parte['datos_laborales_salario_mensual'] = $salarioMensual;
                           $parte['datos_laborales_salario_mensual_letra'] = $salarioMensualTextual;
+                          $nss = $datoLaborales->nss;
                         }
 
                         $solicitanteIdentificacion = $parte['nombre_completo'] ." quien se identifica con " .$parte['identificacion_documento']." expedida a su favor por ". $parte['identificacion_expedida_por'];
@@ -782,6 +785,7 @@ class PlantillasDocumentosController extends Controller
                         array_push($parte1, $parte);
                         array_push($nombresSolicitantes, $parte['nombre_completo'] );
                         array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
+                        array_push($solicitantesNSS, $nss);
                         $countSolicitante += 1;
                       }
                       if ($parte['tipo_parte_id'] == 2 ) {//Citado
@@ -797,6 +801,7 @@ class PlantillasDocumentosController extends Controller
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
+                    $data = Arr::add( $data, 'nss_solicitantes', implode(", ",$solicitantesNSS));
                     $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
                     $data = Arr::add( $data, 'firmas_partes_qr', $firmasPartesQR);
                 }elseif ($model == 'Expediente') {
