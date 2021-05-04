@@ -14,7 +14,7 @@
     </ol>
     <!-- end breadcrumb -->
     <!-- begin page-header -->
-    <h1 class="page-header">Deshacer Procesos</h1>
+    <h1 class="page-header">Eliminar Audiencias</h1>
     <!-- end page-header -->
     <!-- begin panel -->
     <div class="panel panel-default" id="nueva-incidencia" >
