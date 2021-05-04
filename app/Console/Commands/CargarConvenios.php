@@ -83,7 +83,7 @@ class CargarConvenios extends Command
                                 "clasificacion_archivo_id" => $tipoArchivo->id ,
                             ]);
                             if($documento){
-                                $correcto = "Se guardar convenio CURP: ".$curp. " en la linea ".($key+1);
+                                $correcto = "Se guardo convenio CURP: ".$curp. " en la linea ".($key+1);
                                 dump($correcto); 
                                 fputs($savedConv, $correcto."\n");
                             }else{
@@ -92,7 +92,7 @@ class CargarConvenios extends Command
                                 fputs($failedConv, $error."\n");
                             }
                         }else{
-                            $error = "No se encontro archivo con curp: ".$curp. " en la linea ".($key+1);
+                            $error = "No se encontro archivo convenio con curp: ".$curp. " en la linea ".($key+1);
                             dump($error); 
                             fputs($failedConv, $error."\n");    
                         }
@@ -118,16 +118,16 @@ class CargarConvenios extends Command
                                 "clasificacion_archivo_id" => $tipoArchivoIdentif->id ,
                             ]);
                             if($documento){
-                                $correcto = "Se guardar convenio CURP: ".$curp. " en la linea ".($key+1);
+                                $correcto = "Se guardo identificacion CURP: ".$curp. " en la linea ".($key+1);
                                 dump($correcto); 
                                 fputs($savedIdent, $correcto."\n");
                             }else{
-                                $error = "No se pudo guardar convenio de CURP: ".$curp. " en la linea ".($key+1);
+                                $error = "No se pudo guardar identificacion de CURP: ".$curp. " en la linea ".($key+1);
                                 dump($error); 
                                 fputs($failedConv, $error."\n");
                             }
                         }else{
-                            $error = "No se encontro archivo con curp: ".$curp. " en la linea ".($key+1);
+                            $error = "No se encontro archivo de identificacion con curp: ".$curp. " en la linea ".($key+1);
                             dump($error); 
                             fputs($failedIdent, $error."\n");    
                         }
