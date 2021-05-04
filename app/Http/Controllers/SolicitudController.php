@@ -1883,17 +1883,16 @@ class SolicitudController extends Controller {
         return $this->sendResponse($arrResponse, 'SUCCESS');
     }
 
-    public function guardarUrlVirtual(Request $request) {
-        try {
-            $file = Storage::get($documento->ruta);
+    public function guardarUrlVirtual(Request $request){
+        try{
             $solicitud = Solicitud::find($request->solicitud_id);
             $solicitud->url_virtual = $request->url_virtual;
             $solicitud->save();
             return $this->sendResponse("", 'SUCCESS');
-        } catch (Exception $e) {
-            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
-                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
-                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensaje: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             return $this->sendError(' Error no se pudo guardar la url ', 'Error');
         }
     }
