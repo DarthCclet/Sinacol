@@ -9,7 +9,7 @@ use OwenIt\Auditing\Auditable;
 
 class AudienciaParte extends Model implements AuditableContract
 {
-    use Auditable,SoftDeletes,
+    use SoftDeletes,Auditable,
         \App\Traits\CambiarEventoAudit;
     protected $table = 'audiencias_partes';
     protected $guarded = ['id','created_at','updated_at','deleted_at'];

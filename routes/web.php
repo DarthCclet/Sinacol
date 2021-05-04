@@ -232,7 +232,6 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::get('audiencia/suspension/{audiencia_id}','AudienciaController@SuspensionVirtual');
 
-
 });
 
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
