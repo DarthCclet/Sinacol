@@ -66,11 +66,11 @@ class CargarConvenios extends Command
                         $actaAudiencia = $audiencia->documentos()->where('clasificacion_archivo_id',15)->first();
                         if($actaAudiencia == null){
                             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3)); 
-                            $correcto = " Se genera acta de audiencia CURP: ".$curp. " de solicitud: ".$solicitud->folio."-".$solicitud->anio."  en la linea ".($key+1);
+                            $correcto = " Se genera acta de audiencia CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
                             dump($correcto); 
                             fputs($savedIdent, $correcto."\n");
                         }else{
-                            $error = "Ya existe acta de audiencia de CURP: ".$curp. " de solicitud: ".$solicitud->folio."-".$solicitud->anio." en la linea ".($key+1);
+                            $error = "Ya existe acta de audiencia de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio." en la linea ".($key+1);
                             dump($error); 
                             fputs($failedConv, $error."\n");
                         }
@@ -97,16 +97,16 @@ class CargarConvenios extends Command
                                 "clasificacion_archivo_id" => $tipoArchivo->id ,
                             ]);
                             if($documento){
-                                $correcto = "Se guardo convenio CURP: ".$curp. " de solicitud: ".$solicitud->folio."-".$solicitud->anio."  en la linea ".($key+1);
+                                $correcto = "Se guardo convenio CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
                                 dump($correcto); 
                                 fputs($savedConv, $correcto."\n");
                             }else{
-                                $error = "No se pudo guardar convenio de CURP: ".$curp. " de solicitud: ".$solicitud->folio."-".$solicitud->anio."  en la linea ".($key+1);
+                                $error = "No se pudo guardar convenio de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
                                 dump($error); 
                                 fputs($failedConv, $error."\n");
                             }
                         }else{
-                            $error = "No se encontro archivo convenio con curp: ".$curp. " de solicitud: ".$solicitud->folio."-".$solicitud->anio."  en la linea ".($key+1);
+                            $error = "No se encontro archivo convenio con curp: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
                             dump($error); 
                             fputs($failedConv, $error."\n");    
                         }
@@ -132,16 +132,16 @@ class CargarConvenios extends Command
                                 "clasificacion_archivo_id" => $tipoArchivoIdentif->id ,
                             ]);
                             if($documento){
-                                $correcto = "Se guardo identificacion CURP: ".$curp. " de solicitud: ".$solicitud->folio."-".$solicitud->anio."  en la linea ".($key+1);
+                                $correcto = "Se guardo identificacion CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
                                 dump($correcto); 
                                 fputs($savedIdent, $correcto."\n");
                             }else{
-                                $error = "No se pudo guardar identificacion de CURP: ".$curp. " de solicitud: ".$solicitud->folio."-".$solicitud->anio."  en la linea ".($key+1);
+                                $error = "No se pudo guardar identificacion de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
                                 dump($error); 
                                 fputs($failedConv, $error."\n");
                             }
                         }else{
-                            $error = "No se encontro archivo de identificacion con curp: ".$curp. " de solicitud: ".$solicitud->folio."-".$solicitud->anio."  en la linea ".($key+1);
+                            $error = "No se encontro archivo de identificacion con curp: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
                             dump($error); 
                             fputs($failedIdent, $error."\n");    
                         }
