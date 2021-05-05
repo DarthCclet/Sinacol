@@ -449,11 +449,18 @@ class AudienciaController extends Controller {
         } else {
             $rol = \App\RolAtencion::where("nombre", "Conciliador virtual")->first();
         }
-        $conciliadores = Conciliador::join("roles_conciliador", "conciliadores.id", "roles_conciliador.conciliador_id")
-                ->where("roles_conciliador.rol_atencion_id", $rol->id)
-                ->where("conciliadores.centro_id", auth()->user()->centro_id)
-                ->select("conciliadores.*")
-                ->get();
+        $conciliadores = [];
+        foreach(auth()->user()->centro->conciliadores as $conciliador){
+            $pasa = false;
+            foreach($conciliador->rolesConciliador as $rol_atencion){
+                if($rol_atencion->rol_atencion_id == $rol->id){
+                    $pasa = true;
+                }
+            }
+            if($pasa){
+                $conciliadores[] = $conciliador;
+            }
+        }
         foreach ($conciliadores as $conciliadorE) {
             $conciliador = Conciliador::find($conciliadorE->id);
             $pasa = false;
@@ -1718,12 +1725,15 @@ class AudienciaController extends Controller {
      * @return array Partes $partes
      */
     public function GetPartesFisicas($audiencia_id) {
-        $audiencia = Audiencia::find($audiencia_id);
+        $audiencia = Audiencia::find($audiencia_id);        
 //        dd($audiencia->expediente->solicitud->partes);
         $partes = [];
         foreach ($audiencia->audienciaParte as $audienciaParte) {
             if ($audienciaParte->parte->tipo_persona_id == 1) {
                 $audienciaParte->parte->tipoParte = $audienciaParte->parte->tipoParte;
+                if ($audienciaParte->parte->tipoParte->id == 3) {
+                   $audienciaParte->parte->parteRepresentada = Parte::find($audienciaParte->parte->parte_representada_id);
+                }
                 $audienciaParte->parte->documentos;
                 $partes[] = $audienciaParte->parte;
             }

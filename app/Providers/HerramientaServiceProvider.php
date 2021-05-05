@@ -34,7 +34,7 @@ class HerramientaServiceProvider extends ServiceProvider
 
                     $solicitud->estatus_solicitud_id = 2;
                     $solicitud->save();
-                    $documentos = $audiencia->documentos()->whereIn('clasificacion_archivo_id',[15,16,17,18,41])->get();
+                    $documentos = $audiencia->documentos()->whereIn('clasificacion_archivo_id',[15,16,17,18,41,43,52,54])->get();
                     $resolucionPartes =  $audiencia->resolucionPartes;
                     $audienciasPartes =  $audiencia->audienciaParte;
                     $pagosDiferidos =  $audiencia->pagosDiferidos;
