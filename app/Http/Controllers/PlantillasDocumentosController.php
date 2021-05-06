@@ -636,6 +636,7 @@ class PlantillasDocumentosController extends Controller
                     $datoLaboral="";
                     $solicitanteIdentificacion = "";
                     $firmasPartesQR = "";
+                    $nss="";
                       // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){

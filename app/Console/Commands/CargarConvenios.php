@@ -63,18 +63,6 @@ class CargarConvenios extends Command
                         $solicitud = $parte->solicitud;
                         $audiencia = $parte->solicitud->expediente->audiencia->first();
 
-                        $actaAudiencia = $audiencia->documentos()->where('clasificacion_archivo_id',15)->first();
-                        if($actaAudiencia == null){
-                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3)); 
-                            $correcto = " Se genera acta de audiencia CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                            dump($correcto); 
-                            fputs($savedIdent, $correcto."\n");
-                        }else{
-                            $error = "Ya existe acta de audiencia de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio." en la linea ".($key+1);
-                            dump($error); 
-                            fputs($failedConv, $error."\n");
-                        }
-
                         $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $audiencia->id;
                         $path = $directorio."/".$curp.".pdf";
                         $fullPath = storage_path().'/app/' .$directorio."/".$curp.".pdf";
@@ -144,6 +132,17 @@ class CargarConvenios extends Command
                             $error = "No se encontro archivo de identificacion con curp: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
                             dump($error); 
                             fputs($failedIdent, $error."\n");    
+                        }
+                        $actaAudiencia = $audiencia->documentos()->where('clasificacion_archivo_id',15)->first();
+                        if($actaAudiencia == null){
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3)); 
+                            $correcto = " Se genera acta de audiencia CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
+                            dump($correcto); 
+                            fputs($savedIdent, $correcto."\n");
+                        }else{
+                            $error = "Ya existe acta de audiencia de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio." en la linea ".($key+1);
+                            dump($error); 
+                            fputs($failedConv, $error."\n");
                         }
                         
                     }else{
