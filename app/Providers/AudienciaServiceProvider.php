@@ -172,8 +172,8 @@ class AudienciaServiceProvider extends ServiceProvider
                             }
                         }
                         foreach ($listaTipoPropuestas as $key => $listaPropuesta) {//solicitantes
-                            if ($key == $solicitante->parte_id) {
-                                $resolucionParte = ResolucionPartes::where("audiencia_id",$audiencia->id)->where("parte_solicitante_id",$solicitante->parte_id)->get();
+                            if ($key == $solicitado->parte_id) {
+                                $resolucionParte = ResolucionPartes::where("audiencia_id",$audiencia->id)->where("parte_solicitada_id",$solicitado->parte_id)->where("parte_solicitante_id",$solicitante->parte_id)->get();
                                 foreach ($resolucionParte as $resolucion) {//solicitantes
                                     $resolucion->update([
                                         "tipo_propuesta_pago_id" => $listaPropuesta
