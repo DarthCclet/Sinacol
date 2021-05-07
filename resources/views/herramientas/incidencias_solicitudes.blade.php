@@ -137,7 +137,7 @@
 
     <!-- inicio Modal Preview-->
 <div class="modal" id="modal-incidencia" data-backdrop="static" data-keyboard="false" aria-hidden="true">
-    <div class="modal-dialog ">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Capture la justificaci&oacute;n de su incidencia</h2>
@@ -158,7 +158,8 @@
                     <p class="help-block needed">Tipo de incidencia</p>
                 </div>
                 <div>
-                    <textarea rows="4" class="form-control" id="justificacion_incidencia" ></textarea>
+                    <div id="justificacion_incidencia" name="convenio_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:800px; height:800px; overflow: scroll;" contenteditable="true"></div>
+                    {{-- <textarea rows="4" class="form-control" id="justificacion_incidencia" ></textarea> --}}
                     <p class="help-block"> Incidencia</p>
                 </div>
             </div>
@@ -176,7 +177,7 @@
 
 <!-- inicio Modal Preview-->
 <div class="modal" id="modal-consulta-incidencia" data-backdrop="static" data-keyboard="false" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Solicitud con incidencia: <span id="folio_consulta"></span></h2>
@@ -193,7 +194,7 @@
                     </div>
                     <div class="col-md-12">
                         <h5>Justificacion:</h5>
-                        <label id="justificacion_consulta" style="border: 1px solid gray; padding:2%; max-height:250px; width:100%; overflow:scroll;"></label>
+                        <label id="justificacion_consulta" style="border: 1px solid gray; padding:2%; max-height:450px; width:100%; overflow:scroll;"></label>
                     </div>
                 </div>
                 <div class="text-right">
@@ -207,7 +208,7 @@
 
 <!-- inicio Modal Preview-->
 <div class="modal" id="modal-solicitud" data-backdrop="static" data-keyboard="false" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Capture la justificaci&oacute;n de su incidencia</h2>
@@ -247,9 +248,9 @@
 
 
 @endsection
-
 @push('scripts')
-    <script>
+<script src='/js/tinymce/tinymce.min.js'></script>
+<script>
         function limpiar(){
             $("#divSolicitudMod").html("");
             $("#divSolicitantesMod").html("");
@@ -584,7 +585,7 @@
         return html;
     }
     function marcarIncidencia(){
-        if($("#solicitud_id").val() != "" && $("#justificacion_incidencia").val() != "" && $("#tipo_incidencia_solicitud_id").val() != ""){
+        if($("#solicitud_id").val() != "" && tinyMCE.get('justificacion_incidencia').getContent() != "" && $("#tipo_incidencia_solicitud_id").val() != ""){
             $.ajax({
                 url:'/guardar_incidencia',
                 type:"POST",
@@ -592,7 +593,7 @@
                 async:false,
                 data:{
                     solicitud_id:$("#solicitud_id").val(),
-                    justificacion_incidencia: $("#justificacion_incidencia").val(),
+                    justificacion_incidencia: tinyMCE.get('justificacion_incidencia').getContent(),
                     tipo_incidencia_solicitud_id: $("#tipo_incidencia_solicitud_id").val(),
                     solicitud_asociada_id: $("#solicitud_asociada_id").val(),
                     _token:$("input[name=_token]").val()
@@ -712,5 +713,61 @@
         });
     }
     $("#data-table-default").DataTable({language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
+        config_tmce = function(selector) {
+            return {
+                auto_focus: 'plantilla-body',
+                selector: selector,
+                language: 'es_MX',
+                
+                language_url: '/js/tinymce/languages/es_MX.js',
+                inline: false,
+                menubar: false,
+                toolbar_items_size: 'large',
+                plugins: [
+                    'noneditable advlist autolink lists link image imagetools preview',
+                    ' media table paste pagebreak'
+                ],
+                toolbar1: 'basicDateButton | mybutton | fontselect fontsizeselect | undo redo ' +
+                '| bold italic underline| alignleft aligncenter alignright alignjustify | bullist numlist ' +
+                '| outdent indent | link unlink image | table pagebreak forecolor backcolor',
+                toolbar2: "",
+                image_title: true,
+                automatic_uploads: true,
+                file_picker_types: 'image',
+                font_formats: 'Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva',
+                paste_as_text: true,
+                file_picker_callback: function (cb, value, meta) {
+                    var input = document.createElement('input');
+                    input.setAttribute('type', 'file');
+                    input.setAttribute('accept', 'image/*');
+                    input.onchange = function () {
+                        var file = this.files[0];
+                        var reader = new FileReader();
+                        reader.onload = function () {
+                            var id = 'blobid' + (new Date()).getTime();
+                            var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                            var base64 = reader.result.split(',')[1];
+                            var blobInfo = blobCache.create(id, file, base64);
+                            blobCache.add(blobInfo);
+                            cb(blobInfo.blobUri(), {title: file.name});
+                        };
+                        reader.readAsDataURL(file);
+                    };
+                    input.click();
+                },
+                setup: function (editor) {
+                    editor.on('init', function (ed) {
+                        ed.target.editorCommands.execCommand("fontName", false, "Arial");
+                    });
+                    // editor.ui.registry.addButton('mybutton', {
+                    //   text: 'My Custom Button',
+                    //   onAction: () => alert('Button clicked!')
+                    // });
+                }
+            };
+        };
+        $(document).ready(function(){    
+            tinymce.init(config_tmce('#justificacion_incidencia'));
+        });
     </script>
 @endpush
