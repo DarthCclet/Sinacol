@@ -158,7 +158,7 @@
                     <p class="help-block needed">Tipo de incidencia</p>
                 </div>
                 <div>
-                    <div id="justificacion_incidencia" name="convenio_body" class="sectionPlantilla" style="border:solid 1px lightgray; max-height:800px; height:800px; overflow: scroll;" contenteditable="true"></div>
+                    <div id="justificacion_incidencia" name="convenio_body" class="sectionPlantilla" style="border:solid 1px lightgray;" contenteditable="true"></div>
                     {{-- <textarea rows="4" class="form-control" id="justificacion_incidencia" ></textarea> --}}
                     <p class="help-block"> Incidencia</p>
                 </div>
@@ -715,13 +715,14 @@
     $("#data-table-default").DataTable({language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
         config_tmce = function(selector) {
             return {
-                auto_focus: 'plantilla-body',
+                auto_focus: 'justificacion_incidencia',
                 selector: selector,
                 language: 'es_MX',
                 
                 language_url: '/js/tinymce/languages/es_MX.js',
                 inline: false,
                 menubar: false,
+                height: "500",
                 toolbar_items_size: 'large',
                 plugins: [
                     'noneditable advlist autolink lists link image imagetools preview',
