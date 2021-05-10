@@ -426,6 +426,7 @@ trait GenerateDocument
                     $datoLaboral="";
                     $solicitanteIdentificacion = "";
                     $firmasPartesQR="";
+                    $nss="";
                     // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
@@ -514,6 +515,7 @@ trait GenerateDocument
                         }
                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                         if($hayDatosLaborales >0){
+                          $nss = $datoLaborales->nss;
                           $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                           $salarioMensual =number_format($salarioMensual, 2, '.', '');
                           $salario = explode('.', $salarioMensual);
@@ -533,7 +535,6 @@ trait GenerateDocument
                           $parte['datos_laborales'] = $datoLaboral;
                           $parte['datos_laborales_salario_mensual'] = $salarioMensual;
                           $parte['datos_laborales_salario_mensual_letra'] = $salarioMensualTextual;
-                          $nss = $datoLaborales->nss;
                         }
                         $solicitanteIdentificacion = $parte['nombre_completo'] ." quien se identifica con " .$parte['identificacion_documento']." expedida a su favor por ". $parte['identificacion_expedida_por'];
                         // array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
