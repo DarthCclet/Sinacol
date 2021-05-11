@@ -1167,7 +1167,7 @@ class AudienciaController extends Controller {
                             "audiencia_id" => $audiencia->id,
                             "evidencia" => $evidencia
                 ]);
-                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago);
+                $this->guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago, $request->listaTipoPropuestas);
             }
 
             DB::commit();
@@ -1432,7 +1432,7 @@ class AudienciaController extends Controller {
     //         }
     //     }
     // }
-    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array(), $listaFechasPago = array()) {
+    public function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array(), $listaFechasPago = array(), $listaTipoPropuestas = array()) {
         $solicitantes = $this->getSolicitantes($audiencia);
         $solicitados = $this->getSolicitados($audiencia);
         $arrayMultado = [];
@@ -1602,6 +1602,16 @@ class AudienciaController extends Controller {
                                 }
                             }
                         }
+                        foreach ($listaTipoPropuestas as $key => $listaPropuesta) {//solicitantes
+                            if ($key == $solicitante->parte_id) {
+                                $resolucionParte = ResolucionPartes::where("audiencia_id",$audiencia->id)->where("parte_solicitante_id",$solicitante->parte_id)->get();
+                                foreach ($resolucionParte as $resolucion) {//solicitantes
+                                    $resolucion->update([
+                                        "tipo_propuesta_pago_id" => $listaPropuesta
+                                    ]);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1632,8 +1642,16 @@ class AudienciaController extends Controller {
                 //Se valida si hubo convenio para esta parte para generar convenio o si se genera acta de no conciliacion
                 $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 3)->first();
                 if ($convenio != null) {
-                    //generar convenio
-                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id));
+                    if($convenio->tipo_propuesta_pago_id == 4){
+                        //generar convenio reinstalacion
+                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 43, 9, $solicitante->parte_id));
+                    }elseif($convenio->tipo_propuesta_pago_id == 5){
+                        //generar convenio de prestaciones
+                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 16, $solicitante->parte_id));
+                    }else{
+                        //generar convenio
+                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id));//15
+                    }
                 } else {
                     $noConciliacion = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 5)->first();
                     if ($noConciliacion != null) {
@@ -2178,7 +2196,7 @@ class AudienciaController extends Controller {
                             "audiencia_id" => $audiencia->id,
                             "evidencia" => $evidencia
                 ]);
-                AudienciaServiceProvider::guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago);
+                AudienciaServiceProvider::guardarRelaciones($audiencia, $request->listaRelacion, $request->listaConceptos, $request->listaFechasPago, $request->listaTipoPropuestas);
             }
 
             DB::commit();

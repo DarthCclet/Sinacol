@@ -196,7 +196,7 @@ class NotificacionServiceController extends Controller {
                         } else {
                             $clasificacion = ClasificacionArchivo::where("nombre", "Razón de notificación multa")->first();
                         }
-//                        Eliminalmos el documento actual 
+//                        Eliminalmos el documento actual
                         foreach($parteDemandado->documentos()->where("clasificacion_archivo_id", $clasificacion->id) as $doc){
                             $doc->delete();
                         }
