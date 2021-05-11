@@ -1798,7 +1798,12 @@ class SolicitudController extends Controller {
                 }
             }
             if($request->tipo_incidencia_solicitud_id == 7){
-                event(new GenerateDocumentResolution(null,$solicitud->id,61,24,null,null));
+                if ($solicitud->expediente && $solicitud->expediente->audiencia) {
+                    event(new GenerateDocumentResolution($solicitud->expediente->audiencia()->orderBy('id','desc')->first(),$solicitud->id,61,24,null,null));
+                }else{
+                    DB::rollback();
+                    return $this->sendError(' Esta solicitud no esta confirmada, no se puede realizar este proceso ', 'Error');
+                }
             }
             $solicitud->save();
             DB::commit();
