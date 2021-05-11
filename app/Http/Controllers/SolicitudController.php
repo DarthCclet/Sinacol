@@ -1797,6 +1797,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no tiene audiencias, crear incompetencia en proceso de confirmación ', 'Error');
                 }
             }
+            $solicitud->save();
             if($request->tipo_incidencia_solicitud_id == 7){
                 if ($solicitud->expediente && $solicitud->expediente->audiencia) {
                     event(new GenerateDocumentResolution($solicitud->expediente->audiencia()->orderBy('id','desc')->first()->id,$solicitud->id,61,24,null,null));
@@ -1805,7 +1806,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no esta confirmada, no se puede realizar este proceso ', 'Error');
                 }
             }
-            $solicitud->save();
+            
             DB::commit();
             return $this->sendResponse($solicitud, 'SUCCESS');
         } catch (Exception $e) {
