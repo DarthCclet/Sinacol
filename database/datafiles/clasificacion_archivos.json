@@ -330,6 +330,42 @@
             "nombre": "Convenio de reinstalación patronal con firma autógrafa",
             "tipo_archivo_id":5,
             "entidad_emisora_id":8
+        },
+        {
+            "id": "56",
+            "nombre": "NOTIFICACIÓN POR COMPARECENCIA",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "57",
+            "nombre": "NOTIFICACIÓN POR CORREO SOLICITANTE",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "58",
+            "nombre": "NOTIFICACIÓN POR CORREO CITADO",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "59",
+            "nombre": "CONSTANCIA DE ROMOCIÓN DE CITADOS",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "60",
+            "nombre": "CONSTANCIA DE NO ACEPTACIÓN BE",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "61",
+            "nombre": "NO ADMISIÓN DE TRÁMITE",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
         }
     ],
 

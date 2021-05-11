@@ -1097,6 +1097,7 @@ class SolicitudController extends Controller {
                 } else {
                     // Si la variable activo esta en 0 se elimina la parte
                     $parteSaved = Parte::find($citado['id']);
+                    event(new GenerateDocumentResolution(null,$solicitudSaved->id,59,21,null,$parteSaved->id));
                     $parteSaved->delete();
                 }
             }
@@ -1796,10 +1797,16 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no tiene audiencias, crear incompetencia en proceso de confirmación ', 'Error');
                 }
             }
-            if ($request->tipo_incidencia_solicitud_id == 7) {
-                //event(new GenerateDocumentResolution(null,$solicitud->id,13,10,$parte->id,null));
-            }
             $solicitud->save();
+            if($request->tipo_incidencia_solicitud_id == 7){
+                if ($solicitud->expediente && $solicitud->expediente->audiencia) {
+                    event(new GenerateDocumentResolution($solicitud->expediente->audiencia()->orderBy('id','desc')->first()->id,$solicitud->id,61,24,null,null));
+                }else{
+                    DB::rollback();
+                    return $this->sendError(' Esta solicitud no esta confirmada, no se puede realizar este proceso ', 'Error');
+                }
+            }
+            
             DB::commit();
             return $this->sendResponse($solicitud, 'SUCCESS');
         } catch (Exception $e) {
@@ -1853,6 +1860,23 @@ class SolicitudController extends Controller {
             return $this->sendError(' Error no se pudo guardar la incidencia ', 'Error');
         }
     }
+    public function delete_audiencia(Request $request){
+        try{
+            $solicitud_id = $request->solicitud_id;
+            $audiencia_id = $request->audiencia_id;
+            $response = HerramientaServiceProvider::delete_audiencia($solicitud_id,$audiencia_id);
+            if($response["success"]){
+                return $this->sendResponse(null, $response["msj"]);
+            }else{
+                return $this->sendError($response["msj"]);
+            }
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensaje: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            return $this->sendError(' Error, no se pudo eliminar la audiencia ', 'Error');
+        }
+    }
 
     public function canal(Request $request) {
         $mensaje = "El canal ingresado no es el correcto, verifica el canal asignado en tus documentos";
@@ -1896,10 +1920,7 @@ class SolicitudController extends Controller {
             return $this->sendError(' Error no se pudo guardar la url ', 'Error');
         }
     }
-
-    
-
-    
-
-
+    public function eliminar_audiencias(){
+        return view('herramientas.eliminar_audiencias');
+    }
 }

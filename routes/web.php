@@ -167,6 +167,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('incidencias_solicitudes','SolicitudController@incidencias_solicitudes');
     Route::get('deshacer_solicitudes','SolicitudController@deshacer_solicitudes');
+    Route::get('eliminar_audiencias','SolicitudController@eliminar_audiencias');
+    Route::post('delete_audiencia','SolicitudController@delete_audiencia');
     Route::post('rollback_proceso','SolicitudController@rollback_proceso');
     Route::post('guardar_incidencia','SolicitudController@guardar_incidencia');
     Route::post('borrar_incidencia','SolicitudController@borrar_incidencia');
@@ -273,3 +275,6 @@ Route::group(['middleware' => ['role:público en general']], function () {
     //
 });
 
+// Consulta de reporte en hoja de cálculo
+Route::get('reportes','ReportesController@index')->name('reportes.forma');
+Route::get('reportes/reporte','ReportesController@reporte')->name('reportes.reporte');
