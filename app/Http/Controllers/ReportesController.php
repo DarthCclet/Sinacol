@@ -95,20 +95,17 @@ class ReportesController extends Controller
         $solicitudes = $reportesService->solicitudesPresentadas($this->request);
         $excelReportesService->solicitudesPresentadas($sheet, $solicitudes, $this->request);
 
-
         // SOLICITUDES CONFIRMADAS
         $solicitudes_confirmadas = $reportesService->solicitudesConfirmadas($this->request);
         $solicitudesPresentadasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Solicitudes confirmadas');
         $spreadsheet->addSheet($solicitudesPresentadasWorkSheet, 1);
         $excelReportesService->solicitudesConfirmadas($solicitudesPresentadasWorkSheet, $solicitudes_confirmadas, $this->request);
 
-
         // CITATORIOS EMITIDOS
         $citatorios = $reportesService->citatoriosEmitidos($this->request);
         $citatoriosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Citatorios');
         $spreadsheet->addSheet($citatoriosWorkSheet, 3);
         $excelReportesService->citatoriosEmitidos($citatoriosWorkSheet, $citatorios, $this->request);
-
 
         // INCOMPETENCIAS
         $incompetencias = $reportesService->incompetencias($this->request);
@@ -139,7 +136,7 @@ class ReportesController extends Controller
         $noConciliacionWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'No conciliación');
         $spreadsheet->addSheet($noConciliacionWorkSheet, 7);
         $excelReportesService->noConciliacion($noConciliacionWorkSheet, $noConciliacion, $this->request);
-
+/*
         // AUDIENCIAS
         $audiencias = $reportesService->audiencias($this->request);
         $audienciasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Audiencias');
@@ -151,7 +148,7 @@ class ReportesController extends Controller
         $pagosdiferidosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Pagos diferidos');
         $spreadsheet->addSheet($pagosdiferidosWorkSheet, 9);
         $excelReportesService->pagosDiferidos($pagosdiferidosWorkSheet, $pagosdiferidos, $this->request);
-
+*/
 
         // Descarga del excel
         $spreadsheet->setActiveSheetIndex(0);

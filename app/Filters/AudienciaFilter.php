@@ -20,8 +20,12 @@ class AudienciaFilter extends Filter
      */
     public function handleCentroIdFilter($centro_id)
     {
-        if(!trim($centro_id)) return;
-        $this->query->where('centro_id', $centro_id);
+        if(is_array($centro_id)){
+            $this->query->whereIn('centro_id', $centro_id);
+        }else{
+            if(!trim($centro_id)) return;
+            $this->query->where('centro_id', $centro_id);
+        }
     }
 
     /**
@@ -30,8 +34,15 @@ class AudienciaFilter extends Filter
      */
     public function handleCentroFilter($abreviatura)
     {
-        if(!trim($abreviatura)) return;
-        $this->query->where('centros.abreviatura', $abreviatura);
+        if (is_array($abreviatura)) {
+            $this->query->whereIn('centros.abreviatura', $abreviatura);
+        } else {
+            if (!trim($abreviatura)) {
+                return;
+            }
+            $this->query->where('centros.abreviatura', $abreviatura);
+        }
+
     }
 
     /**

@@ -44,7 +44,7 @@ class AudienciaParteFilter extends Filter
             $centros = collect($abreviatura)->map(function ($item, $key) {
                 return strtoupper($item);
             });
-            $this->query->whereIn('centros.abreviatura', $centros->all()->toArray());
+            $this->query->whereIn('centros.abreviatura', $centros->all());
         }
         else{
             $this->query->where('centro_id', strtoupper($abreviatura));

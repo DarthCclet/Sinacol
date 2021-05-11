@@ -14,6 +14,7 @@ use App\Filters\SolicitudFilter;
 use App\ResolucionParteConcepto;
 use App\Solicitud;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ReportesService
 {
@@ -75,6 +76,21 @@ class ReportesService
      * ID de archivado en catálogo de resoluciones, se utiliza en archivado por falta de interés de la audiencia
      */
     const ARCHIVADO = 4;
+
+    /**
+     * ID de hubo convenio en terminaciones bilaterales
+     */
+    const TERMINACIONES_BILATERALES_CONVENIO = 3;
+
+    /**
+     * ID de hubo convenio en tabla resoluciones
+     */
+    const RESOLUCIONES_HUBO_CONVENIO = 1;
+
+    /**
+     * ID de no hubo convenio en tabla resoluciones
+     */
+    const RESOLUCIONES_NO_HUBO_CONVENIO = 3;
 
     /**
      * Sobre las solicitudes presentadas
@@ -254,55 +270,42 @@ class ReportesService
 
             //Entrega Solicitante
             $entrega_solicitante = $res->where('tipo_notificacion_id', self::CITATORIO_POR_SOLICITANTE)
-                ->groupBy('abreviatura')
-                ->map(
-                    function ($en_centro, $centro) {
-                        return count($en_centro);
-                    }
-                )->toArray();
+                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
 
-            $entrega_notificador = $res->where('tipo_notificacion_id', self::CITATORIO_POR_NOTIFICADOR)
-                ->groupBy('abreviatura')
-                ->map(
-                    function ($en_centro, $centro) {
-                        return count($en_centro);
-                    }
-                )->toArray();
+            //Entrega notificador
+            $entrega_notificador = $res->where('tipo_notificacion_id', self::CITATORIO_POR_NOTIFICADOR)->groupBy('abreviatura')
+                ->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
 
+            //Entrega notificador con cita
             $entrega_notificador_cita = $res->where('tipo_notificacion_id', self::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO)
-                ->groupBy('abreviatura')
-                ->map(
-                    function ($en_centro, $centro) {
-                        return count($en_centro);
-                    }
-                )->toArray();
+                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
+
+            //En primera audiencia citatorio por solicitante
+            $entrega_solicitante_prim_aud = $res->where('tipo_notificacion_id', self::CITATORIO_POR_SOLICITANTE)
+                ->where('numero_audiencia', 1)
+                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
+
+            //Entrega notificador en primera audiencia
+            $entrega_notificador_prim_aud = $res->where('tipo_notificacion_id', self::CITATORIO_POR_NOTIFICADOR)
+                ->where('numero_audiencia', 1)
+                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
+
+            //Entrega notificador con cita en primera audiencia
+            $entrega_notificador_cita_prim_aud = $res->where('tipo_notificacion_id', self::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO)
+                ->where('numero_audiencia', 1)
+                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
 
             //En primera audiencia
-
             $citatorio_en_primera_audiencia = $res->where('numero_audiencia', 1)->unique('audiencia_id')
-                ->groupBy('abreviatura')
-                ->map(
-                    function ($en_centro, $centro) {
-                        return count($en_centro);
-                    }
-                )->toArray();
+                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
+
             //En segunda audiencia
-            $citatorio_en_segunda_audiencia = $res->where('numero_audiencia', 2)->unique('audiencia_id')
-                ->groupBy('abreviatura')
-                ->map(
-                    function ($en_centro, $centro) {
-                        return count($en_centro);
-                    }
-                )->toArray();
+            $citatorio_en_segunda_audiencia = $res->where('numero_audiencia', 2)->unique('audiencia_id')->groupBy('abreviatura')
+                ->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
 
             //En tercera audiencia
-            $citatorio_en_tercera_audiencia = $res->where('numero_audiencia', 3)->unique('audiencia_id')
-                ->groupBy('abreviatura')
-                ->map(
-                    function ($en_centro, $centro) {
-                        return count($en_centro);
-                    }
-                )->toArray();
+            $citatorio_en_tercera_audiencia = $res->where('numero_audiencia', 3)->unique('audiencia_id')->groupBy('abreviatura')
+                ->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
 
             $res =  compact(
                 'entrega_solicitante',
@@ -310,9 +313,11 @@ class ReportesService
                 'entrega_notificador_cita',
                 'citatorio_en_primera_audiencia',
                 'citatorio_en_segunda_audiencia',
-                'citatorio_en_tercera_audiencia'
+                'citatorio_en_tercera_audiencia',
+                'entrega_solicitante_prim_aud',
+                'entrega_notificador_prim_aud',
+                'entrega_notificador_cita_prim_aud'
             );
-
             return $res;
         }
 
@@ -323,11 +328,11 @@ class ReportesService
 
     public function incompetencias($request)
     {
-        if ($request->get('tipo_reporte') == 'agregado') {
+        //if ($request->get('tipo_reporte') == 'agregado') {
             $en_ratificacion = $this->incompetenciasEnEtapa($request, 'ratificacion');
             $en_audiencia = $this->incompetenciasEnEtapa($request, 'audiencia');
-        }
-        return compact('en_ratificacion','en_audiencia');
+            return compact('en_ratificacion','en_audiencia');
+        //}
     }
 
     /**
@@ -351,8 +356,15 @@ class ReportesService
         }
 
         //Seleccionamos la abreviatura del nombre y su cuenta
-        $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
-
+        if ($request->get('tipo_reporte') == 'agregado') {
+            $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
+        }
+        else {
+            $q->select('centros.abreviatura',
+                       'expedientes.folio as expediente', 'audiencias.id as audiencia_id', 'solicitudes.id as solicitud_id',
+                        'solicitudes.fecha_ratificacion', 'solicitudes.ratificada'
+            );
+        }
         //Hacemos el join con centros para reprotar agrupado por centro
         $q->join('centros', 'solicitudes.centro_id', '=', 'centros.id');
         $q->leftJoin('expedientes', 'solicitudes.id', '=', 'expedientes.solicitud_id');
@@ -383,10 +395,15 @@ class ReportesService
 
         //Sólo las de trabajador y patron individual
         $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
-//dump($q->toSql());
-        $res = $q->get()->sortBy('abreviatura')->pluck('count','abreviatura');
-
-        return $res->toArray();
+        if ($request->get('tipo_reporte') == 'agregado') {
+            $res = $q->get()->sortBy('abreviatura')->pluck('count','abreviatura');
+        }
+        else {
+            $res = $q->get()->sortBy('abreviatura')->toArray();
+        }
+        //dump($this->debugSql($q));
+        //Log::info($this->debugSql($q));
+        return $res;
 
     }
 
@@ -405,8 +422,20 @@ class ReportesService
         }
 
         //Seleccionamos la abreviatura del nombre y su cuenta
-        $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
-
+        if ($request->get('tipo_reporte') == 'agregado') {
+            $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
+        }
+        else{
+            $q->select('centros.abreviatura',
+                       'audiencias.finalizada',
+                       'audiencias.fecha_audiencia',
+                       'expedientes.folio as expediente',
+                       'audiencias.id as audiencia_id',
+                       'audiencias.numero_audiencia',
+                       'solicitudes.id as solicitud_id',
+                       'solicitudes.fecha_ratificacion', 'solicitudes.ratificada'
+            );
+        }
         //Hacemos el join con centros para reprotar agrupado por centro
         $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
         $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
@@ -424,9 +453,29 @@ class ReportesService
         //Sólo las de trabajador y patron individual
         $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
 
-        $res = $q->get()->sortBy('abreviatura')->pluck('count','abreviatura');
-
+        //Log::info($this->debugSql($q));
+        if ($request->get('tipo_reporte') == 'agregado') {
+            $res = $q->get()->sortBy('abreviatura')->pluck('count', 'abreviatura');
+        }
+        else{
+            $res = $q->get()->sortBy('abreviatura');
+        }
         return $res;
+    }
+
+    /**
+     * Query con parametros sustituidos
+     * @param $q
+     * @return string|string[]|null
+     */
+    public function debugSql($q)
+    {
+        $sql = $q->toSql();
+        $bindings = $q->getBindings();
+
+        return preg_replace_callback('/\?/', function ($match) use ($sql, &$bindings) {
+            return "'" . array_shift($bindings) . "'";
+        }, $sql);
     }
 
     /**
@@ -436,8 +485,8 @@ class ReportesService
      */
     public function conveniosConciliacion($request)
     {
-        $q = (new ResolucionParteConceptoFilter(ResolucionParteConcepto::query(), $request))
-            ->searchWith(ResolucionParteConcepto::class)
+        $q = (new SolicitudFilter(Solicitud::query(), $request))
+            ->searchWith(Solicitud::class)
             ->filter(false);
 
         //Las solicitudes confirmadas se evaluan por fecha de ratificacion
@@ -448,19 +497,21 @@ class ReportesService
             $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
         }
 
-        //Seleccionamos la abreviatura del nombre y su cuenta
-        //$q->select('centros.abreviatura', 'audiencias.id as audiencia_id', 'monto');
-        $q->select('centros.abreviatura', DB::raw('sum(monto)'))->groupBy('centros.abreviatura');
+        $q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
+                   'audiencias.id as audiencia_id',
+                   'fecha_audiencia','numero_audiencia',
+                   'monto'
+        );
 
-        //Hacemos el join con centros para reprotar agrupado por centro
-        $q->join('resolucion_partes','resolucion_partes.id','=','resolucion_parte_conceptos.resolucion_partes_id');
-        $q->join('audiencias','resolucion_partes.audiencia_id','=','audiencias.id');
-        $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
-        $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
+        $q->join('expedientes','expedientes.solicitud_id','=','solicitudes.id');
+        $q->join('audiencias','expedientes.id','=','audiencias.expediente_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
+        $q->leftJoin('audiencias_partes','audiencias_partes.audiencia_id','=','audiencias.id');
+        $q->leftJoin('resolucion_parte_conceptos','resolucion_parte_conceptos.audiencia_parte_id','=','audiencias_partes.id');
+
 
         //Se aplican filtros por características del solicitante
-        //$this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
 
         //Se filtran las no reportables
         $this->noReportables($q);
@@ -468,7 +519,17 @@ class ReportesService
         //Sólo las de trabajador y patron individual
         $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
 
-        $res = $q->get()->sortBy('abreviatura')->pluck('sum','abreviatura');
+        $q->where('solicitudes.inmediata', false);
+        //$q->where('audiencias.finalizada', true);
+        $q->where('audiencias.resolucion_id', self::RESOLUCIONES_HUBO_CONVENIO);
+
+        Log::info($this->debugSql($q));
+        if ($request->get('tipo_reporte') == 'agregado') {
+            $res = $q->get();
+        }
+        else{
+            $res = $q->get()->sortBy('abreviatura');
+        }
 
         return $res;
     }
@@ -480,8 +541,8 @@ class ReportesService
      */
     public function conveniosRatificacion($request)
     {
-        $q = (new ResolucionParteConceptoFilter(ResolucionParteConcepto::query(), $request))
-            ->searchWith(ResolucionParteConcepto::class)
+        $q = (new SolicitudFilter(Solicitud::query(), $request))
+            ->searchWith(Solicitud::class)
             ->filter(false);
 
         //Las solicitudes confirmadas se evaluan por fecha de ratificacion
@@ -492,19 +553,28 @@ class ReportesService
             $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
         }
 
-        //Seleccionamos la abreviatura del nombre y su cuenta
-        //$q->select('centros.abreviatura', 'audiencias.id as audiencia_id', 'monto');
-        $q->select('centros.abreviatura', DB::raw('sum(monto)'))->groupBy('centros.abreviatura');
+        $q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
+                   'audiencias.id as audiencia_id',
+                   'audiencias.resolucion_id as resolucion_id',
+                   'resoluciones.nombre as resolucion',
+                   'audiencias.finalizada as audiencia_finalizada',
+                   'audiencias.tipo_terminacion_audiencia_id',
+                   'tipo_terminacion_audiencias.nombre as tipo_terminacion',
+                   'fecha_audiencia','numero_audiencia',
+                   'monto'
+        );
 
-        //Hacemos el join con centros para reprotar agrupado por centro
-        $q->join('resolucion_partes','resolucion_partes.id','=','resolucion_parte_conceptos.resolucion_partes_id');
-        $q->join('audiencias','resolucion_partes.audiencia_id','=','audiencias.id');
-        $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
-        $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
+        $q->join('expedientes','expedientes.solicitud_id','=','solicitudes.id');
+        $q->join('audiencias','expedientes.id','=','audiencias.expediente_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
+        $q->leftJoin('tipo_terminacion_audiencias','audiencias.tipo_terminacion_audiencia_id','=','tipo_terminacion_audiencias.id');
+        $q->leftJoin('resoluciones','audiencias.resolucion_id','=','resoluciones.id');
+        $q->leftJoin('audiencias_partes','audiencias_partes.audiencia_id','=','audiencias.id');
+        $q->leftJoin('resolucion_parte_conceptos','resolucion_parte_conceptos.audiencia_parte_id','=','audiencias_partes.id');
+
 
         //Se aplican filtros por características del solicitante
-        //$this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
 
         //Se filtran las no reportables
         $this->noReportables($q);
@@ -512,7 +582,17 @@ class ReportesService
         //Sólo las de trabajador y patron individual
         $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
 
-        $res = $q->get()->sortBy('abreviatura')->pluck('sum','abreviatura');
+        $q->where('solicitudes.inmediata', true);
+
+        //$q->where('audiencias.resolucion_id', self::RESOLUCIONES_HUBO_CONVENIO);
+
+        Log::info($this->debugSql($q));
+        if ($request->get('tipo_reporte') == 'agregado') {
+            $res = $q->get();
+        }
+        else{
+            $res = $q->get()->sortBy('abreviatura');
+        }
 
         return $res;
     }
@@ -524,8 +604,8 @@ class ReportesService
      */
     public function noConciliacion($request)
     {
-        $q = (new ResolucionParteConceptoFilter(ResolucionParteConcepto::query(), $request))
-            ->searchWith(ResolucionParteConcepto::class)
+        $q = (new SolicitudFilter(Solicitud::query(), $request))
+            ->searchWith(Solicitud::class)
             ->filter(false);
 
         //Las solicitudes confirmadas se evaluan por fecha de ratificacion
@@ -536,19 +616,28 @@ class ReportesService
             $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
         }
 
-        //Seleccionamos la abreviatura del nombre y su cuenta
-        //$q->select('centros.abreviatura', 'audiencias.id as audiencia_id', 'monto');
-        $q->select('centros.abreviatura', DB::raw('sum(monto)'))->groupBy('centros.abreviatura');
+        $q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
+                   'audiencias.id as audiencia_id',
+                   'audiencias.resolucion_id as resolucion_id',
+                   'solicitudes.inmediata',
+                   'resoluciones.nombre as resolucion',
+                   'audiencias.finalizada as audiencia_finalizada',
+                   'audiencias.tipo_terminacion_audiencia_id',
+                   'tipo_terminacion_audiencias.nombre as tipo_terminacion',
+                   'fecha_audiencia','numero_audiencia',
+                   'monto'
+        );
 
-        //Hacemos el join con centros para reprotar agrupado por centro
-        $q->join('resolucion_partes','resolucion_partes.id','=','resolucion_parte_conceptos.resolucion_partes_id');
-        $q->join('audiencias','resolucion_partes.audiencia_id','=','audiencias.id');
-        $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
-        $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
+        $q->join('expedientes','expedientes.solicitud_id','=','solicitudes.id');
+        $q->join('audiencias','expedientes.id','=','audiencias.expediente_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
+        $q->leftJoin('tipo_terminacion_audiencias','audiencias.tipo_terminacion_audiencia_id','=','tipo_terminacion_audiencias.id');
+        $q->leftJoin('resoluciones','audiencias.resolucion_id','=','resoluciones.id');
+        $q->leftJoin('audiencias_partes','audiencias_partes.audiencia_id','=','audiencias.id');
+        $q->leftJoin('resolucion_parte_conceptos','resolucion_parte_conceptos.audiencia_parte_id','=','audiencias_partes.id');
 
         //Se aplican filtros por características del solicitante
-        //$this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
 
         //Se filtran las no reportables
         $this->noReportables($q);
@@ -556,7 +645,17 @@ class ReportesService
         //Sólo las de trabajador y patron individual
         $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
 
-        $res = $q->get()->sortBy('abreviatura')->pluck('sum','abreviatura');
+        //$q->where('solicitudes.inmediata', true);
+
+        $q->where('audiencias.resolucion_id', self::RESOLUCIONES_NO_HUBO_CONVENIO);
+
+        Log::info($this->debugSql($q));
+        if ($request->get('tipo_reporte') == 'agregado') {
+            $res = $q->get();
+        }
+        else{
+            $res = $q->get()->sortBy('abreviatura');
+        }
 
         return $res;
     }
