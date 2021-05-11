@@ -409,6 +409,7 @@ class ExcelReportesService
             'AUDIENCIA ID',
             'SOLICITUD ID',
             'PARTE ID',
+            'AUDIENCIA PARTE ID'
         ];
 
         # Seteo de encabezados
@@ -437,6 +438,7 @@ class ExcelReportesService
                     'audiencia_id' => $v->audiencia_id,
                     'solicitud_id' => $v->solicitud_id,
                     'parte_id' => $v->parte_id,
+                    'audiencia_parte_id' => $v->audiencia_parte_id,
                 ];
             }
         );

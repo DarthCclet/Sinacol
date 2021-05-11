@@ -233,6 +233,7 @@ class ReportesService
 
         //Seleccionamos la abreviatura del nombre y su cuenta
         $q->select('centros.abreviatura', 'tipo_notificacion_id', 'audiencias.numero_audiencia',
+                   'audiencias_partes.id as audiencia_parte_id',
                    'audiencias.id as audiencia_id', 'audiencias.folio', 'audiencias.anio','audiencias.expediente_id',
                    'expedientes.folio as expediente_folio','expedientes.anio as expediente_anio','solicitudes.id as solicitud_id', 'parte_id' );
         $q->selectRaw('audiencias_partes.created_at::date as fecha_citatorio');
