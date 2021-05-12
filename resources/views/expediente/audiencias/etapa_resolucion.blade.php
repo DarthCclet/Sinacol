@@ -3138,7 +3138,7 @@
                     error = true;
                     errorMsj = 'No es posible registrar más conceptos personalizados';
                 }
-                if(countDeduccion>=5){
+                if(countDeduccion>=12){
                     error = true;
                     errorMsj = 'No es posible registrar más deducciones';
                 }
@@ -3625,7 +3625,7 @@
             case '10':    //Salarios vencidos
                 monto = (tiempoVencido * pagoDia).toFixed(2);
                 //$('#monto').val(monto);
-                $('#monto').attr('disabled',true);
+                $('#monto').removeAttr('disabled');
                 $('#dias').removeAttr('disabled');
                 $('#otro').attr('disabled',true);
                 break;
@@ -3647,9 +3647,10 @@
                 $('.labelDesc').text('Nombre de la deducción');
                 break;
             default: //Dias de sueldo, Dias de vacaciones
+                //$('#monto').attr('disabled',true);
                 $('#monto').removeAttr('disabled');
-                $('#otro').attr('disabled',true);
                 $('#dias').removeAttr('disabled');
+                $('#otro').attr('disabled',true);
                 break;
         }
     });
