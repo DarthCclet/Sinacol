@@ -1065,6 +1065,7 @@ trait GenerateDocument
                     $hayPartesConvenio = count($partes_convenio);
                     if($hayPartesConvenio > 0){
                       $citadosConvenio = [];
+                      $solictantesConvenio = [];
                       $clausulacitadosConvenio = [];
                       $clausulasolicitantesConvenio = [];
                       $solicitantesComparecientes = [];
@@ -1178,6 +1179,9 @@ trait GenerateDocument
                           if($nombreCitadoConvenio != ""){
                             array_push($citadosConvenio, $nombreCitadoConvenio );
                           }
+                          if($nombreSolicitanteConvenio != ""){
+                            array_push($solictantesConvenio, $nombreSolicitanteConvenio );
+                          }
                           if($nombreCitadoComparecientes != ""){
                               array_push($citadosComparecientes, $nombreCitadoComparecientes );
                           }
@@ -1195,6 +1199,9 @@ trait GenerateDocument
 
                         $citadosConvenioA =  implode(", ",$citadosConvenio);
                         $nombreCitadosConvenio = $citadosConvenioA;//$this->lreplace(',', ' y', $citadosConvenioA);
+
+                        $solicitantesConvenioA =  implode(", ",$solictantesConvenio);
+                        $nombreSolicitantesConvenio = $solicitantesConvenioA;//$this->lreplace(',', ' y', $citadosConvenioA);
 
                         $citadosConvenioB =  implode(", ",$citadosComparecientes);
                         $nombreCitadosComparecientes = $citadosConvenioB;//$this->lreplace(',', ' y', $citadosConvenioA);
@@ -1215,6 +1222,7 @@ trait GenerateDocument
                     $datosResolucion['citados_comparecientes'] = $nombreCitadosComparecientes;
                     $datosResolucion['solicitantes_comparecientes'] = $nombreSolicitanteComparecientes;
                     $datosResolucion['citados_convenio'] = $nombreCitadosConvenio;
+                    $datosResolucion['solicitantes_convenio'] = $nombreSolicitantesConvenio;
                     $datosResolucion['segunda_declaracion_convenio_patronal'] = $clausula2solicitantesConvenio;
                     $datosResolucion['segunda_declaracion_convenio'] = $clausula2citadosConvenio;
                     $datosResolucion['primera_manifestacion'] = (isset($datosResolucion['primera_manifestacion']))? $datosResolucion['primera_manifestacion'] :"";

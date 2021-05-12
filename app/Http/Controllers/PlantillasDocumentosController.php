@@ -450,6 +450,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'segunda_manifestacion');
 
                 array_push($columnNames,'citados_convenio');
+                array_push($columnNames,'solicitantes_convenio');
                 array_push($columnNames,'citados_comparecientes');
                 array_push($columnNames,'solicitantes_comparecientes');
                 array_push($columnNames,'segunda_declaracion_convenio');
@@ -1185,6 +1186,7 @@ class PlantillasDocumentosController extends Controller
                     $hayPartesConvenio = count($partes_convenio);
                     if($hayPartesConvenio > 0){
                       $citadosConvenio = [];
+                      $solictantesConvenio = [];
                       $clausulacitadosConvenio = [];
                       $clausulasolicitantesConvenio = [];
                       $solicitantesComparecientes = [];
@@ -1292,8 +1294,10 @@ class PlantillasDocumentosController extends Controller
                               }else{//solicitantes
                                 if($resolucionesIndividuales == null){
                                   $clausulaSolicitanteConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
+                                  $nombreSolicitanteConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido;
                                 }else{
                                   if($resolucionParteRepresentada ){
+                                    $nombreSolicitanteConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido;
                                     $clausulaSolicitanteConvenio = $parteC['nombre'].' '.$parteC['primer_apellido'].$segundo_apellido . $parteIdentificacion . '  tener plenas capacidades de goce y ejercicio para convenir el presente instrumento. ';
                                   }
                                 }
@@ -1338,6 +1342,9 @@ class PlantillasDocumentosController extends Controller
                           if($nombreCitadoConvenio != ""){
                             array_push($citadosConvenio, $nombreCitadoConvenio );
                           }
+                          if($nombreSolicitanteConvenio != ""){
+                            array_push($solictantesConvenio, $nombreSolicitanteConvenio );
+                          }
                           if($nombreCitadoComparecientes != ""){
                             array_push($citadosComparecientes, $nombreCitadoComparecientes );
                           }
@@ -1355,6 +1362,9 @@ class PlantillasDocumentosController extends Controller
 
                         $citadosConvenioA =  implode(", ",$citadosConvenio);
                         $nombreCitadosConvenio = $citadosConvenioA;//$this->lreplace(',', ' y', $citadosConvenioA);
+
+                        $solicitantesConvenioA =  implode(", ",$solictantesConvenio);
+                        $nombreSolicitantesConvenio = $solicitantesConvenioA;
 
                         $citadosConvenioB =  implode(", ",$citadosComparecientes);
                         $nombreCitadosComparecientes = $citadosConvenioB;//$this->lreplace(',', ' y', $citadosConvenioA);
@@ -1375,6 +1385,7 @@ class PlantillasDocumentosController extends Controller
                     $datosResolucion['citados_comparecientes'] = $nombreCitadosComparecientes;
                     $datosResolucion['solicitantes_comparecientes'] = $nombreSolicitanteComparecientes;
                     $datosResolucion['citados_convenio'] = $nombreCitadosConvenio;
+                    $datosResolucion['solicitantes_convenio'] = $nombreSolicitantesConvenio;
                     $datosResolucion['segunda_declaracion_convenio_patronal'] = $clausula2solicitantesConvenio;
                     $datosResolucion['segunda_declaracion_convenio'] = $clausula2citadosConvenio;
                     $datosResolucion['primera_manifestacion'] = (isset($datosResolucion['primera_manifestacion']))? $datosResolucion['primera_manifestacion'] :"";
