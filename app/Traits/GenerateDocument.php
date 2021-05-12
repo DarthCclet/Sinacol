@@ -233,7 +233,8 @@ trait GenerateDocument
                                 if($n == "comida_dentro"){
                                   $vars[strtolower($key.'_'.$k.'_'.$n)] = ($v) ? 'dentro':'fuera';
                                 }else{
-                                  $vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
+                                  //$vars[strtolower($key.'_'.$k.'_'.$n)]  = $v;
+                                  $vars[strtolower($key.'_'.$k.'_'.$n)]  = ($v!= null)?$v:"";
                                 }
                                 // $pos = strpos($n,'fecha');
                                 // if ($pos !== false && $v != "--"){
@@ -420,10 +421,12 @@ trait GenerateDocument
                     $countSolicitado = 0;
                     $nombresSolicitantes = [];
                     $nombresSolicitados = [];
+                    $solicitantesNSS = [];
                     $solicitantesIdentificaciones = [];
                     $datoLaboral="";
                     $solicitanteIdentificacion = "";
                     $firmasPartesQR="";
+                    $nss="";
                     // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
@@ -512,6 +515,7 @@ trait GenerateDocument
                         }
                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                         if($hayDatosLaborales >0){
+                          $nss = $datoLaborales->nss;
                           $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                           $salarioMensual =number_format($salarioMensual, 2, '.', '');
                           $salario = explode('.', $salarioMensual);
@@ -583,6 +587,7 @@ trait GenerateDocument
                           array_push($parte1, $parte);
                           array_push($nombresSolicitantes, $parte['nombre_completo'] );
                           array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
+                          array_push($solicitantesNSS, $nss);
                           $countSolicitante += 1;
                         }
 
@@ -599,6 +604,7 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
+                    $data = Arr::add( $data, 'nss_solicitantes', implode(", ",$solicitantesNSS));
                     $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
                     $data = Arr::add( $data, 'firmas_partes_qr', $firmasPartesQR);
                 }elseif ($model == 'Expediente') {

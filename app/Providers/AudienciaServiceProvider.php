@@ -22,7 +22,7 @@ class AudienciaServiceProvider extends ServiceProvider
      * @param Audiencia $audiencia
      * @param type $arrayRelaciones
      */
-    public static function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array(), $listaFechasPago = array()) {
+    public static function guardarRelaciones(Audiencia $audiencia, $arrayRelaciones = array(), $listaConceptos = array(), $listaFechasPago = array(), $listaTipoPropuestas = array()) {
         $partes = $audiencia->audienciaParte;
         $solicitantes = self::getSolicitantes($audiencia);
         $solicitados = self::getSolicitados($audiencia);
@@ -182,6 +182,17 @@ class AudienciaServiceProvider extends ServiceProvider
                                 }
                             }
                         }
+                        foreach ($listaTipoPropuestas as $key => $listaPropuesta) {//solicitantes
+                            if ($key == $solicitado->parte_id) {
+                                $resolucionParte = ResolucionPartes::where("audiencia_id",$audiencia->id)->where("parte_solicitada_id",$solicitado->parte_id)->where("parte_solicitante_id",$solicitante->parte_id)->get();
+                                foreach ($resolucionParte as $resolucion) {//solicitantes
+                                    $resolucion->update([
+                                        "tipo_propuesta_pago_id" => $listaPropuesta
+                                    ]);
+                                }
+                            }
+                        }
+
                     }
                 }
             }
@@ -211,8 +222,18 @@ class AudienciaServiceProvider extends ServiceProvider
                     }
                     $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('parte_solicitada_id', $solicitado->parte_id)->where('terminacion_bilateral_id', 3)->first();
                     if ($convenio != null) {
-                        //generar convenio
-                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 52, 14, $solicitante->parte_id, $solicitado->parte_id));
+                        if($convenio->tipo_propuesta_pago_id == 4){
+                            //generar convenio reinstalacion
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 43, 15, $solicitante->parte_id, $solicitado->parte_id));
+                        }elseif($convenio->tipo_propuesta_pago_id == 5){
+                            //generar convenio de prestaciones
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 17, $solicitante->parte_id, $solicitado->parte_id));
+                        }else{
+                            //generar convenio
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 52, 14, $solicitante->parte_id, $solicitado->parte_id));//15
+                        }
+
+                        
                     } else {
                         // $noConciliacion = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 5)->first();
                         // if ($noConciliacion != null) {
