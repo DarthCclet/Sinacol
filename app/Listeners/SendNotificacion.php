@@ -184,7 +184,7 @@ class SendNotificacion
                 $solicitud = $audiencia->expediente->solicitud;
                 $solicitud->update(["fecha_peticion_notificacion" => now()]);
             }
-            
+
             DB::commit();
 //        }catch (\Throwable $e) {
 //            DB::rollBack();
@@ -207,10 +207,14 @@ class SendNotificacion
                            " Se emitió el siguiente mensale: ". $respuesta.
                            " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             }
-        }catch (Exception $e){
+        }catch (\GuzzleHttp\Exception\RequestException $e){
+            DB::rollBack();
+            $response = $e->getResponse();
+            $respuesta = $response->getBody()->getContents();
+            Log::error("Error en respuesta al enviar datos a signo: Respuesta SIGNO status: ". $response->getStatusCode()." => ".$respuesta);
+        }catch (\Exception $e){
             DB::rollBack();
             Log::error('php En scripts:'.$e->getFile()." En línea: ".$e->getLine().
-                       " Se emitió el siguiente mensale: ". $respuesta.
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
         }
 
@@ -276,7 +280,7 @@ class SendNotificacion
         return $d;
     }
     /**
-     * 
+     *
      */
     Public function ObtenerFechaLimiteNotificacionMulta($fecha_audiencia,$solicitud,$audiencia_id){
 //      obtenemos el domicilio del centro
