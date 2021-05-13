@@ -721,7 +721,7 @@ class FechaAudienciaService{
     public static function validarIncidencia($fecha,$id,$incidencia_type){
         $d = new Carbon($fecha);
         if($d->isWeekend()){
-            return true;
+            return false;
         }
         $fechaInicioEv = $fecha." 00:00:00";
         $fechaFinEv = $fecha." 23:59:59";
@@ -730,9 +730,9 @@ class FechaAudienciaService{
                 ->where("incidenciable_type",$incidencia_type)
                 ->where("incidenciable_id",$id)->get();
         if(count($incidencia) > 0){
-            return true;
-        }else{
             return false;
+        }else{
+            return true;
         }
     }
     
