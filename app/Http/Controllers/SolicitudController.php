@@ -1098,7 +1098,7 @@ class SolicitudController extends Controller {
                 } else {
                     // Si la variable activo esta en 0 se elimina la parte
                     $parteSaved = Parte::find($citado['id']);
-                    event(new GenerateDocumentResolution(null,$solicitudSaved->id,59,21,null,$parteSaved->id));
+                    //event(new GenerateDocumentResolution(null,$solicitudSaved->id,59,21,null,$parteSaved->id));
                     $parteSaved->delete();
                 }
             }
