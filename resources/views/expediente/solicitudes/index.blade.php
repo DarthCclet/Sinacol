@@ -46,6 +46,14 @@
                 <p class="help-block needed">Nombre del solicitante</p>
             </div>
             <div class="col-md-4">
+                <input class="form-control filtros" id="nombre_citado" placeholder="Nombre completo" type="text" value="">
+                <p class="help-block needed">Nombre del citado</p>
+            </div>
+            <div class="col-md-4">
+                <input class="form-control filtros numero" id="dias_expiracion" placeholder="Días a expirar" type="text" value="">
+                <p class="help-block needed">D&iacute;as para expirar</p>
+            </div>
+            <div class="col-md-4">
                 <input class="form-control filtros numero" id="folio" placeholder="Folio" type="text" value="">
                 <p class="help-block needed">Folio</p>
             </div>
@@ -94,10 +102,11 @@
         <div style="float: left;">
             <label class="col-md-12"> Filtros</label>
             <button class="btn btn-primary pull-right m-2" onclick="filtros()">Mas filtros</button>
-            <button class="btn btn-primary pull-right m-2 estatus" id="estatus3" onclick="$('#estatus_solicitud_id').val(3).trigger('change');" >Concluidas</button>
-            <button class="btn btn-primary pull-right m-2 estatus" id="estatus2" onclick="$('#estatus_solicitud_id').val(2).trigger('change');">Confirmada</button>
-            <button class="btn btn-primary pull-right m-2 estatus" id="estatus1" onclick="$('#estatus_solicitud_id').val(1).trigger('change');">Sin Confirmar</button>
-            <button class="btn btn-primary pull-right m-2 estatus selectedButton" id="estatus" onclick="$('#estatus_solicitud_id').val('').trigger('change');">Todas</button>
+            <button class="btn btn-primary pull-right m-2 estatus" onclick="limpiarShortCut();$('#dias_expiracion').val(7).trigger('change');" >Por caducar <span class="badge badge-pill btn-light" >{{isset($caducan) ? count($caducan) : "0"}}</span></button>
+            <button class="btn btn-primary pull-right m-2 estatus" id="estatus3" onclick="limpiarShortCut();$('#estatus_solicitud_id').val(3).trigger('change');" >Concluidas</button>
+            <button class="btn btn-primary pull-right m-2 estatus" id="estatus2" onclick="limpiarShortCut();$('#estatus_solicitud_id').val(2).trigger('change');">Confirmada</button>
+            <button class="btn btn-primary pull-right m-2 estatus" id="estatus1" onclick="limpiarShortCut();$('#estatus_solicitud_id').val(1).trigger('change');">Sin Confirmar</button>
+            <button class="btn btn-primary pull-right m-2 estatus selectedButton" id="estatus" onclick="$('#estatus_solicitud_id').val('').trigger('change');$('#dias_expiracion').val('').trigger('change');">Todas </button>
         </div>
         <br>
         <br>
@@ -105,6 +114,28 @@
         <!-- begin panel-body -->
         <div class="panel-body">
             @include('expediente.solicitudes._list')
+        </div>
+    </div>
+    <div class="modal" id="modal-caduco"role="dialog">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Las siguientes <span class="badge badge-pill btn-light">{{count($caducan)}}</span> solicitudes estan por caducar </h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12" style="overflow: scroll; max-height:400px;">
+                        @foreach($caducan as $sol)
+                            <label style="font-size: x-large;">- Solicitud: <b>{{$sol->folio}}/{{$sol->anio}}</b> Caduca en <b>{{$sol->Caduca}}</b> d&iacute;as</label>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary m-l-5" data-dismiss="modal"> Aceptar</button>
+                </div>
+            </div>
         </div>
     </div>
     <div class="modal" id="modal-crear-solicitud" aria-hidden="true" style="display:none;">
@@ -153,6 +184,9 @@
 
 @push('scripts')
     <script>
+        if({{ isset($mostrar_caducos) ? $mostrar_caducos : 'false' }}){
+            $("#modal-caduco").modal("show");
+        }
         var mis_solicitudes = false;
         $(".date").datetimepicker({format:"DD/MM/YYYY",locale:'es'});
 //        $.datetimepicker.setLocale('es');
@@ -205,6 +239,11 @@
 
         function capturarSolicitud(id){
             location.href='{{ route('solicitudes.create')  }}?solicitud='+id;
+        }
+
+        function limpiarShortCut(){
+            $('#dias_expiracion').val('');
+            $('#estatus_solicitud_id').val('');
         }
     </script>
 @endpush

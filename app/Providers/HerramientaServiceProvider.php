@@ -8,6 +8,7 @@ use App\HistoricoNotificacion;
 use App\HistoricoNotificacionRespuesta;
 use App\ResolucionParteConcepto;
 use App\Solicitud;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,6 +16,12 @@ use Illuminate\Support\ServiceProvider;
 
 class HerramientaServiceProvider extends ServiceProvider
 {
+    /**
+     * Días para expiración de solicitudes
+     */
+    const DIAS_EXPIRACION = 44;
+    const DIAS_EXPIRA = 7;
+
     /**
      * Register services.
      *
@@ -267,6 +274,17 @@ class HerramientaServiceProvider extends ServiceProvider
             DB::rollback();
             return ['success'=>false,'msj'=>'Error al realizar el proceso '];
         }
+    }
+
+    public static function getSolicitudesPorCaducar(){
+        $dias_expiracion = self::DIAS_EXPIRA;
+        $dias_rango_inferior = self::DIAS_EXPIRACION - $dias_expiracion;
+        $dias_rango_superior = self::DIAS_EXPIRACION;
+        $fecha_fin = Carbon::now()->subDays($dias_rango_inferior);
+        $fecha_inicio = Carbon::now()->subDays($dias_rango_superior);
+        $centro_id = auth()->user()->centro_id;
+        $solicitudes = Solicitud::whereBetween('fecha_recepcion',[$fecha_inicio->toDateString(),$fecha_fin->toDateString()])->where('estatus_solicitud_id',2)->where('centro_id',$centro_id)->get();
+        return $solicitudes;
     }
 
     /**

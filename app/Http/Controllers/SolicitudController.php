@@ -64,6 +64,10 @@ use Illuminate\Support\Facades\Redirect;
 class SolicitudController extends Controller {
 
     use FechaNotificacion;
+    /**
+     * Días para expiración de solicitudes
+     */
+    const DIAS_EXPIRAR = 44;
 
     /**
      * Instancia del request
@@ -89,6 +93,7 @@ class SolicitudController extends Controller {
                     ->filter(false);
             // Si en el request viene el parametro all entonces regresamos todos los elementos
             $solicitud->whereRaw('incidencia is not true');
+            $mostrar_caducos = $this->request->get('alert');
             // de lo contrario paginamos
             if ($this->request->get('all')) {
                 $solicitud = $solicitud->get();
@@ -128,6 +133,25 @@ class SolicitudController extends Controller {
                     $solicitud = $solicitud->whereHas('partes', function (Builder $query) use ($nombre, $sql) {
                         $query->where('tipo_parte_id', 1)->whereRaw("to_tsvector('spanish', unaccent(trim(coalesce(nombre_comercial,' ')||' '||coalesce(nombre,' ')||' '||coalesce(primer_apellido,' ')||' '||coalesce(segundo_apellido,' ')))) @@ to_tsquery('spanish', unaccent(?))", [$nombre]);
                     });
+                }
+                if ($this->request->get('nombre_citado')) {
+                    $nombre_citado = $this->request->get('nombre_citado');
+                    $nombre_citado = trim($nombre_citado);
+                    $nombre_citado = str_replace(' ', '&', $nombre_citado);
+                    $sql = " ";
+                    $solicitud = $solicitud->whereHas('partes', function (Builder $query) use ($nombre_citado, $sql) {
+                        $query->where('tipo_parte_id', 2)->whereRaw("to_tsvector('spanish', unaccent(trim(coalesce(nombre_comercial,' ')||' '||coalesce(nombre,' ')||' '||coalesce(primer_apellido,' ')||' '||coalesce(segundo_apellido,' ')))) @@ to_tsquery('spanish', unaccent(?))", [$nombre_citado]);
+                    });
+                }
+                if ($this->request->get('dias_expiracion')) {
+                    $dias_expiracion = $this->request->get('dias_expiracion');
+                    $dias_rango_inferior = self::DIAS_EXPIRAR - $dias_expiracion;
+                    $dias_rango_superior = self::DIAS_EXPIRAR;
+                    $fecha_fin = Carbon::now()->subDays($dias_rango_inferior);
+                    $fecha_inicio = Carbon::now()->subDays($dias_rango_superior);
+                    $sql = " ";
+                    $solicitud = $solicitud->whereBetween('fecha_recepcion',[$fecha_inicio->toDateString(),$fecha_fin->toDateString()])->where('estatus_solicitud_id',2);
+                    
                 }
 
                 if ($this->request->get('anio')) {
@@ -194,6 +218,10 @@ class SolicitudController extends Controller {
             });
             $objeto_solicitudes = $this->cacheModel('objeto_solicitudes', ObjetoSolicitud::class);
             $estatus_solicitudes = $this->cacheModel('estatus_solicitudes', EstatusSolicitud::class);
+            $caducan = HerramientaServiceProvider::getSolicitudesPorCaducar();
+            if(count($caducan) == 0){
+                $mostrar_caducos = null;
+            }
             if ($this->request->wantsJson()) {
                 if ($this->request->get('all') || $this->request->get('paginate')) {
                     return $this->sendResponse($solicitud, 'SUCCESS');
@@ -213,7 +241,7 @@ class SolicitudController extends Controller {
             $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->orWhere("tipo_archivo_id", 10)->get();
             $tipo_solicitud = array_pluck(TipoSolicitud::all(), 'nombre', 'id');
             $conciliadores = Conciliador::where('centro_id', $centro_id)->with('persona')->get()->pluck('persona.FullName', 'id');
-            return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'tipo_solicitud', 'conciliadores'));
+            return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'tipo_solicitud', 'conciliadores','caducan','mostrar_caducos'));
         } catch (\Throwable $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
                     " Se emitió el siguiente mensale: " . $e->getMessage() .
@@ -221,12 +249,14 @@ class SolicitudController extends Controller {
             if ($this->request->wantsJson()) {
                 return $this->sendResponseDatatable(0, 0, 0, [], null);
             }
+            $mostrar_caducos = null;
             $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
             $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->orWhere("tipo_archivo_id", 10)->get();
             $tipo_solicitud = array_pluck(TipoSolicitud::all(), 'nombre', 'id');
             $centro_id = Auth::user()->centro_id;
             $conciliadores = Conciliador::where('centro_id', $centro_id)->with('persona')->get()->pluck('persona.FullName', 'id');
-            return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'tipo_solicitud', 'conciliadores'));
+            $caducan = 0;
+            return view('expediente.solicitudes.index', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'tipo_solicitud', 'conciliadores','caducan','mostrar_caducos'));
         }
     }
 

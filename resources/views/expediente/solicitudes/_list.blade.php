@@ -697,6 +697,8 @@
                         d.mis_solicitudes = $("#mis_solicitudes").val(),
                         d.curp = $("#curp").val(),
                         d.nombre = $("#nombre").val(),
+                        d.nombre_citado = $("#nombre_citado").val(),
+                        d.dias_expiracion = $("#dias_expiracion").val(),
                         d.tipo_solicitud_id = $("#tipo_solicitud_id").val(),
                         d.conciliador_id = $("#conciliador_filter_id").val(),
                         d.IsDatatableScroll = true,
@@ -2530,6 +2532,10 @@
         var estatus = $(this).val();
         $(".estatus").removeClass('selectedButton');
         $("#estatus"+estatus).addClass('selectedButton');
+    });
+    $(".estatus").click(function(){
+        $(".estatus").removeClass('selectedButton');
+        $(this).addClass('selectedButton');
     });
     function guardarUrlVirtual(){
         if($("#url_virtual").val() != ""){
