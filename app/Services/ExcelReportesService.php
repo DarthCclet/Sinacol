@@ -170,7 +170,7 @@ class ExcelReportesService
             $sheet->setCellValue('A1', 'SOLICITUDES CONFIRMADAS');
 
             $sheet->setCellValue('A3', 'CENTRO');
-            $sheet->setCellValue('B3', 'Ratificación de convenio');
+            $sheet->setCellValue('B3', 'Confirmación de convenio');
             $sheet->setCellValue('C3', 'Procedimiento normal');
             $sheet->setCellValue('D3', 'Total');
 
@@ -504,7 +504,7 @@ class ExcelReportesService
 
         # Reporte desagregado
 
-        $encabezado = explode(',', "CENTRO,SOLICITUD_ID,EXPEDIENTE,AUDIENCIA_ID,FECHA RATIFICACIÓN,RATIFICADA,DETECTADA EN");
+        $encabezado = explode(',', "CENTRO,SOLICITUD_ID,EXPEDIENTE,AUDIENCIA_ID,FECHA CONFIRMACIÓN,CONFIRMADA,DETECTADA EN");
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $incompetenciasWorkSheet->getColumnDimension($columna)->setAutoSize(true);
         }
@@ -523,7 +523,7 @@ class ExcelReportesService
                 'audiencia_id' => $i['audiencia_id'],
                 'fecha_ratificacion' => $i['fecha_ratificacion'],
                 'ratificada' => $i['ratificada'],
-                'detectada_en' => 'RATIFICACIÓN'
+                'detectada_en' => 'CONFIRMACIÓN'
             ];
         });
 
@@ -584,7 +584,7 @@ class ExcelReportesService
 
         # Desagregado
 
-        $encabezado = explode(',','CENTRO,FINALIZADA,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,NÚMERO AUDIENCIA,FECHA RATIFICACIÓN,RATIFICADA');
+        $encabezado = explode(',','CENTRO,FINALIZADA,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,NÚMERO AUDIENCIA,FECHA CONFIRMACIÓN,CONFIRMADA');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $archivadosWorkSheet->getColumnDimension($columna)->setAutoSize(true);
         }
@@ -700,7 +700,7 @@ class ExcelReportesService
         $conveniosWorkSheet->getStyle('A1')->applyFromArray($this->tituloH1());
 
         if ($request->get('tipo_reporte') == 'agregado') {
-            $conveniosWorkSheet->setCellValue('A1', 'RATIFICACIÓN DE CONVENIOS');
+            $conveniosWorkSheet->setCellValue('A1', 'CONFIRMACIÓN DE CONVENIOS');
             $conveniosWorkSheet->getStyle('A4:H4')->applyFromArray($this->th1());
             $conveniosWorkSheet->getStyle('C3:G3')->applyFromArray($this->boldcenter());
             $conveniosWorkSheet->getColumnDimension('B')->setAutoSize(true);
@@ -837,7 +837,7 @@ class ExcelReportesService
         $this->arrayToExcel([$encabezado], $conveniosWorkSheet, 3);
 
         $conveniosWorkSheet->getStyle('A3:J3')->applyFromArray($this->th1());
-        $conveniosWorkSheet->setCellValue('A1', 'RATIFICACIÓN DE CONVENIOS (DESAGREGADO)');
+        $conveniosWorkSheet->setCellValue('A1', 'CONFIRMACIÓN DE CONVENIOS (DESAGREGADO)');
 
         $res = $convenios->map(function($item){
             return [
@@ -881,7 +881,7 @@ class ExcelReportesService
             $workSheet->setCellValue('A1', 'NO CONCILIACIÓN');
             $workSheet->setCellValue('A3', 'CENTRO');
             $workSheet->setCellValue('B3', "No conciliación\n(procedimiento normal)");
-            $workSheet->setCellValue('C3', "No conciliación\n(ratificación de\nconvenios -\nsolicitudes concluidas)");
+            $workSheet->setCellValue('C3', "No conciliación\n(confirmación de\nconvenios -\nsolicitudes concluidas)");
             $workSheet->setCellValue('D3', "Total de solicitudes\ndonde se emitió\nconstancia de no\nconciliación");
 
             $normal = $noconciliacion->where('inmediata', false)->where('audiencia_finalizada', true)->unique('solicitud_id')->groupBy('abreviatura')->map(
@@ -936,7 +936,7 @@ class ExcelReportesService
                 'fecha_audiencia' => $item->fecha_audiencia,
                 'numero_audiencia' => $item->numero_audiencia,
                 'resolucion' => $item->resolucion,
-                'inmediata' => $item->inmediata ? 'RATIFICACIÓN CONVENIO': 'NORMAL',
+                'inmediata' => $item->inmediata ? 'CONFIRMACIÓN CONVENIO': 'NORMAL',
                 'finalizada' => $item->audiencia_finalizada,
             ];
         });
