@@ -999,6 +999,7 @@ class PlantillasDocumentosController extends Controller
                                 $resolucion_conceptos = ResolucionParteConcepto::where('audiencia_parte_id',$audiencia_parte->id)->get();
                               }
                               $tablaConceptosEConvenio = '';
+                              $tablaConceptosRConvenio = '';
                               $tablaConceptosEActa = '';
                               $tablaConceptosConvenio .= '<table class="tbl">';
                               $tablaConceptosConvenio .= '<tbody>';
@@ -1007,6 +1008,8 @@ class PlantillasDocumentosController extends Controller
                               $tablaConceptosActa .= '';
                               $hayRetenciones = false;
                               $hayConceptosPago = false;
+                              $conceptosEspecie = [];
+                              $conceptosDerechos = [];
                               $parte = Parte::find($parteID);
                               if(sizeof($parte->compareciente)>0){
                                 $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
@@ -1020,7 +1023,7 @@ class PlantillasDocumentosController extends Controller
                               foreach ($resolucion_conceptos as $concepto ) {
                                 //foreach ($conceptos as $concepto ) {
                                   $conceptoName = ConceptoPagoResolucion::select('nombre')->find($concepto['concepto_pago_resoluciones_id']);
-                                  if($concepto['concepto_pago_resoluciones_id'] != 9 && $concepto['concepto_pago_resoluciones_id'] != 11){//en especie
+                                  if($concepto['concepto_pago_resoluciones_id'] != 9 && $concepto['concepto_pago_resoluciones_id'] != 11){//no pago en especie ni reconocimiento
                                     if($concepto['concepto_pago_resoluciones_id'] == 12 || $concepto['concepto_pago_resoluciones_id'] == 13){//otro pago o deduccion
                                       $conceptoName->nombre = $concepto['otro'];
                                       if($concepto['concepto_pago_resoluciones_id'] == 13){
@@ -1061,18 +1064,28 @@ class PlantillasDocumentosController extends Controller
                                   }else{// 9 y 11
                                     if($tipoSolicitud == 1){ //solicitud individual
                                       if($parteID == $idSolicitante && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitante
-                                        $tablaConceptosEConvenio .= $concepto['otro'].'';
+                                        if($concepto['concepto_pago_resoluciones_id'] == 9){
+                                          array_push($conceptosEspecie, $concepto['otro'] );
+                                        }else{//11
+                                          $tablaConceptosRConvenio = $concepto['otro'];
+                                        }
                                         $hayConceptosPago = ($concepto['concepto_pago_resoluciones_id'] == 9) ? true : $hayConceptosPago;
                                       }
                                     }else{
                                       if($parteID == $idSolicitado && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitado
-                                        $tablaConceptosEConvenio .= $concepto['otro'].'';
+                                        if($concepto['concepto_pago_resoluciones_id'] == 9){
+                                          array_push($conceptosEspecie, $concepto['otro'] );
+                                        }else{//11
+                                          $tablaConceptosRConvenio = $concepto['otro'];
+                                        }
                                         $hayConceptosPago = ($concepto['concepto_pago_resoluciones_id'] == 9) ? true : $hayConceptosPago;
                                       }
                                     }  
-                                    $tablaConceptosEActa .= $concepto['otro'].' ';
+                                    ($concepto['concepto_pago_resoluciones_id'] == 9) ? array_push($conceptosEspecie, $concepto['otro'] ): array_push($conceptosDerechos, $concepto['otro'] );
+                                    //$tablaConceptosEActa .= $concepto['otro'].' ';
                                   }
                                 }
+                              $tablaConceptosEActa .= implode(", ",$conceptosEspecie);
                               $totalPercepciones =$totalPercepciones - $totalDeducciones;
                               if($tipoSolicitud == 1){
                                 $tablaConceptosConvenio .= ($parteID == $idSolicitante && $hayRetenciones)? $tablaRetencionesConvenio:"";
@@ -1085,11 +1098,15 @@ class PlantillasDocumentosController extends Controller
                               $tablaConceptosConvenio .= '</table>';
                               if($tipoSolicitud == 1){
                                 if($parteID == $idSolicitante && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitante
-                                  $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                  $tablaConceptosConvenio .= $tablaConceptosRConvenio;
+                                  $tablaConceptosEConvenio = implode(", ",$conceptosEspecie);
+                                  $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>': " ";
                                 }
                               }else{
                                 if($parteID == $idSolicitado && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitante
-                                  $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
+                                  $tablaConceptosConvenio .= $tablaConceptosRConvenio;
+                                  $tablaConceptosEConvenio = implode(", ",$conceptosEspecie);
+                                  $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>': " ";
                                 }
                               }
                               if(sizeof($parte->compareciente)>0){
@@ -1097,6 +1114,7 @@ class PlantillasDocumentosController extends Controller
                                 $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
                                 $tablaConceptosActa .= '</tbody>';
                                 $tablaConceptosActa .= '</table>';
+                                $tablaConceptosActa .= implode(", ",$conceptosDerechos);
                                 $tablaConceptosActa .= ($tablaConceptosEActa!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$nombreParte.' '.$tablaConceptosEActa.'.</p>':'';
                                 $tablaConceptosActa .= '<br>';
                               }

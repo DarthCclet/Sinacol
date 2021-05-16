@@ -884,6 +884,7 @@ trait GenerateDocument
                               // $tablaConceptos .= '<h4>Propuesta Configurada </h4>';
                               $resolucion_conceptos = ResolucionParteConcepto::where('audiencia_parte_id',$audiencia_parte->id)->get();
                               $tablaConceptosEConvenio = '';
+                              $tablaConceptosRConvenio = '';
                               $tablaConceptosEActa = '';
                               //$tablaConceptosConvenio = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                               $tablaRetencionesConvenio = '<tr><td colspan="2" style="text-align: center;font-weight:bold;"> RETENCIONES </td></tr>';
@@ -892,6 +893,7 @@ trait GenerateDocument
                               $tablaConceptosActa .= '';
                               $hayRetenciones = false;
                               $hayConceptosPago = false;
+                              $conceptosEspecie = [];
                               $parte = Parte::find($parteID);
                               if(sizeof($parte->compareciente)>0){
                                 $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
@@ -946,12 +948,22 @@ trait GenerateDocument
                                 }else{ //9 y 11
                                   if($tipoSolicitud == 1){ //solicitud individual
                                     if($parteID == $idSolicitante){ //si resolucion pertenece al solicitante
-                                      $tablaConceptosEConvenio .= $concepto->otro.' ';
+                                      if($concepto['concepto_pago_resoluciones_id'] == 9){
+                                        array_push($conceptosEspecie, $concepto['otro'] );
+                                      }else{//11
+                                        $tablaConceptosRConvenio = $concepto['otro'];
+                                      }
+                                      // $tablaConceptosEConvenio .= $concepto->otro.' ';
                                       $hayConceptosPago = ($concepto->concepto_pago_resoluciones_id != 11) ? true : $hayConceptosPago;
                                     }
                                   }else{
                                     if($parteID == $idSolicitado){ //si resolucion pertenece al citado
-                                      $tablaConceptosEConvenio .= $concepto->otro.' ';
+                                      if($concepto['concepto_pago_resoluciones_id'] == 9){
+                                        array_push($conceptosEspecie, $concepto['otro'] );
+                                      }else{//11
+                                        $tablaConceptosRConvenio = $concepto['otro'];
+                                      }
+                                      //$tablaConceptosEConvenio .= $concepto->otro.' ';
                                       $hayConceptosPago = ($concepto->concepto_pago_resoluciones_id != 11) ? true : $hayConceptosPago;
                                     }
                                   }
@@ -970,10 +982,14 @@ trait GenerateDocument
                               $tablaConceptosConvenio .= '</table>';
                               if($tipoSolicitud == 1){ //solicitud individual
                                 if($parteID == $idSolicitante){ //si resolucion pertenece al solicitante
+                                  $tablaConceptosConvenio .= $tablaConceptosRConvenio;
+                                  $tablaConceptosEConvenio = implode(", ",$conceptosEspecie);
                                   $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
                                 }
                               }else{
                                 if($parteID == $idSolicitado){ //si resolucion pertenece al citado
+                                  $tablaConceptosConvenio .= $tablaConceptosRConvenio;
+                                  $tablaConceptosEConvenio = implode(", ",$conceptosEspecie);
                                   $tablaConceptosConvenio .= ($tablaConceptosEConvenio!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$tablaConceptosEConvenio.'.</p>':'';
                                 }
                               }
