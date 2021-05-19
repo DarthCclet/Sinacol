@@ -3371,7 +3371,7 @@
                     error = true;
                     errorMsj = 'No es posible registrar más conceptos personalizados';
                 }
-                if(countDeduccion>=5){
+                if(countDeduccion>=12){
                     error = true;
                     errorMsj = 'No es posible registrar más deducciones';
                 }
@@ -3831,7 +3831,7 @@
         $('#otro').val('');
         switch (concepto) {
             case '7': // Prima topada por antiguedad
-                //$('#monto').attr('disabled',true);
+                $('#monto').attr('disabled',true);
                 $('#dias').attr('disabled',true);
                 $('#otro').attr('disabled',true);
                 //$('#').attr('disabled',true);
@@ -3858,8 +3858,8 @@
             case '10':    //Salarios vencidos
                 monto = (tiempoVencido * pagoDia).toFixed(2);
                 //$('#monto').val(monto);
-                //$('#monto').attr('disabled',true);
-                // $('#dias').attr('disabled',true);
+                $('#monto').removeAttr('disabled');
+                $('#dias').removeAttr('disabled');
                 $('#otro').attr('disabled',true);
                 break;
             case '11':    //Gratificacion F
@@ -3881,8 +3881,9 @@
                 break;
             default: //Dias de sueldo, Dias de vacaciones
                 //$('#monto').attr('disabled',true);
-                $('#otro').attr('disabled',true);
+                $('#monto').removeAttr('disabled');
                 $('#dias').removeAttr('disabled');
+                $('#otro').attr('disabled',true);
                 break;
         }
     });
@@ -3890,12 +3891,23 @@
     $("#hayDeducciones").on("change",function(){
         if( $('#hayDeducciones').is(':checked') ){ //si hay deducciones
             //$('#concepto_pago_resoluciones_id option[value="13"]').remove();
-            $('#concepto_pago_resoluciones_id option[value="13"]').show();
-            $("#concepto_pago_resoluciones_id").trigger("change");
+
+            if($('#radioReinstalacion').is(':checked') ){
+                $('#concepto_pago_reinstalacion_id option[value="13"]').show();
+                $('#concepto_pago_reinstalacion_id').trigger("change");
+            }else{
+                $('#concepto_pago_resoluciones_id option[value="13"]').show();
+                $("#concepto_pago_resoluciones_id").trigger("change");
+            }
         }else{
-            //$("#concepto_pago_resoluciones_id").append('<option value="13">Deduccion</option>');
-            $('#concepto_pago_resoluciones_id option[value="13"]').hide();
-            $("#concepto_pago_resoluciones_id").trigger("change");
+            if($('#radioReinstalacion').is(':checked') ){
+                $('#concepto_pago_reinstalacion_id option[value="13"]').hide();
+                $('#concepto_pago_reinstalacion_id').trigger("change");
+            }else{
+                //$("#concepto_pago_resoluciones_id").append('<option value="13">Deduccion</option>');
+                $('#concepto_pago_resoluciones_id option[value="13"]').hide();
+                $("#concepto_pago_resoluciones_id").trigger("change");
+            }
         }
     });
 
