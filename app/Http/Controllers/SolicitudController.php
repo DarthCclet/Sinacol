@@ -388,6 +388,7 @@ class SolicitudController extends Controller {
             $userAuth = Auth::user();
             if ($userAuth) {
                 $solicitud['user_id'] = Auth::user()->id;
+                $solicitud['captura_user_id'] = Auth::user()->id;
             }
             // Se registra la solicitud con estatus sin ratificar
             $solicitud['estatus_solicitud_id'] = 1;
