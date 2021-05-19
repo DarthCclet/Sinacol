@@ -298,6 +298,7 @@
                 data:{
                     folio:$("#folio_solicitud").val(),
                     anio: $("#anio_solicitud").val(),
+                    validate: true,
                     _token:$("input[name=_token]").val()
                 },
                 success:function(json){
@@ -326,7 +327,7 @@
                         }else{
                             swal({
                                 title: 'Advertencia',
-                                text: ' No se encontro la solicitud: '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
+                                text: json.message+': '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
                                 icon: 'warning'
                             });
                         }

@@ -629,7 +629,25 @@ class SolicitudController extends Controller {
      */
     public function getSolicitudByFolio(Request $request) {
         try {
-            $solicitud = Solicitud::with('expediente', 'giroComercial', 'estatusSolicitud', 'centro', 'tipoIncidenciaSolicitud', 'tipoSolicitud', 'giroComercial.ambito', 'objeto_solicitudes')->where('folio', $request->folio)->where('anio', $request->anio)->first();
+            $user = auth()->user();
+            $centro = $user->centro;
+            $solicitud = Solicitud::with('expediente', 'giroComercial', 'estatusSolicitud', 'centro', 'tipoIncidenciaSolicitud', 'tipoSolicitud', 'giroComercial.ambito', 'objeto_solicitudes')->where('folio', $request->folio)->where('anio', $request->anio)->where('centro_id',$centro->id)->first();
+            $validate = $request->validate;
+            if($validate){
+                if ($solicitud->expediente) {
+                    if($user->hasRole('Personal conciliador')){
+                        $audiencias = $solicitud->expediente->audiencia()->orderBy('id', 'desc')->first();
+                        if($audiencias){
+                            $conciliadorAudiencia = ConciliadorAudiencia::where('audiencia_id',$audiencias->id)->first();
+                            $persona_id = Auth::user()->persona->id;
+                            $conciliador = Conciliador::where('persona_id',$persona_id)->first();
+                            if($conciliador && $conciliadorAudiencia && $conciliador->id != $conciliadorAudiencia->conciliador_id ){
+                                return response()->json(['success' => false, 'message' => 'No tienes permisos para acceder a esta solicitud', 'data' => null], 200);
+                            }
+                        }
+                    }
+                }
+            }
             if ($solicitud) {
                 $partes = $solicitud->partes()->with('dato_laboral', 'domicilios', 'contactos', 'lenguaIndigena')->get();
                 $solicitantes = $partes->where('tipo_parte_id', 1);
@@ -674,11 +692,19 @@ class SolicitudController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function edit($id) {
+        
         $doc = [];
         $solicitud = Solicitud::find($id);
         $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
         if (count($expediente) > 0) {
-            $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->orderBy('id', 'asc')->get();
+            $audiencias = Audiencia::where("expediente_id", "=", $expediente[0]->id)->orderBy('id', 'desc')->get();
+
+            $conciliadorAudiencia = ConciliadorAudiencia::where('audiencia_id',$audiencias->first()->id)->first();
+            $persona_id = Auth::user()->persona->id;
+            $conciliador = Conciliador::where('persona_id',$persona_id)->first();
+            if($conciliador && $conciliadorAudiencia && $conciliador->id != $conciliadorAudiencia->conciliador_id ){
+                return redirect('solicitudes')->withError('No tienes permisos para acceder a esta solicitud');
+            }
         } else {
             $audiencias = array();
         }
@@ -761,7 +787,7 @@ class SolicitudController extends Controller {
                         foreach ($documentos as $documento) {
                             $documento->id = $documento->id;
                             $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-                            $documento->tipo = pathinfo($documento->ruta)['extension'];
+                            $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
                             if ($parte->parte->tipo_persona_id == 1) {
                                 $documento->audiencia = $parte->parte->nombre . " " . $parte->parte->primer_apellido . " " . $parte->parte->segundo_apellido;
                             } else {
@@ -785,7 +811,7 @@ class SolicitudController extends Controller {
                 foreach ($documentos as $documento) {
                     $documento->id = $documento->id;
                     $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-                    $documento->tipo = pathinfo($documento->ruta)['extension'];
+                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
                     $documento->parte = $parte->nombre . " " . $parte->primer_apellido . " " . $parte->segundo_apellido;
                     $documento->tipo_doc = 2;
                     $doc->push($documento);
@@ -822,7 +848,7 @@ class SolicitudController extends Controller {
                     foreach ($documentos as $documento) {
                         $documento->id = $documento->id;
                         $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-                        $documento->tipo = pathinfo($documento->ruta)['extension'];
+                        $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
                         $documento->tipo_doc = 3;
                         $documento->audiencia = $audiencia->folio . "/" . $audiencia->anio;
                         $documento->audiencia_id = $audiencia->id;
@@ -838,7 +864,7 @@ class SolicitudController extends Controller {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
                     " Se emitió el siguiente mensale: " . $e->getMessage() .
                     " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
-            return redirect('solicitudes');
+            return redirect('solicitudes')->withError('Hay un error en la solicitud no es posible acceder');
         }
     }
 
