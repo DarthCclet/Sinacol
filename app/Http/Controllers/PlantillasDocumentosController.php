@@ -1081,7 +1081,7 @@ class PlantillasDocumentosController extends Controller
                                         $hayConceptosPago = ($concepto['concepto_pago_resoluciones_id'] == 9) ? true : $hayConceptosPago;
                                       }
                                     }  
-                                    ($concepto['concepto_pago_resoluciones_id'] == 9) ? array_push($conceptosEspecie, $concepto['otro'] ): array_push($conceptosDerechos, $concepto['otro'] );
+                                    ($concepto['concepto_pago_resoluciones_id'] == 9 && $idPlantilla == 3 ) ? array_push($conceptosEspecie, $concepto['otro'] ): array_push($conceptosDerechos, $concepto['otro'] );
                                     //$tablaConceptosEActa .= $concepto['otro'].' ';
                                   }
                                 }
@@ -1130,11 +1130,13 @@ class PlantillasDocumentosController extends Controller
                                 if($parteID == $idSolicitante ){
                                   $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
                                   $datosResolucion['total_percepciones_letra']= $cantidadTextual;
+                                  $datosResolucion['pagos']= $hayConceptosPago;
                                 }
                               }else{
                                 if($parteID == $idSolicitado ){
                                   $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
                                   $datosResolucion['total_percepciones_letra']= $cantidadTextual;
+                                  $datosResolucion['pagos']= $hayConceptosPago;
                                 }
                               }
                             }
@@ -1164,7 +1166,7 @@ class PlantillasDocumentosController extends Controller
 
                             $datosResolucion['total_diferidos']= $totalPagosDiferidos;
                             $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
-                            $datosResolucion['pagos']= $hayConceptosPago;
+                            
                           }
                         }
                         // $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);

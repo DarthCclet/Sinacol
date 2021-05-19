@@ -894,6 +894,7 @@ trait GenerateDocument
                               $hayRetenciones = false;
                               $hayConceptosPago = false;
                               $conceptosEspecie = [];
+                              $conceptosDerechos = [];
                               $parte = Parte::find($parteID);
                               if(sizeof($parte->compareciente)>0){
                                 $nombreParte = $parte['nombre'].' '.$parte['primer_apellido'].' '.$parte['segundo_apellido'];
@@ -967,9 +968,11 @@ trait GenerateDocument
                                       $hayConceptosPago = ($concepto->concepto_pago_resoluciones_id != 11) ? true : $hayConceptosPago;
                                     }
                                   }
-                                  $tablaConceptosEActa .= $concepto->otro.' ';
+                                  ($concepto['concepto_pago_resoluciones_id'] == 9 && $idPlantilla == 3 ) ? array_push($conceptosEspecie, $concepto['otro'] ): array_push($conceptosDerechos, $concepto['otro'] );
+                                  //$tablaConceptosEActa .= $concepto->otro.' ';
                                 }
                               }
+                              $tablaConceptosEActa .= implode(", ",$conceptosEspecie);
                               $totalPercepciones = $totalPercepciones - $totalDeducciones;
                               if($tipoSolicitud == 1){ //solicitud individual
                                 $tablaConceptosConvenio .= ($parteID == $idSolicitante && $hayRetenciones)? $tablaRetencionesConvenio:"";
@@ -998,6 +1001,7 @@ trait GenerateDocument
                                 $tablaConceptosActa .= '<tr><td> Total de percepciones </td><td>     $'.number_format($totalPercepciones, 2, '.', ',').'</td></tr>';
                                 $tablaConceptosActa .= '</tbody>';
                                 $tablaConceptosActa .= '</table>';
+                                $tablaConceptosActa .= implode(", ",$conceptosDerechos);
                                 $tablaConceptosActa .= ($tablaConceptosEActa!='') ? '<p>Adicionalmente las partes acordaron que la parte&nbsp;<b> EMPLEADORA</b> entregar&aacute; a la parte <b>TRABAJADORA</b> '.$nombreParte.' '.$tablaConceptosEActa.'.</p>':'';
                                 $tablaConceptosActa .= '<br>';
                               }
@@ -1013,11 +1017,13 @@ trait GenerateDocument
                                 if($parteID == $idSolicitante ){
                                   $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
                                   $datosResolucion['total_percepciones_letra']= $cantidadTextual;
+                                  $datosResolucion['pagos']= $hayConceptosPago;
                                 }
                               }else{
                                 if($parteID == $idSolicitado ){
                                   $datosResolucion['total_percepciones']= number_format($totalPercepciones, 2, '.', ',');//$totalPercepciones;
                                   $datosResolucion['total_percepciones_letra']= $cantidadTextual;
+                                  $datosResolucion['pagos']= $hayConceptosPago;
                                 }
                               }
                             }
@@ -1044,7 +1050,6 @@ trait GenerateDocument
 
                             $datosResolucion['total_diferidos']= $totalPagosDiferidos;
                             $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
-                            $datosResolucion['pagos']= $hayConceptosPago;
                           }
                         }
                         // $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
