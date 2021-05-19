@@ -61,15 +61,21 @@ class AudienciaServiceProvider extends ServiceProvider
                 if ($bandera) {
                     //Se consulta comparecencia de solicitante
                     $parteS = $solicitante->parte;
-                    if ($parteS->tipo_persona_id == 2) {
+                    if ($parteS->tipo_persona_id == 2) {//solicitante moral
                         $compareciente_parte = Parte::where("parte_representada_id", $parteS->id)->first();
                         if ($compareciente_parte != null) {
                             $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->first();
                         } else {
                             $comparecienteSol = null;
                         }
-                    } else {
-                        $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
+                    } else {//solicitante fisica
+                        $compareciente_parte = Parte::where("parte_representada_id", $parteS->id)->first();
+                        if ($compareciente_parte != null) {
+                            $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                        } else {
+                            $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
+                        }
+                            
                     }
                     //Se consulta comparecencia de citado
                     $comparecienteCit = null;
@@ -82,8 +88,7 @@ class AudienciaServiceProvider extends ServiceProvider
                     }
 
                     $terminacion = 1;
-                    if ($audiencia->resolucion_id == 3) {
-                        //no hubo convenio, guarda resolucion para todas las partes
+                    if ($audiencia->resolucion_id == 3) {//no hubo convenio, guarda resolucion para todas las partes
                         $terminacion = 5;
                         //se genera el acta de no conciliacion para todos los casos
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
@@ -97,9 +102,15 @@ class AudienciaServiceProvider extends ServiceProvider
                                 $compareciente = null;
                             }
                         } else {
-                            $compareciente = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+                            $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
+                            if ($compareciente_parte != null) {
+                                $compareciente = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                            } else {
+                                // $compareciente = null;
+                                $compareciente = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+                            }
                         }
-                    } else if ($audiencia->resolucion_id == 1) {
+                    } else if ($audiencia->resolucion_id == 1) {// Hubo convenio
                         if ($comparecienteSol != null && $comparecienteCit != null) {
                             $terminacion = 3;
                             $huboConvenio = true;

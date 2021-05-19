@@ -3112,7 +3112,7 @@
                     error = true;
                     errorMsj = 'No es posible registrar más conceptos personalizados';
                 }
-                if(countDeduccion>=5){
+                if(countDeduccion>=12){
                     error = true;
                     errorMsj = 'No es posible registrar más deducciones';
                 }

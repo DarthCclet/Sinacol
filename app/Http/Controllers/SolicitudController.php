@@ -1,6 +1,6 @@
 <?php
+
 namespace App\Http\Controllers;
-ini_set('max_execution_time', -1);
 
 use App\Centro;
 use App\DatoLaboral;
@@ -960,7 +960,7 @@ class SolicitudController extends Controller {
                     if (!isset($solicitante["id"]) || $solicitante["id"] == "") {
                         $solicitanteSave = Arr::except($solicitante, ['activo', 'domicilios', 'contactos', 'dato_laboral', 'clasificacion_archivo_id']);
                         $parteSaved = Parte::create($solicitanteSave);
-                        // Si tiene se registra dato laboral 
+                        // Si tiene se registra dato laboral
                         if (isset($solicitante['dato_laboral'])) {
                             $dato_laboral = $solicitante['dato_laboral'];
                             $parteSaved = ($parteSaved->dato_laboral()->create($dato_laboral)->parte);
@@ -1061,7 +1061,7 @@ class SolicitudController extends Controller {
                                 $contactoSaved = $parteSaved->contactos()->create($contacto);
                             }
                         }
-                        // Si ya hay audiencias registradas se busca la ultima y se agrega el citado a al audiencia y se envian todos los citatorios 
+                        // Si ya hay audiencias registradas se busca la ultima y se agrega el citado a al audiencia y se envian todos los citatorios
                         if ($solicitudSaved->ratificada && $solicitudSaved->expediente) {
                             $audiencias = $solicitudSaved->expediente->audiencia()->orderBy('id', 'desc');
                             if (!empty($audiencias)) {
@@ -1182,7 +1182,7 @@ class SolicitudController extends Controller {
                 }
             }
             $user_id = Auth::user()->id;
-            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true, "url_virtual" => null, "incidencia" => true, "fecha_incidencia" => now(), "justificacion_incidencia" => "Ratificada con incompetencia", "tipo_incidencia_solicitud_id" => 4, "fecha_ratificacion" => now(), "inmediata" => false, 'user_id' => $user_id]);
+            $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"fecha_incidencia"=>now(),"justificacion_incidencia"=>$this->request->justificacion,"tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
 
             // Obtenemos la sala virtual
             $sala = Sala::where("centro_id", $solicitud->centro_id)->where("virtual", true)->first();
@@ -1239,11 +1239,11 @@ class SolicitudController extends Controller {
             return $this->sendError('No se ha configurado el centro', 'Error');
             exit;
         }
-        $solicitud = Solicitud::find($request->id);
         $ContadorController = new ContadorController();
-        $folioC = $ContadorController->getContador(1, $solicitud->centro->id);
+        $folioC = $ContadorController->getContador(1,auth()->user()->centro_id);
         $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
         DB::beginTransaction();
+        $solicitud = Solicitud::find($request->id);
         try {
 //            Validamos si ya hay un expediente
             if ($solicitud->expediente == null) {
@@ -1454,8 +1454,8 @@ class SolicitudController extends Controller {
                 event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
                 return $audiencia;
             } else {
-                DB::commit();
-                return $solicitud->expediente->audiencia->first();
+                DB::rollback();
+                return $solicitud->expediente->audiencia()->with('audienciaParte','conciliadoresAudiencias','conciliadoresAudiencias.conciliador.persona','salasAudiencias','salasAudiencias.sala')->first();;
             }
         } catch (\Throwable $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
@@ -1836,7 +1836,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no esta confirmada, no se puede realizar este proceso ', 'Error');
                 }
             }
-            
+
             DB::commit();
             return $this->sendResponse($solicitud, 'SUCCESS');
         } catch (Exception $e) {
