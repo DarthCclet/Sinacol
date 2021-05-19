@@ -3033,10 +3033,12 @@
         event.preventDefault();
     });
     $(".validaFecha").change(function(){
-        var date_regex = /(((0|1)[0-9]|2[0-9]|3[0-1])\/(0[1-9]|1[0-2])\/((19|20)\d\d))$/;
-        if(!date_regex.test($(this).val())){
-            swal({title: 'Error',text: ' El formato de la fecha no es correcta el formato debe ser dd/mm/yyy7 ',icon: 'error'});
-            $(this).val("");
+        if($(this).val() != ""){
+            var date_regex = /(((0|1)[0-9]|2[0-9]|3[0-1])\/(0[1-9]|1[0-2])\/((19|20)\d\d))$/;
+            if(!date_regex.test($(this).val())){
+                swal({title: 'Error',text: ' El formato de la fecha no es correcta el formato debe ser dd/mm/yyyy ',icon: 'error'});
+                $(this).val("");
+            }
         }
     });
 
