@@ -209,104 +209,130 @@
                                                     </ol> --}}
                                                     {{-- Usted puede escoger una de estas alternativas o bien modificar las tablas. Lo que deja confirmado en el sistema será la propuesta de arreglo que se mostrará en el acta de audiencia. --}}
                                                 </p>
-                                                @foreach($audiencia->solicitantesComparecientes as $solicitante)
-                                                {{-- <pre>{{$solicitante->parte->id}}</pre> --}}
-                                                    <div class="card">
-                                                    <div class="card-header" id="headingOne">
-                                                        <h2 class="mb-0">
-                                                        <button id='coll{{$solicitante->parte->id}}' class="btn btn-link card-header collapseSolicitante" idSolicitante="{{$solicitante->parte->id}}" type="button" data-toggle="collapse" data-target="#collapse{{$solicitante->parte->id}}" aria-expanded="true" aria-controls="collapseOne" parteSelect="{{$solicitante->parte->id}}" onclick="getDatosLaboralesParte({{$solicitante->parte->id}})" >
-                                                            @if($solicitante->parte->tipo_persona_id == 1)
-                                                                {{ $solicitante->parte->nombre }} {{ $solicitante->parte->primer_apellido }} {{ $solicitante->parte->segundo_apellido }}
-                                                            @else
-                                                                {{ $solicitante->parte->nombre_comercial }}
-                                                            @endif
-                                                        </button>
-                                                        </h2>
-                                                    </div>
+                                                @if($tipo_solicitud == 1)
+                                                    @foreach($audiencia->solicitantesComparecientes as $solicitante)
+                                                    {{-- <pre>{{$solicitante->parte->id}}</pre> --}}
+                                                        <div class="card">
+                                                        <div class="card-header" id="headingOne">
+                                                            <h2 class="mb-0">
+                                                            <button id='coll{{$solicitante->parte->id}}' class="btn btn-link card-header collapseSolicitante" idSolicitante="{{$solicitante->parte->id}}" type="button" data-toggle="collapse" data-target="#collapse{{$solicitante->parte->id}}" aria-expanded="true" aria-controls="collapseOne" parteSelect="{{$solicitante->parte->id}}" onclick="getDatosLaboralesParte({{$solicitante->parte->id}})" >
+                                                                @if($solicitante->parte->tipo_persona_id == 1)
+                                                                    {{ $solicitante->parte->nombre }} {{ $solicitante->parte->primer_apellido }} {{ $solicitante->parte->segundo_apellido }}
+                                                                @else
+                                                                    {{ $solicitante->parte->nombre_comercial }}
+                                                                @endif
+                                                            </button>
+                                                            </h2>
+                                                        </div>
 
-                                                    <div id="collapse{{$solicitante->parte->id}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
-                                                        <div class="card-body">
-                                                            <input type="hidden" id="remuneracionDiaria{{$solicitante->parte->id}}" />
-                                                            <input type="hidden" id="salarioMinimo{{$solicitante->parte->id}}"/>
-                                                            <input type="hidden" id="antiguedad{{$solicitante->parte->id}}"/>
-                                                            <input type="hidden" id="idSolicitante"/>
-                                                            <div>
-                                                                {{-- <div>
-                                                                    <table class="table">
+                                                        <div id="collapse{{$solicitante->parte->id}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                                            <div class="card-body">
+                                                                <input type="hidden" id="remuneracionDiaria{{$solicitante->parte->id}}" />
+                                                                <input type="hidden" id="salarioMinimo{{$solicitante->parte->id}}"/>
+                                                                <input type="hidden" id="antiguedad{{$solicitante->parte->id}}"/>
+                                                                <input type="hidden" id="idSolicitante"/>
+                                                                <div>
+                                                                    <table class="table table-bordered" >
                                                                         <thead>
                                                                             <tr>
-                                                                                <th>Prestaci&oacute;n</th><th>Propuesta completa</th><th>Propuesta 45 d&iacute;as</th>
+                                                                                <th>Concepto</th>
+                                                                                <th>Dias</th>
+                                                                                <th>Monto</th>
+                                                                                <th>Otro</th>
                                                                             </tr>
                                                                         </thead>
-                                                                        <tbody id="tbodyPropuestas{{$solicitante->parte->id}}">
+                                                                        
+                                                                        <tbody id="tbodyConceptoPrincipal{{$solicitante->parte->id}}">
+                                                                            @foreach($conceptos_pago as $concepto_pago)
+                                                                                @foreach($concepto_pago['conceptos'] as $concepto)
+                                                                                    @if($solicitante->parte->id == $concepto_pago['idSolicitante'])
+                                                                                        <tr>
+                                                                                            <td>{{$concepto->nombre}}</td>
+                                                                                            <td>{{$concepto->dias}}</td>
+                                                                                            <td style="text-align: right">${{ number_format($concepto->monto,2)}}</td>
+                                                                                            <th>{{$concepto->otro}}</th>
+                                                                                        </tr>
+                                                                                    @endif  
+                                                                                @endforeach
+                                                                                @if( sizeof($concepto_pago['conceptos']) > 0 )
+                                                                                    @if( $solicitante->parte->id == $concepto_pago['idSolicitante'])
+                                                                                        <tr>
+                                                                                            <th>TOTAL</th>
+                                                                                            <th colspan="3" style="text-align: right">${{number_format($concepto_pago['totalConceptos'],2)}}</th>
+                                                                                        </tr>
+                                                                                    @endif
+                                                                                @endif
+                                                                            @endforeach
                                                                         </tbody>
                                                                     </table>
-                                                                </div> --}}
-                                                                {{-- <div class=" col-md-12" style="margin:5%;">
-                                                                    <h5 class="col-form-label col-sm-10 pt-0">Seleccione una propuesta por favor</h5>
-                                                                    <div class="row">
-                                                                        <div class="col-sm-10 ">
-                                                                        <div class="form-check row" style="margin-top: 2%;">
-                                                                            <input class="form-check-input" type="radio" name="radiosPropuesta{{$solicitante->parte->id}}" id="gridRadios1" value="completa" checked>
-                                                                            <label class="form-check-label" for="gridRadios1">
-                                                                                100% de indemnizaci&oacute;n
-                                                                            </label>
-                                                                        </div>
-                                                                        <div class="form-check row" style="margin-top: 2%;">
-                                                                            <input class="form-check-input" type="radio" name="radiosPropuesta{{$solicitante->parte->id}}" id="gridRadios2" value="al50">
-                                                                            <label class="form-check-label" for="gridRadios2">
-                                                                                50% de indemnizaci&oacute;n
-                                                                            </label>
-                                                                        </div>
-                                                                        <div class="row">
-                                                                            <div class="form-check col-md-1 " style="margin-top: 2%;">
-                                                                                <input class="form-check-input" type="radio" onclick="cargarConfigConceptos();" name="radiosPropuesta{{$solicitante->parte->id}}" id="propuesta_otro" value="otra">
-                                                                                <label class="form-check-label" for="gridRadios3">
-                                                                                    Otro
-                                                                                </label>
-                                                                            </div>
-                                                                        </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div> --}}
-                                                                <table class="table table-bordered" >
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Concepto</th>
-                                                                            <th>Dias</th>
-                                                                            <th>Monto</th>
-                                                                            <th>Otro</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    
-                                                                    <tbody id="tbodyConceptoPrincipal{{$solicitante->parte->id}}">
-                                                                        @foreach($conceptos_pago as $concepto_pago)
-                                                                            @foreach($concepto_pago['conceptos'] as $concepto)
-                                                                                @if($solicitante->parte->id == $concepto_pago['idSolicitante'])
-                                                                                    <tr>
-                                                                                        <td>{{$concepto->nombre}}</td>
-                                                                                        <td>{{$concepto->dias}}</td>
-                                                                                        <td style="text-align: right">${{ number_format($concepto->monto,2)}}</td>
-                                                                                        <th>{{$concepto->otro}}</th>
-                                                                                    </tr>
-                                                                                @endif  
-                                                                            @endforeach
-                                                                            @if( sizeof($concepto_pago['conceptos']) > 0 )
-                                                                                @if( $solicitante->parte->id == $concepto_pago['idSolicitante'])
-                                                                                    <tr>
-                                                                                        <th>TOTAL</th>
-                                                                                        <th colspan="3" style="text-align: right">${{number_format($concepto_pago['totalConceptos'],2)}}</th>
-                                                                                    </tr>
-                                                                                @endif
-                                                                            @endif
-                                                                        @endforeach
-                                                                    </tbody>
-                                                                </table>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    </div>
-                                                @endforeach
+                                                        </div>
+                                                    @endforeach
+                                                @else
+                                                
+                                                    @foreach($audiencia->citadosComparecientes as $citado)
+                                                     
+                                                        <div class="card">
+                                                        <div class="card-header" id="headingOne">
+                                                            <h2 class="mb-0">
+                                                            <button id='coll{{$citado->parte->id}}' class="btn btn-link card-header collapseCitado" idCitado="{{$citado->parte->id}}" type="button" data-toggle="collapse" data-target="#collapse{{$citado->parte->id}}" aria-expanded="true" aria-controls="collapseOne" parteSelect="{{$citado->parte->id}}" onclick="getDatosLaboralesParte({{$citado->parte->id}})" >
+                                                                @if($citado->parte->tipo_persona_id == 1)
+                                                                    {{ $citado->parte->nombre }} {{ $citado->parte->primer_apellido }} {{ $citado->parte->segundo_apellido }}
+                                                                @else
+                                                                    {{ $citado->parte->nombre_comercial }}
+                                                                @endif
+                                                            </button>
+                                                            </h2>
+                                                        </div>
+                                                        <div id="collapse{{$citado->parte->id}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                                            <div class="card-body">
+                                                                <input type="hidden" id="remuneracionDiaria{{$citado->parte->id}}" />
+                                                                <input type="hidden" id="salarioMinimo{{$citado->parte->id}}"/>
+                                                                <input type="hidden" id="antiguedad{{$citado->parte->id}}"/>
+                                                                <input type="hidden" id="idCitado"/>
+                                                                <div>
+                                                                    <table class="table table-bordered" >
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Concepto</th>
+                                                                                <th>Dias</th>
+                                                                                <th>Monto</th>
+                                                                                <th>Otro</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        
+                                                                        <tbody id="tbodyConceptoPrincipal{{$citado->parte->id}}">
+                                                                            @foreach($conceptos_pago as $concepto_pago)
+                                                                                @foreach($concepto_pago['conceptos'] as $concepto)
+                                                                                    @if($citado->parte->id == $concepto_pago['idCitado'])
+                                                                                        <tr>
+                                                                                            <td>{{$concepto->nombre}}</td>
+                                                                                            <td>{{$concepto->dias}}</td>
+                                                                                            <td style="text-align: right">${{ number_format($concepto->monto,2)}}</td>
+                                                                                            <th>{{$concepto->otro}}</th>
+                                                                                        </tr>
+                                                                                    @endif  
+                                                                                @endforeach
+                                                                                @if( sizeof($concepto_pago['conceptos']) > 0 )
+                                                                                    @if( $citado->parte->id == $concepto_pago['idCitado'])
+                                                                                        <tr>
+                                                                                            <th>TOTAL</th>
+                                                                                            <th colspan="3" style="text-align: right">${{number_format($concepto_pago['totalConceptos'],2)}}</th>
+                                                                                        </tr>
+                                                                                    @endif
+                                                                                @endif
+                                                                            @endforeach
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        </div>
+                                                    @endforeach
+                                                @endif
+                                                
                                                 </div>
                                                 <br>
 
@@ -2687,7 +2713,7 @@
                         table+=" </tr>";
                         $('#tbodyPropuestas'+dato.idParte).html(table);
                     }catch(error){
-                        console.log(error);
+                        console.error(error);
                     }
                 }
             });

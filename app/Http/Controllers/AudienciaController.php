@@ -230,6 +230,7 @@ class AudienciaController extends Controller {
         $comparecientes = array();
         $conceptos_pago = array();
         $solicitantesComparecientes = array();
+        $citadosComparecientes = array();
 
         foreach ($audiencia->audienciaParte as $key => $parte) {
             $parte->parte->tipoParte = $parte->parte->tipoParte;
@@ -256,7 +257,11 @@ class AudienciaController extends Controller {
             if ($compareciente->parte->tipo_parte_id == 1) {
                 $solicitantesComparecientes[$key] = $compareciente;
             }
+            if($compareciente->parte->tipo_parte_id == 2){
+                $citadosComparecientes[$key] = $compareciente;
+            }
         }
+        $audiencia->citadosComparecientes = $citadosComparecientes;
         $audiencia->solicitantesComparecientes = $solicitantesComparecientes;
 
         $audiencia->resolucionPartes = $audiencia->resolucionPartes;
@@ -281,6 +286,19 @@ class AudienciaController extends Controller {
                 array_push($conceptos, $conceptosP);
             }
             array_push($conceptos_pago, ['idSolicitante' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => $totalConceptos]);
+        }
+        foreach ($audiencia->solicitados as $audienciaParte) {
+            $totalConceptos = 0;
+            $conceptos = [];
+            foreach ($audienciaParte->parteConceptos as $concepto) {
+                $totalConceptos += floatval($concepto->monto);
+                $conceptosP = $concepto;
+                $conceptosP->nombre = $concepto->ConceptoPagoResolucion->nombre;
+                $conceptosP->idSolicitante = $audienciaParte->solicitante_id;
+                array_push($conceptos, $conceptosP);
+            }
+            array_push($conceptos_pago, ['idCitado' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => $totalConceptos]);
+            
         }
         // foreach ($audiencia->resolucionPartes as $resolucionParte) {
         //     $totalConceptos = 0;
@@ -321,6 +339,7 @@ class AudienciaController extends Controller {
         $partes = array();
         $solicitud = $audiencia->expediente->solicitud;
         $solicitud_id = $solicitud->id;
+        $tipo_solicitud = $solicitud->tipo_solicitud_id;
         $estatus_solicitud_id = $solicitud->estatus_solicitud_id;
         $solicitudPartes = $solicitud->partes;
         $obligar = false;
@@ -374,7 +393,7 @@ class AudienciaController extends Controller {
         if($tipo_resolucion_reagendar == $audiencia->resolucion_id && !$solicitud->finalizada && !$audiencia->audiencia_creada){
             $permitir_crear = true;
         }
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante", "documentos", 'solicitud_id', 'estatus_solicitud_id', 'virtual', 'partes', "estados", 'generos', 'nacionalidades', 'tipos_vialidades', 'tipos_asentamientos', 'lengua_indigena', 'tipo_contacto','obligar','permitir_crear'));
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante", "documentos", 'solicitud_id', 'estatus_solicitud_id', 'virtual', 'partes', "estados", 'generos', 'nacionalidades', 'tipos_vialidades', 'tipos_asentamientos', 'lengua_indigena', 'tipo_contacto','obligar','permitir_crear','tipo_solicitud'));
     }
 
     /**
