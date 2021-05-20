@@ -636,7 +636,8 @@ class SolicitudController extends Controller {
             $validate = $request->validate;
             if($validate){
                 if ($solicitud->expediente) {
-                    if($user->hasRole('Personal conciliador')){
+                    $rolActual = $request->session()->get('rolActual')->name;
+                    if($rolActual == 'Personal conciliador'){
                         $audiencias = $solicitud->expediente->audiencia()->orderBy('id', 'desc')->first();
                         if($audiencias){
                             $conciliadorAudiencia = ConciliadorAudiencia::where('audiencia_id',$audiencias->id)->first();
@@ -646,6 +647,10 @@ class SolicitudController extends Controller {
                                 return response()->json(['success' => false, 'message' => 'No tienes permisos para acceder a esta solicitud', 'data' => null], 200);
                             }
                         }
+                    }else if($rolActual == 'Administrador del centro'){
+
+                    }else{
+                        return response()->json(['success' => false, 'message' => 'No tienes permisos para acceder a esta solicitud', 'data' => null], 200);
                     }
                 }
             }

@@ -260,6 +260,7 @@
             $("#solicitante_id").val("");
             $("#solicitado_id").val("");
             $("#divAudienciaConsulta").html("");
+            $("#divBtnSol").hide();
             limpiarSolicitudAsociada();
         }
         
