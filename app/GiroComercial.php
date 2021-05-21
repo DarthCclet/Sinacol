@@ -30,6 +30,23 @@ class GiroComercial extends Model implements AuditableContract
     }
 
     /**
+     * Relación con industria
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function industria()
+    {
+        return $this->belongsTo(Industria::class);
+    }
+
+    /**
+     * Solicitudes que pertenecen a esta industria
+     */
+    public function solicitudes()
+    {
+        return $this->hasMany(Solicitud::class);
+    }
+
+    /**
      * Ordena y genera las dependencias de cc mediante su código de definición
      *
      * @param int $niveles Indica cuántos niveles tiene el código, cuántos pares de dígitos hay en la cadena.

@@ -232,6 +232,12 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::get('audiencia/suspension/{audiencia_id}','AudienciaController@SuspensionVirtual');
 
+    /*
+     * Consulta de reporte en hoja de cálculo
+     */
+    Route::get('reportes','ReportesController@index')->name('reportes.forma');
+    Route::get('reportes/reporte','ReportesController@reporte')->name('reportes.reporte');
+
 });
 
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
@@ -274,6 +280,3 @@ Route::group(['middleware' => ['role:público en general']], function () {
     //
 });
 
-// Consulta de reporte en hoja de cálculo
-Route::get('reportes','ReportesController@index')->name('reportes.forma');
-Route::get('reportes/reporte','ReportesController@reporte')->name('reportes.reporte');

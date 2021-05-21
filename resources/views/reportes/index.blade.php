@@ -64,7 +64,7 @@
             <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Industria</label>
                 <div class="col-lg-8">
-                    {!! Form::select('giro_id', isset($tipoIndustria) ? $tipoIndustria : [] ,null , ['id'=>'giro_id', 'class' => 'form-control select2', 'multiple'=>'multiple']);  !!}
+                    {!! Form::select('giro_id[]', isset($tipoIndustria) ? $tipoIndustria : [] ,null , ['id'=>'giro_id', 'class' => 'form-control select2', 'multiple'=>'multiple']);  !!}
                 </div>
             </div>
 

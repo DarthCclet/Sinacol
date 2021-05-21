@@ -23,5 +23,15 @@ class ResolucionPagoDiferido extends Model
     public function solicitante(){
         return $this->belongsTo(Parte::class);
     }
+
+    /**
+     * Relación con audiencias.
+     * Un pago diferido pertenece a una audiencia.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function audiencia()
+    {
+        return $this->belongsTo(Audiencia::class);
+    }
 }
 
