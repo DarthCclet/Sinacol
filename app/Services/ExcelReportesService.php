@@ -5,6 +5,7 @@ namespace App\Services;
 
 
 use App\Traits\EstilosSpreadsheets;
+use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ExcelReportesService
@@ -100,7 +101,8 @@ class ExcelReportesService
             'INMEDIATA',
             'TIPO SOLICITUD',
             'OBJETO SOLICITUD',
-            'INDUSTRIA (SCIAN)',
+            'INDUSTRIA',
+            'SCIAN',
             'CÓDIGO (SCIAN)',
             'ID'
         ];
@@ -126,8 +128,10 @@ class ExcelReportesService
                 # Extraemos los valores de los datos que vamos a poner en las columnas desagregadas únicamente
                 $objeto = null;
                 $objeto_solicitud = isset($v->objeto_solicitudes) ? $v->objeto_solicitudes->implode('nombre', ', ') : null;
-                $industria = isset($v->giroComercial) ? $v->giroComercial->nombre : null;
+                $industria_scian = isset($v->giroComercial) ? $v->giroComercial->nombre : null;
+                $industria = isset($v->giroComercial->industria) ? $v->giroComercial->industria->nombre : null;
                 $codigo_scian = isset($v->giroComercial) ? $v->giroComercial->codigo : null;
+
                 return [
                     'abreviatura' => $v->abreviatura,
                     'folio' => $v->folio,
@@ -139,6 +143,7 @@ class ExcelReportesService
                     'tipo_solicitud' => isset($v->tipoSolicitud->nombre) ? $v->tipoSolicitud->nombre : null,
                     'objeto_solicitud' => $objeto_solicitud,
                     'industria' => $industria,
+                    'scian' => $industria_scian,
                     'codigo_scian' => $codigo_scian,
                     'id' => $v->sid
                 ];
@@ -170,7 +175,7 @@ class ExcelReportesService
             $sheet->setCellValue('A1', 'SOLICITUDES CONFIRMADAS');
 
             $sheet->setCellValue('A3', 'CENTRO');
-            $sheet->setCellValue('B3', 'Ratificación de convenio');
+            $sheet->setCellValue('B3', 'Confirmación de convenio');
             $sheet->setCellValue('C3', 'Procedimiento normal');
             $sheet->setCellValue('D3', 'Total');
 
@@ -504,7 +509,7 @@ class ExcelReportesService
 
         # Reporte desagregado
 
-        $encabezado = explode(',', "CENTRO,SOLICITUD_ID,EXPEDIENTE,AUDIENCIA_ID,FECHA RATIFICACIÓN,RATIFICADA,DETECTADA EN");
+        $encabezado = explode(',', "CENTRO,SOLICITUD_ID,EXPEDIENTE,AUDIENCIA_ID,FECHA CONFIRMACIÓN,CONFIRMADA,DETECTADA EN");
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $incompetenciasWorkSheet->getColumnDimension($columna)->setAutoSize(true);
         }
@@ -523,7 +528,7 @@ class ExcelReportesService
                 'audiencia_id' => $i['audiencia_id'],
                 'fecha_ratificacion' => $i['fecha_ratificacion'],
                 'ratificada' => $i['ratificada'],
-                'detectada_en' => 'RATIFICACIÓN'
+                'detectada_en' => 'CONFIRMACIÓN'
             ];
         });
 
@@ -584,7 +589,7 @@ class ExcelReportesService
 
         # Desagregado
 
-        $encabezado = explode(',','CENTRO,FINALIZADA,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,NÚMERO AUDIENCIA,FECHA RATIFICACIÓN,RATIFICADA');
+        $encabezado = explode(',','CENTRO,FINALIZADA,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,NÚMERO AUDIENCIA,FECHA CONFIRMACIÓN,CONFIRMADA');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $archivadosWorkSheet->getColumnDimension($columna)->setAutoSize(true);
         }
@@ -700,7 +705,7 @@ class ExcelReportesService
         $conveniosWorkSheet->getStyle('A1')->applyFromArray($this->tituloH1());
 
         if ($request->get('tipo_reporte') == 'agregado') {
-            $conveniosWorkSheet->setCellValue('A1', 'RATIFICACIÓN DE CONVENIOS');
+            $conveniosWorkSheet->setCellValue('A1', 'CONFIRMACIÓN DE CONVENIOS');
             $conveniosWorkSheet->getStyle('A4:H4')->applyFromArray($this->th1());
             $conveniosWorkSheet->getStyle('C3:G3')->applyFromArray($this->boldcenter());
             $conveniosWorkSheet->getColumnDimension('B')->setAutoSize(true);
@@ -837,7 +842,7 @@ class ExcelReportesService
         $this->arrayToExcel([$encabezado], $conveniosWorkSheet, 3);
 
         $conveniosWorkSheet->getStyle('A3:J3')->applyFromArray($this->th1());
-        $conveniosWorkSheet->setCellValue('A1', 'RATIFICACIÓN DE CONVENIOS (DESAGREGADO)');
+        $conveniosWorkSheet->setCellValue('A1', 'CONFIRMACIÓN DE CONVENIOS (DESAGREGADO)');
 
         $res = $convenios->map(function($item){
             return [
@@ -881,7 +886,7 @@ class ExcelReportesService
             $workSheet->setCellValue('A1', 'NO CONCILIACIÓN');
             $workSheet->setCellValue('A3', 'CENTRO');
             $workSheet->setCellValue('B3', "No conciliación\n(procedimiento normal)");
-            $workSheet->setCellValue('C3', "No conciliación\n(ratificación de\nconvenios -\nsolicitudes concluidas)");
+            $workSheet->setCellValue('C3', "No conciliación\n(confirmación de\nconvenios -\nsolicitudes concluidas)");
             $workSheet->setCellValue('D3', "Total de solicitudes\ndonde se emitió\nconstancia de no\nconciliación");
 
             $normal = $noconciliacion->where('inmediata', false)->where('audiencia_finalizada', true)->unique('solicitud_id')->groupBy('abreviatura')->map(
@@ -936,7 +941,7 @@ class ExcelReportesService
                 'fecha_audiencia' => $item->fecha_audiencia,
                 'numero_audiencia' => $item->numero_audiencia,
                 'resolucion' => $item->resolucion,
-                'inmediata' => $item->inmediata ? 'RATIFICACIÓN CONVENIO': 'NORMAL',
+                'inmediata' => $item->inmediata ? 'CONFIRMACIÓN CONVENIO': 'NORMAL',
                 'finalizada' => $item->audiencia_finalizada,
             ];
         });
@@ -955,27 +960,62 @@ class ExcelReportesService
     public function audiencias(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $workSheet, $audiencias, $request): void
     {
         $workSheet->getStyle('A1')->applyFromArray($this->tituloH1());
-        $workSheet->getStyle('A3:B3')->applyFromArray($this->th1());
-        $workSheet->getColumnDimension('B')->setAutoSize(true);
+        if ($request->get('tipo_reporte') == 'agregado') {
+            $workSheet->getStyle('A3:B3')->applyFromArray($this->th1());
+            $workSheet->getColumnDimension('B')->setAutoSize(true);
 
-        $workSheet->getStyle('B3')->getAlignment()->setWrapText(true);
+            $workSheet->getStyle('B3')->getAlignment()->setWrapText(true);
 
-        $workSheet->setCellValue('A1', 'AUDIENCIAS');
-        $workSheet->setCellValue('A3', 'CENTRO');
-        $workSheet->setCellValue('B3', "Audiencias\nconcluidas");
+            $workSheet->setCellValue('A1', 'AUDIENCIAS');
+            $workSheet->setCellValue('A3', 'CENTRO');
+            $workSheet->setCellValue('B3', "Audiencias\nconcluidas");
 
-        $c = 4;
-        foreach ($this->imp as $centro) {
-            $vlor =isset($audiencias[$centro]) ? $audiencias[$centro] : 0;
-            $workSheet->setCellValue('A' . $c, $centro);
-            //TODO: completar este dato
-            $workSheet->setCellValue('B' . $c, 0);
-            $c++;
+            $resultados = $audiencias->where('audiencia_finalizada', true)->groupBy('abreviatura')->map(
+                function ($item, $k) {
+                    return $item->count();
+                }
+            );
+
+            $c = 4;
+            foreach ($this->imp as $centro) {
+                $valor = isset($resultados[$centro]) ? $resultados[$centro] : 0;
+                $workSheet->setCellValue('A' . $c, $centro);
+                $workSheet->setCellValue('B' . $c, $valor);
+                $c++;
+            }
+            $workSheet->setCellValue('A' . $c, 'Total');
+            $workSheet->setCellValue('B' . $c, "=SUM(B3:B$c)")
+                ->getStyle('B' . $c)->getNumberFormat()
+                ->setFormatCode('#,##0');
+            return;
         }
-        $workSheet->setCellValue('A' . $c, 'Total');
-        $workSheet->setCellValue('B' . $c, "=SUM(B3:B$c)")
-            ->getStyle('B' . $c)->getNumberFormat()
-            ->setFormatCode('#,##0.00');
+
+        # Desagregado
+        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,NÚMERO AUDIENCIA,FINALIZADA');
+        foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
+            $workSheet->getColumnDimension($columna)->setAutoSize(true);
+        }
+        $this->arrayToExcel([$encabezado], $workSheet, 3);
+
+        $workSheet->getStyle('A3:G3')->applyFromArray($this->th1());
+        $workSheet->setCellValue('A1', 'AUDIENCIAS (DESAGREGADO)');
+
+        $res = $audiencias->map(function($item){
+            return [
+                'abreviatura' => $item->abreviatura,
+                'solicitud_id' => $item->solicitud_id,
+                'audiencia_id' => $item->audiencia_id,
+                'expediente' => $item->expediente,
+                'fecha_audiencia' => $item->fecha_audiencia,
+                'numero_audiencia' => $item->numero_audiencia,
+                'finalizada' => $item->audiencia_finalizada,
+            ];
+        });
+
+        $this->arrayToExcel($res, $workSheet, 4);
+        return;
+
+
     }
 
     /**
@@ -987,45 +1027,88 @@ class ExcelReportesService
     public function pagosDiferidos(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $workSheet, $pagosdiferidos, $request): void
     {
         $workSheet->getStyle('A1')->applyFromArray($this->tituloH1());
-        $workSheet->getStyle('A4:D4')->applyFromArray($this->th1());
-        $workSheet->getColumnDimension('B')->setAutoSize(true);
-        $workSheet->getColumnDimension('C')->setAutoSize(true);
-        $workSheet->getColumnDimension('D')->setAutoSize(true);
-        $workSheet->getStyle('B3:D3')->applyFromArray($this->boldcenter());
+        if ($request->get('tipo_reporte') == 'agregado') {
+            $workSheet->getStyle('A4:D4')->applyFromArray($this->th1());
+            $workSheet->getColumnDimension('B')->setAutoSize(true);
+            $workSheet->getColumnDimension('C')->setAutoSize(true);
+            $workSheet->getColumnDimension('D')->setAutoSize(true);
+            $workSheet->getStyle('B3:D3')->applyFromArray($this->boldcenter());
 
-        $workSheet->mergeCells('B3:D3');
-        $workSheet->setCellValue('B3', 'Pagos diferidos');
+            $workSheet->mergeCells('B3:D3');
+            $workSheet->setCellValue('B3', 'Pagos diferidos');
 
-        $workSheet->getStyle('B3:D3')->getAlignment()->setWrapText(true);
+            $workSheet->getStyle('B3:D3')->getAlignment()->setWrapText(true);
 
+            $workSheet->setCellValue('A1', 'PAGOS DIFERIDOS');
+            $workSheet->setCellValue('A4', 'CENTRO');
+            $workSheet->setCellValue('B4', "Vencidos");
+            $workSheet->setCellValue('C4', "Incumplimiento");
+            $workSheet->setCellValue('D4', "Pagado");
 
-        $workSheet->setCellValue('A1', 'PAGOS DIFERIDOS');
-        $workSheet->setCellValue('A4', 'CENTRO');
-        $workSheet->setCellValue('B4', "Vencidos");
-        $workSheet->setCellValue('C4', "Incumplimiento");
-        $workSheet->setCellValue('D4', "Pagado");
+            $pagados = $pagosdiferidos->where('pagado', true)->groupBy('abreviatura')->map(
+                function ($item, $k) {
+                    return $item->count();
+                }
+            );
+            $incumplimientos = $pagosdiferidos->where('pagado', false)->whereNotNull('pagado')->groupBy('abreviatura')->map(
+                function ($item, $k) {
+                    return $item->count();
+                }
+            );
+            $vencidos = $pagosdiferidos->whereNull('pagado')->groupBy('abreviatura')->map(
+                function ($item, $k) {
+                    return $item->count();
+                }
+            );
 
+            $c = 5;
+            foreach ($this->imp as $centro) {
+                $workSheet->setCellValue('A' . $c, $centro);
+                $workSheet->setCellValue('B' . $c, isset($vencidos[$centro]) ? $vencidos[$centro] : 0);
+                $workSheet->setCellValue('C' . $c, isset($incumplimientos[$centro]) ? $incumplimientos[$centro] : 0);
+                $workSheet->setCellValue('D' . $c, isset($pagados[$centro]) ? $pagados[$centro] : 0);
+                $c++;
+            }
+            $workSheet->setCellValue('A' . $c, 'Total');
+            $workSheet->setCellValue('B' . $c, "=SUM(B3:B$c)")
+                ->getStyle('B' . $c)->getNumberFormat()
+                ->setFormatCode('#,##0');
+            $workSheet->setCellValue('C' . $c, "=SUM(C3:C$c)")
+                ->getStyle('C' . $c)->getNumberFormat()
+                ->setFormatCode('#,##0');
+            $workSheet->setCellValue('D' . $c, "=SUM(D3:D$c)")
+                ->getStyle('D' . $c)->getNumberFormat()
+                ->setFormatCode('#,##0');
 
-        $c = 5;
-        foreach ($this->imp as $centro) {
-            $vlor =isset($pagosdiferidos[$centro]) ? $pagosdiferidos[$centro] : 0;
-            $workSheet->setCellValue('A' . $c, $centro);
-            //TODO: completar este dato
-            $workSheet->setCellValue('B' . $c, 0);
-            $workSheet->setCellValue('C' . $c,0);
-            $workSheet->setCellValue('D' . $c,0);
-            $c++;
+            return;
         }
-        $workSheet->setCellValue('A' . $c, 'Total');
-        $workSheet->setCellValue('B' . $c, "=SUM(B3:B$c)")
-            ->getStyle('B' . $c)->getNumberFormat()
-            ->setFormatCode('#,##0.00');
-        $workSheet->setCellValue('C' . $c, "=SUM(C3:C$c)")
-            ->getStyle('C' . $c)->getNumberFormat()
-            ->setFormatCode('#,##0.00');
-        $workSheet->setCellValue('D' . $c, "=SUM(D3:D$c)")
-            ->getStyle('D' . $c)->getNumberFormat()
-            ->setFormatCode('#,##0.00');
+
+        # Desagregado
+
+        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,FECHA PAGO,PAGADO');
+        foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
+            $workSheet->getColumnDimension($columna)->setAutoSize(true);
+        }
+        $this->arrayToExcel([$encabezado], $workSheet, 3);
+
+        $workSheet->getStyle('A3:G3')->applyFromArray($this->th1());
+        $workSheet->setCellValue('A1', 'PAGOS DIFERIDOS (DESAGREGADO)');
+
+        $res = $pagosdiferidos->map(function($item){
+            return [
+                'abreviatura' => $item->abreviatura,
+                'solicitud_id' => $item->solicitud_id,
+                'audiencia_id' => $item->audiencia_id,
+                'expediente' => $item->expediente,
+                'fecha_audiencia' => $item->fecha_audiencia,
+                'numero_audiencia' => Carbon::createFromFormat("Y-m-d H:i:s", $item->fecha_pago)->format("Y-m-d"),
+                'finalizada' => ($item->pagado === null ) ? null: $item->pagado,
+            ];
+        });
+
+        $this->arrayToExcel($res, $workSheet, 4);
+        return;
+
     }
 
 
