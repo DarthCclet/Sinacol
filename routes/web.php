@@ -212,6 +212,7 @@ Route::middleware(['auth'])->group(function () {
      * Notificaciones
      */
     Route::get('notificaciones','CentroController@notificaciones');
+    Route::get('notificaciones/search', 'CentroController@notificacionesSearch');
     Route::post('notificaciones/enviar','CentroController@EnviarNotificacion');
     Route::get('obtenerHistorial/{audiencia_parte_id}','CentroController@obtenerHistorial');
 
