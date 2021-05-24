@@ -133,7 +133,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary m-l-5" data-dismiss="modal"> Aceptar</button>
+                    <a class="btn btn-primary m-l-5"  href="{{url('/solicitud/porCaducar')}}" target="_blank" > Mostrar detalle en otra pesta&ntilde;a</a>
+                    <button class="btn btn-white m-l-5" data-dismiss="modal"> Cerrar</button>
                 </div>
             </div>
         </div>
@@ -245,5 +246,6 @@
             $('#dias_expiracion').val('');
             $('#estatus_solicitud_id').val('');
         }
+
     </script>
 @endpush

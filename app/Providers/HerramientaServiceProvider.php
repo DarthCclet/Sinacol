@@ -276,14 +276,26 @@ class HerramientaServiceProvider extends ServiceProvider
         }
     }
 
-    public static function getSolicitudesPorCaducar(){
+    public static function getSolicitudesPorCaducar($validar = false){
         $dias_expiracion = self::DIAS_EXPIRA;
         $dias_rango_inferior = self::DIAS_EXPIRACION - $dias_expiracion;
         $dias_rango_superior = self::DIAS_EXPIRACION;
         $fecha_fin = Carbon::now()->subDays($dias_rango_inferior);
         $fecha_inicio = Carbon::now()->subDays($dias_rango_superior);
         $centro_id = auth()->user()->centro_id;
-        $solicitudes = Solicitud::whereBetween('fecha_recepcion',[$fecha_inicio->toDateString(),$fecha_fin->toDateString()])->where('estatus_solicitud_id',2)->where('centro_id',$centro_id)->get();
+        $solicitudes = Solicitud::whereBetween('fecha_recepcion',[$fecha_inicio->toDateString(),$fecha_fin->toDateString()])->where('estatus_solicitud_id',2)->where('centro_id',$centro_id)->with(["partes","expediente","expediente.audiencia"=>function($query){ return $query->orderBy('fecha_audiencia','desc');}]);
+        if($validar){
+            $rolActual = session('rolActual')->name;
+            if($rolActual == "Personal conciliador"){
+                $conciliador_id = auth()->user()->persona->conciliador->id;
+                $solicitudes = $solicitudes->whereHas('expediente.audiencia',function ($query) use ($conciliador_id) { $query->where('conciliador_id',$conciliador_id); });
+            }else if($rolActual == "Administrador del centro"){
+            }else{
+                $solicitudes = $solicitudes->whereRaw('1 = 0');
+            }
+        }
+        $solicitudes = $solicitudes->get();
+        //dd($solicitudes);
         return $solicitudes;
     }
 

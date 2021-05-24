@@ -182,8 +182,7 @@ class SolicitudController extends Controller {
                     $filtrarCentro = false;
                 }
                 if (Auth::user()->hasRole('Personal conciliador') && $this->request->get('mis_solicitudes') == "true") {
-                    $persona_id = Auth::user()->persona->id;
-                    $conciliador = Conciliador::where('persona_id', $persona_id)->first();
+                    $conciliador = auth()->user()->persona->conciliador;
                     if ($conciliador != null) {
                         $conciliador_id = $conciliador->id;
                         $solicitud->whereHas('expediente.audiencia', function($q) use($conciliador_id) {
@@ -1953,5 +1952,9 @@ class SolicitudController extends Controller {
     }
     public function eliminar_audiencias(){
         return view('herramientas.eliminar_audiencias');
+    }
+    public function showPorCaducar(){
+        $solicitudes = HerramientaServiceProvider::getSolicitudesPorCaducar(true);
+        return view('expediente.solicitudes.porCaducar',compact("solicitudes"));
     }
 }
