@@ -632,6 +632,7 @@ class SolicitudController extends Controller {
         try {
             $user = auth()->user();
             $centro = $user->centro;
+            $doc = collect();
             $solicitud = Solicitud::with('expediente', 'giroComercial', 'estatusSolicitud', 'centro', 'tipoIncidenciaSolicitud', 'tipoSolicitud', 'giroComercial.ambito', 'objeto_solicitudes')->where('folio', $request->folio)->where('anio', $request->anio)->where('centro_id',$centro->id)->first();
             $validate = $request->validate;
             if($validate){
@@ -655,7 +656,33 @@ class SolicitudController extends Controller {
                 }
             }
             if ($solicitud) {
+                $documentos = $solicitud->documentos;
+                foreach ($documentos as $documento) {
+                    if ($documento->ruta != "") {
+                        $documento->id = $documento->id;
+                        $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                        $documento->tipo = pathinfo($documento->ruta)['extension'];
+                        $documento->uuid = $documento->uuid;
+                        $documento->owner = "Solicitud ".$solicitud->folio."/".$solicitud->anio;
+                        $doc->push($documento);
+                    }
+                }
                 $partes = $solicitud->partes()->with('dato_laboral', 'domicilios', 'contactos', 'lenguaIndigena')->get();
+                foreach($partes as $parte){
+                    $documentos = $parte->documentos;
+                    foreach ($documentos as $documento) {
+                        $documento->id = $documento->id;
+                        $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                        $documento->tipo = pathinfo($documento->ruta)['extension'];
+                        if ($parte->tipo_persona_id == 1) {
+                            $documento->owner = $parte->nombre . " " . $parte->primer_apellido . " " . $parte->segundo_apellido;
+                        } else {
+                            $documento->owner = $parte->nombre_comercial;
+                        }
+                        $documento->tipo_doc = 3;
+                        $doc->push($documento);
+                    }
+                }
                 $solicitantes = $partes->where('tipo_parte_id', 1);
 
                 foreach ($solicitantes as $key => $value) {
@@ -670,6 +697,16 @@ class SolicitudController extends Controller {
                 if ($solicitud->expediente) {
                     $solicitud->audiencias = $solicitud->expediente->audiencia()->orderBy('id', 'asc')->get();
                     foreach ($solicitud->audiencias as $audiencia) {
+                        $documentos = $audiencia->documentos;
+                        foreach ($documentos as $documento) {
+                            $documento->id = $documento->id;
+                            $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                            $documento->tipo = pathinfo($documento->ruta)['extension'];
+                            $documento->tipo_doc = 3;
+                            $documento->owner = "Audiencia ".$audiencia->folio . "/" . $audiencia->anio;
+                            $documento->audiencia_id = $audiencia->id;
+                            $doc->push($documento);
+                        }
                         if ($audiencia->conciliador) {
                             $audiencia->conciliador->persona;
                         }
@@ -679,6 +716,7 @@ class SolicitudController extends Controller {
                         }
                     }
                 }
+                $solicitud->docs = $doc;
                 return response()->json(['success' => true, 'message' => 'Se genero el documento correctamente', 'data' => $solicitud], 200);
             } else {
                 return response()->json(['success' => false, 'message' => 'No se encontraron datos relacionados', 'data' => null], 200);
