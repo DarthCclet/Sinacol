@@ -26,10 +26,10 @@
             @foreach($solicitudes as $solicitud)
             <tr>
                 <td>{{$solicitud->folio}}/{{$solicitud->anio}}</td>
-                <td>{{isset($solicitud->expediente) ? $solicitud->expediente->first()->folio : ""}}</td>
+                <td>{{isset($solicitud->expediente) ? $solicitud->expediente->folio : ""}}</td>
                 <td>{{date('d/m/Y', strtotime($solicitud->fecha_recepcion))}}</td>
                 <td>{{$solicitud->caduca}} d&iacute;as</td>
-                <td>{{isset($solicitud->expediente) ? date('d/m/Y', strtotime($solicitudes->first()->expediente->first()->audiencia->first()->fecha_audiencia))." ".$solicitudes->first()->expediente->first()->audiencia->first()->hora_inicio : ""}}</td>
+                <td>{{isset($solicitud->expediente) ? date('d/m/Y', strtotime($solicitud->expediente->audiencia->first()->fecha_audiencia))." ".$solicitud->expediente->audiencia->first()->hora_inicio : ""}}</td>
                 <td><div title="Ver datos de la solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="{!! route("solicitudes.consulta",$solicitud->id) !!}" class="btn btn-xs btn-primary"><i class="fa fa-search"></i></a></div></td>
             </tr>
             @endforeach
