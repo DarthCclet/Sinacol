@@ -18,6 +18,7 @@ use App\Solicitud;
 use App\TipoNotificacion;
 use App\AudienciaParte;
 use App\Events\RatificacionRealizada;
+use App\Providers\HerramientaServiceProvider;
 use Illuminate\Support\Facades\Cache;
 use Rap2hpoutre\FastExcel\FastExcel;
 use Carbon\Carbon;
@@ -254,7 +255,15 @@ class CentroController extends Controller
                 }
             }
         }
-        return view("centros.centros.calendario_audiencias", compact('audiencias'));
+        $mostrar_caducos = $this->request->get('alert');
+        $caducan = [];
+        if($mostrar_caducos){
+            $caducan = HerramientaServiceProvider::getSolicitudesPorCaducar();
+            if(count($caducan) == 0){
+                $mostrar_caducos = null;
+            }
+        }
+        return view("centros.centros.calendario_audiencias", compact('audiencias','mostrar_caducos','caducan'));
     }
     public function CalendarioColectivas(){
         $audiencias = array();

@@ -235,6 +235,7 @@
         </div>
     </div>
 </div>
+@include('includes.component.modal-caduco')
 <input type="hidden" id="fecha_audiencia"/>
 <input type="hidden" id="hora_inicio_audiencia"/>
 <input type="hidden" id="hora_fin_audiencia"/>
@@ -248,6 +249,9 @@
 <!-- Fin Modal de disponibilidad-->
 @push('scripts')
         <script>
+            if({{ isset($mostrar_caducos) ? $mostrar_caducos : 'false' }}){
+                $("#modal-caduco").modal("show");
+            }
             var multiple = false;
             var audiencia_id = null;
             $(document).ready(function(){
