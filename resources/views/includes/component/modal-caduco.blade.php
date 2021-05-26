@@ -10,7 +10,7 @@
             <div class="modal-body">
                 <div class="col-md-12" style="overflow: scroll; max-height:400px;">
                     @foreach($caducan as $sol)
-                        <label style="font-size: x-large;">- Solicitud: <b>{{$sol->folio}}/{{$sol->anio}}</b> Expira en <b>{{$sol->Caduca}}</b> d&iacute;as</label>
+                        <label style="font-size: x-large;">- Solicitud: <b>{{$sol->folio}}/{{$sol->anio}}</b> {{($sol->Caduca > 0)? "Expira en ":"Expiró hace"}} <b>{{ ($sol->Caduca > 0) ? $sol->Caduca : ($sol->Caduca * -1) }}</b> d&iacute;as</label>
                     @endforeach
                 </div>
             </div>
