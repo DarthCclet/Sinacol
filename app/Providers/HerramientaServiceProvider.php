@@ -19,7 +19,7 @@ class HerramientaServiceProvider extends ServiceProvider
     /**
      * Días para expiración de solicitudes
      */
-    const DIAS_EXPIRACION = 44;
+    const DIAS_EXPIRACION = 45;
     const DIAS_EXPIRA = 7;
 
     /**
