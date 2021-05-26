@@ -11,7 +11,7 @@
 <h1 class="h2">Solicitudes por caducar</h1>
 <hr class="red">
 @if(count($solicitudes) > 0)
-    <table class="table table-striped table-bordered table-hover">
+    <table class="table table-striped table-bordered table-hover" id="tabla_caducar">
         <thead>
             <tr>
                 <td>Solicitud</td>
@@ -37,3 +37,9 @@
     </table>
 @endif
 @endsection
+
+@push('scripts')
+    <script>
+        $('#tabla_caducar').DataTable({responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
+    </script>
+@endpush
