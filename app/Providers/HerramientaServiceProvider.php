@@ -290,7 +290,7 @@ class HerramientaServiceProvider extends ServiceProvider
             if($rolActual == "Personal conciliador"){
                 $conciliador_id = auth()->user()->persona->conciliador->id;
                 $solicitudes = $solicitudes->whereHas('expediente.audiencia',function ($query) use ($conciliador_id) { $query->where('conciliador_id',$conciliador_id); });
-            }else if($rolActual == "Administrador del centro"){
+            }else if($rolActual == "Administrador del centro" || $rolActual == "Supervisor de conciliación"){
             }else{
                 $solicitudes = $solicitudes->whereRaw('1 = 0');
             }
