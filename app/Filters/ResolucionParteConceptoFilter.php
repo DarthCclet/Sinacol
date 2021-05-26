@@ -15,4 +15,20 @@ class ResolucionParteConceptoFilter extends Filter
         'updated_at',
     ];
 
+    /**
+     * Cuando se pasa la abreviatura del centro como parametro
+     * @param $abreviatura
+     */
+    public function handleCentroFilter($abreviatura)
+    {
+        if(is_array($abreviatura)) {
+            if(!count($abreviatura)) return;
+            $this->query->whereIn('centros.abreviatura', $abreviatura);
+        }
+        else {
+            if(!trim($abreviatura)) return;
+            $this->query->where('centros.abreviatura', strtoupper($abreviatura));
+        }
+    }
+
 }
