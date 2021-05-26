@@ -291,101 +291,42 @@ class CentroController extends Controller
     /**
      * Aqui comienzan las funciones de notificaciones
      */
-    public function notificaciones(){
+    public function notificaciones() {
         $rolActual = session('rolActual')->name;
-        $tipo_parte = \App\TipoParte::where("nombre","ilike","CITADO")->first();
-        $estatus_solicitud = \App\EstatusSolicitud::where("nombre","ilike","CONCLUIDA")->first();
-        if($rolActual != "Orientador"){
-            $solicitudesTodas = Solicitud::where("centro_id", auth()->user()->centro_id)->where("ratificada",true)->with(['partes','expediente','expediente.audiencia','expediente.audiencia.audienciaParte','expediente.audiencia.etapa_notificacion','expediente.audiencia.audienciaParte.parte','expediente.audiencia.audienciaParte.tipo_notificacion'])->get();
-    //        dd($solicitudesTodas);
-            $solicitudes = [];
-            //En caso de ser conciliador buscamos el registro
-            $conciliador_id = null;
-            if($rolActual == "Personal conciliador"){
-                $conciliador_id = auth()->user()->persona->conciliador->id;
-            }
-            foreach($solicitudesTodas as $solicitud){
-                $tipo_notificacion_id = null;
-                foreach($solicitud->expediente->audiencia as $audiencia){
-                    if($audiencia->encontro_audiencia){
-                        $notificada = true;
-                        $partes = [];
-                        foreach($audiencia->audienciaParte as $parte){
-                            if($parte->parte != null){
-                                if($parte->parte->tipo_parte_id == $tipo_parte->id){ 
-                                    $parte->parte->fecha_notificacion = $parte->fecha_notificacion;
-                                    $parte->parte->finalizado = $parte->finalizado;
-                                    $parte->parte->audiencia_parte_id = $parte->id;
-                                    if($parte->fecha_notificacion == null){
-                                        $notificada = false;
-                                    }
-                                    $sol_array = array();
-                                    $sol_array["id"] = $solicitud->id;
-                                    $sol_array["folio"] = $solicitud->folio."/".$solicitud->anio;
-                                    $sol_array["expediente"] = $solicitud->expediente->folio;
-                                    $sol_array["fecha_peticion_notificacion"] = $solicitud->fecha_peticion_notificacion;
-                                    $sol_array["tipo_notificacion_id"] = $parte->tipo_notificacion_id;
-                                    $sol_array["tipo_notificacion"] = $parte->tipo_notificacion->nombre;
-                                    $sol_array["reprogramada"] = $audiencia->reprogramada;
-                                    $sol_array["audiencia"] = $audiencia->folio."/".$audiencia->anio;
-                                    $sol_array["etapa_notificacion"] = $audiencia->etapa_notificacion->etapa;
-                                    $sol_array["notificada"] = $notificada;
-                                    $sol_array["parte"] = $parte->parte;
-                                    $sol_array["audiencia_id"] = $audiencia->id;
-                                    $sol_array["audiencia_parte_id"] = $parte->id;
-                                    $solicitudes[] = $sol_array;   
-                                }
-                            }
-                            $notificada = true;
-                        }
-                    }
-                }
-            }
-            return view('centros.centros.notificaciones',compact('solicitudes','solicitudesTodas'));
+        if($rolActual != "Super Usuario"){
+            $details = AudienciaParte::whereHas('audiencia.expediente.solicitud', function ($q){
+                return $q->where('centro_id', auth()->user()->centro_id);
+            })->with('parte','audiencia.expediente.solicitud','tipo_notificacion','audiencia.etapa_notificacion')->paginate(10);
         }else{
-            $audits = Audit::where("auditable_type","App\Audiencia")->where("event","Inserción")->where("user_id",auth()->user()->id)->get();
-            $ids = [];
-            foreach($audits as $audit){
-                $ids[] = $audit->auditable_id;
-            }
-            $audiencias = Audiencia::whereIn('id',$ids)->with(['audienciaParte','expediente','expediente.solicitud','etapa_notificacion','audienciaParte.tipo_notificacion','audienciaParte.parte'])->get();
-            $solicitudes = array();
-            foreach($audiencias as $audiencia){
-                if($audiencia->encontro_audiencia){
-                    $notificada = true;
-                    $partes = [];
-                    foreach($audiencia->audienciaParte as $parte){
-                        if($parte->parte != null){
-                            if($parte->parte->tipo_parte_id == $tipo_parte->id){ 
-                                $parte->parte->fecha_notificacion = $parte->fecha_notificacion;
-                                $parte->parte->finalizado = $parte->finalizado;
-                                $parte->parte->audiencia_parte_id = $parte->id;
-                                if($parte->fecha_notificacion == null){
-                                    $notificada = false;
-                                }
-                                $sol_array = array();
-                                $sol_array["id"] = $audiencia->expediente->solicitud_id;
-                                $sol_array["folio"] = $audiencia->expediente->solicitud->folio."/".$audiencia->expediente->solicitud->anio;
-                                $sol_array["expediente"] = $audiencia->expediente->folio;
-                                $sol_array["fecha_peticion_notificacion"] = $audiencia->expediente->solicitud->fecha_peticion_notificacion;
-                                $sol_array["tipo_notificacion"] = $parte->tipo_notificacion->nombre;
-                                $sol_array["tipo_notificacion_id"] = $parte->tipo_notificacion_id;
-                                $sol_array["reprogramada"] = $audiencia->reprogramada;
-                                $sol_array["audiencia"] = $audiencia->folio."/".$audiencia->anio;
-                                $sol_array["etapa_notificacion"] = $audiencia->etapa_notificacion->etapa;
-                                $sol_array["notificada"] = $notificada;
-                                $sol_array["parte"] = $parte->parte;
-                                $sol_array["audiencia_id"] = $audiencia->id;
-                                $sol_array["audiencia_parte_id"] = $parte->id;
-                                $solicitudes[] = $sol_array;   
-                            }
-                        }
-                        $notificada = true;
-                    }
-                }
-            }
-            return view('centros.centros.notificaciones',compact('solicitudes'));
+            $details = AudienciaParte::with('parte','audiencia.expediente.solicitud','tipo_notificacion','audiencia.etapa_notificacion')->paginate(10);
         }
+        return view('centros.centros.notificaciones')->withData($details);
+    }
+    public function notificacionesSearch(Request $request) {
+        $expediente = $request->get('q');
+        $rolActual = session('rolActual')->name;
+        if($rolActual != "Super Usuario"){
+            $query = AudienciaParte::whereHas('audiencia.expediente.solicitud', function ($q){
+                return $q->where('centro_id', auth()->user()->centro_id);
+            });
+            if($expediente != ""){
+                $query->whereHas('audiencia.expediente', function ($q) use ($expediente) {
+                    return $q->whereRaw('folio ilike ?', ['%'.$expediente.'%']);
+                });
+            }
+        }else{
+            $query = AudienciaParte::where("id",">",0);
+            if($expediente != ""){
+                $data = $query->whereHas('audiencia.expediente', function ($q) use ($expediente) {
+                    return $q->whereRaw('folio ilike ?', ['%'.$expediente.'%']);
+                });
+            }
+        }
+        $data = $query->with('parte','audiencia.expediente.solicitud','tipo_notificacion','audiencia.etapa_notificacion')->paginate(10)->setPath('');
+        $data->appends(array(
+            'q' => $request->get('q')
+        ));
+        return view('centros.centros.notificaciones', compact('data','expediente'));
     }
     public function obtenerHistorial(){
         $parte = AudienciaParte::find($this->request->audiencia_parte_id);

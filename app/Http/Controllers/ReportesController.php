@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 
+use App\Industria;
 use App\ObjetoSolicitud;
 use App\Services\ExcelReportesService;
 use App\Services\ReportesService;
 use App\Traits\EstilosSpreadsheets;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -80,11 +83,16 @@ class ReportesController extends Controller
         $grupo_etario["80-84"] = "De 80 a 84 años";;
         $grupo_etario["85-89"] = "De 85 a 89 años";;
 
-        return view('reportes.index', compact('tipoObjetos','centros', 'grupo_etario'));
+        $tipoIndustria = Industria::orderBy('nombre')->get(['id','nombre'])->pluck('nombre','id');
+
+        return view('reportes.index', compact('tipoObjetos','centros', 'grupo_etario', 'tipoIndustria'));
     }
 
     public function reporte(ReportesService $reportesService, ExcelReportesService $excelReportesService)
     {
+        // Cambiamos a la base de respaldo para las consultas y no pegar en el performance.
+        DB::setDefaultConnection('pgsqlqa');
+
         $spreadsheet = new Spreadsheet();
         $writer = new Xlsx($spreadsheet);
 
@@ -93,6 +101,8 @@ class ReportesController extends Controller
         // SOLICITUDES PRESENTADAS
         $sheet->setTitle('Solicitudes presentadas');
         $solicitudes = $reportesService->solicitudesPresentadas($this->request);
+
+        //dump($this->request->all());
         $excelReportesService->solicitudesPresentadas($sheet, $solicitudes, $this->request);
 
         // SOLICITUDES CONFIRMADAS
@@ -127,7 +137,7 @@ class ReportesController extends Controller
 
         // CONVENIOS RATIFICACIÓN
         $conveniosRatificacion = $reportesService->conveniosRatificacion($this->request);
-        $conveniosRatificacionWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Convenios ratificación');
+        $conveniosRatificacionWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Convenios confirmación');
         $spreadsheet->addSheet($conveniosRatificacionWorkSheet, 6);
         $excelReportesService->conveniosRatificacion($conveniosRatificacionWorkSheet, $conveniosRatificacion, $this->request);
 
@@ -136,7 +146,7 @@ class ReportesController extends Controller
         $noConciliacionWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'No conciliación');
         $spreadsheet->addSheet($noConciliacionWorkSheet, 7);
         $excelReportesService->noConciliacion($noConciliacionWorkSheet, $noConciliacion, $this->request);
-/*
+
         // AUDIENCIAS
         $audiencias = $reportesService->audiencias($this->request);
         $audienciasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Audiencias');
@@ -148,12 +158,10 @@ class ReportesController extends Controller
         $pagosdiferidosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Pagos diferidos');
         $spreadsheet->addSheet($pagosdiferidosWorkSheet, 9);
         $excelReportesService->pagosDiferidos($pagosdiferidosWorkSheet, $pagosdiferidos, $this->request);
-*/
 
         // Descarga del excel
         $spreadsheet->setActiveSheetIndex(0);
         return $this->descargaExcel($writer);
-
     }
 
 
