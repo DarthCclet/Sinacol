@@ -2535,7 +2535,7 @@ class AudienciaController extends Controller {
                                         "parte_solicitada_id" => $solicitado->parte_id,
                                         "terminacion_bilateral_id" => 1
                             ]);
-                            if ($audiencia->expediente->solicitud->tipo_solicitud_id == 1) {
+                            if ($audiencia->expediente->solicitud->tipo_solicitud_id == 1 || $audiencia->expediente->solicitud->tipo_solicitud_id == 2) {
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $solicitante->parte_id, $solicitado->parte_id));
                             }
                         }
