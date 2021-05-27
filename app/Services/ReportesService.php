@@ -9,8 +9,10 @@ use App\AudienciaParte;
 use App\Expediente;
 use App\Filters\AudienciaFilter;
 use App\Filters\AudienciaParteFilter;
+use App\Filters\ResolucionPagoDiferidoFilter;
 use App\Filters\ResolucionParteConceptoFilter;
 use App\Filters\SolicitudFilter;
+use App\ResolucionPagoDiferido;
 use App\ResolucionParteConcepto;
 use App\Solicitud;
 use Illuminate\Support\Facades\DB;
@@ -127,19 +129,18 @@ class ReportesService
         }
 
         # Sólo las de trabajador y patron individual por default.
-        # Si viene en el filtro alguno en específico se filtra por ese
-        if (!$request->get('tipo_solicitud_id')) {
-            $q->whereIn('tipo_solicitud_id', [self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
-        } else {
-            $q->where('tipo_solicitud_id', $request->get('tipo_solicitud_id'));
-        }
+        $this->filtroTipoSolicitud($request, $q);
+
+        # Por tipo de industria
+        $this->filtroPorIndustrias($request, $q);
 
         //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'partes');
 
         //Dejamos fuera los no consultables
         $this->noReportables($q);
 
+        //dump($this->debugSql($q));
         return $q->get();
     }
 
@@ -178,19 +179,16 @@ class ReportesService
             $q->orderBy('centros.abreviatura')->orderBy('solicitudes.fecha_recepcion');
         }
 
+        $this->filtroTipoSolicitud($request, $q);
+
+        # Por tipo de industria
+        $this->filtroPorIndustrias($request, $q);
+
         //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'partes');
 
-        //Se filtran las no reportables
+        //Dejamos fuera los no consultables
         $this->noReportables($q);
-
-        # Sólo las de trabajador y patron individual por default.
-        # Si viene en el filtro alguno en específico se filtra por ese
-        if (!$request->get('tipo_solicitud_id')) {
-            $q->whereIn('tipo_solicitud_id', [self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
-        } else {
-            $q->where('tipo_solicitud_id', $request->get('tipo_solicitud_id'));
-        }
 
         if ($request->get('tipo_reporte') == 'agregado') {
             $res = $q->get()->sortBy('abreviatura');
@@ -209,7 +207,6 @@ class ReportesService
      */
     public function citatoriosEmitidos($request)
     {
-        //$q = AudienciaParte::with(['audiencia', 'audiencia.expediente', 'audiencia.expediente.solicitud', 'parte']);
         $q = (new AudienciaParteFilter(AudienciaParte::query(), $request))
             ->searchWith(Solicitud::class)
             ->filter(false);
@@ -239,17 +236,16 @@ class ReportesService
         $q->selectRaw('audiencias_partes.created_at::date as fecha_citatorio');
 
         //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteAudienciaParte($request, $q);
-
+        //$this->filtroPorCaracteristicasSolicitanteAudienciaParte($request, $q);
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'audiencia.expediente.solicitud.partes');
         //Dejamos fuera los no consultables
         $this->noReportables($q);
 
-        //Sólo las de trabajador y patron individual
-        if (!$request->get('tipo_solicitud_id')) {
-            $q->whereIn('solicitudes.tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
-        } else {
-            $q->where('solicitudes.tipo_solicitud_id', $request->get('tipo_solicitud_id'));
-        }
+        # Sólo las de trabajador y patron individual por default.
+        $this->filtroTipoSolicitud($request, $q);
+
+        # Por tipo de industria
+        $this->filtroPorIndustrias($request, $q, 'audiencia.expediente.solicitud.');
 
         $q->whereNull('audiencias.deleted_at');
         $q->whereNull('expedientes.deleted_at');
@@ -268,7 +264,7 @@ class ReportesService
         if ($request->get('tipo_reporte') == 'agregado') {
 
             $res = $q->get()->sortBy('abreviatura');
-
+    Log::info('----------->'.$this->debugSql($q));
             //Entrega Solicitante
             $entrega_solicitante = $res->where('tipo_notificacion_id', self::CITATORIO_POR_SOLICITANTE)
                 ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
@@ -372,9 +368,6 @@ class ReportesService
         $q->leftJoin('audiencias', 'expedientes.id', '=', 'audiencias.expediente_id');
 
 
-        //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
-
         $q->whereNull('audiencias.deleted_at');
         $q->whereNull('expedientes.deleted_at');
         $q->whereNull('solicitudes.deleted_at');
@@ -391,11 +384,17 @@ class ReportesService
             });
         }
 
-        //Se filtran las no reportables
+        $this->filtroTipoSolicitud($request, $q);
+
+        # Por tipo de industria
+        $this->filtroPorIndustrias($request, $q);
+
+        //Se aplican filtros por características del solicitante
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'partes');
+
+        //Dejamos fuera los no consultables
         $this->noReportables($q);
 
-        //Sólo las de trabajador y patron individual
-        $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
         if ($request->get('tipo_reporte') == 'agregado') {
             $res = $q->get()->sortBy('abreviatura')->pluck('count','abreviatura');
         }
@@ -442,17 +441,21 @@ class ReportesService
         $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
 
-        //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
 
         $q->where('resolucion_id', self::ARCHIVADO);
 
-        //Se filtran las no reportables
-        $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
 
-        //Sólo las de trabajador y patron individual
-        $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
+        $this->filtroTipoSolicitud($request, $q);
+
+        # Por tipo de industria
+        $this->filtroPorIndustrias($request, $q, 'expediente.solicitud');
+
+        //Se aplican filtros por características del solicitante
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'expediente.solicitud.partes');
+
+        //Dejamos fuera los no consultables
+        $this->noReportables($q);
 
         //Log::info($this->debugSql($q));
         if ($request->get('tipo_reporte') == 'agregado') {
@@ -517,11 +520,15 @@ class ReportesService
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
-        //Sólo las de trabajador y patron individual
-        $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
+
+        # Sólo las de trabajador y patron individual por default.
+        $this->filtroTipoSolicitud($request, $q);
+
+        # Por tipo de industria
+        $this->filtroPorIndustrias($request, $q);
 
         $q->where('solicitudes.inmediata', false);
-        //$q->where('audiencias.finalizada', true);
+
         $q->where('audiencias.resolucion_id', self::RESOLUCIONES_HUBO_CONVENIO);
 
         Log::info($this->debugSql($q));
@@ -580,8 +587,12 @@ class ReportesService
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
-        //Sólo las de trabajador y patron individual
-        $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
+
+        # Sólo las de trabajador y patron individual por default.
+        $this->filtroTipoSolicitud($request, $q);
+
+        # Por tipo de industria
+        $this->filtroPorIndustrias($request, $q);
 
         $q->where('solicitudes.inmediata', true);
 
@@ -643,10 +654,12 @@ class ReportesService
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
-        //Sólo las de trabajador y patron individual
-        $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
 
-        //$q->where('solicitudes.inmediata', true);
+        # Sólo las de trabajador y patron individual por default.
+        $this->filtroTipoSolicitud($request, $q);
+
+        # Por tipo de industria
+        $this->filtroPorIndustrias($request, $q);
 
         $q->where('audiencias.resolucion_id', self::RESOLUCIONES_NO_HUBO_CONVENIO);
 
@@ -668,8 +681,8 @@ class ReportesService
      */
     public function audiencias($request)
     {
-        $q = (new ResolucionParteConceptoFilter(ResolucionParteConcepto::query(), $request))
-            ->searchWith(ResolucionParteConcepto::class)
+        $q = (new AudienciaFilter(Audiencia::query(), $request))
+            ->searchWith(Audiencia::class)
             ->filter(false);
 
         //Las solicitudes confirmadas se evaluan por fecha de ratificacion
@@ -680,27 +693,28 @@ class ReportesService
             $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
         }
 
-        //Seleccionamos la abreviatura del nombre y su cuenta
-        //$q->select('centros.abreviatura', 'audiencias.id as audiencia_id', 'monto');
-        $q->select('centros.abreviatura', DB::raw('sum(monto)'))->groupBy('centros.abreviatura');
+        $q->select('audiencias.id as audiencia_id', 'expedientes.folio as expediente', 'centros.abreviatura', 'audiencias.fecha_audiencia',
+                   'solicitudes.id as solicitud_id', 'audiencias.finalizada as audiencia_finalizada', 'audiencias.numero_audiencia');
 
-        //Hacemos el join con centros para reprotar agrupado por centro
-        $q->join('resolucion_partes','resolucion_partes.id','=','resolucion_parte_conceptos.resolucion_partes_id');
-        $q->join('audiencias','resolucion_partes.audiencia_id','=','audiencias.id');
+        //Seleccionamos la abreviatura del nombre y su cuenta
         $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
         $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
 
         //Se aplican filtros por características del solicitante
-        //$this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'expediente.solicitud.partes');
 
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
-        //Sólo las de trabajador y patron individual
-        $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
 
-        $res = $q->get()->sortBy('abreviatura')->pluck('sum','abreviatura');
+        # Sólo las de trabajador y patron individual por default.
+        $this->filtroTipoSolicitud($request, $q);
+
+        # Por tipo de industria
+        $this->filtroPorIndustrias($request, $q, 'expediente.solicitud.');
+
+        $res = $q->get()->sortBy('abreviatura');
 
         return $res;
     }
@@ -712,39 +726,43 @@ class ReportesService
      */
     public function pagosDiferidos($request)
     {
-        $q = (new ResolucionParteConceptoFilter(ResolucionParteConcepto::query(), $request))
-            ->searchWith(ResolucionParteConcepto::class)
+        $q = (new ResolucionPagoDiferidoFilter(ResolucionPagoDiferido::query(), $request))
+            ->searchWith(ResolucionPagoDiferido::class)
             ->filter(false);
 
         //Las solicitudes confirmadas se evaluan por fecha de ratificacion
         if($request->get('fecha_inicial')){
-            $q->whereRaw('fecha_audiencia::date >= ?', $request->get('fecha_inicial'));
+            $q->whereRaw('fecha_pago::date >= ?', $request->get('fecha_inicial'));
         }
         if($request->get('fecha_final')){
-            $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
+            $q->whereRaw('fecha_pago::date <= ?', $request->get('fecha_final'));
         }
 
-        //Seleccionamos la abreviatura del nombre y su cuenta
-        //$q->select('centros.abreviatura', 'audiencias.id as audiencia_id', 'monto');
-        $q->select('centros.abreviatura', DB::raw('sum(monto)'))->groupBy('centros.abreviatura');
+        $q->select('audiencias.id as audiencia_id', 'expedientes.folio as expediente', 'centros.abreviatura',
+                   'audiencias.fecha_audiencia', 'solicitudes.id as solicitud_id',
+                    'resolucion_pagos_diferidos.fecha_pago', 'resolucion_pagos_diferidos.pagado'
+                   );
 
-        //Hacemos el join con centros para reprotar agrupado por centro
-        $q->join('resolucion_partes','resolucion_partes.id','=','resolucion_parte_conceptos.resolucion_partes_id');
-        $q->join('audiencias','resolucion_partes.audiencia_id','=','audiencias.id');
+        $q->join('audiencias','audiencias.id','=','resolucion_pagos_diferidos.audiencia_id');
         $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
         $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
 
-        //Se aplican filtros por características del solicitante
-        //$this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
-
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
-        //Sólo las de trabajador y patron individual
-        $q->whereIn('tipo_solicitud_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]);
 
-        $res = $q->get()->sortBy('abreviatura')->pluck('sum','abreviatura');
+        # Sólo las de trabajador y patron individual por default.
+        $this->filtroTipoSolicitud($request, $q);
+
+        # Por tipo de industria
+        $this->filtroPorIndustrias($request, $q, 'audiencia.expediente.solicitud.');
+
+        //Se aplican filtros por características del solicitante
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'audiencia.expediente.solicitud.partes');
+
+
+        $res = $q->get()->sortBy('abreviatura');
 
         return $res;
     }
@@ -772,14 +790,14 @@ class ReportesService
      * @param $q
      * @return mixed
      */
-    private function filtroPorCaracteristicasSolicitanteSolicitud($request, $q)
+    private function filtroPorCaracteristicasSolicitanteSolicitud($request, $q, $modelo = 'partes')
     {
         if($request->get('genero_id') || (is_array($request->get('grupo_id')) && count($request->get('grupo_id'))) || $request->get('tipo_persona_id')){
             $genero_id = $request->get('genero_id');
             $grupo_id = $request->get('grupo_id');
             $tipo_persona_id = $request->get('tipo_persona_id');
-            $q->with(['expediente','expediente.audiencia','expediente.audiencia.audienciaParte.parte'])
-                ->whereHas('expediente.audiencia.audienciaParte.parte', function($q) use($genero_id, $grupo_id, $tipo_persona_id){
+            $modelo = trim($modelo);
+            $q->whereHas($modelo, function($q) use($genero_id, $grupo_id, $tipo_persona_id){
 
                     # Por el género
                     if($genero_id) {
@@ -843,6 +861,53 @@ class ReportesService
         return $q;
     }
 
+    /**
+     * Filtra por tipo de solicitud, por default aplica para las solicitudes de tipo:
+     * Solicitud individual
+     * Solicitud patronal individual
+     *
+     * @param $request
+     * @param $q
+     */
+    public function filtroTipoSolicitud($request, $q): void
+    {
+        //Sólo las de trabajador y patron individual si no viene nada del cuestionario de consultas
+        if (!$request->get('tipo_solicitud_id')) {
+            $q->whereIn(
+                'solicitudes.tipo_solicitud_id',
+                [self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]
+            );
+        } else {
+            $q->where('solicitudes.tipo_solicitud_id', $request->get('tipo_solicitud_id'));
+        }
+    }
+
+    /**
+     * Filtros comunes a todas las peticiones
+     * filtroTipoSolicitud
+     * filtroPorIndustrias
+     * filtroPorCaracteristicasSolicitanteSolicitud
+     * noReportables
+     *
+     * @param $request
+     * @param $q
+     * @param string $modelo
+     */
+    public function filtrosComunesAplicables($request, $q, $modelo = ''): void
+    {
+        # Sólo las de trabajador y patron individual por default.
+        $this->filtroTipoSolicitud($request, $q);
+
+        # Por tipo de industria
+        $this->filtroPorIndustrias($request, $q, $modelo);
+
+        //Se aplican filtros por características del solicitante
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
+
+        //Dejamos fuera los no consultables
+        $this->noReportables($q);
+    }
+
     private function filtroPorCaracteristicasPartes($request, $q)
     {
         $fecha_inicial = $request->get('fecha_inicial');
@@ -859,6 +924,31 @@ class ReportesService
                 }
             });
 
+        return $q;
+    }
+
+    /**
+     * Filtro por industrias
+     * @param $request
+     * @param $q
+     * @param $modelo string Es la ruta de relaciones para llegar desde el objeto principal que consulta a la solicitud
+     * pej. Si el objeto principal que consulta es Audiencia dado que se va a regresar una colección de audiencias el modelo es:
+     * expediente.solicitud
+     * @return mixed
+     */
+    public function filtroPorIndustrias($request, $q, $modelo = '')
+    {
+        if(!empty($request->get('giro_id'))) {
+            $giros = $request->get('giro_id');
+
+            $q->with($modelo.'giroComercial')
+                ->whereHas(
+                    $modelo.'giroComercial',
+                    function ($q) use ($giros) {
+                        $q->whereIn('industria_id', $giros);
+                    }
+                );
+        }
         return $q;
     }
 

@@ -51,4 +51,29 @@ class AudienciaParteFilter extends Filter
         }
     }
 
+    public function handleObjetoSolicitudIdFilter($objeto_solicitud_id)
+    {
+        if(is_array($objeto_solicitud_id)){
+            if(empty($objeto_solicitud_id)) return;
+            $this->query->whereHas(
+                'audiencia.expediente.solicitud.objeto_solicitudes',
+                function ($q) use ($objeto_solicitud_id) {
+                    $q->whereIn('objeto_solicitud_id', $objeto_solicitud_id);
+                }
+            );
+        }
+        else {
+            if (!trim($objeto_solicitud_id)) {
+                return;
+            }
+            $this->query->whereHas(
+                'audiencia.expediente.solicitud.objeto_solicitudes',
+                function ($q) use ($objeto_solicitud_id) {
+                    $q->where('objeto_solicitud_id', $objeto_solicitud_id);
+                }
+            );
+        }
+    }
+
+
 }
