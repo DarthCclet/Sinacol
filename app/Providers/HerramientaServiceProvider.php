@@ -284,11 +284,15 @@ class HerramientaServiceProvider extends ServiceProvider
         $centro_id = auth()->user()->centro_id;
         $solicitudes = Solicitud::where('fecha_recepcion','<',$fecha_fin->toDateString())->where('estatus_solicitud_id',2)->where('centro_id',$centro_id)->with(["partes","expediente","expediente.audiencia"=>function($query){ return $query->orderBy('fecha_audiencia','desc');}]);
         if($validar){
-            $rolActual = session('rolActual')->name;
-            if($rolActual == "Personal conciliador"){
-                $conciliador_id = auth()->user()->persona->conciliador->id;
-                $solicitudes = $solicitudes->whereHas('expediente.audiencia',function ($query) use ($conciliador_id) { $query->where('conciliador_id',$conciliador_id); });
-            }else if($rolActual == "Administrador del centro" || $rolActual == "Supervisor de conciliación"){
+            if (session()->exists('rolActual')) {
+                $rolActual = session('rolActual')->name;
+                if($rolActual == "Personal conciliador" && auth()->user()->persona->conciliador){
+                    $conciliador_id = auth()->user()->persona->conciliador->id;
+                    $solicitudes = $solicitudes->whereHas('expediente.audiencia',function ($query) use ($conciliador_id) { $query->where('conciliador_id',$conciliador_id); });
+                }else if($rolActual == "Administrador del centro" || $rolActual == "Supervisor de conciliación"){
+                }else{
+                    $solicitudes = $solicitudes->whereRaw('1 = 0');
+                }
             }else{
                 $solicitudes = $solicitudes->whereRaw('1 = 0');
             }
