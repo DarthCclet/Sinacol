@@ -1069,7 +1069,7 @@ class PlantillasDocumentosController extends Controller
                                         }else{//11
                                           $tablaConceptosRConvenio = $concepto['otro'];
                                         }
-                                        $hayConceptosPago = ($concepto['concepto_pago_resoluciones_id'] == 9) ? true : $hayConceptosPago;
+                                        // $hayConceptosPago = ($concepto['concepto_pago_resoluciones_id'] == 9) ? true : $hayConceptosPago;
                                       }
                                     }else{
                                       if($parteID == $idSolicitado && $parteID == $concepto['idSolicitante']){ //si resolucion pertenece al solicitado
@@ -1078,7 +1078,7 @@ class PlantillasDocumentosController extends Controller
                                         }else{//11
                                           $tablaConceptosRConvenio = $concepto['otro'];
                                         }
-                                        $hayConceptosPago = ($concepto['concepto_pago_resoluciones_id'] == 9) ? true : $hayConceptosPago;
+                                        // $hayConceptosPago = ($concepto['concepto_pago_resoluciones_id'] == 9) ? true : $hayConceptosPago;
                                       }
                                     }  
                                     ($concepto['concepto_pago_resoluciones_id'] == 9 && $idPlantilla == 3 ) ? array_push($conceptosEspecie, $concepto['otro'] ): array_push($conceptosDerechos, $concepto['otro'] );
