@@ -102,7 +102,7 @@
         <div style="float: left;">
             <label class="col-md-12"> Filtros</label>
             <button class="btn btn-primary pull-right m-2" onclick="filtros()">Mas filtros</button>
-            <button class="btn btn-primary pull-right m-2 estatus" onclick="limpiarShortCut();$('#dias_expiracion').val(7).trigger('change');" >Por caducar <span class="badge badge-pill btn-light" >{{isset($caducan) ? count($caducan) : "0"}}</span></button>
+            <button class="btn btn-primary pull-right m-2 estatus" onclick="limpiarShortCut();$('#dias_expiracion').val(7).trigger('change');" >Por expirar <span class="badge badge-pill btn-light" >{{isset($caducan) ? count($caducan) : "0"}}</span></button>
             <button class="btn btn-primary pull-right m-2 estatus" id="estatus3" onclick="limpiarShortCut();$('#estatus_solicitud_id').val(3).trigger('change');" >Concluidas</button>
             <button class="btn btn-primary pull-right m-2 estatus" id="estatus2" onclick="limpiarShortCut();$('#estatus_solicitud_id').val(2).trigger('change');">Confirmada</button>
             <button class="btn btn-primary pull-right m-2 estatus" id="estatus1" onclick="limpiarShortCut();$('#estatus_solicitud_id').val(1).trigger('change');">Sin Confirmar</button>

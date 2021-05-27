@@ -151,7 +151,11 @@ class SolicitudController extends Controller {
                     $fecha_inicio = Carbon::now()->subDays($dias_rango_superior);
                     $sql = " ";
                     $solicitud = $solicitud->where('fecha_recepcion','<',$fecha_fin->toDateString())->where('estatus_solicitud_id',2);
-                    
+                    $rolActual = session('rolActual')->name;
+                    if($rolActual == "Personal conciliador"){
+                        $conciliador_id = auth()->user()->persona->conciliador->id;
+                        $solicitud = $solicitud->whereHas('expediente.audiencia',function ($query) use ($conciliador_id) { $query->where('conciliador_id',$conciliador_id); });
+                    }
                 }
 
                 if ($this->request->get('anio')) {
@@ -217,7 +221,7 @@ class SolicitudController extends Controller {
             });
             $objeto_solicitudes = $this->cacheModel('objeto_solicitudes', ObjetoSolicitud::class);
             $estatus_solicitudes = $this->cacheModel('estatus_solicitudes', EstatusSolicitud::class);
-            $caducan = HerramientaServiceProvider::getSolicitudesPorCaducar();
+            $caducan = HerramientaServiceProvider::getSolicitudesPorCaducar(true);
             if(count($caducan) == 0){
                 $mostrar_caducos = null;
             }

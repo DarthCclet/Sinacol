@@ -17,7 +17,7 @@
                 <td>Solicitud</td>
                 <td>Expediente</td>
                 <td>Fecha recepci&oacute;n</td>
-                <td>Caduca en</td>
+                <td>Expira en</td>
                 <td>Siguiente audiencia</td>
                 <td>Consulta</td>
             </tr>

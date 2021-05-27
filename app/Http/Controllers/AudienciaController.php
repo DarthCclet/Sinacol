@@ -2083,7 +2083,7 @@ class AudienciaController extends Controller {
         $mostrar_caducos = $this->request->get('alert');
         $caducan = [];
         if($mostrar_caducos){
-            $caducan = HerramientaServiceProvider::getSolicitudesPorCaducar();
+            $caducan = HerramientaServiceProvider::getSolicitudesPorCaducar(true);
             if(count($caducan) == 0){
                 $mostrar_caducos = null;
             }
