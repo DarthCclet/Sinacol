@@ -293,7 +293,7 @@ class HerramientaServiceProvider extends ServiceProvider
                 $solicitudes = $solicitudes->whereRaw('1 = 0');
             }
         }
-        $solicitudes = $solicitudes->get();
+        $solicitudes = $solicitudes->orderBy('fecha_recepcion','asc')->get();
         return $solicitudes;
     }
 

@@ -40,6 +40,6 @@
 
 @push('scripts')
     <script>
-        $('#tabla_caducar').DataTable({responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
+        $('#tabla_caducar').DataTable({ordering: false,responsive: true,language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
     </script>
 @endpush
