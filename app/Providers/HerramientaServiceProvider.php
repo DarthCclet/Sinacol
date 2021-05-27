@@ -281,10 +281,8 @@ class HerramientaServiceProvider extends ServiceProvider
         $dias_rango_inferior = self::DIAS_EXPIRACION - $dias_expiracion;
         $dias_rango_superior = self::DIAS_EXPIRACION;
         $fecha_fin = Carbon::now()->subDays($dias_rango_inferior);
-        $fecha_inicio = Carbon::now()->subDays($dias_rango_superior);
         $centro_id = auth()->user()->centro_id;
-        //$solicitudes = Solicitud::whereBetween('fecha_recepcion',[$fecha_inicio->toDateString(),$fecha_fin->toDateString()])->where('estatus_solicitud_id',2)->where('centro_id',$centro_id)->with(["partes","expediente","expediente.audiencia"=>function($query){ return $query->orderBy('fecha_audiencia','desc');}]);
-        $solicitudes = Solicitud::where('fecha_recepcion','<',$fecha_inicio->toDateString())->where('estatus_solicitud_id',2)->where('centro_id',$centro_id)->with(["partes","expediente","expediente.audiencia"=>function($query){ return $query->orderBy('fecha_audiencia','desc');}]);
+        $solicitudes = Solicitud::where('fecha_recepcion','<',$fecha_fin->toDateString())->where('estatus_solicitud_id',2)->where('centro_id',$centro_id)->with(["partes","expediente","expediente.audiencia"=>function($query){ return $query->orderBy('fecha_audiencia','desc');}]);
         if($validar){
             $rolActual = session('rolActual')->name;
             if($rolActual == "Personal conciliador"){

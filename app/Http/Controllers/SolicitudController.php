@@ -150,7 +150,7 @@ class SolicitudController extends Controller {
                     $fecha_fin = Carbon::now()->subDays($dias_rango_inferior);
                     $fecha_inicio = Carbon::now()->subDays($dias_rango_superior);
                     $sql = " ";
-                    $solicitud = $solicitud->whereBetween('fecha_recepcion',[$fecha_inicio->toDateString(),$fecha_fin->toDateString()])->where('estatus_solicitud_id',2);
+                    $solicitud = $solicitud->where('fecha_recepcion','<',$fecha_fin->toDateString())->where('estatus_solicitud_id',2);
                     
                 }
 
