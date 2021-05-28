@@ -58,6 +58,7 @@ use Illuminate\Support\Str;
 use App\Nacionalidad;
 use App\Providers\AudienciaServiceProvider;
 use Illuminate\Support\Arr;
+use App\Providers\HerramientaServiceProvider;
 
 class AudienciaController extends Controller {
 
@@ -2091,7 +2092,15 @@ class AudienciaController extends Controller {
     ############################### A partir de este punto comienzan las funciones para el chacklist ########################################
 
     public function AgendaConciliador() {
-        return view('expediente.audiencias.agendaConciliador');
+        $mostrar_caducos = $this->request->get('alert');
+        $caducan = [];
+        if($mostrar_caducos){
+            $caducan = HerramientaServiceProvider::getSolicitudesPorCaducar(true);
+            if(count($caducan) == 0){
+                $mostrar_caducos = null;
+            }
+        }
+        return view('expediente.audiencias.agendaConciliador',compact('mostrar_caducos','caducan'));
     }
 
     public function GetAudienciaConciliador() {
@@ -2544,7 +2553,7 @@ class AudienciaController extends Controller {
                                         "parte_solicitada_id" => $solicitado->parte_id,
                                         "terminacion_bilateral_id" => 1
                             ]);
-                            if ($audiencia->expediente->solicitud->tipo_solicitud_id == 1) {
+                            if ($audiencia->expediente->solicitud->tipo_solicitud_id == 1 || $audiencia->expediente->solicitud->tipo_solicitud_id == 2) {
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 41, 8, $solicitante->parte_id, $solicitado->parte_id));
                             }
                         }

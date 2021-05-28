@@ -11,6 +11,7 @@ use App\Traits\RequestsAppends;
 use Illuminate\Support\Arr;
 use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\ValidTypes;
+use Carbon\Carbon;
 
 class Solicitud extends Model implements Auditable
 {
@@ -24,6 +25,11 @@ class Solicitud extends Model implements Auditable
         \App\Traits\CambiarEventoAudit;
     protected $table = 'solicitudes';
     protected $guarded = ['id','updated_at','created_at'];
+
+    /**
+     * Días para expiración de solicitudes
+     */
+    const DIAS_EXPIRACION = 45;
 
     /**
      * Las relaciones que son cargables.
@@ -208,4 +214,13 @@ class Solicitud extends Model implements Auditable
     public function firmas(){
         return $this->morphMany(FirmaDocumento::class,'firmable');
     }
+    public function getCaducaAttribute(){
+        $fecha_recepcion = $this->fecha_recepcion;
+        $date = Carbon::parse($fecha_recepcion);
+        $now = Carbon::now();
+        $dias = $date->diffInDays($now);
+        $resultado = self::DIAS_EXPIRACION - $dias;
+        return $resultado;
+    }
+    
 }
