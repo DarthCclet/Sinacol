@@ -955,7 +955,7 @@ trait GenerateDocument
                                         $tablaConceptosRConvenio = $concepto['otro'];
                                       }
                                       // $tablaConceptosEConvenio .= $concepto->otro.' ';
-                                      $hayConceptosPago = ($concepto->concepto_pago_resoluciones_id != 11) ? true : $hayConceptosPago;
+                                      // $hayConceptosPago = ($concepto->concepto_pago_resoluciones_id != 11) ? true : $hayConceptosPago;
                                     }
                                   }else{
                                     if($parteID == $idSolicitado){ //si resolucion pertenece al citado
@@ -965,7 +965,7 @@ trait GenerateDocument
                                         $tablaConceptosRConvenio = $concepto['otro'];
                                       }
                                       //$tablaConceptosEConvenio .= $concepto->otro.' ';
-                                      $hayConceptosPago = ($concepto->concepto_pago_resoluciones_id != 11) ? true : $hayConceptosPago;
+                                      // $hayConceptosPago = ($concepto->concepto_pago_resoluciones_id != 11) ? true : $hayConceptosPago;
                                     }
                                   }
                                   ($concepto['concepto_pago_resoluciones_id'] == 9 && $idPlantilla == 3 ) ? array_push($conceptosEspecie, $concepto['otro'] ): array_push($conceptosDerechos, $concepto['otro'] );
