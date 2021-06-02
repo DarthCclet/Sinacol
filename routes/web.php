@@ -165,13 +165,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('regenerar_documento','DocumentoController@generar_documento')->middleware('can:Regenerar documento');
     Route::post('store_regenerar_documento','DocumentoController@storeRegenerarDocumento')->middleware('can:Regenerar documento');
 
-    Route::get('eliminar_documentos','DocumentoController@eliminar_documentos');
-    Route::post('delete_documento','DocumentoController@delete_documento');
+    Route::get('eliminar_documentos','DocumentoController@eliminar_documentos')->middleware('can:Eliminar documento');
+    Route::post('delete_documento','DocumentoController@delete_documento')->middleware('can:Eliminar documento');
 
     Route::get('incidencias_solicitudes','SolicitudController@incidencias_solicitudes')->middleware('can:Archivo incidencias');
     Route::get('deshacer_solicitudes','SolicitudController@deshacer_solicitudes')->middleware('can:Retroceso');
-    Route::get('eliminar_audiencias','SolicitudController@eliminar_audiencias');
-    Route::post('delete_audiencia','SolicitudController@delete_audiencia');
+    Route::get('eliminar_audiencias','SolicitudController@eliminar_audiencias')->middleware('can:Eliminar audiencia');
+    Route::post('delete_audiencia','SolicitudController@delete_audiencia')->middleware('can:Eliminar audiencia');
     Route::post('rollback_proceso','SolicitudController@rollback_proceso')->middleware('can:Retroceso');;
     Route::post('guardar_incidencia','SolicitudController@guardar_incidencia')->middleware('can:Archivo incidencias');;
     Route::post('borrar_incidencia','SolicitudController@borrar_incidencia')->middleware('can:Archivo incidencias');;
