@@ -184,7 +184,8 @@
                 data:{
                     folio:$("#folio_solicitud").val(),
                     anio: $("#anio_solicitud").val(),
-                    _token:$("input[name=_token]").val()
+                    _token:$("input[name=_token]").val(),
+                    validate: true,
                 },
                 success:function(json){
                     try{
