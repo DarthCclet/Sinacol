@@ -166,6 +166,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('regenerar_documento','DocumentoController@generar_documento');
     Route::post('store_regenerar_documento','DocumentoController@storeRegenerarDocumento');
 
+    Route::get('eliminar_documentos','DocumentoController@eliminar_documentos');
+    Route::post('delete_documento','DocumentoController@delete_documento');
+
     Route::get('incidencias_solicitudes','SolicitudController@incidencias_solicitudes');
     Route::get('deshacer_solicitudes','SolicitudController@deshacer_solicitudes');
     Route::get('eliminar_audiencias','SolicitudController@eliminar_audiencias');
