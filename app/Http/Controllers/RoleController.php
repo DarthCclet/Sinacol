@@ -84,13 +84,13 @@ class RoleController extends Controller
         $role = Role::find($id);
         $role->update(["name" => $request->name,"description" => $request->description]);
 //        Recorremos los permisos recibidos
-        foreach ($request->permisos as $permission){
-//            validamos si ya tiene ese permiso
-            if(!$role->hasPermissionTo($permission)){
-//                Si no lo tiene lo guardamos
-                $role->givePermissionTo($permission);
-            }
-        }
+        $role->syncPermissions($request->permisos);
+//         foreach ($request->permisos as $permission){
+// //            validamos si ya tiene ese permiso
+//             if(!$role->hasPermissionTo($permission)){
+// //                Si no lo tiene lo guardamos
+//             }
+//         }
         
                 
         if ($request->wantsJson()) {

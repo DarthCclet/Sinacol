@@ -664,14 +664,19 @@ class SolicitudController extends Controller {
     public function getSolicitudByFolio(Request $request) {
         try {
             $user = auth()->user();
+            $rolActual = $request->session()->get('rolActual')->name;
             $centro = $user->centro;
             $doc = collect();
-            $solicitud = Solicitud::with('expediente', 'giroComercial', 'estatusSolicitud', 'centro', 'tipoIncidenciaSolicitud', 'tipoSolicitud', 'giroComercial.ambito', 'objeto_solicitudes')->where('folio', $request->folio)->where('anio', $request->anio)->where('centro_id',$centro->id)->first();
+            $solicitud = Solicitud::with('expediente', 'giroComercial', 'estatusSolicitud', 'centro', 'tipoIncidenciaSolicitud', 'tipoSolicitud', 'giroComercial.ambito', 'objeto_solicitudes')->where('folio', $request->folio)->where('anio', $request->anio);
+            if ($rolActual != 'Super Usuario') {
+                $centro_id = Auth::user()->centro_id;
+                $solicitud->where('centro_id', $centro_id);
+            } 
+            $solicitud = $solicitud->first();
             $validate = $request->validate;
             if($validate){
-                if ($solicitud->expediente) {
-                    $rolActual = $request->session()->get('rolActual')->name;
-                    if($rolActual == 'Personal conciliador'){
+                if($rolActual == 'Personal conciliador'){
+                    if ($solicitud->expediente) {
                         $audiencias = $solicitud->expediente->audiencia()->orderBy('id', 'desc')->first();
                         if($audiencias){
                             $conciliadorAudiencia = ConciliadorAudiencia::where('audiencia_id',$audiencias->id)->first();
@@ -681,8 +686,6 @@ class SolicitudController extends Controller {
                                 return response()->json(['success' => false, 'message' => 'No tienes permisos para acceder a esta solicitud', 'data' => null], 200);
                             }
                         }
-                    }else if($rolActual == 'Administrador del centro'){
-
                     }else{
                         return response()->json(['success' => false, 'message' => 'No tienes permisos para acceder a esta solicitud', 'data' => null], 200);
                     }
@@ -1830,12 +1833,17 @@ class SolicitudController extends Controller {
 
     public function incidencias_solicitudes() {
         try {
-            $solicitudes = Solicitud::where('incidencia', true)->with('partes', 'tipoIncidenciaSolicitud', 'solicitud', 'centro');
-            if (Auth::user()->hasRole('Orientador Central')) {
+            $solicitudes = Solicitud::where('incidencia', true)->with('partes', 'tipoIncidenciaSolicitud', 'solicitud', 'centro','expediente.audiencia');
+            $rolActual = session('rolActual')->name;
+            if ($rolActual == 'Orientador Central') {
                 $solicitudes->whereRaw('(tipo_solicitud_id = 3 or tipo_solicitud_id = 4)');
-            } else if (!Auth::user()->hasRole('Super Usuario') && !Auth::user()->hasRole('Super Usuario')) {
+            } else if ($rolActual != 'Super Usuario') {
                 $centro_id = Auth::user()->centro_id;
-                $solicitudes = $solicitudes->where('centro_id', $centro_id);
+                $solicitudes->where('centro_id', $centro_id);
+            } 
+            if($rolActual == "Personal conciliador"){
+                $conciliador_id = auth()->user()->persona->conciliador->id;
+                $solicitudes->whereHas('expediente.audiencia',function ($query) use ($conciliador_id) { $query->where('conciliador_id',$conciliador_id); });
             }
             $solicitudes = $solicitudes->get();
             $tipoIncidenciaSolicitud = $this->cacheModel('tipo_incidencia_solicitudes', TipoIncidenciaSolicitud::class);
