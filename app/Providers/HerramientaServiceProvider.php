@@ -36,6 +36,10 @@ class HerramientaServiceProvider extends ServiceProvider
         
         DB::beginTransaction();
         try {
+            if (!auth()->user()->hasRole('Administrador del centro')) {
+                DB::rollback();
+                return ['success'=>false,'msj'=>' No tienes permisos para realizar este proceso '];
+            }
             $solicitud = Solicitud::find($solicitud_id);
             if($solicitud && $solicitud->expediente && count($solicitud->expediente->audiencia) > 1 ){
             
@@ -83,6 +87,10 @@ class HerramientaServiceProvider extends ServiceProvider
     public static function rollback($solicitud_id,$audiencia_id,$tipoRollback){
         DB::beginTransaction();
         try{
+            if (!auth()->user()->hasRole('Administrador del centro')) {
+                DB::rollback();
+                return ['success'=>false,'msj'=>' No tienes permisos para realizar este proceso '];
+            }
             //tipoRollback nos indica que tipo de rollback se va a realizar, 1 antes de terminar audiencia, 2 antes de comparecencia, 3 antes de ratificación
             if($tipoRollback == 1){
                 $solicitud = Solicitud::find($solicitud_id);

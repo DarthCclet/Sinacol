@@ -1860,6 +1860,7 @@ class AudienciaController extends Controller {
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
         ##creamos la resolución a partir de los datos ya existentes y los nuevos
+        $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
         $audienciaN = Audiencia::create([
                     "expediente_id" => $audiencia->expediente_id,
                     "multiple" => $multiple,
@@ -1867,7 +1868,7 @@ class AudienciaController extends Controller {
                     "hora_inicio" => $hora_inicio,
                     "hora_fin" => $hora_fin,
                     "conciliador_id" => $audiencia->conciliador_id,
-                    "numero_audiencia" => 1,
+                    "numero_audiencia" => $n_audiencia,
                     "reprogramada" => true,
                     "anio" => $folio->anio,
                     "folio" => $folio->contador
@@ -1959,6 +1960,7 @@ class AudienciaController extends Controller {
         $etapa = \App\EtapaNotificacion::where("etapa", "ilike", "%Cambio de Fecha%")->first();
         
         //creamos el registro de la audiencia
+        $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
         $audienciaN = Audiencia::create([
                     "expediente_id" => $audiencia->expediente_id,
                     "multiple" => $audiencia->multiple,
@@ -1966,7 +1968,7 @@ class AudienciaController extends Controller {
                     "hora_inicio" => $datos_audiencia["hora_inicio"],
                     "hora_fin" => $datos_audiencia["hora_fin"],
                     "conciliador_id" => $datos_audiencia["conciliador_id"],
-                    "numero_audiencia" => 2,
+                    "numero_audiencia" => $n_audiencia,
                     "reprogramada" => true,
                     "anio" => $folioAudiencia->anio,
                     "folio" => $folioAudiencia->contador,
@@ -2041,6 +2043,7 @@ class AudienciaController extends Controller {
         $ContadorController = new ContadorController();
         $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
         ##creamos la resolución a partir de los datos ya existentes y los nuevos
+        $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
         $audienciaN = Audiencia::create([
             "expediente_id" => $audiencia->expediente_id,
             "multiple" => $multiple,
@@ -2048,7 +2051,7 @@ class AudienciaController extends Controller {
             "hora_inicio" => $hora_inicio,
             "hora_fin" => $hora_fin,
             "conciliador_id" => $audiencia->conciliador_id,
-            "numero_audiencia" => 1,
+            "numero_audiencia" => $n_audiencia,
             "reprogramada" => true,
             "anio" => $folio->anio,
             "folio" => $folio->contador
@@ -2629,6 +2632,7 @@ class AudienciaController extends Controller {
                         $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
                         $etapa = \App\EtapaNotificacion::where("etapa", "ilike", "No comparecio el citado")->first();
                         //creamos el registro de la audiencia
+                        $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
                         $audienciaN = Audiencia::create([
                                     "expediente_id" => $audiencia->expediente_id,
                                     "multiple" => $audiencia->multiple,
@@ -2636,7 +2640,7 @@ class AudienciaController extends Controller {
                                     "hora_inicio" => $datos_audiencia["hora_inicio"],
                                     "hora_fin" => $datos_audiencia["hora_fin"],
                                     "conciliador_id" => $datos_audiencia["conciliador_id"],
-                                    "numero_audiencia" => 2,
+                                    "numero_audiencia" => $n_audiencia,
                                     "reprogramada" => false,
                                     "anio" => $folioAudiencia->anio,
                                     "folio" => $folioAudiencia->contador,
@@ -2806,6 +2810,7 @@ class AudienciaController extends Controller {
             $ContadorController = new ContadorController();
             $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
             //creamos el registro de la audiencia
+            $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
             $audienciaN = Audiencia::create([
                         "expediente_id" => $audiencia->expediente_id,
                         "multiple" => $audiencia->multiple,
@@ -2813,7 +2818,7 @@ class AudienciaController extends Controller {
                         "hora_inicio" => $datos_audiencia["hora_inicio"],
                         "hora_fin" => $datos_audiencia["hora_fin"],
                         "conciliador_id" => $datos_audiencia["conciliador_id"],
-                        "numero_audiencia" => 2,
+                        "numero_audiencia" => $n_audiencia,
                         "reprogramada" => false,
                         "anio" => $folioAudiencia->anio,
                         "folio" => $folioAudiencia->contador,
