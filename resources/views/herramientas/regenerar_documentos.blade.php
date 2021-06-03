@@ -213,7 +213,7 @@
                         }else{
                             swal({
                                 title: 'Advertencia',
-                                text: ' No se encontro la solicitud: '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
+                                text: json.message+': '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
                                 icon: 'warning'
                             });
                         }
@@ -241,7 +241,8 @@
                 data:{
                     folio:$("#folio_audiencia").val(),
                     anio: $("#anio_audiencia").val(),
-                    _token:$("input[name=_token]").val()
+                    _token:$("input[name=_token]").val(),
+                    validate: true,
                 },
                 success:function(json){
                     try{
@@ -275,7 +276,7 @@
                         }else{
                             swal({
                                 title: 'Advertencia',
-                                text: ' No se encontro la solicitud: '+$("#folio_audiencia").val()+"/"+$("#anio_audiencia").val(),
+                                text: json.message+': '+$("#folio_audiencia").val()+"/"+$("#anio_audiencia").val(),
                                 icon: 'warning'
                             });
                         }
