@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 
+use App\Conciliador;
 use App\Industria;
 use App\ObjetoSolicitud;
 use App\Services\ExcelReportesService;
 use App\Services\ReportesService;
 use App\Traits\EstilosSpreadsheets;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -46,51 +47,60 @@ class ReportesController extends Controller
      */
     const SOLICITUD_PATRONAL_INDIVIDUAL = 2;
 
+    /**
+     * ID del rol Personal conciliador de la tabla roles
+     */
+    const ROL_PERSONAL_CONCILIADOR = 3;
+
+
     public function __construct(Request $request) {
+        //$this->middleware('can:Reportes');
         $this->request = $request;
     }
 
+    /**
+     * Muestra la forma de consulta del reporte
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index()
     {
         $tipo_objeto_solicitud = [];
         $tipo_objeto_solicitud["1"] = 'Trabajador individual';
         $tipo_objeto_solicitud["2"] = 'Patrón individual';
-        $objetos = ObjetoSolicitud::whereIn('tipo_objeto_solicitudes_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL])
-            ->orderBy('tipo_objeto_solicitudes_id')->orderBy('id')->get();
-        $tipoObjetos = [];
-        //$tipoObjetos[]=[""=>"--Seleccione"];
-        foreach ($objetos as $objeto){
-            $tipoObjetos[$objeto->id] = $tipo_objeto_solicitud[$objeto->tipo_objeto_solicitudes_id]." - ".$objeto->nombre;
-        }
+
+        # Sólo mostramos los objetos para solicitud individual y solicitud patronal en el filtro
+        $tipoObjetos = $this->getObjetosFiltrables($tipo_objeto_solicitud);
+        $tipoObjetosJson = $tipoObjetos->toJson();
+
+        # ToDo: Se debe sacar los centros activos para poder consultar dinámicamente y no de esta lista hardcodeada
         $centros = [];
         foreach ($this->imp as $centro){
             $centros[$centro] = $centro;
         }
-        $grupo_etario = [];
-        $grupo_etario["18-19"] = "De 18 a 19 años";
-        $grupo_etario["20-24"] = "De 20 a 24 años";;
-        $grupo_etario["25-29"] = "De 25 a 29 años";;
-        $grupo_etario["30-34"] = "De 30 a 34 años";;
-        $grupo_etario["35-39"] = "De 35 a 39 años";;
-        $grupo_etario["40-44"] = "De 40 a 44 años";;
-        $grupo_etario["45-49"] = "De 45 a 49 años";;
-        $grupo_etario["50-54"] = "De 50 a 54 años";;
-        $grupo_etario["55-59"] = "De 55 a 59 años";;
-        $grupo_etario["60-64"] = "De 60 a 64 años";;
-        $grupo_etario["65-69"] = "De 65 a 69 años";;
-        $grupo_etario["70-74"] = "De 70 a 74 años";;
-        $grupo_etario["75-79"] = "De 75 a 79 años";;
-        $grupo_etario["80-84"] = "De 80 a 84 años";;
-        $grupo_etario["85-89"] = "De 85 a 89 años";;
 
+        # Los conciliadores
+        $conciliadores = $this->listaConciliadores();
+        $conciliadoresJson = $conciliadores->toJson();
+
+        # Los grupos etarios
+        $grupo_etario = $this->gruposEtarios();
+
+        # Las industrias
         $tipoIndustria = Industria::orderBy('nombre')->get(['id','nombre'])->pluck('nombre','id');
 
-        return view('reportes.index', compact('tipoObjetos','centros', 'grupo_etario', 'tipoIndustria'));
+        return view('reportes.index', compact('tipoObjetos','centros', 'grupo_etario', 'tipoIndustria', 'tipoObjetosJson', 'conciliadoresJson'));
     }
 
+    /**
+     * Devuelve el reporte en excel.
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @return StreamedResponse
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
     public function reporte(ReportesService $reportesService, ExcelReportesService $excelReportesService)
     {
-        // Cambiamos a la base de respaldo para las consultas y no pegar en el performance.
+        // Cambiamos a la base de respaldo para las consultas y no pegar en el performance en producción.
         DB::setDefaultConnection('pgsqlqa');
 
         $spreadsheet = new Spreadsheet();
@@ -165,6 +175,11 @@ class ReportesController extends Controller
     }
 
 
+    /**
+     * Regresa el archivo excel como una StreamedResponse que se descarga al navegador del usuario
+     * @param $writer
+     * @return StreamedResponse
+     */
     public function descargaExcel($writer)
     {
         $response =  new StreamedResponse(
@@ -179,5 +194,86 @@ class ReportesController extends Controller
         return $response;
     }
 
+    /**
+     * Devuelve los grupos etarios para mostrar en los controles de consulta al usuario
+     * @return array
+     */
+    protected function gruposEtarios(): array
+    {
+        $grupo_etario = [];
+        $grupo_etario["18-19"] = "De 18 a 19 años";
+        $grupo_etario["20-24"] = "De 20 a 24 años";;
+        $grupo_etario["25-29"] = "De 25 a 29 años";;
+        $grupo_etario["30-34"] = "De 30 a 34 años";;
+        $grupo_etario["35-39"] = "De 35 a 39 años";;
+        $grupo_etario["40-44"] = "De 40 a 44 años";;
+        $grupo_etario["45-49"] = "De 45 a 49 años";;
+        $grupo_etario["50-54"] = "De 50 a 54 años";;
+        $grupo_etario["55-59"] = "De 55 a 59 años";;
+        $grupo_etario["60-64"] = "De 60 a 64 años";;
+        $grupo_etario["65-69"] = "De 65 a 69 años";;
+        $grupo_etario["70-74"] = "De 70 a 74 años";;
+        $grupo_etario["75-79"] = "De 75 a 79 años";;
+        $grupo_etario["80-84"] = "De 80 a 84 años";;
+        $grupo_etario["85-89"] = "De 85 a 89 años";;
+        return $grupo_etario;
+    }
+
+    /**
+     * Devuelve los objetos que se van a mostrar al usuario en los controles de consulta
+     * @param array $tipo_objeto_solicitud
+     * @return Collection
+     */
+    protected function getObjetosFiltrables(array $tipo_objeto_solicitud)
+    {
+        $objetos = ObjetoSolicitud::whereIn(
+            'tipo_objeto_solicitudes_id',
+            [self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]
+        )
+            ->orderBy('tipo_objeto_solicitudes_id')->orderBy('nombre')
+            ->get()
+            ->map(function ($v, $k){
+                return [
+                    'id' => $v->id,
+                    'nombre' => $v->nombre,
+                    'tipo_objeto' => $v->tipoObjetoSolicitud->nombre
+                ];
+            })->groupBy('tipo_objeto');
+
+        return $objetos;
+    }
+
+    /**
+     * Listado de conciliadores activos agrupados por centro
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+     */
+    protected function listaConciliadores()
+    {
+        return Conciliador::with('persona', 'centro', 'persona.user.roles')
+            ->whereHas(
+                'centro',
+                function ($q) {
+                    $q->whereIn('abreviatura', $this->imp);
+                }
+            )
+            ->whereHas(
+                'persona.user.roles',
+                function ($q) {
+                    $q->where('id', self::ROL_PERSONAL_CONCILIADOR);
+                }
+            )
+            ->get()->map(
+                function ($v, $k) {
+                    return [
+                        'id' => $v->id,
+                        'nombre' => trim(
+                            mb_strtoupper($v->persona->nombre . " " . $v->persona->primer_apellido . " " . $v->persona->segundo_apellido)
+                        ),
+                        'centro' => $v->centro->abreviatura
+                    ];
+                }
+            )->groupBy('centro');
+
+    }
 
 }

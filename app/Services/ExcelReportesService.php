@@ -109,7 +109,7 @@ class ExcelReportesService
 
         # Seteo de encabezados
         $sheet->getStyle('A1')->applyFromArray($this->tituloH1());
-        $sheet->getStyle('A3:Z3')->applyFromArray($this->th1());
+        $sheet->getStyle('A3:L3')->applyFromArray($this->th1());
         $sheet->setCellValue('A1', 'SOLICITUDES PRESENTADAS (DESAGREGADO)');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $sheet->getColumnDimension($columna)->setAutoSize(true);
@@ -225,7 +225,7 @@ class ExcelReportesService
 
         # Seteo de encabezados
         $sheet->getStyle('A1')->applyFromArray($this->tituloH1());
-        $sheet->getStyle('A3:Z3')->applyFromArray($this->th1());
+        $sheet->getStyle('A3:L3')->applyFromArray($this->th1());
         $sheet->setCellValue('A1', 'SOLICITUDES CONFIRMADAS (DESAGREGADO)');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $sheet->getColumnDimension($columna)->setAutoSize(true);
@@ -413,6 +413,8 @@ class ExcelReportesService
             'EXPEDIENTE',
             'AUDIENCIA ID',
             'SOLICITUD ID',
+            'CONCILIADOR ID',
+            'CONCILIADOR',
             'PARTE ID',
             'AUDIENCIA PARTE ID'
         ];
@@ -442,6 +444,8 @@ class ExcelReportesService
                     'expediente' => $v->expediente_folio,
                     'audiencia_id' => $v->audiencia_id,
                     'solicitud_id' => $v->solicitud_id,
+                    'conciliador_id' => $v->conciliador_id,
+                    'conciliador' => trim($v->conciliador_nombre." ".$v->conciliador_primer_apellido." ".$v->conciliador_segundo_apellido),
                     'parte_id' => $v->parte_id,
                     'audiencia_parte_id' => $v->audiencia_parte_id,
                 ];
@@ -589,13 +593,13 @@ class ExcelReportesService
 
         # Desagregado
 
-        $encabezado = explode(',','CENTRO,FINALIZADA,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,NÚMERO AUDIENCIA,FECHA CONFIRMACIÓN,CONFIRMADA');
+        $encabezado = explode(',','CENTRO,FINALIZADA,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,CONCILIADOR ID,CONCILIADOR,FECHA AUDIENCIA,NÚMERO AUDIENCIA,FECHA CONFIRMACIÓN,CONFIRMADA');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $archivadosWorkSheet->getColumnDimension($columna)->setAutoSize(true);
         }
         $this->arrayToExcel([$encabezado], $archivadosWorkSheet, 3);
 
-        $archivadosWorkSheet->getStyle('A3:I3')->applyFromArray($this->th1());
+        $archivadosWorkSheet->getStyle('A3:K3')->applyFromArray($this->th1());
 
         $archivadosWorkSheet->setCellValue('A1', 'ARCHIVADO POR FALTA DE INTERÉS (DESAGREGADO)');
 
@@ -606,6 +610,8 @@ class ExcelReportesService
                 'solicitud_id' => $item->solicitud_id,
                 'audiencia_id' => $item->audiencia_id,
                 'expediente' => $item->expediente,
+                'conciliador_id' => $item->conciliador_id,
+                'conciliador' => trim($item->conciliador_nombre." ".$item->conciliador_primer_apellido." ".$item->conciliador_segundo_apellido),
                 'fecha_audiencia' => $item->fecha_audiencia,
                 'numero_audiencia' => $item->numero_audiencia,
                 'fecha_ratificacion' => $item->fecha_ratificacion,
@@ -663,13 +669,13 @@ class ExcelReportesService
 
         # Desagregado
 
-        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,NÚMERO AUDIENCIA,MONTO');
+        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,CONCILIADOR_ID,CONCILIADOR,FECHA AUDIENCIA,NÚMERO AUDIENCIA,MONTO');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $conveniosWorkSheet->getColumnDimension($columna)->setAutoSize(true);
         }
         $this->arrayToExcel([$encabezado], $conveniosWorkSheet, 3);
 
-        $conveniosWorkSheet->getStyle('A3:G3')->applyFromArray($this->th1());
+        $conveniosWorkSheet->getStyle('A3:I3')->applyFromArray($this->th1());
         $conveniosWorkSheet->setCellValue('A1', 'CONVENIOS (DESAGREGADO)');
 
         $res = $convenios->map(function($item){
@@ -678,13 +684,15 @@ class ExcelReportesService
                 'solicitud_id' => $item->solicitud_id,
                 'audiencia_id' => $item->audiencia_id,
                 'expediente' => $item->expediente,
+                'conciliador_id' => $item->conciliador_id,
+                'conciliador' => trim($item->conciliador_nombre." ".$item->conciliador_primer_apellido." ".$item->conciliador_segundo_apellido),
                 'fecha_audiencia' => $item->fecha_audiencia,
                 'numero_audiencia' => $item->numero_audiencia,
                 'monto' => $item->monto,
             ];
         });
 
-        $conveniosWorkSheet->getStyle('G3:G'.($res->count()+3))->getNumberFormat()->setFormatCode('#,##0.00');
+        $conveniosWorkSheet->getStyle('I3:I'.($res->count()+3))->getNumberFormat()->setFormatCode('#,##0.00');
 
         $this->arrayToExcel($res, $conveniosWorkSheet, 4);
         return;
@@ -835,13 +843,13 @@ class ExcelReportesService
 
         # Desagregado
 
-        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,NÚMERO AUDIENCIA,RESOLUCIÓN,TIPO TERMINACIÓN,FINALIZADA,MONTO');
+        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,CONCILIADOR_ID,CONCILIADOR,FECHA AUDIENCIA,NÚMERO AUDIENCIA,RESOLUCIÓN,TIPO TERMINACIÓN,FINALIZADA,MONTO');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $conveniosWorkSheet->getColumnDimension($columna)->setAutoSize(true);
         }
         $this->arrayToExcel([$encabezado], $conveniosWorkSheet, 3);
 
-        $conveniosWorkSheet->getStyle('A3:J3')->applyFromArray($this->th1());
+        $conveniosWorkSheet->getStyle('A3:L3')->applyFromArray($this->th1());
         $conveniosWorkSheet->setCellValue('A1', 'CONFIRMACIÓN DE CONVENIOS (DESAGREGADO)');
 
         $res = $convenios->map(function($item){
@@ -850,6 +858,8 @@ class ExcelReportesService
                 'solicitud_id' => $item->solicitud_id,
                 'audiencia_id' => $item->audiencia_id,
                 'expediente' => $item->expediente,
+                'conciliador_id' => $item->conciliador_id,
+                'conciliador' => trim($item->conciliador_nombre." ".$item->conciliador_primer_apellido." ".$item->conciliador_segundo_apellido),
                 'fecha_audiencia' => $item->fecha_audiencia,
                 'numero_audiencia' => $item->numero_audiencia,
                 'resolucion' => $item->resolucion,
@@ -859,7 +869,7 @@ class ExcelReportesService
             ];
         });
 
-        $conveniosWorkSheet->getStyle('J3:J'.($res->count()+3))->getNumberFormat()->setFormatCode('#,##0.00');
+        $conveniosWorkSheet->getStyle('L3:L'.($res->count()+3))->getNumberFormat()->setFormatCode('#,##0.00');
 
         $this->arrayToExcel($res, $conveniosWorkSheet, 4);
         return;
@@ -923,13 +933,13 @@ class ExcelReportesService
         }
         # Desagregado
 
-        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,NÚMERO AUDIENCIA,RESOLUCIÓN,PROCEDIMIENTO,FINALIZADA');
+        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,CONCILIADOR_ID,CONCILIADOR,FECHA AUDIENCIA,NÚMERO AUDIENCIA,RESOLUCIÓN,PROCEDIMIENTO,FINALIZADA');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $workSheet->getColumnDimension($columna)->setAutoSize(true);
         }
         $this->arrayToExcel([$encabezado], $workSheet, 3);
 
-        $workSheet->getStyle('A3:I3')->applyFromArray($this->th1());
+        $workSheet->getStyle('A3:K3')->applyFromArray($this->th1());
         $workSheet->setCellValue('A1', 'NO CONCILIACIÓN (DESAGREGADO)');
 
         $res = $noconciliacion->map(function($item){
@@ -938,6 +948,8 @@ class ExcelReportesService
                 'solicitud_id' => $item->solicitud_id,
                 'audiencia_id' => $item->audiencia_id,
                 'expediente' => $item->expediente,
+                'conciliador_id' => $item->conciliador_id,
+                'conciliador' => trim($item->conciliador_nombre." ".$item->conciliador_primer_apellido." ".$item->conciliador_segundo_apellido),
                 'fecha_audiencia' => $item->fecha_audiencia,
                 'numero_audiencia' => $item->numero_audiencia,
                 'resolucion' => $item->resolucion,
@@ -991,13 +1003,13 @@ class ExcelReportesService
         }
 
         # Desagregado
-        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,NÚMERO AUDIENCIA,FINALIZADA');
+        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,CONCILIADOR ID,CONCILIADOR,FECHA AUDIENCIA,NÚMERO AUDIENCIA,FINALIZADA');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $workSheet->getColumnDimension($columna)->setAutoSize(true);
         }
         $this->arrayToExcel([$encabezado], $workSheet, 3);
 
-        $workSheet->getStyle('A3:G3')->applyFromArray($this->th1());
+        $workSheet->getStyle('A3:I3')->applyFromArray($this->th1());
         $workSheet->setCellValue('A1', 'AUDIENCIAS (DESAGREGADO)');
 
         $res = $audiencias->map(function($item){
@@ -1006,6 +1018,8 @@ class ExcelReportesService
                 'solicitud_id' => $item->solicitud_id,
                 'audiencia_id' => $item->audiencia_id,
                 'expediente' => $item->expediente,
+                'conciliador_id' => $item->conciliador_id,
+                'conciliador' => trim($item->conciliador_nombre." ".$item->conciliador_primer_apellido." ".$item->conciliador_segundo_apellido),
                 'fecha_audiencia' => $item->fecha_audiencia,
                 'numero_audiencia' => $item->numero_audiencia,
                 'finalizada' => $item->audiencia_finalizada,
@@ -1085,13 +1099,13 @@ class ExcelReportesService
 
         # Desagregado
 
-        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,FECHA AUDIENCIA,FECHA PAGO,PAGADO');
+        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,CONCILIADOR ID,CONCILIADOR,FECHA AUDIENCIA,FECHA PAGO,PAGADO');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $workSheet->getColumnDimension($columna)->setAutoSize(true);
         }
         $this->arrayToExcel([$encabezado], $workSheet, 3);
 
-        $workSheet->getStyle('A3:G3')->applyFromArray($this->th1());
+        $workSheet->getStyle('A3:I3')->applyFromArray($this->th1());
         $workSheet->setCellValue('A1', 'PAGOS DIFERIDOS (DESAGREGADO)');
 
         $res = $pagosdiferidos->map(function($item){
@@ -1100,6 +1114,8 @@ class ExcelReportesService
                 'solicitud_id' => $item->solicitud_id,
                 'audiencia_id' => $item->audiencia_id,
                 'expediente' => $item->expediente,
+                'conciliador_id' => $item->conciliador_id,
+                'conciliador' => trim($item->conciliador_nombre." ".$item->conciliador_primer_apellido." ".$item->conciliador_segundo_apellido),
                 'fecha_audiencia' => $item->fecha_audiencia,
                 'numero_audiencia' => Carbon::createFromFormat("Y-m-d H:i:s", $item->fecha_pago)->format("Y-m-d"),
                 'finalizada' => ($item->pagado === null ) ? null: $item->pagado,
