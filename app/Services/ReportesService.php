@@ -10,11 +10,11 @@ use App\Expediente;
 use App\Filters\AudienciaFilter;
 use App\Filters\AudienciaParteFilter;
 use App\Filters\ResolucionPagoDiferidoFilter;
-use App\Filters\ResolucionParteConceptoFilter;
 use App\Filters\SolicitudFilter;
 use App\ResolucionPagoDiferido;
-use App\ResolucionParteConcepto;
 use App\Solicitud;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -101,6 +101,7 @@ class ReportesService
      */
     public function solicitudesPresentadas($request)
     {
+
         $q = (new SolicitudFilter(Solicitud::query(), $request))
             ->searchWith(Solicitud::class)
             ->filter(false);
@@ -123,10 +124,35 @@ class ReportesService
             $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
         }else{
             $q->with(['objeto_solicitudes']);
+
             $q->select('solicitudes.id as sid','solicitudes.*','centros.abreviatura');
+
             # Ordenamos por el centro y por la fecha de recepción para mostrar en el listado desagregado
             $q->orderBy('centros.abreviatura')->orderBy('solicitudes.fecha_recepcion');
         }
+
+
+        $q->leftJoin('expedientes','expedientes.solicitud_id', '=','solicitudes.id');
+        $q->leftJoin('audiencias','audiencias.expediente_id', '=','expedientes.id');
+        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
+        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+
+        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
+
+        if ($request->get('tipo_reporte') == 'desagregado') {
+            //Se agregan las consultas para conciliador
+            $q->addSelect(
+                'audiencias.conciliador_id',
+                'personas.nombre as conciliador_nombre',
+                'personas.primer_apellido as conciliador_primer_apellido',
+                'personas.segundo_apellido as conciliador_segundo_apellido'
+            );
+        }
+
+        if (!empty($request->get('conciliadores'))) {
+            $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
+        }
+
 
         # Sólo las de trabajador y patron individual por default.
         $this->filtroTipoSolicitud($request, $q);
@@ -139,8 +165,7 @@ class ReportesService
 
         //Dejamos fuera los no consultables
         $this->noReportables($q);
-
-        //dump($this->debugSql($q));
+        //dd($this->debugSql($q));
         return $q->get();
     }
 
@@ -175,8 +200,30 @@ class ReportesService
         }else{
             $q->with(['objeto_solicitudes']);
             $q->select('solicitudes.id as sid','solicitudes.*','centros.abreviatura');
+
             # Ordenamos por el centro y por la fecha de recepción para mostrar en el listado desagregado
             $q->orderBy('centros.abreviatura')->orderBy('solicitudes.fecha_recepcion');
+        }
+
+        $q->leftJoin('expedientes','expedientes.solicitud_id', '=','solicitudes.id');
+        $q->leftJoin('audiencias','audiencias.expediente_id', '=','expedientes.id');
+        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
+        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+
+        if ($request->get('conciliadores')) {
+            if ($request->get('tipo_reporte') == 'desagregado') {
+                //Se agregan las consultas para conciliador
+                $q->addSelect(
+                    'audiencias.conciliador_id',
+                    'personas.nombre as conciliador_nombre',
+                    'personas.primer_apellido as conciliador_primer_apellido',
+                    'personas.segundo_apellido as conciliador_segundo_apellido'
+                );
+            }
+
+            if (!empty($request->get('conciliadores'))) {
+                $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
+            }
         }
 
         $this->filtroTipoSolicitud($request, $q);
@@ -203,7 +250,7 @@ class ReportesService
     /**
      * Con respecto a los citatorios emitidos
      * @param $request
-     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection Devueve arreglos
+     * @return Builder[]|Collection Devueve arreglos
      */
     public function citatoriosEmitidos($request)
     {
@@ -235,6 +282,13 @@ class ReportesService
                    'expedientes.folio as expediente_folio','expedientes.anio as expediente_anio','solicitudes.id as solicitud_id', 'parte_id' );
         $q->selectRaw('audiencias_partes.created_at::date as fecha_citatorio');
 
+        //Se agregan las consultas para conciliador
+        $q->addSelect('audiencias.conciliador_id','personas.nombre as conciliador_nombre', 'personas.primer_apellido as conciliador_primer_apellido',
+                      'personas.segundo_apellido as conciliador_segundo_apellido');
+        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
+        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+
+
         //Se aplican filtros por características del solicitante
         //$this->filtroPorCaracteristicasSolicitanteAudienciaParte($request, $q);
         $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'audiencia.expediente.solicitud.partes');
@@ -264,7 +318,7 @@ class ReportesService
         if ($request->get('tipo_reporte') == 'agregado') {
 
             $res = $q->get()->sortBy('abreviatura');
-    Log::info('----------->'.$this->debugSql($q));
+
             //Entrega Solicitante
             $entrega_solicitante = $res->where('tipo_notificacion_id', self::CITATORIO_POR_SOLICITANTE)
                 ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
@@ -367,18 +421,38 @@ class ReportesService
         $q->leftJoin('expedientes', 'solicitudes.id', '=', 'expedientes.solicitud_id');
         $q->leftJoin('audiencias', 'expedientes.id', '=', 'audiencias.expediente_id');
 
+        //Se agregan las consultas para conciliador
+        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
+        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+
+        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
+        if ($request->get('conciliadores')) {
+            if ($request->get('tipo_reporte') == 'desagregado') {
+                //Se agregan las consultas para conciliador
+                $q->addSelect(
+                    'audiencias.conciliador_id',
+                    'personas.nombre as conciliador_nombre',
+                    'personas.primer_apellido as conciliador_primer_apellido',
+                    'personas.segundo_apellido as conciliador_segundo_apellido'
+                );
+            }
+
+            if (!empty($request->get('conciliadores'))) {
+                $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
+            }
+        }
 
         $q->whereNull('audiencias.deleted_at');
         $q->whereNull('expedientes.deleted_at');
         $q->whereNull('solicitudes.deleted_at');
 
         if ($etapa == 'ratificacion') {
-            $q->whereNull('fecha_ratificacion');
+            //$q->whereNull('fecha_ratificacion');
             $q->has('documentosComentadosComoIncompetencia');
             $q->where('tipo_incidencia_solicitud_id', self::INCOMPETENCIA_EN_RATIFICACION);
         }
         else{
-            $q->whereNotNull('fecha_ratificacion');
+            //$q->whereNotNull('fecha_ratificacion');
             $q->whereHas('expediente.audiencia.documentos', function ($qq){
                return $qq->where('clasificacion_archivo_id', self::INCOMPETENCIA_EN_AUDIENCIA);
             });
@@ -441,6 +515,22 @@ class ReportesService
         $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
 
+        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
+        if($request->get('conciliadores')){
+            if ($request->get('tipo_reporte') != 'agregado') {
+                //Se agregan las consultas para conciliador
+                $q->addSelect(
+                    'audiencias.conciliador_id',
+                    'personas.nombre as conciliador_nombre',
+                    'personas.primer_apellido as conciliador_primer_apellido',
+                    'personas.segundo_apellido as conciliador_segundo_apellido'
+                );
+            }
+            $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
+            $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+            $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
+        }
+
 
         $q->where('resolucion_id', self::ARCHIVADO);
 
@@ -449,7 +539,7 @@ class ReportesService
         $this->filtroTipoSolicitud($request, $q);
 
         # Por tipo de industria
-        $this->filtroPorIndustrias($request, $q, 'expediente.solicitud');
+        $this->filtroPorIndustrias($request, $q, 'expediente.solicitud.');
 
         //Se aplican filtros por características del solicitante
         $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'expediente.solicitud.partes');
@@ -505,6 +595,7 @@ class ReportesService
                    'audiencias.id as audiencia_id',
                    'fecha_audiencia','numero_audiencia',
                    'monto'
+                   // ,'tipo_propuesta_pago_id'
         );
 
         $q->join('expedientes','expedientes.solicitud_id','=','solicitudes.id');
@@ -512,7 +603,20 @@ class ReportesService
         $q->join('centros','solicitudes.centro_id','=','centros.id');
         $q->leftJoin('audiencias_partes','audiencias_partes.audiencia_id','=','audiencias.id');
         $q->leftJoin('resolucion_parte_conceptos','resolucion_parte_conceptos.audiencia_parte_id','=','audiencias_partes.id');
+        //$q->leftJoin('resolucion_partes','resolucion_partes.audiencia_id','=','audiencias.id');
 
+        //Se agregan las consultas para conciliador
+        $q->addSelect('audiencias.conciliador_id','personas.nombre as conciliador_nombre', 'personas.primer_apellido as conciliador_primer_apellido',
+                      'personas.segundo_apellido as conciliador_segundo_apellido');
+        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
+        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+
+        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
+        if($request->get('conciliadores')){
+            if(!empty($request->get('conciliadores'))){
+                $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
+            }
+        }
 
         //Se aplican filtros por características del solicitante
         $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
@@ -580,6 +684,18 @@ class ReportesService
         $q->leftJoin('audiencias_partes','audiencias_partes.audiencia_id','=','audiencias.id');
         $q->leftJoin('resolucion_parte_conceptos','resolucion_parte_conceptos.audiencia_parte_id','=','audiencias_partes.id');
 
+        //Se agregan las consultas para conciliador
+        $q->addSelect('audiencias.conciliador_id','personas.nombre as conciliador_nombre', 'personas.primer_apellido as conciliador_primer_apellido',
+                      'personas.segundo_apellido as conciliador_segundo_apellido');
+        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
+        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+
+        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
+        if($request->get('conciliadores')){
+            if(!empty($request->get('conciliadores'))){
+                $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
+            }
+        }
 
         //Se aplican filtros por características del solicitante
         $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
@@ -648,6 +764,19 @@ class ReportesService
         $q->leftJoin('audiencias_partes','audiencias_partes.audiencia_id','=','audiencias.id');
         $q->leftJoin('resolucion_parte_conceptos','resolucion_parte_conceptos.audiencia_parte_id','=','audiencias_partes.id');
 
+        //Se agregan las consultas para conciliador
+        $q->addSelect('audiencias.conciliador_id','personas.nombre as conciliador_nombre', 'personas.primer_apellido as conciliador_primer_apellido',
+                      'personas.segundo_apellido as conciliador_segundo_apellido');
+        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
+        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+
+        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
+        if($request->get('conciliadores')){
+            if(!empty($request->get('conciliadores'))){
+                $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
+            }
+        }
+
         //Se aplican filtros por características del solicitante
         $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
 
@@ -701,6 +830,13 @@ class ReportesService
         $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
 
+        //Se agregan las consultas para conciliador
+        $q->addSelect('audiencias.conciliador_id','personas.nombre as conciliador_nombre', 'personas.primer_apellido as conciliador_primer_apellido',
+                      'personas.segundo_apellido as conciliador_segundo_apellido');
+        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
+        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+
+
         //Se aplican filtros por características del solicitante
         $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'expediente.solicitud.partes');
 
@@ -748,6 +884,13 @@ class ReportesService
         $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
 
+        //Se agregan las consultas para conciliador
+        $q->addSelect('audiencias.conciliador_id','personas.nombre as conciliador_nombre', 'personas.primer_apellido as conciliador_primer_apellido',
+                      'personas.segundo_apellido as conciliador_segundo_apellido');
+        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
+        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+
+
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
@@ -788,6 +931,7 @@ class ReportesService
      * Filtra por características de la parte solicitante
      * @param $request
      * @param $q
+     * @param string $modelo
      * @return mixed
      */
     private function filtroPorCaracteristicasSolicitanteSolicitud($request, $q, $modelo = 'partes')

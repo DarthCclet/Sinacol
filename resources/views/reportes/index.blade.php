@@ -48,6 +48,13 @@
             </div>
 
             <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Conciliador</label>
+                <div class="col-lg-8">
+                    {!! Form::select('conciliadores[]', isset($conciliadores) ? $conciliadores : [] ,null , ['id'=>'conciliadores', 'class' => 'form-control select2', 'multiple'=>'multiple']);  !!}
+                </div>
+            </div>
+
+            <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Tipo solicitud</label>
                 <div class="col-lg-8">
                     {!! Form::select('tipo_solicitud_id', [1 => 'Trabajador individual',2 => 'Patrón individual'] ,null , ['id'=>'tipo_solicitud_id', 'placeholder' => 'Seleccione una opción', 'class' => 'form-control']);  !!}
@@ -57,7 +64,7 @@
             <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Objeto de la solicitud</label>
                 <div class="col-lg-8">
-                    {!! Form::select('objeto_solicitud_id[]', isset($tipoObjetos) ? $tipoObjetos : [] ,null , ['id'=>'objeto_id', 'class' => 'form-control select2', 'multiple'=>'multiple']);  !!}
+                    {!! Form::select('objeto_solicitud_id[]', [] ,null , ['id'=>'objeto_id', 'class' => 'form-control select2', 'multiple'=>'multiple']);  !!}
                 </div>
             </div>
 
@@ -107,6 +114,9 @@
             </div>
 
             {!! Form::close() !!}
+
+            <input type="hidden" id="lista-conciliadores" name="lista_conciliadores" value="{{$conciliadoresJson}}"/>
+            <input type="hidden" id="lista-objetos" name="lista_objetos" value="{{$tipoObjetosJson}}"/>
         </div>
     </div>
 
@@ -163,15 +173,88 @@
 
             $("#tipo_solicitud_id").select2({width: '100%', placeholder: 'Seleccione una opción', allowClear: true});
 
-            // TODO: contextualizar el campo de tipo de objeto según el tipo de solicitud que se seleccione
-            $("#tipo_solicitud_id").on('change.select2', function (e) {
-                let tipo_solicitud_id = $(this).val();
-                //Si el tipo de solicitude es trabajador individual entonces ocultamos las opciones de
-                //patrón individual
-                if(tipo_solicitud_id == 1) {
 
+            // Lista de objetos de la conciliación
+
+            let objetos = JSON.parse($('#lista-objetos').val());
+            let listaObjetos = {"results":[]};
+            for(const tipo in objetos) {
+                let contipo = [];
+                for (const idtipo in objetos[tipo]) {
+                    contipo.push({
+                        "id": objetos[tipo][idtipo].id,
+                        "text": objetos[tipo][idtipo].nombre,
+                    })
                 }
+
+                listaObjetos.results.push({
+                    "id": tipo,
+                    "text": tipo,
+                    "children": contipo
+                });
+            }
+
+            $("#objeto_id").select2({width: '100%', placeholder: 'Seleccione una opción', allowClear: true, data: listaObjetos.results});
+
+            // Lista de conciliadores para mostrar agrupado por centro en el selector
+            let conciliadores = JSON.parse($('#lista-conciliadores').val());
+            let listaConciliadores = {"results":[]};
+            for(const centro in conciliadores) {
+                let concentro = [];
+                for (const idcon in conciliadores[centro]) {
+                        concentro.push({
+                            "id": conciliadores[centro][idcon].id,
+                            "text": conciliadores[centro][idcon].nombre,
+                        })
+                }
+                listaConciliadores.results.push({
+                    "id": centro,
+                    "text": centro,
+                    "children": concentro
+                });
+            }
+
+            $("#conciliadores").select2({width: '100%', placeholder: 'Seleccione una opción', allowClear: true, data: listaConciliadores.results});
+
+            //Cuando cambia el selector de centros hacemos cambios en el selector ceonciliadores a corde a lo seleccionado en centros.
+            $("#centro").select2().on('change', function (e) {
+                let centros = $(this).val();
+                let listaConciliadoresFiltrados = [];
+                // Si el selector de centros está vacío entonces ponemos todos los conciliadores en el selector de conciliadores.
+                if(centros.length === 0) {
+                    listaConciliadoresFiltrados = listaConciliadores.results;
+                    $("#conciliadores").select2('destroy').empty().select2({width: '100%', placeholder: 'Seleccione una opción', allowClear: true, data: listaConciliadoresFiltrados});
+                }
+                //De lo contrario filtramos los conciliadores pertenecientes a los centros seleccionados
+                for(const centro in centros){
+                    for(const cid in listaConciliadores.results) {
+                        if(listaConciliadores.results[cid].id !== centros[centro]) continue;
+                        listaConciliadoresFiltrados.push(listaConciliadores.results[cid])
+                    }
+                }
+                $("#conciliadores").select2('destroy').empty().select2({width: '100%', placeholder: 'Seleccione una opción', allowClear: true, data: listaConciliadoresFiltrados});
             });
+
+            //Cuando cambia el tipo de solicitud se debe actualizar el selector de objetos acorde al tipo de objeto seleccionado
+            let tiposObjetos = {"1": "Trabajador individual", "2": "Patron Individual"};
+            $("#tipo_solicitud_id").select2().on('change', function (e) {
+                let tipo_solicitud_id = $(this).val();
+                let listaObjetosFiltrados = [];
+                // Si el selector de tipo de solicitud está vacío o es nulo
+                if(!tipo_solicitud_id) {
+                    listaObjetosFiltrados = listaObjetos.results;
+                    $("#objeto_id").select2('destroy').empty().select2({width: '100%', placeholder: 'Seleccione una opción', allowClear: true, data: listaObjetosFiltrados});
+                }
+                //De lo contrario filtramos los objetos pertenecientes al tipo de objeto seleccionado
+                for(const oid in listaObjetos.results) {
+                    console.log(listaObjetos.results[oid].id + " => "+ tiposObjetos[tipo_solicitud_id]);
+                    if(listaObjetos.results[oid].id !== tiposObjetos[tipo_solicitud_id]) continue;
+                    listaObjetosFiltrados.push(listaObjetos.results[oid])
+                }
+                $("#objeto_id").select2('destroy').empty().select2({width: '100%', placeholder: 'Seleccione una opción', allowClear: true, data: listaObjetosFiltrados});
+            });
+
+
         });
     </script>
 @endpush
