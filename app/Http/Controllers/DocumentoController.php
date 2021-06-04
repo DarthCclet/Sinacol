@@ -675,4 +675,22 @@ class DocumentoController extends Controller
         $respuesta["firma_documento_id"] = $request->firma_documento_id;
         return $respuesta;
     }
+
+    public function eliminar_documentos(Request $request){
+        return view('herramientas.eliminar_documentos');
+    }
+
+    public function delete_documento(Request $request){
+        try{
+            $documento_id = $request->documento_id;
+            $documento = Documento::find($documento_id);
+            $documento->delete();
+            return response()->json(['success' => true, 'message' => 'Documento eliminado correctamente', 'data' => null], 200);
+        }catch(Exception $e){
+            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+                    " Se emitió el siguiente mensale: " . $e->getMessage() .
+                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => 'No se encontraron datos relacionados', 'data' => null], 200);
+        }
+    }
 }

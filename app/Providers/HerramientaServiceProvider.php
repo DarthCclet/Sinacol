@@ -8,6 +8,7 @@ use App\HistoricoNotificacion;
 use App\HistoricoNotificacionRespuesta;
 use App\ResolucionParteConcepto;
 use App\Solicitud;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,6 +16,12 @@ use Illuminate\Support\ServiceProvider;
 
 class HerramientaServiceProvider extends ServiceProvider
 {
+    /**
+     * Días para expiración de solicitudes
+     */
+    const DIAS_EXPIRACION = 45;
+    const DIAS_EXPIRA = 7;
+
     /**
      * Register services.
      *
@@ -29,6 +36,10 @@ class HerramientaServiceProvider extends ServiceProvider
         
         DB::beginTransaction();
         try {
+            if (!auth()->user()->hasRole('Administrador del centro')) {
+                DB::rollback();
+                return ['success'=>false,'msj'=>' No tienes permisos para realizar este proceso '];
+            }
             $solicitud = Solicitud::find($solicitud_id);
             if($solicitud && $solicitud->expediente && count($solicitud->expediente->audiencia) > 1 ){
             
@@ -76,6 +87,10 @@ class HerramientaServiceProvider extends ServiceProvider
     public static function rollback($solicitud_id,$audiencia_id,$tipoRollback){
         DB::beginTransaction();
         try{
+            if (!auth()->user()->hasRole('Administrador del centro')) {
+                DB::rollback();
+                return ['success'=>false,'msj'=>' No tienes permisos para realizar este proceso '];
+            }
             //tipoRollback nos indica que tipo de rollback se va a realizar, 1 antes de terminar audiencia, 2 antes de comparecencia, 3 antes de ratificación
             if($tipoRollback == 1){
                 $solicitud = Solicitud::find($solicitud_id);
@@ -267,6 +282,31 @@ class HerramientaServiceProvider extends ServiceProvider
             DB::rollback();
             return ['success'=>false,'msj'=>'Error al realizar el proceso '];
         }
+    }
+
+    public static function getSolicitudesPorCaducar($validar = false){
+        $dias_expiracion = self::DIAS_EXPIRA;
+        $dias_rango_inferior = self::DIAS_EXPIRACION - $dias_expiracion;
+        $dias_rango_superior = self::DIAS_EXPIRACION;
+        $fecha_fin = Carbon::now()->subDays($dias_rango_inferior);
+        $centro_id = auth()->user()->centro_id;
+        $solicitudes = Solicitud::where('fecha_recepcion','<',$fecha_fin->toDateString())->where('estatus_solicitud_id',2)->where('centro_id',$centro_id)->with(["partes","expediente","expediente.audiencia"=>function($query){ return $query->orderBy('fecha_audiencia','desc');}])->whereRaw('incidencia is not true');
+        if($validar){
+            if (session()->exists('rolActual')) {
+                $rolActual = session('rolActual')->name;
+                if($rolActual == "Personal conciliador" && auth()->user()->persona->conciliador){
+                    $conciliador_id = auth()->user()->persona->conciliador->id;
+                    $solicitudes = $solicitudes->whereHas('expediente.audiencia',function ($query) use ($conciliador_id) { $query->where('conciliador_id',$conciliador_id); });
+                }else if($rolActual == "Administrador del centro" || $rolActual == "Supervisor de conciliación"){
+                }else{
+                    $solicitudes = $solicitudes->whereRaw('1 = 0');
+                }
+            }else{
+                $solicitudes = $solicitudes->whereRaw('1 = 0');
+            }
+        }
+        $solicitudes = $solicitudes->orderBy('fecha_recepcion','asc')->get();
+        return $solicitudes;
     }
 
     /**

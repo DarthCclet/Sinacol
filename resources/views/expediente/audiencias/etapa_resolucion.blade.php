@@ -91,7 +91,7 @@
                     <p>
                         @switch($etapa->paso)
                             @case(1)
-                                <button class="btn btn-primary" style="float: right;" onclick="$('#modal-parte').modal('show')">Agregar Nuevo compareciente <em class="fa fa-plus"></em> </button>
+                                <button class="btn btn-primary" id="boton_nuevo_compareciente" style="float: right;" onclick="$('#modal-parte').modal('show')">Agregar Nuevo compareciente <em class="fa fa-plus"></em> </button>
                                 <p>Comparecientes</p>
                                 <div class="col-md-12 ">
                                     <table style="font-size: small;" class="table table-striped table-bordered table-td-valign-middle">
@@ -1774,6 +1774,7 @@
             $(".showTime"+pasoActual).text(value.updated_at);
             
             var siguiente = pasoActual+1;
+            $("#boton_nuevo_compareciente").hide();
             switch (pasoActual) {
                 case 1:
                     cargarComparecientes();

@@ -65,7 +65,7 @@
                                 @endforeach
                             </td>
                             <td>{{$solicitud->tipoIncidenciaSolicitud ? $solicitud->tipoIncidenciaSolicitud->nombre: ""}}</td>
-                            <td>{{$solicitud->justificacion_incidencia ? substr($solicitud->justificacion_incidencia,0,50).'...'   :"" }}</td>
+                            <td>{!! $solicitud->justificacion_incidencia ? substr($solicitud->justificacion_incidencia,0,50).'...'   :"" !!}</td>
                             <td>{{$solicitud->fecha_incidencia ? $solicitud->fecha_incidencia : "" }}</td>
                             <td>{{$solicitud->solicitud ? $solicitud->solicitud->folio."/".$solicitud->solicitud->anio : "" }}</td>
                             <td>
@@ -260,6 +260,7 @@
             $("#solicitante_id").val("");
             $("#solicitado_id").val("");
             $("#divAudienciaConsulta").html("");
+            $("#divBtnSol").hide();
             limpiarSolicitudAsociada();
         }
         
@@ -298,6 +299,7 @@
                 data:{
                     folio:$("#folio_solicitud").val(),
                     anio: $("#anio_solicitud").val(),
+                    validate: true,
                     _token:$("input[name=_token]").val()
                 },
                 success:function(json){
@@ -326,7 +328,7 @@
                         }else{
                             swal({
                                 title: 'Advertencia',
-                                text: ' No se encontro la solicitud: '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
+                                text: json.message+': '+$("#folio_solicitud").val()+"/"+$("#anio_solicitud").val(),
                                 icon: 'warning'
                             });
                         }
