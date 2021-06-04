@@ -704,6 +704,7 @@ class ReportesService
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
+        $q->whereNull('resolucion_parte_conceptos.deleted_at');
 
         # Sólo las de trabajador y patron individual por default.
         $this->filtroTipoSolicitud($request, $q);
