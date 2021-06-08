@@ -11,8 +11,6 @@ use App\Filters\AudienciaFilter;
 use App\Filters\AudienciaParteFilter;
 use App\Filters\ResolucionPagoDiferidoFilter;
 use App\Filters\SolicitudFilter;
-use App\Industria;
-use App\ObjetoSolicitud;
 use App\ResolucionPagoDiferido;
 use App\Solicitud;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,7 +18,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class ReportesService
+class ReporteOperativoService
 {
     /**
      * ID de solicitante en catálogo tipo_partes
@@ -97,28 +95,18 @@ class ReportesService
     const RESOLUCIONES_NO_HUBO_CONVENIO = 3;
 
     /**
-     * ID del genero femenino
-     */
-    const GENERO_FEMENINO_ID = 2;
-    /**
-     * ID
-     */
-    const GENERO_MASCULINO_ID = 1;
-
-
-    /**
      * Sobre las solicitudes presentadas
      * @param $request
      * @return mixed
      */
-    public function solicitudesPresentadas($request)
+    public function solicitudes($request)
     {
 
         $q = (new SolicitudFilter(Solicitud::query(), $request))
             ->searchWith(Solicitud::class)
             ->filter(false);
 
-        # Las solicitudes presentadas se evaluan por fecha de recepcion
+        # Las solicitudes
         if($request->get('fecha_inicial')){
             $q->whereRaw('fecha_recepcion::date >= ?', $request->get('fecha_inicial'));
         }
@@ -126,60 +114,13 @@ class ReportesService
             $q->whereRaw('fecha_recepcion::date <= ?', $request->get('fecha_final'));
         }
 
-        # Hacemos el join con centros para reprotar agrupado por centro
-        $q->join('centros','solicitudes.centro_id','=','centros.id');
-
-        # Si viene solicitud de desagregación mandamos todos los registros
-        # de lo contrario mandamos registros agrupados por centro
-        if ($request->get('tipo_reporte') == 'agregado') {
-            # Seleccionamos la abreviatura del nombre y su cuenta
-            $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
-        }else{
-            $q->with(['objeto_solicitudes']);
-
-            $q->select('solicitudes.id as sid','solicitudes.*','centros.abreviatura');
-
-            # Ordenamos por el centro y por la fecha de recepción para mostrar en el listado desagregado
-            $q->orderBy('centros.abreviatura')->orderBy('solicitudes.fecha_recepcion');
-        }
-
-
-        $q->leftJoin('expedientes','expedientes.solicitud_id', '=','solicitudes.id');
-        $q->leftJoin('audiencias','audiencias.expediente_id', '=','expedientes.id');
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
-
-        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
-
-        if ($request->get('tipo_reporte') == 'desagregado') {
-            //Se agregan las consultas para conciliador
-            $q->addSelect(
-                'audiencias.conciliador_id',
-                'personas.nombre as conciliador_nombre',
-                'personas.primer_apellido as conciliador_primer_apellido',
-                'personas.segundo_apellido as conciliador_segundo_apellido'
-            );
-        }
-
-        if (!empty($request->get('conciliadores'))) {
-            $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
-        }
-
-
-        # Sólo las de trabajador y patron individual por default.
-        $this->filtroTipoSolicitud($request, $q);
-
-        # Por tipo de industria
-        $this->filtroPorIndustrias($request, $q);
-
-        //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'partes');
-
         //Dejamos fuera los no consultables
         $this->noReportables($q);
         //dd($this->debugSql($q));
-        return $q->get();
+        return $q;
     }
+
+
 
     /**
      * Sobre las solicitudes confirmadas
@@ -954,8 +895,37 @@ class ReportesService
             $genero_id = $request->get('genero_id');
             $grupo_id = $request->get('grupo_id');
             $tipo_persona_id = $request->get('tipo_persona_id');
+            $modelo = trim($modelo);
+            $q->whereHas($modelo, function($q) use($genero_id, $grupo_id, $tipo_persona_id){
 
-            $q = self::caracteristicasSolicitante($q, $modelo, $genero_id, $grupo_id, $tipo_persona_id);
+                    # Por el género
+                    if($genero_id) {
+                        $q->where('genero_id', $genero_id);
+                    }
+
+                    # Por el  o los grupos etarios
+                    if(is_array($grupo_id) && count($grupo_id)) {
+
+                        $q->where(function($qq) use ($grupo_id) {
+                            foreach ($grupo_id as $idx => $grupo) {
+                                list($ini,$fin) = explode('-', $grupo);
+                                if($idx == 0) {
+                                    $qq->whereRaw('edad::integer BETWEEN ? AND ?', [$ini, $fin]);
+                                }else{
+                                    $qq->orWhereRaw('edad::integer BETWEEN ? AND ?', [$ini, $fin]);
+                                }
+                            }
+                        });
+
+                    }
+                    # Por el tipo de persona
+                    if($tipo_persona_id) {
+                        $q->where('tipo_persona_id', $tipo_persona_id);
+                    }
+
+                    # Sólo se toman en cuenta los solicitantes
+                    $q->where('tipo_parte_id', self::SOLICITANTE_ID);
+                });
         }
 
         return $q;
@@ -1117,117 +1087,5 @@ class ReportesService
 
         return $borrables;
     }
-
-    /**
-     * Devuelve query por características del solicitante
-     * @param $q
-     * @param $modelo
-     * @param $genero_id
-     * @param $grupo_id
-     * @param $tipo_persona_id
-     * @return mixed
-     */
-    public static function caracteristicasSolicitante($q, $modelo, $genero_id, $grupo_id, $tipo_persona_id)
-    {
-        $modelo = trim($modelo);
-        return $q->whereHas(
-            $modelo,
-            function ($q) use ($genero_id, $grupo_id, $tipo_persona_id) {
-                # Por el género
-                if ($genero_id) {
-                    $q->where('genero_id', $genero_id);
-                }
-
-                # Por el  o los grupos etarios
-                if ($grupo_id) {
-                    $q->where(
-                        function ($qq) use ($grupo_id) {
-                            list($ini, $fin) = explode('-', $grupo_id);
-                                $qq->whereRaw('edad::integer BETWEEN ? AND ?', [$ini, $fin]);
-                        }
-                    );
-                }
-                # Por el tipo de persona
-                if ($tipo_persona_id) {
-                    $q->where('tipo_persona_id', $tipo_persona_id);
-                }
-
-                # Sólo se toman en cuenta los solicitantes
-                $q->where('tipo_parte_id', self::SOLICITANTE_ID);
-                return $q;
-            }
-        );
-    }
-
-
-    /**
-     * Devuelve los grupos etarios para mostrar en los controles de consulta al usuario
-     * @return array
-     */
-    public static function gruposEtarios(): array
-    {
-        $grupo_etario = [];
-        $grupo_etario["18-19"] = "De 18 a 19 años";
-        $grupo_etario["20-24"] = "De 20 a 24 años";;
-        $grupo_etario["25-29"] = "De 25 a 29 años";;
-        $grupo_etario["30-34"] = "De 30 a 34 años";;
-        $grupo_etario["35-39"] = "De 35 a 39 años";;
-        $grupo_etario["40-44"] = "De 40 a 44 años";;
-        $grupo_etario["45-49"] = "De 45 a 49 años";;
-        $grupo_etario["50-54"] = "De 50 a 54 años";;
-        $grupo_etario["55-59"] = "De 55 a 59 años";;
-        $grupo_etario["60-64"] = "De 60 a 64 años";;
-        $grupo_etario["65-69"] = "De 65 a 69 años";;
-        $grupo_etario["70-74"] = "De 70 a 74 años";;
-        $grupo_etario["75-79"] = "De 75 a 79 años";;
-        $grupo_etario["80-84"] = "De 80 a 84 años";;
-        $grupo_etario["85-89"] = "De 85 a 89 años";;
-        return $grupo_etario;
-    }
-
-    /**
-     * Devuelve los objetos que se van a mostrar al usuario en los controles de consulta
-     * @param bool $lista
-     * @return \Illuminate\Support\Collection
-     */
-    public static function getObjetosFiltrables($lista = false)
-    {
-        if(!$lista) {
-            $objetos = ObjetoSolicitud::whereIn(
-                'tipo_objeto_solicitudes_id',
-                [self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]
-            )
-                ->orderBy('tipo_objeto_solicitudes_id')->orderBy('nombre')
-                ->get()
-                ->map(
-                    function ($v, $k) {
-                        return [
-                            'id' => $v->id,
-                            'nombre' => $v->nombre,
-                            'tipo_objeto' => $v->tipoObjetoSolicitud->nombre
-                        ];
-                    }
-                )->groupBy('tipo_objeto');
-
-            return $objetos;
-        }
-
-        return ObjetoSolicitud::whereIn(
-            'tipo_objeto_solicitudes_id',
-            [self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]
-        )
-        ->orderBy('nombre')
-        ->get();
-    }
-
-    /**
-     * Devuelve listado de industrias
-     * @return mixed
-     */
-    public static function getIndustria()
-    {
-        return Industria::orderBy('nombre')->get(['id','nombre'])->pluck('nombre','id');
-    }
-
 }
 

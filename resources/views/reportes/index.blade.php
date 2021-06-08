@@ -30,6 +30,7 @@
         <!-- begin panel-body -->
         <div class="panel-body">
             {!! Form::open(['route' => 'reportes.reporte','method'=>'GET']) !!}
+
             <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Periodo o rango de consulta</label>
                 <div class="col-lg-8">
@@ -41,74 +42,80 @@
             </div>
 
             <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Tipo Reporte</label>
+                <div class="col-lg-8">
+                    {!! Form::select('tipo_reporte', ['agregado' => 'Agregado','desagregado' => 'Desagregado', 'operativo'=>'Reporte operativo'] ,'agregado' , ['id'=>'tipo_reporte', 'class' => 'form-control']);  !!}
+                </div>
+            </div>
+
+            <div class="form-group row reportes-agregado-desagregado">
                 <label class="col-lg-4 col-form-label">Centro</label>
                 <div class="col-lg-8">
                     {!! Form::select('centro[]', isset($centros) ? $centros : [] ,null , ['id'=>'centro', 'class' => 'form-control select2', 'multiple'=>'multiple']);  !!}
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row reportes-agregado-desagregado">
                 <label class="col-lg-4 col-form-label">Conciliador</label>
                 <div class="col-lg-8">
                     {!! Form::select('conciliadores[]', isset($conciliadores) ? $conciliadores : [] ,null , ['id'=>'conciliadores', 'class' => 'form-control select2', 'multiple'=>'multiple']);  !!}
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row reportes-agregado-desagregado">
                 <label class="col-lg-4 col-form-label">Tipo solicitud</label>
                 <div class="col-lg-8">
                     {!! Form::select('tipo_solicitud_id', [1 => 'Trabajador individual',2 => 'Patrón individual'] ,null , ['id'=>'tipo_solicitud_id', 'placeholder' => 'Seleccione una opción', 'class' => 'form-control']);  !!}
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row reportes-agregado-desagregado">
                 <label class="col-lg-4 col-form-label">Objeto de la solicitud</label>
                 <div class="col-lg-8">
                     {!! Form::select('objeto_solicitud_id[]', [] ,null , ['id'=>'objeto_id', 'class' => 'form-control select2', 'multiple'=>'multiple']);  !!}
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row reportes-agregado-desagregado">
                 <label class="col-lg-4 col-form-label">Industria</label>
                 <div class="col-lg-8">
                     {!! Form::select('giro_id[]', isset($tipoIndustria) ? $tipoIndustria : [] ,null , ['id'=>'giro_id', 'class' => 'form-control select2', 'multiple'=>'multiple']);  !!}
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row reportes-agregado-desagregado">
                 <label class="col-lg-4 col-form-label">Género</label>
                 <div class="col-lg-8">
                     {!! Form::select('genero_id', [2 => 'Femenino',1 => 'Masculino'] ,null , ['id'=>'genero_id', 'placeholder' => 'Seleccione una opción', 'class' => 'form-control select2']);  !!}
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row reportes-agregado-desagregado">
                 <label class="col-lg-4 col-form-label">Grupo etario</label>
                 <div class="col-lg-8">
                     {!! Form::select('grupo_id[]', isset($grupo_etario) ? $grupo_etario : []   ,null , ['id'=>'grupo_id', 'class' => 'form-control select2', 'multiple'=>'multiple']);  !!}
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="form-group row reportes-agregado-desagregado">
                 <label class="col-lg-4 col-form-label">Tipo Persona</label>
                 <div class="col-lg-8">
                     {!! Form::select('tipo_persona_id', [1 => 'Física',2 => 'Moral'] ,null , ['id'=>'tipo_persona_id', 'placeholder' => 'Seleccione una opción', 'class' => 'form-control select2']);  !!}
                 </div>
             </div>
 
-            <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Tipo Reporte</label>
-                <div class="col-lg-8">
-                    {!! Form::select('tipo_reporte', ['agregado' => 'Agregado','desagregado' => 'Desagregado'] ,'agregado' , ['id'=>'tipo_reporte', 'class' => 'form-control']);  !!}
-                </div>
-            </div>
 
             <input type="hidden" name="fecha_inicial" id="fecha_inicial">
             <input type="hidden" name="fecha_final" id="fecha_final">
             <input type="hidden" name="edad_inicial" id="edad_inicial">
             <input type="hidden" name="edad_final" id="edad_final">
 
-            <div class="panel-footer text-right">
+            <div class="panel-footer text-right" id="div-reporte-operativo" style="display: none;">
+                <a href="{!! route('reportes.forma') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
+                <button class="btn btn-primary btn-sm m-l-5" type="button" id="btn-reporte-operativo"><i class="fa fa-file-excel"></i> Generar reporte</button>
+            </div>
+
+            <div class="panel-footer text-right" id="div-reportes">
                 <a href="{!! route('reportes.forma') !!}" class="btn btn-white btn-sm"><i class="fa fa-times"></i> Cancelar</a>
                 <button class="btn btn-primary btn-sm m-l-5"><i class="fa fa-file-excel"></i> Generar reporte</button>
             </div>
@@ -252,6 +259,27 @@
                     listaObjetosFiltrados.push(listaObjetos.results[oid])
                 }
                 $("#objeto_id").select2('destroy').empty().select2({width: '100%', placeholder: 'Seleccione una opción', allowClear: true, data: listaObjetosFiltrados});
+            });
+
+            $("#tipo_reporte").select2().on('change', function (e) {
+                console.log('hola:'+$(this).val());
+                let tipo_reporte_id = $(this).val();
+                if(tipo_reporte_id != 'operativo'){
+                    $("#div-reporte-operativo").hide();
+                    $("#div-reportes").show();
+                    $(".reportes-agregado-desagregado").show();
+
+                }else{
+                    $("#div-reporte-operativo").show();
+                    $("#div-reportes").hide();
+                    $(".reportes-agregado-desagregado").hide();
+                }
+            });
+
+            $("#btn-reporte-operativo").on('click', function (e) {
+                let fecha_inicial = $("#fecha_inicial").val();
+                let fecha_final = $("#fecha_final").val();
+                window.location.href = '/reportes/reporte-operativo?fecha_inicial='+fecha_inicial+'&fecha_final='+fecha_final;
             });
 
 

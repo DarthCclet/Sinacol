@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Conciliador;
 use App\Industria;
 use App\ObjetoSolicitud;
+use App\Services\ExcelReporteOperativoService;
 use App\Services\ExcelReportesService;
 use App\Services\ReportesService;
 use App\Traits\EstilosSpreadsheets;
@@ -37,15 +38,6 @@ class ReportesController extends Controller
      * @var Request
      */
     protected $request;
-    /**
-     * ID de tipo de solicitud individual en catálogo de tipos_solicitudes
-     */
-    const SOLICITUD_INDIVIDUAL = 1;
-
-    /**
-     * ID de tipo de solicitud patronal individual en catálogo de tipos_solicitudes
-     */
-    const SOLICITUD_PATRONAL_INDIVIDUAL = 2;
 
     /**
      * ID del rol Personal conciliador de la tabla roles
@@ -60,16 +52,13 @@ class ReportesController extends Controller
 
     /**
      * Muestra la forma de consulta del reporte
+     * @param ReportesService $reportesService
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
     {
-        $tipo_objeto_solicitud = [];
-        $tipo_objeto_solicitud["1"] = 'Trabajador individual';
-        $tipo_objeto_solicitud["2"] = 'Patrón individual';
-
         # Sólo mostramos los objetos para solicitud individual y solicitud patronal en el filtro
-        $tipoObjetos = $this->getObjetosFiltrables($tipo_objeto_solicitud);
+        $tipoObjetos = ReportesService::getObjetosFiltrables();
         $tipoObjetosJson = $tipoObjetos->toJson();
 
         # ToDo: Se debe sacar los centros activos para poder consultar dinámicamente y no de esta lista hardcodeada
@@ -83,10 +72,10 @@ class ReportesController extends Controller
         $conciliadoresJson = $conciliadores->toJson();
 
         # Los grupos etarios
-        $grupo_etario = $this->gruposEtarios();
+        $grupo_etario = ReportesService::gruposEtarios();
 
         # Las industrias
-        $tipoIndustria = Industria::orderBy('nombre')->get(['id','nombre'])->pluck('nombre','id');
+        $tipoIndustria = ReportesService::getIndustria();
 
         return view('reportes.index', compact('tipoObjetos','centros', 'grupo_etario', 'tipoIndustria', 'tipoObjetosJson', 'conciliadoresJson'));
     }
@@ -171,77 +160,34 @@ class ReportesController extends Controller
 
         // Descarga del excel
         $spreadsheet->setActiveSheetIndex(0);
-        return $this->descargaExcel($writer);
+
+        $nombre_reporte = 'ReporteSINACOL_'.date("Y-m-d_His").".xlsx";
+
+        return $this->descargaExcel($writer, $nombre_reporte);
     }
 
 
     /**
      * Regresa el archivo excel como una StreamedResponse que se descarga al navegador del usuario
      * @param $writer
+     * @param $nombre_reporte
      * @return StreamedResponse
      */
-    public function descargaExcel($writer)
+    public function descargaExcel($writer, $nombre_reporte)
     {
         $response =  new StreamedResponse(
             function () use ($writer) {
                 $writer->save('php://output');
             }
         );
-        $nombre_reporte = 'ReporteSINACOL_'.date("Y-m-d_His").".xlsx";
+
         $response->headers->set('Content-Type', 'application/vnd.ms-excel');
         $response->headers->set('Content-Disposition', 'attachment;filename="'.$nombre_reporte.'"');
         $response->headers->set('Cache-Control','max-age=0');
         return $response;
     }
 
-    /**
-     * Devuelve los grupos etarios para mostrar en los controles de consulta al usuario
-     * @return array
-     */
-    protected function gruposEtarios(): array
-    {
-        $grupo_etario = [];
-        $grupo_etario["18-19"] = "De 18 a 19 años";
-        $grupo_etario["20-24"] = "De 20 a 24 años";;
-        $grupo_etario["25-29"] = "De 25 a 29 años";;
-        $grupo_etario["30-34"] = "De 30 a 34 años";;
-        $grupo_etario["35-39"] = "De 35 a 39 años";;
-        $grupo_etario["40-44"] = "De 40 a 44 años";;
-        $grupo_etario["45-49"] = "De 45 a 49 años";;
-        $grupo_etario["50-54"] = "De 50 a 54 años";;
-        $grupo_etario["55-59"] = "De 55 a 59 años";;
-        $grupo_etario["60-64"] = "De 60 a 64 años";;
-        $grupo_etario["65-69"] = "De 65 a 69 años";;
-        $grupo_etario["70-74"] = "De 70 a 74 años";;
-        $grupo_etario["75-79"] = "De 75 a 79 años";;
-        $grupo_etario["80-84"] = "De 80 a 84 años";;
-        $grupo_etario["85-89"] = "De 85 a 89 años";;
-        return $grupo_etario;
-    }
 
-    /**
-     * Devuelve los objetos que se van a mostrar al usuario en los controles de consulta
-     * @param array $tipo_objeto_solicitud
-     * @return Collection
-     */
-    protected function getObjetosFiltrables(array $tipo_objeto_solicitud)
-    {
-        $objetos = ObjetoSolicitud::whereIn(
-            'tipo_objeto_solicitudes_id',
-            [self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]
-        )
-            ->orderBy('tipo_objeto_solicitudes_id')->orderBy('nombre')
-            ->get()
-            ->map(function ($v, $k){
-                return [
-                    'id' => $v->id,
-                    'nombre' => $v->nombre,
-                    'tipo_objeto' => $v->tipoObjetoSolicitud->nombre
-                ];
-            })->groupBy('tipo_objeto');
-
-        return $objetos;
-    }
 
     /**
      * Listado de conciliadores activos agrupados por centro
@@ -273,6 +219,31 @@ class ReportesController extends Controller
                     ];
                 }
             )->groupBy('centro');
+
+    }
+
+    /**
+     * Excel proporcionado por personal del CFCRL (Mtra. Gianni)
+     * @param ExcelReporteOperativoService $excelReporteOperativoService
+     * @return StreamedResponse
+     */
+    public function reporteOperativo(ExcelReporteOperativoService $excelReporteOperativoService)
+    {
+        // Cambiamos a la base de respaldo para las consultas y no pegar en el performance en producción.
+        DB::setDefaultConnection('pgsqlqa');
+
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load(base_path('database/datafiles/plantilla_reporte_operativo.xlsx'));
+
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setTitle('Reporte operativo');
+
+        $nombre_reporte = 'ReporteOperativoSINACOL_'.date("Y-m-d_His").".xlsx";
+
+        $excelReporteOperativoService->reporte($sheet, $this->request);
+
+        $writer = new Xlsx($spreadsheet);
+        return $this->descargaExcel($writer, $nombre_reporte );
 
     }
 
