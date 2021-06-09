@@ -92,19 +92,49 @@ class ReportesService
     const RESOLUCIONES_HUBO_CONVENIO = 1;
 
     /**
+     * ID de no hubo convenio pero se desea nueva audiencia en tabla resoluciones
+     */
+    const RESOLUCIONES_NO_CONVENIO_DESEA_AUDIENCIA = 2;
+
+    /**
      * ID de no hubo convenio en tabla resoluciones
      */
     const RESOLUCIONES_NO_HUBO_CONVENIO = 3;
+
+    /**
+     * ID de archivado en resoluciones
+     */
+    const RESOLUCIONES_ARCHIVADO = 4;
 
     /**
      * ID del genero femenino
      */
     const GENERO_FEMENINO_ID = 2;
     /**
-     * ID
+     * ID del género masculino
      */
     const GENERO_MASCULINO_ID = 1;
 
+    /**
+     * ID de la gratificación en especie de la tabla de concepto_pagos
+     */
+    const CONCEPTO_PAGO_GRATIFICACION_EN_ESPECIE = 9;
+    /**
+     * ID del reconocimiento de derechos en la tabla de concepto_pagos
+     */
+    const CONCEPTO_PAGO_RECONOCIMIENTO_DERECHOS = 11;
+    /**
+     * ID de otro concepto de pago en la tabla de concepto_pagos
+     */
+    const CONCEPTO_PAGO_OTRO = 12;
+    /**
+     * ID de terminación de audiencia por no comparecencia del citado en la tabla tipo_terminacion_audiencias
+     */
+    const TERMINACION_AUDIENCIA_NO_COMPARECENCIA_CITADO = 3;
+    /**
+     * ID de terminación de audiencia por no comparecencia del solicitante en la tabla tipo_terminacion_audiencias
+     */
+    const TERMINACION_AUDIENCIA_NO_COMPARECENCIA_SOLICITANTE = 2;
 
     /**
      * Sobre las solicitudes presentadas
@@ -574,7 +604,7 @@ class ReportesService
      * @param $q
      * @return string|string[]|null
      */
-    public function debugSql($q)
+    public static function debugSql($q)
     {
         $sql = $q->toSql();
         $bindings = $q->getBindings();
@@ -648,7 +678,7 @@ class ReportesService
 
         $q->where('audiencias.resolucion_id', self::RESOLUCIONES_HUBO_CONVENIO);
 
-        Log::info($this->debugSql($q));
+        Log::info(self::debugSql($q));
         if ($request->get('tipo_reporte') == 'agregado') {
             $res = $q->get();
         }
@@ -728,7 +758,7 @@ class ReportesService
 
         //$q->where('audiencias.resolucion_id', self::RESOLUCIONES_HUBO_CONVENIO);
 
-        Log::info($this->debugSql($q));
+        Log::info(self::debugSql($q));
         if ($request->get('tipo_reporte') == 'agregado') {
             $res = $q->get();
         }
@@ -806,7 +836,7 @@ class ReportesService
 
         $q->where('audiencias.resolucion_id', self::RESOLUCIONES_NO_HUBO_CONVENIO);
 
-        Log::info($this->debugSql($q));
+        Log::info(self::debugSql($q));
         if ($request->get('tipo_reporte') == 'agregado') {
             $res = $q->get();
         }

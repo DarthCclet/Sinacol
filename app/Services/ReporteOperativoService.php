@@ -120,492 +120,12 @@ class ReporteOperativoService
         return $q;
     }
 
-
-
     /**
-     * Sobre las solicitudes confirmadas
+     * Convenios
      * @param $request
      * @return mixed
      */
-    public function solicitudesConfirmadas($request)
-    {
-        $q = (new SolicitudFilter(Solicitud::query(), $request))
-            ->searchWith(Solicitud::class)
-            ->filter(false);
-
-        //Las solicitudes confirmadas se evaluan por fecha de ratificacion
-        if($request->get('fecha_inicial')){
-            $q->whereRaw('fecha_ratificacion::date >= ?', $request->get('fecha_inicial'));
-        }
-        if($request->get('fecha_final')){
-            $q->whereRaw('fecha_ratificacion::date <= ?', $request->get('fecha_final'));
-        }
-        $q->whereNotNull('fecha_ratificacion');
-
-        //Hacemos el join con centros para reprotar agrupado por centro
-        $q->join('centros','solicitudes.centro_id','=','centros.id');
-
-        # Si viene solicitud de desagregación mandamos todos los registros
-        # de lo contrario mandamos registros agrupados por centro
-        if($request->get('tipo_reporte')=='agregado') {
-            # Seleccionamos la abreviatura del nombre y su cuenta
-            $q->select('centros.abreviatura', 'inmediata');
-        }else{
-            $q->with(['objeto_solicitudes']);
-            $q->select('solicitudes.id as sid','solicitudes.*','centros.abreviatura');
-
-            # Ordenamos por el centro y por la fecha de recepción para mostrar en el listado desagregado
-            $q->orderBy('centros.abreviatura')->orderBy('solicitudes.fecha_recepcion');
-        }
-
-        $q->leftJoin('expedientes','expedientes.solicitud_id', '=','solicitudes.id');
-        $q->leftJoin('audiencias','audiencias.expediente_id', '=','expedientes.id');
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
-
-        if ($request->get('conciliadores')) {
-            if ($request->get('tipo_reporte') == 'desagregado') {
-                //Se agregan las consultas para conciliador
-                $q->addSelect(
-                    'audiencias.conciliador_id',
-                    'personas.nombre as conciliador_nombre',
-                    'personas.primer_apellido as conciliador_primer_apellido',
-                    'personas.segundo_apellido as conciliador_segundo_apellido'
-                );
-            }
-
-            if (!empty($request->get('conciliadores'))) {
-                $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
-            }
-        }
-
-        $this->filtroTipoSolicitud($request, $q);
-
-        # Por tipo de industria
-        $this->filtroPorIndustrias($request, $q);
-
-        //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'partes');
-
-        //Dejamos fuera los no consultables
-        $this->noReportables($q);
-
-        if ($request->get('tipo_reporte') == 'agregado') {
-            $res = $q->get()->sortBy('abreviatura');
-            $inmediata = $res->where('inmediata', true)->groupBy('abreviatura');
-            $normal = $res->where('inmediata', false)->groupBy('abreviatura');
-            return [$inmediata, $normal];
-        } else {
-            return $res = $q->get()->sortBy('abreviatura');
-        }
-    }
-
-    /**
-     * Con respecto a los citatorios emitidos
-     * @param $request
-     * @return Builder[]|Collection Devueve arreglos
-     */
-    public function citatoriosEmitidos($request)
-    {
-        $q = (new AudienciaParteFilter(AudienciaParte::query(), $request))
-            ->searchWith(Solicitud::class)
-            ->filter(false);
-
-        $q->with(['audiencia.expediente', 'audiencia.expediente.solicitud']);
-
-        //Las solicitudes presentadas se evaluan por fecha de recepcion
-        if($request->get('fecha_inicial')){
-            $q->whereRaw('audiencias_partes.created_at::date >= ?', $request->get('fecha_inicial'));
-        }
-        if($request->get('fecha_final')){
-            $q->whereRaw('audiencias_partes.created_at::date <= ?', $request->get('fecha_final'));
-        }
-
-        //Hacemos el join con centros para reprotar agrupado por centro
-        $q->join('audiencias','audiencias.id','=','audiencias_partes.audiencia_id');
-        $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
-        $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
-        $q->join('centros','solicitudes.centro_id','=','centros.id');
-        $q->join('partes','partes.id', '=','audiencias_partes.parte_id');
-
-        //Seleccionamos la abreviatura del nombre y su cuenta
-        $q->select('centros.abreviatura', 'tipo_notificacion_id', 'audiencias.numero_audiencia',
-                   'audiencias_partes.id as audiencia_parte_id',
-                   'audiencias.id as audiencia_id', 'audiencias.folio', 'audiencias.anio','audiencias.expediente_id',
-                   'expedientes.folio as expediente_folio','expedientes.anio as expediente_anio','solicitudes.id as solicitud_id', 'parte_id' );
-        $q->selectRaw('audiencias_partes.created_at::date as fecha_citatorio');
-
-        //Se agregan las consultas para conciliador
-        $q->addSelect('audiencias.conciliador_id','personas.nombre as conciliador_nombre', 'personas.primer_apellido as conciliador_primer_apellido',
-                      'personas.segundo_apellido as conciliador_segundo_apellido');
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
-
-
-        //Se aplican filtros por características del solicitante
-        //$this->filtroPorCaracteristicasSolicitanteAudienciaParte($request, $q);
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'audiencia.expediente.solicitud.partes');
-        //Dejamos fuera los no consultables
-        $this->noReportables($q);
-
-        # Sólo las de trabajador y patron individual por default.
-        $this->filtroTipoSolicitud($request, $q);
-
-        # Por tipo de industria
-        $this->filtroPorIndustrias($request, $q, 'audiencia.expediente.solicitud.');
-
-        $q->whereNull('audiencias.deleted_at');
-        $q->whereNull('expedientes.deleted_at');
-        $q->whereNull('solicitudes.deleted_at');
-        $q->whereNotNull('audiencias_partes.tipo_notificacion_id');
-
-        # Dado que para las solicitudes inmediatas no hay citatorio...
-        $q->where('solicitudes.inmediata', false);
-
-        # Dado que los citatorios sólo se otorgan para citados...
-        $q->where('partes.tipo_parte_id', self::CITADO);
-
-        # Regla que programó Diana.
-        $q->whereRaw('(audiencias_partes.created_at::date > solicitudes.fecha_ratificacion::date and audiencias_partes.tipo_notificacion_id = 1) = false');
-
-        if ($request->get('tipo_reporte') == 'agregado') {
-
-            $res = $q->get()->sortBy('abreviatura');
-
-            //Entrega Solicitante
-            $entrega_solicitante = $res->where('tipo_notificacion_id', self::CITATORIO_POR_SOLICITANTE)
-                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
-
-            //Entrega notificador
-            $entrega_notificador = $res->where('tipo_notificacion_id', self::CITATORIO_POR_NOTIFICADOR)->groupBy('abreviatura')
-                ->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
-
-            //Entrega notificador con cita
-            $entrega_notificador_cita = $res->where('tipo_notificacion_id', self::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO)
-                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
-
-            //En primera audiencia citatorio por solicitante
-            $entrega_solicitante_prim_aud = $res->where('tipo_notificacion_id', self::CITATORIO_POR_SOLICITANTE)
-                ->where('numero_audiencia', 1)
-                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
-
-            //Entrega notificador en primera audiencia
-            $entrega_notificador_prim_aud = $res->where('tipo_notificacion_id', self::CITATORIO_POR_NOTIFICADOR)
-                ->where('numero_audiencia', 1)
-                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
-
-            //Entrega notificador con cita en primera audiencia
-            $entrega_notificador_cita_prim_aud = $res->where('tipo_notificacion_id', self::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO)
-                ->where('numero_audiencia', 1)
-                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
-
-            //En primera audiencia
-            $citatorio_en_primera_audiencia = $res->where('numero_audiencia', 1)->unique('audiencia_id')
-                ->groupBy('abreviatura')->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
-
-            //En segunda audiencia
-            $citatorio_en_segunda_audiencia = $res->where('numero_audiencia', 2)->unique('audiencia_id')->groupBy('abreviatura')
-                ->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
-
-            //En tercera audiencia
-            $citatorio_en_tercera_audiencia = $res->where('numero_audiencia', 3)->unique('audiencia_id')->groupBy('abreviatura')
-                ->map(function ($en_centro, $centro) {return count($en_centro);})->toArray();
-
-            $res =  compact(
-                'entrega_solicitante',
-                'entrega_notificador',
-                'entrega_notificador_cita',
-                'citatorio_en_primera_audiencia',
-                'citatorio_en_segunda_audiencia',
-                'citatorio_en_tercera_audiencia',
-                'entrega_solicitante_prim_aud',
-                'entrega_notificador_prim_aud',
-                'entrega_notificador_cita_prim_aud'
-            );
-            return $res;
-        }
-
-        $q->orderBy('centros.abreviatura')->orderBy('audiencias_partes.created_at');
-        return $q->get();
-    }
-
-
-    public function incompetencias($request)
-    {
-        //if ($request->get('tipo_reporte') == 'agregado') {
-            $en_ratificacion = $this->incompetenciasEnEtapa($request, 'ratificacion');
-            $en_audiencia = $this->incompetenciasEnEtapa($request, 'audiencia');
-            return compact('en_ratificacion','en_audiencia');
-        //}
-    }
-
-    /**
-     * Con respecto a las incompetencias
-     * @param $request
-     * @param string $etapa
-     * @return array
-     */
-    public function incompetenciasEnEtapa($request, $etapa = 'ratificacion')
-    {
-        $q = (new SolicitudFilter(Solicitud::query(), $request))
-            ->searchWith(Solicitud::class)
-            ->filter(false);
-
-        //Las solicitudes confirmadas se evaluan por fecha de ratificacion
-        if ($request->get('fecha_inicial')) {
-            $q->whereRaw('fecha_recepcion::date >= ?', $request->get('fecha_inicial'));
-        }
-        if ($request->get('fecha_final')) {
-            $q->whereRaw('fecha_recepcion::date <= ?', $request->get('fecha_final'));
-        }
-
-        //Seleccionamos la abreviatura del nombre y su cuenta
-        if ($request->get('tipo_reporte') == 'agregado') {
-            $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
-        }
-        else {
-            $q->select('centros.abreviatura',
-                       'expedientes.folio as expediente', 'audiencias.id as audiencia_id', 'solicitudes.id as solicitud_id',
-                        'solicitudes.fecha_ratificacion', 'solicitudes.ratificada'
-            );
-        }
-        //Hacemos el join con centros para reprotar agrupado por centro
-        $q->join('centros', 'solicitudes.centro_id', '=', 'centros.id');
-        $q->leftJoin('expedientes', 'solicitudes.id', '=', 'expedientes.solicitud_id');
-        $q->leftJoin('audiencias', 'expedientes.id', '=', 'audiencias.expediente_id');
-
-        //Se agregan las consultas para conciliador
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
-
-        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
-        if ($request->get('conciliadores')) {
-            if ($request->get('tipo_reporte') == 'desagregado') {
-                //Se agregan las consultas para conciliador
-                $q->addSelect(
-                    'audiencias.conciliador_id',
-                    'personas.nombre as conciliador_nombre',
-                    'personas.primer_apellido as conciliador_primer_apellido',
-                    'personas.segundo_apellido as conciliador_segundo_apellido'
-                );
-            }
-
-            if (!empty($request->get('conciliadores'))) {
-                $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
-            }
-        }
-
-        $q->whereNull('audiencias.deleted_at');
-        $q->whereNull('expedientes.deleted_at');
-        $q->whereNull('solicitudes.deleted_at');
-
-        if ($etapa == 'ratificacion') {
-            //$q->whereNull('fecha_ratificacion');
-            $q->has('documentosComentadosComoIncompetencia');
-            $q->where('tipo_incidencia_solicitud_id', self::INCOMPETENCIA_EN_RATIFICACION);
-        }
-        else{
-            //$q->whereNotNull('fecha_ratificacion');
-            $q->whereHas('expediente.audiencia.documentos', function ($qq){
-               return $qq->where('clasificacion_archivo_id', self::INCOMPETENCIA_EN_AUDIENCIA);
-            });
-        }
-
-        $this->filtroTipoSolicitud($request, $q);
-
-        # Por tipo de industria
-        $this->filtroPorIndustrias($request, $q);
-
-        //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'partes');
-
-        //Dejamos fuera los no consultables
-        $this->noReportables($q);
-
-        if ($request->get('tipo_reporte') == 'agregado') {
-            $res = $q->get()->sortBy('abreviatura')->pluck('count','abreviatura');
-        }
-        else {
-            $res = $q->get()->sortBy('abreviatura')->toArray();
-        }
-        //dump($this->debugSql($q));
-        //Log::info($this->debugSql($q));
-        return $res;
-
-    }
-
-    public function archivadoPorFaltaDeInteres($request)
-    {
-        $q = (new AudienciaFilter(Audiencia::query(), $request))
-            ->searchWith(Audiencia::class)
-            ->filter(false);
-
-        //Las solicitudes confirmadas se evaluan por fecha de ratificacion
-        if($request->get('fecha_inicial')){
-            $q->whereRaw('fecha_audiencia::date >= ?', $request->get('fecha_inicial'));
-        }
-        if($request->get('fecha_final')){
-            $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
-        }
-
-        //Seleccionamos la abreviatura del nombre y su cuenta
-        if ($request->get('tipo_reporte') == 'agregado') {
-            $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
-        }
-        else{
-            $q->select('centros.abreviatura',
-                       'audiencias.finalizada',
-                       'audiencias.fecha_audiencia',
-                       'expedientes.folio as expediente',
-                       'audiencias.id as audiencia_id',
-                       'audiencias.numero_audiencia',
-                       'solicitudes.id as solicitud_id',
-                       'solicitudes.fecha_ratificacion', 'solicitudes.ratificada'
-            );
-        }
-        //Hacemos el join con centros para reprotar agrupado por centro
-        $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
-        $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
-        $q->join('centros','solicitudes.centro_id','=','centros.id');
-
-        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
-        if($request->get('conciliadores')){
-            if ($request->get('tipo_reporte') != 'agregado') {
-                //Se agregan las consultas para conciliador
-                $q->addSelect(
-                    'audiencias.conciliador_id',
-                    'personas.nombre as conciliador_nombre',
-                    'personas.primer_apellido as conciliador_primer_apellido',
-                    'personas.segundo_apellido as conciliador_segundo_apellido'
-                );
-            }
-            $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-            $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
-            $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
-        }
-
-
-        $q->where('resolucion_id', self::ARCHIVADO);
-
-        $q->whereNull('expedientes.deleted_at');
-
-        $this->filtroTipoSolicitud($request, $q);
-
-        # Por tipo de industria
-        $this->filtroPorIndustrias($request, $q, 'expediente.solicitud.');
-
-        //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'expediente.solicitud.partes');
-
-        //Dejamos fuera los no consultables
-        $this->noReportables($q);
-
-        //Log::info($this->debugSql($q));
-        if ($request->get('tipo_reporte') == 'agregado') {
-            $res = $q->get()->sortBy('abreviatura')->pluck('count', 'abreviatura');
-        }
-        else{
-            $res = $q->get()->sortBy('abreviatura');
-        }
-        return $res;
-    }
-
-    /**
-     * Query con parametros sustituidos
-     * @param $q
-     * @return string|string[]|null
-     */
-    public function debugSql($q)
-    {
-        $sql = $q->toSql();
-        $bindings = $q->getBindings();
-
-        return preg_replace_callback('/\?/', function ($match) use ($sql, &$bindings) {
-            return "'" . array_shift($bindings) . "'";
-        }, $sql);
-    }
-
-    /**
-     * Acerca de los convenios de conciliacion
-     * @param $request
-     * @return void
-     */
-    public function conveniosConciliacion($request)
-    {
-        $q = (new SolicitudFilter(Solicitud::query(), $request))
-            ->searchWith(Solicitud::class)
-            ->filter(false);
-
-        //Las solicitudes confirmadas se evaluan por fecha de ratificacion
-        if($request->get('fecha_inicial')){
-            $q->whereRaw('fecha_audiencia::date >= ?', $request->get('fecha_inicial'));
-        }
-        if($request->get('fecha_final')){
-            $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
-        }
-
-        $q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
-                   'audiencias.id as audiencia_id',
-                   'fecha_audiencia','numero_audiencia',
-                   'monto'
-                   // ,'tipo_propuesta_pago_id'
-        );
-
-        $q->join('expedientes','expedientes.solicitud_id','=','solicitudes.id');
-        $q->join('audiencias','expedientes.id','=','audiencias.expediente_id');
-        $q->join('centros','solicitudes.centro_id','=','centros.id');
-        $q->leftJoin('audiencias_partes','audiencias_partes.audiencia_id','=','audiencias.id');
-        $q->leftJoin('resolucion_parte_conceptos','resolucion_parte_conceptos.audiencia_parte_id','=','audiencias_partes.id');
-        //$q->leftJoin('resolucion_partes','resolucion_partes.audiencia_id','=','audiencias.id');
-
-        //Se agregan las consultas para conciliador
-        $q->addSelect('audiencias.conciliador_id','personas.nombre as conciliador_nombre', 'personas.primer_apellido as conciliador_primer_apellido',
-                      'personas.segundo_apellido as conciliador_segundo_apellido');
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
-
-        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
-        if($request->get('conciliadores')){
-            if(!empty($request->get('conciliadores'))){
-                $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
-            }
-        }
-
-        //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
-
-        //Se filtran las no reportables
-        $this->noReportables($q);
-        $q->whereNull('expedientes.deleted_at');
-        $q->whereNull('resolucion_parte_conceptos.deleted_at');
-
-        # Sólo las de trabajador y patron individual por default.
-        $this->filtroTipoSolicitud($request, $q);
-
-        # Por tipo de industria
-        $this->filtroPorIndustrias($request, $q);
-
-        $q->where('solicitudes.inmediata', false);
-
-        $q->where('audiencias.resolucion_id', self::RESOLUCIONES_HUBO_CONVENIO);
-
-        Log::info($this->debugSql($q));
-        if ($request->get('tipo_reporte') == 'agregado') {
-            $res = $q->get();
-        }
-        else{
-            $res = $q->get()->sortBy('abreviatura');
-        }
-
-        return $res;
-    }
-
-    /**
-     * Convenios con ratificación
-     * @param $request
-     * @return mixed
-     */
-    public function conveniosRatificacion($request)
+    public function convenios($request)
     {
         $q = (new SolicitudFilter(Solicitud::query(), $request))
             ->searchWith(Solicitud::class)
@@ -638,48 +158,28 @@ class ReporteOperativoService
         $q->leftJoin('audiencias_partes','audiencias_partes.audiencia_id','=','audiencias.id');
         $q->leftJoin('resolucion_parte_conceptos','resolucion_parte_conceptos.audiencia_parte_id','=','audiencias_partes.id');
 
-        //Se agregan las consultas para conciliador
-        $q->addSelect('audiencias.conciliador_id','personas.nombre as conciliador_nombre', 'personas.primer_apellido as conciliador_primer_apellido',
-                      'personas.segundo_apellido as conciliador_segundo_apellido');
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
-
-        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
-        if($request->get('conciliadores')){
-            if(!empty($request->get('conciliadores'))){
-                $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
-            }
-        }
-
-        //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
-
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
         $q->whereNull('resolucion_parte_conceptos.deleted_at');
 
-        # Sólo las de trabajador y patron individual por default.
-        $this->filtroTipoSolicitud($request, $q);
 
-        # Por tipo de industria
-        $this->filtroPorIndustrias($request, $q);
 
-        $q->where('solicitudes.inmediata', true);
-
-        //$q->where('audiencias.resolucion_id', self::RESOLUCIONES_HUBO_CONVENIO);
-
-        Log::info($this->debugSql($q));
-        if ($request->get('tipo_reporte') == 'agregado') {
-            $res = $q->get();
-        }
-        else{
-            $res = $q->get()->sortBy('abreviatura');
-        }
-
-        return $res;
+        return $q;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
     /**
      * No conciliación
      * @param $request
@@ -758,6 +258,10 @@ class ReporteOperativoService
         return $res;
     }
 
+
+
+
+
     /**
      * Audiencias
      * @param $request
@@ -769,7 +273,7 @@ class ReporteOperativoService
             ->searchWith(Audiencia::class)
             ->filter(false);
 
-        //Las solicitudes confirmadas se evaluan por fecha de ratificacion
+        //Las audiencias se evalúan por fecha de audiencia
         if($request->get('fecha_inicial')){
             $q->whereRaw('fecha_audiencia::date >= ?', $request->get('fecha_inicial'));
         }
@@ -785,29 +289,42 @@ class ReporteOperativoService
         $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
 
-        //Se agregan las consultas para conciliador
-        $q->addSelect('audiencias.conciliador_id','personas.nombre as conciliador_nombre', 'personas.primer_apellido as conciliador_primer_apellido',
-                      'personas.segundo_apellido as conciliador_segundo_apellido');
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
-
-
-        //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'expediente.solicitud.partes');
 
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
 
-        # Sólo las de trabajador y patron individual por default.
-        $this->filtroTipoSolicitud($request, $q);
+        return $q;
+    }
 
-        # Por tipo de industria
-        $this->filtroPorIndustrias($request, $q, 'expediente.solicitud.');
+    public function citatorios($request)
+    {
+        $q = (new AudienciaParteFilter(AudienciaParte::query(), $request))
+            ->searchWith(Solicitud::class)
+            ->filter(false);
 
-        $res = $q->get()->sortBy('abreviatura');
+        //Las audiencias se evalúan por fecha de audiencia
+        if($request->get('fecha_inicial')){
+            $q->whereRaw('fecha_audiencia::date >= ?', $request->get('fecha_inicial'));
+        }
+        if($request->get('fecha_final')){
+            $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
+        }
 
-        return $res;
+        $q->select('audiencias.id as audiencia_id', 'audiencias.fecha_audiencia',
+                   'audiencias_partes.parte_id', 'audiencias_partes.tipo_notificacion_id',
+                   'audiencias.finalizada as audiencia_finalizada', 'audiencias.numero_audiencia');
+
+        $q->join('audiencias','audiencias.id','=','audiencias_partes.audiencia_id');
+        $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
+        $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
+
+        //Se filtran las no reportables
+        $this->noReportables($q);
+        $q->whereNull('audiencias.deleted_at');
+        $q->whereNull('audiencias_partes.deleted_at');
+
+        return $q;
     }
 
     /**
@@ -815,7 +332,7 @@ class ReporteOperativoService
      * @param $request
      * @return mixed
      */
-    public function pagosDiferidos($request)
+    public function pagos($request)
     {
         $q = (new ResolucionPagoDiferidoFilter(ResolucionPagoDiferido::query(), $request))
             ->searchWith(ResolucionPagoDiferido::class)
@@ -839,13 +356,6 @@ class ReporteOperativoService
         $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
 
-        //Se agregan las consultas para conciliador
-        $q->addSelect('audiencias.conciliador_id','personas.nombre as conciliador_nombre', 'personas.primer_apellido as conciliador_primer_apellido',
-                      'personas.segundo_apellido as conciliador_segundo_apellido');
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
-
-
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
@@ -853,16 +363,7 @@ class ReporteOperativoService
         # Sólo las de trabajador y patron individual por default.
         $this->filtroTipoSolicitud($request, $q);
 
-        # Por tipo de industria
-        $this->filtroPorIndustrias($request, $q, 'audiencia.expediente.solicitud.');
-
-        //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'audiencia.expediente.solicitud.partes');
-
-
-        $res = $q->get()->sortBy('abreviatura');
-
-        return $res;
+        return $q;
     }
 
 

@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Traits\EstilosSpreadsheets;
 use Illuminate\Support\Facades\Log;
+use Lavary\Menu\ServiceProvider;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ExcelReporteOperativoService
@@ -239,7 +240,288 @@ class ExcelReporteOperativoService
         $sheet->duplicateStyle($sheet->getStyle('A21'),'A'.($rowinidat+1).':A'.($rowind));
         $sheet->duplicateStyle($sheet->getStyle('B21'),'B'.($rowinidat+1).':E'.($rowind));
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+        # Sobre las solicitudes inmediatas (le llaman convenio con ratificación en el reporte)
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        # F2 Incompetencias
+        $incompetencias = (clone $this->service->solicitudes($request))->has('documentosComentadosComoIncompetencia')
+            ->where('tipo_incidencia_solicitud_id', ReportesService::INCOMPETENCIA_EN_RATIFICACION);
+        $sheet->setCellValue('G2', $incompetencias->count());
+
+        # F3 Incompetencia detectada en audiencia
+        $incompetenciasEnAudiencia = (clone $this->service->solicitudes($request))->whereHas('expediente.audiencia.documentos', function ($qq){
+            return $qq->where('clasificacion_archivo_id', ReportesService::INCOMPETENCIA_EN_AUDIENCIA);
+        });
+        $sheet->setCellValue('G3', $incompetenciasEnAudiencia->count());
+
+        # F4 Competencias
+        // Para saber las competentes entonces seleccionamos todas las solicitudes y eliminamos los ids de incompetencias detectadas en ratificación y en audiencia
+        $solicitudesIncompetenciasIds = $incompetencias->get()->merge($incompetenciasEnAudiencia->get())->pluck('id')->toArray();
+        $competencias = (clone $this->service->solicitudes($request))->whereNotIn('id', $solicitudesIncompetenciasIds)->count();
+        $sheet->setCellValue('G4', $competencias);
+
+        # F7 Número de solicitudes inmediatas (ratificaciones le llaman en el reporte)
+        $inmediatas = (clone $this->service->solicitudes($request))->where('inmediata', true)->count();
+        $sheet->setCellValue('G7', $inmediatas);
+
+        # G8 Monto de convenio con ratificaciones
+        $monto_hubo_convenio = (clone $this->service->convenios($request))->where('inmediata', true)
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->get()
+            ->sum('monto');
+        $sheet->setCellValue('G8', $monto_hubo_convenio);
+
+        # G9 número de beneficios o prestaciones no económicas derivadas de ratificación
+        $convenio_no_economico = (clone $this->service->convenios($request))->where('inmediata', true)
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->whereIn('concepto_pago_resoluciones_id',[
+                                                        ReportesService::CONCEPTO_PAGO_GRATIFICACION_EN_ESPECIE,
+                                                        ReportesService::CONCEPTO_PAGO_RECONOCIMIENTO_DERECHOS,
+                                                        ReportesService::CONCEPTO_PAGO_OTRO])
+            ->where(function ($query) {
+                $query->where('monto', 0)
+                    ->orWhereNull('monto');
+            })
+            ->get()
+            ->count();
+        $sheet->setCellValue('G9', $convenio_no_economico);
+
+        //////////////////////////////////////////////////////////////////
+        # 3 Sobre los Citatorios
+        ///////////////////////////////////////////////////////////
+
+        # I2 Primeras audiencias para las que se emitió citatorio
+        $primeras_aud_citatorio = (clone $this->service->audiencias($request))->whereHas('audienciaParte', function ($q){
+            $q->whereIn('tipo_notificacion_id', [
+                ReportesService::CITATORIO_POR_SOLICITANTE,
+                ReportesService::CITATORIO_POR_NOTIFICADOR,
+                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO]);
+        })->count();
+        $sheet->setCellValue('J2', $primeras_aud_citatorio);
+
+        # I3 Número de citatorios emitidos para primera audiencia
+        $citatorios_para_prim_aud = (clone $this->service->citatorios($request))
+            ->where('audiencias.numero_audiencia', 1)->whereIn('tipo_notificacion_id', [
+                ReportesService::CITATORIO_POR_SOLICITANTE,
+                ReportesService::CITATORIO_POR_NOTIFICADOR,
+                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])->count();
+        $sheet->setCellValue('J3', $citatorios_para_prim_aud);
+
+        # I6 Del total de citatorios emitidos
+        $total_citatorios_emitidos = (clone $this->service->citatorios($request))
+            ->whereIn('tipo_notificacion_id', [
+                ReportesService::CITATORIO_POR_SOLICITANTE,
+                ReportesService::CITATORIO_POR_NOTIFICADOR,
+                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])->count();
+        $sheet->setCellValue('J6', $total_citatorios_emitidos);
+
+        # I7 Número de citatorios notificados por el solicitante
+        $citatorios_x_solicitante = (clone $this->service->citatorios($request))
+            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_SOLICITANTE])->count();
+        $sheet->setCellValue('J7', $citatorios_x_solicitante);
+
+        # I8 Número de citatorios notificados por personal del CFCRL
+        $citatorios_x_notificador = (clone $this->service->citatorios($request))
+            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_NOTIFICADOR])->count();
+        $sheet->setCellValue('J8', $citatorios_x_notificador);
+
+        # I9 Número de citatorios notificados por personal del CFCRL en compañía del solicitante
+        $citatorios_x_notificador_acompaniado = (clone $this->service->citatorios($request))
+            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])->count();
+        $sheet->setCellValue('J9', $citatorios_x_notificador_acompaniado);
+
+        //////////////////////////////////////////////////////////////////
+        # 3 Sobre las audiencias
+        ///////////////////////////////////////////////////////////
+
+        # K2 Total de Audiencias de Conciliación
+        $total_audiencias = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->count();
+        $sheet->setCellValue('L2', $total_audiencias);
+
+        # K3 Conciliacion en 1a audiencia
+        $concilia_en_1a = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->where('numero_audiencia', 1)
+            ->count();
+        $sheet->setCellValue('L3', $concilia_en_1a);
+
+        # K4 Conciliacion en 2a audiencia
+        $concilia_en_2a = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->where('numero_audiencia', 2)
+            ->count();
+        $sheet->setCellValue('L4', $concilia_en_2a);
+
+        # K5 Conciliacion en 3a audiencia
+        $concilia_en_3a = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->where('numero_audiencia', 3)
+            ->count();
+        $sheet->setCellValue('L4', $concilia_en_3a);
+
+        # K5 Conciliacion en 4a audiencia o mas
+        $concilia_en_4a = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->where('numero_audiencia', '>=', 4)
+            ->count();
+        $sheet->setCellValue('L5', $concilia_en_4a);
+
+        # M3 Archivo por falta de interés
+        $archivo_falta_interes = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_ARCHIVADO)
+            ->count();
+        $sheet->setCellValue('N3', $archivo_falta_interes);
+
+        # M4 solicita nueva audiencia
+        $sol_nueva_fecha = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_CONVENIO_DESEA_AUDIENCIA)
+            ->count();
+        $sheet->setCellValue('N4', $sol_nueva_fecha);
+
+        # M5 No conciliacion
+        $no_conciliaciones = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)
+            ->count();
+        $sheet->setCellValue('N5', $no_conciliaciones);
+
+        # M6 Convenio
+        $hubo_convenios = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->count();
+        $sheet->setCellValue('N6', $hubo_convenios);
+
+        //////////////////////////////////////////////////////////////////
+        # 4 Sobre las audiencias Ver con Diana si los querys son correctos, o de donde se saca el dato de que no se presentó el citado o el solicitante
+        ///////////////////////////////////////////////////////////
+
+        # O3 Total de archivos por falta de interés
+
+        $archivo_falta_interes = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_ARCHIVADO)
+            ->whereIn('solicitudes.tipo_solicitud_id',[
+                ReportesService::SOLICITUD_INDIVIDUAL, ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL])
+            ->count();
+        $sheet->setCellValue('P2', $archivo_falta_interes);
+
+        # O4 En cuántos no se presentó el solicitante trabajador
+
+        $archivo_falta_interes_solicitante = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_ARCHIVADO)
+            ->whereIn('solicitudes.tipo_solicitud_id',[ReportesService::SOLICITUD_INDIVIDUAL])
+            ->count();
+        $sheet->setCellValue('P3', $archivo_falta_interes_solicitante);
+
+        # O5 En cuántos no se presentó el solicitante patrón
+
+        $archivo_falta_interes_patron = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_ARCHIVADO)
+            ->whereIn('solicitudes.tipo_solicitud_id',[ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL])
+            ->count();
+        $sheet->setCellValue('P4', $archivo_falta_interes_patron);
+
+        //////////////////////////////////////////////////////////////////
+        # 5 Conclusión  Ver con Diana, si es la forma correcta de saber si no se presentó el citado o el solicitante
+        ///////////////////////////////////////////////////////////
+
+        # Q2 Total  de Constancias de No Conciliaciones
+        $total_constancias_no_conciliacion = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)
+            ->count();
+        $sheet->setCellValue('R2', $total_constancias_no_conciliacion);
+
+        # Q3 Número de contancias de no conciliación por incomparecencia del citado
+        $no_conciliacion_nocomparecencia = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)
+            ->where('tipo_terminacion_audiencia_id', ReportesService::TERMINACION_AUDIENCIA_NO_COMPARECENCIA_CITADO)
+            ->count();
+        $sheet->setCellValue('R3', $no_conciliacion_nocomparecencia);
+
+        # Q4 Número de Constancias de No Conciliación por no acuerdo
+        $sheet->setCellValue('R4', ($total_constancias_no_conciliacion - $no_conciliacion_nocomparecencia));
+
+        /////////
+
+        # S2 Total de convenios
+        $total_convenios = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->count();
+        $sheet->setCellValue('T2', $no_conciliacion_nocomparecencia);
+
+        # S3 Monto desglosado de los convenios
+        $monto_convenios = (clone $this->service->convenios($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->get()
+            ->sum('monto');
+        $sheet->setCellValue('T3', $monto_convenios);
+
+        # S4 Beneficios o prestaciones no económicas
+        $beneficios = (clone $this->service->convenios($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->whereIn('concepto_pago_resoluciones_id',[
+                ReportesService::CONCEPTO_PAGO_GRATIFICACION_EN_ESPECIE,
+                ReportesService::CONCEPTO_PAGO_RECONOCIMIENTO_DERECHOS,
+                ReportesService::CONCEPTO_PAGO_OTRO])
+            ->where(function ($query) {
+                $query->where('monto', 0)
+                    ->orWhereNull('monto');
+            })
+            ->get()
+            ->count();
+        $sheet->setCellValue('T4', $beneficios);
+
+
+        $num_pagos_dif = (clone $this->service->audiencias($request))
+            ->has('pagosDiferidos', 1)->with('pagosDiferidos')
+            ->get()->count();
+        $sheet->setCellValue('T7', $num_pagos_dif);
+
+        //ToDo: Qué onda con la columna U ?
+
+        $monto_pagos_dif = (clone $this->service->audiencias($request))
+            ->has('pagosDiferidos', 1)->with('pagosDiferidos')
+            ->get()->sum('pagosDiferidos.monto');
+        $sheet->setCellValue('V7', $monto_pagos_dif);
+
+        $num_pagos_parciales = (clone $this->service->audiencias($request))
+            ->has('pagosDiferidos','>', 1)
+            ->get()->count();
+        $sheet->setCellValue('T8', $num_pagos_parciales);
+
+        $monto_pagos_parciales = (clone $this->service->audiencias($request))
+            ->has('pagosDiferidos', '>', 1)->with('pagosDiferidos')
+            ->get()->sum('pagosDiferidos.monto');
+        $sheet->setCellValue('V8', $monto_pagos_parciales);
+
+        //dd((ReportesService::debugSql(  (clone $this->service->audiencias($request))->has('pagosDiferidos', '>', 1)->with('pagosDiferidos'))));
+
+        $num_tot_pagos_parciales = (clone $this->service->pagos($request))
+            ->get()->count();
+        $sheet->setCellValue('T11', $num_tot_pagos_parciales);
+
+
+        $num_cumplimientos = (clone $this->service->pagos($request))
+            ->where('pagado', true)
+            ->get()->count();
+        $sheet->setCellValue('T12', $num_cumplimientos);
+
+        $num_incumplimientos = (clone $this->service->pagos($request))
+            ->where('pagado', false)->whereNotNull('pagado')
+            ->get()->count();
+        $sheet->setCellValue('T13', $num_incumplimientos);
+
+        $num_vencidos = (clone $this->service->pagos($request))
+            ->whereNull('pagado')
+            ->where('fecha_pago', '<', date('Y-m-d'))
+            ->get()->count();
+        $sheet->setCellValue('T14', $num_vencidos);
+
+        $num_vigentes = (clone $this->service->pagos($request))
+            ->whereNull('pagado')
+            ->where('fecha_pago', '>=', date('Y-m-d'))
+            ->get()->count();
+        $sheet->setCellValue('T15', $num_vigentes);
+
+
     }
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }
