@@ -11,6 +11,8 @@ use App\Filters\AudienciaFilter;
 use App\Filters\AudienciaParteFilter;
 use App\Filters\ResolucionPagoDiferidoFilter;
 use App\Filters\SolicitudFilter;
+use App\Industria;
+use App\ObjetoSolicitud;
 use App\ResolucionPagoDiferido;
 use App\Solicitud;
 use Illuminate\Database\Eloquent\Builder;
@@ -90,9 +92,49 @@ class ReportesService
     const RESOLUCIONES_HUBO_CONVENIO = 1;
 
     /**
+     * ID de no hubo convenio pero se desea nueva audiencia en tabla resoluciones
+     */
+    const RESOLUCIONES_NO_CONVENIO_DESEA_AUDIENCIA = 2;
+
+    /**
      * ID de no hubo convenio en tabla resoluciones
      */
     const RESOLUCIONES_NO_HUBO_CONVENIO = 3;
+
+    /**
+     * ID de archivado en resoluciones
+     */
+    const RESOLUCIONES_ARCHIVADO = 4;
+
+    /**
+     * ID del genero femenino
+     */
+    const GENERO_FEMENINO_ID = 2;
+    /**
+     * ID del género masculino
+     */
+    const GENERO_MASCULINO_ID = 1;
+
+    /**
+     * ID de la gratificación en especie de la tabla de concepto_pagos
+     */
+    const CONCEPTO_PAGO_GRATIFICACION_EN_ESPECIE = 9;
+    /**
+     * ID del reconocimiento de derechos en la tabla de concepto_pagos
+     */
+    const CONCEPTO_PAGO_RECONOCIMIENTO_DERECHOS = 11;
+    /**
+     * ID de otro concepto de pago en la tabla de concepto_pagos
+     */
+    const CONCEPTO_PAGO_OTRO = 12;
+    /**
+     * ID de terminación de audiencia por no comparecencia del citado en la tabla tipo_terminacion_audiencias
+     */
+    const TERMINACION_AUDIENCIA_NO_COMPARECENCIA_CITADO = 3;
+    /**
+     * ID de terminación de audiencia por no comparecencia del solicitante en la tabla tipo_terminacion_audiencias
+     */
+    const TERMINACION_AUDIENCIA_NO_COMPARECENCIA_SOLICITANTE = 2;
 
     /**
      * Sobre las solicitudes presentadas
@@ -562,7 +604,7 @@ class ReportesService
      * @param $q
      * @return string|string[]|null
      */
-    public function debugSql($q)
+    public static function debugSql($q)
     {
         $sql = $q->toSql();
         $bindings = $q->getBindings();
@@ -636,7 +678,7 @@ class ReportesService
 
         $q->where('audiencias.resolucion_id', self::RESOLUCIONES_HUBO_CONVENIO);
 
-        Log::info($this->debugSql($q));
+        Log::info(self::debugSql($q));
         if ($request->get('tipo_reporte') == 'agregado') {
             $res = $q->get();
         }
@@ -716,7 +758,7 @@ class ReportesService
 
         //$q->where('audiencias.resolucion_id', self::RESOLUCIONES_HUBO_CONVENIO);
 
-        Log::info($this->debugSql($q));
+        Log::info(self::debugSql($q));
         if ($request->get('tipo_reporte') == 'agregado') {
             $res = $q->get();
         }
@@ -794,7 +836,7 @@ class ReportesService
 
         $q->where('audiencias.resolucion_id', self::RESOLUCIONES_NO_HUBO_CONVENIO);
 
-        Log::info($this->debugSql($q));
+        Log::info(self::debugSql($q));
         if ($request->get('tipo_reporte') == 'agregado') {
             $res = $q->get();
         }
@@ -942,37 +984,8 @@ class ReportesService
             $genero_id = $request->get('genero_id');
             $grupo_id = $request->get('grupo_id');
             $tipo_persona_id = $request->get('tipo_persona_id');
-            $modelo = trim($modelo);
-            $q->whereHas($modelo, function($q) use($genero_id, $grupo_id, $tipo_persona_id){
 
-                    # Por el género
-                    if($genero_id) {
-                        $q->where('genero_id', $genero_id);
-                    }
-
-                    # Por el  o los grupos etarios
-                    if(is_array($grupo_id) && count($grupo_id)) {
-
-                        $q->where(function($qq) use ($grupo_id) {
-                            foreach ($grupo_id as $idx => $grupo) {
-                                list($ini,$fin) = explode('-', $grupo);
-                                if($idx == 0) {
-                                    $qq->whereRaw('edad::integer BETWEEN ? AND ?', [$ini, $fin]);
-                                }else{
-                                    $qq->orWhereRaw('edad::integer BETWEEN ? AND ?', [$ini, $fin]);
-                                }
-                            }
-                        });
-
-                    }
-                    # Por el tipo de persona
-                    if($tipo_persona_id) {
-                        $q->where('tipo_persona_id', $tipo_persona_id);
-                    }
-
-                    # Sólo se toman en cuenta los solicitantes
-                    $q->where('tipo_parte_id', self::SOLICITANTE_ID);
-                });
+            $q = self::caracteristicasSolicitante($q, $modelo, $genero_id, $grupo_id, $tipo_persona_id);
         }
 
         return $q;
@@ -1134,5 +1147,117 @@ class ReportesService
 
         return $borrables;
     }
+
+    /**
+     * Devuelve query por características del solicitante
+     * @param $q
+     * @param $modelo
+     * @param $genero_id
+     * @param $grupo_id
+     * @param $tipo_persona_id
+     * @return mixed
+     */
+    public static function caracteristicasSolicitante($q, $modelo, $genero_id, $grupo_id, $tipo_persona_id)
+    {
+        $modelo = trim($modelo);
+        return $q->whereHas(
+            $modelo,
+            function ($q) use ($genero_id, $grupo_id, $tipo_persona_id) {
+                # Por el género
+                if ($genero_id) {
+                    $q->where('genero_id', $genero_id);
+                }
+
+                # Por el  o los grupos etarios
+                if ($grupo_id) {
+                    $q->where(
+                        function ($qq) use ($grupo_id) {
+                            list($ini, $fin) = explode('-', $grupo_id);
+                                $qq->whereRaw('edad::integer BETWEEN ? AND ?', [$ini, $fin]);
+                        }
+                    );
+                }
+                # Por el tipo de persona
+                if ($tipo_persona_id) {
+                    $q->where('tipo_persona_id', $tipo_persona_id);
+                }
+
+                # Sólo se toman en cuenta los solicitantes
+                $q->where('tipo_parte_id', self::SOLICITANTE_ID);
+                return $q;
+            }
+        );
+    }
+
+
+    /**
+     * Devuelve los grupos etarios para mostrar en los controles de consulta al usuario
+     * @return array
+     */
+    public static function gruposEtarios(): array
+    {
+        $grupo_etario = [];
+        $grupo_etario["18-19"] = "De 18 a 19 años";
+        $grupo_etario["20-24"] = "De 20 a 24 años";;
+        $grupo_etario["25-29"] = "De 25 a 29 años";;
+        $grupo_etario["30-34"] = "De 30 a 34 años";;
+        $grupo_etario["35-39"] = "De 35 a 39 años";;
+        $grupo_etario["40-44"] = "De 40 a 44 años";;
+        $grupo_etario["45-49"] = "De 45 a 49 años";;
+        $grupo_etario["50-54"] = "De 50 a 54 años";;
+        $grupo_etario["55-59"] = "De 55 a 59 años";;
+        $grupo_etario["60-64"] = "De 60 a 64 años";;
+        $grupo_etario["65-69"] = "De 65 a 69 años";;
+        $grupo_etario["70-74"] = "De 70 a 74 años";;
+        $grupo_etario["75-79"] = "De 75 a 79 años";;
+        $grupo_etario["80-84"] = "De 80 a 84 años";;
+        $grupo_etario["85-89"] = "De 85 a 89 años";;
+        return $grupo_etario;
+    }
+
+    /**
+     * Devuelve los objetos que se van a mostrar al usuario en los controles de consulta
+     * @param bool $lista
+     * @return \Illuminate\Support\Collection
+     */
+    public static function getObjetosFiltrables($lista = false)
+    {
+        if(!$lista) {
+            $objetos = ObjetoSolicitud::whereIn(
+                'tipo_objeto_solicitudes_id',
+                [self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]
+            )
+                ->orderBy('tipo_objeto_solicitudes_id')->orderBy('nombre')
+                ->get()
+                ->map(
+                    function ($v, $k) {
+                        return [
+                            'id' => $v->id,
+                            'nombre' => $v->nombre,
+                            'tipo_objeto' => $v->tipoObjetoSolicitud->nombre
+                        ];
+                    }
+                )->groupBy('tipo_objeto');
+
+            return $objetos;
+        }
+
+        return ObjetoSolicitud::whereIn(
+            'tipo_objeto_solicitudes_id',
+            [self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]
+        )
+        ->orderBy('nombre')
+        ->get();
+    }
+
+    /**
+     * Devuelve listado de industrias
+     * @return mixed
+     */
+    public static function getIndustria()
+    {
+        return Industria::orderBy('nombre')->get(['id','nombre'])->pluck('nombre','id');
+    }
+
 }
 
