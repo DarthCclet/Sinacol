@@ -174,12 +174,14 @@ class ReportesService
         }
 
 
-        $q->leftJoin('expedientes','expedientes.solicitud_id', '=','solicitudes.id');
-        $q->leftJoin('audiencias','audiencias.expediente_id', '=','expedientes.id');
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
 
         //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
+        if ($request->get('tipo_reporte') == 'desagregado' || !empty($request->get('conciliadores'))) {
+            $q->leftJoin('expedientes', 'expedientes.solicitud_id', '=', 'solicitudes.id');
+            $q->leftJoin('audiencias', 'audiencias.expediente_id', '=', 'expedientes.id');
+            $q->leftJoin('conciliadores', 'conciliadores.id', '=', 'audiencias.conciliador_id');
+            $q->leftJoin('personas', 'personas.id', '=', 'conciliadores.persona_id');
+        }
 
         if ($request->get('tipo_reporte') == 'desagregado') {
             //Se agregan las consultas para conciliador
