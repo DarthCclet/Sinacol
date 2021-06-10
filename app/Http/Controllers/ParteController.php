@@ -233,6 +233,49 @@ class ParteController extends Controller
         }
         return $representantes;
     }
+    /**
+     * Funcion para obtener el representante legal de una parte
+     * @param id $id
+     * @return parte
+     */
+    public function GetRepresentanteAudiencia(Request $request){
+        $audiencia_id= $request->audiencia_id;
+        $representante = Parte::where("parte_representada_id",$request->parte_id)->where("representante",true)->with('audienciaParte')->whereHas('audienciaParte',function($query) use ($audiencia_id){
+            $query->where('audiencia_id',$audiencia_id);
+        })->first();
+        if($representante != null && $representante != ""){
+            foreach($representante->contactos as $key2 => $contactos){
+                $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
+                $documentos = $representante->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
+                }
+                
+            }
+        }
+        return $representante;
+    }
+     /**
+     * Funcion para obtener el representante legal de una parte
+     * @param id $id
+     * @return parte
+     */
+    public function GetRepresentanteLegalById($id){
+        $representante = Parte::find($id);
+        if($representante != null && $representante != ""){
+            foreach($representante->contactos as $key2 => $contactos){
+                $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
+                $documentos = $representante->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
+                }
+                
+            }
+        }
+        return $representante;
+    }
+
+    
     
     /**
      * Funcion para obtener datos laborales de una parte
@@ -343,6 +386,22 @@ class ParteController extends Controller
                     "feha_instrumento" => $request->feha_instrumento,
                     "detalle_instrumento" => $request->detalle_instrumento
                 ]);
+                // Creamos la relacion en audiencias_partes
+                if(!isset($request->fuente_solicitud)){
+                    $audienciaExiste = AudienciaParte::where('parte_id',$parte->id)->where('audiencia_id',$request->audiencia_id)->first();
+                    if($audienciaExiste == null)
+                    {
+                        
+                        $partesRep = Parte::where('parte_representada_id',$parte->parte_representada_id)->get();
+                        foreach($partesRep as $parteR){
+                            $ap = AudienciaParte::where('audiencia_id',$request->audiencia_id)->where('parte_id',$parteR->id)->first();
+                            if($ap){
+                                $ap->delete();
+                            }
+                        }
+                        AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+                    }
+                }
                 // se actualiza doc
                 if(isset($request->fileIdentificacion)){
                     $parte = Parte::find($request->parte_id);
@@ -544,7 +603,18 @@ class ParteController extends Controller
                 
                 // Creamos la relacion en audiencias_partes
                 if(!isset($request->fuente_solicitud)){
-                    AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+                    $audienciaExiste = AudienciaParte::where('parte_id',$parte->id)->where('audiencia_id',$request->audiencia_id)->first();
+                    if($audienciaExiste == null)
+                    {
+                        $partesRep = Parte::where('parte_representada_id',$parte->parte_representada_id)->get();
+                        foreach($partesRep as $parteR){
+                            $ap = AudienciaParte::where('audiencia_id',$request->audiencia_id)->where('parte_id',$parteR->id)->first();
+                            if($ap){
+                                $ap->delete();
+                            }
+                        }
+                        AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+                    }
                 }
                 // se agrega doc
                 // $parte = $parte_representada;
