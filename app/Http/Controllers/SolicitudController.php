@@ -750,6 +750,22 @@ class SolicitudController extends Controller {
                         if (count($audiencia->comparecientes) > 0) {
                             $audiencia->iniciada = true;
                         }
+                        foreach ($audiencia->audienciaParte as $parte) {
+                            $documentos = $parte->documentos;
+                            foreach ($documentos as $documento) {
+                                $documento->id = $documento->id;
+                                $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                                $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                                $documento->owner = "Audiencia ".$audiencia->folio . "/" . $audiencia->anio;
+                                if ($parte->parte->tipo_persona_id == 1) {
+                                    $documento->audiencia = $parte->parte->nombre . " " . $parte->parte->primer_apellido . " " . $parte->parte->segundo_apellido;
+                                } else {
+                                    $documento->audiencia = $parte->parte->nombre_comercial;
+                                }
+                                $documento->tipo_doc = 3;
+                                $doc->push($documento);
+                            }
+                        }
                     }
                 }
                 $solicitud->docs = $doc;
