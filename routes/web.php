@@ -61,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('solicitudes','SolicitudController');
     Route::get('solicitudes/consulta/{id}','SolicitudController@consulta')->name('solicitudes.consulta');
     Route::post('solicitudes/folio','SolicitudController@getSolicitudByFolio');
+    Route::get('solicitud/porCaducar','SolicitudController@showPorCaducar');
     Route::POST('solicitud/ratificar','SolicitudController@Ratificar');
     Route::POST('solicitud/ratificarIncompetencia','SolicitudController@ratificarIncompetencia');
     Route::POST('solicitud/excepcion','SolicitudController@ExcepcionConciliacion');
@@ -161,14 +162,19 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('giros_comerciales/cambiar_ambito','GiroComercialController@CambiarAmbito');
     Route::resource('documento','DocumentoController');
     Route::post('guardar_documento','DocumentoController@storeDocument');
-    Route::get('regenerar_documento','DocumentoController@generar_documento');
-    Route::post('store_regenerar_documento','DocumentoController@storeRegenerarDocumento');
+    Route::get('regenerar_documento','DocumentoController@generar_documento')->middleware('can:Regenerar documento');
+    Route::post('store_regenerar_documento','DocumentoController@storeRegenerarDocumento')->middleware('can:Regenerar documento');
 
-    Route::get('incidencias_solicitudes','SolicitudController@incidencias_solicitudes');
-    Route::get('deshacer_solicitudes','SolicitudController@deshacer_solicitudes');
-    Route::post('rollback_proceso','SolicitudController@rollback_proceso');
-    Route::post('guardar_incidencia','SolicitudController@guardar_incidencia');
-    Route::post('borrar_incidencia','SolicitudController@borrar_incidencia');
+    Route::get('eliminar_documentos','DocumentoController@eliminar_documentos')->middleware('can:Eliminar documento');
+    Route::post('delete_documento','DocumentoController@delete_documento')->middleware('can:Eliminar documento');
+
+    Route::get('incidencias_solicitudes','SolicitudController@incidencias_solicitudes')->middleware('can:Archivo incidencias');
+    Route::get('deshacer_solicitudes','SolicitudController@deshacer_solicitudes')->middleware('can:Retroceso');
+    Route::get('eliminar_audiencias','SolicitudController@eliminar_audiencias')->middleware('can:Eliminar audiencia');
+    Route::post('delete_audiencia','SolicitudController@delete_audiencia')->middleware('can:Eliminar audiencia');
+    Route::post('rollback_proceso','SolicitudController@rollback_proceso')->middleware('can:Retroceso');;
+    Route::post('guardar_incidencia','SolicitudController@guardar_incidencia')->middleware('can:Archivo incidencias');;
+    Route::post('borrar_incidencia','SolicitudController@borrar_incidencia')->middleware('can:Archivo incidencias');;
     Route::resource('permisos','PermissionController');
     Route::resource('roles','RoleController');
     Route::get('roles/permisos/{id}','RoleController@GetPermisosRol');
@@ -210,6 +216,7 @@ Route::middleware(['auth'])->group(function () {
      * Notificaciones
      */
     Route::get('notificaciones','CentroController@notificaciones');
+    Route::get('notificaciones/search', 'CentroController@notificacionesSearch');
     Route::post('notificaciones/enviar','CentroController@EnviarNotificacion');
     Route::get('obtenerHistorial/{audiencia_parte_id}','CentroController@obtenerHistorial');
 
@@ -229,6 +236,12 @@ Route::middleware(['auth'])->group(function () {
      * Suspensión de virtuales
      */
     Route::get('audiencia/suspension/{audiencia_id}','AudienciaController@SuspensionVirtual');
+
+    /*
+     * Consulta de reporte en hoja de cálculo
+     */
+    Route::get('reportes','ReportesController@index')->name('reportes.forma');
+    Route::get('reportes/reporte','ReportesController@reporte')->name('reportes.reporte');
 
 });
 

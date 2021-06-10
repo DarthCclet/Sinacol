@@ -4,8 +4,11 @@ namespace App\Providers;
 
 use App\Audiencia;
 use App\EtapaResolucionAudiencia;
+use App\HistoricoNotificacion;
+use App\HistoricoNotificacionRespuesta;
 use App\ResolucionParteConcepto;
 use App\Solicitud;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +16,12 @@ use Illuminate\Support\ServiceProvider;
 
 class HerramientaServiceProvider extends ServiceProvider
 {
+    /**
+     * Días para expiración de solicitudes
+     */
+    const DIAS_EXPIRACION = 45;
+    const DIAS_EXPIRA = 7;
+
     /**
      * Register services.
      *
@@ -23,9 +32,65 @@ class HerramientaServiceProvider extends ServiceProvider
         //
     }
 
+    public static function delete_audiencia($solicitud_id,$audiencia_id){
+        
+        DB::beginTransaction();
+        try {
+            if (!auth()->user()->hasRole('Administrador del centro')) {
+                DB::rollback();
+                return ['success'=>false,'msj'=>' No tienes permisos para realizar este proceso '];
+            }
+            $solicitud = Solicitud::find($solicitud_id);
+            if($solicitud && $solicitud->expediente && count($solicitud->expediente->audiencia) > 1 ){
+            
+                $audiencia_id = $audiencia_id; 
+                $audiencia_parte = Audiencia::find($audiencia_id)->audienciaParte; 
+                foreach($audiencia_parte as $ap ){ 
+                    $historico_not = HistoricoNotificacion::where('audiencia_parte_id',$ap->id)->get(); 
+                    foreach($historico_not as $hn){ 
+                        $hist_nr = HistoricoNotificacionRespuesta::where('historico_notificacion_id',$hn->id)->get(); 
+                        foreach($hist_nr as $hnr){ 
+                            HistoricoNotificacionRespuesta::find($hnr->id)->delete(); 
+                        } 
+                        $hn->delete(); 
+                    } 
+                    $ap->delete(); 
+                } 
+                $cons_aud = Audiencia::find($audiencia_id)->conciliadoresAudiencias; 
+                foreach($cons_aud as $ca){ 
+                    $ca->delete(); 
+                } 
+                $sal_aud = Audiencia::find($audiencia_id)->salasAudiencias; 
+                foreach($sal_aud as $sa){ 
+                    $sa->delete(); 
+                } 
+                $doc = Audiencia::find($audiencia_id)->documentos; 
+                foreach($doc as $d){ 
+                    $d->delete(); 
+                } 
+                Audiencia::find($audiencia_id)->delete();
+            }else{
+                DB::rollback();
+                return ['success'=>false,'msj'=>'Error, esta audiencia no se puede eliminar '];
+            }
+            DB::commit();
+            return ['success'=>true,'msj'=>' Proceso realizado correctamente '];
+        } catch (Exception $e) {
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensaje: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
+            return ['success'=>false,'msj'=>'Error al realizar el proceso '];
+        }
+    }
+
     public static function rollback($solicitud_id,$audiencia_id,$tipoRollback){
         DB::beginTransaction();
         try{
+            if (!auth()->user()->hasRole('Administrador del centro')) {
+                DB::rollback();
+                return ['success'=>false,'msj'=>' No tienes permisos para realizar este proceso '];
+            }
             //tipoRollback nos indica que tipo de rollback se va a realizar, 1 antes de terminar audiencia, 2 antes de comparecencia, 3 antes de ratificación
             if($tipoRollback == 1){
                 $solicitud = Solicitud::find($solicitud_id);
@@ -65,6 +130,7 @@ class HerramientaServiceProvider extends ServiceProvider
                     $audiencia->fecha_resolucion = null;
                     $audiencia->save();
                 }else{
+                    DB::rollback();
                     return ['success'=>false,'msj'=>' La audiencia no esta finalizada, no es posible hacer este proceso '];
                 }
             }else if($tipoRollback == 2){
@@ -108,6 +174,7 @@ class HerramientaServiceProvider extends ServiceProvider
                     $audiencia->fecha_resolucion = null;
                     $audiencia->save();
                 }else{
+                    DB::rollback();
                     return ['success'=>false,'msj'=>' La audiencia esta finalizada, no es posible hacer este proceso '];
                 }
                 
@@ -117,6 +184,7 @@ class HerramientaServiceProvider extends ServiceProvider
                     $audiencias = $solicitud->expediente->audiencia;
                     $expediente = $solicitud->expediente;
                     if(count($audiencias) > 1){
+                        DB::rollback();
                         return ['success'=>false,'msj'=>' No se puede realizar este proceso ya que esta solicitud tiene mas de una audiencia '];
                     }else{
                         $partes = $solicitud->partes;
@@ -176,6 +244,7 @@ class HerramientaServiceProvider extends ServiceProvider
                         $expediente->delete();
                     }
                 }else{
+                    DB::rollback();
                     return ['success'=>false,'msj'=>' Esta solicitud no esta confirmada, no es posible realizar el proceso '];
                 }
 
@@ -195,10 +264,12 @@ class HerramientaServiceProvider extends ServiceProvider
                         $documento->delete();   
                     }
                 }else{
+                    DB::rollback();
                     return ['success'=>false,'msj'=>' Esta solicitud no esta confirmada, no es posible realizar el proceso '];
                 }
 
             }else{
+                DB::rollback();
                 return ['success'=>false,'msj'=>' No se selecciono proceso a ejecutar'];
             }
             DB::commit();
@@ -211,6 +282,31 @@ class HerramientaServiceProvider extends ServiceProvider
             DB::rollback();
             return ['success'=>false,'msj'=>'Error al realizar el proceso '];
         }
+    }
+
+    public static function getSolicitudesPorCaducar($validar = false){
+        $dias_expiracion = self::DIAS_EXPIRA;
+        $dias_rango_inferior = self::DIAS_EXPIRACION - $dias_expiracion;
+        $dias_rango_superior = self::DIAS_EXPIRACION;
+        $fecha_fin = Carbon::now()->subDays($dias_rango_inferior);
+        $centro_id = auth()->user()->centro_id;
+        $solicitudes = Solicitud::where('fecha_recepcion','<',$fecha_fin->toDateString())->where('estatus_solicitud_id',2)->where('centro_id',$centro_id)->with(["partes","expediente","expediente.audiencia"=>function($query){ return $query->orderBy('fecha_audiencia','desc');}])->whereRaw('incidencia is not true');
+        if($validar){
+            if (session()->exists('rolActual')) {
+                $rolActual = session('rolActual')->name;
+                if($rolActual == "Personal conciliador" && auth()->user()->persona->conciliador){
+                    $conciliador_id = auth()->user()->persona->conciliador->id;
+                    $solicitudes = $solicitudes->whereHas('expediente.audiencia',function ($query) use ($conciliador_id) { $query->where('conciliador_id',$conciliador_id); });
+                }else if($rolActual == "Administrador del centro" || $rolActual == "Supervisor de conciliación"){
+                }else{
+                    $solicitudes = $solicitudes->whereRaw('1 = 0');
+                }
+            }else{
+                $solicitudes = $solicitudes->whereRaw('1 = 0');
+            }
+        }
+        $solicitudes = $solicitudes->orderBy('fecha_recepcion','asc')->get();
+        return $solicitudes;
     }
 
     /**
