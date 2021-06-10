@@ -281,8 +281,8 @@ class ReporteOperativoService
             $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
         }
 
-        $q->select('audiencias.id as audiencia_id', 'expedientes.folio as expediente', 'centros.abreviatura', 'audiencias.fecha_audiencia',
-                   'solicitudes.id as solicitud_id', 'audiencias.finalizada as audiencia_finalizada', 'audiencias.numero_audiencia');
+        $q->select('audiencias.id as audiencia_id',  'centros.abreviatura', 'audiencias.fecha_audiencia',
+                       'solicitudes.id as solicitud_id', 'audiencias.finalizada as audiencia_finalizada', 'audiencias.numero_audiencia');
 
         //Seleccionamos la abreviatura del nombre y su cuenta
         $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
@@ -294,6 +294,7 @@ class ReporteOperativoService
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
 
+        $this->noReportables($q);
         return $q;
     }
 
@@ -366,6 +367,25 @@ class ReporteOperativoService
         return $q;
     }
 
+
+    public function pagosDiferidos($request) {
+
+        $q = (new AudienciaFilter(Audiencia::query(), $request))
+            ->searchWith(Audiencia::class)
+            ->filter(false);
+
+        //Las audiencias se evalúan por fecha de audiencia
+        if($request->get('fecha_inicial')){
+            $q->whereRaw('fecha_audiencia::date >= ?', $request->get('fecha_inicial'));
+        }
+        if($request->get('fecha_final')){
+            $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
+        }
+
+        $q->with('pagosDiferidos');
+
+        return $q;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

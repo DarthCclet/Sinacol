@@ -477,22 +477,25 @@ class ExcelReporteOperativoService
 
         //ToDo: Qué onda con la columna U ?
 
-        $monto_pagos_dif = (clone $this->service->audiencias($request))
-            ->has('pagosDiferidos', 1)->with('pagosDiferidos')
-            ->get()->sum('pagosDiferidos.monto');
-        $sheet->setCellValue('V7', $monto_pagos_dif);
+        $monto_pagos_dif = (clone $this->service->pagosDiferidos($request))
+            ->has('pagosDiferidos', '=', 1)
+            ->get()
+            ->map(function ($k, $v){
+                return $k->pagosDiferidos->sum('monto');
+            });
+        $sheet->setCellValue('V7', $monto_pagos_dif->sum());
 
-        $num_pagos_parciales = (clone $this->service->audiencias($request))
-            ->has('pagosDiferidos','>', 1)
-            ->get()->count();
-        $sheet->setCellValue('T8', $num_pagos_parciales);
+        $num_pagos_parciales = (clone $this->service->pagosDiferidos($request))
+            ->has('pagosDiferidos', '>', 1)
+            ->get()
+            ->map(function ($k, $v){
+                return $k->pagosDiferidos->sum('monto');
+            });
+        $sheet->setCellValue('U8', $num_pagos_parciales->count());
 
-        $monto_pagos_parciales = (clone $this->service->audiencias($request))
-            ->has('pagosDiferidos', '>', 1)->with('pagosDiferidos')
-            ->get()->sum('pagosDiferidos.monto');
-        $sheet->setCellValue('V8', $monto_pagos_parciales);
+        $sheet->setCellValue('V8', $num_pagos_parciales->sum());
 
-        //dd((ReportesService::debugSql(  (clone $this->service->audiencias($request))->has('pagosDiferidos', '>', 1)->with('pagosDiferidos'))));
+
 
         $num_tot_pagos_parciales = (clone $this->service->pagos($request))
             ->get()->count();
