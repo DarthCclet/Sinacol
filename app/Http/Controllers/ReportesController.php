@@ -247,8 +247,13 @@ class ReportesController extends Controller
         $sheet->setTitle('Reporte operativo');
 
         $nombre_reporte = 'ReporteOperativoSINACOL_'.date("Y-m-d_His").".xlsx";
+        // Si viene el parámetro query logueamos los querys a pantalla
+        if($this->request->exists('querys')) DB::enableQueryLog();
 
         $excelReporteOperativoService->reporte($sheet, $this->request);
+
+        // Si viene el parámetro query logueamos los querys a pantalla
+        if($this->request->exists('querys')) {$res =  ReportesService::debugSql(); dump($res); exit;}
 
         $writer = new Xlsx($spreadsheet);
         return $this->descargaExcel($writer, $nombre_reporte );

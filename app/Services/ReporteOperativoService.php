@@ -116,6 +116,34 @@ class ReporteOperativoService
 
         //Dejamos fuera los no consultables
         $this->noReportables($q);
+        $this->filtroTipoSolicitud();
+        //dd($this->debugSql($q));
+        return $q;
+    }
+
+    /**
+     * Sobre las solicitudes y su ratificacion
+     * @param $request
+     * @return mixed
+     */
+    public function solicitudesRatificacion($request)
+    {
+
+        $q = (new SolicitudFilter(Solicitud::query(), $request))
+            ->searchWith(Solicitud::class)
+            ->filter(false);
+
+        # Las solicitudes
+        if($request->get('fecha_inicial')){
+            $q->whereRaw('fecha_ratificacion::date >= ?', $request->get('fecha_inicial'));
+        }
+        if($request->get('fecha_final')){
+            $q->whereRaw('fecha_ratificacion::date <= ?', $request->get('fecha_final'));
+        }
+
+        //Dejamos fuera los no consultables
+        $this->noReportables($q);
+        $this->filtroTipoSolicitud();
         //dd($this->debugSql($q));
         return $q;
     }

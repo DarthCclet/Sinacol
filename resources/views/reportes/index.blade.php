@@ -120,8 +120,10 @@
                 <button class="btn btn-primary btn-sm m-l-5"><i class="fa fa-file-excel"></i> Generar reporte</button>
             </div>
 
+                @if(isset($querys) && $querys)
+                    <input type="hidden" id="querys" name="querys" value="1"/>
+                @endif
             {!! Form::close() !!}
-
             <input type="hidden" id="lista-conciliadores" name="lista_conciliadores" value="{{$conciliadoresJson}}"/>
             <input type="hidden" id="lista-objetos" name="lista_objetos" value="{{$tipoObjetosJson}}"/>
         </div>
@@ -279,7 +281,11 @@
             $("#btn-reporte-operativo").on('click', function (e) {
                 let fecha_inicial = $("#fecha_inicial").val();
                 let fecha_final = $("#fecha_final").val();
-                window.location.href = '/reportes/reporte-operativo?fecha_inicial='+fecha_inicial+'&fecha_final='+fecha_final;
+                let querys = '';
+                if($('#querys').length) {
+                    querys = '&querys=1';
+                }
+                window.location.href = '/reportes/reporte-operativo?fecha_inicial='+fecha_inicial+'&fecha_final='+fecha_final+querys;
             });
 
 
