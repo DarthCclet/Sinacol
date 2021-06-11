@@ -2886,6 +2886,7 @@
                         if(data != null && data != ""){
                             swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
                             actualizarPartes();
+                            NuevoRepresentante();
                             $("#modal-representante").modal("hide");
                         }else{
                             swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});

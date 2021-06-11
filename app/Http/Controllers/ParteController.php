@@ -408,19 +408,19 @@ class ParteController extends Controller
                     $solicitud = Solicitud::find($request->solicitud_id);
                     
                     try{
-                        $existe = false;
-                        $deleted = false;
+                        $existe = true;
+                        $deleted = true;
                         $documentos = $parte->documentos;
-                        foreach($documentos as $documento ){
-                            if($documento->clasificacionArchivo->tipo_archivo_id == 1){
-                                $doc_del_id = $documento->id;
-                                $existe = true;
-                            }
-                        }
-                        if($existe){
-                            $parte->documentos()->find($doc_del_id)->delete();
-                            $deleted = true;
-                        }
+                        // foreach($documentos as $documento ){
+                        //     if($documento->clasificacionArchivo->tipo_archivo_id == 1){
+                        //         $doc_del_id = $documento->id;
+                        //         $existe = true;
+                        //     }
+                        // }
+                        // if($existe){
+                        //     $parte->documentos()->find($doc_del_id)->delete();
+                        //     $deleted = true;
+                        // }
                         if(!$existe || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
@@ -463,21 +463,21 @@ class ParteController extends Controller
                     $solicitud = Solicitud::find($request->solicitud_id);
                     
                     try{
-                        $deleted = false;
-                        $documentos = $parte->documentos;
-                        $existeInst = false;
-                        foreach($documentos as $documento ){
-                            if($documento->clasificacionArchivo->tipo_archivo_id == 9){
-                                $doc_del_idInst = $documento->id;
-                                $existeInst = true;
-                            }
-                        }
+                        $deleted = true;
+                        // $documentos = $parte->documentos;
+                        $existeInst = true;
+                        // foreach($documentos as $documento ){
+                        //     if($documento->clasificacionArchivo->tipo_archivo_id == 9){
+                        //         $doc_del_idInst = $documento->id;
+                        //         $existeInst = true;
+                        //     }
+                        // }
                         
-                        if($existeInst){
+                        // if($existeInst){
                             
-                            $parte->documentos()->find($doc_del_idInst)->delete();
-                            $deleted = true;
-                        }
+                        //     $parte->documentos()->find($doc_del_idInst)->delete();
+                        //     $deleted = true;
+                        // }
                         if(!$existeInst || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
@@ -520,21 +520,21 @@ class ParteController extends Controller
                     $solicitud = Solicitud::find($request->solicitud_id);
                     
                     try{
-                        $deleted = false;
-                        $documentos = $parte->documentos;
-                        $existeCed = false;
-                        foreach($documentos as $documento ){
-                            if($documento->clasificacionArchivo->tipo_archivo_id == 9){
-                                $doc_del_idCed = $documento->id;
-                                $existeCed = true;
-                            }
-                        }
+                        $deleted = true;
+                        // $documentos = $parte->documentos;
+                        $existeCed = true;
+                        // foreach($documentos as $documento ){
+                        //     if($documento->clasificacionArchivo->tipo_archivo_id == 9){
+                        //         $doc_del_idCed = $documento->id;
+                        //         $existeCed = true;
+                        //     }
+                        // }
                         
-                        if($existeCed){
+                        // if($existeCed){
                             
-                            $parte->documentos()->find($doc_del_idCed)->delete();
-                            $deleted = true;
-                        }
+                        //     $parte->documentos()->find($doc_del_idCed)->delete();
+                        //     $deleted = true;
+                        // }
                         if(!$existeCed || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
