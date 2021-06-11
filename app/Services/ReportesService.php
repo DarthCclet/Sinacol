@@ -166,14 +166,11 @@ class ReportesService
             $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
         }else{
             $q->with(['objeto_solicitudes']);
-
             $q->select('solicitudes.id as sid','solicitudes.*','centros.abreviatura');
 
             # Ordenamos por el centro y por la fecha de recepción para mostrar en el listado desagregado
             $q->orderBy('centros.abreviatura')->orderBy('solicitudes.fecha_recepcion');
         }
-
-
 
         //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
         if ($request->get('tipo_reporte') == 'desagregado' || !empty($request->get('conciliadores'))) {
@@ -197,7 +194,6 @@ class ReportesService
             $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
         }
 
-
         # Sólo las de trabajador y patron individual por default.
         $this->filtroTipoSolicitud($request, $q);
 
@@ -209,7 +205,7 @@ class ReportesService
 
         //Dejamos fuera los no consultables
         $this->noReportables($q);
-        //dd($this->debugSql($q));
+
         return $q->get();
     }
 
@@ -249,10 +245,13 @@ class ReportesService
             $q->orderBy('centros.abreviatura')->orderBy('solicitudes.fecha_recepcion');
         }
 
-        $q->leftJoin('expedientes','expedientes.solicitud_id', '=','solicitudes.id');
-        $q->leftJoin('audiencias','audiencias.expediente_id', '=','expedientes.id');
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
+        if ($request->get('tipo_reporte') == 'desagregado' || !empty($request->get('conciliadores'))) {
+            $q->leftJoin('expedientes', 'expedientes.solicitud_id', '=', 'solicitudes.id');
+            $q->leftJoin('audiencias', 'audiencias.expediente_id', '=', 'expedientes.id');
+            $q->leftJoin('conciliadores', 'conciliadores.id', '=', 'audiencias.conciliador_id');
+            $q->leftJoin('personas', 'personas.id', '=', 'conciliadores.persona_id');
+        }
 
         if ($request->get('conciliadores')) {
             if ($request->get('tipo_reporte') == 'desagregado') {
@@ -603,17 +602,25 @@ class ReportesService
 
     /**
      * Query con parametros sustituidos
-     * @param $q
      * @return string|string[]|null
      */
-    public static function debugSql($q)
+    public static function debugSql($html=true)
     {
-        $sql = $q->toSql();
-        $bindings = $q->getBindings();
-
-        return preg_replace_callback('/\?/', function ($match) use ($sql, &$bindings) {
-            return "'" . array_shift($bindings) . "'";
-        }, $sql);
+        $logQueries = \DB::getQueryLog();
+        /*
+        usort($logQueries, function($a, $b) {
+            return $b['time'] <=> $a['time'];
+        });
+        */
+        $res=[];
+        foreach ($logQueries as $item) {
+            $strq = preg_replace('/(\d+)-(\d+)-(\d+)/i',"'$1-$2-$3'", str_replace_array('?', $item['bindings'], $item['query']));
+            $strq = preg_replace('/"/','', $strq);
+            if(!$html) $res[] = $strq;
+            echo $strq."<hr/>";
+        }
+        if($html) return;
+        return $res;
     }
 
     /**
