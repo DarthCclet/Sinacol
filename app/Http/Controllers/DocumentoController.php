@@ -402,7 +402,7 @@ class DocumentoController extends Controller
                 'audiencia_id',
                 $idAudiencia
             )->where('documento_id',$idDocumento)->whereRaw('firma is not null')->get();
-            if ($totalFirmantes == count($firmasDocumento)) {
+            if ($totalFirmantes <= count($firmasDocumento)) {
                 // if ($documento != null) {
                 //     $documento->delete();
                 // }
