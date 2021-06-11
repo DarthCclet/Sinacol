@@ -116,7 +116,7 @@ class ReporteOperativoService
 
         //Dejamos fuera los no consultables
         $this->noReportables($q);
-        $this->filtroTipoSolicitud();
+        $this->filtroTipoSolicitud($request, $q);
         //dd($this->debugSql($q));
         return $q;
     }
@@ -143,7 +143,7 @@ class ReporteOperativoService
 
         //Dejamos fuera los no consultables
         $this->noReportables($q);
-        $this->filtroTipoSolicitud();
+        $this->filtroTipoSolicitud($request, $q);
         //dd($this->debugSql($q));
         return $q;
     }
