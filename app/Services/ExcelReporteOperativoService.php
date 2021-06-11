@@ -68,17 +68,17 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('E9', ($this->service->solicitudes($request))->where('tipo_solicitud_id', ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         # con asistencia de personal o por los usuarios
-        $caspc = ($this->service->solicitudes($request))->whereNotNull('user_captura_id');
+        $caspc = ($this->service->solicitudes($request))->whereNotNull('captura_user_id');
         $sheet->setCellValue('B12', $caspc->count());
         $sheet->setCellValue('C12', $caspc->where('ratificada', true)->count());
-        $sheet->setCellValue('D12', ($this->service->solicitudes($request))->whereNotNull('user_captura_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-        $sheet->setCellValue('E12', ($this->service->solicitudes($request))->whereNotNull('user_captura_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+        $sheet->setCellValue('D12', ($this->service->solicitudes($request))->whereNotNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+        $sheet->setCellValue('E12', ($this->service->solicitudes($request))->whereNotNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
-        $sol = ($this->service->solicitudes($request))->whereNull('user_captura_id');
+        $sol = ($this->service->solicitudes($request))->whereNull('captura_user_id');
         $sheet->setCellValue('B13', $sol->count());
         $sheet->setCellValue('C13', $sol->where('ratificada', true)->count());
-        $sheet->setCellValue('D13', ($this->service->solicitudes($request))->whereNull('user_captura_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-        $sheet->setCellValue('E13', ($this->service->solicitudes($request))->whereNull('user_captura_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+        $sheet->setCellValue('D13', ($this->service->solicitudes($request))->whereNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+        $sheet->setCellValue('E13', ($this->service->solicitudes($request))->whereNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         # por género
         //Hombres
