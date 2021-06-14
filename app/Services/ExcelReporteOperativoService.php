@@ -6,8 +6,6 @@ namespace App\Services;
 
 use App\Traits\EstilosSpreadsheets;
 use Illuminate\Support\Facades\Log;
-use Lavary\Menu\ServiceProvider;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ExcelReporteOperativoService
 {
@@ -99,11 +97,11 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('E17', $solgenmpr->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         # Por grupo etáreo
-        /** @var Array[Builder] $solget Arreglo que contiene objetos Builder para las solicitudes totalizadas de grupo etario  */
+        /** @var array[Builder] $solget Arreglo que contiene objetos Builder para las solicitudes totalizadas de grupo etario  */
         $solget=[];
-        /** @var Array[Builder] $solget Arreglo que contiene objetos Builder para las solicitudes por ratificar  */
+        /** @var array[Builder] $solget Arreglo que contiene objetos Builder para las solicitudes por ratificar  */
         $solgetpr=[];
-        /** @var Array[Builder] $solgetpr Arreglo que contiene objetos Builder para las solicitudes archivadas  */
+        /** @var array[Builder] $solgetpr Arreglo que contiene objetos Builder para las solicitudes archivadas  */
         $solgetar=[];
         /** @var integer $rowget Fila de grupo etario */
         $rowget = 21;
