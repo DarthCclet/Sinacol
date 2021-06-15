@@ -746,7 +746,7 @@ class ParteController extends Controller
         foreach($representante->contactos as $key2 => $contactos){
             $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
         }
-        return $representante->contactos;
+        return $this->sendResponse($representante->contactos, 'SUCCESS');
     }
     public function getDomicilioParte(){
         $parte = Parte::find($this->request->id);
