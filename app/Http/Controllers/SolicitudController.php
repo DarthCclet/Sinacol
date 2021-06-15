@@ -671,7 +671,7 @@ class SolicitudController extends Controller {
             if ($rolActual != 'Super Usuario') {
                 $centro_id = Auth::user()->centro_id;
                 $solicitud->where('centro_id', $centro_id);
-            } 
+            }
             $solicitud = $solicitud->first();
             $validate = $request->validate;
             if($validate){
@@ -772,7 +772,7 @@ class SolicitudController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function edit($id) {
-        
+
         $doc = [];
         $solicitud = Solicitud::find($id);
         $expediente = Expediente::where("solicitud_id", "=", $solicitud->id)->get();
@@ -1503,7 +1503,7 @@ class SolicitudController extends Controller {
                         }
                         AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
                         if ($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]) {
-                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                            //event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
                         }
                     }
                     //                if($datos_audiencia["encontro_audiencia"] && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
@@ -1527,7 +1527,7 @@ class SolicitudController extends Controller {
                 if ($request->inmediata != "true" && $audiencia->encontro_audiencia && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)) {
                     event(new RatificacionRealizada($audiencia->id, "citatorio"));
                 }
-                event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
+                //event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
                 return $audiencia;
             } else {
                 DB::rollback();
@@ -1840,7 +1840,7 @@ class SolicitudController extends Controller {
             } else if ($rolActual != 'Super Usuario') {
                 $centro_id = Auth::user()->centro_id;
                 $solicitudes->where('centro_id', $centro_id);
-            } 
+            }
             if($rolActual == "Personal conciliador"){
                 $conciliador_id = auth()->user()->persona->conciliador->id;
                 $solicitudes->whereHas('expediente.audiencia',function ($query) use ($conciliador_id) { $query->where('conciliador_id',$conciliador_id); });
