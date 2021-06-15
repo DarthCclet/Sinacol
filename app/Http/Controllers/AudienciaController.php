@@ -378,6 +378,21 @@ class AudienciaController extends Controller {
                 $documento->audiencia_id = $audienciaSol->id;
                 $doc->push($documento);
             }
+            foreach ($audienciaSol->audienciaParte as $parte) {
+                $documentos = $parte->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->id = $documento->id;
+                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                    if ($parte->parte->tipo_persona_id == 1) {
+                        $documento->audiencia = $parte->parte->nombre . " " . $parte->parte->primer_apellido . " " . $parte->parte->segundo_apellido;
+                    } else {
+                        $documento->audiencia = $parte->parte->nombre_comercial;
+                    }
+                    $documento->tipo_doc = 3;
+                    $doc->push($documento);
+                }
+            }
         }
         $documentos = $doc->sortBy('id');
         $virtual = $solicitud->virtual;
