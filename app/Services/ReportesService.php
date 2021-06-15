@@ -718,7 +718,7 @@ class ReportesService
             $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
         }
 
-        $q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
+        /*$q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
                    'audiencias.id as audiencia_id',
                    'audiencias.resolucion_id as resolucion_id',
                    'resoluciones.nombre as resolucion',
@@ -727,6 +727,13 @@ class ReportesService
                    'tipo_terminacion_audiencias.nombre as tipo_terminacion',
                    'fecha_audiencia','numero_audiencia',
                    'monto'
+        );
+        */
+        $q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
+                   'audiencias.id as audiencia_id',
+                   'fecha_audiencia','numero_audiencia',
+                   'monto'
+        // ,'tipo_propuesta_pago_id'
         );
 
         $q->join('expedientes','expedientes.solicitud_id','=','solicitudes.id');
