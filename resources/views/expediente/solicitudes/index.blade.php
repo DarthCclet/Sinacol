@@ -167,7 +167,7 @@
             $("#modal-caduco").modal("show");
         }
         var mis_solicitudes = false;
-        $(".date").datetimepicker({format:"DD/MM/YYYY",locale:'es'});
+        
 //        $.datetimepicker.setLocale('es');
         $('#solicitantefechaNacimiento').datetimepicker({useCurrent: false,format:'DD/MM/YYYY HH:mm'});
         $(document).ready(function() {
