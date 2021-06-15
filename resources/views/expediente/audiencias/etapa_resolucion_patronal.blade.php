@@ -50,6 +50,7 @@
 <h1 class="badge badge-secondary col-md-2 offset-10" style="position: fixed; font-size: 2rem; z-index:999;" onclick="startTimer();"><span class="countdown">00:00:00</span></h1>
 <input type="hidden" id="audiencia_id" name="audiencia_id" value="{{$audiencia->id}}" />
 <input type="hidden" id="virtual" name="virtual" value="{{$virtual}}" />
+<input type="hidden" id="paso_actual" name="paso_actual" value="0" />
 
 @if(auth()->user()->persona_id == $conciliador->persona_id)
 <!-- begin timeline -->

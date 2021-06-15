@@ -155,7 +155,7 @@ class SolicitudFilter extends Filter
             $q->where('conciliador_id', $conciliador_id);
         });
     }
-    public function handleTipoSolicitudIdilter($tipo_solicitud_id){
+    public function handleTipoSolicitudIdFilter($tipo_solicitud_id){
         if(!trim($tipo_solicitud_id)) return;
         $this->query->where('tipo_solicitud_id', $tipo_solicitud_id);
     }
