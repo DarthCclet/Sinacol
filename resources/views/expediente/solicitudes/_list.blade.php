@@ -2113,6 +2113,35 @@
         });
         $("#tbodyContacto").html(table);
     }
+    function eliminarContacto(indice){
+            if(listaContactos[indice].id != null){
+                $.ajax({
+                    url:"/partes/representante/contacto/eliminar",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        contacto_id:listaContactos[indice].id,
+                        parte_id:$("#parte_id").val(),
+                        _token:"{{ csrf_token() }}"
+                    },
+                    success:function(response){
+                        try{
+                            if(response.success){
+                                listaContactos = response.data;
+                                cargarContactos();
+                            }else{
+                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            }
+                        }catch(error){
+                            console.log(error);
+                        }
+                    }
+                });
+            }else{
+                listaContactos.splice(indice,1);
+                cargarContactos();
+            }
+        }
 
     $("#btnGuardarRepresentante").on("click", function () {
         if (!validarRepresentante()) {
