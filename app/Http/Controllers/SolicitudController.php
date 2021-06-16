@@ -1503,7 +1503,7 @@ class SolicitudController extends Controller {
                         }
                         AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
                         if ($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]) {
-                            //event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
                         }
                     }
                     //                if($datos_audiencia["encontro_audiencia"] && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
@@ -1527,7 +1527,7 @@ class SolicitudController extends Controller {
                 if ($request->inmediata != "true" && $audiencia->encontro_audiencia && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)) {
                     event(new RatificacionRealizada($audiencia->id, "citatorio"));
                 }
-                //event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
+                event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
                 return $audiencia;
             } else {
                 DB::rollback();
