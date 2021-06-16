@@ -296,7 +296,10 @@ class CentroController extends Controller
         if($rolActual != "Super Usuario"){
             if($rolActual == "Orientador"){
                 $query = AudienciaParte::whereHas('audiencia.expediente.solicitud', function ($q){
-                    return $q->where('centro_id', auth()->user()->centro_id)->where('captura_user_id',auth()->user()->id);
+                    return $q->where('centro_id', auth()->user()->centro_id);
+                });
+                $query->whereHas('audiencia.expediente.solicitud',function($q){
+                    return $q->where('captura_user_id',auth()->user()->id)->orWhere('user_id',auth()->user()->id);
                 });
                 $details = $query->with('parte','audiencia.expediente.solicitud','tipo_notificacion','audiencia.etapa_notificacion')->paginate(10);
             }else {
@@ -316,6 +319,9 @@ class CentroController extends Controller
             if($rolActual == "Orientador"){
                 $query = AudienciaParte::whereHas('audiencia.expediente.solicitud', function ($q){
                     return $q->where('centro_id', auth()->user()->centro_id)->where('captura_user_id',auth()->user()->id);
+                });
+                $query->whereHas('audiencia.expediente.solicitud',function($q){
+                    return $q->where('captura_user_id',auth()->user()->id)->orWhere('user_id',auth()->user()->id);
                 });
                 if($expediente != ""){
                     $query->whereHas('audiencia.expediente', function ($q) use ($expediente) {
