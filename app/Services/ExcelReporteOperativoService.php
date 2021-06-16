@@ -19,7 +19,7 @@ class ExcelReporteOperativoService
     /**
      * Días para el archivado de no ratificadas
      */
-    const DIAS_PARA_ARCHIVAR = 20;
+    const DIAS_PARA_ARCHIVAR = 5;
 
     /**
      * ExcelReporteOperativoService constructor.
@@ -467,31 +467,42 @@ class ExcelReporteOperativoService
             ->count();
         $sheet->setCellValue('T4', $beneficios);
 
+        # Número de convenios diferidos
+        $num_convenios = (clone $this->service->pagosDiferidos($request))
+            ->has('pagosDiferidos', '>=', 1)
+            ->get()->unique('expediente_id')->count();
+        $sheet->setCellValue('T7', $num_convenios);
 
-        $num_pagos_dif = (clone $this->service->audiencias($request))
-            ->has('pagosDiferidos', 1)->with('pagosDiferidos')
-            ->get()->count();
-        $sheet->setCellValue('T7', $num_pagos_dif);
+        # Número de pagos diferidos
+        $num_pagos_dif = (clone $this->service->pagosDiferidos($request))
+            ->has('pagosDiferidos', '>=', 1)
+            ->get()->unique('expediente_id')->count();
+        $sheet->setCellValue('U7', $num_pagos_dif);
 
-        //ToDo: Qué onda con la columna U ?
-
+        # Monto pagos diferidos
         $monto_pagos_dif = (clone $this->service->pagosDiferidos($request))
-            ->has('pagosDiferidos', '=', 1)
+            ->has('pagosDiferidos', '>=', 1)
             ->get()
             ->map(function ($k, $v){
                 return $k->pagosDiferidos->sum('monto');
             });
         $sheet->setCellValue('V7', $monto_pagos_dif->sum());
 
-        $num_pagos_parciales = (clone $this->service->pagosDiferidos($request))
-            ->has('pagosDiferidos', '>', 1)
-            ->get()
-            ->map(function ($k, $v){
-                return $k->pagosDiferidos->sum('monto');
-            });
-        $sheet->setCellValue('U8', $num_pagos_parciales->count());
 
-        $sheet->setCellValue('V8', $num_pagos_parciales->sum());
+        # Número de convenios a la firma de convenio
+        $num_convenios_fc = $this->service->convenios($request)->with(['expediente.audiencia'=>function($q){ $q->doesnthave('pagosDiferidos');}])
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->get()->unique('expediente_id');
+
+        # Número de pagos a la firma de convenio
+        $num_pagos_fc = $this->service->convenios($request)->with(['expediente.audiencia'=>function($q){ $q->doesnthave('pagosDiferidos');}])
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->get();
+
+        # Monto pagos a la firma de convenio
+        $monto_pagos_fc = $num_pagos_fc->sum('monto');
+
+        $sheet->setCellValue('T8', $num_convenios_fc->count());
+        $sheet->setCellValue('U8', $num_pagos_fc->count());
+        $sheet->setCellValue('V8', $monto_pagos_fc);
 
 
 

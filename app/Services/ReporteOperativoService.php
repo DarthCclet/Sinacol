@@ -191,7 +191,7 @@ class ReporteOperativoService
         $q->whereNull('expedientes.deleted_at');
         $q->whereNull('resolucion_parte_conceptos.deleted_at');
 
-
+        $this->filtroTipoSolicitud($request, $q);
 
         return $q;
     }
@@ -317,12 +317,12 @@ class ReporteOperativoService
         $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
 
-
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
 
-        $this->noReportables($q);
+        $this->filtroTipoSolicitud($request, $q);
+
         return $q;
     }
 
@@ -352,7 +352,7 @@ class ReporteOperativoService
         $this->noReportables($q);
         $q->whereNull('audiencias.deleted_at');
         $q->whereNull('audiencias_partes.deleted_at');
-
+        $this->filtroTipoSolicitud($request, $q);
         return $q;
     }
 
