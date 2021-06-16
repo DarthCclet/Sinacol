@@ -617,7 +617,7 @@ class ReportesService
             $strq = preg_replace('/(\d+)-(\d+)-(\d+)/i',"'$1-$2-$3'", str_replace_array('?', $item['bindings'], $item['query']));
             $strq = preg_replace('/"/','', $strq);
             if(!$html) $res[] = $strq;
-            echo $strq."<hr/>";
+            echo $strq."<hr/>".PHP_EOL.PHP_EOL;
         }
         if($html) return;
         return $res;
