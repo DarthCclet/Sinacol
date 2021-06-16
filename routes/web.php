@@ -242,6 +242,7 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::get('reportes','ReportesController@index')->name('reportes.forma');
     Route::get('reportes/reporte','ReportesController@reporte')->name('reportes.reporte');
+    Route::get('reportes/reporte-operativo','ReportesController@reporteOperativo')->name('reportes.reporte-opeativo');
 
 });
 

@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 
+use App\Conciliador;
 use App\Industria;
 use App\ObjetoSolicitud;
+use App\Services\ExcelReporteOperativoService;
 use App\Services\ExcelReportesService;
 use App\Services\ReportesService;
 use App\Traits\EstilosSpreadsheets;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -36,61 +38,61 @@ class ReportesController extends Controller
      * @var Request
      */
     protected $request;
-    /**
-     * ID de tipo de solicitud individual en catálogo de tipos_solicitudes
-     */
-    const SOLICITUD_INDIVIDUAL = 1;
 
     /**
-     * ID de tipo de solicitud patronal individual en catálogo de tipos_solicitudes
+     * ID del rol Personal conciliador de la tabla roles
      */
-    const SOLICITUD_PATRONAL_INDIVIDUAL = 2;
+    const ROL_PERSONAL_CONCILIADOR = 3;
+
 
     public function __construct(Request $request) {
+        //$this->middleware('can:Reportes');
         $this->request = $request;
     }
 
+    /**
+     * Muestra la forma de consulta del reporte
+     * @param ReportesService $reportesService
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index()
     {
-        $tipo_objeto_solicitud = [];
-        $tipo_objeto_solicitud["1"] = 'Trabajador individual';
-        $tipo_objeto_solicitud["2"] = 'Patrón individual';
-        $objetos = ObjetoSolicitud::whereIn('tipo_objeto_solicitudes_id',[self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL])
-            ->orderBy('tipo_objeto_solicitudes_id')->orderBy('id')->get();
-        $tipoObjetos = [];
-        //$tipoObjetos[]=[""=>"--Seleccione"];
-        foreach ($objetos as $objeto){
-            $tipoObjetos[$objeto->id] = $tipo_objeto_solicitud[$objeto->tipo_objeto_solicitudes_id]." - ".$objeto->nombre;
-        }
+        # Sólo mostramos los objetos para solicitud individual y solicitud patronal en el filtro
+        $tipoObjetos = ReportesService::getObjetosFiltrables();
+        $tipoObjetosJson = $tipoObjetos->toJson();
+
+        # ToDo: Se debe sacar los centros activos para poder consultar dinámicamente y no de esta lista hardcodeada
         $centros = [];
         foreach ($this->imp as $centro){
             $centros[$centro] = $centro;
         }
-        $grupo_etario = [];
-        $grupo_etario["18-19"] = "De 18 a 19 años";
-        $grupo_etario["20-24"] = "De 20 a 24 años";;
-        $grupo_etario["25-29"] = "De 25 a 29 años";;
-        $grupo_etario["30-34"] = "De 30 a 34 años";;
-        $grupo_etario["35-39"] = "De 35 a 39 años";;
-        $grupo_etario["40-44"] = "De 40 a 44 años";;
-        $grupo_etario["45-49"] = "De 45 a 49 años";;
-        $grupo_etario["50-54"] = "De 50 a 54 años";;
-        $grupo_etario["55-59"] = "De 55 a 59 años";;
-        $grupo_etario["60-64"] = "De 60 a 64 años";;
-        $grupo_etario["65-69"] = "De 65 a 69 años";;
-        $grupo_etario["70-74"] = "De 70 a 74 años";;
-        $grupo_etario["75-79"] = "De 75 a 79 años";;
-        $grupo_etario["80-84"] = "De 80 a 84 años";;
-        $grupo_etario["85-89"] = "De 85 a 89 años";;
 
-        $tipoIndustria = Industria::orderBy('nombre')->get(['id','nombre'])->pluck('nombre','id');
+        # Los conciliadores
+        $conciliadores = $this->listaConciliadores();
+        $conciliadoresJson = $conciliadores->toJson();
 
-        return view('reportes.index', compact('tipoObjetos','centros', 'grupo_etario', 'tipoIndustria'));
+        # Los grupos etarios
+        $grupo_etario = ReportesService::gruposEtarios();
+
+        # Las industrias
+        $tipoIndustria = ReportesService::getIndustria();
+
+        # Para loguear los querys
+        $querys = $this->request->exists('querys');
+
+        return view('reportes.index', compact('tipoObjetos','centros', 'grupo_etario', 'tipoIndustria', 'tipoObjetosJson', 'conciliadoresJson', 'querys'));
     }
 
+    /**
+     * Devuelve el reporte en excel.
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @return StreamedResponse
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
     public function reporte(ReportesService $reportesService, ExcelReportesService $excelReportesService)
     {
-        // Cambiamos a la base de respaldo para las consultas y no pegar en el performance.
+        // Cambiamos a la base de respaldo para las consultas y no pegar en el performance en producción.
         DB::setDefaultConnection('pgsqlqa');
 
         $spreadsheet = new Spreadsheet();
@@ -100,9 +102,11 @@ class ReportesController extends Controller
 
         // SOLICITUDES PRESENTADAS
         $sheet->setTitle('Solicitudes presentadas');
-        $solicitudes = $reportesService->solicitudesPresentadas($this->request);
 
-        //dump($this->request->all());
+        // Si viene el parámetro query logueamos los querys a pantalla
+        if($this->request->exists('querys')) DB::enableQueryLog();
+
+        $solicitudes = $reportesService->solicitudesPresentadas($this->request);
         $excelReportesService->solicitudesPresentadas($sheet, $solicitudes, $this->request);
 
         // SOLICITUDES CONFIRMADAS
@@ -159,25 +163,101 @@ class ReportesController extends Controller
         $spreadsheet->addSheet($pagosdiferidosWorkSheet, 9);
         $excelReportesService->pagosDiferidos($pagosdiferidosWorkSheet, $pagosdiferidos, $this->request);
 
+        // Si viene el parámetro query logueamos los querys a pantalla
+        if($this->request->exists('querys')) {$res =  ReportesService::debugSql(); dump($res); exit;}
+
         // Descarga del excel
         $spreadsheet->setActiveSheetIndex(0);
-        return $this->descargaExcel($writer);
+
+        $nombre_reporte = 'ReporteSINACOL_'.date("Y-m-d_His").".xlsx";
+
+        return $this->descargaExcel($writer, $nombre_reporte);
     }
 
 
-    public function descargaExcel($writer)
+    /**
+     * Regresa el archivo excel como una StreamedResponse que se descarga al navegador del usuario
+     * @param $writer
+     * @param $nombre_reporte
+     * @return StreamedResponse
+     */
+    public function descargaExcel($writer, $nombre_reporte)
     {
         $response =  new StreamedResponse(
             function () use ($writer) {
                 $writer->save('php://output');
             }
         );
-        $nombre_reporte = 'ReporteSINACOL_'.date("Y-m-d_His").".xlsx";
+
         $response->headers->set('Content-Type', 'application/vnd.ms-excel');
         $response->headers->set('Content-Disposition', 'attachment;filename="'.$nombre_reporte.'"');
         $response->headers->set('Cache-Control','max-age=0');
         return $response;
     }
 
+
+
+    /**
+     * Listado de conciliadores activos agrupados por centro
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+     */
+    protected function listaConciliadores()
+    {
+        return Conciliador::with('persona', 'centro', 'persona.user.roles')
+            ->whereHas(
+                'centro',
+                function ($q) {
+                    $q->whereIn('abreviatura', $this->imp);
+                }
+            )
+            ->whereHas(
+                'persona.user.roles',
+                function ($q) {
+                    $q->where('id', self::ROL_PERSONAL_CONCILIADOR);
+                }
+            )
+            ->get()->map(
+                function ($v, $k) {
+                    return [
+                        'id' => $v->id,
+                        'nombre' => trim(
+                            mb_strtoupper($v->persona->nombre . " " . $v->persona->primer_apellido . " " . $v->persona->segundo_apellido)
+                        ),
+                        'centro' => $v->centro->abreviatura
+                    ];
+                }
+            )->groupBy('centro');
+
+    }
+
+    /**
+     * Excel proporcionado por personal del CFCRL (Mtra. Gianni)
+     * @param ExcelReporteOperativoService $excelReporteOperativoService
+     * @return StreamedResponse
+     */
+    public function reporteOperativo(ExcelReporteOperativoService $excelReporteOperativoService)
+    {
+        // Cambiamos a la base de respaldo para las consultas y no pegar en el performance en producción.
+        DB::setDefaultConnection('pgsqlqa');
+
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load(base_path('database/datafiles/plantilla_reporte_operativo.xlsx'));
+
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setTitle('Reporte operativo');
+
+        $nombre_reporte = 'ReporteOperativoSINACOL_'.date("Y-m-d_His").".xlsx";
+        // Si viene el parámetro query logueamos los querys a pantalla
+        if($this->request->exists('querys')) DB::enableQueryLog();
+
+        $excelReporteOperativoService->reporte($sheet, $this->request);
+
+        // Si viene el parámetro query logueamos los querys a pantalla
+        if($this->request->exists('querys')) {$res =  ReportesService::debugSql(); dump($res); exit;}
+
+        $writer = new Xlsx($spreadsheet);
+        return $this->descargaExcel($writer, $nombre_reporte );
+
+    }
 
 }
