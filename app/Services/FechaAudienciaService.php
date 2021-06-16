@@ -710,7 +710,7 @@ class FechaAudienciaService{
                 $i++;
             }
         }
-        $conciliadores = Centro::find(15)->conciliadores()->whereHas('rolesConciliador',function($q) use ($rol){
+        $conciliadores = Centro::find($centro->id)->conciliadores()->whereHas('rolesConciliador',function($q) use ($rol){
             return $q->where('rol_atencion_id',$rol->id);
         })->orderBy('orden','asc')->get();
 
