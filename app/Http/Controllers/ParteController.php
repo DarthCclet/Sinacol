@@ -488,18 +488,18 @@ class ParteController extends Controller
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                                 
-                                $path = $archivoInst->store($directorio);
+                                $pathInst = $archivoInst->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
-                                    "nombre" => str_replace($directorio."/", '',$path),
+                                    "nombre" => str_replace($directorio."/", '',$pathInst),
                                     "nombre_original" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
                                     // "numero_documento" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
                                     "descripcion" => $tipoArchivo->nombre,
-                                    "ruta" => $path,
+                                    "ruta" => $pathInst,
                                     "uuid" => $uuid,
                                     "tipo_almacen" => "local",
-                                    "uri" => $path,
-                                    "longitud" => round(Storage::size($path) / 1024, 2),
+                                    "uri" => $pathInst,
+                                    "longitud" => round(Storage::size($pathInst) / 1024, 2),
                                     "firmado" => "false",
                                     "clasificacion_archivo_id" => $tipoArchivo->id ,
                                 ]);
@@ -545,18 +545,18 @@ class ParteController extends Controller
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                                 
-                                $path = $archivoCed->store($directorio);
+                                $pathCed = $archivoCed->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
-                                    "nombre" => str_replace($directorio."/", '',$path),
+                                    "nombre" => str_replace($directorio."/", '',$pathCed),
                                     "nombre_original" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
                                     // "numero_documento" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
                                     "descripcion" => $tipoArchivo->nombre,
-                                    "ruta" => $path,
+                                    "ruta" => $pathCed,
                                     "uuid" => $uuid,
                                     "tipo_almacen" => "local",
-                                    "uri" => $path,
-                                    "longitud" => round(Storage::size($path) / 1024, 2),
+                                    "uri" => $pathCed,
+                                    "longitud" => round(Storage::size($pathCed) / 1024, 2),
                                     "firmado" => "false",
                                     "clasificacion_archivo_id" => $tipoArchivo->id ,
                                 ]);
@@ -658,7 +658,7 @@ class ParteController extends Controller
                             $pathInst = $archivoInst->store($directorio);
                             $uuid = Str::uuid();
                             $documento = $parte->documentos()->create([
-                                "nombre" => str_replace($directorio."/", '',$path),
+                                "nombre" => str_replace($directorio."/", '',$pathInst),
                                 "nombre_original" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
                                 // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                                 "descripcion" => $tipoArchivoInst->nombre,
@@ -680,18 +680,18 @@ class ParteController extends Controller
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivoCed = ClasificacionArchivo::find($clasificacion_archivoCed);
                                 
-                                $pathInst = $archivoCed->store($directorio);
+                                $pathCed = $archivoCed->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
-                                    "nombre" => str_replace($directorio."/", '',$path),
+                                    "nombre" => str_replace($directorio."/", '',$pathCed),
                                     "nombre_original" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
                                     // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                                     "descripcion" => $tipoArchivoCed->nombre,
-                                    "ruta" => $pathInst,
+                                    "ruta" => $pathCed,
                                     "uuid" => $uuid,
                                     "tipo_almacen" => "local",
-                                    "uri" => $pathInst,
-                                    "longitud" => round(Storage::size($pathInst) / 1024, 2),
+                                    "uri" => $pathCed,
+                                    "longitud" => round(Storage::size($pathCed) / 1024, 2),
                                     "firmado" => "false",
                                     "clasificacion_archivo_id" => $tipoArchivoCed->id ,
                                 ]);
