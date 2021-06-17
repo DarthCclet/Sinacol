@@ -750,6 +750,22 @@ class SolicitudController extends Controller {
                         if (count($audiencia->comparecientes) > 0) {
                             $audiencia->iniciada = true;
                         }
+                        foreach ($audiencia->audienciaParte as $parte) {
+                            $documentos = $parte->documentos;
+                            foreach ($documentos as $documento) {
+                                $documento->id = $documento->id;
+                                $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                                $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                                $documento->owner = "Audiencia ".$audiencia->folio . "/" . $audiencia->anio;
+                                if ($parte->parte->tipo_persona_id == 1) {
+                                    $documento->audiencia = $parte->parte->nombre . " " . $parte->parte->primer_apellido . " " . $parte->parte->segundo_apellido;
+                                } else {
+                                    $documento->audiencia = $parte->parte->nombre_comercial;
+                                }
+                                $documento->tipo_doc = 3;
+                                $doc->push($documento);
+                            }
+                        }
                     }
                 }
                 $solicitud->docs = $doc;
@@ -1868,6 +1884,7 @@ class SolicitudController extends Controller {
             $solicitud->tipo_incidencia_solicitud_id = $request->tipo_incidencia_solicitud_id;
             $solicitud->justificacion_incidencia = $request->justificacion_incidencia;
             $solicitud->user_id = $user_id;
+            $solicitud->save();
             if ($request->solicitud_asociada_id) {
                 $solicitud->solicitud_id = $request->solicitud_asociada_id;
             }
@@ -1880,6 +1897,7 @@ class SolicitudController extends Controller {
                         $solicitud->estatus_solicitud_id = 3;
                         $solicitud->incidencia = true;
                         $solicitud->fecha_incidencia = now();
+                        $solicitud->save();
                         $partes = $solicitud->partes;
                         foreach ($partes as $parte) {
                             if ($parte->tipo_parte_id == 1) {
@@ -1895,6 +1913,7 @@ class SolicitudController extends Controller {
                         $solicitud->estatus_solicitud_id = 3;
                         $solicitud->incidencia = true;
                         $solicitud->fecha_incidencia = now();
+                        $solicitud->save();
                         $partes = $solicitud->partes;
                         foreach ($partes as $parte) {
                             if ($parte->tipo_parte_id == 1) {
@@ -1908,7 +1927,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no tiene audiencias, crear incompetencia en proceso de confirmación ', 'Error');
                 }
             }
-            $solicitud->save();
+            
             if($request->tipo_incidencia_solicitud_id == 7){
                 if ($solicitud->expediente && $solicitud->expediente->audiencia) {
                     event(new GenerateDocumentResolution($solicitud->expediente->audiencia()->orderBy('id','desc')->first()->id,$solicitud->id,61,24,null,null));
@@ -1917,7 +1936,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no esta confirmada, no se puede realizar este proceso ', 'Error');
                 }
             }
-
+            
             DB::commit();
             return $this->sendResponse($solicitud, 'SUCCESS');
         } catch (Exception $e) {

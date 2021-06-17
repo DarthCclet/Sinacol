@@ -65,7 +65,7 @@
                                 @endforeach
                             </td>
                             <td>{{$solicitud->tipoIncidenciaSolicitud ? $solicitud->tipoIncidenciaSolicitud->nombre: ""}}</td>
-                            <td>{!! $solicitud->justificacion_incidencia ? substr($solicitud->justificacion_incidencia,0,50).'...'   :"" !!}</td>
+                            <td>{{ $solicitud->justificacion_incidencia ? substr(strip_tags($solicitud->justificacion_incidencia),0,50).'...'   :"" }}</td>
                             <td>{{$solicitud->fecha_incidencia ? $solicitud->fecha_incidencia : "" }}</td>
                             <td>{{$solicitud->solicitud ? $solicitud->solicitud->folio."/".$solicitud->solicitud->anio : "" }}</td>
                             <td>
