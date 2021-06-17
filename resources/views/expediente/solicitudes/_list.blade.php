@@ -858,7 +858,6 @@
                 {
                     "targets": -2,
                     "render": function (data, type, row) {
-                        // console.log(row[0]);
                         if (row[1] == "2" && row[5] != null) {
                             var d = new Date();
                             var dateToday = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0') + "-" + String(d.getDate()).padStart(2, '0');
@@ -883,7 +882,6 @@
                     "targets": -1,
                     "render": function (data, type, row) {
                         var buttons = '';
-                        console.log(row);
                         if ((row[7] == $("#centro_id").val() || $("#oficina_central").val() == "true") && row[1] != 3) {
                             buttons += '<div title="Editar solicitud" data-toggle="tooltip" data-placement="top" style="display: inline-block;" class="m-2"><a href="' + ruta.replace('/1/', "/" + row[0] + "/") + '#step-4" class="btn btn-xs btn-primary"><i class="fa fa-pencil-alt"></i></a></div>';
                         }
@@ -1041,7 +1039,6 @@
             $("#divNoGeolocalizable").show();
             $("#divGeolocalizable").hide();
         }
-        console.log(solicitudObj.tipo_solicitud_id);
         if (solicitudObj.tipo_solicitud_id == 3 || solicitudObj.tipo_solicitud_id == 4) {
             $(".archivo_sindical").show();
             $("#btnGuardarRatificar").hide();
@@ -2345,9 +2342,10 @@
                 } catch (error) {
                     console.log(error);
                 }
-            });
-        }
-        $("#btnGuardarConvenio").on("click",function(){
+            }
+        });
+    }
+    $("#btnGuardarConvenio").on("click",function(){
         if("{{auth()->user()->hasRole('Personal conciliador')}}" && $("#aceptar_notif_buzon").is(":checked")){
             if(ratifican){
                 $.ajax({
