@@ -424,19 +424,19 @@ class ParteController extends Controller
                         if(!$existe || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
-                                $archivo = $request->fileIdentificacion;
+                                $archivoIde = $request->fileIdentificacion;
                                 $solicitud_id = $solicitud->id;
                                 $clasificacion_archivo= $request->tipo_documento_id;
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                                 
-                                $path = $archivo->store($directorio);
+                                $path = $archivoIde->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
                                     "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre_original" => str_replace($directorio, '',$archivoIde->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivoIde->getClientOriginalName()),
                                     "descripcion" => $tipoArchivo->nombre,
                                     "ruta" => $path,
                                     "uuid" => $uuid,
@@ -481,19 +481,19 @@ class ParteController extends Controller
                         if(!$existeInst || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
-                                $archivo = $request->fileInstrumento;
+                                $archivoInst = $request->fileInstrumento;
                                 $solicitud_id = $solicitud->id;
                                 $clasificacion_archivo= $request->clasificacion_archivo_id;
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                                 
-                                $path = $archivo->store($directorio);
+                                $path = $archivoInst->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
                                     "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre_original" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
                                     "descripcion" => $tipoArchivo->nombre,
                                     "ruta" => $path,
                                     "uuid" => $uuid,
@@ -538,19 +538,19 @@ class ParteController extends Controller
                         if(!$existeCed || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
-                                $archivo = $request->fileCedula;
+                                $archivoCed = $request->fileCedula;
                                 $solicitud_id = $solicitud->id;
                                 $clasificacion_archivo= 3;
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                                 
-                                $path = $archivo->store($directorio);
+                                $path = $archivoCed->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
                                     "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre_original" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
                                     "descripcion" => $tipoArchivo->nombre,
                                     "ruta" => $path,
                                     "uuid" => $uuid,
@@ -659,7 +659,7 @@ class ParteController extends Controller
                             $uuid = Str::uuid();
                             $documento = $parte->documentos()->create([
                                 "nombre" => str_replace($directorio."/", '',$path),
-                                "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                "nombre_original" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
                                 // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                                 "descripcion" => $tipoArchivoInst->nombre,
                                 "ruta" => $pathInst,
@@ -684,7 +684,7 @@ class ParteController extends Controller
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
                                     "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre_original" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
                                     // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                                     "descripcion" => $tipoArchivoCed->nombre,
                                     "ruta" => $pathInst,
