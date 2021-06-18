@@ -64,4 +64,19 @@ class AudienciaFilter extends Filter
     }
 
 
+    /**
+     * Cuando filtran por conciliadores
+     * @param $conciliadores
+     */
+    public function handleConciliadoresFilter($conciliadores)
+    {
+        if (is_array($conciliadores)) {
+            $this->query->whereIn('audiencias.conciliador_id', $conciliadores);
+        } else {
+            if (!trim($conciliadores)) {
+                return;
+            }
+            $this->query->where('audiencias.conciliador_id', $conciliadores);
+        }
+    }
 }

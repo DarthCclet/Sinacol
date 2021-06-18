@@ -49,6 +49,7 @@
 <!-- end page-header -->
 <h1 class="badge badge-secondary col-md-2 offset-10" style="position: fixed; font-size: 2rem; z-index:999;" onclick="startTimer();"><span class="countdown">00:00:00</span></h1>
 <input type="hidden" id="audiencia_id" name="audiencia_id" value="{{$audiencia->id}}" />
+<input type="hidden" id="paso_actual" name="paso_actual" value="0" />
 <input type="hidden" id="virtual" name="virtual" value="{{$virtual}}" />
 
 @if(auth()->user()->persona_id == $conciliador->persona_id)
@@ -725,6 +726,41 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarRepresentante"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin de modal de representante legal-->
+<!--inicio modal para representante legal-->
+<div class="modal" id="modal-select-representante" data-backdrop="static" data-keyboard="false" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Representante legal</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <button class="btn btn-primary" type="button" style="float: right;" id="btnNuevoRepresentante" onclick="NuevoRepresentante()">
+                    <i class="fa fa-plus-circle"></i> Nuevo Representante
+                </button>
+                <table class="table table-bordered" >
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Fecha Nacimiento</th>
+                            <th>Detalle Instrumento Notarial</th>
+                            <th>Seleccionar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyRepresentantes">
+                    </tbody>
+                </table>
             </div>
             <div class="modal-footer">
                 <div class="text-right">
@@ -1863,7 +1899,7 @@
             if(pasoActual == 1){
                 firstTimeStamp = value.created_at;
             }
-
+            $("#paso_actual").val(pasoActual);
         });
         startTimer();
     }
@@ -2515,15 +2551,14 @@
         return respuesta;
     }
 
-    function AgregarRepresentante(parte_id){
+    function SelectRepresentanteLegal(representante_id){
         $.ajax({
-            url:"/partes/representante/"+parte_id,
+            url:"/representante/"+representante_id,
             type:"GET",
             dataType:"json",
             success:function(data){
                 try{
                     if(data != null && data != ""){
-                        data = data[0];
                         $("#id_representante").val(data.id);
                         $("#curp").val(data.curp);
                         $("#nombre").val(data.nombre);
@@ -2550,14 +2585,15 @@
                                     $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
                                 }
                             });
-
                         }else{
                             $("#tipo_documento_id").val("").trigger("change");
                             $("#labelIdentifRepresentante").html("");
                             $("#clasificacion_archivo_id_representante").val("").trigger('change');
                             $("#labelInstrumentoRepresentante").html("");
                         }
+                        $("#btnNuevoRepresentante").show();
                     }else{
+                        $("#btnNuevoRepresentante").hide();
                         $("#id_representante").val("");
                         $("#curp").val("");
                         $("#nombre").val("");
@@ -2575,14 +2611,154 @@
                     }
                     $("#tipo_contacto_id").val("").trigger("change");
                     $("#contacto").val("");
-                    $("#parte_representada_id").val(parte_id);
+                    
                     cargarContactos();
+                    $("#modal-select-representante").modal("hide");
                     $("#modal-representante").modal("show");
                 }catch(error){
                     console.log(error);
                 }
             }
         });
+    }
+    function AgregarRepresentante(parte_id){
+        var pasoActual = $("#paso_actual").val();
+        if(pasoActual == 0){
+            $.ajax({
+                url:"/partes/representante/"+parte_id,
+                type:"GET",
+                dataType:"json",
+                success:function(data){
+                    try{
+                        var html = "";
+                        $.each(data,function(key,value){
+                            console.log(value.nombre);
+                            console.log(value.primer_apellido);
+                            console.log(value.segundo_apellido);
+                            console.log(value.fecha_nacimiento);
+                            console.log(value.detalle_instrumento);
+                            html += "<tr>";
+                            html += "<td> "+ value.nombre+' '+value.primer_apellido+' '+(value.segundo_apellido|| "") +"</td>";
+                            html += "<td> "+ value.fecha_nacimiento +"</td>";
+                            html += "<td> "+ (value.detalle_instrumento || "") +"</td>";
+                            html += "<td> <button class='btn btn-primary' onclick='SelectRepresentanteLegal("+value.id+")'> Seleccionar </button> </td>";
+                            html += "</tr>";
+                        });
+                        $("#parte_representada_id").val(parte_id);
+                        $("#tbodyRepresentantes").html(html);
+                        $("#modal-select-representante").modal("show");
+                    }catch(error){
+                        console.log(error);
+                    }
+                }
+            });
+        }else{
+            RepresentanteAudiencia(parte_id);
+        }
+    }
+
+    function RepresentanteAudiencia(parte_id){
+        $.ajax({
+            url:"/partes/representante/audiencia",
+            type:"POST",
+            dataType:"json",
+            data:{
+                audiencia_id:$("#audiencia_id").val(),
+                parte_id:parte_id,
+                _token:"{{ csrf_token() }}"
+            },
+            success:function(data){
+                try{
+                    if(data != null && data != ""){
+                        $("#id_representante").val(data.id);
+                        $("#curp").val(data.curp);
+                        $("#nombre").val(data.nombre);
+                        $("#primer_apellido").val(data.primer_apellido);
+                        $("#segundo_apellido").val(data.segundo_apellido);
+                        $("#fecha_nacimiento").val(dateFormat(data.fecha_nacimiento,4));
+                        $("#genero_id").val(data.genero_id).trigger("change");
+                        $("#clasificacion_archivo_id_representante").val(data.clasificacion_archivo_id).trigger('change');
+                        $("#feha_instrumento").val(dateFormat(data.feha_instrumento,4));
+                        $("#detalle_instrumento").val(data.detalle_instrumento);
+                        $("#parte_id").val(data.id);
+                        listaContactos = data.contactos;
+                        if(data.documentos && data.documentos.length > 0){
+                            $.each(data.documentos,function(index,doc){
+                                if(doc.tipo_archivo == 1){
+                                    if(doc.clasificacion_archivo_id == 3){
+                                        $("#labelCedula").html("Cedula Profesional Capturada");
+                                    }else{
+                                        $("#labelIdentifRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                        $("#tipo_documento_id").val(doc.clasificacion_archivo_id).trigger('change');
+                                    }
+                                }else{
+                                    $("#labelInstrumentoRepresentante").html("<b>Identificado con:</b> "+doc.descripcion);
+                                    $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
+                                }
+                            });
+                        }else{
+                            $("#tipo_documento_id").val("").trigger("change");
+                            $("#labelIdentifRepresentante").html("");
+                            $("#clasificacion_archivo_id_representante").val("").trigger('change');
+                            $("#labelInstrumentoRepresentante").html("");
+                        }
+                        $("#btnNuevoRepresentante").show();
+                    }else{
+                        $("#btnNuevoRepresentante").hide();
+                        $("#id_representante").val("");
+                        $("#curp").val("");
+                        $("#nombre").val("");
+                        $("#primer_apellido").val("");
+                        $("#segundo_apellido").val("");
+                        $("#fecha_nacimiento").val("");
+                        $("#genero_id").val("").trigger("change");
+                        $("#clasificacion_archivo_id_representante").val("").change();
+                        $("#feha_instrumento").val("");
+                        $("#detalle_instrumento").val("");
+                        $("#parte_id").val("");
+                        $("#tipo_documento_id").val("").trigger("change");
+                        $("#labelIdentifRepresentante").html("");
+                        listaContactos = [];
+                    }
+                    $("#tipo_contacto_id").val("").trigger("change");
+                    $("#contacto").val("");
+                    
+                    cargarContactos();
+                    $("#modal-select-representante").modal("hide");
+                    $("#modal-representante").modal("show");
+                }catch(error){
+                    console.log(error);
+                }
+            }
+        });
+    }
+
+    function NuevoRepresentante(){
+        $("#id_representante").val("");
+        $("#curp").val("");
+        $("#nombre").val("");
+        $("#primer_apellido").val("");
+        $("#segundo_apellido").val("");
+        $("#fecha_nacimiento").val("");
+        $("#genero_id").val("").trigger("change");
+        $("#clasificacion_archivo_id_representante").val("").change();
+        $("#feha_instrumento").val("");
+        $("#detalle_instrumento").val("");
+        $("#parte_id").val("");
+        $("#tipo_documento_id").val("").trigger("change");
+        $("#labelIdentifRepresentante").html("");
+        $("#fileCedula").val("");
+        $("#fileIdentificacion").val("");
+        $("#fileInstrumento").val("");
+        $("#labelCedula").html("");
+        $("#labelInstrumentoRepresentante").html("");
+        $("#labelIdentifRepresentante").html("");
+        $("#tipo_contacto_id").val("").trigger("change");
+        $("#contacto").val("");
+        $("#modal-select-representante").modal("hide");
+        $("#modal-representante").modal("show");
+        listaContactos = [];
+        cargarContactos();
     }
     function actualizarPartes(){
             $.ajax({
@@ -2695,6 +2871,35 @@
         });
         $("#tbodyContacto").html(table);
     }
+    function eliminarContacto(indice){
+            if(listaContactos[indice].id != null){
+                $.ajax({
+                    url:"/partes/representante/contacto/eliminar",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        contacto_id:listaContactos[indice].id,
+                        parte_id:$("#parte_id").val(),
+                        _token:"{{ csrf_token() }}"
+                    },
+                    success:function(response){
+                        try{
+                            if(response.success){
+                                listaContactos = response.data;
+                                cargarContactos();
+                            }else{
+                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            }
+                        }catch(error){
+                            console.log(error);
+                        }
+                    }
+                });
+            }else{
+                listaContactos.splice(indice,1);
+                cargarContactos();
+            }
+        }
     function cargarGeneros(){
         $.ajax({
             url:"/generos",
@@ -2942,6 +3147,7 @@
                         if(data != null && data != ""){
                             swal({title: 'ÉXITO',text: 'Se agregó el representante',icon: 'success'});
                             actualizarPartes();
+                            NuevoRepresentante();
                             $("#modal-representante").modal("hide");
                         }else{
                             swal({title: 'Error',text: 'Error al guardar representante',icon: 'warning'});

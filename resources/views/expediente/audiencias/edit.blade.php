@@ -1948,8 +1948,8 @@
                     },
                     success:function(data){
                         try{
-                            if(data != null && data != ""){
-                                listaContactos = data;
+                            if(response.success){
+                                listaContactos = response.data;
                                 cargarContactos();
                             }else{
                                 swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});

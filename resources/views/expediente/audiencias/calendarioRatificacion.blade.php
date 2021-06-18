@@ -131,6 +131,8 @@
                         _token:"{{ csrf_token() }}"
                     },
                     dataType:"json",
+                    global:false,
+                    async:true,
                     success:function(data){
                         try{
                             console.log(data.minTime);

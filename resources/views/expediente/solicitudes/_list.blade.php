@@ -2125,6 +2125,35 @@
         });
         $("#tbodyContacto").html(table);
     }
+    function eliminarContacto(indice){
+            if(listaContactos[indice].id != null){
+                $.ajax({
+                    url:"/partes/representante/contacto/eliminar",
+                    type:"POST",
+                    dataType:"json",
+                    data:{
+                        contacto_id:listaContactos[indice].id,
+                        parte_id:$("#parte_id").val(),
+                        _token:"{{ csrf_token() }}"
+                    },
+                    success:function(response){
+                        try{
+                            if(response.success){
+                                listaContactos = response.data;
+                                cargarContactos();
+                            }else{
+                                swal({title: 'Error',text: 'Algo salió mal',icon: 'warning'});
+                            }
+                        }catch(error){
+                            console.log(error);
+                        }
+                    }
+                });
+            }else{
+                listaContactos.splice(indice,1);
+                cargarContactos();
+            }
+        }
 
     $("#btnGuardarRepresentante").on("click", function () {
         if (!validarRepresentante()) {
@@ -2133,9 +2162,9 @@
             if ($("#fileIdentificacion").val() != "") {
                 formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
             }
-            $("#fileCedula").change(function (e) {
-                $("#labelCedula").html("<b>Archivo: </b>" + e.target.files[0].name + "");
-            });
+            if ($("#fileCedula").val() != "") {
+                formData.append('fileCedula', $("#fileCedula")[0].files[0]);
+            }
             if ($("#fileInstrumento").val() != "") {
                 formData.append('fileInstrumento', $("#fileInstrumento")[0].files[0]);
             }
@@ -2229,6 +2258,7 @@
                             swal({title: 'ÉXITO', text: 'Se agregó el representante', icon: 'success'});
                             actualizarPartes();
                             cargarDocumentos();
+                            limpiarRepresentante();
                             $("#modal-representante").modal("hide");
                         } else {
                             swal({title: 'Error', text: 'Algo salió mal', icon: 'warning'});
@@ -2252,6 +2282,30 @@
             swal({title: 'Error', text: 'Llena todos los campos', icon: 'warning'});
         }
     });
+    function limpiarRepresentante(){
+        $("#id_representante").val("");
+        $("#curpRep").val("");
+        $("#nombreRep").val("");
+        $("#primer_apellidoRep").val("");
+        $("#segundo_apellidoRep").val("");
+        $("#fecha_nacimientoRep").val("");
+        $("#genero_idRep").val("").trigger("change");
+        $("#clasificacion_archivo_id_representante").val("").change();
+        $("#feha_instrumento").val("");
+        $("#detalle_instrumento").val("");
+        $("#parte_id").val("");
+        $("#tipo_documento_id").val("").trigger("change");
+        $("#labelIdentifRepresentante").html("");
+        $("#fileCedula").val("");
+        $("#fileIdentificacion").val("");
+        $("#fileInstrumento").val("");
+        $("#labelCedula").html("");
+        $("#tipo_contacto_id").val("").trigger("change");
+        $("#contacto").val("");
+        $("#modal-representante").modal("show");
+        listaContactos = [];
+        cargarContactos();
+    }
     function actualizarPartes() {
         $.ajax({
             url: "/partes/getComboDocumentos/" + $("#solicitud_id").val(),
@@ -2488,7 +2542,7 @@
                         $("#confirmacion_virtual").show();
                         $("#div_confirmacion").hide();
                         $("#btnVirtual").hide();
-                        if(data.url_virtual != "" && data.url_virtual != null){
+                        if (data.url_virtual != "" && data.url_virtual != null) {
                             $("#url_virtual").val(data.url_virtual);
                             $("#div_confirmacion").show();
                             $("#btnVirtual").show();
