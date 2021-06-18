@@ -396,6 +396,7 @@ class PlantillasDocumentosController extends Controller
                   }
                 }
                 array_push($columnDomicilio,'completo');
+                array_push($columnDomicilio,'laboral');
                 //documentos de identificacion parte
                 $columnDocumento = [];
                 array_push($columnDocumento,'documento');
@@ -548,7 +549,8 @@ class PlantillasDocumentosController extends Controller
           $conceptos_pago = $request->listaConceptos;
           $resolucion_pagos = $request->listaFechasPago;
           $resolucionesIndividuales = $request->listaRelacion;
-          $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla_id, $idSolicitante, $idSolicitado, $conceptos_pago, $resolucion_pagos,$resolucion_id,$resolucionesIndividuales);
+          $descripcionPagos = $request->descripcion_pagos;
+          $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla_id, $idSolicitante, $idSolicitado, $conceptos_pago, $resolucion_pagos,$resolucion_id,$resolucionesIndividuales,$descripcionPagos);
           // $html = file_get_contents(env('APP_URL').'/header/'.$plantilla_id) . $html . file_get_contents(env('APP_URL').'/footer/'.$plantilla_id);
           return $this->sendResponse($html, "Correcto");
           //return $this->renderPDF($html, $plantilla_id);
@@ -578,7 +580,7 @@ class PlantillasDocumentosController extends Controller
           return $pdf->inline();
       }
 
-      private function getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado, $conceptos_pago=null,$resolucion_pagos=null, $resolucion_id=null,$resolucionesIndividuales=null)
+      private function getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado, $conceptos_pago=null,$resolucion_pagos=null, $resolucion_id=null,$resolucionesIndividuales=null,$descripcionPagos =null)
       {
         try {
             $plantilla = PlantillaDocumento::find($idPlantilla);
@@ -729,6 +731,11 @@ class PlantillasDocumentosController extends Controller
                         }
                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                         if($hayDatosLaborales >0){
+                          $domicilioLaboral = Domicilio::where('domiciliable_id',$datoLaborales->id)->where('domiciliable_type','App\DatoLaboral')->first();
+                          if($domicilioLaboral != null ){
+                            $parte['domicilios_laboral'] = mb_strtoupper($domicilioLaboral->tipo_vialidad.' '.$domicilioLaboral->vialidad.' '.$domicilioLaboral->num_ext.', '.$domicilioLaboral->asentamiento.', '.$domicilioLaboral->municipio.', '.$domicilioLaboral->estado);
+                          }
+                          
                           $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                           $salarioMensual =number_format($salarioMensual, 2, '.', '');
                           $salario = explode('.', $salarioMensual);
@@ -1151,12 +1158,15 @@ class PlantillasDocumentosController extends Controller
                             foreach ($resolucion_pagos as $pago ) {
                               if($tipoSolicitud == 1){
                                 if(($parteID == $pago['idSolicitante']) && ($parteID == $idSolicitante)){
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
+                                  $enPago =($pago['monto_pago'] != null)?'   $'.number_format($pago['monto_pago'], 2, '.', ',') : $pago['descripcion_pago'];
+                                  //$tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
+                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;"> '. $enPago.'</td></tr>';
                                   $totalPagosDiferidos +=1;
                                 }
                               }else{
                                 if(($parteID == $pago['idCitado']) && ($parteID == $idSolicitado)){
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
+                                  $enPago =($pago['monto_pago'] != null)?'   $'.number_format($pago['monto_pago'], 2, '.', ',') : $pago['descripcion_pago'];
+                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     '. $enPago .'</td></tr>';
                                   $totalPagosDiferidos +=1;
                                 }
                               }
@@ -1200,6 +1210,9 @@ class PlantillasDocumentosController extends Controller
                         // $tablaPagosDiferidos .= '</table>';
                         // $datosResolucion['total_diferidos']= $totalPagosDiferidos;
                         // $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
+                    }
+                    if($descripcionPagos != null){
+                      $datosResolucion['descripcion_pagos']= $descripcionPagos;
                     }
                     // citados que convinieron comparecieron
                     $partes_convenio = Compareciente::where('audiencia_id',$audienciaId)->get();
@@ -1534,10 +1547,10 @@ class PlantillasDocumentosController extends Controller
           }
         }
 
-        public function renderDocumento($idAudiencia, $idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado, $conceptos_pago=null, $resolucion_pagos=null, $resolucion_id=null,$resolucionesIndividuales=null)
+        public function renderDocumento($idAudiencia, $idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado, $conceptos_pago=null, $resolucion_pagos=null, $resolucion_id=null,$resolucionesIndividuales=null,$descripcionPagos=null)
         {
           $vars = [];
-          $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado, $conceptos_pago, $resolucion_pagos,$resolucion_id,$resolucionesIndividuales);
+          $data = $this->getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado, $conceptos_pago, $resolucion_pagos,$resolucion_id,$resolucionesIndividuales,$descripcionPagos);
             if($data!=null){
                 $count =0;
                 foreach ($data as $key => $dato) { //solicitud

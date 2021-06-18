@@ -10,6 +10,7 @@ use App\Compareciente;
 use App\ConceptoPagoResolucion;
 use App\DatoLaboral;
 use App\Disponibilidad;
+use App\Domicilio;
 use App\Documento;
 use App\EtapaResolucionAudiencia;
 use App\Expediente;
@@ -519,6 +520,11 @@ trait GenerateDocument
                         }
                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                         if($hayDatosLaborales >0){
+                          $domicilioLaboral = Domicilio::where('domiciliable_id',$datoLaborales->id)->where('domiciliable_type','App\DatoLaboral')->first();
+                          if($domicilioLaboral != null ){
+                            $parte['domicilios_laboral'] = mb_strtoupper($domicilioLaboral->tipo_vialidad.' '.$domicilioLaboral->vialidad.' '.$domicilioLaboral->num_ext.', '.$domicilioLaboral->asentamiento.', '.$domicilioLaboral->municipio.', '.$domicilioLaboral->estado);
+                          }
+
                           $nss = $datoLaborales->nss;
                           $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                           $salarioMensual =number_format($salarioMensual, 2, '.', '');
@@ -1051,12 +1057,14 @@ trait GenerateDocument
                             foreach ($resolucion_pagos as $pago ) {
                               if($tipoSolicitud == 1){
                                 if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitante)){
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
+                                  $enPago =($pago->monto != null)?'   $'.number_format($pago->monto, 2, '.', ',') : $pago->descripcion_pago;
+                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td style="text-align:right;"> '.$enPago.'</td></tr>';
                                   $totalPagosDiferidos +=1;
                                 }
                               }else{
                                 if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitado)){
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
+                                  $enPago =($pago->monto != null)?'   $'.number_format($pago->monto, 2, '.', ',') : $pago->descripcion_pago;
+                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td style="text-align:right;">  '. $enPago .'</td></tr>';
                                   $totalPagosDiferidos +=1;
                                 }
                               }
