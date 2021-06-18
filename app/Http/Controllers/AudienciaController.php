@@ -1641,6 +1641,7 @@ class AudienciaController extends Controller {
                             "audiencia_id" => $audiencia->id,
                             "solicitante_id" => $fechaPago["idSolicitante"],
                             "monto" => $fechaPago["monto_pago"],
+                            "descripcion_pago" => $fechaPago["descripcion_pago"],
                             "fecha_pago" => Carbon::createFromFormat('d/m/Y h:i', $fechaPago["fecha_pago"])->format('Y-m-d h:i')
                         ]);
                     }
@@ -1658,6 +1659,14 @@ class AudienciaController extends Controller {
                 //Se valida si hubo convenio para esta parte para generar convenio o si se genera acta de no conciliacion
                 $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 3)->first();
                 if ($convenio != null) {
+                    //generar constancia de cumplimiento si no tiene pagos diferidos
+                    if (count($listaFechasPago) <= 0) {
+                        if($audiencia->expediente->solicitud->tipo_solicitud_id == 1){//solicitud individual
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->solicitud_id, 45, 12,$solicitante->parte_id));
+                        }else{
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->solicitud_id, 45, 12,null,$solicitante->partte_id));
+                        }
+                    }
                     if($convenio->tipo_propuesta_pago_id == 4){
                         //generar convenio reinstalacion
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 43, 9, $solicitante->parte_id));
