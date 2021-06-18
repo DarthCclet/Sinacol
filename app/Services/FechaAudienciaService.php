@@ -14,12 +14,12 @@ use DateTimeZone;
 
 class FechaAudienciaService{
     use ValidateRange;
-    
-    
+
+
     /**
-     * 
+     *
      * Aquí comienzan las funciones del algoritmo para asignar fecha a una audeincia al ratificar
-     * 
+     *
      */
     public static function obtenerFechaAudiencia(string $hoy,Centro $centro,$min,$max,$virtual){
         //Buscamos la primer fecha según el tipo de notificación
@@ -328,15 +328,15 @@ class FechaAudienciaService{
             return null;
         }
     }
-    
-    
-    
+
+
+
     /**
-     * 
+     *
      * Aquí comienzan las funciones del algoritmo para asignar fecha a una audiencia al crearse una a partir de otra
-     * 
+     *
      */
-    
+
     /**
      * Determina la próxima fecha hábil para una cita.
      * @param string $hoy
@@ -415,7 +415,7 @@ class FechaAudienciaService{
                         }
                     }
                 }
-                
+
                 if($encontroSala && $encontroConciliador){
                     $horaInicioSalaDisponible = $hora_inicio;
                     $horaFinSalaDisponible = $hora_fin;
@@ -645,14 +645,14 @@ class FechaAudienciaService{
         }
         return array("segundo_conciliador" => false,"segundo_conciliador_id" => null);
     }
-    
-    
+
+
     /**
-     * 
+     *
      * Aqui van las funciones que usan los dos algoritmos
-     * 
+     *
      */
-    
+
     public static function getHoraFinalNuevaAudiencia($fecha,$audiencias,$duracion){
         $ultima_audiencia_dia = $audiencias->last();
         $valores = self::obtenerValoresSuma($duracion);
@@ -682,9 +682,9 @@ class FechaAudienciaService{
         //Obtenemos la disponibilidad corresponidiente al día
         $disponibilidad = $disponibilidades->where("dia",$dia)->first();
         if($disponibilidad != null){
-            
+
             //Obtenemos la hora inicio que será la primer hora en el arreglo
-            
+
             $hora_actual_time = strtotime($disponibilidad->hora_inicio);
             $hora_fin_time = strtotime($disponibilidad->hora_fin);
             $arregloHoras[]= date('H:i:s', $hora_actual_time);
@@ -697,7 +697,7 @@ class FechaAudienciaService{
         }else{
             return array();
         }
-        
+
     }
     public static function obtenerConciliadores(Centro $centro,$rol){
 //        Validamos si es la primer confirmación del día
@@ -710,12 +710,10 @@ class FechaAudienciaService{
                 $i++;
             }
         }
-        $conciliadores = $centro->conciliadores()
-                ->join("roles_conciliador","conciliadores.id","roles_conciliador.conciliador_id")
-                ->where("roles_conciliador.rol_atencion_id",$rol->id)
-                ->select("conciliadores.*")
-                ->orderBy('orden','asc')
-                ->get();
+        $conciliadores = Centro::find($centro->id)->conciliadores()->whereHas('rolesConciliador',function($q) use ($rol){
+            return $q->where('rol_atencion_id',$rol->id);
+        })->orderBy('orden','asc')->get();
+
         return $conciliadores;
     }
     public static function validarIncidencia($fecha,$id,$incidencia_type){
@@ -735,5 +733,5 @@ class FechaAudienciaService{
             return true;
         }
     }
-    
+
 }

@@ -42,7 +42,7 @@ class Audiencia extends Model implements Auditable
         $data = $this->cambiarEvento($data);
         return $data;
     }
-    
+
     /**
      * Relación con expediente
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -83,7 +83,7 @@ class Audiencia extends Model implements Auditable
     public function comparecientes(){
       return $this->hasMany('App\Compareciente');
     }
-    
+
     /**
      * Relación con salasAudiencias
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
