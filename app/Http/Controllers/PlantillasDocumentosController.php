@@ -446,6 +446,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'descripcion_pagos');
                 array_push($columnNames,'pagos_diferidos');
                 array_push($columnNames,'total_diferidos');
+                array_push($columnNames,'informacion_pago');
                 array_push($columnNames,'justificacion_propuesta');
                 array_push($columnNames,'primera_manifestacion');
                 array_push($columnNames,'segunda_manifestacion');
@@ -734,6 +735,8 @@ class PlantillasDocumentosController extends Controller
                           $domicilioLaboral = Domicilio::where('domiciliable_id',$datoLaborales->id)->where('domiciliable_type','App\DatoLaboral')->first();
                           if($domicilioLaboral != null ){
                             $parte['domicilios_laboral'] = mb_strtoupper($domicilioLaboral->tipo_vialidad.' '.$domicilioLaboral->vialidad.' '.$domicilioLaboral->num_ext.', '.$domicilioLaboral->asentamiento.', '.$domicilioLaboral->municipio.', '.$domicilioLaboral->estado);
+                          }else{
+                            $parte['domicilios_laboral'] = $parte['domicilios_completo'];
                           }
                           
                           $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
@@ -1158,15 +1161,15 @@ class PlantillasDocumentosController extends Controller
                             foreach ($resolucion_pagos as $pago ) {
                               if($tipoSolicitud == 1){
                                 if(($parteID == $pago['idSolicitante']) && ($parteID == $idSolicitante)){
-                                  $enPago =($pago['monto_pago'] != null)?'   $'.number_format($pago['monto_pago'], 2, '.', ',') : $pago['descripcion_pago'];
+                                  $enPago =($pago['monto_pago'] != null)?'   $'.number_format($pago['monto_pago'], 2, '.', ',') : "";
                                   //$tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;"> '. $enPago.'</td></tr>';
+                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td>'.$pago['descripcion_pago'].'</td><td style="text-align:right;"> '. $enPago.'</td></tr>';
                                   $totalPagosDiferidos +=1;
                                 }
                               }else{
                                 if(($parteID == $pago['idCitado']) && ($parteID == $idSolicitado)){
-                                  $enPago =($pago['monto_pago'] != null)?'   $'.number_format($pago['monto_pago'], 2, '.', ',') : $pago['descripcion_pago'];
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     '. $enPago .'</td></tr>';
+                                  $enPago =($pago['monto_pago'] != null)?'   $'.number_format($pago['monto_pago'], 2, '.', ',') : "";
+                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td>'.$pago['descripcion_pago'].'</td><td style="text-align:right;">    '. $enPago .'</td></tr>';
                                   $totalPagosDiferidos +=1;
                                 }
                               }
@@ -1211,9 +1214,7 @@ class PlantillasDocumentosController extends Controller
                         // $datosResolucion['total_diferidos']= $totalPagosDiferidos;
                         // $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                     }
-                    if($descripcionPagos != null){
-                      $datosResolucion['descripcion_pagos']= $descripcionPagos;
-                    }
+                    $datosResolucion['descripcion_pagos']= ($descripcionPagos != null) ? $descripcionPagos : "";
                     // citados que convinieron comparecieron
                     $partes_convenio = Compareciente::where('audiencia_id',$audienciaId)->get();
                     $hayPartesConvenio = count($partes_convenio);

@@ -523,6 +523,8 @@ trait GenerateDocument
                           $domicilioLaboral = Domicilio::where('domiciliable_id',$datoLaborales->id)->where('domiciliable_type','App\DatoLaboral')->first();
                           if($domicilioLaboral != null ){
                             $parte['domicilios_laboral'] = mb_strtoupper($domicilioLaboral->tipo_vialidad.' '.$domicilioLaboral->vialidad.' '.$domicilioLaboral->num_ext.', '.$domicilioLaboral->asentamiento.', '.$domicilioLaboral->municipio.', '.$domicilioLaboral->estado);
+                          }else{
+                            $parte['domicilios_laboral'] = $parte['domicilios_completo'];
                           }
 
                           $nss = $datoLaborales->nss;
@@ -1054,17 +1056,21 @@ trait GenerateDocument
                             $tablaPagosDiferidos .= '<tbody>';
                             $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
 
+                            $infoPago  = "";
                             foreach ($resolucion_pagos as $pago ) {
                               if($tipoSolicitud == 1){
                                 if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitante)){
-                                  $enPago =($pago->monto != null)?'   $'.number_format($pago->monto, 2, '.', ',') : $pago->descripcion_pago;
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td style="text-align:right;"> '.$enPago.'</td></tr>';
+                                  $enPago =($pago->monto != null)?'   $'.number_format($pago->monto, 2, '.', ',') : "";
+                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;"> '.$enPago.'</td></tr>';
                                   $totalPagosDiferidos +=1;
+                                  if($pago->pagado){
+                                    $infoPago = $pago->informacion_pago;
+                                  }
                                 }
                               }else{
                                 if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitado)){
-                                  $enPago =($pago->monto != null)?'   $'.number_format($pago->monto, 2, '.', ',') : $pago->descripcion_pago;
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td style="text-align:right;">  '. $enPago .'</td></tr>';
+                                  $enPago =($pago->monto != null)?'   $'.number_format($pago->monto, 2, '.', ',') : "";
+                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;">  '. $enPago .'</td></tr>';
                                   $totalPagosDiferidos +=1;
                                 }
                               }
@@ -1072,6 +1078,7 @@ trait GenerateDocument
                             $tablaPagosDiferidos .= '</tbody>';
                             $tablaPagosDiferidos .= '</table>';
 
+                            $datosResolucion['informacion_pago']= $infoPago;
                             $datosResolucion['total_diferidos']= $totalPagosDiferidos;
                             $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                           }

@@ -386,6 +386,7 @@
                                                                         <th>Trabajador</th>
                                                                         <th>Fecha de pago</th>
                                                                         <th>Monto</th>
+                                                                        <th>Descripción</th>
                                                                         <th>Estatus</th>
                                                                         <th>Acciones</th>
                                                                     </tr>
@@ -402,6 +403,7 @@
                                                                             @endif
                                                                                 <td>{{ Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$fechaPago->fecha_pago)->format('d/m/Y H:i')}}</td>
                                                                                 <td>{{$fechaPago->monto}}</td>
+                                                                                <td>{{$fechaPago->descripcion_pago}}</td>
                                                                                 <td>
 
                                                                                     @if($fechaPago->pagado === false) 
@@ -417,7 +419,7 @@
                                                                                     @if($fechaPago->pagado === false) 
                                                                                         <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
                                                                                     @elseif($fechaPago->pagado == true) 
-
+                                                                                        {{-- <button onclick="verInfoPago({{$fechaPago->id}})" class="btn btn-xs btn-info" title="Registrar pago"><i class="fa fa-eye"></i></button> --}}
                                                                                     @else
                                                                                         <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
                                                                                         <button onclick="emitirConstanciaNoPago({{$fechaPago->id}})" class="btn btn-xs btn-warning" title="Registrar no comparencencia"><i class="fa fa-window-close"></i></button>
@@ -1382,6 +1384,31 @@
                 <div class="text-right">
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarParte"><i class="fa fa-save"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Fin de modal pagos diferidos-->
+<!-- Inicio Modal de datos laborales-->
+<div class="modal" id="modal-info-pago" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Información del pago</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 row">
+                    <input type="hidden" id="pago_id">
+                    <textarea class="form-control textarea" placeholder="Describir forma de pago" type="text" id="informacionPago" >
+                    </textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <button class="btn btn-primary btn-sm m-l-5" id="registrarPagoInfo" onclick="guardarPagoInfo();" ><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
@@ -2805,36 +2832,46 @@
                 }
             }).then(function(isConfirm){
                 if(isConfirm){
-                    $.ajax({
-                        url:"/audiencia/registrarPagoDiferido",
-                        type:"POST",
-                        dataType:"json",
-                        data:{
-                            audiencia_id:'{{ $audiencia->id }}',
-                            solicitud_id:'{{$solicitud_id}}',
-                            idPagoDiferido:idPagoDiferido,
-                            _token:"{{ csrf_token() }}"
-                        },
-                        success:function(data){
-                            try{
+                    $("#modal-info-pago").modal("show");
+                    $('#pago_id').val(idPagoDiferido);
+                }
+            });
+        }
+        function verInfoPago(){
 
-                                if(data != null && data != ""){
-                                    swal({title: 'ÉXITO',
-                                    text: 'Se guardó el pago correctamente',
-                                    icon: 'success'});
-                                    location.reload();
-                                }else{
-                                    swal({
-                                        title: 'Algo salió mal',
-                                        text: 'No se guardo el registro',
-                                        icon: 'warning'
-                                    });
-                                }
-                            }catch(error){
-                                console.log(error);
-                            }
+        }
+
+        function guardarPagoInfo(){
+            $.ajax({
+                url:"/audiencia/registrarPagoDiferido",
+                type:"POST",
+                dataType:"json",
+                data:{
+                    
+                    audiencia_id:'{{ $audiencia->id }}',
+                    solicitud_id:'{{$solicitud_id}}',
+                    idPagoDiferido:$('#pago_id').val(),
+                    informacionPago: $('#informacionPago').val(),
+                    _token:"{{ csrf_token() }}"
+                },
+                success:function(data){
+                    try{
+
+                        if(data != null && data != ""){
+                            swal({title: 'ÉXITO',
+                            text: 'Se guardó el pago correctamente',
+                            icon: 'success'});
+                            location.reload();
+                        }else{
+                            swal({
+                                title: 'Algo salió mal',
+                                text: 'No se guardo el registro',
+                                icon: 'warning'
+                            });
                         }
-                    });
+                    }catch(error){
+                        console.log(error);
+                    }
                 }
             });
         }
