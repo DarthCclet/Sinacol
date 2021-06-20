@@ -928,7 +928,7 @@
             filtrado = true;
         });
         $(".catSelect").select2({width: '100%'});
-        $(".date").datetimepicker({useCurrent: false, language: "es", format: 'DD/MM/YYYY'});
+        $(".date").datetimepicker({useCurrent: false, locale: "es", format: 'DD/MM/YYYY'});
         $(".date").keypress(function (event) {
             event.preventDefault();
         });
