@@ -1727,20 +1727,22 @@ class AudienciaController extends Controller {
         try {
             $solicitud = Solicitud::find($request->solicitud_id);
             $pagoDiferido = ResolucionPagoDiferido::find($request->idPagoDiferido);
+
+            $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->where('solicitante_id',$pagoDiferido->solicitante_id)->orderBy('fecha_pago')->get();
+            $ultimoPago = $pagos->last()->id;
             if($pagoDiferido){
                 $pagoDiferido->update([
-                    "pagado" => true
+                    "pagado" => true,
+                    "informacion_pago"=> $request->informacionPago
                 ]);
-                //generar constacia de pago parcial
-                if($solicitud->tipo_solicitud_id == 1){//solicitud individual
+                //generar constacia de pago parcial si no es ultimo pago
+                if($solicitud->tipo_solicitud_id == 1 && $pagoDiferido->id != $ultimoPago){//solicitud individual
                     event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,$pagoDiferido->solicitante_id));
-                }else{
+                }else if($solicitud->tipo_solicitud_id != 1 && $pagoDiferido->id != $ultimoPago){
                     event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,null,$pagoDiferido->solicitante_id));
                 }
             }
 
-            $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->where('solicitante_id',$pagoDiferido->solicitante_id)->orderBy('fecha_pago')->get();
-            $ultimoPago = $pagos->last()->id;
             $pagados = true;
             foreach ($pagos as $pago) {
                 if ($pago->pagado == false) {
