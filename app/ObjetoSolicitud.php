@@ -20,4 +20,12 @@ class ObjetoSolicitud extends Model implements AuditableContract
         $data = $this->cambiarEvento($data);
         return $data;
     }
+
+    /**
+     * Relación del objeto de la solicitud con tipo de objeto de solicitud
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function tipoObjetoSolicitud() {
+        return $this->belongsTo(TipoObjetoSolicitud::class, 'tipo_objeto_solicitudes_id');
+    }
 }
