@@ -233,6 +233,49 @@ class ParteController extends Controller
         }
         return $representantes;
     }
+    /**
+     * Funcion para obtener el representante legal de una parte
+     * @param id $id
+     * @return parte
+     */
+    public function GetRepresentanteAudiencia(Request $request){
+        $audiencia_id= $request->audiencia_id;
+        $representante = Parte::where("parte_representada_id",$request->parte_id)->where("representante",true)->with('audienciaParte')->whereHas('audienciaParte',function($query) use ($audiencia_id){
+            $query->where('audiencia_id',$audiencia_id);
+        })->first();
+        if($representante != null && $representante != ""){
+            foreach($representante->contactos as $key2 => $contactos){
+                $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
+                $documentos = $representante->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
+                }
+                
+            }
+        }
+        return $representante;
+    }
+     /**
+     * Funcion para obtener el representante legal de una parte
+     * @param id $id
+     * @return parte
+     */
+    public function GetRepresentanteLegalById($id){
+        $representante = Parte::find($id);
+        if($representante != null && $representante != ""){
+            foreach($representante->contactos as $key2 => $contactos){
+                $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
+                $documentos = $representante->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
+                }
+                
+            }
+        }
+        return $representante;
+    }
+
+    
     
     /**
      * Funcion para obtener datos laborales de una parte
@@ -343,41 +386,57 @@ class ParteController extends Controller
                     "feha_instrumento" => $request->feha_instrumento,
                     "detalle_instrumento" => $request->detalle_instrumento
                 ]);
+                // Creamos la relacion en audiencias_partes
+                if(!isset($request->fuente_solicitud)){
+                    $audienciaExiste = AudienciaParte::where('parte_id',$parte->id)->where('audiencia_id',$request->audiencia_id)->first();
+                    if($audienciaExiste == null)
+                    {
+                        
+                        $partesRep = Parte::where('parte_representada_id',$parte->parte_representada_id)->get();
+                        foreach($partesRep as $parteR){
+                            $ap = AudienciaParte::where('audiencia_id',$request->audiencia_id)->where('parte_id',$parteR->id)->first();
+                            if($ap){
+                                $ap->delete();
+                            }
+                        }
+                        AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+                    }
+                }
                 // se actualiza doc
                 if(isset($request->fileIdentificacion)){
                     $parte = Parte::find($request->parte_id);
                     $solicitud = Solicitud::find($request->solicitud_id);
                     
                     try{
-                        $existe = false;
-                        $deleted = false;
+                        $existe = true;
+                        $deleted = true;
                         $documentos = $parte->documentos;
-                        foreach($documentos as $documento ){
-                            if($documento->clasificacionArchivo->tipo_archivo_id == 1){
-                                $doc_del_id = $documento->id;
-                                $existe = true;
-                            }
-                        }
-                        if($existe){
-                            $parte->documentos()->find($doc_del_id)->delete();
-                            $deleted = true;
-                        }
+                        // foreach($documentos as $documento ){
+                        //     if($documento->clasificacionArchivo->tipo_archivo_id == 1){
+                        //         $doc_del_id = $documento->id;
+                        //         $existe = true;
+                        //     }
+                        // }
+                        // if($existe){
+                        //     $parte->documentos()->find($doc_del_id)->delete();
+                        //     $deleted = true;
+                        // }
                         if(!$existe || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
-                                $archivo = $request->fileIdentificacion;
+                                $archivoIde = $request->fileIdentificacion;
                                 $solicitud_id = $solicitud->id;
                                 $clasificacion_archivo= $request->tipo_documento_id;
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                                 
-                                $path = $archivo->store($directorio);
+                                $path = $archivoIde->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
                                     "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre_original" => str_replace($directorio, '',$archivoIde->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivoIde->getClientOriginalName()),
                                     "descripcion" => $tipoArchivo->nombre,
                                     "ruta" => $path,
                                     "uuid" => $uuid,
@@ -404,43 +463,43 @@ class ParteController extends Controller
                     $solicitud = Solicitud::find($request->solicitud_id);
                     
                     try{
-                        $deleted = false;
-                        $documentos = $parte->documentos;
-                        $existeInst = false;
-                        foreach($documentos as $documento ){
-                            if($documento->clasificacionArchivo->tipo_archivo_id == 9){
-                                $doc_del_idInst = $documento->id;
-                                $existeInst = true;
-                            }
-                        }
+                        $deleted = true;
+                        // $documentos = $parte->documentos;
+                        $existeInst = true;
+                        // foreach($documentos as $documento ){
+                        //     if($documento->clasificacionArchivo->tipo_archivo_id == 9){
+                        //         $doc_del_idInst = $documento->id;
+                        //         $existeInst = true;
+                        //     }
+                        // }
                         
-                        if($existeInst){
+                        // if($existeInst){
                             
-                            $parte->documentos()->find($doc_del_idInst)->delete();
-                            $deleted = true;
-                        }
+                        //     $parte->documentos()->find($doc_del_idInst)->delete();
+                        //     $deleted = true;
+                        // }
                         if(!$existeInst || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
-                                $archivo = $request->fileInstrumento;
+                                $archivoInst = $request->fileInstrumento;
                                 $solicitud_id = $solicitud->id;
                                 $clasificacion_archivo= $request->clasificacion_archivo_id;
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                                 
-                                $path = $archivo->store($directorio);
+                                $pathInst = $archivoInst->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
-                                    "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre" => str_replace($directorio."/", '',$pathInst),
+                                    "nombre_original" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
                                     "descripcion" => $tipoArchivo->nombre,
-                                    "ruta" => $path,
+                                    "ruta" => $pathInst,
                                     "uuid" => $uuid,
                                     "tipo_almacen" => "local",
-                                    "uri" => $path,
-                                    "longitud" => round(Storage::size($path) / 1024, 2),
+                                    "uri" => $pathInst,
+                                    "longitud" => round(Storage::size($pathInst) / 1024, 2),
                                     "firmado" => "false",
                                     "clasificacion_archivo_id" => $tipoArchivo->id ,
                                 ]);
@@ -461,43 +520,43 @@ class ParteController extends Controller
                     $solicitud = Solicitud::find($request->solicitud_id);
                     
                     try{
-                        $deleted = false;
-                        $documentos = $parte->documentos;
-                        $existeCed = false;
-                        foreach($documentos as $documento ){
-                            if($documento->clasificacionArchivo->tipo_archivo_id == 9){
-                                $doc_del_idCed = $documento->id;
-                                $existeCed = true;
-                            }
-                        }
+                        $deleted = true;
+                        // $documentos = $parte->documentos;
+                        $existeCed = true;
+                        // foreach($documentos as $documento ){
+                        //     if($documento->clasificacionArchivo->tipo_archivo_id == 9){
+                        //         $doc_del_idCed = $documento->id;
+                        //         $existeCed = true;
+                        //     }
+                        // }
                         
-                        if($existeCed){
+                        // if($existeCed){
                             
-                            $parte->documentos()->find($doc_del_idCed)->delete();
-                            $deleted = true;
-                        }
+                        //     $parte->documentos()->find($doc_del_idCed)->delete();
+                        //     $deleted = true;
+                        // }
                         if(!$existeCed || $deleted){
                             $existeDocumento = $parte->documentos;
                             if($solicitud != null){
-                                $archivo = $request->fileCedula;
+                                $archivoCed = $request->fileCedula;
                                 $solicitud_id = $solicitud->id;
                                 $clasificacion_archivo= 3;
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
                                 
-                                $path = $archivo->store($directorio);
+                                $pathCed = $archivoCed->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
-                                    "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
-                                    // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre" => str_replace($directorio."/", '',$pathCed),
+                                    "nombre_original" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
+                                    // "numero_documento" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
                                     "descripcion" => $tipoArchivo->nombre,
-                                    "ruta" => $path,
+                                    "ruta" => $pathCed,
                                     "uuid" => $uuid,
                                     "tipo_almacen" => "local",
-                                    "uri" => $path,
-                                    "longitud" => round(Storage::size($path) / 1024, 2),
+                                    "uri" => $pathCed,
+                                    "longitud" => round(Storage::size($pathCed) / 1024, 2),
                                     "firmado" => "false",
                                     "clasificacion_archivo_id" => $tipoArchivo->id ,
                                 ]);
@@ -544,7 +603,18 @@ class ParteController extends Controller
                 
                 // Creamos la relacion en audiencias_partes
                 if(!isset($request->fuente_solicitud)){
-                    AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+                    $audienciaExiste = AudienciaParte::where('parte_id',$parte->id)->where('audiencia_id',$request->audiencia_id)->first();
+                    if($audienciaExiste == null)
+                    {
+                        $partesRep = Parte::where('parte_representada_id',$parte->parte_representada_id)->get();
+                        foreach($partesRep as $parteR){
+                            $ap = AudienciaParte::where('audiencia_id',$request->audiencia_id)->where('parte_id',$parteR->id)->first();
+                            if($ap){
+                                $ap->delete();
+                            }
+                        }
+                        AudienciaParte::create(["audiencia_id" => $request->audiencia_id,"parte_id" => $parte->id]);
+                    }
                 }
                 // se agrega doc
                 // $parte = $parte_representada;
@@ -588,8 +658,8 @@ class ParteController extends Controller
                             $pathInst = $archivoInst->store($directorio);
                             $uuid = Str::uuid();
                             $documento = $parte->documentos()->create([
-                                "nombre" => str_replace($directorio."/", '',$path),
-                                "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                "nombre" => str_replace($directorio."/", '',$pathInst),
+                                "nombre_original" => str_replace($directorio, '',$archivoInst->getClientOriginalName()),
                                 // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                                 "descripcion" => $tipoArchivoInst->nombre,
                                 "ruta" => $pathInst,
@@ -610,18 +680,18 @@ class ParteController extends Controller
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivoCed = ClasificacionArchivo::find($clasificacion_archivoCed);
                                 
-                                $pathInst = $archivoCed->store($directorio);
+                                $pathCed = $archivoCed->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
-                                    "nombre" => str_replace($directorio."/", '',$path),
-                                    "nombre_original" => str_replace($directorio, '',$archivo->getClientOriginalName()),
+                                    "nombre" => str_replace($directorio."/", '',$pathCed),
+                                    "nombre_original" => str_replace($directorio, '',$archivoCed->getClientOriginalName()),
                                     // "numero_documento" => str_replace($directorio, '',$archivo->getClientOriginalName()),
                                     "descripcion" => $tipoArchivoCed->nombre,
-                                    "ruta" => $pathInst,
+                                    "ruta" => $pathCed,
                                     "uuid" => $uuid,
                                     "tipo_almacen" => "local",
-                                    "uri" => $pathInst,
-                                    "longitud" => round(Storage::size($pathInst) / 1024, 2),
+                                    "uri" => $pathCed,
+                                    "longitud" => round(Storage::size($pathCed) / 1024, 2),
                                     "firmado" => "false",
                                     "clasificacion_archivo_id" => $tipoArchivoCed->id ,
                                 ]);
@@ -676,7 +746,7 @@ class ParteController extends Controller
         foreach($representante->contactos as $key2 => $contactos){
             $representante->contactos[$key2]->tipo_contacto = $contactos->tipo_contacto;
         }
-        return $representante->contactos;
+        return $this->sendResponse($representante->contactos, 'SUCCESS');
     }
     public function getDomicilioParte(){
         $parte = Parte::find($this->request->id);

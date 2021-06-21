@@ -166,20 +166,19 @@ class ReportesService
             $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
         }else{
             $q->with(['objeto_solicitudes']);
-
             $q->select('solicitudes.id as sid','solicitudes.*','centros.abreviatura');
 
             # Ordenamos por el centro y por la fecha de recepción para mostrar en el listado desagregado
             $q->orderBy('centros.abreviatura')->orderBy('solicitudes.fecha_recepcion');
         }
 
-
-        $q->leftJoin('expedientes','expedientes.solicitud_id', '=','solicitudes.id');
-        $q->leftJoin('audiencias','audiencias.expediente_id', '=','expedientes.id');
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
-
         //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
+        if ($request->get('tipo_reporte') == 'desagregado' || !empty($request->get('conciliadores'))) {
+            $q->leftJoin('expedientes', 'expedientes.solicitud_id', '=', 'solicitudes.id');
+            $q->leftJoin('audiencias', 'audiencias.expediente_id', '=', 'expedientes.id');
+            $q->leftJoin('conciliadores', 'conciliadores.id', '=', 'audiencias.conciliador_id');
+            $q->leftJoin('personas', 'personas.id', '=', 'conciliadores.persona_id');
+        }
 
         if ($request->get('tipo_reporte') == 'desagregado') {
             //Se agregan las consultas para conciliador
@@ -195,7 +194,6 @@ class ReportesService
             $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
         }
 
-
         # Sólo las de trabajador y patron individual por default.
         $this->filtroTipoSolicitud($request, $q);
 
@@ -207,7 +205,7 @@ class ReportesService
 
         //Dejamos fuera los no consultables
         $this->noReportables($q);
-        //dd($this->debugSql($q));
+
         return $q->get();
     }
 
@@ -247,10 +245,13 @@ class ReportesService
             $q->orderBy('centros.abreviatura')->orderBy('solicitudes.fecha_recepcion');
         }
 
-        $q->leftJoin('expedientes','expedientes.solicitud_id', '=','solicitudes.id');
-        $q->leftJoin('audiencias','audiencias.expediente_id', '=','expedientes.id');
-        $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
-        $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
+        //Si viene parámetro filtrable de conciliadores entonces limitamos la consulta a esos conciliadores
+        if ($request->get('tipo_reporte') == 'desagregado' || !empty($request->get('conciliadores'))) {
+            $q->leftJoin('expedientes', 'expedientes.solicitud_id', '=', 'solicitudes.id');
+            $q->leftJoin('audiencias', 'audiencias.expediente_id', '=', 'expedientes.id');
+            $q->leftJoin('conciliadores', 'conciliadores.id', '=', 'audiencias.conciliador_id');
+            $q->leftJoin('personas', 'personas.id', '=', 'conciliadores.persona_id');
+        }
 
         if ($request->get('conciliadores')) {
             if ($request->get('tipo_reporte') == 'desagregado') {
@@ -601,17 +602,25 @@ class ReportesService
 
     /**
      * Query con parametros sustituidos
-     * @param $q
      * @return string|string[]|null
      */
-    public static function debugSql($q)
+    public static function debugSql($html=true)
     {
-        $sql = $q->toSql();
-        $bindings = $q->getBindings();
-
-        return preg_replace_callback('/\?/', function ($match) use ($sql, &$bindings) {
-            return "'" . array_shift($bindings) . "'";
-        }, $sql);
+        $logQueries = \DB::getQueryLog();
+        /*
+        usort($logQueries, function($a, $b) {
+            return $b['time'] <=> $a['time'];
+        });
+        */
+        $res=[];
+        foreach ($logQueries as $item) {
+            $strq = preg_replace('/(\d+)-(\d+)-(\d+)/i',"'$1-$2-$3'", str_replace_array('?', $item['bindings'], $item['query']));
+            $strq = preg_replace('/"/','', $strq);
+            if(!$html) $res[] = $strq;
+            echo $strq."<hr/>".PHP_EOL.PHP_EOL;
+        }
+        if($html) return;
+        return $res;
     }
 
     /**
@@ -667,6 +676,7 @@ class ReportesService
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
         $q->whereNull('resolucion_parte_conceptos.deleted_at');
+        $q->whereNotNull('resolucion_parte_conceptos.id');
 
         # Sólo las de trabajador y patron individual por default.
         $this->filtroTipoSolicitud($request, $q);
@@ -708,7 +718,7 @@ class ReportesService
             $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
         }
 
-        $q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
+        /*$q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
                    'audiencias.id as audiencia_id',
                    'audiencias.resolucion_id as resolucion_id',
                    'resoluciones.nombre as resolucion',
@@ -717,6 +727,13 @@ class ReportesService
                    'tipo_terminacion_audiencias.nombre as tipo_terminacion',
                    'fecha_audiencia','numero_audiencia',
                    'monto'
+        );
+        */
+        $q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
+                   'audiencias.id as audiencia_id',
+                   'fecha_audiencia','numero_audiencia',
+                   'monto'
+        // ,'tipo_propuesta_pago_id'
         );
 
         $q->join('expedientes','expedientes.solicitud_id','=','solicitudes.id');
@@ -747,6 +764,7 @@ class ReportesService
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
         $q->whereNull('resolucion_parte_conceptos.deleted_at');
+        $q->whereNotNull('resolucion_parte_conceptos.id');
 
         # Sólo las de trabajador y patron individual por default.
         $this->filtroTipoSolicitud($request, $q);
@@ -834,14 +852,25 @@ class ReportesService
         # Por tipo de industria
         $this->filtroPorIndustrias($request, $q);
 
-        $q->where('audiencias.resolucion_id', self::RESOLUCIONES_NO_HUBO_CONVENIO);
+        //$q->where('audiencias.resolucion_id', self::RESOLUCIONES_NO_HUBO_CONVENIO);
+        // Realizamos en el post procesamiento de datos el filtro para ubicar con mayor facilidad sólo los de úlitma
+        // audiencia.
 
-        Log::info(self::debugSql($q));
         if ($request->get('tipo_reporte') == 'agregado') {
-            $res = $q->get();
+            $res = $q->get()->sortByDesc(function ($item) {
+                return $item['solicitud_id'].$item['numero_audiencia'];
+            })
+            ->unique(function ($item) {
+                return $item['abreviatura'].$item['solicitud_id'];
+            })->where('resolucion_id',self::RESOLUCIONES_NO_HUBO_CONVENIO)->sortBy('abreviatura');
         }
         else{
-            $res = $q->get()->sortBy('abreviatura');
+            $res = $q->get()->sortByDesc(function ($item) {
+                return $item['abreviatura'].$item['solicitud_id'].$item['numero_audiencia'];
+            })
+            ->unique(function ($item) {
+                return $item['abreviatura'].$item['solicitud_id'];
+            })->where('resolucion_id',self::RESOLUCIONES_NO_HUBO_CONVENIO)->sortBy('abreviatura');
         }
 
         return $res;
@@ -879,7 +908,6 @@ class ReportesService
                       'personas.segundo_apellido as conciliador_segundo_apellido');
         $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
         $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
-
 
         //Se aplican filtros por características del solicitante
         $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'expediente.solicitud.partes');
@@ -934,7 +962,6 @@ class ReportesService
         $q->leftJoin('conciliadores','conciliadores.id', '=','audiencias.conciliador_id');
         $q->leftJoin('personas','personas.id', '=','conciliadores.persona_id');
 
-
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
@@ -947,7 +974,6 @@ class ReportesService
 
         //Se aplican filtros por características del solicitante
         $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'audiencia.expediente.solicitud.partes');
-
 
         $res = $q->get()->sortBy('abreviatura');
 
@@ -1258,6 +1284,5 @@ class ReportesService
     {
         return Industria::orderBy('nombre')->get(['id','nombre'])->pluck('nombre','id');
     }
-
 }
 

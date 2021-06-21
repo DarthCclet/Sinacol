@@ -80,12 +80,94 @@ class SolicitudController extends Controller {
         $this->request = $request;
     }
 
+    public function index() {
+        try {
+            $centro_id = Auth::user()->centro_id;
+            $mostrar_caducos = $this->request->get('alert');
+            if (!$this->request->wantsJson()) {
+                $caducan = HerramientaServiceProvider::getSolicitudesPorCaducar(true);
+                if(count($caducan) == 0){
+                    $mostrar_caducos = null;
+                }
+                $objeto_solicitudes = $this->cacheModel('objeto_solicitudes', ObjetoSolicitud::class);
+                $estatus_solicitudes = $this->cacheModel('estatus_solicitudes', EstatusSolicitud::class);
+                $clasificacion_archivo = ClasificacionArchivo::where("tipo_archivo_id", 1)->get();
+                $clasificacion_archivos_Representante = ClasificacionArchivo::where("tipo_archivo_id", 9)->orWhere("tipo_archivo_id", 10)->get();
+                $tipo_solicitud = array_pluck(TipoSolicitud::all(), 'nombre', 'id');
+                $conciliadores = Conciliador::where('centro_id', $centro_id)->with('persona')->get()->pluck('persona.FullName', 'id');
+                return view('expediente.solicitudes.index', compact( 'objeto_solicitudes', 'estatus_solicitudes', 'clasificacion_archivos_Representante', 'clasificacion_archivo', 'tipo_solicitud', 'conciliadores','caducan','mostrar_caducos'));
+            }
+            // Filtramos los usuarios con los parametros que vengan en el request
+            $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
+            ->searchWith(Solicitud::class)
+            ->filter(false);
+            $solicitud->whereRaw('incidencia is not true');
+            $filtrarCentro = true;
+            $length = $this->request->get('length');
+            $start = $this->request->get('start');
+            if ($this->request->get('Expediente')) {
+                $filtrarCentro = false;
+            }
+            if (Auth::user()->hasRole('Super Usuario')) {
+                $filtrarCentro = false;
+            }
+            if (Auth::user()->hasRole('Orientador Central')) {
+                $solicitud->whereRaw('(tipo_solicitud_id = 3 or tipo_solicitud_id = 4)');
+                $filtrarCentro = false;
+            }
+            if (Auth::user()->hasRole('Personal conciliador') && $this->request->get('mis_solicitudes') == "true") {
+                $conciliador = auth()->user()->persona->conciliador;
+                if ($conciliador != null) {
+                    $conciliador_id = $conciliador->id;
+                    $solicitud->whereHas('expediente.audiencia', function($q) use($conciliador_id) {
+                        $q->where('conciliador_id', $conciliador_id);
+                    });
+                }
+            }
+            if ($filtrarCentro) {
+                $solicitud->where('centro_id', $centro_id);
+            }
+            $filtered = $solicitud->count();
+            $solicitud->with('user.persona');
+            if ($this->request->get('IsDatatableScroll')) {
+                $solicitud = $solicitud->orderBy("fecha_recepcion", 'desc')->take($length)->skip($start)->get(['id', 'estatus_solicitud_id', 'folio', 'anio', 'fecha_ratificacion', 'fecha_recepcion', 'fecha_conflicto', 'centro_id', 'user_id', 'virtual']);
+            } else {
+                $solicitud = $solicitud->paginate($this->request->get('per_page', 10));
+            }
+            // // Para cada objeto obtenido cargamos sus relaciones.
+            $solicitud = tap($solicitud)->each(function ($solicitud) {
+                $solicitud->loadDataFromRequest();
+            });
+            if ($this->request->get('all') || $this->request->get('paginate')) {
+                return $this->sendResponse($solicitud, 'SUCCESS');
+            } else {
+                if ($filtrarCentro) {
+                    $total = Solicitud::where('centro_id', $centro_id)->count();
+                } else {
+                    $total = Solicitud::count();
+                }
+                
+                $draw = $this->request->get('draw');
+                return $this->sendResponseDatatable($total, $filtered, $draw, $solicitud, null);
+            }
+
+        } catch (\Throwable $e) {
+            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+                    " Se emitió el siguiente mensale: " . $e->getMessage() .
+                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
+            if ($this->request->wantsJson()) {
+                return $this->sendResponseDatatable(0, 0, 0, [], null);
+            }
+            return redirect('solicitudes')->with('error', 'Error al consultar la solicitud');
+        }
+    }
+    
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index() {
+    public function index2() {
         try {
             // Filtramos los usuarios con los parametros que vengan en el request
             $solicitud = (new SolicitudFilter(Solicitud::query(), $this->request))
@@ -749,6 +831,22 @@ class SolicitudController extends Controller {
                         $audiencia->iniciada = false;
                         if (count($audiencia->comparecientes) > 0) {
                             $audiencia->iniciada = true;
+                        }
+                        foreach ($audiencia->audienciaParte as $parte) {
+                            $documentos = $parte->documentos;
+                            foreach ($documentos as $documento) {
+                                $documento->id = $documento->id;
+                                $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                                $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                                $documento->owner = "Audiencia ".$audiencia->folio . "/" . $audiencia->anio;
+                                if ($parte->parte->tipo_persona_id == 1) {
+                                    $documento->audiencia = $parte->parte->nombre . " " . $parte->parte->primer_apellido . " " . $parte->parte->segundo_apellido;
+                                } else {
+                                    $documento->audiencia = $parte->parte->nombre_comercial;
+                                }
+                                $documento->tipo_doc = 3;
+                                $doc->push($documento);
+                            }
                         }
                     }
                 }
@@ -1868,6 +1966,7 @@ class SolicitudController extends Controller {
             $solicitud->tipo_incidencia_solicitud_id = $request->tipo_incidencia_solicitud_id;
             $solicitud->justificacion_incidencia = $request->justificacion_incidencia;
             $solicitud->user_id = $user_id;
+            $solicitud->save();
             if ($request->solicitud_asociada_id) {
                 $solicitud->solicitud_id = $request->solicitud_asociada_id;
             }
@@ -1880,6 +1979,7 @@ class SolicitudController extends Controller {
                         $solicitud->estatus_solicitud_id = 3;
                         $solicitud->incidencia = true;
                         $solicitud->fecha_incidencia = now();
+                        $solicitud->save();
                         $partes = $solicitud->partes;
                         foreach ($partes as $parte) {
                             if ($parte->tipo_parte_id == 1) {
@@ -1895,6 +1995,7 @@ class SolicitudController extends Controller {
                         $solicitud->estatus_solicitud_id = 3;
                         $solicitud->incidencia = true;
                         $solicitud->fecha_incidencia = now();
+                        $solicitud->save();
                         $partes = $solicitud->partes;
                         foreach ($partes as $parte) {
                             if ($parte->tipo_parte_id == 1) {
@@ -1908,7 +2009,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no tiene audiencias, crear incompetencia en proceso de confirmación ', 'Error');
                 }
             }
-            $solicitud->save();
+            
             if($request->tipo_incidencia_solicitud_id == 7){
                 if ($solicitud->expediente && $solicitud->expediente->audiencia) {
                     event(new GenerateDocumentResolution($solicitud->expediente->audiencia()->orderBy('id','desc')->first()->id,$solicitud->id,61,24,null,null));
@@ -1917,7 +2018,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no esta confirmada, no se puede realizar este proceso ', 'Error');
                 }
             }
-
+            
             DB::commit();
             return $this->sendResponse($solicitud, 'SUCCESS');
         } catch (Exception $e) {

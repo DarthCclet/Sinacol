@@ -6,8 +6,6 @@ namespace App\Services;
 
 use App\Traits\EstilosSpreadsheets;
 use Illuminate\Support\Facades\Log;
-use Lavary\Menu\ServiceProvider;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ExcelReporteOperativoService
 {
@@ -21,7 +19,7 @@ class ExcelReporteOperativoService
     /**
      * Días para el archivado de no ratificadas
      */
-    const DIAS_PARA_ARCHIVAR = 20;
+    const DIAS_PARA_ARCHIVAR = 5;
 
     /**
      * ExcelReporteOperativoService constructor.
@@ -39,46 +37,54 @@ class ExcelReporteOperativoService
      */
     public function reporte($sheet, $request)
     {
+
         # Solicitudes confirmadas
-        $qSolicitudesRatificadas = $this->service->solicitudes($request);
-        $qSolicitudesArchivadasNoConfirmacion = $this->service->solicitudes($request);
-        $qSolicitudesPresentadas = $this->service->solicitudes($request);
+        $qSolicitudesRatificadas = (clone $this->service->solicitudes($request));
         $sheet->setCellValue('B2', $qSolicitudesRatificadas->where('ratificada', true)->count());
 
         # Archivadas por no confirmación
         // regla de negocio: No ratificados por más de 7 días desde su creación.
+        $qSolicitudesArchivadasNoConfirmacion = (clone $this->service->solicitudes($request));
         $sheet->setCellValue('B3', $qSolicitudesArchivadasNoConfirmacion->where('ratificada', false)
             ->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+
+        # En posibilidad de confirmarse porque están en el plazo
+        $qSolicitudesPorConfirmar = (clone $this->service->solicitudes($request));
+        $sheet->setCellValue('B4', $qSolicitudesPorConfirmar->where('ratificada', false)
+            ->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+
         # Solicitudes presentadas
+        $qSolicitudesPresentadas = (clone $this->service->solicitudes($request));
         $sheet->setCellValue('B5', $qSolicitudesPresentadas->count());
 
         # Solicitudes por concepto: total, confirmadas, archivadas por no confirmar, por confirmar
         # tipo de solicitud trabajador o patron
 
-        $pptrab = ($this->service->solicitudes($request))->where('tipo_solicitud_id', ReportesService::SOLICITUD_INDIVIDUAL);
+        $pptrab = ($this->service->solicitudes($request,false))->where('tipo_solicitud_id', ReportesService::SOLICITUD_INDIVIDUAL);
         $sheet->setCellValue('B8', $pptrab->count());
-        $sheet->setCellValue('C8', $pptrab->where('ratificada', true)->count());
-        $sheet->setCellValue('D8', ($this->service->solicitudes($request))->where('tipo_solicitud_id', ReportesService::SOLICITUD_INDIVIDUAL)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-        $sheet->setCellValue('E8', ($this->service->solicitudes($request))->where('tipo_solicitud_id', ReportesService::SOLICITUD_INDIVIDUAL)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
-        $pppatr = ($this->service->solicitudes($request))->where('tipo_solicitud_id', ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL);
+        $sheet->setCellValue('C8', $pptrab->where('ratificada', true)->count());
+        $sheet->setCellValue('D8', ($this->service->solicitudes($request,false))->where('tipo_solicitud_id', ReportesService::SOLICITUD_INDIVIDUAL)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+        $sheet->setCellValue('E8', ($this->service->solicitudes($request,false))->where('tipo_solicitud_id', ReportesService::SOLICITUD_INDIVIDUAL)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+
+        $pppatr = ($this->service->solicitudes($request, false))->where('tipo_solicitud_id', ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL);
         $sheet->setCellValue('B9', $pppatr->count());
         $sheet->setCellValue('C9', $pppatr->where('ratificada',true)->count());
         $sheet->setCellValue('D9', ($this->service->solicitudes($request))->where('tipo_solicitud_id', ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
         $sheet->setCellValue('E9', ($this->service->solicitudes($request))->where('tipo_solicitud_id', ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         # con asistencia de personal o por los usuarios
-        $caspc = ($this->service->solicitudes($request))->where('user_id', '>', 1);
+        $caspc = ($this->service->solicitudes($request))->whereNotNull('captura_user_id');
         $sheet->setCellValue('B12', $caspc->count());
         $sheet->setCellValue('C12', $caspc->where('ratificada', true)->count());
-        $sheet->setCellValue('D12', ($this->service->solicitudes($request))->where('user_id', '>', 1)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-        $sheet->setCellValue('E12', ($this->service->solicitudes($request))->where('user_id', '>', 1)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+        $sheet->setCellValue('D12', ($this->service->solicitudes($request))->whereNotNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+        $sheet->setCellValue('E12', ($this->service->solicitudes($request))->whereNotNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
-        $sol = ($this->service->solicitudes($request))->whereRaw('(user_id = 1 or user_id is null)');
+        $sol = ($this->service->solicitudes($request))->whereNull('captura_user_id');
         $sheet->setCellValue('B13', $sol->count());
         $sheet->setCellValue('C13', $sol->where('ratificada', true)->count());
-        $sheet->setCellValue('D13', ($this->service->solicitudes($request))->whereRaw('(user_id = 1 or user_id is null)')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-        $sheet->setCellValue('E13', ($this->service->solicitudes($request))->whereRaw('(user_id = 1 or user_id is null)')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+        $sheet->setCellValue('D13', ($this->service->solicitudes($request))->whereNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+        $sheet->setCellValue('E13', ($this->service->solicitudes($request))->whereNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         # por género
         //Hombres
@@ -99,11 +105,11 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('E17', $solgenmpr->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         # Por grupo etáreo
-        /** @var Array[Builder] $solget Arreglo que contiene objetos Builder para las solicitudes totalizadas de grupo etario  */
+        /** @var array[Builder] $solget Arreglo que contiene objetos Builder para las solicitudes totalizadas de grupo etario  */
         $solget=[];
-        /** @var Array[Builder] $solget Arreglo que contiene objetos Builder para las solicitudes por ratificar  */
+        /** @var array[Builder] $solget Arreglo que contiene objetos Builder para las solicitudes por ratificar  */
         $solgetpr=[];
-        /** @var Array[Builder] $solgetpr Arreglo que contiene objetos Builder para las solicitudes archivadas  */
+        /** @var array[Builder] $solgetpr Arreglo que contiene objetos Builder para las solicitudes archivadas  */
         $solgetar=[];
         /** @var integer $rowget Fila de grupo etario */
         $rowget = 21;
@@ -245,12 +251,12 @@ class ExcelReporteOperativoService
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         # F2 Incompetencias
-        $incompetencias = (clone $this->service->solicitudes($request))->has('documentosComentadosComoIncompetencia')
+        $incompetencias = (clone $this->service->solicitudesRatificacion($request))->has('documentosComentadosComoIncompetencia')
             ->where('tipo_incidencia_solicitud_id', ReportesService::INCOMPETENCIA_EN_RATIFICACION);
         $sheet->setCellValue('G2', $incompetencias->count());
 
         # F3 Incompetencia detectada en audiencia
-        $incompetenciasEnAudiencia = (clone $this->service->solicitudes($request))->whereHas('expediente.audiencia.documentos', function ($qq){
+        $incompetenciasEnAudiencia = (clone $this->service->solicitudesRatificacion($request))->whereHas('expediente.audiencia.documentos', function ($qq){
             return $qq->where('clasificacion_archivo_id', ReportesService::INCOMPETENCIA_EN_AUDIENCIA);
         });
         $sheet->setCellValue('G3', $incompetenciasEnAudiencia->count());
@@ -258,11 +264,11 @@ class ExcelReporteOperativoService
         # F4 Competencias
         // Para saber las competentes entonces seleccionamos todas las solicitudes y eliminamos los ids de incompetencias detectadas en ratificación y en audiencia
         $solicitudesIncompetenciasIds = $incompetencias->get()->merge($incompetenciasEnAudiencia->get())->pluck('id')->toArray();
-        $competencias = (clone $this->service->solicitudes($request))->whereNotIn('id', $solicitudesIncompetenciasIds)->count();
+        $competencias = (clone $this->service->solicitudesRatificacion($request))->whereNotIn('id', $solicitudesIncompetenciasIds)->count();
         $sheet->setCellValue('G4', $competencias);
 
         # F7 Número de solicitudes inmediatas (ratificaciones le llaman en el reporte)
-        $inmediatas = (clone $this->service->solicitudes($request))->where('inmediata', true)->count();
+        $inmediatas = (clone $this->service->solicitudesRatificacion($request))->where('inmediata', true)->count();
         $sheet->setCellValue('G7', $inmediatas);
 
         # G8 Monto de convenio con ratificaciones
@@ -445,11 +451,13 @@ class ExcelReporteOperativoService
         # S2 Total de convenios
         $total_convenios = (clone $this->service->audiencias($request))
             ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            //->where('inmediata', false)
             ->count();
-        $sheet->setCellValue('T2', $no_conciliacion_nocomparecencia);
+        $sheet->setCellValue('T2', $total_convenios);
 
         # S3 Monto desglosado de los convenios
         $monto_convenios = (clone $this->service->convenios($request))
+            //->where('inmediata', false)
             ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->get()
             ->sum('monto');
         $sheet->setCellValue('T3', $monto_convenios);
@@ -457,6 +465,7 @@ class ExcelReporteOperativoService
         # S4 Beneficios o prestaciones no económicas
         $beneficios = (clone $this->service->convenios($request))
             ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->where('solicitudes.inmediata', false)
             ->whereIn('concepto_pago_resoluciones_id',[
                 ReportesService::CONCEPTO_PAGO_GRATIFICACION_EN_ESPECIE,
                 ReportesService::CONCEPTO_PAGO_RECONOCIMIENTO_DERECHOS,
@@ -468,58 +477,109 @@ class ExcelReporteOperativoService
             ->get()
             ->count();
         $sheet->setCellValue('T4', $beneficios);
+#GRAN TODO............ Qué significa número de convenios???
+        # Número de convenios diferidos
+        $num_convenios = (clone $this->service->pagosDiferidos($request))
+            ->has('pagosDiferidos', '>=', 1)
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->get()->unique('expediente_id')->count();
+        $sheet->setCellValue('T7', $num_convenios);
 
-
-        $num_pagos_dif = (clone $this->service->audiencias($request))
-            ->has('pagosDiferidos', 1)->with('pagosDiferidos')
+        # Número de pagos diferidos
+        $num_pagos_dif = (clone $this->service->pagosDiferidos($request))
+            ->has('pagosDiferidos', '>=', 1)
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
             ->get()->count();
-        $sheet->setCellValue('T7', $num_pagos_dif);
+        $sheet->setCellValue('U7', $num_pagos_dif);
 
-        //ToDo: Qué onda con la columna U ?
+        # Monto pagos diferidos
+        $monto_pagos_dif = (clone $this->service->pagosDiferidos($request))
+            ->has('pagosDiferidos', '>=', 1)
+            ->get()
+            ->map(function ($k, $v){
+                return $k->pagosDiferidos->sum('monto');
+            });
+        $sheet->setCellValue('V7', $monto_pagos_dif->sum());
 
-        $monto_pagos_dif = (clone $this->service->audiencias($request))
-            ->has('pagosDiferidos', 1)->with('pagosDiferidos')
-            ->get()->sum('pagosDiferidos.monto');
-        $sheet->setCellValue('V7', $monto_pagos_dif);
 
-        $num_pagos_parciales = (clone $this->service->audiencias($request))
-            ->has('pagosDiferidos','>', 1)
-            ->get()->count();
-        $sheet->setCellValue('T8', $num_pagos_parciales);
+        # Número de convenios totales
+        $num_convenios_tt = $this->service->convenios($request)
+            //->where('solicitudes.inmediata', false)
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->get()->unique('solicitud_id');
 
-        $monto_pagos_parciales = (clone $this->service->audiencias($request))
-            ->has('pagosDiferidos', '>', 1)->with('pagosDiferidos')
-            ->get()->sum('pagosDiferidos.monto');
-        $sheet->setCellValue('V8', $monto_pagos_parciales);
+        # Número de pagos totales
+        $num_pagos_tt = $this->service->convenios($request)
+            //->where('solicitudes.inmediata', false)
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->get();
 
-        //dd((ReportesService::debugSql(  (clone $this->service->audiencias($request))->has('pagosDiferidos', '>', 1)->with('pagosDiferidos'))));
+        # Monto pagos totales
+        $monto_pagos_tt = $num_pagos_tt->sum('monto');
+
+        $sheet->setCellValue('T9', $num_convenios_tt->count());
+        $sheet->setCellValue('U9', $num_pagos_tt->count());
+        $sheet->setCellValue('V9', $monto_pagos_tt);
+
+        # Pagos a la firma del convenio debe ser la resta entre unos T9,U9,V9 y T7,U7 y V7
+        # Ver hasta abajo lo que se sobreescribe con operaciones de pagos diferidos!!
+        $sheet->setCellValue('T8', $num_convenios_tt->count() - $num_convenios);
+        $sheet->setCellValue('U8', $num_pagos_tt->count() - $num_pagos_dif);
+        $sheet->setCellValue('V8', $monto_pagos_tt - $monto_pagos_dif->sum());
+
+
 
         $num_tot_pagos_parciales = (clone $this->service->pagos($request))
             ->get()->count();
-        $sheet->setCellValue('T11', $num_tot_pagos_parciales);
+        $sheet->setCellValue('T10', $num_tot_pagos_parciales);
 
 
-        $num_cumplimientos = (clone $this->service->pagos($request))
-            ->where('pagado', true)
+        $num_cumplimientos = (clone $this->service->pagosDiferidos($request))
+            ->has('pagosDiferidos', '>=', 1)
+            ->whereHas('pagosDiferidos', function ($q){
+                $q->where('pagado', true);
+            })
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
             ->get()->count();
-        $sheet->setCellValue('T12', $num_cumplimientos);
+        $sheet->setCellValue('T11', $num_cumplimientos);
 
-        $num_incumplimientos = (clone $this->service->pagos($request))
-            ->where('pagado', false)->whereNotNull('pagado')
-            ->get()->count();
-        $sheet->setCellValue('T13', $num_incumplimientos);
+        $num_incumplimientos = (clone $this->service->pagosDiferidos($request))
+            ->has('pagosDiferidos', '>=', 1)
+            ->whereHas('pagosDiferidos', function ($q){
+                $q->where('pagado', false);
+            })
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->get()->count();;
+        $sheet->setCellValue('T12', $num_incumplimientos);
 
-        $num_vencidos = (clone $this->service->pagos($request))
-            ->whereNull('pagado')
-            ->where('fecha_pago', '<', date('Y-m-d'))
+        $num_vencidos = (clone $this->service->pagosDiferidos($request))
+            ->has('pagosDiferidos', '>=', 1)
+            ->whereHas('pagosDiferidos', function ($q){
+                $q->whereNull('pagado');
+                $q->where('fecha_pago', '<', date('Y-m-d'));
+            })
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
             ->get()->count();
-        $sheet->setCellValue('T14', $num_vencidos);
+        $sheet->setCellValue('T13', $num_vencidos);
 
-        $num_vigentes = (clone $this->service->pagos($request))
-            ->whereNull('pagado')
-            ->where('fecha_pago', '>=', date('Y-m-d'))
+        $num_vigentes = (clone $this->service->pagosDiferidos($request))
+            ->has('pagosDiferidos', '>=', 1)
+            ->whereHas('pagosDiferidos', function ($q){
+                $q->whereNull('pagado');
+                $q->where('fecha_pago', '>=', date('Y-m-d'));
+            })
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
             ->get()->count();
-        $sheet->setCellValue('T15', $num_vigentes);
+        $sheet->setCellValue('T14', $num_vigentes);
+
+        # Total de pagos diferidos
+        # Suma de pagos
+        $num_pagos_dif = $num_vigentes+$num_vencidos+$num_incumplimientos+$num_cumplimientos;
+        $sheet->setCellValue('T10', $num_pagos_dif);
+
+
+        $sheet->setCellValue('U7', $num_pagos_dif);
+
+        $sheet->setCellValue('U8', $num_pagos_tt->count() - $num_pagos_dif);
+
 
 
     }

@@ -114,6 +114,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('audiencia/cambiar_conciliador','AudienciaController@CambiarConciliador');
     Route::resource('parte','ParteController');
     Route::Get('partes/representante/{id}','ParteController@GetRepresentanteLegal');
+    Route::Post('partes/representante/audiencia','ParteController@GetRepresentanteAudiencia');
+    Route::Get('representante/{id}','ParteController@GetRepresentanteLegalById');
     Route::Get('partes/datoLaboral/{id}','ParteController@GetDatoLaboral');
     Route::Post('partes/datoLaboral','ParteController@GuardarDatoLaboral');
     Route::Post('partes/representante','ParteController@GuardarRepresentanteLegal');
@@ -154,8 +156,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('catalogos/nacionalidades','NacionalidadController@index')->name('catalogos.nacionalidad');
     Route::get('catalogos/centros','CentroController@index')->name('catalogos.centro');
 
-
-
     Route::resource('giros','GiroComercialController');
     Route::post('giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
     Route::Post('giros_comerciales/cambiar_padre','GiroComercialController@CambiarPadre');
@@ -191,7 +191,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('cambiarCentro/{centro_id}','PermissionController@cambiarCentro');
     Route::get('impersonate/{user_id}','UserController@impersonate')->name('impersonate');
     Route::get('impersonate_leave','UserController@impersonate_leave')->name('impersonate_leave');
-
 
     // Catalogos
     Route::resource('ambitos','AmbitoController');
@@ -247,7 +246,6 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
-
 
 /**
  * Ruta para envío de certificados digitales desde el buzón

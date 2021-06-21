@@ -97,9 +97,10 @@ class ReporteOperativoService
     /**
      * Sobre las solicitudes presentadas
      * @param $request
+     * @param bool $tipos
      * @return mixed
      */
-    public function solicitudes($request)
+    public function solicitudes($request, $tipos = true)
     {
 
         $q = (new SolicitudFilter(Solicitud::query(), $request))
@@ -116,6 +117,34 @@ class ReporteOperativoService
 
         //Dejamos fuera los no consultables
         $this->noReportables($q);
+        if($tipos) $this->filtroTipoSolicitud($request, $q);
+        //dd($this->debugSql($q));
+        return $q;
+    }
+
+    /**
+     * Sobre las solicitudes y su ratificacion
+     * @param $request
+     * @return mixed
+     */
+    public function solicitudesRatificacion($request)
+    {
+
+        $q = (new SolicitudFilter(Solicitud::query(), $request))
+            ->searchWith(Solicitud::class)
+            ->filter(false);
+
+        # Las solicitudes
+        if($request->get('fecha_inicial')){
+            $q->whereRaw('fecha_ratificacion::date >= ?', $request->get('fecha_inicial'));
+        }
+        if($request->get('fecha_final')){
+            $q->whereRaw('fecha_ratificacion::date <= ?', $request->get('fecha_final'));
+        }
+
+        //Dejamos fuera los no consultables
+        $this->noReportables($q);
+        $this->filtroTipoSolicitud($request, $q);
         //dd($this->debugSql($q));
         return $q;
     }
@@ -141,19 +170,15 @@ class ReporteOperativoService
 
         $q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
                    'audiencias.id as audiencia_id',
-                   'audiencias.resolucion_id as resolucion_id',
-                   'resoluciones.nombre as resolucion',
-                   'audiencias.finalizada as audiencia_finalizada',
-                   'audiencias.tipo_terminacion_audiencia_id',
-                   'tipo_terminacion_audiencias.nombre as tipo_terminacion',
                    'fecha_audiencia','numero_audiencia',
                    'monto'
+        // ,'tipo_propuesta_pago_id'
         );
 
         $q->join('expedientes','expedientes.solicitud_id','=','solicitudes.id');
         $q->join('audiencias','expedientes.id','=','audiencias.expediente_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
-        $q->leftJoin('tipo_terminacion_audiencias','audiencias.tipo_terminacion_audiencia_id','=','tipo_terminacion_audiencias.id');
+        //$q->leftJoin('tipo_terminacion_audiencias','audiencias.tipo_terminacion_audiencia_id','=','tipo_terminacion_audiencias.id');
         $q->leftJoin('resoluciones','audiencias.resolucion_id','=','resoluciones.id');
         $q->leftJoin('audiencias_partes','audiencias_partes.audiencia_id','=','audiencias.id');
         $q->leftJoin('resolucion_parte_conceptos','resolucion_parte_conceptos.audiencia_parte_id','=','audiencias_partes.id');
@@ -162,8 +187,9 @@ class ReporteOperativoService
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
         $q->whereNull('resolucion_parte_conceptos.deleted_at');
+        $q->whereNotNull('resolucion_parte_conceptos.id');
 
-
+        $this->filtroTipoSolicitud($request, $q);
 
         return $q;
     }
@@ -281,18 +307,19 @@ class ReporteOperativoService
             $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
         }
 
-        $q->select('audiencias.id as audiencia_id', 'expedientes.folio as expediente', 'centros.abreviatura', 'audiencias.fecha_audiencia',
-                   'solicitudes.id as solicitud_id', 'audiencias.finalizada as audiencia_finalizada', 'audiencias.numero_audiencia');
+        $q->select('audiencias.id as audiencia_id',  'centros.abreviatura', 'audiencias.fecha_audiencia',
+                       'solicitudes.id as solicitud_id', 'audiencias.finalizada as audiencia_finalizada', 'audiencias.numero_audiencia');
 
         //Seleccionamos la abreviatura del nombre y su cuenta
         $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
         $q->join('solicitudes','solicitudes.id','=','expedientes.solicitud_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
 
-
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
+
+        $this->filtroTipoSolicitud($request, $q);
 
         return $q;
     }
@@ -323,7 +350,7 @@ class ReporteOperativoService
         $this->noReportables($q);
         $q->whereNull('audiencias.deleted_at');
         $q->whereNull('audiencias_partes.deleted_at');
-
+        $this->filtroTipoSolicitud($request, $q);
         return $q;
     }
 
@@ -340,10 +367,10 @@ class ReporteOperativoService
 
         //Las solicitudes confirmadas se evaluan por fecha de ratificacion
         if($request->get('fecha_inicial')){
-            $q->whereRaw('fecha_pago::date >= ?', $request->get('fecha_inicial'));
+            $q->whereRaw('fecha_audiencia::date >= ?', $request->get('fecha_inicial'));
         }
         if($request->get('fecha_final')){
-            $q->whereRaw('fecha_pago::date <= ?', $request->get('fecha_final'));
+            $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
         }
 
         $q->select('audiencias.id as audiencia_id', 'expedientes.folio as expediente', 'centros.abreviatura',
@@ -366,6 +393,25 @@ class ReporteOperativoService
         return $q;
     }
 
+
+    public function pagosDiferidos($request) {
+
+        $q = (new AudienciaFilter(Audiencia::query(), $request))
+            ->searchWith(Audiencia::class)
+            ->filter(false);
+
+        //Las audiencias se evalúan por fecha de audiencia
+        if($request->get('fecha_inicial')){
+            $q->whereRaw('fecha_audiencia::date >= ?', $request->get('fecha_inicial'));
+        }
+        if($request->get('fecha_final')){
+            $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
+        }
+
+        $q->with('pagosDiferidos');
+
+        return $q;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

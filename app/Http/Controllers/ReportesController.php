@@ -77,7 +77,10 @@ class ReportesController extends Controller
         # Las industrias
         $tipoIndustria = ReportesService::getIndustria();
 
-        return view('reportes.index', compact('tipoObjetos','centros', 'grupo_etario', 'tipoIndustria', 'tipoObjetosJson', 'conciliadoresJson'));
+        # Para loguear los querys
+        $querys = $this->request->exists('querys');
+
+        return view('reportes.index', compact('tipoObjetos','centros', 'grupo_etario', 'tipoIndustria', 'tipoObjetosJson', 'conciliadoresJson', 'querys'));
     }
 
     /**
@@ -99,9 +102,11 @@ class ReportesController extends Controller
 
         // SOLICITUDES PRESENTADAS
         $sheet->setTitle('Solicitudes presentadas');
-        $solicitudes = $reportesService->solicitudesPresentadas($this->request);
 
-        //dump($this->request->all());
+        // Si viene el parámetro query logueamos los querys a pantalla
+        if($this->request->exists('querys')) DB::enableQueryLog();
+
+        $solicitudes = $reportesService->solicitudesPresentadas($this->request);
         $excelReportesService->solicitudesPresentadas($sheet, $solicitudes, $this->request);
 
         // SOLICITUDES CONFIRMADAS
@@ -157,6 +162,9 @@ class ReportesController extends Controller
         $pagosdiferidosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Pagos diferidos');
         $spreadsheet->addSheet($pagosdiferidosWorkSheet, 9);
         $excelReportesService->pagosDiferidos($pagosdiferidosWorkSheet, $pagosdiferidos, $this->request);
+
+        // Si viene el parámetro query logueamos los querys a pantalla
+        if($this->request->exists('querys')) {$res =  ReportesService::debugSql(); dump($res); exit;}
 
         // Descarga del excel
         $spreadsheet->setActiveSheetIndex(0);
@@ -239,8 +247,13 @@ class ReportesController extends Controller
         $sheet->setTitle('Reporte operativo');
 
         $nombre_reporte = 'ReporteOperativoSINACOL_'.date("Y-m-d_His").".xlsx";
+        // Si viene el parámetro query logueamos los querys a pantalla
+        if($this->request->exists('querys')) DB::enableQueryLog();
 
         $excelReporteOperativoService->reporte($sheet, $this->request);
+
+        // Si viene el parámetro query logueamos los querys a pantalla
+        if($this->request->exists('querys')) {$res =  ReportesService::debugSql(); dump($res); exit;}
 
         $writer = new Xlsx($spreadsheet);
         return $this->descargaExcel($writer, $nombre_reporte );

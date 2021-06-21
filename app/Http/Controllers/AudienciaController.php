@@ -378,6 +378,21 @@ class AudienciaController extends Controller {
                 $documento->audiencia_id = $audienciaSol->id;
                 $doc->push($documento);
             }
+            foreach ($audienciaSol->audienciaParte as $parte) {
+                $documentos = $parte->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->id = $documento->id;
+                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                    if ($parte->parte->tipo_persona_id == 1) {
+                        $documento->audiencia = $parte->parte->nombre . " " . $parte->parte->primer_apellido . " " . $parte->parte->segundo_apellido;
+                    } else {
+                        $documento->audiencia = $parte->parte->nombre_comercial;
+                    }
+                    $documento->tipo_doc = 3;
+                    $doc->push($documento);
+                }
+            }
         }
         $documentos = $doc->sortBy('id');
         $virtual = $solicitud->virtual;
@@ -1862,16 +1877,16 @@ class AudienciaController extends Controller {
         ##creamos la resolución a partir de los datos ya existentes y los nuevos
         $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
         $audienciaN = Audiencia::create([
-                    "expediente_id" => $audiencia->expediente_id,
-                    "multiple" => $multiple,
-                    "fecha_audiencia" => $fecha_audiencia,
-                    "hora_inicio" => $hora_inicio,
-                    "hora_fin" => $hora_fin,
-                    "conciliador_id" => $audiencia->conciliador_id,
-                    "numero_audiencia" => $n_audiencia,
-                    "reprogramada" => true,
-                    "anio" => $folio->anio,
-                    "folio" => $folio->contador
+            "expediente_id" => $audiencia->expediente_id,
+            "multiple" => $multiple,
+            "fecha_audiencia" => $fecha_audiencia,
+            "hora_inicio" => $hora_inicio,
+            "hora_fin" => $hora_fin,
+            "conciliador_id" => $audiencia->conciliador_id,
+            "numero_audiencia" => $n_audiencia,
+            "reprogramada" => true,
+            "anio" => $folio->anio,
+            "folio" => $folio->contador
         ]);
         ## si la audiencia se calendariza se deben guardar los datos recibidos en el arreglo, si no se copian los de la audiencia origen
         if ($request->nuevaCalendarizacion == "S") {
@@ -1904,10 +1919,10 @@ class AudienciaController extends Controller {
                 $arregloPartesAgregadas[] = $relacion["parte_solicitante_id"];
                 AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $relacion["parte_solicitante_id"], "tipo_notificacion_id" => $tipo_notificacion_id]);
                 // buscamos representantes legales de esta parte
-                $parte = $audiencia->expediente->solicitud->partes()->where("parte_representada_id", $relacion["parte_solicitante_id"])->first();
-                if ($parte != null) {
-                    AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
-                }
+                // $parte = $audiencia->expediente->solicitud->partes()->where("parte_representada_id", $relacion["parte_solicitante_id"])->first();
+                // if ($parte != null) {
+                //     AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
+                // }
             }
             ##Validamos que el solicitado no exista
             $pasaSolicitado = true;
@@ -1922,10 +1937,10 @@ class AudienciaController extends Controller {
                 //generar citatorio de audiencia
                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud->id, 14, 4, null, $relacion["parte_solicitada_id"]));
                 // buscamos representantes legales de esta parte
-                $parte = $audiencia->expediente->solicitud->partes()->where("parte_representada_id", $relacion["parte_solicitada_id"])->first();
-                if ($parte != null) {
-                    AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
-                }
+                // $parte = $audiencia->expediente->solicitud->partes()->where("parte_representada_id", $relacion["parte_solicitada_id"])->first();
+                // if ($parte != null) {
+                //     AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
+                // }
             }
             $resolucion = ResolucionPartes::find($relacion["id"]);
             $resolucion->update(["nuevaAudiencia" => true]);
@@ -2000,13 +2015,15 @@ class AudienciaController extends Controller {
                     }
                 }
             }
-            $audiencia_parte = AudienciaParte::create([
-                        "audiencia_id" => $audienciaN->id,
-                        "parte_id" => $parte->id,
-                        "tipo_notificacion_id" => $tipoNotificacion,
-                        "fecha_notificacion" => $fecha_notificacion,
-                        "finalizado" => $finalizado
-            ]);
+            if($parte->tipo_parte_id != 3){
+                $audiencia_parte = AudienciaParte::create([
+                    "audiencia_id" => $audienciaN->id,
+                    "parte_id" => $parte->id,
+                    "tipo_notificacion_id" => $tipoNotificacion,
+                    "fecha_notificacion" => $fecha_notificacion,
+                    "finalizado" => $finalizado
+                ]);
+            }
             if ($tipoNotificacion != null && $parte->tipo_parte_id == $tipo_parte) {
                 $notificar++;
                 $partes_notificar[] = $audiencia_parte->id;
@@ -2070,9 +2087,11 @@ class AudienciaController extends Controller {
         $tipo_citado = TipoParte::where("nombre","ilike","%CITADO%")->first();
         $tipo_notificacion = \App\TipoNotificacion::where("nombre","ilike","%D)%")->first();
         foreach ($audiencia->audienciaParte as $parte) {
-            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizada"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-            if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
-                event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
+            if($parte->parte->tipo_parte_id != 3){
+                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizada"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
+                    event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
+                }
             }
         }
         DB::commit();
