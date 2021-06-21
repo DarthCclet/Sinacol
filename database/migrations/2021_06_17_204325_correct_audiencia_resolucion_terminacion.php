@@ -18,6 +18,10 @@ class CorrectAudienciaResolucionTerminacion extends Migration
         foreach ($audiencias as $audiencia) {
             $audiencia->update(['resolucion_id'=>2]);
         }
+        $audiencias2 = Audiencia::where('tipo_terminacion_audiencia_id',null)->where('resolucion_id',null)->where('finalizada',true)->get();
+        foreach ($audiencias2 as $audiencia) {
+            $audiencia->update(['resolucion_id'=>2,'tipo_terminacion_audiencia_id'=>5]);
+        }
         $audiencias3 = Audiencia::where('tipo_terminacion_audiencia_id',3)->get();
         foreach($audiencias3 as $audiencia3){
             if(!$audiencia3->EsUltima){
