@@ -174,7 +174,7 @@ class SendNotificacion
                 if(env('NOTIFICACION_DRY_RUN') == "YES"){
                     $baseURL = env('APP_URL_NOTIFICACIONES');
                 }else{
-//                    $baseURL = $audiencia->expediente->solicitud->centro->url_instancia_notificacion;
+                    $baseURL = $audiencia->expediente->solicitud->centro->url_instancia_notificacion;
                 }
                 if($baseURL != null){
                     $response = $client->request('POST',$baseURL ,[
