@@ -90,7 +90,7 @@ class NotificacionServiceController extends Controller {
                                         "tipo_notificacion" => $arreglo->tipo_notificacion
                             ]);
                         }
-                        HistoricoNotificacionRespuesta::create([
+                        $historico_respuesta = HistoricoNotificacionRespuesta::create([
                             "historico_notificacion_id" => $historico->id,
                             "finalizado_id" => $demandado->finalizado_id,
                             "finalizado" => $demandado->finalizado,
@@ -98,6 +98,9 @@ class NotificacionServiceController extends Controller {
                             "detalle" => $demandado->detalle,
                             "fecha_notificacion" => $demandado->fecha_notificacion,
                             "documento_id" => $documentoResolucion->id
+                        ]);
+                        $historico->peticion()->update([
+                            "historico_notificacion_respuesta_id" => $historico_respuesta->id
                         ]);
                     }
                 }
