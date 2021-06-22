@@ -11,9 +11,6 @@ class HistoricoNotificacionRespuesta extends Model
     public function histrorico(){
         return $this->belongsTo(HistoricoNotificacion::class);
     }
-    public function etapa_notificacion(){
-        return $this->belongsTo(EtapaNotificacion::class);
-    }
     public function documento(){
         return $this->belongsTo(Documento::class);
     }

@@ -10,7 +10,7 @@ use App\Municipio;
 use App\Incidencia;
 use App\Filters\CatalogoFilter;
 use App\TipoAsentamiento;
-use App\TipoVialidad; 
+use App\TipoVialidad;
 use App\Audiencia;
 use App\CentroMunicipio;
 use App\Domicilio;
@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Cache;
 use Rap2hpoutre\FastExcel\FastExcel;
 use Carbon\Carbon;
 use OwenIt\Auditing\Models\Audit;
+use App\TipoParte;
 
 class CentroController extends Controller
 {
@@ -286,39 +287,83 @@ class CentroController extends Controller
             dd($e);
         }
     }
-    
-    
+
+
     /**
      * Aqui comienzan las funciones de notificaciones
      */
     public function notificaciones() {
         $rolActual = session('rolActual')->name;
+        $tipo_parte = TipoParte::whereNombre("CITADO")->first();
         if($rolActual != "Super Usuario"){
-            $details = AudienciaParte::whereHas('audiencia.expediente.solicitud', function ($q){
-                return $q->where('centro_id', auth()->user()->centro_id);
-            })->with('parte','audiencia.expediente.solicitud','tipo_notificacion','audiencia.etapa_notificacion')->paginate(10);
-        }else{
-            $details = AudienciaParte::with('parte','audiencia.expediente.solicitud','tipo_notificacion','audiencia.etapa_notificacion')->paginate(10);
+            if($rolActual == "Orientador"){
+                $query = AudienciaParte::whereHas('audiencia.expediente.solicitud', function ($q){
+                    return $q->where('centro_id', auth()->user()->centro_id);
+                });
+                $query->whereHas('parte', function ($q) use($tipo_parte){
+                    return $q->where('tipo_parte_id', $tipo_parte->id);
+                });
+                $query->whereHas('audiencia.expediente.solicitud',function($q){
+                    return $q->where('captura_user_id',auth()->user()->id)->orWhere('user_id',auth()->user()->id);
+                });
+                $details = $query->with('parte','audiencia.expediente.solicitud','tipo_notificacion','audiencia.etapa_notificacion')->paginate(10);
+            }else {
+                $query = AudienciaParte::whereHas('audiencia.expediente.solicitud', function ($q) {
+                    return $q->where('centro_id', auth()->user()->centro_id);
+                });
+                $query->whereHas('parte', function ($q) use($tipo_parte){
+                    return $q->where('tipo_parte_id', $tipo_parte->id);
+                });
+                $details = $query->with('parte', 'audiencia.expediente.solicitud', 'tipo_notificacion', 'audiencia.etapa_notificacion')->paginate(10);
+            }
+        }else {
+            $query = AudienciaParte::whereHas('parte', function ($q) use($tipo_parte){
+                return $q->where('tipo_parte_id', $tipo_parte->id);
+            });
+            $details = $query->with('parte', 'audiencia.expediente.solicitud', 'tipo_notificacion', 'audiencia.etapa_notificacion')->paginate(10);
         }
         return view('centros.centros.notificaciones')->withData($details);
     }
     public function notificacionesSearch(Request $request) {
         $expediente = $request->get('q');
         $rolActual = session('rolActual')->name;
+        $tipo_parte = TipoParte::whereNombre("CITADO")->first();
         if($rolActual != "Super Usuario"){
-            $query = AudienciaParte::whereHas('audiencia.expediente.solicitud', function ($q){
-                return $q->where('centro_id', auth()->user()->centro_id);
-            });
-            if($expediente != ""){
-                $query->whereHas('audiencia.expediente', function ($q) use ($expediente) {
-                    return $q->whereRaw('folio ilike ?', ['%'.$expediente.'%']);
+            if($rolActual == "Orientador"){
+                $query = AudienciaParte::whereHas('audiencia.expediente.solicitud', function ($q){
+                    return $q->where('centro_id', auth()->user()->centro_id);
                 });
+                $query->whereHas('parte', function ($q) use($tipo_parte){
+                    return $q->where('tipo_parte_id', $tipo_parte->id);
+                });
+                $query->whereHas('audiencia.expediente.solicitud',function($q){
+                    return $q->where('captura_user_id',auth()->user()->id)->orWhere('user_id',auth()->user()->id);
+                });
+                if($expediente != ""){
+                    $query->whereHas('audiencia.expediente', function ($q) use ($expediente) {
+                        return $q->whereRaw('folio ilike ?', ['%'.$expediente.'%']);
+                    });
+                }
+            }else {
+                $query = AudienciaParte::whereHas('audiencia.expediente.solicitud', function ($q) {
+                    return $q->where('centro_id', auth()->user()->centro_id);
+                });
+                $query->whereHas('parte', function ($q) use($tipo_parte){
+                    return $q->where('tipo_parte_id', $tipo_parte->id);
+                });
+                if ($expediente != "") {
+                    $query->whereHas('audiencia.expediente', function ($q) use ($expediente) {
+                        return $q->whereRaw('folio ilike ?', ['%' . $expediente . '%']);
+                    });
+                }
             }
         }else{
-            $query = AudienciaParte::where("id",">",0);
-            if($expediente != ""){
-                $data = $query->whereHas('audiencia.expediente', function ($q) use ($expediente) {
-                    return $q->whereRaw('folio ilike ?', ['%'.$expediente.'%']);
+            $query= AudienciaParte::whereHas('parte', function ($q) use($tipo_parte){
+                return $q->where('tipo_parte_id', $tipo_parte->id);
+            });
+            if ($expediente != "") {
+                $query = $query->whereHas('audiencia.expediente', function ($q) use ($expediente) {
+                    return $q->whereRaw('folio ilike ?', ['%' . $expediente . '%']);
                 });
             }
         }
@@ -357,9 +402,9 @@ class CentroController extends Controller
             $todos = false;
         }
         event(new RatificacionRealizada($audiencia->id, "citatorio",$todos,$this->request->audiencia_parte_id));
-        
-        
-        
+
+
+
 //        $solicitud = Solicitud::find($this->request->solicitud_id);
 //        if(isset($solicitud->expediente->audiencia)){
 //            //Obtenemos la audiencia
