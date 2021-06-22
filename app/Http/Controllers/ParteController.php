@@ -792,4 +792,22 @@ class ParteController extends Controller
         $parte->tieneCorreo = $pasa;
         return $parte;
     }
+
+    public function aceptar_buzon(Request $request){
+        $parte = Parte::find($request->parte_id);
+        $notificacion_buzon = $request->acepta_buzon;
+        if($parte){   
+            $parte->update(['notificacion_buzon'=>$notificacion_buzon]);
+            if($notificacion_buzon){
+                //Genera acta de aceptacion de buzón
+            }else{
+                $existe = $parte->documentos()->where('clasificacion_archivo_id',1)->first();
+                if($existe == null){
+                    //Genera acta de no aceptacion de buzón
+                }
+            }
+            return $this->sendResponse($parte, 'SUCCESS');
+        }
+        return $this->sendError('Error al aceptar buzón', 'Error');
+    }
 }
