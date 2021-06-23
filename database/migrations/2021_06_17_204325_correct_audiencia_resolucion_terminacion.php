@@ -28,14 +28,14 @@ class CorrectAudienciaResolucionTerminacion extends Migration
                 $audiencia3->update(['resolucion_id'=>2]);
             }
         }
-        $audiencias = Audiencia::with('expediente.solicitud')->where('tipo_terminacion_audiencia_id',null)->where('finalizada',true)->where('resolucion_id',3)->whereHas('expediente.solicitud',function($q){
+        $audienciasUl = Audiencia::with('expediente.solicitud')->where('tipo_terminacion_audiencia_id',null)->where('finalizada',true)->where('resolucion_id',3)->whereHas('expediente.solicitud',function($q){
             $q->where('estatus_solicitud_id',3)->where('incidencia',false);
             })->orderBy('id','asc')->get();
-            foreach($audiencias as $aud){
-              if(!$aud->EsUltima){
-                $aud->update(['resolucion_id'=>2,'tipo_terminacion_audiencia_id'=>3]);
-              }
+        foreach($audienciasUl as $audUl){
+            if(!$audUl->EsUltima){
+                $audUl->update(['resolucion_id'=>2,'tipo_terminacion_audiencia_id'=>3]);
             }
+        }
     }
 
     /**
