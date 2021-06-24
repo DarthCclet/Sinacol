@@ -100,6 +100,9 @@
                         <button onclick="cambiar_nombre({{$parte->parte_id}},{{$parte->id}},{{$parte->parte->tipo_persona_id}},'{{$parte->parte->nombre}}','{{$parte->parte->primer_apellido}}','{{$parte->parte->segundo_apellido}}','{{$parte->parte->nombre_comercial}}')" class="btn btn-xs btn-primary incidencia" title="Cambiar Nombre">
                             <i class="fa fa-user"></i>
                         </button>
+                        <button onclick="cambiar_domicilio({{$parte->parte_id}},{{$parte->id}})" class="btn btn-xs btn-primary incidencia" title="Cambiar domicilio">
+                            <i class="fa fa-map-marked-alt"></i>
+                        </button>
                     </td>
                     <td>
                         @if($parte->audiencia->expediente->solicitud->fecha_peticion_notificacion != null)
@@ -253,9 +256,31 @@
             </div>
             <input type="hidden" id='parte_id'>
             <input type="hidden" id='audiencia_parte_id'>
+            <input type="hidden" id='tipo_persona_id'>
             <div class="modal-footer">
                 <div class="text-right">
                     <button class="btn btn-primary btn-sm" id='btnModificarNombre'><i class="fa fa-save"></i>Modificar</button>
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="modalCambioDomicilio" aria-hidden="true" style="display:none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Historial de notificación</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"true", 'instancia' => 2, 'tipo_solicitud' => $tipo_solicitud_id])
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-right">
+                    <button class="btn btn-primary btn-sm" id='btnModificarNombre'><i class="fa fa-save"></i>Guardar</button>
                     <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
                 </div>
             </div>
@@ -417,20 +442,27 @@
     });
     }
     function cambiar_nombre(parte_id,audiencia_parte_id,tipo_persona_id,nombre,primer_apellido,segundo_apellido,nombre_comercial){
-        if(tipo_persona_id == 1){
-            $("#divFisica").show();
-            $("#divMoral").hide();
-        }else{
-            $("#divFisica").hide();
-            $("#divMoral").show();
-        }
-        $("#nombre").val(nombre);
-        $("#primer_apellido").val(primer_apellido);
-        $("#segundo_apellido").val(segundo_apellido);
-        $("#nombre_comercial").val(nombre_comercial);
-        $("#parte_id").val(parte_id);
-        $("#audiencia_parte_id").val(audiencia_parte_id);
-        $("#modalCambioNombre").modal("show");
+        $.get( "/validar_cambio/"+audiencia_parte_id, function( data ) {
+            if(data.pasa){
+                if(tipo_persona_id == 1){
+                    $("#divFisica").show();
+                    $("#divMoral").hide();
+                }else{
+                    $("#divFisica").hide();
+                    $("#divMoral").show();
+                }
+                $("#nombre").val(nombre);
+                $("#primer_apellido").val(primer_apellido);
+                $("#segundo_apellido").val(segundo_apellido);
+                $("#nombre_comercial").val(nombre_comercial);
+                $("#parte_id").val(parte_id);
+                $("#audiencia_parte_id").val(audiencia_parte_id);
+                $("#tipo_persona_id").val(tipo_persona_id);
+                $("#modalCambioNombre").modal("show");
+            }else{
+                swal("Error!",data.mensaje,"error");
+            }
+        });
     }
     $("#btnModificarNombre").on("click",function(){
         if(validarCambioNombre()){
@@ -474,7 +506,7 @@
                                 try{
                                     if (data != null){
                                         swal("Exito!","Se realizo el cambio y se envio la notificación","success");
-                                        location.reload();
+                                        setTimeout(function(){ location.reload(); }, 3000);
                                     }
                                 }catch(error){
                                         swal("Error!","Algo salio mal","error");
@@ -490,7 +522,7 @@
     function validarCambioNombre(){
         var pasa = true;
         if($("#tipo_persona_id").val() == 1){
-            if($("#nombre").val() == "" || $("#primer_apellido").val() == "" || $("#segundo_apellido").val()){
+            if($("#nombre").val() == "" || $("#primer_apellido").val() == "" || $("#segundo_apellido").val() == "" ){
                 pasa = false;
             }
         }else{
@@ -499,6 +531,17 @@
             }
         }
         return pasa;
+    }
+    function cambiar_domicilio(parte_id,audiencia_parte_id){
+        $.get( "/validar_cambio/"+audiencia_parte_id, function( data ) {
+            if (data.pasa) {
+                $("#parte_id").val(parte_id);
+                $("#audiencia_parte_id").val(audiencia_parte_id);
+                $("#modalCambioDomicilio").modal("show");
+            }else{
+                swal("Error!",data.mensaje,"error");
+            }
+        });
     }
 </script>
 @endpush

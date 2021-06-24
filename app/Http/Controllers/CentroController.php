@@ -507,6 +507,28 @@ class CentroController extends Controller {
         return $centro;
     }
 
+    public function ValidarCambio(){
+        $audiencia_parte = \App\AudienciaParte::find($this->request->audiencia_parte_id);
+        $tipo_notificador = \App\TipoNotificacion::whereNombre("B) El notificador del centro entrega citatorio a citados")->first();
+        $tipo_notificador_cita = \App\TipoNotificacion::whereNombre("C) Agendar cita con notificador para entrega de citatorio")->first();
+        $pasa = true;
+        $mensaje = "Ok";
+        if($audiencia_parte->tipo_notificacion_id == $tipo_notificador->id || $audiencia_parte->tipo_notificacion_id == $tipo_notificador_cita->id){
+            if($audiencia_parte->finalizado == "FINALIZADO EXITOSAMENTE" || $audiencia_parte->finalizado == "EXITOSO POR INSTRUCTIVO"){
+                $pasa = false;
+                $mensaje = "No es posible modificar los datos del citado para esta audiencia porque cuenta con peticiones de notificación por notificador FINALIZADAS";
+            }
+        }
+        $hoy = now();
+        $dia_limite = $hoy->addDays(5);
+        $fecha_audiencia = new \Carbon\Carbon($audiencia_parte->audiencia->fecha_audiencia);
+        if($dia_limite >= $fecha_audiencia){
+            $pasa = false;
+            $mensaje = "No es posible modificar los datos del citado para esta audiencia porque la fecha es dentro de 5 días o menos. Si desea corregir algún dato deberá hacerlo al finalizar la audiencia o, en su defecto, recorrer la fecha de la audiencia desde el calendario de audiencias.";
+        }
+        return array("mensaje" => $mensaje,"pasa" => $pasa);
+    }
+
     Public function ModificarNombre() {
         try {
             DB::beginTransaction();
@@ -523,8 +545,15 @@ class CentroController extends Controller {
                 ]);
             }
             $audiencia_parte = AudienciaParte::find($this->request->audiencia_parte_id);
+            //Creamos en nuevo citatorio
+            event(new GenerateDocumentResolution($audiencia_parte->audiencia_id, $audiencia_parte->audiencia->expediente->solicitud_id, 14, 4, null, $parte->id));
+            //Falta cambiar el tipo de documento al citatorio no valido
+            $tipo_notificador = \App\TipoNotificacion::whereNombre("B) El notificador del centro entrega citatorio a citados")->first();
+            $tipo_notificador_cita = \App\TipoNotificacion::whereNombre("C) Agendar cita con notificador para entrega de citatorio")->first();
+            if($audiencia_parte->tipo_notificacion_id == $tipo_notificador->id || $audiencia_parte->tipo_notificacion_id == $tipo_notificador_cita->id){
+                event(new RatificacionRealizada($audiencia_parte->audiencia_id, "citatorio",false,$audiencia_parte->id));
+            }
             DB::commit();
-            event(new RatificacionRealizada($audiencia_parte->audiencia, "citatorio",false,$audiencia_parte->id));
             return $parte;
         } catch (\Exception $error) {
             DB::rollBack();
