@@ -2581,7 +2581,6 @@ class AudienciaController extends Controller {
 //                    dd($solicitantes);
                 }
                 if ($solicitantes && !$citados) {
-                    $audiencia->update(array("resolucion_id" => 3, "finalizada" => true, "tipo_terminacion_audiencia_id" => 3,'fecha_resolucion'=>now()));
                     $solicitados = $this->getSolicitados($audiencia);
                     $tipo_notificacion = $tipo_notificacion_solicitante->id;
                     $conNotificador = false;
@@ -2592,6 +2591,7 @@ class AudienciaController extends Controller {
                         }
                     }
                     if ($conNotificador) {
+                        $audiencia->update(array("resolucion_id" => 3, "finalizada" => true, "tipo_terminacion_audiencia_id" => 3,'fecha_resolucion'=>now()));
                         /*
                          * Aqui se cumple el caso 3 dónde no acudieron las partes citadas con notificador
                          * Se gernerarán tres cosas
@@ -2639,6 +2639,7 @@ class AudienciaController extends Controller {
                         $audiencia_notificar_id = $audiencia->id;
                         $response = array("tipo" => 2, "response" => $audiencia);
                     } else {
+                        $audiencia->update(array("resolucion_id" => 2, "finalizada" => true, "tipo_terminacion_audiencia_id" => 3,'fecha_resolucion'=>now()));
                         /*
                          * Aqui se cumple el caso 2 dónde no acudieron las partes citadas con solicitante
                          * Se generará una nueva audiencia entre 15 y 18 días hábiles
@@ -2884,6 +2885,7 @@ class AudienciaController extends Controller {
             }
             $audiencia->tipo_terminacion_audiencia_id = 5;
             $audiencia->finalizada = true;
+            $audiencia->resolucion_id = 2;
             $audiencia->fecha_resolucion = now();
             $audiencia->save();
                         

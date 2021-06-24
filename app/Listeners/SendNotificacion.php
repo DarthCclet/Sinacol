@@ -13,6 +13,8 @@ use App\Incidencia;
 use App\Traits\FechaNotificacion;
 use App\HistoricoNotificacion;
 use App\HistoricoNotificacionRespuesta;
+use App\HistoricoNotificacionPeticion;
+use App\EtapaNotificacion;
 
 class SendNotificacion
 {
@@ -122,6 +124,7 @@ class SendNotificacion
                 Log::debug('Información de actores:'.json_encode($arreglo["Actores"]));
                 //Buscamos a los demandados
                 $demandados = self::getSolicitados($audiencia,$tipo_notificacion["tipo_notificacion"],$event->parte_id);
+                $etapa_notificacion_null = EtapaNotificacion::whereEtapa("No comparecio el citado")->first();
                 foreach($demandados as $partes){
                     $parte =$partes->parte;
                     if($parte->tipo_persona_id == 1){
@@ -159,11 +162,17 @@ class SendNotificacion
                             "tipo_notificacion" => $event->tipo_notificacion,
                         ]);
                     }
-                    HistoricoNotificacionRespuesta::create([
+                    if($audiencia->etapa_notificacion_id == null){
+                        $etapa = $etapa_notificacion_null->id;
+                    }else{
+                        $etapa = $audiencia->etapa_notificacion_id;
+                    }
+                    $historico_peticion = HistoricoNotificacionPeticion::create([
                         "historico_notificacion_id" => $historico->id,
-                        "etapa_notificacion_id" => $audiencia->etapa_notificacion_id,
-                        "fecha_peticion" => now()
+                        "etapa_notificacion_id" => $etapa,
+                        "fecha_peticion_notificacion" => now()
                     ]);
+                    $historico->update(["historico_notificacion_peticion_id" => $historico_peticion->id]);
                 }
                 Log::debug('Información de demandados:'.json_encode($arreglo["Demandados"]));
                 Log::debug('Se envia esta peticion:'.json_encode($arreglo));
