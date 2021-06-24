@@ -170,7 +170,7 @@ class ConceptosResolucionController extends Controller
             $datosL['tiempoVencido']= $tiempoVencido;
             $datosL['salario']= $diasPeriodicidad->nombre .': $'.$datoLaborales->remuneracion ;
             $datosL['fechaIngreso']= Carbon::parse($datoLaborales->fecha_ingreso)->format('d/m/Y');
-            $datosL['fechaSalida']= $fechaSalida;
+            $datosL['fechaSalida']= Carbon::parse($fechaSalida)->format('d/m/Y');
             // $anioSalida = Carbon::parse($datoLaboral->fecha_salida);
             // $anioSalida = Carbon::createFromFormat('Y-m-d', $datoLaboral->fecha_salida)->year;
             $anioSalida = Carbon::parse($datoLaborales->fecha_salida)->startOfYear();
