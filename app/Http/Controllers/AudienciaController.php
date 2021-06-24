@@ -1485,6 +1485,7 @@ class AudienciaController extends Controller {
             }
             $convienenTodos = false;
         }
+        $totalPagoC = [];
         foreach ($solicitantes as $solicitante) {
             foreach ($solicitados as $solicitado) {
                 $existeRes = ResolucionPartes::where('parte_solicitante_id',$solicitante->parte_id)->where('parte_solicitada_id',$solicitado->parte_id)->where('audiencia_id',$audiencia->id)->first();
@@ -1604,6 +1605,7 @@ class AudienciaController extends Controller {
             if ($solicitanteComparecio != null) {
                 if (isset($listaConceptos)) {
                     if (count($listaConceptos) > 0) {
+                        //$totalPagoC[$solicitante->id] = 0;
                         foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
                             if ($key == $solicitante->parte_id) {
                                 foreach ($conceptosSolicitante as $k => $concepto) {
@@ -1615,6 +1617,7 @@ class AudienciaController extends Controller {
                                         "monto" => $concepto["monto"],
                                         "otro" => $concepto["otro"]
                                     ]);
+                                    //$totalPagoC[$solicitante->parte_id] =  floatval($totalPagoC[$solicitante->parte_id])  + floatval($concepto["monto"]);
                                 }
                             }
                         }
@@ -1643,6 +1646,7 @@ class AudienciaController extends Controller {
                             "monto" => $fechaPago["monto_pago"],
                             "descripcion_pago" => $fechaPago["descripcion_pago"],
                             "fecha_pago" => Carbon::createFromFormat('d/m/Y h:i', $fechaPago["fecha_pago"])->format('Y-m-d h:i')
+                            //"diferido"=>true
                         ]);
                     }
                 }
@@ -1659,14 +1663,16 @@ class AudienciaController extends Controller {
                 //Se valida si hubo convenio para esta parte para generar convenio o si se genera acta de no conciliacion
                 $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 3)->first();
                 if ($convenio != null) {
-                    //generar constancia de cumplimiento si no tiene pagos diferidos
-                    if (count($listaFechasPago) <= 0) {
-                        if($audiencia->expediente->solicitud->tipo_solicitud_id == 1){//solicitud individual
-                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->solicitud_id, 45, 12,$solicitante->parte_id));
-                        }else{
-                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->solicitud_id, 45, 12,null,$solicitante->partte_id));
-                        }
-                    }
+                    // if (!isset($listaFechasPago)) {//si no se registraron pagos diferidos crear pago NO diferido
+                    //     ResolucionPagoDiferido::create([
+                    //         "audiencia_id" => $audiencia->id,
+                    //         "solicitante_id" => $solicitante->parte_id,
+                    //         "monto" => $totalPagoC[$solicitante->parte_id],
+                    //         "descripcion_pago" => "Convenio",
+                    //         "fecha_pago" => $audiencia->fecha_audiencia,
+                    //         "diferido"=>false
+                    //     ]);
+                    // }
                     if($convenio->tipo_propuesta_pago_id == 4){
                         //generar convenio reinstalacion
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 43, 9, $solicitante->parte_id));
@@ -1676,6 +1682,15 @@ class AudienciaController extends Controller {
                     }else{
                         //generar convenio
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id));//15
+                    }
+
+                    //generar constancia de cumplimiento si no tiene pagos diferidos
+                    if ($listaFechasPago == null) {
+                        if($audiencia->expediente->solicitud->tipo_solicitud_id == 1){//solicitud individual
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->solicitud_id, 45, 12,$solicitante->parte_id));
+                        }else{
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->solicitud_id, 45, 12,null,$solicitante->partte_id));
+                        }
                     }
                 } else {
                     $noConciliacion = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 5)->first();

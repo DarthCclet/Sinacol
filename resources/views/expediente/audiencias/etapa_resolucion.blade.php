@@ -884,7 +884,7 @@
                     </div>
                     <div class="col-md-12 row">
                         <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="domicilio_laboral"/>
-                        <p class="help-block needed"> &nbsp;El domicilio donde el trabajador presto sus servicios es diferente al domicilio del empleador</p>
+                        <p class="help-block needed"> &nbsp;El trabajador prestó los servicios en un domicilio distinto al del primer citado con el que hace el convenio. </p>
                     </div>
                     <div id="domicilioLaboral" style="display: none" >
                         @include('includes.component.map',['identificador' => 'laboral','needsMaps'=>"false", 'instancia' => '1', 'tipo_solicitud' => 1])

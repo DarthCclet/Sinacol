@@ -524,7 +524,22 @@ trait GenerateDocument
                           if($domicilioLaboral != null ){
                             $parte['domicilios_laboral'] = mb_strtoupper($domicilioLaboral->tipo_vialidad.' '.$domicilioLaboral->vialidad.' '.$domicilioLaboral->num_ext.', '.$domicilioLaboral->asentamiento.', '.$domicilioLaboral->municipio.', '.$domicilioLaboral->estado);
                           }else{
-                            $parte['domicilios_laboral'] = $parte['domicilios_completo'];
+                            $tipoParteDom = ($parte['tipo_parte_id'] == 1 )? 2 : 1 ;
+                            $contraparte = Parte::with('domicilios')->where('solicitud_id',$idBase)->where('tipo_parte_id',$tipoParteDom)->first();
+                            
+                            $doms_parte = $contraparte->domicilios;
+                            foreach ($doms_parte as $key => $dom_parte) {
+                              $tipo_vialidad =  ($dom_parte->tipo_vialidad !== null)? $dom_parte->tipo_vialidad :"";
+                              $vialidad =  ($dom_parte->vialidad !== null)? $dom_parte->vialidad :"";
+                              $num_ext =  ($dom_parte->num_ext !== null)? "No. " . $dom_parte->num_ext :"";
+                              $num_int =  ($dom_parte->num_int !== null)? " Int. " . $dom_parte->num_int :"";
+                              $num =  $num_int.$num_ext;
+                              $municipio =  ($dom_parte->municipio !== null)? $dom_parte->municipio :"";
+                              $estado =  ($dom_parte->estado !== null)? $dom_parte->estado :"";
+                              $colonia =  ($dom_parte->asentamiento !== null)? $dom_parte->tipo_asentamiento." ". $dom_parte->asentamiento." "  :"";
+                            }
+                            $domicilioLaboral = mb_strtoupper($tipo_vialidad.' '.$vialidad.' '.$num.', '.$colonia.', '.$municipio.', '.$estado);
+                            $parte['domicilios_laboral'] = $domicilioLaboral;
                           }
 
                           $nss = $datoLaborales->nss;
