@@ -525,8 +525,12 @@ trait GenerateDocument
                             $parte['domicilios_laboral'] = mb_strtoupper($domicilioLaboral->tipo_vialidad.' '.$domicilioLaboral->vialidad.' '.$domicilioLaboral->num_ext.', '.$domicilioLaboral->asentamiento.', '.$domicilioLaboral->municipio.', '.$domicilioLaboral->estado);
                           }else{
                             $tipoParteDom = ($parte['tipo_parte_id'] == 1 )? 2 : 1 ;
-                            $contraparte = Parte::with('domicilios')->where('solicitud_id',$idBase)->where('tipo_parte_id',$tipoParteDom)->first();
-                            
+                            $primeraResolucion = ResolucionPartes::where('audiencia_id',$audienciaId)->first();
+                            $contraparte = Parte::with('domicilios')->find($primeraResolucion->parte_solicitada_id);
+                            if($contraparte->tipo_parte_id == 3){//si es representante buscar parte
+                              $contraparte = Parte::with('domicilios')->find($contraparte->parte_representada_id);
+                            }
+                            // $contraparte = Parte::with('domicilios')->where('solicitud_id',$idBase)->where('tipo_parte_id',$tipoParteDom)->first();
                             $doms_parte = $contraparte->domicilios;
                             foreach ($doms_parte as $key => $dom_parte) {
                               $tipo_vialidad =  ($dom_parte->tipo_vialidad !== null)? $dom_parte->tipo_vialidad :"";
