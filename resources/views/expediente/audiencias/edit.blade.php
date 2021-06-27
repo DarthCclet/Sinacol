@@ -1387,6 +1387,8 @@
         </div>
     </div>
 </div>
+
+@include('includes.component.parte-domicilio')
 <!--Fin de modal pagos diferidos-->
     <input type="hidden" id="parte_id">
     <input type="hidden" id="parte_representada_id">
@@ -2244,8 +2246,8 @@
 
         $("#btnNuevaAudiencia").on("click",function(){
             swal({
-                title: 'Registro de citados',
-                text: '¿Deseas agregar nuevos citados?',
+                title: 'Actualización de citados',
+                text: '¿Deseas modificar el nombre o domicilio de algun(os) citado(s)?',
                 icon: 'info',
                 buttons: {
                     cancel: {
@@ -2273,9 +2275,45 @@
             }).then(function(tipo){
                 if(tipo == 1 || tipo == 2){
                     if(tipo == 1){
-                        $("#modal-parte").modal("show");
+                        loadCitados();
+                        $("#modal-seleccionar-parte").modal("show");
                     }else{
-                        $("#modalNuevaAudiencia").modal("show");
+                        swal({
+                            title: 'Registro de citados',
+                            text: '¿Deseas agregar nuevos citados?',
+                            icon: 'info',
+                            buttons: {
+                                cancel: {
+                                    text: 'cancelar',
+                                    value: null,
+                                    visible: true,
+                                    className: 'btn btn-default',
+                                    closeModal: true,
+                                },
+                                roll: {
+                                    text: "Si",
+                                    value: 1,
+                                    className: 'btn btn-warning',
+                                    visible: true,
+                                    closeModal: true
+                                },
+                                confirm: {
+                                    text: 'No',
+                                    value: 2,
+                                    visible: true,
+                                    className: 'btn btn-warning',
+                                    closeModal: true
+                                }
+                            }
+                        }).then(function(tipo){
+                            if(tipo == 1 || tipo == 2){
+                                if(tipo == 1){
+                                    $("#modal-parte").modal("show");
+                                }else{
+                                    $("#modalNuevaAudiencia").modal("show");
+                                }
+                            }
+                        });
                     }
                 }
             });

@@ -175,29 +175,45 @@ class ParteController extends Controller
      */
     public function update(Request $request, Parte $parte)
     {
-        $validator = Validator::make($request->all(), [
-            'solicitud_id' => 'required|Integer',
-            'tipo_parte_id' => 'required|Integer',
-            'genero_id' => 'required|Integer',
-            'tipo_persona_id' => 'required|Integer',
-            'nacionalidad_id' => 'required|Integer',
-            'entidad_nacimiento_id' => 'required|Integer',
-            'fecha_nacimiento' => 'required|Date',
-            'nombre' => 'required|max:500|String',
-            'primer_apellido' => 'required|max:500|String',
-            'segundo_apellido' => 'required|max:500|String',
-            'nombre_comercial' => 'required|max:500|String',
-            'edad' => 'required|max:500|String',
-            'rfc' => 'required|max:500|String',
-            'curp' => 'required|max:500|String',
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator, 201);
-                        // ->withInput();
+        // $validator = Validator::make($request->all(), [
+        //     // 'solicitud_id' => 'required|Integer',
+        //     // 'tipo_parte_id' => 'required|Integer',
+        //     // 'genero_id' => 'required|Integer',
+        //     // 'tipo_persona_id' => 'required|Integer',
+        //     // 'nacionalidad_id' => 'required|Integer',
+        //     // 'entidad_nacimiento_id' => 'required|Integer',
+        //     // 'fecha_nacimiento' => 'required|Date',
+        //     'nombre' => 'required|max:500|String',
+        //     'primer_apellido' => 'required|max:500|String',
+        //     'segundo_apellido' => 'required|max:500|String',
+        //     'nombre_comercial' => 'required|max:500|String',
+        //     // 'edad' => 'required|max:500|String',
+        //     // 'rfc' => 'required|max:500|String',
+        //     // 'curp' => 'required|max:500|String',
+        // ]);
+        // if ($validator->fails()) {
+        //     return response()->json($validator, 201);
+        //                 // ->withInput();
+        // }
+        DB::beginTransaction();
+        try{
+
+            $parte->update($request->all());
+            $domicilio = $request->domicilio;
+            unset($domicilio['id']);
+            unset($domicilio['activo']);
+            $domicilioSaved = $parte->domicilios()->create($domicilio);
+            DB::commit();
+            $parte->update($request->all());
+            
+            return $this->sendResponse($parte, 'SUCCESS');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
+            return $this->sendError('Error'.$e->getMessage());
         }
-        $parte->update($request->all());
-  
-        return response()->json($parte, 200);
     }
 
     /**
@@ -774,5 +790,27 @@ class ParteController extends Controller
         $solicitud = Solicitud::find($this->request->solicitud_id);
         $partes = $solicitud->partes()->whereIn("tipo_parte_id",[1,2,3])->get();
         return $partes;
+    }
+
+    public function getCitadosBySolicitudId($solicitud_id){
+        $partes = Solicitud::find($solicitud_id)->partes()->with(['domicilios'=>function($q){$q->orderBy('id','desc');}])->where('tipo_parte_id',2)->get();
+        return $this->sendResponse($partes, 'SUCCESS');
+    }
+    public function updateCitadosDomicilio(Request $request){
+        DB::beginTransaction();
+        try{
+            $parte = $request->parte;
+            $parteUpd = Parte::find($parte->id);
+            $parteUpd->update(['nombre'=>$parte->nombre,'primer_apellido'=>$parte->primer_apellido,'segundo_apellido'=>$parte->segundo_apellido,'nombre_comercial'=>$parte->nombre_comercial]);
+            $parteUpd->domicilios($parte->domicilio);
+            DB::commit();
+            return $this->sendResponse($parteUpd, 'SUCCESS');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
+            return $this->sendError('Error'.$e->getMessage());
+        }
     }
 }

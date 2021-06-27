@@ -124,6 +124,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('partes/representante/contacto/eliminar','ParteController@EliminarContactoRepresentante');
     Route::GET('partes/getComboDocumentos/{solicitud_id}','ParteController@getPartesComboDocumentos');
     Route::Get('partes/getParteSolicitud/{parte_id}','ParteController@getParteSolicitud');
+    Route::Get('partes/getCitados/{solicitud_id}','ParteController@getCitadosBySolicitudId');
     Route::resource('roles-atencion','RolAtencionController');
     Route::resource('objeto-solicitud','ObjetoSolicitudController');
     Route::resource('estatus-solicitud','EstatusSolicitudController');
