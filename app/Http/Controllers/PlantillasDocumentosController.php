@@ -1193,7 +1193,7 @@ class PlantillasDocumentosController extends Controller
                                   $totalPagosDiferidos +=1;
 
                                   if($pago['pagado'] == true){
-                                    $resumenPagos .= " "+$pago['informacion_pago']."<br>";
+                                    $resumenPagos .= " ".$pago['informacion_pago']." <br>";
                                     $infoPago = $pago['informacion_pago'];
                                     //$fechaCumplimientoPago = Carbon::createFromFormat('Y-m-d H:i:s',$pago['fecha_cumplimiento'])->format('d/m/Y');
                                   }
