@@ -865,6 +865,8 @@ trait GenerateDocument
                         $totalPagosDiferidos = 0;
                         $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $hayConceptosPago = false;
+                        $resumenPagos="";
+                        $infoPago  = "";
                         foreach ($audiencia_partes as $key => $audiencia_parte) {
                           if ($audiencia_parte->parte->tipo_parte_id != 3) {
                             $parteID = $audiencia_parte->parte->id;
@@ -1073,9 +1075,7 @@ trait GenerateDocument
                             //Fechas pago resolucion
                             $tablaPagosDiferidos .= '<table class="tbl">';
                             $tablaPagosDiferidos .= '<tbody>';
-                            $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
-
-                            $infoPago  = "";
+                            $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->orderBy('id')->get();
                             foreach ($resolucion_pagos as $pago ) {
                               if($tipoSolicitud == 1){
                                 if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitante)){
@@ -1084,6 +1084,8 @@ trait GenerateDocument
                                   $totalPagosDiferidos +=1;
                                   if($pago->pagado){
                                     $infoPago = $pago->informacion_pago;
+                                    $fechaCumplimientoPago = Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_cumplimiento)->format('d/m/Y');
+                                    $resumenPagos .= $pago->informacion_pago . " <br>";
                                   }
                                 }
                               }else{
@@ -1096,8 +1098,9 @@ trait GenerateDocument
                             }
                             $tablaPagosDiferidos .= '</tbody>';
                             $tablaPagosDiferidos .= '</table>';
-
                             $datosResolucion['informacion_pago']= $infoPago;
+                            $datosResolucion['fecha_cumplimiento_pago']= $fechaCumplimientoPago;
+                            $datosResolucion['resumen_pagos']= $resumenPagos;
                             $datosResolucion['total_diferidos']= $totalPagosDiferidos;
                             $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                           }
@@ -1303,8 +1306,9 @@ trait GenerateDocument
                     $datosResolucion['propuesta_configurada'] = (isset($datosResolucion['propuesta_configurada']))? $datosResolucion['propuesta_configurada'] :"";
                     $datosResolucion['pagos_diferidos'] = (isset($datosResolucion['pagos_diferidos']))? $datosResolucion['pagos_diferidos'] :"";
                     $datosResolucion['total_diferidos'] = (isset($datosResolucion['total_diferidos']))? $datosResolucion['total_diferidos'] :"";
+                    $datosResolucion['informacion_pago'] = (isset($datosResolucion['informacion_pago']))? $datosResolucion['informacion_pago'] :"";
+                    $datosResolucion['resumen_pagos'] = (isset($datosResolucion['resumen_pagos']))? $datosResolucion['resumen_pagos'] :"";
                     $data = Arr::add( $data, $model, $datosResolucion );
-                    // dd($data);
                   }else{
                     $objeto = $model_name::first();
                     $objeto = new JsonResponse($objeto);

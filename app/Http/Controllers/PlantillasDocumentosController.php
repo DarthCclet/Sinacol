@@ -447,6 +447,8 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'pagos_diferidos');
                 array_push($columnNames,'total_diferidos');
                 array_push($columnNames,'informacion_pago');
+                array_push($columnNames,'fecha_cumplimiento_pago');
+                array_push($columnNames,'resumen_pagos');
                 array_push($columnNames,'justificacion_propuesta');
                 array_push($columnNames,'primera_manifestacion');
                 array_push($columnNames,'segunda_manifestacion');
@@ -965,6 +967,8 @@ class PlantillasDocumentosController extends Controller
                         $totalPagosDiferidos=0;
                         $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $hayConceptosPago = false;
+                        $resumenPagos="";
+                        $infoPago  = "";
                         foreach ($audiencia_partes as $key => $audiencia_parte) {
                           if ($audiencia_parte->parte->tipo_parte_id != 3) {
                             $parteID = $audiencia_parte->parte->id;
@@ -1178,7 +1182,7 @@ class PlantillasDocumentosController extends Controller
                             if($resolucion_pagos && sizeof($resolucion_pagos)>0){
                               $resolucion_pagos = $resolucion_pagos;
                             }else{
-                              $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
+                              $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->orderBy('id')->get();
                             }
                             foreach ($resolucion_pagos as $pago ) {
                               if($tipoSolicitud == 1){
@@ -1187,6 +1191,12 @@ class PlantillasDocumentosController extends Controller
                                   //$tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
                                   $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td>'.$pago['descripcion_pago'].'</td><td style="text-align:right;"> '. $enPago.'</td></tr>';
                                   $totalPagosDiferidos +=1;
+
+                                  if($pago['pagado'] == true){
+                                    $resumenPagos .= " "+$pago['informacion_pago']."<br>";
+                                    $infoPago = $pago['informacion_pago'];
+                                    //$fechaCumplimientoPago = Carbon::createFromFormat('Y-m-d H:i:s',$pago['fecha_cumplimiento'])->format('d/m/Y');
+                                  }
                                 }
                               }else{
                                 if(($parteID == $pago['idCitado']) && ($parteID == $idSolicitado)){
@@ -1201,6 +1211,8 @@ class PlantillasDocumentosController extends Controller
 
                             $datosResolucion['total_diferidos']= $totalPagosDiferidos;
                             $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
+                            $datosResolucion['resumen_pagos']= $resumenPagos;
+                            $datosResolucion['informacion_pago']= $infoPago;
                             
                           }
                         }
