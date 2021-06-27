@@ -356,11 +356,12 @@ trait GenerateDocument
             $idBase = "";
             $audienciaId = $idAudiencia;
             $data = [];
-            $solicitud = "";
+            $solicitud = new Solicitud();
             $solicitudVirtual = "";
             $conciliadorId = "";
             $centroId = "";
             $tipoSolicitud = "";
+            $resolucionAudienciaId="";
             foreach ($objetos as $objeto) {
               foreach ($jsonElementos['datos'] as $key=>$element) {
                 if($element['id']==$objeto){
@@ -867,6 +868,7 @@ trait GenerateDocument
                         $hayConceptosPago = false;
                         $resumenPagos="";
                         $infoPago  = "";
+                        $fechaCumplimientoPago="";
                         foreach ($audiencia_partes as $key => $audiencia_parte) {
                           if ($audiencia_parte->parte->tipo_parte_id != 3) {
                             $parteID = $audiencia_parte->parte->id;
