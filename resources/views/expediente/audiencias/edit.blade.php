@@ -1401,6 +1401,12 @@
             <div class="modal-body">
                 <div class="col-md-12 row">
                     <input type="hidden" id="pago_id">
+                    <div class="form-group">
+                        <label for="fecha_nacimiento" class="control-label needed">Fecha de cumplimiento</label>
+                        <input type="text" id="fecha_cumplimiento" class="form-control fecha" placeholder="Fecha de cumplimiento de pago">
+                    </div>
+                    {{-- <label>Fecha de cumplimiento --}}
+
                     <textarea class="form-control textarea" placeholder="Describir forma de pago" type="text" id="informacionPago" >
                     </textarea>
                 </div>
@@ -2852,6 +2858,7 @@
                     solicitud_id:'{{$solicitud_id}}',
                     idPagoDiferido:$('#pago_id').val(),
                     informacionPago: $('#informacionPago').val(),
+                    fecha_cumplimiento: $('#fecha_cumplimiento').val(),
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
