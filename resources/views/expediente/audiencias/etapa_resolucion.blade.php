@@ -4011,6 +4011,8 @@
                                     idSolicitante:$("#pago_solicitante_id").val(),
                                     fecha_pago:$("#fecha_pago").val(),
                                     monto_pago:$("#monto_pago").val(),
+                                    informacion_pago:"",
+                                    pagado:false,
                                     descripcion_pago:$("#descripcion_pago").val(),
                                 });
                             }   
