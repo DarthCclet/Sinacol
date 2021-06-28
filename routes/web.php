@@ -66,6 +66,7 @@ Route::middleware(['auth'])->group(function () {
     Route::POST('solicitud/ratificarIncompetencia','SolicitudController@ratificarIncompetencia');
     Route::POST('solicitud/excepcion','SolicitudController@ExcepcionConciliacion');
     Route::Get('solicitud/correos/{solicitud_id}','SolicitudController@validarCorreos');
+    Route::Get('parte/correo/{parte_id}','ParteController@validarCorreoParte');
     Route::POST('solicitud/correos','SolicitudController@cargarCorreos');
     Route::Get('solicitudes/documentos/{solicitud_id}','SolicitudController@getDocumentosSolicitud');
     Route::POST('guardarUrlVirtual','SolicitudController@guardarUrlVirtual');
@@ -124,6 +125,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('partes/representante/contacto/eliminar','ParteController@EliminarContactoRepresentante');
     Route::GET('partes/getComboDocumentos/{solicitud_id}','ParteController@getPartesComboDocumentos');
     Route::Get('partes/getParteSolicitud/{parte_id}','ParteController@getParteSolicitud');
+    Route::Post('aceptar_buzon','ParteController@aceptar_buzon');
     Route::resource('roles-atencion','RolAtencionController');
     Route::resource('objeto-solicitud','ObjetoSolicitudController');
     Route::resource('estatus-solicitud','EstatusSolicitudController');

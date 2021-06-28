@@ -775,4 +775,39 @@ class ParteController extends Controller
         $partes = $solicitud->partes()->whereIn("tipo_parte_id",[1,2,3])->get();
         return $partes;
     }
+    public function validarCorreoParte(){
+        $parte = Parte::find($this->request->parte_id);
+        $array = array();
+        $pasa = false;
+        foreach($parte->contactos as $contacto){
+            if($contacto->tipo_contacto_id == 3){ //si tiene email
+                $pasa = true;
+            }
+        }
+        if($parte->correo_buzon){
+            $pasa = true;
+        }
+            //devuelve partes sin email
+        
+        $parte->tieneCorreo = $pasa;
+        return $parte;
+    }
+
+    public function aceptar_buzon(Request $request){
+        $parte = Parte::find($request->parte_id);
+        $notificacion_buzon = $request->acepta_buzon;
+        if($parte){   
+            $parte->update(['notificacion_buzon'=>$notificacion_buzon]);
+            if($notificacion_buzon){
+                //Genera acta de aceptacion de buzón
+            }else{
+                $existe = $parte->documentos()->where('clasificacion_archivo_id',1)->first();
+                if($existe == null){
+                    //Genera acta de no aceptacion de buzón
+                }
+            }
+            return $this->sendResponse($parte, 'SUCCESS');
+        }
+        return $this->sendError('Error al aceptar buzón', 'Error');
+    }
 }

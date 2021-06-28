@@ -1450,7 +1450,9 @@
     </div>
 </div>
 <!--Fin de modal pagos diferidos-->
-
+<!--Modulo para aceptación de buzon electronico-->
+@include('includes.component.aceptar_buzon')
+<!--Fin de Modulo para aceptación de buzon electronico-->
 <!-- inicio Modal Preview-->
 <div class="modal" id="modal-preview" data-backdrop="static" data-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-xl">
@@ -2282,7 +2284,14 @@
                         if(element.documentos.length >= 1){
                             table +='   <td>';
                             table +='       <div class="col-md-2">';
-                            table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
+                                if(element.tipo_parte_id == 2 ){
+                                table +='<input type="checkbox" value="1" id="checkCompareciente'+element.id+'" data-parte_id="'+element.id+'" onclick="correoBuzon('+element.id+','+element.id+')" class="checkCompareciente" name="switch1"/>';
+                            }else if(element.tipo_parte_id == 3){
+                                table +='<input type="checkbox" value="1" id="checkCompareciente'+element.id+'" data-parte_id="'+element.id+'" onclick="correoBuzon('+element.parte_representada_id+','+element.id+')" class="checkCompareciente" name="switch1"/>';
+                            }else{
+                                table +='<input type="checkbox" value="1" id="checkCompareciente'+element.id+'" data-parte_id="'+element.id+'" onclick="correoBuzon('+element.id+','+element.id+')" class="checkCompareciente" name="switch1"/>';
+                            }
+                            // table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
                             table +='</div>';
                         }else{
                             table +='   <td>Falta identificación</td>';
