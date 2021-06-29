@@ -92,9 +92,11 @@
                     </div>
                     <div class="col-md-12">
                     <div class="pull-right">
-                        <button href="/api/documentos/getFile/{{$audiencia->justificante_id}}" class="btn btn-primary" data-toggle="iframe" data-gallery="example-gallery-pdf" data-type="url">
-                            <i class="fa fa-file-pdf"></i>&nbsp;&nbsp;Ver Justificante
-                        </button>
+                        @if($audiencia->documentos()->whereClasificacionArchivoId($clasificacion_justificante->id)->orderBy("id","desc")->first() != null)
+                            <a href="/api/documentos/getFile/{{$audiencia->documentos()->whereClasificacionArchivoId($clasificacion_justificante->id)->orderBy("id","desc")->first()->uuid}}" class="btn btn-primary" target="_blank">
+                                <i class="fa fa-file-pdf"></i>&nbsp;&nbsp;Ver Justificante
+                            </a>
+                        @endif
                         <button class="btn btn-success" id='btnAprobarCancelacion'><i class="fa fa-check"></i>&nbsp;&nbsp;Aprobar</button>
                         <button class="btn btn-danger" id='btnNegarCancelacion'><i class="fa fa-times"></i>&nbsp;&nbsp;Negar</button>
                     </div>
@@ -241,7 +243,7 @@
                                                                                 <th>Otro</th>
                                                                             </tr>
                                                                         </thead>
-                                                                        
+
                                                                         <tbody id="tbodyConceptoPrincipal{{$solicitante->parte->id}}">
                                                                             @foreach($conceptos_pago as $concepto_pago)
                                                                                 @foreach($concepto_pago['conceptos'] as $concepto)
@@ -252,7 +254,7 @@
                                                                                             <td style="text-align: right">${{ number_format($concepto->monto,2)}}</td>
                                                                                             <th>{{$concepto->otro}}</th>
                                                                                         </tr>
-                                                                                    @endif  
+                                                                                    @endif
                                                                                 @endforeach
                                                                                 @if( sizeof($concepto_pago['conceptos']) > 0 )
                                                                                     @if( $solicitante->parte->id == $concepto_pago['idSolicitante'])
@@ -271,9 +273,9 @@
                                                         </div>
                                                     @endforeach
                                                 @else
-                                                
+
                                                     @foreach($audiencia->citadosComparecientes as $citado)
-                                                     
+
                                                         <div class="card">
                                                         <div class="card-header" id="headingOne">
                                                             <h2 class="mb-0">
@@ -302,7 +304,7 @@
                                                                                 <th>Otro</th>
                                                                             </tr>
                                                                         </thead>
-                                                                        
+
                                                                         <tbody id="tbodyConceptoPrincipal{{$citado->parte->id}}">
                                                                             @foreach($conceptos_pago as $concepto_pago)
                                                                                 @foreach($concepto_pago['conceptos'] as $concepto)
@@ -313,7 +315,7 @@
                                                                                             <td style="text-align: right">${{ number_format($concepto->monto,2)}}</td>
                                                                                             <th>{{$concepto->otro}}</th>
                                                                                         </tr>
-                                                                                    @endif  
+                                                                                    @endif
                                                                                 @endforeach
                                                                                 @if( sizeof($concepto_pago['conceptos']) > 0 )
                                                                                     @if( $citado->parte->id == $concepto_pago['idCitado'])
@@ -332,7 +334,7 @@
                                                         </div>
                                                     @endforeach
                                                 @endif
-                                                
+
                                                 </div>
                                                 <br>
 
@@ -392,7 +394,7 @@
                                                                 </thead>
                                                                 <tbody id="tbodyFechaPagoPrincipal">
                                                                     @if (count($audiencia->pagosDiferidos)>0)
-                                                                    
+
                                                                         @foreach($audiencia->pagosDiferidos as $fechaPago)
                                                                             <tr>
                                                                             @if($fechaPago->solicitante)
@@ -404,9 +406,9 @@
                                                                                 <td>{{$fechaPago->monto}}</td>
                                                                                 <td>
 
-                                                                                    @if($fechaPago->pagado === false) 
+                                                                                    @if($fechaPago->pagado === false)
                                                                                         <P style="color: darkred">No Pagado</p>
-                                                                                    @elseif($fechaPago->pagado === true) 
+                                                                                    @elseif($fechaPago->pagado === true)
                                                                                         <P style="color:darkolivegreen">Pagado</p>
                                                                                     @else
                                                                                         {{-- <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button> --}}
@@ -414,9 +416,9 @@
                                                                                     @endif
                                                                                 </td>
                                                                                 <td>
-                                                                                    @if($fechaPago->pagado === false) 
+                                                                                    @if($fechaPago->pagado === false)
                                                                                         <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
-                                                                                    @elseif($fechaPago->pagado == true) 
+                                                                                    @elseif($fechaPago->pagado == true)
 
                                                                                     @else
                                                                                         <button onclick="registrarPago({{$fechaPago->id}})" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago"><i class="fa fa-check-square"></i></button>
@@ -614,7 +616,6 @@
                                 <th>Tipo de notificación</th>
                                 <th>Estado</th>
                                 <th>Fecha de Notificación</th>
-                                <th>Conclusión de notificación</th>
                             </tr>
                     @foreach($audiencia->partes as $parte)
                         @if($parte->tipo_parte_id == 2)
@@ -626,9 +627,8 @@
                                 @endif
                                 <td>{{ $parte->rfc }}</td>
                                 <td>{{ $parte->tipo_notificacion->nombre }}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td>{{$parte->finalizado}}</td>
+                                <td>{{$parte->fecha_notificacion}}</td>
                             </tr>
                         @endif
                     @endforeach
@@ -826,7 +826,7 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class=" needed">Documento de Instrumento</label> 
+                            <label class=" needed">Documento de Instrumento</label>
                             <span class="btn btn-primary fileinput-button m-r-3">
                                 <i class="fa fa-fw fa-plus"></i>
                                 <span>Seleccionar instrumento</span>
@@ -1419,7 +1419,7 @@
         var url = document.location.toString();
         if (url.match('#')) {
             $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
-        } 
+        }
 
         // Change hash for page-reload
         $('.nav-tabs a').on('shown.bs.tab', function (e) {
@@ -1737,7 +1737,7 @@
                                         $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
                                     }
                                 });
-                                
+
                             }else{
                                 $("#tipo_documento_id").val("").trigger("change");
                                 $("#labelIdentifRepresentante").html("");
@@ -1966,7 +1966,7 @@
         }
         $("#btnGuardarRepresentante").on("click",function(){
             if(!validarRepresentante()){
-                
+
                 var formData = new FormData(); // Currently empty
                 if($("#fileIdentificacion").val() != ""){
                     formData.append('fileIdentificacion', $("#fileIdentificacion")[0].files[0]);
@@ -2283,7 +2283,7 @@
                     }
                 }
             });
-            
+
         });
         $("#notificar").on("change",function(){
             if($(this).is(":checked")){

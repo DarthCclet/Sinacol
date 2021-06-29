@@ -163,10 +163,6 @@ class NotificacionServiceController extends Controller {
                     throw new ParametroNoValidoException("El campo detalle_id es requerido.", 1017);
                     return null;
                 }
-                if (!isset($demandado->documento)) {
-                    throw new ParametroNoValidoException("El campo documento es requerido.", 1018);
-                    return null;
-                }
                 if (!isset($demandado->fecha_notificacion)) {
                     throw new ParametroNoValidoException("El campo fecha_notificacion es requerido.", 1018);
                     return null;

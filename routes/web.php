@@ -250,7 +250,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
-
+Route::post('buzon/uploadJustificante', 'AudienciaController@uploadJustificante');
 /**
  * Ruta para envío de certificados digitales desde el buzón
  */
