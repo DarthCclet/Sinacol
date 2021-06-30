@@ -4,27 +4,62 @@
     <div class="">
     </div><br>
     <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <input class="form-control upper" name="nombre_documento" id="nombre_documento" required placeholder="Nombre del documento" type="text" value="">
+            <p class="help-block needed">Nombre del documento</p>
+        </div>
+    </div>
+    <br>
+    <br>
+    <br>
+    <div class="row">
         <input type="hidden" name='id' value='{{(isset($id))?$id:''}}'>
-        <div class="col-md-2"></div>
-        <div class="col-md-8">
-          <div id="oficio-header" name="oficio-header" class="sectionPlantilla" style="border:solid 1px lightgray;" contenteditable="true" >{!! isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header'] : "<br>" !!}</div>
+        <input type="hidden" name='type' id="type" value='pre'>
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+          <div id="oficio-header" name="oficio-header" class="sectionPlantilla" style="border:solid 1px lightgray;" >{!! isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header'] : "<br>" !!}</div>
 
           <div id="oficio-body" name="oficio-body" class="sectionPlantilla" style="border:solid 1px lightgray;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
 
-          <div id="oficio-footer" name="oficio-footer" style="border:solid 1px lightgray;">{!! isset($plantilla['plantilla_footer']) ? $plantilla['plantilla_footer'] : "" !!}</div>
+          <div id="oficio-footer" name="oficio-footer" style="border:solid 1px lightgray;" contenteditable="true">{!! isset($plantilla['plantilla_footer']) ? $plantilla['plantilla_footer'] : "" !!}</div>
         </div>
         <div class="col-md-2"></div>
     </div>
+    <br>
+    <br>
     <div class="form-group">
-      
-      <button class="btn btn-danger"><i class="fa fa-save"></i> PDF </button>
+        <button class="btn btn-primary" onclick="$('#type').val('generate')"><i class="fa fa-save"></i> Guardar </button>
     </div>
-  {!! Form::close() !!}
+    {!! Form::close() !!}
+    <button class="btn btn-danger" onclick="preview()" ><i class="fa fa-eye"></i> Pre-visualizar </button>
+
+    <!-- inicio Modal Preview-->
+    <div class="modal" id="modal-preview" data-backdrop="static" data-keyboard="false" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <input type="hidden" id="totalDocumentos">
+                <input type="hidden" id="noDocumento">
+                <div class="modal-body" >
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h2 style="text-align: center;" id="title-file">Previsualizaci&oacute;n</h2>
+                    <div id="documentoPreviewHtml" style="margin:0 5% 0 5%; max-height:600px; border:1px solid black; overflow: scroll; padding:2%;"></div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-right row">
+                        <a class="btn btn-primary btn-sm" class="close" data-dismiss="modal" aria-hidden="true" ><i class="fa fa-times"></i> Aceptar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin Modal de Preview-->
 
 @push('scripts')
     <script src='/js/tinymce/tinymce.min.js'></script>
 
     <script>
+
         var config_tmce = function(selector) {
             return {
                 auto_focus: 'plantilla-body',
@@ -78,8 +113,36 @@
                 }
             };
         };
-        tinymce.init(config_tmce('#oficio-header'));
+        // tinymce.init(config_tmce('#oficio-header'));
         tinymce.init(config_tmce('#oficio-body'));
         tinymce.init(config_tmce('#oficio-footer'));
+        function preview(){
+            $.ajax({
+            url:"/oficio-documento/imprimirPDF",
+            type:"POST",
+            dataType:"json",
+            async:false,
+            data:{
+                type:'preview',
+                "oficio-header": "",
+                "oficio-body": tinyMCE.get('oficio-body').getContent(),
+                "oficio-footer": "",
+                _token:"{{ csrf_token() }}"
+            },
+            success:function(data){
+                try{
+                    $('#documentoPreviewHtml').html("");
+                    $('#documentoPreviewHtml').html(data.data);
+                    $('#modal-preview').modal('show');
+                    var nombre = $("#nombre_documento").val();
+                    if(nombre != ""){
+                       $("#title-file").html(nombre);
+                    }
+                }catch(error){
+                    console.log(error);
+                }
+            }
+        });
+        }
     </script>
 @endpush
