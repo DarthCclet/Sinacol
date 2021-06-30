@@ -1190,6 +1190,7 @@
                                         <tr>
                                             <td>Citado</td>
                                             <td>Mapa</td>
+                                            <td>Cambios</td>
                                             <td>Tipo de notificación</td>
                                         </tr>
                                     </thead>
@@ -1210,6 +1211,15 @@
                                                     <legend>Sin datos</legend>
                                                     @endif
                                                 </td>
+                                                <td style="align-content: center;">
+                                                    @if(!$parte->asignado)
+                                                        <a class="btn btn-xs btn-primary"><i class="fa fa-user-edit"></i></a>
+                                                    @else
+                                                        @if(!$parte->notificacion_buzon)
+                                                            <a class="btn btn-xs btn-primary"><i class="fa fa-user-edit"></i></a>
+                                                        @endif
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <input type="hidden" id="parte_id{{$parte->id}}" class="parte_id" value="{{$parte->id}}">
                                                     <div class="custom-control custom-radio">
@@ -1217,12 +1227,12 @@
                                                         <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" checked="checked">
                                                         @else
                                                             @if($parte->notificacion_buzon)
-                                                            <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" disabled="disabled">
+                                                                <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" disabled="disabled">
                                                             @else
-                                                            <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" disabled="disabled" checked="checked">
+                                                                <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" disabled="disabled" checked="checked">
                                                             @endif
                                                         @endif
-                                                        <label for="radioNotificacionNo{{$parte->id}}">No notificar</label>
+                                                        <label for="radioNotificacionNo{{$parte->id}}">Notificar</label>
                                                     </div>
                                                 </td>
                                             @endif
