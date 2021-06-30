@@ -1190,13 +1190,13 @@
                                         <tr>
                                             <td>Citado</td>
                                             <td>Mapa</td>
-                                            <td>Cambios</td>
+{{--                                            <td>Cambios</td>--}}
                                             <td>Tipo de notificación</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @if(isset($partes))
-                                        @foreach($partes as $parte)
+                                        @foreach($partes as $index => $parte)
                                         <tr>
                                             @if($parte->tipo_parte_id == 2)
                                                 @if($parte->tipo_persona_id == 1)
@@ -1211,15 +1211,15 @@
                                                     <legend>Sin datos</legend>
                                                     @endif
                                                 </td>
-                                                <td style="align-content: center;">
-                                                    @if(!$parte->asignado)
-                                                        <a class="btn btn-xs btn-primary"><i class="fa fa-user-edit"></i></a>
-                                                    @else
-                                                        @if(!$parte->notificacion_buzon)
-                                                            <a class="btn btn-xs btn-primary"><i class="fa fa-user-edit"></i></a>
-                                                        @endif
-                                                    @endif
-                                                </td>
+{{--                                                <td style="align-content: center;">--}}
+{{--                                                    @if(!$parte->asignado)--}}
+{{--                                                        <button class="btn btn-xs btn-primary" onclick="cargarEditarCitado({{$index}})"><i class="fa fa-user-edit"></i></button>--}}
+{{--                                                    @else--}}
+{{--                                                        @if(!$parte->notificacion_buzon)--}}
+{{--                                                            <button class="btn btn-xs btn-primary" onclick="cargarEditarCitado({{$index}})"><i class="fa fa-user-edit"></i></button>--}}
+{{--                                                        @endif--}}
+{{--                                                    @endif--}}
+{{--                                                </td>--}}
                                                 <td>
                                                     <input type="hidden" id="parte_id{{$parte->id}}" class="parte_id" value="{{$parte->id}}">
                                                     <div class="custom-control custom-radio">
