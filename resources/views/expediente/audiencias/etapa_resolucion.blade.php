@@ -903,7 +903,7 @@
             </div>
             <div class="modal-footer">
                 <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="closeDatoLaboral()"><i class="fa fa-times"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarDatoLaboral"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
@@ -3074,8 +3074,15 @@
                         $("#dias_aguinaldo").val(data.dias_aguinaldo);
                         $("#prestaciones_adicionales").val(data.prestaciones_adicionales);
                         if(data.domicilios.length > 0){
-                            $("#domicilio_laboral").click();
+                            if(!($("#domicilio_laboral").is(":checked") )){
+                                $("#domicilio_laboral").click();
+                            }
                             domicilioObj.cargarDomicilio(data.domicilios[0]);
+                        }else{
+                            if($("#domicilio_laboral").is(":checked") ){
+                                $("#domicilio_laboral").click();
+                            }
+                            domicilioObj.limpiarDomicilios();
                         }
                     }
                     $("#modal-dato-laboral").modal("show");
@@ -3280,6 +3287,37 @@
         }
         return error;
     }
+
+    function closeDatoLaboral(){
+        if($("#domicilio_laboral").is(":checked")){
+            $("#domicilio_laboral").click();
+        }
+        domicilioObj.limpiarDomicilios();
+        $("#dato_laboral_id").val("")
+        // $("#ocupacion_id").val(),
+        // $("#puesto").val(),
+        // $("#nss").val(),
+        // $("#remuneracion").val(),
+        // $("#periodicidad_id").val(),
+        // $("#labora_actualmente").is(":checked"),
+        // $("#fecha_ingreso").val()),
+        // $("#fecha_salida").val()),
+        // $("#jornada_id").val(),
+        // $("#horas_semanales").val(),
+        // $("#parte_id").val(),
+        // ("#resolucion_dato_laboral").val(),
+        //datos laborales extra
+        $("#horario_laboral").val("");
+        $("#horario_comida").val("");
+        if($("#comida_dentro").is(":checked")){
+            $("#comida_dentro").click();
+        }
+        $("#dias_descanso").val("");
+        $("#dias_vacaciones").val("");
+        $("#dias_aguinaldo").val("");
+        $("#prestaciones_adicionales").val("");
+    }
+
     $("#btnGuardarDatoLaboral").on("click",function(){
         var domicilio =domicilioObj.getDomicilio();
         if($("#domicilio_laboral").is(":checked") && domicilio == undefined ){
