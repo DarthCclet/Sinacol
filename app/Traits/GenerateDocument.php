@@ -872,7 +872,7 @@ trait GenerateDocument
                         $totalPagosDiferidos = 0;
                         $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $hayConceptosPago = false;
-                        $resumenPagos="";
+                        $resumenPagos='<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $infoPago  = "";
                         $fechaCumplimientoPago="";
                         foreach ($audiencia_partes as $key => $audiencia_parte) {
@@ -1083,29 +1083,44 @@ trait GenerateDocument
                             //Fechas pago resolucion
                             $tablaPagosDiferidos .= '<table class="tbl">';
                             $tablaPagosDiferidos .= '<tbody>';
+                            $resumenPagos .= '<table class="tbl">';
+                            $resumenPagos .= '<tbody>';
                             $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->orderBy('id')->get();
                             foreach ($resolucion_pagos as $pago ) {
                               if($tipoSolicitud == 1){
                                 if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitante)){
                                   $enPago =($pago->monto != null)?'   $'.number_format($pago->monto, 2, '.', ',') : "";
                                   $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;"> '.$enPago.'</td></tr>';
-                                  $totalPagosDiferidos +=1;
+                                  if($pago->diferido){
+                                    $totalPagosDiferidos +=1;
+                                  }
                                   if($pago->pagado){
                                     $infoPago = $pago->informacion_pago;
-                                    $fechaCumplimientoPago = Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_cumplimiento)->format('d/m/Y');
-                                    $resumenPagos .= $pago->informacion_pago . " <br>";
+                                    // $fechaCumplimientoPago = Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_cumplimiento)->format('d/m/Y');
+                                    $fechaCumplimientoPago = $pago->fecha_cumplimiento;
+                                    // $resumenPagos .= $pago->informacion_pago . " <br>";
+                                    $resumenPagos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_cumplimiento)->format('d/m/Y').' </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;">  '. $enPago .'</td><td style="text-align:right;">  '. $pago->informacion_pago .'</td></tr>';
                                   }
                                 }
                               }else{
                                 if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitado)){
                                   $enPago =($pago->monto != null)?'   $'.number_format($pago->monto, 2, '.', ',') : "";
                                   $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;">  '. $enPago .'</td></tr>';
-                                  $totalPagosDiferidos +=1;
+                                  if($pago->diferido){
+                                    $totalPagosDiferidos +=1;
+                                  }
+                                  if($pago->pagado){
+                                    $infoPago = $pago->informacion_pago;
+                                    $fechaCumplimientoPago = $pago->fecha_cumplimiento;
+                                    $resumenPagos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_cumplimiento)->format('d/m/Y').' </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;">  '. $enPago .'</td><td style="text-align:right;">  '. $pago->informacion_pago .'</td></tr>';
+                                  }
                                 }
                               }
                             }
                             $tablaPagosDiferidos .= '</tbody>';
                             $tablaPagosDiferidos .= '</table>';
+                            $resumenPagos .= '</tbody>';
+                            $resumenPagos .= '</table>';
                             $datosResolucion['informacion_pago']= $infoPago;
                             $datosResolucion['fecha_cumplimiento_pago']= $fechaCumplimientoPago;
                             $datosResolucion['resumen_pagos']= $resumenPagos;

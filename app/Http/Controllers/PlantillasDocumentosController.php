@@ -640,6 +640,8 @@ class PlantillasDocumentosController extends Controller
                     $nombresSolicitantes = [];
                     $nombresSolicitados = [];
                     $solicitantesNSS = [];
+                    $solicitantesRFC = [];
+                    $solicitantesCURP = [];
                     $solicitantesIdentificaciones = [];
                     $datoLaboral="";
                     $solicitanteIdentificacion = "";
@@ -779,6 +781,7 @@ class PlantillasDocumentosController extends Controller
                           $parte['datos_laborales_salario_mensual'] = $salarioMensual;
                           $parte['datos_laborales_salario_mensual_letra'] = $salarioMensualTextual;
                           $nss = $datoLaborales->nss;
+                          //$rfc = 
                         }
 
                         $solicitanteIdentificacion = $parte['nombre_completo'] ." quien se identifica con " .$parte['identificacion_documento']." expedida a su favor por ". $parte['identificacion_expedida_por'];
@@ -1187,10 +1190,12 @@ class PlantillasDocumentosController extends Controller
                             foreach ($resolucion_pagos as $pago ) {
                               if($tipoSolicitud == 1){
                                 if(($parteID == $pago['idSolicitante']) && ($parteID == $idSolicitante)){
-                                  $enPago =($pago['monto_pago'] != null)?'   $'.number_format($pago['monto_pago'], 2, '.', ',') : "";
-                                  //$tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td>'.$pago['descripcion_pago'].'</td><td style="text-align:right;"> '. $enPago.'</td></tr>';
-                                  $totalPagosDiferidos +=1;
+                                  // if($pago['diferido']){
+                                    $enPago =($pago['monto_pago'] != null)?'   $'.number_format($pago['monto_pago'], 2, '.', ',') : "";
+                                    //$tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td style="text-align:right;">     $'.number_format($pago['monto_pago'], 2, '.', ',').'</td></tr>';
+                                    $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td>'.$pago['descripcion_pago'].'</td><td style="text-align:right;"> '. $enPago.'</td></tr>';
+                                    $totalPagosDiferidos +=1;
+                                  // }
 
                                   if($pago['pagado'] == true){
                                     $resumenPagos .= " ".$pago['informacion_pago']." <br>";
@@ -1200,9 +1205,16 @@ class PlantillasDocumentosController extends Controller
                                 }
                               }else{
                                 if(($parteID == $pago['idCitado']) && ($parteID == $idSolicitado)){
-                                  $enPago =($pago['monto_pago'] != null)?'   $'.number_format($pago['monto_pago'], 2, '.', ',') : "";
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td>'.$pago['descripcion_pago'].'</td><td style="text-align:right;">    '. $enPago .'</td></tr>';
-                                  $totalPagosDiferidos +=1;
+                                  // if($pago['diferido']){
+                                    $enPago =($pago['monto_pago'] != null)?'   $'.number_format($pago['monto_pago'], 2, '.', ',') : "";
+                                    $tablaPagosDiferidos .= '<tr><td class="tbl"> '.$pago['fecha_pago'].' horas </td><td>'.$pago['descripcion_pago'].'</td><td style="text-align:right;">    '. $enPago .'</td></tr>';
+                                    $totalPagosDiferidos +=1;
+                                  // }
+                                  if($pago['pagado'] == true){
+                                    $resumenPagos .= " ".$pago['informacion_pago']." <br>";
+                                    $infoPago = $pago['informacion_pago'];
+                                    //$fechaCumplimientoPago = Carbon::createFromFormat('Y-m-d H:i:s',$pago['fecha_cumplimiento'])->format('d/m/Y');
+                                  }
                                 }
                               }
                             }
