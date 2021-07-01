@@ -13,6 +13,7 @@ use App\DatoLaboral;
 use App\Domicilio;
 use App\Filters\ParteFilter;
 use App\Solicitud;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -797,7 +798,11 @@ class ParteController extends Controller
         $parte = Parte::find($request->parte_id);
         $notificacion_buzon = $request->acepta_buzon;
         if($parte){   
-            $parte->update(['notificacion_buzon'=>$notificacion_buzon]);
+            if($notificacion_buzon == "true"){
+                $parte->update(['notificacion_buzon'=>$notificacion_buzon, 'fecha_aceptacion_buzon'=>$fechaFin = Carbon::now()]);
+            }else{
+                $parte->update(['notificacion_buzon'=>$notificacion_buzon]);
+            }
             if($notificacion_buzon){
                 //Genera acta de aceptacion de buzón
             }else{
