@@ -1669,10 +1669,11 @@ class AudienciaController extends Controller {
                             "solicitante_id" => $solicitante->parte_id,
                             "monto" => $totalPagoC[$solicitante->parte_id],
                             "descripcion_pago" => "Convenio",
-                            "fecha_pago" => $audiencia->fecha_audiencia,
+                            "fecha_pago" => $audiencia->fecha_audiencia ." ".$audiencia->hora_fin,
                             "diferido"=>false
                         ]);
                     }
+                    // $pagos = ResolucionPagoDiferido::where('audiencia_id',$audiencia->id)->get();
                     if($convenio->tipo_propuesta_pago_id == 4){
                         //generar convenio reinstalacion
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 43, 9, $solicitante->parte_id));
@@ -1750,7 +1751,7 @@ class AudienciaController extends Controller {
                 $pagoDiferido->update([
                     "pagado" => true,
                     "informacion_pago"=> $request->informacionPago,
-                    "fecha_cumplimiento" => Carbon::createFromFormat('d/m/Y', $request->fecha_cumplimiento)->format('Y-m-d h:i'),
+                    "fecha_cumplimiento" => Carbon::createFromFormat('d/m/Y', $request->fecha_cumplimiento)->format('Y-m-d'),
                 ]);
                 //generar constacia de pago parcial si no es ultimo pago
                 if($solicitud->tipo_solicitud_id == 1 && $pagoDiferido->id != $ultimoPago){//solicitud individual
