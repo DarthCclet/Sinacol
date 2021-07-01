@@ -1083,13 +1083,15 @@ trait GenerateDocument
                             //Fechas pago resolucion
                             $tablaPagosDiferidos .= '<table class="tbl">';
                             $tablaPagosDiferidos .= '<tbody>';
-                            $resumenPagos .= '<table class="tbl">';
-
-                            $resumenPagos .= '<theader>';
-                            $resumenPagos .= '<th>Fecha cumplimiento</th><th>Concepto</th><th>Monto</th><th>Descripción</th>';
-                            $resumenPagos .= '</theader>';
-                            $resumenPagos .= '<tbody>';
                             $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->orderBy('id')->get();
+
+                            if(count($resolucion_pagos) > 0  && (($parteID == $idSolicitante && $tipoSolicitud == 1) || ($parteID == $idSolicitado && $tipoSolicitud == 2)) ) {
+                              $resumenPagos .= '<table class="tbl">';
+                              $resumenPagos .= '<theader>';
+                              $resumenPagos .= '<th>Fecha cumplimiento</th><th>Concepto</th><th>Monto</th><th>Descripción</th>';
+                              $resumenPagos .= '</theader>';
+                              $resumenPagos .= '<tbody>';
+                            }
                             foreach ($resolucion_pagos as $pago ) {
                               if($tipoSolicitud == 1){
                                 if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitante)){
@@ -1103,7 +1105,8 @@ trait GenerateDocument
                                     // $fechaCumplimientoPago = Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_cumplimiento)->format('d/m/Y');
                                     $fechaCumplimientoPago = $pago->fecha_cumplimiento;
                                     // $resumenPagos .= $pago->informacion_pago . " <br>";
-                                    $resumenPagos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_cumplimiento)->format('d/m/Y').' </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;">  '. $enPago .'</td><td style="text-align:right;">  '. $pago->informacion_pago .'</td></tr>';
+                                    $fechaC = ($pago->fecha_cumplimiento != "" && $pago->fecha_cumplimiento != null)? Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_cumplimiento)->format('d/m/Y') : "N/A";
+                                    $resumenPagos .= '<tr><td class="tbl"> '. $fechaC.' </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;">  '. $enPago .'</td><td style="text-align:right;">  '. $pago->informacion_pago .'</td></tr>';
                                   }
                                 }
                               }else{
