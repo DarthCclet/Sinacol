@@ -1084,6 +1084,10 @@ trait GenerateDocument
                             $tablaPagosDiferidos .= '<table class="tbl">';
                             $tablaPagosDiferidos .= '<tbody>';
                             $resumenPagos .= '<table class="tbl">';
+
+                            $resumenPagos .= '<theader>';
+                            $resumenPagos .= '<th>Fecha cumplimiento</th><th>Concepto</th><th>Monto</th><th>Descripción</th>';
+                            $resumenPagos .= '</theader>';
                             $resumenPagos .= '<tbody>';
                             $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->orderBy('id')->get();
                             foreach ($resolucion_pagos as $pago ) {
