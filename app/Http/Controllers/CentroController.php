@@ -319,13 +319,17 @@ class CentroController extends Controller {
                     });
             $details = $query->with('parte', 'audiencia.expediente.solicitud', 'tipo_notificacion', 'audiencia.etapa_notificacion')->paginate(10);
         }
-        return view('centros.centros.notificaciones')->withData($details);
+        $estados = Estado::all();
+        $tipos_vialidades = $this->cacheModel('tipos_vialidades', TipoVialidad::class);
+        $tipos_asentamientos = $this->cacheModel('tipos_asentamientos', TipoAsentamiento::class);
+        return view('centros.centros.notificaciones',compact('estados','tipos_vialidades', 'tipos_asentamientos'))->withData($details);
     }
 
     public function notificacionesSearch(Request $request) {
         $expediente = $request->get('q');
         $rolActual = session('rolActual')->name;
         $tipo_parte = TipoParte::whereNombre("CITADO")->first();
+        $estados = array_pluck(Estado::all(), 'nombre', 'id');
         if ($rolActual != "Super Usuario") {
             if ($rolActual == "Orientador") {
                 $query = AudienciaParte::whereHas('audiencia.expediente.solicitud', function ($q) {
@@ -369,7 +373,10 @@ class CentroController extends Controller {
         $data->appends(array(
             'q' => $request->get('q')
         ));
-        return view('centros.centros.notificaciones', compact('data', 'expediente'));
+        $estados = Estado::all();
+        $tipos_vialidades = $this->cacheModel('tipos_vialidades', TipoVialidad::class);
+        $tipos_asentamientos = $this->cacheModel('tipos_asentamientos', TipoAsentamiento::class);
+        return view('centros.centros.notificaciones', compact('data', 'expediente','estados','tipos_vialidades', 'tipos_asentamientos'));
     }
 
     public function obtenerHistorial() {

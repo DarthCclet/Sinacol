@@ -2013,37 +2013,43 @@ class AudienciaController extends Controller {
         $notificar = 0;
         $partes_notificar = [];
         $tipo_parte = TipoParte::where("nombre", "ilike", "%CITADO%")->first()->id;
+        $tipo_parte_representante = TipoParte::where("nombre", "ilike", "%OTRO%")->first()->id;
+        $tipoNotificacion = \App\TipoNotificacion::where("nombre", "ilike", "%B)%")->first()->id;
+        $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%d)%")->first()->id;
+        $tipoNotificacionRenuente = \App\TipoNotificacion::where("nombre", "ilike", "%e)%")->first()->id;
         foreach ($audiencia->expediente->solicitud->partes as $parte) {
-            $tipoNotificacion = \App\TipoNotificacion::where("nombre", "ilike", "%B)%")->first()->id;
-            $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%d)%")->first()->id;
-            $fecha_notificacion = null;
-            $finalizado = null;
+            $fecha_notificacion = now();
+            $finalizado = "FINALIZADO EXITOSAMENTE";
             if (isset($request->listaRelaciones)) {
-                foreach ($request->listaRelaciones as $sin_notificar) {
-                    if ($parte->id == $sin_notificar) {
-                        if($parte->notificacion_buzon){
-                            $tipoNotificacion = $tipoNotificacionBuzon;
-                            $fecha_notificacion = now();
-                            $finalizado = "FINALIZADO EXITOSAMENTE";
+                foreach ($request->listaRelaciones as $notificar) {
+                    if ($parte->id == $notificar) {
+                        if(!$parte->notificacion_exitosa){
+                            $tipoNotificacionBuzon = $tipoNotificacion;
+                            $fecha_notificacion = null;
+                            $finalizado = null;
+                        }else{
+                            $tipoNotificacionBuzon = $tipoNotificacionRenuente;
+                            $fecha_notificacion = null;
+                            $finalizado = null;
                         }
                     }
                 }
             }
-            if($parte->tipo_parte_id != 3){
+            if($parte->tipo_parte_id != $tipo_parte_representante){
                 $audiencia_parte = AudienciaParte::create([
                     "audiencia_id" => $audienciaN->id,
                     "parte_id" => $parte->id,
-                    "tipo_notificacion_id" => $tipoNotificacion,
+                    "tipo_notificacion_id" => $tipoNotificacionBuzon,
                     "fecha_notificacion" => $fecha_notificacion,
                     "finalizado" => $finalizado
                 ]);
             }
-            if ($tipoNotificacion != null && $parte->tipo_parte_id == $tipo_parte) {
+            if ($tipoNotificacionBuzon == $tipoNotificacion && $parte->tipo_parte_id == $tipo_parte) {
                 $notificar++;
                 $partes_notificar[] = $audiencia_parte->id;
             }
             $parte->update(["asignado" => true]);
-            if ($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]) {
+            if ($parte->tipo_parte_id == $tipo_parte && $datos_audiencia["encontro_audiencia"]) {
                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->id));
             }
         }

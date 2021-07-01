@@ -97,11 +97,8 @@
                     <td>No</td>
                     @endif
                     <td>
-                        <button onclick="cambiar_nombre({{$parte->parte_id}},{{$parte->id}},{{$parte->parte->tipo_persona_id}},'{{$parte->parte->nombre}}','{{$parte->parte->primer_apellido}}','{{$parte->parte->segundo_apellido}}','{{$parte->parte->nombre_comercial}}')" class="btn btn-xs btn-primary incidencia" title="Cambiar Nombre">
+                        <button onclick="cambiarDatos({{$parte->audiencia->expediente->solicitud_id}})" class="btn btn-xs btn-primary incidencia" title="Cambiar Nombre">
                             <i class="fa fa-user"></i>
-                        </button>
-                        <button onclick="cambiar_domicilio({{$parte->parte_id}},{{$parte->id}})" class="btn btn-xs btn-primary incidencia" title="Cambiar domicilio">
-                            <i class="fa fa-map-marked-alt"></i>
                         </button>
                     </td>
                     <td>
@@ -213,81 +210,8 @@
         </div>
     </div>
 </div>
-<div class="modal" id="modalCambioNombre" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Historial de notificación</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="row" id='divFisica'>
-                    <div class=" col-md-4">
-                        <div class="form-group">
-                            <label for="nombre" class="control-label">Nombre</label>
-                            {!! Form::text('nombre', null, ['class'=>'form-control', 'id'=>'nombre', 'placeholder'=>'Nombre']) !!}
-                            <p class="help-block">Nombre del citado</p>
-                        </div>
-                    </div>
-                    <div class=" col-md-4">
-                        <div class="form-group">
-                            <label for="primer_apellido" class="control-label">Primer apellido</label>
-                            {!! Form::text('primer_apellido', null, ['class'=>'form-control', 'id'=>'primer_apellido', 'placeholder'=>'Primer apellido']) !!}
-                            <p class="help-block">Primer apellido del citado</p>
-                        </div>
-                    </div>
-                    <div class=" col-md-4">
-                        <div class="form-group">
-                            <label for="segundo_apellido" class="control-label">Segundo apellido</label>
-                            {!! Form::text('segundo_apellido', null, ['class'=>'form-control', 'id'=>'segundo_apellido', 'placeholder'=>'Segundo apellido']) !!}
-                            <p class="help-block">Segundo apellido del citado</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row" id='divMoral'>
-                    <div class=" col-md-12">
-                        <div class="form-group">
-                            <label for="nombre_comercial" class="control-label">Nombre comercial</label>
-                            {!! Form::text('nombre_comercial', null, ['class'=>'form-control', 'id'=>'nombre_comercial', 'placeholder'=>'Nombre comercial']) !!}
-                            <p class="help-block">Nombre comercial del citado</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <input type="hidden" id='parte_id'>
-            <input type="hidden" id='audiencia_parte_id'>
-            <input type="hidden" id='tipo_persona_id'>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <button class="btn btn-primary btn-sm" id='btnModificarNombre'><i class="fa fa-save"></i>Modificar</button>
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal" id="modalCambioDomicilio" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Historial de notificación</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"true", 'instancia' => 2, 'tipo_solicitud' => $tipo_solicitud_id])
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <button class="btn btn-primary btn-sm" id='btnModificarNombre'><i class="fa fa-save"></i>Guardar</button>
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cerrar</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+<input type="hidden" id="solicitud_id">
+@include('includes.component.parte-domicilio')
 @endsection
 @push('scripts')
 <script>
@@ -542,6 +466,10 @@
                 swal("Error!",data.mensaje,"error");
             }
         });
+    }
+    function cambiarDatos(solicitud_id){
+        $("#solicitud_id").val(solicitud_id);
+        loadCitados();
     }
 </script>
 @endpush
