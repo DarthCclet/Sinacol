@@ -139,4 +139,12 @@ class Audiencia extends Model implements Auditable
       }
       return false;
   }
+
+    /**
+     * Relación con el catálogo de tipo de terminaciones de audiencias
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function tipoTerminacion(){
+        return $this->belongsTo(TipoTerminacionAudiencia::class, 'tipo_terminacion_audiencia_id');
+    }
 }
