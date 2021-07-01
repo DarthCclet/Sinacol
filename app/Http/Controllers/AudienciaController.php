@@ -830,7 +830,7 @@ class AudienciaController extends Controller {
             $domicilio_citado = null;
             foreach ($partes as $parte) {
                 if ($parte->tipo_parte_id == 2) {
-                    $domicilio_citado = $parte->domicilios()->first();
+                    $domicilio_citado = $parte->domicilios->last();
                     break;
                 }
             }

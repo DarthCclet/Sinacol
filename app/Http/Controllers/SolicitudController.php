@@ -705,35 +705,19 @@ class SolicitudController extends Controller {
      */
     public function show($id) {
         $solicitud = Solicitud::with('expediente', 'giroComercial', 'estatusSolicitud', 'centro', 'tipoIncidenciaSolicitud', 'giroComercial.ambito', 'objeto_solicitudes')->find($id);
-        $partes = $solicitud->partes()->with('dato_laboral', 'domicilios', 'contactos', 'lenguaIndigena')->get();
+        $partes = $solicitud->partes()->with(['dato_laboral', 'domicilios', 'contactos', 'lenguaIndigena'])->get();
 
         $solicitantes = $partes->where('tipo_parte_id', 1);
 
         foreach ($solicitantes as $key => $value) {
-            // $value->dato_laboral;
-            // $value->domicilios;
-            // $value->contactos;
-            // $value->lenguaIndigena;
             $solicitantes[$key]["activo"] = 1;
         }
         $solicitados = $partes->where('tipo_parte_id', 2);
         foreach ($solicitados as $key => $value) {
-            // $value->dato_laboral;
-            // $value->domicilios;
-            // $value->contactos;
             $solicitados[$key]["activo"] = 1;
         }
         $solicitud["solicitados"] = $solicitados;
         $solicitud["solicitantes"] = $solicitantes;
-        //$solicitud->objeto_solicitudes;
-        // $solicitud->expediente = $solicitud->expediente;
-        // $solicitud->giroComercial = $solicitud->giroComercial;
-        // $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
-        // $solicitud->centro = $solicitud->centro;
-        // $solicitud->tipoIncidenciaSolicitud = $solicitud->tipoIncidenciaSolicitud;
-        // if($solicitud->giroComercial){
-        //     $solicitud->giroComercial->ambito;
-        // }
         return $solicitud;
     }
 
@@ -886,12 +870,12 @@ class SolicitudController extends Controller {
         } else {
             $audiencias = array();
         }
-        $partes = array();
-        foreach ($solicitud->partes as $key => $parte) {
-            $parte->tipoParte = $parte->tipoParte;
-            $parte->domicilios = $parte->domicilios()->first();
-            $partes[$key] = $parte;
-        }
+        // $partes = array();
+        // foreach ($solicitud->partes as $key => $parte) {
+        //     $parte->tipoParte = $parte->tipoParte;
+        //     $parte->domicilios = $parte->domicilios->last();
+        //     $partes[$key] = $parte;
+        // }
 
         $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ? $solicitud->tipo_solicitud_id : 1;
         if ($tipo_solicitud_id == 1) {
@@ -924,7 +908,7 @@ class SolicitudController extends Controller {
         $conciliadores = array_pluck(Conciliador::with('persona')->get(), "persona.nombre", 'id');
         $giros = GiroComercial::where("parent_id", 1)->orderBy('nombre')->get();
         // consulta de documentos
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits', 'municipios', 'partes', 'motivo_excepciones', 'conciliadores', 'clasificacion_archivo', 'tipo_solicitud_id', 'clasificacion_archivos_Representante', 'giros'));
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits', 'municipios', 'motivo_excepciones', 'conciliadores', 'clasificacion_archivo', 'tipo_solicitud_id', 'clasificacion_archivos_Representante', 'giros'));
     }
 
     /**
@@ -937,17 +921,47 @@ class SolicitudController extends Controller {
         try {
             $doc = collect();
             $solicitud = Solicitud::with('expediente', 'giroComercial', 'estatusSolicitud', 'centro', 'tipoIncidenciaSolicitud', 'giroComercial.ambito', 'objeto_solicitudes')->find($id);
-            $partes = $solicitud->partes()->with('dato_laboral', 'domicilios', 'contactos', 'lenguaIndigena')->get();
+            $partes = $solicitud->partes()->with(['dato_laboral', 'domicilios'=>function($q){$q->limit(1);}, 'contactos', 'lenguaIndigena'])->get();
             //Consulta de solicitud con relaciones
 
             $solicitantes = $partes->where('tipo_parte_id', 1);
 
             foreach ($solicitantes as $key => $value) {
                 $solicitantes[$key]["activo"] = 1;
+                $documentos = $value->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->id = $documento->id;
+                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                    $documento->parte = $value->nombre . " " . $value->primer_apellido . " " . $value->segundo_apellido;
+                    $documento->tipo_doc = 2;
+                    $doc->push($documento);
+                }
             }
             $solicitados = $partes->where('tipo_parte_id', 2);
             foreach ($solicitados as $key => $value) {
                 $solicitados[$key]["activo"] = 1;
+                $documentos = $value->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->id = $documento->id;
+                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                    $documento->parte = $value->nombre . " " . $value->primer_apellido . " " . $value->segundo_apellido;
+                    $documento->tipo_doc = 2;
+                    $doc->push($documento);
+                }
+            }
+            $representantes = $partes->where('tipo_parte_id', 3);
+            foreach ($representantes as $key => $value) {
+                $documentos = $value->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->id = $documento->id;
+                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                    $documento->parte = $value->nombre . " " . $value->primer_apellido . " " . $value->segundo_apellido;
+                    $documento->tipo_doc = 2;
+                    $doc->push($documento);
+                }
             }
             $solicitud["solicitados"] = $solicitados;
             $solicitud["solicitantes"] = $solicitantes;
@@ -979,31 +993,31 @@ class SolicitudController extends Controller {
             } else {
                 $audiencias = array();
             }
-            $partes = array();
-            foreach ($solicitud->partes as $key => $parte) {
-                $parte->tipoParte = $parte->tipoParte;
-                $parte->domicilios = $parte->domicilios()->first();
-                //            dd($parte);
-                $partes[$key] = $parte;
-                $documentos = $parte->documentos;
-                foreach ($documentos as $documento) {
-                    $documento->id = $documento->id;
-                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
-                    $documento->parte = $parte->nombre . " " . $parte->primer_apellido . " " . $parte->segundo_apellido;
-                    $documento->tipo_doc = 2;
-                    $doc->push($documento);
-                }
-            }
+            // $partes = array();
+            // foreach ($solicitud->partes as $key => $parte) {
+            //     $parte->tipoParte = $parte->tipoParte;
+            //     // $parte->domicilios = $parte->domicilios->last();
+            //     //            dd($parte);
+            //     // $partes[$key] = $parte;
+            //     $documentos = $value->documentos;
+            //     foreach ($documentos as $documento) {
+            //         $documento->id = $documento->id;
+            //         $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+            //         $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+            //         $documento->parte = $value->nombre . " " . $value->primer_apellido . " " . $value->segundo_apellido;
+            //         $documento->tipo_doc = 2;
+            //         $doc->push($documento);
+            //     }   
+            // }
 
-            $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ? $solicitud->tipo_solicitud_id : 1;
-            if ($tipo_solicitud_id == 1) {
-                $tipo_objeto_solicitudes_id = 1;
-            } else if ($tipo_solicitud_id == 2) {
-                $tipo_objeto_solicitudes_id = 2;
-            } else {
-                $tipo_objeto_solicitudes_id = 3;
-            }
+            // $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ? $solicitud->tipo_solicitud_id : 1;
+            // if ($tipo_solicitud_id == 1) {
+            //     $tipo_objeto_solicitudes_id = 1;
+            // } else if ($tipo_solicitud_id == 2) {
+            //     $tipo_objeto_solicitudes_id = 2;
+            // } else {
+            //     $tipo_objeto_solicitudes_id = 3;
+            // }
 
             // dd(Conciliador::all()->persona->full_name());
             $conciliadores = array_pluck(Conciliador::with('persona')->get(), "persona.nombre", 'id');
@@ -1533,7 +1547,7 @@ class SolicitudController extends Controller {
                     $domicilio_citado = null;
                     foreach ($partes as $parte) {
                         if ($parte->tipo_parte_id == 2) {
-                            $domicilio_citado = $parte->domicilios()->first();
+                            $domicilio_citado = $parte->domicilios->last();
                             break;
                         }
                     }
