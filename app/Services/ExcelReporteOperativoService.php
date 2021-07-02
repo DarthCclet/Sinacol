@@ -52,8 +52,8 @@ class ExcelReporteOperativoService
     public function __construct(ReporteOperativoService $service)
     {
         $this->service = $service;
-        $this->centros_activos = Centro::whereNotNull('desde')->get()->pluck('abreviatura')
-            ->sortBy('abreviatura')->toArray();
+        $this->centros_activos = Centro::whereNotNull('desde')->orderBy('abreviatura')->get()->pluck('abreviatura')
+            ->toArray();
 
         $this->conciliadores = Conciliador::with('persona')->has('audiencias')->get()->map(function ($conciliador){
             return (object)[
