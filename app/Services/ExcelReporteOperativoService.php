@@ -697,9 +697,12 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('D'.$row_indicador, '=ROUND(C'.$row_indicador."/B".$row_indicador.",2)");
 
         // Gráficas
+        // CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)
+        // NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)
+        // RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)
         $this->pay($sheet, 'H'.($row_inicio -2),'P'.$row_indicador, 'CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)',($row_inicio -2),$row_indicador, ($row_inicio -2));
-        $this->columnasApiladas($sheet, 'Q'.($row_inicio -2),'Z'.$row_indicador, 'NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)',($row_inicio -2),$row_inicio, $row_indicador);
-        $this->columnas($sheet, 'AA'.($row_inicio -2),'AK'.$row_indicador, 'RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)',($row_inicio -2),$row_inicio, $row_indicador);
+        $this->columnasApiladas($sheet, 'Q'.($row_inicio -2),'Z'.$row_indicador, 'NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)',($row_inicio -2),$row_inicio, $row_indicador);
+        $this->columnas($sheet, 'AA'.($row_inicio -2),'AK'.$row_indicador, 'RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)',($row_inicio -2),$row_inicio, $row_indicador);
 
         ####
         # Por centro: convenios de conciliacón totales (inmediatas y no inmediatas) / convenios de no conciliación totales (inm y no inm)
@@ -754,6 +757,10 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('C'.$row_indicador_totales, '=SUM(C'.$row_inicio_indicador_totales.":C".$row_indicador_totales.")");
         $sheet->setCellValue('D'.$row_indicador_totales, '=ROUND(C'.$row_indicador_totales."/B".$row_indicador_totales.",2)");
 
+        # Gráficos
+        // CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN
+        // NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN
+        // RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN
         $this->pay($sheet, 'H'.($row_inicio_indicador_totales -2),'P'.$row_indicador_totales, 'CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN',($row_inicio_indicador_totales -2),$row_indicador_totales, ($row_inicio_indicador_totales -2));
         $this->columnasApiladas($sheet, 'Q'.($row_inicio_indicador_totales -2),'Z'.$row_indicador_totales, 'NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN',($row_inicio_indicador_totales -2),$row_inicio_indicador_totales, $row_indicador_totales);
         $this->columnas($sheet, 'AA'.($row_inicio_indicador_totales -2),'AK'.$row_indicador_totales, 'RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN',($row_inicio_indicador_totales -2),$row_inicio_indicador_totales, $row_indicador_totales);
@@ -810,13 +817,17 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('E'.$row_indicador_nocomparecencia, '=SUM(E'.$row_inicio_inidicador_nocompetencia.":E".$row_indicador_nocomparecencia.")");
         $sheet->setCellValue('F'.$row_indicador_nocomparecencia, '=ROUND(C'.$row_indicador_nocomparecencia."/(B".$row_indicador_nocomparecencia."-E".$row_indicador_nocomparecencia."),2)");
 
-        $this->pay($sheet, 'H'.($row_inicio_inidicador_nocompetencia -2),'P'.$row_indicador_nocomparecencia, 'CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO Y POR NO COMPARECENCIA DEL CITADO (PROCEDIMIENTO NORMAL)',
+        # Gráficos
+        // CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO Y POR NO COMPARECENCIA DEL CITADO (PROCEDIMIENTO NORMAL)
+        // RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO (PROCEDIMIENTO NORMAL)
+        // NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO Y POR NO COMPARECENCIA DEL CITADO (PROCEDIMIENTO NORMAL)
+        $this->pay($sheet, 'H'.($row_inicio_inidicador_nocompetencia -2),'P'.$row_indicador_nocomparecencia, 'CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO Y POR NO COMPARECENCIA DEL CITADO (PROCEDIMIENTO NORMAL)',
             ($row_inicio_inidicador_nocompetencia -2), $row_indicador_nocomparecencia, ($row_inicio_inidicador_nocompetencia -2), true);
 
-        $this->columnasApiladas($sheet, 'Q'.($row_inicio_inidicador_nocompetencia -2),'Z'.$row_indicador_nocomparecencia, 'RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO (PROCEDIMIENTO NORMAL)',
+        $this->columnasApiladas($sheet, 'Q'.($row_inicio_inidicador_nocompetencia -2),'Z'.$row_indicador_nocomparecencia, 'NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO Y POR NO COMPARECENCIA DEL CITADO (PROCEDIMIENTO NORMAL)',
             ($row_inicio_inidicador_nocompetencia -2), $row_inicio_inidicador_nocompetencia, $row_indicador_nocomparecencia, true);
 
-        $this->columnas($sheet, 'AA'.($row_inicio_inidicador_nocompetencia -2),'AK'.$row_indicador_nocomparecencia, 'RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO (PROCEDIMIENTO NORMAL)',
+        $this->columnas($sheet, 'AA'.($row_inicio_inidicador_nocompetencia -2),'AK'.$row_indicador_nocomparecencia, 'RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO (PROCEDIMIENTO NORMAL)',
             ($row_inicio_inidicador_nocompetencia -2), $row_inicio_inidicador_nocompetencia, $row_indicador_nocomparecencia, true);
 
     }
