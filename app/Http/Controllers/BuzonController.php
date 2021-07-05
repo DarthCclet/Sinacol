@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\BitacoraBuzon;
 use App\Estado;
+use App\Events\GenerateDocumentResolution;
 use Illuminate\Http\Request;
 use App\Parte;
 use App\Solicitud;
@@ -63,13 +65,18 @@ class BuzonController extends Controller
     public function AccesoBuzon(){
         $partesBusqueda = Parte::where("correo_buzon", $this->request->correo_buzon)->where("password_buzon",$this->request->password_buzon)->get();
         if($partesBusqueda != null){
+            $identificador = "";
             if($partesBusqueda[0]->tipo_persona_id == 1){
+                $identificador = $partesBusqueda[0]->curp;
                 $partes = Parte::where("curp",$partesBusqueda[0]->curp)->get();
             }else{
+                $identificador = $partesBusqueda[0]->rfc;
                 $partes = Parte::where("rfc",$partesBusqueda[0]->rfc)->get();
             }
             $solicitudes = [];
-            foreach($partes as $parte){
+            foreach($partes as $parte){         
+                // BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento (Nombre documento)','tipo_movimiento'=>'Documento']);
+                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Consulta de buzón','tipo_movimiento'=>'Consulta','clabe_identificacion'=>$identificador]);
                 $solicitud = $parte->solicitud;
                 if($solicitud->expediente != null){
                     $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
@@ -201,5 +208,21 @@ class BuzonController extends Controller
             $respuesta = Cache::get($nombre);
         }
         return $respuesta;
+    }
+
+    public function getBitacoraBuzonParte($parte_id){
+        $bitacora = BitacoraBuzon::where('parte_id',$parte_id)->get();
+        return $this->sendResponse($bitacora, 'SUCCESS');
+    }
+    public function generarConstanciaBuzon($parte_id){
+        $parte = Parte::find($parte_id);
+        $solicitud = $parte->solicitud;
+        if($parte->tipo_parte_id == 1){
+            event(new GenerateDocumentResolution("", $solicitud->id, 60, 25,$parte->id));
+        }else{
+            event(new GenerateDocumentResolution("", $solicitud->id, 63, 26,null,$parte->id));
+        }
+        
+        return $this->sendResponse([], 'SUCCESS');
     }
 }
