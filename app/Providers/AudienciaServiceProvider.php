@@ -61,30 +61,37 @@ class AudienciaServiceProvider extends ServiceProvider
                 if ($bandera) {
                     //Se consulta comparecencia de solicitante
                     $parteS = $solicitante->parte;
+                    $comparecienteSol = null;
                     if ($parteS->tipo_persona_id == 2) {//solicitante moral
-                        $compareciente_parte = Parte::where("parte_representada_id", $parteS->id)->first();
-                        if ($compareciente_parte != null) {
-                            $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->first();
-                        } else {
-                            $comparecienteSol = null;
+                        $compareciente_partes = Parte::where("parte_representada_id", $parteS->id)->get();
+                        foreach ($compareciente_partes as $key => $compareciente_parte) {
+                            $comparecienteSolicitud = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
+                            if($comparecienteSolicitud != null){
+                                $comparecienteSol = $comparecienteSolicitud;
+                            }
                         }
+                        
                     } else {//solicitante fisica
-                        $compareciente_parte = Parte::where("parte_representada_id", $parteS->id)->first();
-                        if ($compareciente_parte != null) {
-                            $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                        $compareciente_partes = Parte::where("parte_representada_id", $parteS->id)->get();
+                        if (count($compareciente_partes) > 0) {
+                            foreach ($compareciente_partes as $key => $compareciente_parte) {
+                                $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
+                            }
                         } else {
-                            $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
+                            $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->where('audiencia_id',$audiencia->id)->first();
                         }
-                            
                     }
                     //Se consulta comparecencia de citado
                     $comparecienteCit = null;
-                    $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+                    $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->where('audiencia_id',$audiencia->id)->first();
                     if ($comparecienteCit == null) {
-                        $compareciente_parte = Parte::where("parte_representada_id", $solicitado->parte_id)->first();
-                        if($compareciente_parte){
-                            $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
-                        }
+                        $compareciente_partes = Parte::where("parte_representada_id", $solicitado->parte_id)->get();
+                        foreach ($compareciente_partes as $key => $compareciente_parte) {
+                            $comparecienteCitado = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
+                            if($comparecienteCitado != null){
+                                $comparecienteCit = $comparecienteCitado;
+                            }
+                        } 
                     }
 
                     $terminacion = 1;
@@ -97,17 +104,17 @@ class AudienciaServiceProvider extends ServiceProvider
                         if ($parte->tipo_persona_id == 2) {
                             $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
                             if ($compareciente_parte != null) {
-                                $compareciente = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                                $compareciente = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
                             } else {
                                 $compareciente = null;
                             }
                         } else {
                             $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
                             if ($compareciente_parte != null) {
-                                $compareciente = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                                $compareciente = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
                             } else {
                                 // $compareciente = null;
-                                $compareciente = Compareciente::where('parte_id', $solicitado->parte_id)->first();
+                                $compareciente = Compareciente::where('parte_id', $solicitado->parte_id)->where('audiencia_id',$audiencia->id)->first();
                             }
                         }
                     } else if ($audiencia->resolucion_id == 1) {// Hubo convenio
@@ -141,7 +148,6 @@ class AudienciaServiceProvider extends ServiceProvider
                             $compareciente_parte = Parte::where("parte_representada_id", $parte->id)->first();
                             if ($compareciente_parte != null) {
                                 $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
-                                // dd($comparecienteCit);
                             } else {
                                 $comparecienteCit = null;
                             }

@@ -1488,15 +1488,18 @@ class AudienciaController extends Controller {
         foreach ($solicitantes as $solicitante) {
             foreach ($solicitados as $solicitado) {
                 $existeRes = ResolucionPartes::where('parte_solicitante_id',$solicitante->parte_id)->where('parte_solicitada_id',$solicitado->parte_id)->where('audiencia_id',$audiencia->id)->first();
+
                 if ($existeRes == null) {
                     //Se consulta comparecencia de solicitante
                     $parteS = $solicitante->parte;
+                    $comparecienteSol = null;
                     if ($parteS->tipo_persona_id == 2) {
-                        $compareciente_parte = Parte::where("parte_representada_id", $parteS->id)->first();
-                        if ($compareciente_parte != null) {
-                            $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->first();
-                        } else {
-                            $comparecienteSol = null;
+                        $compareciente_partes = Parte::where("parte_representada_id", $parteS->id)->first();
+                        foreach ($compareciente_partes as $key => $compareciente_parte) {
+                            $comparecienteSolicitud = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
+                            if($comparecienteSolicitud != null){
+                                $comparecienteSol = $comparecienteSolicitud;
+                            }
                         }
                     } else {
                         $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->first();
@@ -1505,9 +1508,13 @@ class AudienciaController extends Controller {
                     $comparecienteCit = null;
                     $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
                     if ($comparecienteCit == null) {
-                        $compareciente_parte = Parte::where("parte_representada_id", $solicitado->parte_id)->first();
-                        if($compareciente_parte){
-                            $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
+                        $compareciente_partes = Parte::where("parte_representada_id", $solicitado->parte_id)->get();
+                        if (count($compareciente_partes) > 0) {
+                            foreach ($compareciente_partes as $key => $compareciente_parte) {
+                                $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
+                            }
+                        } else {
+                            $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->where('audiencia_id',$audiencia->id)->first();
                         }
                     }
 
@@ -1570,10 +1577,13 @@ class AudienciaController extends Controller {
                         $comparecienteCit = null;
                         $comparecienteCit = Compareciente::where('parte_id', $solicitado->parte_id)->first();
                         if ($comparecienteCit == null) {
-                            $compareciente_parte = Parte::where("parte_representada_id", $solicitado->parte_id)->first();
-                            if($compareciente_parte){
-                                $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->first();
-                            }
+                            $compareciente_partes = Parte::where("parte_representada_id", $solicitado->parte_id)->get();
+                            foreach ($compareciente_partes as $key => $compareciente_parte) {
+                                $comparecienteCitado = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
+                                if($comparecienteCitado != null){
+                                    $comparecienteCit = $comparecienteCitado;
+                                }
+                            } 
                         }
                         
                         //Termina consulta comparecencia de citado
