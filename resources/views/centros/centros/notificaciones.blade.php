@@ -5,6 +5,7 @@
 @include('includes.component.datatables')
 @include('includes.component.pickers')
 
+
 @section('content')
 
 <!-- begin breadcrumb -->
@@ -470,7 +471,7 @@
     function cambiarDatos(solicitud_id){
         $("#solicitud_id").val(solicitud_id);
         loadCitados();
-        
+        cargarEditarCitado(0);
     }
 </script>
 @endpush
