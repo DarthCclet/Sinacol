@@ -265,6 +265,8 @@ Route::get('acta_bitacora/{parte_id}','BuzonController@generarConstanciaBuzon');
 Route::get('validar_token/{token}/{correo}','BuzonController@validar_token');
 Route::resource('etapa_resolucion_audiencia','EtapaResolucionAudienciaController');
 Route::get('acceso_buzon','BuzonController@AccesoBuzon')->name('acceso_buzon');
+Route::post('buzon/uploadJustificante', 'AudienciaController@uploadJustificante');
+
 
 Auth::routes(['register' => false]);
 
