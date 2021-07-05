@@ -14,7 +14,7 @@
     <br>
     <br>
     <div class="row">
-        <input type="hidden" name='id' value='{{(isset($id))?$id:''}}'>
+        <input type="hidden" name='id' id="id_expediente" value='{{(isset($id))?$id:''}}'>
         <input type="hidden" name='type' id="type" value='pre'>
         <div class="col-md-1"></div>
         <div class="col-md-10">
@@ -127,6 +127,7 @@
                 "oficio-header": "",
                 "oficio-body": tinyMCE.get('oficio-body').getContent(),
                 "oficio-footer": "",
+                "id": $("#id_expediente").val(),
                 _token:"{{ csrf_token() }}"
             },
             success:function(data){
