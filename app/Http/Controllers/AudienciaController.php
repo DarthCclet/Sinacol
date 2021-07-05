@@ -2983,7 +2983,7 @@ class AudienciaController extends Controller {
                 "clasificacion_archivo_id" => $clasificacion->id,
             ]);
 //            DB::commit();
-            return redirect()->back()->with('success', 'Se solicitó la cancelación');
+            return redirect()->back()->with('success', 'Se solicitó la reprogramación');
 //        } catch (\Throwable $e) {
 //            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
 //                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
