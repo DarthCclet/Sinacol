@@ -11,6 +11,7 @@ use App\AudienciaParte;
 use App\ClasificacionArchivo;
 use App\DatoLaboral;
 use App\Domicilio;
+use App\Events\GenerateDocumentResolution;
 use App\Filters\ParteFilter;
 use App\Solicitud;
 use Carbon\Carbon;
@@ -796,6 +797,7 @@ class ParteController extends Controller
 
     public function aceptar_buzon(Request $request){
         $parte = Parte::find($request->parte_id);
+        $solicitud = $parte->solicitud;
         $notificacion_buzon = $request->acepta_buzon;
         if($parte){   
             if($notificacion_buzon == "true"){
@@ -805,10 +807,20 @@ class ParteController extends Controller
             }
             if($notificacion_buzon){
                 //Genera acta de aceptacion de buzón
+                if($parte->tipo_parte_id == 1){
+                    event(new GenerateDocumentResolution("", $solicitud->id, 62, 19,$parte->id));
+                }else{
+                    event(new GenerateDocumentResolution("", $solicitud->id, 62, 20,null,$parte->id));
+                }
             }else{
                 $existe = $parte->documentos()->where('clasificacion_archivo_id',1)->first();
                 if($existe == null){
                     //Genera acta de no aceptacion de buzón
+                    if($parte->tipo_parte_id == 1){
+                        event(new GenerateDocumentResolution("", $solicitud->id, 60, 22,$parte->id));
+                    }else{
+                        event(new GenerateDocumentResolution("", $solicitud->id, 60, 23,null,$parte->id));
+                    }
                 }
             }
             return $this->sendResponse($parte, 'SUCCESS');

@@ -143,23 +143,30 @@
                                     <td class="text-nowrap">
                                         <strong>Documentos por firmar:</strong>
                                         <ul>
-                                            @foreach($audiencia->documentos_firmar as $doc)
-                                            @if($doc->firma == "" && $doc->firma == null)
-                                            @if(isset($doc->documento->clasificacionArchivo) && $doc->documento->clasificacionArchivo->nombre != "Citatorio")
-                                            <li>
-                                                <a href="#" onclick="validarFirma({{$doc->id}},'{{$doc->firma}}','{{$doc->documento->uuid}}')">{{$doc->documento->clasificacionArchivo->nombre}}</a>
-                                            </li>
+                                            @if($audiencia->documentos_firmar)
+                                                @foreach($audiencia->documentos_firmar as $doc)
+                                                @if($doc->firma == "" && $doc->firma == null)
+                                                @if(isset($doc->documento->clasificacionArchivo) && $doc->documento->clasificacionArchivo->nombre != "Citatorio")
+                                                <li>
+                                                    <a href="#" onclick="validarFirma({{$doc->id}},'{{$doc->firma}}','{{$doc->documento->uuid}}')">{{$doc->documento->clasificacionArchivo->nombre}}</a>
+                                                </li>
+                                                @endif
+                                                @endif
+                                                @endforeach
                                             @endif
-                                            @endif
-                                            @endforeach
                                         </ul>
                                     </td>
                                 </tr>
                             </table>
                         </li>
+                        
                         @endforeach
                         @endif
                     </ul>
+                    <div>
+                            <button class="btn btn-primary" onclick="getBitacoraBuzon({{$solicitud->parte->id}})">Consultar Bitacora</button>
+                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -293,6 +300,7 @@
     </div>
 </div>
 <input type="hidden" id="parte_idHDD">
+@include('buzon.modal_bitacora')
 @endsection
 @push('scripts')
 <script type="text/javascript">
