@@ -1433,6 +1433,7 @@ class SolicitudController extends Controller {
                         $parte->notificacion_buzon = true;
                         $parte->fecha_aceptacion_buzon = now();
                         $parte->update();
+                        event(new GenerateDocumentResolution("", $solicitud->id, 62, 19,$parte->id));
                     }
                 }
                 $tipo_notificacion_id = null;
