@@ -31,7 +31,7 @@
                     <div class="col-md-9">&nbsp;</div>
                     <div class="col-md-3">
                         <div class="input-group">
-                            <input type="text" class="form-control" name="q" id="q" value="{{$expediente ?? ''}}" placeholder="Buscar expediente"> 
+                            <input type="text" class="form-control" name="q" id="q" value="{{$expediente ?? ''}}" placeholder="Buscar expediente">
                             <span class="input-group-btn">
                                 <button type="submit" class="btn btn-default">
                                     <span class="fa fa-search"></span>
@@ -258,7 +258,7 @@
             swal({
             title: 'Error',
                     text: 'No se Envio la notificación',
-                    icon: 'success'
+                    icon: 'error'
             });
             }
             } catch (error){

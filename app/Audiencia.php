@@ -132,4 +132,19 @@ class Audiencia extends Model implements Auditable
     public function etapa_notificacion(){
         return $this->belongsTo(EtapaNotificacion::class)->withDefault(["etapa" => "N/A"]);
     }
+    public function getEsUltimaAttribute(){
+      $num_total = $this->expediente->audiencia->count();
+      if($num_total == $this->numero_audiencia){
+        return true;
+      }
+      return false;
+  }
+
+    /**
+     * Relación con el catálogo de tipo de terminaciones de audiencias
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function tipoTerminacion(){
+        return $this->belongsTo(TipoTerminacionAudiencia::class, 'tipo_terminacion_audiencia_id');
+    }
 }
