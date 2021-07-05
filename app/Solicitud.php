@@ -222,5 +222,13 @@ class Solicitud extends Model implements Auditable
         $resultado = self::DIAS_EXPIRACION - $dias;
         return $resultado;
     }
-    
+
+    /**
+     * Relación con el usuario que captura inicialmente esta solicitud.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function usuarioCaptura()
+    {
+        return $this->belongsTo(User::class, 'captura_user_id');
+    }
 }
