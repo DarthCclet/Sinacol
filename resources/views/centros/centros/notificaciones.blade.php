@@ -470,6 +470,7 @@
     function cambiarDatos(solicitud_id){
         $("#solicitud_id").val(solicitud_id);
         loadCitados();
+        
     }
 </script>
 @endpush
