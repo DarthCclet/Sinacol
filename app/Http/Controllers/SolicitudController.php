@@ -146,7 +146,7 @@ class SolicitudController extends Controller {
                 } else {
                     $total = Solicitud::count();
                 }
-                
+
                 $draw = $this->request->get('draw');
                 return $this->sendResponseDatatable($total, $filtered, $draw, $solicitud, null);
             }
@@ -161,7 +161,7 @@ class SolicitudController extends Controller {
             return redirect('solicitudes')->with('error', 'Error al consultar la solicitud');
         }
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -1430,6 +1430,8 @@ class SolicitudController extends Controller {
                 foreach ($solicitud->partes as $key => $parte) {
                     if (count($parte->documentos) == 0) {
                         $parte->ratifico = true;
+                        $parte->notificacion_buzon = true;
+                        $parte->fecha_aceptacion_buzon = now();
                         $parte->update();
                     }
                 }
@@ -2009,7 +2011,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no tiene audiencias, crear incompetencia en proceso de confirmación ', 'Error');
                 }
             }
-            
+
             if($request->tipo_incidencia_solicitud_id == 7){
                 if ($solicitud->expediente && $solicitud->expediente->audiencia) {
                     event(new GenerateDocumentResolution($solicitud->expediente->audiencia()->orderBy('id','desc')->first()->id,$solicitud->id,61,24,null,null));
@@ -2018,7 +2020,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no esta confirmada, no se puede realizar este proceso ', 'Error');
                 }
             }
-            
+
             DB::commit();
             return $this->sendResponse($solicitud, 'SUCCESS');
         } catch (Exception $e) {
