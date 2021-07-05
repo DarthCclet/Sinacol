@@ -99,7 +99,7 @@ class SendNotificacion
                         $nombre = $parte->nombre_comercial;
                         $sexo = "";
                     }
-                    $domicilio = $parte->domicilios->first();
+                    $domicilio = $parte->domicilios()->orderBy("id","desc")->first();
                     $arreglo["Actores"][] = array(
                         "actor_id" => $parte->id,
                         "nombre" => $nombre,
@@ -132,7 +132,7 @@ class SendNotificacion
                     }else{
                         $nombre = $parte->nombre_comercial;
                     }
-                    $domicilio = $parte->domicilios->first();
+                    $domicilio = $parte->domicilios()->orderBy("id","desc")->first();
                     $arreglo["Demandados"][] = array(
                         "demandado_id" => $parte->id,
                         "actuario_id" => 999999,

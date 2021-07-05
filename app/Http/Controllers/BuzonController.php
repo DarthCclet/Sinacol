@@ -54,7 +54,7 @@ class BuzonController extends Controller
                 $composicion = base64_encode($token)."/".base64_encode($correo);
                 $liga = env('APP_URL')."/validar_token/".$composicion;
                 Mail::to($correo)->send(new AccesoBuzonMail($parte,$liga));
-                return array(["correo" => true,"mensaje" => 'Se envio un correo con el acceso a la dirección '.$correo]);                
+                return array(["correo" => true,"mensaje" => 'Se envio un correo con el acceso a la dirección '.$correo]);
             }else{
                 return array(["correo" => false,"mensaje" => 'No hay correos registrados']);
             }
@@ -87,12 +87,8 @@ class BuzonController extends Controller
                     $solicitudes[]=$solicitud;
                 }
             }
-            $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
-            $estados = Estado::all();
-            $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
-            $municipios = array_pluck(Municipio::all(),'municipio','id');
-           
-            return view("buzon.buzon", compact('solicitudes','tipos_asentamientos','estados','tipos_vialidades','municipios'));
+
+            return view("buzon.buzon", compact('solicitudes'));
         }else{
             return redirect()->back();
         }
@@ -115,20 +111,18 @@ class BuzonController extends Controller
                         if($solicitud->expediente != null){
                             $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
                             $solicitud->parte = $parte;
+                            $solicitud->acepto_buzon = "no";
+                            if($parte->notificacion_buzon){
+                                $solicitud->acepto_buzon = "si";
+                            }
                             foreach($solicitud->expediente->audiencia as $audiencia){
                                 $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
                                 $audiencia->documentos_firmar = $parte->firmas()->where("audiencia_id",$audiencia->id)->get();
                             }
-                            
                             $solicitudes[]=$solicitud;
                         }
                     }
-                    $tipos_asentamientos = $this->cacheModel('tipos_asentamientos',TipoAsentamiento::class);
-                    $estados = Estado::all();
-                    $tipos_vialidades = $this->cacheModel('tipos_vialidades',TipoVialidad::class);
-                    $municipios = array_pluck(Municipio::all(),'municipio','id');
-                    
-                    return view("buzon.buzon", compact('solicitudes','tipos_asentamientos','estados','tipos_vialidades','municipios'));
+                    return view("buzon.buzon", compact('solicitudes'));
                 }else{
                     return view("buzon.solicitud")->with("Error","Correo del que ingresas no coincide con el token");
                 }
@@ -169,7 +163,7 @@ class BuzonController extends Controller
                 }
             }
         }
-        
+
         $SolicitudAud = $SolicitudAud->sortBy('created_at');
         $audits = array();
         foreach ($SolicitudAud as $audit) {
@@ -182,7 +176,7 @@ class BuzonController extends Controller
                     $extra = $parte->nombre." ".$parte->primer_apellido." ".$parte->segundo_apellido;
                 }else{
                     $extra = $parte->nombre_comercial;
-                }                
+                }
             }else if($audit->auditable_type == 'App\Audiencia'){
                 $table = "Audiencia";
             }else if($audit->auditable_type == 'App\Expediente'){
