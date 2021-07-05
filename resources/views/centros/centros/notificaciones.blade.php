@@ -5,6 +5,7 @@
 @include('includes.component.datatables')
 @include('includes.component.pickers')
 
+
 @section('content')
 
 <!-- begin breadcrumb -->
@@ -26,26 +27,26 @@
     <!-- begin panel-body -->
     <div class="panel-body">
         <!--<div class="container">-->
-            <form action="/notificaciones/search" method="GET" role="search" id="frmBuscar">
-                <div class="col-md-12 row">
-                    <div class="col-md-9">&nbsp;</div>
-                    <div class="col-md-3">
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="q" id="q" value="{{$expediente ?? ''}}" placeholder="Buscar expediente">
-                            <span class="input-group-btn">
-                                <button type="submit" class="btn btn-default">
-                                    <span class="fa fa-search"></span>
-                                </button>
-                            </span>
-                            <span class="input-group-btn">
-                                <button type="button" id="btnLimpiarFiltro" class="btn btn-default">
-                                    <span class="fa fa-eraser"></span>
-                                </button>
-                            </span>
-                        </div>
+        <form action="/notificaciones/search" method="GET" role="search" id="frmBuscar">
+            <div class="col-md-12 row">
+                <div class="col-md-9">&nbsp;</div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="q" id="q" value="{{$expediente ?? ''}}" placeholder="Buscar expediente">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-default">
+                                <span class="fa fa-search"></span>
+                            </button>
+                        </span>
+                        <span class="input-group-btn">
+                            <button type="button" id="btnLimpiarFiltro" class="btn btn-default">
+                                <span class="fa fa-eraser"></span>
+                            </button>
+                        </span>
                     </div>
                 </div>
-            </form>
+            </div>
+        </form>
         <!--</div>-->
         <table class="table table-bordered table-striped table-hover" id="data-table-default">
             <thead>
@@ -56,6 +57,7 @@
                     <th>Evento origén</th>
                     <th>Fecha de petición</th>
                     <th>Notificada</th>
+                    <th>Cambios</th>
                     <th>Envio de petición</th>
                 </tr>
             </thead>
@@ -95,6 +97,11 @@
                     @else
                     <td>No</td>
                     @endif
+                    <td>
+                        <button onclick="cambiarDatos({{$parte->audiencia->expediente->solicitud_id}})" class="btn btn-xs btn-primary incidencia" title="Cambiar Nombre">
+                            <i class="fa fa-user"></i>
+                        </button>
+                    </td>
                     <td>
                         @if($parte->audiencia->expediente->solicitud->fecha_peticion_notificacion != null)
                         Enviada
@@ -204,13 +211,14 @@
         </div>
     </div>
 </div>
-
+<input type="hidden" id="solicitud_id">
+@include('includes.component.parte-domicilio')
 @endsection
 @push('scripts')
 <script>
-    $("#btnLimpiarFiltro").on("click",function(){
-        $("#q").val("");
-        $("#frmBuscar").submit();
+    $("#btnLimpiarFiltro").on("click", function(){
+    $("#q").val("");
+    $("#frmBuscar").submit();
     });
     function enviar_notificacion(audiencia_id, audiencia_parte_id){
     swal({
@@ -357,6 +365,113 @@
             }
             }
     });
+    }
+    function cambiar_nombre(parte_id,audiencia_parte_id,tipo_persona_id,nombre,primer_apellido,segundo_apellido,nombre_comercial){
+        $.get( "/validar_cambio/"+audiencia_parte_id, function( data ) {
+            if(data.pasa){
+                if(tipo_persona_id == 1){
+                    $("#divFisica").show();
+                    $("#divMoral").hide();
+                }else{
+                    $("#divFisica").hide();
+                    $("#divMoral").show();
+                }
+                $("#nombre").val(nombre);
+                $("#primer_apellido").val(primer_apellido);
+                $("#segundo_apellido").val(segundo_apellido);
+                $("#nombre_comercial").val(nombre_comercial);
+                $("#parte_id").val(parte_id);
+                $("#audiencia_parte_id").val(audiencia_parte_id);
+                $("#tipo_persona_id").val(tipo_persona_id);
+                $("#modalCambioNombre").modal("show");
+            }else{
+                swal("Error!",data.mensaje,"error");
+            }
+        });
+    }
+    $("#btnModificarNombre").on("click",function(){
+        if(validarCambioNombre()){
+                swal({
+                    title: '¿Está seguro?',
+                    text: 'Al oprimir el botón de aceptar se enviara la solicitud de notificación con los nuevos datos',
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'Cancelar',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true,
+                        },
+                        confirm: {
+                            text: 'Aceptar',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-warning',
+                            closeModal: true
+                        }
+                    }
+                }).then(function(isConfirm){
+                    if (isConfirm){
+                        $.ajax({
+                            url:"/modificar_nombre",
+                            type:"POST",
+                            dataType:"json",
+                            async:true,
+                            data:{
+                                parte_id:$("#parte_id").val(),
+                                audiencia_parte_id:$("#audiencia_parte_id").val(),
+                                nombre:$("#nombre").val(),
+                                primer_apellido:$("#primer_apellido").val(),
+                                segundo_apellido:$("#segundo_apellido").val(),
+                                nombre_comercial:$("#nombre_comercial").val(),
+                                _token:"{{ csrf_token() }}"
+                            },
+                            success:function(data){
+                                try{
+                                    if (data != null){
+                                        swal("Exito!","Se realizo el cambio y se envio la notificación","success");
+                                        setTimeout(function(){ location.reload(); }, 3000);
+                                    }
+                                }catch(error){
+                                        swal("Error!","Algo salio mal","error");
+                                }
+                            }
+                        });
+                    }
+                });
+            }else{
+                swal("Error!","Llena todos los campos","error");
+            }
+        });
+    function validarCambioNombre(){
+        var pasa = true;
+        if($("#tipo_persona_id").val() == 1){
+            if($("#nombre").val() == "" || $("#primer_apellido").val() == "" || $("#segundo_apellido").val() == "" ){
+                pasa = false;
+            }
+        }else{
+            if($("#nombre_comercial").val() == ""){
+                pasa = false;
+            }
+        }
+        return pasa;
+    }
+    function cambiar_domicilio(parte_id,audiencia_parte_id){
+        $.get( "/validar_cambio/"+audiencia_parte_id, function( data ) {
+            if (data.pasa) {
+                $("#parte_id").val(parte_id);
+                $("#audiencia_parte_id").val(audiencia_parte_id);
+                $("#modalCambioDomicilio").modal("show");
+            }else{
+                swal("Error!",data.mensaje,"error");
+            }
+        });
+    }
+    function cambiarDatos(solicitud_id){
+        $("#solicitud_id").val(solicitud_id);
+        loadCitados();
+        cargarEditarCitado(0);
     }
 </script>
 @endpush

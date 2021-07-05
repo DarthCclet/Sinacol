@@ -33,16 +33,13 @@
                                 @foreach($solicitud->partes as $parte)
                                 @if($parte->tipo_parte_id == 2)
                                 <tr>
-                                    <td class="text-nowrap" colspan="3">
+                                    <td class="text-nowrap" colspan="5">
                                         <br>
                                                 @if($parte->tipo_persona_id == 1)
                                                 - {{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}
                                                 @else
                                                 - {{$parte->nombre_comercial}}
                                                 @endif
-                                    </td>
-                                    <td class="text-nowrap" colspan="2">
-                                        <button class="btn btn-primary" onclick="cambiarDomicilio({{$parte->id}})">Verificar domicilio</button>
                                     </td>
                                 </tr>
                                 @endif
@@ -73,7 +70,7 @@
                                 @if($solicitud->expediente != null)
                                     @if(count($solicitud->expediente->audiencia) > 0)
                                         @if(!$solicitud->expediente->audiencia[0]->solicitud_cancelacion && !$solicitud->expediente->audiencia[0]->finalizada)
-                                        <button class="btn btn-primary btn-small pull-right" onclick="reprogramarAudiencia({{$solicitud->expediente->audiencia[0]->id}})">Reprogramar audiencia </button>
+                                        <button class="btn btn-primary btn-small pull-right" onclick="reprogramarAudiencia({{$solicitud->expediente->audiencia[0]->id}},'{{$solicitud->acepto_buzon}}')">Reprogramar audiencia </button>
                                         @endif
                                     @endif
                                 @endif
@@ -143,23 +140,30 @@
                                     <td class="text-nowrap">
                                         <strong>Documentos por firmar:</strong>
                                         <ul>
-                                            @foreach($audiencia->documentos_firmar as $doc)
-                                            @if($doc->firma == "" && $doc->firma == null)
-                                            @if(isset($doc->documento->clasificacionArchivo) && $doc->documento->clasificacionArchivo->nombre != "Citatorio")
-                                            <li>
-                                                <a href="#" onclick="validarFirma({{$doc->id}},'{{$doc->firma}}','{{$doc->documento->uuid}}')">{{$doc->documento->clasificacionArchivo->nombre}}</a>
-                                            </li>
+                                            @if($audiencia->documentos_firmar)
+                                                @foreach($audiencia->documentos_firmar as $doc)
+                                                @if($doc->firma == "" && $doc->firma == null)
+                                                @if(isset($doc->documento->clasificacionArchivo) && $doc->documento->clasificacionArchivo->nombre != "Citatorio")
+                                                <li>
+                                                    <a href="#" onclick="validarFirma({{$doc->id}},'{{$doc->firma}}','{{$doc->documento->uuid}}')">{{$doc->documento->clasificacionArchivo->nombre}}</a>
+                                                </li>
+                                                @endif
+                                                @endif
+                                                @endforeach
                                             @endif
-                                            @endif
-                                            @endforeach
                                         </ul>
                                     </td>
                                 </tr>
                             </table>
                         </li>
+                        
                         @endforeach
                         @endif
                     </ul>
+                    <div>
+                            <button class="btn btn-primary" onclick="getBitacoraBuzon({{$solicitud->parte->id}})">Consultar Bitacora</button>
+                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -174,7 +178,7 @@
                 <h2 class="modal-title">Reagendar audiencia</h2>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
-            <form id="fileupload" action="/api/buzon/uploadJustificante" method="POST" enctype="multipart/form-data">
+            <form id="fileupload" action="/buzon/uploadJustificante" method="POST" enctype="multipart/form-data">
                 @csrf
             <div class="modal-body" id="domicilio-form">
                 <div class="row">
@@ -184,8 +188,10 @@
                     </div>
                     <div class="alert alert-muted">
                         Esta opción está habilitada para solicitar el reagendado de la audiencia por causa justificada, en conformidad con al Artículo 684-E fracción IX de la LFT.<br><br>
-
-                        <strong>Nota!</strong> la solicitud de reagendar será validada por el conciliador y una vez aprobada se le avisará nueva fecha por este buzón
+                        <br>
+                        1. Esta petición se encuentra sujeta a aprobación por personal del Centro y sujeta a disponibilidad en su calendario de audiencias.<br>
+                        2. Usted podrá sugerir la fecha en la que desea llevar la audiencia. En caso de que se deba notificar a alguno de los citados por medio de notificador, la nueva fecha deberá ser después de 15 días a partir de la fecha de hoy; en caso contrario, podrá solicitar que la nueva fecha sea después de 6 días a partir de la fecha de hoy.<br>
+                        3. El justificante que cargue en esta plataforma deberá ser un documento en formato. pdf o .jpg y debe contener su firma, explicando el porqué no puede asistir en la fecha actual.<br>
                     </div>
                     <div class="col-md-2">
                     </div>
@@ -196,7 +202,7 @@
                         <div class="col-md-8">
                             <div class="form-group">
                                 <label for="justificante" class="control-label">Justificante</label>
-                                <input type="file" id="justificante" name="justificante" class="form-control" required>
+                                <input type="file" accept=".pdf,.jpg" id="justificante" name="justificante" class="form-control" required>
                                 <p class="help-block">Selecciona el documento que servirá para evaluar la cancelación</p>
                             </div>
                         </div>
@@ -214,26 +220,6 @@
                 </div>
             </div>
             </form>
-        </div>
-    </div>
-</div>
- <div class="modal" id="modal-domicilio" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Domicilio</h2>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body" id="domicilio-form">
-                <input type="hidden" id="domicilio_edit">
-                @include('includes.component.map',['identificador' => 'solicitado','needsMaps'=>"false", 'instancia' => 2])
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal" onclick="domicilioObj2.limpiarDomicilios()"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" onclick="guardarDomicilio()"><i class="fa fa-save"></i> Guardar</button>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -280,7 +266,7 @@
                                 <input type="password" name="password" id='password' class="form-control">
                             </div>
                         </div>
-                    </div>                
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -293,11 +279,17 @@
     </div>
 </div>
 <input type="hidden" id="parte_idHDD">
+@include('buzon.modal_bitacora')
 @endsection
 @push('scripts')
 <script type="text/javascript">
-        function reprogramarAudiencia(id){
-            $("#modal-cancelar").modal('show');
+        function reprogramarAudiencia(id,acepto_buzon){
+            console.log(acepto_buzon);
+            if(acepto_buzon == "si"){
+                $("#modal-cancelar").modal('show');
+            }else{
+                swal("Error","Si desea solicitar esta acción deberá aceptar las notificaciones personales por medio del Buzón Electrónico para efectos de esta solicitud. Favor de comunicarse con el Centro.","error");
+            }
         }
         function DatosLaborales(parte_id){
             $("#parte_id").val(parte_id);
@@ -311,7 +303,7 @@
                         if(data != null && data != ""){
                             $("#dato_laboral_id").val(data.id);
                             // getGiroEditar("solicitante");
-                            
+
                             $("#ocupacion_id").val(data.ocupacion_id);
                             $("#nss").val(data.nss);
                             $("#no_issste").val(data.no_issste);
@@ -374,7 +366,7 @@
                                     $("#clasificacion_archivo_id_representante").val(doc.clasificacion_archivo_id).trigger('change');
                                 }
                             });
-                            
+
                         }else{
                             $("#tipo_documento_id").val("").trigger("change");
                             $("#labelIdentifRepresentante").html("");
@@ -414,93 +406,6 @@
             }
         });
     }
-        function cargarDocumentos(audiencia_id){
-            $.ajax({
-                url:"/audiencia/documentos/"+audiencia_id,
-                type:"GET",
-                dataType:"json",
-                async:true,
-                success:function(data){
-                    try{
-                        if(data != null && data != ""){
-                            var table = "";
-                            var div = "";
-                            $.each(data, function(index,element){
-                                table +='<tr>';
-                                table +='   <td>'+element.nombre_original+'</td>';
-                                table +='   <td>'+element.clasificacionArchivo.nombre+'</td>';
-                                table +='   <td>'+element.created_at+'</td>';
-                                table +='   <td>';
-                                table +='       <button onclick="" class="btn btn-xs btn-primary btnAgregarRepresentante" title="Ver documento">';
-                                table +='        <i class="fa fa-file"></i>';
-                                table +='    </button>';
-                                table +='   </td>';
-                                table +='</tr>';
-                            });
-                            $("#table_documentos tbody").html(table);
-                            $("#modal-documentos").modal("show");
-                        }else{
-                            swal({
-                                title: 'Aviso',
-                                text: 'No hay datos generados para la audiencia',
-                                icon: 'info'
-                            });
-                        }
-                    }catch(error){
-                        console.log(error);
-                    }
-                }
-            });
-        }
-        function cambiarDomicilio(id){
-            $.ajax({
-                url:"/api/getDomicilioParte/"+id,
-                type:"GET",
-                global:false,
-                dataType:"json",
-                success:function(data){
-                    if(data != null && data != ""){
-                        domicilioObj2.cargarDomicilio(data);
-                        $("#parte_idHDD").val(id);
-                        $("#modal-domicilio").modal("show");
-                    }
-                }
-            });
-        }
-        function guardarDomicilio(id){
-            if($("#estado_idsolicitado").val() != "" && $("#municipiosolicitado").val() != "" && $("#cpsolicitado").val() != "" && $("#tipo_asentamiento_idsolicitado").val() != "" && $("#asentamientosolicitado").val() != "" && $("#tipo_vialidad_idsolicitado").val() != "" && $("#vialidadsolicitado").val() != "" && $("#num_extsolicitado").val() != ""){
-                $.ajax({
-                    url:"/api/cambiarDomicilioParte",
-                    type:"POST",
-                    dataType:"json",
-                    data:{
-                        domicilio:domicilioObj2.getDomicilio(),
-                    },
-                    success:function(data){
-                        try{
-
-                            if(data != null && data != ""){
-                                $('#modal-domicilio').modal('hide');
-                                domicilioObj2.limpiarDomicilios();
-                                swal({
-                                    title: 'Éxito',
-                                    text: 'Se cambio el domicilio',
-                                    icon: 'success'
-                                });
-                            }
-                        }catch(error){
-                            console.log(error);
-                        }
-                    }
-                });
-            }else{
-                swal({
-                    title: 'Error',
-                    text: 'Es necesario llenar los campos obligatorios',
-                    icon: 'error'
-                });
-            }
-        }
         function validarFirma(id,firma,uuid){
             console.log(id);
             console.log(firma);

@@ -63,7 +63,7 @@
                             <h4>Domicilio(s)</h4>
                             <hr class="red">
                         </div>
-                        @include('includes.component.map',['identificador' => 'citado','needsMaps'=>"true", 'instancia' => 1])
+                        @include('includes.component.map',['identificador' => 'citado','needsMaps'=>"true", 'instancia' => 2])
                         <div style="margin-top: 2%;" class="col-md-12">
                         </div>
                     </div>
@@ -128,7 +128,7 @@
             $(".personaFisica").hide();
             $("#NombreCCitado").val(arrayCitados[id].nombre_comercial);
         }
-        domicilioObj.cargarDomicilio(arrayCitados[id].domicilios[0]);
+        domicilioObj2.cargarDomicilio(arrayCitados[id].domicilios[0]);
         $("#modal-parte-domicilios").modal("show")
         $("#modal-seleccionar-parte").modal("hide");
     }
@@ -138,6 +138,7 @@
             url:"/partes/getCitados/"+$("#solicitud_id").val(),
             type:"GET",
             dataType:"json",
+            async:false,
             success:function(json){
                 try{
                     if(json.success){
@@ -174,13 +175,13 @@
                 primer_apellido : $("#PrimerACitado").val(),
                 segundo_apellido : $("#SegundoACitado").val(),
                 nombre_comercial : $("#NombreCCitado").val(),
-                domicilio : domicilioObj.getDomicilio(),
+                domicilio : domicilioObj2.getDomicilio(),
                 _token:"{{ csrf_token() }}"
             },
             dataType:"json",
             success:function(json){
                 try{
-                    alert('so');
+                    location.reload();
                 }catch(error){
                     console.log(error);
                 }

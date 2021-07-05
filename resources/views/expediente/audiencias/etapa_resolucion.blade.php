@@ -1479,6 +1479,8 @@
 </div>
 <!-- Fin Modal de Preview-->
 
+@include('includes.component.aceptar_buzon')
+
 <input type="hidden" id="parte_id">
 <input type="hidden" id="parte_representada_id">
 @else
@@ -2295,7 +2297,13 @@
                         if(element.documentos.length >= 1){
                             table +='   <td>';
                             table +='       <div class="col-md-2">';
-                            table +='           <input type="checkbox" value="1" data-parte_id="'+element.id+'" class="checkCompareciente" name="switch1"/>';
+                            if(element.tipo_parte_id == 2 ){
+                                table +='<input type="checkbox" value="1" id="checkCompareciente'+element.id+'" data-parte_id="'+element.id+'" onclick="correoBuzon('+element.id+','+element.id+')" class="checkCompareciente" name="switch1"/>';
+                            }else if(element.tipo_parte_id == 3){
+                                table +='<input type="checkbox" value="1" id="checkCompareciente'+element.id+'" data-parte_id="'+element.id+'" onclick="correoBuzon('+element.parte_representada_id+','+element.id+')" class="checkCompareciente" name="switch1"/>';
+                            }else{
+                                table +='<input type="checkbox" value="1" id="checkCompareciente'+element.id+'" data-parte_id="'+element.id+'" onclick="correoBuzon('+element.id+','+element.id+')" class="checkCompareciente" name="switch1"/>';
+                            }
                             table +='</div>';
                         }else{
                             table +='   <td>Falta identificación</td>';
@@ -2318,8 +2326,10 @@
             }
         });
     }
-    function SelectRepresentanteLegal(representante_id){
 
+    
+
+    function SelectRepresentanteLegal(representante_id){
         $.ajax({
             url:"/representante/"+representante_id,
             type:"GET",

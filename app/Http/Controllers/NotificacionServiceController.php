@@ -41,6 +41,11 @@ class NotificacionServiceController extends Controller {
                             "detalle_id" => $demandado->detalle_id,
                             "fecha_notificacion" => $demandado->fecha_notificacion
                         ]);
+                        if($demandado->finalizado == "FINALIZADO EXITOSAMENTE" || $demandado->finalizado == "EXITOSO POR INSTRUCTIVO"){
+                            Parte::find($parteDemandado->parte_id)->update([
+                                "notificacion_exitosa" => true
+                            ]);
+                        }
                         $image = base64_decode($demandado->documento);
                         $imgMd5 = md5($image);
                         if ($arreglo->tipo_notificacion == "citatorio") {
@@ -161,10 +166,6 @@ class NotificacionServiceController extends Controller {
                 }
                 if (!isset($demandado->detalle_id)) {
                     throw new ParametroNoValidoException("El campo detalle_id es requerido.", 1017);
-                    return null;
-                }
-                if (!isset($demandado->documento)) {
-                    throw new ParametroNoValidoException("El campo documento es requerido.", 1018);
                     return null;
                 }
                 if (!isset($demandado->fecha_notificacion)) {

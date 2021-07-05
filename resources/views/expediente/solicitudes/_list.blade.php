@@ -264,6 +264,14 @@
                         <tbody>
                     </table>
                 </div>
+                <div class="col-md-4">
+                    <div >
+                        <span class="text-muted m-l-5 m-r-20" for='switch1'>Acepto notificacion por buzon</span>
+                    </div>
+                    <div >
+                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="aceptar_notif_buzon" name='aceptar_notif_buzon'/>
+                    </div>
+                </div>
                 <div class="col-md-12" id="divCalendarioCentral">
                     <h5>Calendario de oficina central</h5>
                     <hr class="red">
@@ -1435,13 +1443,17 @@
             error = true;
             msg = "Al menos un solicitante debe presentar documentos para confirmar";
         }
-        if ($("#aradioNotificacionA1").is(":checked")) {
-            var tipo_notificacion_id = 1;
-        } else if ($("#aradioNotificacionB1").is(":checked")) {
-            var tipo_notificacion_id = 2;
-        } else if ($("#aradioNotificacionB2").is(":checked")) {
-            var tipo_notificacion_id = 3;
-        } else {
+        if(!$("#aceptar_notif_buzon").is(":checked") ){
+            error = true;
+            msg = "No se acepto notificacion por buzon";
+        }
+        if($("#aradioNotificacionA1").is(":checked")){
+            var tipo_notificacion_id=1;
+        }else if($("#aradioNotificacionB1").is(":checked")){
+            var tipo_notificacion_id=2;
+        }else if($("#aradioNotificacionB2").is(":checked")){
+           var tipo_notificacion_id=3;
+        }else{
             var tipo_notificacion_id = null;
             msg = "Indica el tipo de notificación para los citados";
             error = true;
@@ -2387,9 +2399,9 @@
             }
         });
     }
-    $("#btnGuardarConvenio").on("click", function () {
-        if ("{{auth()->user()->hasRole('Personal conciliador')}}") {
-            if (ratifican) {
+    $("#btnGuardarConvenio").on("click",function(){
+        if("{{auth()->user()->hasRole('Personal conciliador')}}" && $("#aceptar_notif_buzon").is(":checked")){
+            if(ratifican){
                 $.ajax({
                     url: '/solicitud/correos/' + $("#solicitud_id").val(),
                     type: 'GET',
@@ -2435,12 +2447,21 @@
                     icon: 'warning'
                 });
             }
-        } else {
-            swal({
-                title: 'Error',
-                text: 'La confirmaci&oacute;n de esta solicitud solo se puede realizar por el conciliador que la llevará acabo',
-                icon: 'warning'
-            });
+        }else{
+            
+            if(!$("#aceptar_notif_buzon").is(":checked")){
+                swal({
+                    title: 'Error',
+                    text: 'No se acepto por buzon',
+                    icon: 'warning'
+                }); 
+            }else{
+                swal({
+                    title: 'Error',
+                    text: 'La confirmaci&oacute;n de esta solicitud solo se puede realizar por el conciliador que la llevará acabo',
+                    icon: 'warning'
+                });
+            }
         }
     });
     /**

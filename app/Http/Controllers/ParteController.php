@@ -11,8 +11,10 @@ use App\AudienciaParte;
 use App\ClasificacionArchivo;
 use App\DatoLaboral;
 use App\Domicilio;
+use App\Events\GenerateDocumentResolution;
 use App\Filters\ParteFilter;
 use App\Solicitud;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +45,7 @@ class ParteController extends Controller
     public function index()
     {
         $partes = Parte::all();
-        
+
         // Filtramos los usuarios con los parametros que vengan en el request
         $partes = (new ParteFilter(Parte::query(), $this->request))
             ->searchWith(Parte::class)
@@ -113,7 +115,7 @@ class ParteController extends Controller
             if(isset($request->asignado)){
                 $parte["asignado"] = $request->asignado;
             }
-            
+
             $parteSaved = Parte::create($parte);
             if ($domicilios && count($domicilios) > 0) {
                 foreach ($domicilios as $key => $domicilio) {
@@ -140,7 +142,7 @@ class ParteController extends Controller
                        " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Error'.$e->getMessage());
-        
+
         }
     }
 
@@ -205,12 +207,12 @@ class ParteController extends Controller
             $domicilioSaved = $parte->domicilios()->create($domicilio);
             DB::commit();
             $parte->update($request->all());
-            
+
             return $this->sendResponse($parte, 'SUCCESS');
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
-                       " Se emitió el siguiente mensale: ". $e->getMessage().
-                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+                " Se emitió el siguiente mensale: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Error'.$e->getMessage());
         }
@@ -227,7 +229,7 @@ class ParteController extends Controller
         $parte->delete();
       return response()->json(null,204);
     }
-    
+
     /**
      * Funcion para obtener el representante legal de una parte
      * @param id $id
@@ -243,7 +245,7 @@ class ParteController extends Controller
                     foreach ($documentos as $documento) {
                         $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
                     }
-                    
+
                 }
             }
         }
@@ -266,7 +268,7 @@ class ParteController extends Controller
                 foreach ($documentos as $documento) {
                     $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
                 }
-                
+
             }
         }
         return $representante;
@@ -285,14 +287,14 @@ class ParteController extends Controller
                 foreach ($documentos as $documento) {
                     $documento->tipo_archivo = $documento->clasificacionArchivo->tipo_archivo_id;
                 }
-                
+
             }
         }
         return $representante;
     }
 
-    
-    
+
+
     /**
      * Funcion para obtener datos laborales de una parte
      * @param id $id
@@ -332,7 +334,7 @@ class ParteController extends Controller
         ]);
         if($request->resolucion == "true"){
             $datos_laborales = DatoLaboral::find($request->id);
-            
+
             $datos_laborales->update([
                 'ocupacion_id' => $request->ocupacion_id,
                 'nss' => $request->nss,
@@ -379,11 +381,11 @@ class ParteController extends Controller
                 'prestaciones_adicionales' => $request->prestaciones_adicionales,
             ]);
         }
-        
+
         return $datos_laborales;
     }
-    
-    
+
+
     function GuardarRepresentanteLegal(Request $request){
         DB::beginTransaction();
         try{
@@ -407,7 +409,7 @@ class ParteController extends Controller
                     $audienciaExiste = AudienciaParte::where('parte_id',$parte->id)->where('audiencia_id',$request->audiencia_id)->first();
                     if($audienciaExiste == null)
                     {
-                        
+
                         $partesRep = Parte::where('parte_representada_id',$parte->parte_representada_id)->get();
                         foreach($partesRep as $parteR){
                             $ap = AudienciaParte::where('audiencia_id',$request->audiencia_id)->where('parte_id',$parteR->id)->first();
@@ -422,7 +424,7 @@ class ParteController extends Controller
                 if(isset($request->fileIdentificacion)){
                     $parte = Parte::find($request->parte_id);
                     $solicitud = Solicitud::find($request->solicitud_id);
-                    
+
                     try{
                         $existe = true;
                         $deleted = true;
@@ -446,7 +448,7 @@ class ParteController extends Controller
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                                
+
                                 $path = $archivoIde->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
@@ -465,19 +467,19 @@ class ParteController extends Controller
                                 $exito = true;
                             }else{
                                 $exito = false;
-                                
+
                             }
                         }
-                        
+
                     }catch(Exception $e){
                         $exito = false;
                     }
                 }
                 if(isset($request->fileInstrumento)){
-                    
+
                     $parte = Parte::find($request->parte_id);
                     $solicitud = Solicitud::find($request->solicitud_id);
-                    
+
                     try{
                         $deleted = true;
                         // $documentos = $parte->documentos;
@@ -488,9 +490,9 @@ class ParteController extends Controller
                         //         $existeInst = true;
                         //     }
                         // }
-                        
+
                         // if($existeInst){
-                            
+
                         //     $parte->documentos()->find($doc_del_idInst)->delete();
                         //     $deleted = true;
                         // }
@@ -503,7 +505,7 @@ class ParteController extends Controller
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                                
+
                                 $pathInst = $archivoInst->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
@@ -522,19 +524,19 @@ class ParteController extends Controller
                                 $exito = true;
                             }else{
                                 $exito = false;
-                                
+
                             }
                         }
-                        
+
                     }catch(Exception $e){
                         $exito = false;
                     }
                 }
                 if(isset($request->fileCedula)){
-                    
+
                     $parte = Parte::find($request->parte_id);
                     $solicitud = Solicitud::find($request->solicitud_id);
-                    
+
                     try{
                         $deleted = true;
                         // $documentos = $parte->documentos;
@@ -545,9 +547,9 @@ class ParteController extends Controller
                         //         $existeCed = true;
                         //     }
                         // }
-                        
+
                         // if($existeCed){
-                            
+
                         //     $parte->documentos()->find($doc_del_idCed)->delete();
                         //     $deleted = true;
                         // }
@@ -560,7 +562,7 @@ class ParteController extends Controller
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                                
+
                                 $pathCed = $archivoCed->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
@@ -579,10 +581,10 @@ class ParteController extends Controller
                                 $exito = true;
                             }else{
                                 $exito = false;
-                                
+
                             }
                         }
-                        
+
                     }catch(Exception $e){
                         $exito = false;
                     }
@@ -616,7 +618,7 @@ class ParteController extends Controller
                         "tipo_contacto_id" => $contacto->tipo_contacto_id,
                     ]);
                 }
-                
+
                 // Creamos la relacion en audiencias_partes
                 if(!isset($request->fuente_solicitud)){
                     $audienciaExiste = AudienciaParte::where('parte_id',$parte->id)->where('audiencia_id',$request->audiencia_id)->first();
@@ -645,7 +647,7 @@ class ParteController extends Controller
                             $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                             Storage::makeDirectory($directorio);
                             $tipoArchivo = ClasificacionArchivo::find($clasificacion_archivo);
-                            
+
                             $path = $archivo->store($directorio);
                             $uuid = Str::uuid();
                             $documento = $parte->documentos()->create([
@@ -670,7 +672,7 @@ class ParteController extends Controller
                             $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                             Storage::makeDirectory($directorio);
                             $tipoArchivoInst = ClasificacionArchivo::find($clasificacion_archivoInst);
-                            
+
                             $pathInst = $archivoInst->store($directorio);
                             $uuid = Str::uuid();
                             $documento = $parte->documentos()->create([
@@ -695,7 +697,7 @@ class ParteController extends Controller
                                 $directorio = 'solicitud/' . $solicitud_id.'/parte/'.$parte->id;
                                 Storage::makeDirectory($directorio);
                                 $tipoArchivoCed = ClasificacionArchivo::find($clasificacion_archivoCed);
-                                
+
                                 $pathCed = $archivoCed->store($directorio);
                                 $uuid = Str::uuid();
                                 $documento = $parte->documentos()->create([
@@ -711,17 +713,17 @@ class ParteController extends Controller
                                     "firmado" => "false",
                                     "clasificacion_archivo_id" => $tipoArchivoCed->id ,
                                 ]);
-                            } 
+                            }
                             $exito = true;
                         }else{
                             $exito = false;
-                            
+
                         }
                     }
-                    
+
                 }catch(Exception $e){
                     $exito = false;
-                    
+
                 }
                 // se actualiza doc
             }
@@ -732,7 +734,7 @@ class ParteController extends Controller
                 DB::rollback();
                 return $this->sendError('Error al capturar representante', 'Error');
             }
-            
+
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                        " Se emitió el siguiente mensale: ". $e->getMessage().
@@ -742,7 +744,7 @@ class ParteController extends Controller
 
         }
     }
-    
+
     public function AgregarContactoRepresentante(Request $request){
         $representante = Parte::find($request->parte_id);
         $representante->contactos()->create(["tipo_contacto_id" => $request->tipo_contacto_id,"contacto" => $request->contacto]);
@@ -751,7 +753,7 @@ class ParteController extends Controller
         }
         return $representante->contactos;
     }
-    
+
     public function getParteCurp(Request $request){
         $Parte = Parte::where('curp',$request->curp)->orderBy('id', 'desc')->first();
         return $Parte;
@@ -791,6 +793,23 @@ class ParteController extends Controller
         $partes = $solicitud->partes()->whereIn("tipo_parte_id",[1,2,3])->get();
         return $partes;
     }
+    public function validarCorreoParte(){
+        $parte = Parte::find($this->request->parte_id);
+        $array = array();
+        $pasa = false;
+        foreach($parte->contactos as $contacto){
+            if($contacto->tipo_contacto_id == 3){ //si tiene email
+                $pasa = true;
+            }
+        }
+        if($parte->correo_buzon){
+            $pasa = true;
+        }
+            //devuelve partes sin email
+
+        $parte->tieneCorreo = $pasa;
+        return $parte;
+    }
 
     public function getCitadosBySolicitudId($solicitud_id){
         $partes = Solicitud::find($solicitud_id)->partes()->with(['domicilios'=>function($q){$q->orderBy('id','desc');}])->where('tipo_parte_id',2)->get();
@@ -807,10 +826,43 @@ class ParteController extends Controller
             return $this->sendResponse($parteUpd, 'SUCCESS');
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
-                       " Se emitió el siguiente mensale: ". $e->getMessage().
-                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+                " Se emitió el siguiente mensale: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
             DB::rollback();
             return $this->sendError('Error'.$e->getMessage());
         }
+    }
+
+    public function aceptar_buzon(Request $request){
+        $parte = Parte::find($request->parte_id);
+        $solicitud = $parte->solicitud;
+        $notificacion_buzon = $request->acepta_buzon;
+        if($parte){
+            if($notificacion_buzon == "true"){
+                $parte->update(['notificacion_buzon'=>$notificacion_buzon, 'fecha_aceptacion_buzon'=>$fechaFin = Carbon::now()]);
+            }else{
+                $parte->update(['notificacion_buzon'=>$notificacion_buzon]);
+            }
+            if($notificacion_buzon){
+                //Genera acta de aceptacion de buzón
+                if($parte->tipo_parte_id == 1){
+                    event(new GenerateDocumentResolution("", $solicitud->id, 62, 19,$parte->id));
+                }else{
+                    event(new GenerateDocumentResolution("", $solicitud->id, 62, 20,null,$parte->id));
+                }
+            }else{
+                $existe = $parte->documentos()->where('clasificacion_archivo_id',1)->first();
+                if($existe == null){
+                    //Genera acta de no aceptacion de buzón
+                    if($parte->tipo_parte_id == 1){
+                        event(new GenerateDocumentResolution("", $solicitud->id, 60, 22,$parte->id));
+                    }else{
+                        event(new GenerateDocumentResolution("", $solicitud->id, 60, 23,null,$parte->id));
+                    }
+                }
+            }
+            return $this->sendResponse($parte, 'SUCCESS');
+        }
+        return $this->sendError('Error al aceptar buzón', 'Error');
     }
 }
