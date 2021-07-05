@@ -4,8 +4,17 @@
 namespace App\Services;
 
 
+use App\Centro;
+use App\Conciliador;
 use App\Traits\EstilosSpreadsheets;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpSpreadsheet\Chart\Chart;
+use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
+use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
+use PhpOffice\PhpSpreadsheet\Chart\Layout;
+use PhpOffice\PhpSpreadsheet\Chart\Legend;
+use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
+use PhpOffice\PhpSpreadsheet\Chart\Title;
 
 class ExcelReporteOperativoService
 {
@@ -17,9 +26,24 @@ class ExcelReporteOperativoService
     protected $service;
 
     /**
+     * @var array Centros que se van a reportar
+     */
+    protected $centros_activos;
+
+    /**
+     * @var array Conciliadores que se van a reportar
+     */
+    protected $conciliadores;
+
+    /**
      * Días para el archivado de no ratificadas
      */
     const DIAS_PARA_ARCHIVAR = 5;
+
+    /**
+     * @var integer Ancho de encabezados de tablas
+     */
+    private $head_height = 75;
 
     /**
      * ExcelReporteOperativoService constructor.
@@ -28,6 +52,16 @@ class ExcelReporteOperativoService
     public function __construct(ReporteOperativoService $service)
     {
         $this->service = $service;
+        $this->centros_activos = Centro::whereNotNull('desde')->orderBy('abreviatura')->get()->pluck('abreviatura')
+            ->toArray();
+
+        $this->conciliadores = Conciliador::with('persona')->has('audiencias')->get()->map(function ($conciliador){
+            return (object)[
+                'id' => $conciliador->id,
+                'nombre' => $conciliador->persona->fullName,
+                'primer_apellido' => $conciliador->persona->primer_apellido,
+            ];
+        })->sortBy('primer_apellido');
     }
 
     /**
@@ -46,12 +80,12 @@ class ExcelReporteOperativoService
         // regla de negocio: No ratificados por más de 7 días desde su creación.
         $qSolicitudesArchivadasNoConfirmacion = (clone $this->service->solicitudes($request));
         $sheet->setCellValue('B3', $qSolicitudesArchivadasNoConfirmacion->where('ratificada', false)
-            ->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+            ->whereRaw("(solicitudes.fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
 
         # En posibilidad de confirmarse porque están en el plazo
         $qSolicitudesPorConfirmar = (clone $this->service->solicitudes($request));
         $sheet->setCellValue('B4', $qSolicitudesPorConfirmar->where('ratificada', false)
-            ->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+            ->whereRaw("(solicitudes.fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         # Solicitudes presentadas
         $qSolicitudesPresentadas = (clone $this->service->solicitudes($request));
@@ -64,45 +98,50 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('B8', $pptrab->count());
 
         $sheet->setCellValue('C8', $pptrab->where('ratificada', true)->count());
-        $sheet->setCellValue('D8', ($this->service->solicitudes($request,false))->where('tipo_solicitud_id', ReportesService::SOLICITUD_INDIVIDUAL)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-        $sheet->setCellValue('E8', ($this->service->solicitudes($request,false))->where('tipo_solicitud_id', ReportesService::SOLICITUD_INDIVIDUAL)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+        $sheet->setCellValue('D8', ($this->service->solicitudes($request,false))->where('tipo_solicitud_id', ReportesService::SOLICITUD_INDIVIDUAL)->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+        $sheet->setCellValue('E8', ($this->service->solicitudes($request,false))->where('tipo_solicitud_id', ReportesService::SOLICITUD_INDIVIDUAL)->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         $pppatr = ($this->service->solicitudes($request, false))->where('tipo_solicitud_id', ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL);
         $sheet->setCellValue('B9', $pppatr->count());
         $sheet->setCellValue('C9', $pppatr->where('ratificada',true)->count());
-        $sheet->setCellValue('D9', ($this->service->solicitudes($request))->where('tipo_solicitud_id', ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-        $sheet->setCellValue('E9', ($this->service->solicitudes($request))->where('tipo_solicitud_id', ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL)->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+        $sheet->setCellValue('D9', ($this->service->solicitudes($request))->where('tipo_solicitud_id', ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL)->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+        $sheet->setCellValue('E9', ($this->service->solicitudes($request))->where('tipo_solicitud_id', ReportesService::SOLICITUD_PATRONAL_INDIVIDUAL)->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         # con asistencia de personal o por los usuarios
         $caspc = ($this->service->solicitudes($request))->whereNotNull('captura_user_id');
         $sheet->setCellValue('B12', $caspc->count());
         $sheet->setCellValue('C12', $caspc->where('ratificada', true)->count());
-        $sheet->setCellValue('D12', ($this->service->solicitudes($request))->whereNotNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-        $sheet->setCellValue('E12', ($this->service->solicitudes($request))->whereNotNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+        $sheet->setCellValue('D12', ($this->service->solicitudes($request))->whereNotNull('captura_user_id')->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+        $sheet->setCellValue('E12', ($this->service->solicitudes($request))->whereNotNull('captura_user_id')->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         $sol = ($this->service->solicitudes($request))->whereNull('captura_user_id');
         $sheet->setCellValue('B13', $sol->count());
         $sheet->setCellValue('C13', $sol->where('ratificada', true)->count());
-        $sheet->setCellValue('D13', ($this->service->solicitudes($request))->whereNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-        $sheet->setCellValue('E13', ($this->service->solicitudes($request))->whereNull('captura_user_id')->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+        $sheet->setCellValue('D13', ($this->service->solicitudes($request))->whereNull('captura_user_id')->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+        $sheet->setCellValue('E13', ($this->service->solicitudes($request))->whereNull('captura_user_id')->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         # por género
         //Hombres
         $solgenh = ReportesService::caracteristicasSolicitante(($this->service->solicitudes($request)), 'partes', ReportesService::GENERO_MASCULINO_ID,null,null);
         $solgenhpr = ReportesService::caracteristicasSolicitante(($this->service->solicitudes($request)), 'partes', ReportesService::GENERO_MASCULINO_ID,null,null);
         $solgenhar = ReportesService::caracteristicasSolicitante(($this->service->solicitudes($request)), 'partes', ReportesService::GENERO_MASCULINO_ID,null,null);
+
+        $solgenhcit = ReportesService::caracteristicasSolicitante(($this->service->solicitudes($request)), 'partes', ReportesService::GENERO_MASCULINO_ID,null,null);
+        $solgenhprcit = ReportesService::caracteristicasSolicitante(($this->service->solicitudes($request)), 'partes', ReportesService::GENERO_MASCULINO_ID,null,null);
+        $solgenharcit = ReportesService::caracteristicasSolicitante(($this->service->solicitudes($request)), 'partes', ReportesService::GENERO_MASCULINO_ID,null,null);
+
         $sheet->setCellValue('B16', $solgenh->count());
         $sheet->setCellValue('C16', $solgenh->where('ratificada', true)->count());
-        $sheet->setCellValue('D16', $solgenhar->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-        $sheet->setCellValue('E16', $solgenhpr->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+        $sheet->setCellValue('D16', $solgenhar->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+        $sheet->setCellValue('E16', $solgenhpr->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
         //Mujeres
         $solgenm = ReportesService::caracteristicasSolicitante(($this->service->solicitudes($request)), 'partes', ReportesService::GENERO_FEMENINO_ID,null,null);
         $solgenmpr = ReportesService::caracteristicasSolicitante(($this->service->solicitudes($request)), 'partes', ReportesService::GENERO_FEMENINO_ID,null,null);
         $solgenmar = ReportesService::caracteristicasSolicitante(($this->service->solicitudes($request)), 'partes', ReportesService::GENERO_FEMENINO_ID,null,null);
         $sheet->setCellValue('B17', $solgenm->count());
         $sheet->setCellValue('C17', $solgenm->where('ratificada', true)->count());
-        $sheet->setCellValue('D17', $solgenmar->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-        $sheet->setCellValue('E17', $solgenmpr->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+        $sheet->setCellValue('D17', $solgenmar->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+        $sheet->setCellValue('E17', $solgenmpr->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         # Por grupo etáreo
         /** @var array[Builder] $solget Arreglo que contiene objetos Builder para las solicitudes totalizadas de grupo etario  */
@@ -119,8 +158,8 @@ class ExcelReporteOperativoService
             $solgetar[$grupo] =  (ReportesService::caracteristicasSolicitante(clone $this->service->solicitudes($request), 'partes', null, $grupo,null));
             $sheet->setCellValue('B'.$rowget, $solget[$grupo]->count());
             $sheet->setCellValue('C'.$rowget, $solget[$grupo]->where('ratificada', true)->count());
-            $sheet->setCellValue('D'.$rowget, $solgetar[$grupo]->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
-            $sheet->setCellValue('E'.$rowget, $solgetpr[$grupo]->where('ratificada', false)->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
+            $sheet->setCellValue('D'.$rowget, $solgetar[$grupo]->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )->count());
+            $sheet->setCellValue('E'.$rowget, $solgetpr[$grupo]->where('ratificada', false)->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
             $rowget++;
         }
 
@@ -133,7 +172,7 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('A'.$rowobj, "Solicitudes por concepto (total, confirmadas, no confirmadas y por confirmar) Tipo de Conflicto");
         $sheet->setCellValue('B'.$rowobj, "TOTAL PATRÓN");
         $sheet->setCellValue('C'.$rowobj, "TOTAL TRABAJADOR");
-        $sheet->setCellValue('D'.$rowobj, "TOTAL");
+        $sheet->setCellValue('D'.$rowobj, "PRESENTADAS");
 
         /** @var int $rowinidat row donde empiezam los datos de la tabla, esta se utiliza para indicar desde qué punto empieza la copia de estilo */
         $rowinidat = $rowobj +1;
@@ -187,7 +226,7 @@ class ExcelReporteOperativoService
         /** @var int $rowind row donde empieza la tabla de objetos */
         $rowind = $rowobj + 1;
         $sheet->setCellValue('A'.$rowind, "Solicitudes por concepto (total, confirmadas, no confirmadas y por confirmar) Rama Industrial");
-        $sheet->setCellValue('B'.$rowind, "TOTAL");
+        $sheet->setCellValue('B'.$rowind, "PRESENTADAS");
         $sheet->setCellValue('C'.$rowind, "CONFIRMADAS");
         $sheet->setCellValue('D'.$rowind, "ARCHIVADAS POR NO CONFIRMACIÓN");
         $sheet->setCellValue('E'.$rowind, "POR CONFIRMAR");
@@ -217,13 +256,13 @@ class ExcelReporteOperativoService
             })->count();
 
             $archivadas = (clone $this->service->solicitudes($request))->where('ratificada', false)
-                ->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )
+                ->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  <= CURRENT_DATE" )
                 ->whereHas('giroComercial', function ($q) use ($industria_id) {
                     $q->where('industria_id', $industria_id);
             })->count();
 
             $porconfirmar = (clone $this->service->solicitudes($request))->where('ratificada', false)
-                ->whereRaw("(created_at::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )
+                ->whereRaw("(fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )
                 ->whereHas('giroComercial', function ($q) use ($industria_id) {
                     $q->where('industria_id', $industria_id);
             })->count();
@@ -263,8 +302,8 @@ class ExcelReporteOperativoService
 
         # F4 Competencias
         // Para saber las competentes entonces seleccionamos todas las solicitudes y eliminamos los ids de incompetencias detectadas en ratificación y en audiencia
-        $solicitudesIncompetenciasIds = $incompetencias->get()->merge($incompetenciasEnAudiencia->get())->pluck('id')->toArray();
-        $competencias = (clone $this->service->solicitudesRatificacion($request))->whereNotIn('id', $solicitudesIncompetenciasIds)->count();
+        $solicitudesIncompetenciasIds = $incompetencias->get()->merge($incompetenciasEnAudiencia->get())->pluck('solicitudes.id')->toArray();
+        $competencias = (clone $this->service->solicitudesRatificacion($request))->whereNotIn('solicitudes.id', $solicitudesIncompetenciasIds)->count();
         $sheet->setCellValue('G4', $competencias);
 
         # F7 Número de solicitudes inmediatas (ratificaciones le llaman en el reporte)
@@ -525,8 +564,6 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('U8', $num_pagos_tt->count() - $num_pagos_dif);
         $sheet->setCellValue('V8', $monto_pagos_tt - $monto_pagos_dif->sum());
 
-
-
         $num_tot_pagos_parciales = (clone $this->service->pagos($request))
             ->get()->count();
         $sheet->setCellValue('T10', $num_tot_pagos_parciales);
@@ -575,13 +612,640 @@ class ExcelReporteOperativoService
         $num_pagos_dif = $num_vigentes+$num_vencidos+$num_incumplimientos+$num_cumplimientos;
         $sheet->setCellValue('T10', $num_pagos_dif);
 
-
         $sheet->setCellValue('U7', $num_pagos_dif);
 
         $sheet->setCellValue('U8', $num_pagos_tt->count() - $num_pagos_dif);
 
+    }
 
+
+    /**
+     * Indicadores de eficiencia o eficacia, según la mtra. Gianni
+     * Indicadores por centro
+     * @param $sheet
+     * @param $request
+     */
+    public function indicadoresPorCentro($sheet, $request)
+    {
+        $head_height = $this->head_height;
+        $body_height = $head_height/2;
+
+        ####
+        # Por centro: número de convenios de conciliación no inmediata / constancias de no conciliación.
+
+        $conciliacion_normal = (clone $this->service->audiencias($request))->with('expediente.solicitud.centro')
+            ->whereHas('expediente.solicitud',function ($q){
+                $q->where('inmediata', false);
+            })
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->get()
+            ->sortBy('abreviatura')
+            ->groupBy('abreviatura')
+            ->map(function($item){
+                return $item->count();
+            })
+        ;
+
+        $noconciliacion_normal = (clone $this->service->audiencias($request))
+            ->with('expediente.solicitud.centro')->whereHas('expediente.solicitud',function ($q){
+            $q->where('inmediata', false);
+        })
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)
+            ->get()
+            ->sortBy('abreviatura')
+            ->groupBy('abreviatura')
+            ->map(function($item){
+                return $item->count();
+            })
+        ;
+
+        $row_inicio = 4;
+
+        $sheet->setCellValue('A'.($row_inicio -2), 'Centro');
+        $sheet->setCellValue('B'.($row_inicio -2), "Constancia\nno conciliación normal");
+        $sheet->setCellValue('C'.($row_inicio -2), "Convenio\nconciliación normal");
+        $sheet->setCellValue('D'.($row_inicio -2), 'Ratio');
+
+        $sheet->getStyle('A' . ($row_inicio -2) . ':D' . ($row_inicio -2))->applyFromArray($this->tf1(14));
+        $sheet->getStyle('A'.($row_inicio -2).':F'.($row_inicio -2))->getAlignment()->setWrapText(true);
+        $sheet->getRowDimension(($row_inicio -2))->setRowHeight($head_height);
+
+        $sheet->getColumnDimension('A')->setAutoSize(true);
+        $sheet->getColumnDimension('B')->setAutoSize(true);
+        $sheet->getColumnDimension('C')->setAutoSize(true);
+        $sheet->getColumnDimension('D')->setAutoSize(true);
+        $sheet->getColumnDimension('E')->setAutoSize(true);
+        $sheet->getColumnDimension('F')->setAutoSize(true);
+
+        $sheet->getStyle('A' . $row_inicio . ':D' . ($row_inicio + count($this->centros_activos) +1))->applyFromArray($this->rog(12));
+
+        $row_indicador = $row_inicio;
+        foreach($this->centros_activos as $centro){
+            $sheet->setCellValue('A'.$row_indicador, $centro);
+            $sheet->setCellValue('B'.$row_indicador, isset($noconciliacion_normal[$centro])?$noconciliacion_normal[$centro]:0);
+            $sheet->setCellValue('C'.$row_indicador, isset($conciliacion_normal[$centro])?$conciliacion_normal[$centro]:0);
+            $sheet->setCellValue('D'.$row_indicador, '=ROUND(C'.$row_indicador."/B".$row_indicador.",2)");
+
+            $sheet->getRowDimension(($row_indicador))->setRowHeight($body_height);
+            $row_indicador++;
+        }
+
+        $sheet->getRowDimension(($row_indicador))->setRowHeight($body_height);
+        $sheet->setCellValue('A'.$row_indicador, 'TOTAL');
+        $sheet->setCellValue('B'.$row_indicador, '=SUM(B'.$row_inicio.":B".($row_indicador -1).")");
+        $sheet->setCellValue('C'.$row_indicador, '=SUM(C'.$row_inicio.":C".($row_indicador -1).")");
+        $sheet->setCellValue('D'.$row_indicador, '=ROUND(C'.$row_indicador."/B".$row_indicador.",2)");
+
+        // Gráficas
+        // CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)
+        // NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)
+        // RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)
+        $this->pay($sheet, 'H'.($row_inicio -2),'P'.$row_indicador, 'CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)',($row_inicio -2),$row_indicador, ($row_inicio -2));
+        $this->columnasApiladas($sheet, 'Q'.($row_inicio -2),'Z'.$row_indicador, 'NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)',($row_inicio -2),$row_inicio, $row_indicador);
+        $this->columnas($sheet, 'AA'.($row_inicio -2),'AK'.$row_indicador, 'RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN (PROCEDIMIENTO NORMAL)',($row_inicio -2),$row_inicio, $row_indicador);
+
+        ####
+        # Por centro: convenios de conciliacón totales (inmediatas y no inmediatas) / convenios de no conciliación totales (inm y no inm)
+
+        $conciliacion = (clone $this->service->audiencias($request))->with('expediente.solicitud.centro')
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->get()
+            ->sortBy('abreviatura')
+            ->groupBy('abreviatura')
+            ->map(function($item){
+                return $item->count();
+            })
+        ;
+
+        $no_conciliacion = (clone $this->service->audiencias($request))
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)
+            ->get()
+            ->sortBy('abreviatura')
+            ->groupBy('abreviatura')
+            ->map(function($item){
+                return $item->count();
+            })
+        ;
+
+        $row_indicador_totales = $row_indicador + 2;
+        $sheet->setCellValue('A'.$row_indicador_totales, 'Centro');
+        $sheet->setCellValue('B'.$row_indicador_totales, "Constancias\nno conciliación");
+        $sheet->setCellValue('C'.$row_indicador_totales, "Convenios\nconciliación");
+        $sheet->setCellValue('D'.$row_indicador_totales, 'Ratio');
+
+        $sheet->duplicateStyle($sheet->getStyle('A'.($row_inicio -2)),'A'.$row_indicador_totales.':D'.$row_indicador_totales);
+        $sheet->getRowDimension(($row_indicador_totales))->setRowHeight($head_height);
+
+        $row_indicador_totales = $row_indicador_totales + 2;
+        $sheet->getStyle('A' . $row_indicador_totales . ':D' . ($row_indicador_totales + count($this->centros_activos) +1))->applyFromArray($this->rog(12));
+
+        $row_inicio_indicador_totales = $row_indicador_totales;
+
+        foreach($this->centros_activos as $centro){
+            $sheet->setCellValue('A'.$row_indicador_totales, $centro);
+            $sheet->setCellValue('B'.$row_indicador_totales, isset($no_conciliacion[$centro]) ? $no_conciliacion[$centro] : 0);
+            $sheet->setCellValue('C'.$row_indicador_totales, isset($conciliacion[$centro]) ? $conciliacion[$centro] : 0);
+            $sheet->setCellValue('D'.$row_indicador_totales, '=ROUND(C'.$row_indicador_totales."/B".$row_indicador_totales.",2)");
+
+            $sheet->getRowDimension(($row_indicador_totales))->setRowHeight($body_height);
+            $row_indicador_totales++;
+        }
+
+        $sheet->getRowDimension(($row_indicador_totales))->setRowHeight($body_height);
+        $sheet->setCellValue('A'.$row_indicador_totales, 'TOTAL');
+        $sheet->setCellValue('B'.$row_indicador_totales, '=SUM(B'.$row_inicio_indicador_totales.":B".$row_indicador_totales.")");
+        $sheet->setCellValue('C'.$row_indicador_totales, '=SUM(C'.$row_inicio_indicador_totales.":C".$row_indicador_totales.")");
+        $sheet->setCellValue('D'.$row_indicador_totales, '=ROUND(C'.$row_indicador_totales."/B".$row_indicador_totales.",2)");
+
+        # Gráficos
+        // CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN
+        // NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN
+        // RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN
+        $this->pay($sheet, 'H'.($row_inicio_indicador_totales -2),'P'.$row_indicador_totales, 'CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN',($row_inicio_indicador_totales -2),$row_indicador_totales, ($row_inicio_indicador_totales -2));
+        $this->columnasApiladas($sheet, 'Q'.($row_inicio_indicador_totales -2),'Z'.$row_indicador_totales, 'NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN',($row_inicio_indicador_totales -2),$row_inicio_indicador_totales, $row_indicador_totales);
+        $this->columnas($sheet, 'AA'.($row_inicio_indicador_totales -2),'AK'.$row_indicador_totales, 'RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN',($row_inicio_indicador_totales -2),$row_inicio_indicador_totales, $row_indicador_totales);
+
+        #####
+        # Por centro: número de convenios de conciliación no inmediata / constancias de no conciliación.
+
+        $no_conciliacion_no_comparecencia = (clone $this->service->audiencias($request))->with('expediente.solicitud.centro')
+            ->whereHas('expediente.solicitud',function ($q){
+                $q->where('inmediata', false);
+            })
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)
+            ->where('tipo_terminacion_audiencia_id', ReportesService::TERMINACION_AUDIENCIA_NO_COMPARECENCIA_CITADO)
+            ->get()
+            ->sortBy('abreviatura')
+            ->groupBy('abreviatura')
+            ->map(function($item){
+                return $item->count();
+            })
+        ;
+
+        $row_indicador_nocomparecencia = $row_indicador_totales + 2;
+        $sheet->setCellValue('A'.$row_indicador_nocomparecencia, 'Centro');
+        $sheet->setCellValue('B'.$row_indicador_nocomparecencia, "Constancias \nno conciliación normal");
+        $sheet->setCellValue('C'.$row_indicador_nocomparecencia, "Convenio \nconciliación normal");
+        $sheet->setCellValue('D'.$row_indicador_nocomparecencia, "Constancias \nno conciliación normal\n por no arreglo");
+        $sheet->setCellValue('E'.$row_indicador_nocomparecencia, "Constancias \nno conciliación normal\n por no comparecencia\n del citado");
+        $sheet->setCellValue('F'.$row_indicador_nocomparecencia, 'Ratio');
+
+        $sheet->duplicateStyle($sheet->getStyle('A'.($row_inicio_indicador_totales -2)),'A'.$row_indicador_nocomparecencia.':F'.$row_indicador_nocomparecencia);
+        $sheet->getRowDimension(($row_indicador_nocomparecencia))->setRowHeight($head_height);
+
+        $row_indicador_nocomparecencia = $row_indicador_nocomparecencia + 2;
+        $sheet->getStyle('A' . $row_indicador_nocomparecencia . ':F' . ($row_indicador_nocomparecencia + count($this->centros_activos) +1))->applyFromArray($this->rog(12));
+        $row_inicio_inidicador_nocompetencia = $row_indicador_nocomparecencia;
+
+        foreach($this->centros_activos as $centro){
+            $sheet->setCellValue('A'.$row_indicador_nocomparecencia, $centro);
+            $sheet->setCellValue('B'.$row_indicador_nocomparecencia, isset($noconciliacion_normal[$centro]) ? $noconciliacion_normal[$centro] : 0);
+            $sheet->setCellValue('C'.$row_indicador_nocomparecencia, isset($conciliacion_normal[$centro]) ? $conciliacion_normal[$centro] : 0);
+            $sheet->setCellValue('D'.$row_indicador_nocomparecencia, '=B'.$row_indicador_nocomparecencia."-E".$row_indicador_nocomparecencia);
+            $sheet->setCellValue('E'.$row_indicador_nocomparecencia, isset($no_conciliacion_no_comparecencia[$centro]) ? $no_conciliacion_no_comparecencia[$centro] : 0);
+            $sheet->setCellValue('F'.$row_indicador_nocomparecencia, '=ROUND(C'.$row_indicador_nocomparecencia."/(B".$row_indicador_nocomparecencia."-E".$row_indicador_nocomparecencia."),2)");
+
+            $sheet->getRowDimension(($row_indicador_nocomparecencia))->setRowHeight($body_height);
+            $row_indicador_nocomparecencia++;
+        }
+
+        $sheet->getRowDimension(($row_indicador_nocomparecencia))->setRowHeight($body_height);
+        $sheet->setCellValue('A'.$row_indicador_nocomparecencia, 'TOTAL');
+        $sheet->setCellValue('B'.$row_indicador_nocomparecencia, '=SUM(B'.$row_inicio_inidicador_nocompetencia.":B".$row_indicador_nocomparecencia.")");
+        $sheet->setCellValue('C'.$row_indicador_nocomparecencia, '=SUM(C'.$row_inicio_inidicador_nocompetencia.":C".$row_indicador_nocomparecencia.")");
+        $sheet->setCellValue('D'.$row_indicador_nocomparecencia, '=SUM(D'.$row_inicio_inidicador_nocompetencia.":D".$row_indicador_nocomparecencia.")");
+        $sheet->setCellValue('E'.$row_indicador_nocomparecencia, '=SUM(E'.$row_inicio_inidicador_nocompetencia.":E".$row_indicador_nocomparecencia.")");
+        $sheet->setCellValue('F'.$row_indicador_nocomparecencia, '=ROUND(C'.$row_indicador_nocomparecencia."/(B".$row_indicador_nocomparecencia."-E".$row_indicador_nocomparecencia."),2)");
+
+        # Gráficos
+        // CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO Y POR NO COMPARECENCIA DEL CITADO (PROCEDIMIENTO NORMAL)
+        // RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO (PROCEDIMIENTO NORMAL)
+        // NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO Y POR NO COMPARECENCIA DEL CITADO (PROCEDIMIENTO NORMAL)
+        $this->pay($sheet, 'H'.($row_inicio_inidicador_nocompetencia -2),'P'.$row_indicador_nocomparecencia, 'CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO Y POR NO COMPARECENCIA DEL CITADO (PROCEDIMIENTO NORMAL)',
+            ($row_inicio_inidicador_nocompetencia -2), $row_indicador_nocomparecencia, ($row_inicio_inidicador_nocompetencia -2), true);
+
+        $this->columnasApiladas($sheet, 'Q'.($row_inicio_inidicador_nocompetencia -2),'Z'.$row_indicador_nocomparecencia, 'NÚMERO DE CONVENIOS Y CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO Y POR NO COMPARECENCIA DEL CITADO (PROCEDIMIENTO NORMAL)',
+            ($row_inicio_inidicador_nocompetencia -2), $row_inicio_inidicador_nocompetencia, $row_indicador_nocomparecencia, true);
+
+        $this->columnas($sheet, 'AA'.($row_inicio_inidicador_nocompetencia -2),'AK'.$row_indicador_nocomparecencia, 'RATIO CONVENIOS / CONSTANCIAS DE NO CONCILIACIÓN POR NO ARREGLO (PROCEDIMIENTO NORMAL)',
+            ($row_inicio_inidicador_nocompetencia -2), $row_inicio_inidicador_nocompetencia, $row_indicador_nocomparecencia, true);
 
     }
 
+    /**
+     * Indicadores de eficiencia o eficacia según la Mtra. Gianni
+     * Indicadores por conciliador
+     * @param $sheet
+     * @param $request
+     */
+    public function indicadoresPorConciliador($sheet, $request)
+    {
+        $head_height = $this->head_height;
+
+        ####
+        # Por conciliador: número de convenios de conciliación no inmediata / constancias de no conciliación.
+
+        $conciliacion_normal = (clone $this->service->audiencias($request))
+            ->with('conciliador.persona')->whereHas('expediente.solicitud',function ($q){
+                $q->where('inmediata', false);
+            })
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->get()
+            ->groupBy('conciliador_id')
+            ->map(function($item){
+                return $item->count();
+            })
+        ;
+
+        $noconciliacion_normal = (clone $this->service->audiencias($request))
+            ->with('conciliador.persona')->whereHas('expediente.solicitud', function ($q){
+                $q->where('inmediata', false);
+            })
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)
+            ->get()
+            ->groupBy('conciliador_id')
+            ->map(function($item){
+                return $item->count();
+            })
+        ;
+
+        $row_inicio = 4;
+
+        $sheet->setCellValue('A'.($row_inicio -2), 'Conciliador');
+        $sheet->setCellValue('B'.($row_inicio -2), "Constancia no\n conciliación normal");
+        $sheet->setCellValue('C'.($row_inicio -2), "Convenio \nconciliación normal");
+        $sheet->setCellValue('D'.($row_inicio -2), 'Ratio');
+
+        $sheet->getStyle('A' . ($row_inicio -2) . ':D' . ($row_inicio -2))->applyFromArray($this->tf1(14));
+        $sheet->getStyle('A'.($row_inicio -2).':F'.($row_inicio -2))->getAlignment()->setWrapText(true);
+        $sheet->getRowDimension(($row_inicio -2))->setRowHeight($head_height);
+
+        $sheet->getColumnDimension('A')->setAutoSize(true);
+        $sheet->getColumnDimension('B')->setAutoSize(true);
+        $sheet->getColumnDimension('C')->setAutoSize(true);
+        $sheet->getColumnDimension('D')->setAutoSize(true);
+        $sheet->getColumnDimension('E')->setAutoSize(true);
+        $sheet->getColumnDimension('F')->setAutoSize(true);
+
+        $sheet->getStyle('A' . $row_inicio . ':D' . ($row_inicio + count($this->conciliadores) +1))->applyFromArray($this->rog(12));
+
+        $row_indicador = $row_inicio;
+        foreach($this->conciliadores as $conciliador){
+            $sheet->setCellValue('A'.$row_indicador, mb_strtoupper($conciliador->nombre));
+            $sheet->setCellValue('B'.$row_indicador, isset($noconciliacion_normal[$conciliador->id])?$noconciliacion_normal[$conciliador->id]:0);
+            $sheet->setCellValue('C'.$row_indicador, isset($conciliacion_normal[$conciliador->id])?$conciliacion_normal[$conciliador->id]:0);
+            $sheet->setCellValue('D'.$row_indicador, '=ROUND(C'.$row_indicador."/B".$row_indicador.",2)");
+            $row_indicador++;
+        }
+
+        $sheet->setCellValue('A'.$row_indicador, 'TOTAL');
+        $sheet->setCellValue('B'.$row_indicador, '=SUM(B'.$row_inicio.":B".($row_indicador -1).")");
+        $sheet->setCellValue('C'.$row_indicador, '=SUM(C'.$row_inicio.":C".($row_indicador -1).")");
+        $sheet->setCellValue('D'.$row_indicador, '=ROUND(C'.$row_indicador."/B".$row_indicador.",2)");
+
+        ####
+        # Por conciliador: convenios de conciliacón totales (inmediatas y no inmediatas) / convenios de no conciliación totales (inm y no inm)
+
+        $conciliacion = (clone $this->service->audiencias($request))->with('conciliador.persona')
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->get()
+            ->groupBy('conciliador_id')
+            ->map(function($item){
+                return $item->count();
+            })
+        ;
+
+        $no_conciliacion = (clone $this->service->audiencias($request))->with('conciliador.persona')
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)
+            ->get()
+            ->groupBy('conciliador_id')
+            ->map(function($item){
+                return $item->count();
+            })
+        ;
+
+        $row_indicador_totales = $row_indicador + 2;
+        $row_inicio_indicador_totales = $row_indicador_totales;
+        $sheet->setCellValue('A'.$row_indicador_totales, 'Conciliador');
+        $sheet->setCellValue('B'.$row_indicador_totales, "Constancias \nno conciliación");
+        $sheet->setCellValue('C'.$row_indicador_totales, "Convenios \nconciliación");
+        $sheet->setCellValue('D'.$row_indicador_totales, 'Ratio');
+
+        $sheet->duplicateStyle($sheet->getStyle('A'.($row_inicio -2)),'A'.$row_indicador_totales.':D'.$row_indicador_totales);
+        $sheet->getRowDimension(($row_indicador_totales))->setRowHeight($head_height);
+
+        $row_indicador_totales = $row_indicador_totales + 2;
+
+        $sheet->getStyle('A' . $row_indicador_totales . ':D' . ($row_indicador_totales + count($this->conciliadores) +1))->applyFromArray($this->rog(12));
+
+        foreach($this->conciliadores as $conciliador){
+            $sheet->setCellValue('A'.$row_indicador_totales, mb_strtoupper($conciliador->nombre));
+            $sheet->setCellValue('B'.$row_indicador_totales, isset($no_conciliacion[$conciliador->id]) ? $no_conciliacion[$conciliador->id] : 0);
+            $sheet->setCellValue('C'.$row_indicador_totales, isset($conciliacion[$conciliador->id]) ? $conciliacion[$conciliador->id] : 0);
+            $sheet->setCellValue('D'.$row_indicador_totales, '=ROUND(C'.$row_indicador_totales."/B".$row_indicador_totales.",2)");
+            $row_indicador_totales++;
+        }
+        $sheet->setCellValue('A'.$row_indicador_totales, 'TOTAL');
+        $sheet->setCellValue('B'.$row_indicador_totales, '=SUM(B'.$row_inicio_indicador_totales.":B".$row_indicador_totales.")");
+        $sheet->setCellValue('C'.$row_indicador_totales, '=SUM(C'.$row_inicio_indicador_totales.":C".$row_indicador_totales.")");
+        $sheet->setCellValue('D'.$row_indicador_totales, '=ROUND(C'.$row_indicador_totales."/B".$row_indicador_totales.",2)");
+
+        ####
+        # Por conciliador: número de convenios de conciliación no inmediata / constancias de no conciliación.
+
+        $no_conciliacion_no_comparecencia = (clone $this->service->audiencias($request))->with('conciliador.persona')
+            ->whereHas('expediente.solicitud',function ($q){
+                $q->where('inmediata', false);
+            })
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)
+            ->where('tipo_terminacion_audiencia_id', ReportesService::TERMINACION_AUDIENCIA_NO_COMPARECENCIA_CITADO)
+            ->get()
+            ->groupBy('conciliador_id')
+            ->map(function($item){
+                return $item->count();
+            })
+        ;
+
+        $row_indicador_nocomparecencia = $row_indicador_totales + 2;
+        $sheet->setCellValue('A'.$row_indicador_nocomparecencia, 'Conciliador');
+        $sheet->setCellValue('B'.$row_indicador_nocomparecencia, "Constancias no\n conciliación normal");
+        $sheet->setCellValue('C'.$row_indicador_nocomparecencia, "Convenio \nconciliación normal");
+        $sheet->setCellValue('D'.$row_indicador_nocomparecencia, "Constancias no \nconciliación normal\n por no arreglo");
+        $sheet->setCellValue('E'.$row_indicador_nocomparecencia, "Constancias no \nconciliación normal por \nno comparecencia\n del citado");
+        $sheet->setCellValue('F'.$row_indicador_nocomparecencia, 'Ratio');
+
+        $sheet->duplicateStyle($sheet->getStyle('A'.($row_inicio -2)),'A'.$row_indicador_nocomparecencia.':F'.$row_indicador_nocomparecencia);
+        $sheet->getRowDimension(($row_indicador_nocomparecencia))->setRowHeight($head_height);
+
+        $row_indicador_nocomparecencia = $row_indicador_nocomparecencia + 2;
+        $sheet->getStyle('A' . $row_indicador_nocomparecencia . ':F' . ($row_indicador_nocomparecencia + count($this->conciliadores) +1))->applyFromArray($this->rog(12));
+
+        $row_inicio_inidicador_nocompetencia = $row_indicador_nocomparecencia;
+        foreach($this->conciliadores as $conciliador){
+            $sheet->setCellValue('A'.$row_indicador_nocomparecencia, mb_strtoupper($conciliador->nombre));
+            $sheet->setCellValue('B'.$row_indicador_nocomparecencia, isset($noconciliacion_normal[$conciliador->id]) ? $noconciliacion_normal[$conciliador->id] : 0);
+            $sheet->setCellValue('C'.$row_indicador_nocomparecencia, isset($conciliacion_normal[$conciliador->id]) ? $conciliacion_normal[$conciliador->id] : 0);
+            $sheet->setCellValue('D'.$row_indicador_nocomparecencia, '=B'.$row_indicador_nocomparecencia."-E".$row_indicador_nocomparecencia);
+            $sheet->setCellValue('E'.$row_indicador_nocomparecencia, isset($no_conciliacion_no_comparecencia[$conciliador->id]) ? $no_conciliacion_no_comparecencia[$conciliador->id] : 0);
+            $sheet->setCellValue('F'.$row_indicador_nocomparecencia, '=ROUND(C'.$row_indicador_nocomparecencia."/(B".$row_indicador_nocomparecencia."-E".$row_indicador_nocomparecencia."),2)");
+
+            $row_indicador_nocomparecencia++;
+        }
+
+        $sheet->setCellValue('A'.$row_indicador_nocomparecencia, 'TOTAL');
+        $sheet->setCellValue('B'.$row_indicador_nocomparecencia, '=SUM(B'.$row_inicio_inidicador_nocompetencia.":B".$row_indicador_nocomparecencia.")");
+        $sheet->setCellValue('C'.$row_indicador_nocomparecencia, '=SUM(C'.$row_inicio_inidicador_nocompetencia.":C".$row_indicador_nocomparecencia.")");
+        $sheet->setCellValue('D'.$row_indicador_nocomparecencia, '=SUM(D'.$row_inicio_inidicador_nocompetencia.":D".$row_indicador_nocomparecencia.")");
+        $sheet->setCellValue('E'.$row_indicador_nocomparecencia, '=SUM(E'.$row_inicio_inidicador_nocompetencia.":E".$row_indicador_nocomparecencia.")");
+        $sheet->setCellValue('F'.$row_indicador_nocomparecencia, '=ROUND(C'.$row_indicador_nocomparecencia."/(B".$row_indicador_nocomparecencia."-E".$row_indicador_nocomparecencia."),2)");
+
+    }
+
+    /**
+     * Construye el gráfico de pay
+     * @param $worksheet
+     * @param $tl
+     * @param $br
+     * @param $titulo
+     * @param $dsl1
+     * @param $dsv1
+     * @param $dsx1
+     */
+    public function pay($worksheet, $tl, $br, $titulo, $dsl1, $dsv1, $dsx1, $tipo=null)
+    {
+        //if($tipo) dd([$dsl1, $dsv1, $dsx1]);
+
+        if($tipo){
+            $dataSeriesLabels1 = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'Indicadores por centro\'!$A$'.$dsv1, null, 1),
+            ];
+            $dataSeriesValues1 = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, "'Indicadores por centro'!\$C\$$dsv1:\$E\$$dsv1", null, 4),
+            ];
+            $xAxisTickValues1 = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, "'Indicadores por centro'!\$C\$$dsx1:\$E\$$dsx1", null, 4),
+            ];
+        }
+        else{
+            $dataSeriesLabels1 = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'Indicadores por centro\'!$A$'.$dsv1, null, 1),
+            ];
+            $dataSeriesValues1 = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'Indicadores por centro\'!$B$'.$dsv1.':$C$'.$dsv1, null, 4),
+            ];
+            $xAxisTickValues1 = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'Indicadores por centro\'!$B$'.$dsx1.':$C$'.$dsx1, null, 4),
+            ];
+        }
+
+        $series1 = new DataSeries(
+            DataSeries::TYPE_PIECHART_3D,
+            null,
+            range(0, count($dataSeriesValues1) - 1),
+            $dataSeriesLabels1,
+            $xAxisTickValues1,
+            $dataSeriesValues1
+        );
+        $layout1 = new Layout();
+        $layout1->setShowVal(true);
+        $layout1->setShowPercent(true);
+        $plotArea1 = new PlotArea($layout1, [$series1]);
+        $legend1 = new Legend(Legend::POSITION_BOTTOM, null, false);
+        $title1 = new Title($titulo);
+        $chart1 = new Chart(
+            'chart1',
+            $title1,
+            $legend1,
+            $plotArea1,
+            true,
+            DataSeries::EMPTY_AS_GAP,
+            null,
+            null
+        );
+        $chart1->setTopLeftPosition($tl);
+        $chart1->setBottomRightPosition($br);
+        $worksheet->addChart($chart1);
+    }
+
+    /**
+     * Construye el gráfico de columnas apiladas
+     * @param $worksheet
+     * @param $tl
+     * @param $br
+     * @param $titulo
+     * @param $dsl1
+     * @param $dsv1
+     * @param $dsx1
+     */
+    public function columnasApiladas($worksheet, $tl, $br, $titulo, $dsl1, $dsv1, $dsx1, $tipo=null)
+    {
+        //if($tipo) dd([$dsl1, $dsv1, $dsx1]);
+        if($tipo){
+            $dataSeriesLabels = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'Indicadores por centro\'!$C$'.$dsl1, null, 1),
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'Indicadores por centro\'!$D$'.$dsl1, null, 1),
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'Indicadores por centro\'!$E$'.$dsl1, null, 1),
+            ];
+
+            $xAxisTickValues = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'Indicadores por centro\'!$A$'.$dsv1.':$A$'.($dsx1 -1), null, 4),
+            ];
+
+            $dataSeriesValues = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'Indicadores por centro\'!$C$'.$dsv1.':$C$'.($dsx1 -1), null, 4),
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'Indicadores por centro\'!$D$'.$dsv1.':$D$'.($dsx1 -1), null, 4),
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'Indicadores por centro\'!$E$'.$dsv1.':$E$'.($dsx1 -1), null, 4),
+            ];
+        }
+        else {
+            $dataSeriesLabels = [
+                new DataSeriesValues(
+                    DataSeriesValues::DATASERIES_TYPE_STRING,
+                    '\'Indicadores por centro\'!$B$' . $dsl1,
+                    null,
+                    1
+                ),
+                new DataSeriesValues(
+                    DataSeriesValues::DATASERIES_TYPE_STRING,
+                    '\'Indicadores por centro\'!$C$' . $dsl1,
+                    null,
+                    1
+                ),
+            ];
+
+            $xAxisTickValues = [
+                new DataSeriesValues(
+                    DataSeriesValues::DATASERIES_TYPE_STRING,
+                    '\'Indicadores por centro\'!$A$' . $dsv1 . ':$A$' . ($dsx1 - 1),
+                    null,
+                    4
+                ),
+            ];
+
+            $dataSeriesValues = [
+                new DataSeriesValues(
+                    DataSeriesValues::DATASERIES_TYPE_NUMBER,
+                    '\'Indicadores por centro\'!$B$' . $dsv1 . ':$B$' . ($dsx1 - 1),
+                    null,
+                    4
+                ),
+                new DataSeriesValues(
+                    DataSeriesValues::DATASERIES_TYPE_NUMBER,
+                    '\'Indicadores por centro\'!$C$' . $dsv1 . ':$C$' . ($dsx1 - 1),
+                    null,
+                    4
+                ),
+            ];
+        }
+        $series = new DataSeries(
+            DataSeries::TYPE_BARCHART,
+            DataSeries::GROUPING_STACKED,
+            range(0, count($dataSeriesValues) - 1),
+            $dataSeriesLabels,
+            $xAxisTickValues,
+            $dataSeriesValues
+        );
+        $series->setPlotDirection(DataSeries::DIRECTION_COL);
+        $plotArea = new PlotArea(null, [$series]);
+        $legend = new Legend(Legend::POSITION_BOTTOM, null, false);
+        $title = new Title($titulo);
+
+        $chart = new Chart(
+            'chart1',
+            $title,
+            $legend,
+            $plotArea,
+            true,
+            DataSeries::EMPTY_AS_GAP,
+            null,
+            null
+        );
+
+        $chart->setTopLeftPosition($tl);
+        $chart->setBottomRightPosition($br);
+        $worksheet->addChart($chart);
+    }
+
+    /**
+     * Columnas del ratio
+     * @param $worksheet
+     * @param $tl
+     * @param $br
+     * @param $titulo
+     * @param $dsl1
+     * @param $dsv1
+     * @param $dsx1
+     */
+    public function columnas($worksheet, $tl, $br, $titulo, $dsl1, $dsv1, $dsx1, $tipo=null)
+    {
+        if($tipo) {
+            $dataSeriesLabels = [
+                new DataSeriesValues(
+                    DataSeriesValues::DATASERIES_TYPE_STRING,
+                    '\'Indicadores por centro\'!$F$' . $dsl1,
+                    null,
+                    1
+                ),
+            ];
+
+            $xAxisTickValues = [
+                new DataSeriesValues(
+                    DataSeriesValues::DATASERIES_TYPE_STRING,
+                    '\'Indicadores por centro\'!$A$' . $dsv1 . ':$A$' . ($dsx1 - 1),
+                    null,
+                    4
+                ),
+            ];
+
+            $dataSeriesValues = [
+                new DataSeriesValues(
+                    DataSeriesValues::DATASERIES_TYPE_NUMBER,
+                    '\'Indicadores por centro\'!$F$' . $dsv1 . ':$F$' . ($dsx1 - 1),
+                    null,
+                    4
+                ),
+            ];
+        }
+        else{
+            $dataSeriesLabels = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'Indicadores por centro\'!$D$'.$dsl1, null, 1),
+            ];
+
+            $xAxisTickValues = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'Indicadores por centro\'!$A$'.$dsv1.':$A$'.($dsx1 -1), null, 4),
+            ];
+
+            $dataSeriesValues = [
+                new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'Indicadores por centro\'!$D$'.$dsv1.':$D$'.($dsx1 -1), null, 4),
+            ];
+        }
+
+        $series = new DataSeries(
+            DataSeries::TYPE_BARCHART,
+            DataSeries::GROUPING_STACKED,
+            range(0, count($dataSeriesValues) - 1),
+            $dataSeriesLabels,
+            $xAxisTickValues,
+            $dataSeriesValues
+        );
+        $series->setPlotDirection(DataSeries::DIRECTION_COL);
+        $plotArea = new PlotArea(null, [$series]);
+        $legend = new Legend(Legend::POSITION_BOTTOM, null, false);
+        $title = new Title($titulo);
+
+        $chart = new Chart(
+            'chart1',
+            $title,
+            null,
+            $plotArea,
+            true,
+            DataSeries::EMPTY_AS_GAP,
+            null,
+            null
+        );
+
+        $chart->setTopLeftPosition($tl);
+        $chart->setBottomRightPosition($br);
+        $worksheet->addChart($chart);
+    }
 }
