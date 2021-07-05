@@ -27,6 +27,7 @@ class AudienciaServiceProvider extends ServiceProvider
         $solicitantes = self::getSolicitantes($audiencia);
         $solicitados = self::getSolicitados($audiencia);
         $huboConvenio = false;
+        $totalPagoC = [];
         foreach ($solicitados as $solicitado) {
             foreach ($solicitantes as $solicitante) {
                 $bandera = true;
@@ -58,7 +59,7 @@ class AudienciaServiceProvider extends ServiceProvider
                         ]);
                     }
                 }
-                $totalPagoC = [];
+                
                 if ($bandera) {
                     //Se consulta comparecencia de solicitante
                     $parteS = $solicitante->parte;
@@ -169,7 +170,7 @@ class AudienciaServiceProvider extends ServiceProvider
             if ($solicitanteComparecio != null) {
                 if (isset($listaConceptos)) {
                     if (count($listaConceptos) > 0) {
-                        $totalPagoC[$solicitado->parte_id] = 0.0;
+                        $totalPagoC[$solicitado->parte_id] = 0;
                         foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
                             if ($key == $solicitado->parte_id) {
                                 foreach ($conceptosSolicitante as $k => $concepto) {
