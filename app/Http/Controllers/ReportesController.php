@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Centro;
 use App\Conciliador;
 use App\Industria;
 use App\ObjetoSolicitud;
@@ -15,6 +16,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Reader\IReader;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportesController extends Controller
@@ -48,6 +50,7 @@ class ReportesController extends Controller
     public function __construct(Request $request) {
         //$this->middleware('can:Reportes');
         $this->request = $request;
+        $this->imp = Centro::whereNotNull('desde')->orderBy('abreviatura')->get()->pluck('abreviatura')->toArray();
     }
 
     /**
@@ -185,6 +188,7 @@ class ReportesController extends Controller
     {
         $response =  new StreamedResponse(
             function () use ($writer) {
+                $writer->setIncludeCharts(true);
                 $writer->save('php://output');
             }
         );
@@ -234,23 +238,43 @@ class ReportesController extends Controller
      * Excel proporcionado por personal del CFCRL (Mtra. Gianni)
      * @param ExcelReporteOperativoService $excelReporteOperativoService
      * @return StreamedResponse
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
     public function reporteOperativo(ExcelReporteOperativoService $excelReporteOperativoService)
     {
+        // Nombre del archivo descargable del reporte
+        $nombre_reporte = 'ReporteOperativoSINACOL_'.date("Y-m-d_His").".xlsx";
+
         // Cambiamos a la base de respaldo para las consultas y no pegar en el performance en producción.
         DB::setDefaultConnection('pgsqlqa');
 
+        // Instancia de la plantilla excel que se va a llenar
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load(base_path('database/datafiles/plantilla_reporte_operativo.xlsx'));
 
-        $sheet = $spreadsheet->getActiveSheet();
-
+        //La primera hoja se va a llamar reporte operativoa
+        $sheet = $spreadsheet->getSheet(0);
         $sheet->setTitle('Reporte operativo');
 
-        $nombre_reporte = 'ReporteOperativoSINACOL_'.date("Y-m-d_His").".xlsx";
-        // Si viene el parámetro query logueamos los querys a pantalla
+        // Si viene el parámetro query logueamos los querys a pantalla (debug)
         if($this->request->exists('querys')) DB::enableQueryLog();
 
+        // Generamos el reporte
         $excelReporteOperativoService->reporte($sheet, $this->request);
+
+        // La segunda hoja del archivo se va a llamar indicadoresPorCentro por centro
+        $indicadoresPorCentroSheet = $spreadsheet->getSheet(1);
+
+        // Generamos los indicadoresPorCentro
+        $excelReporteOperativoService->indicadoresPorCentro($indicadoresPorCentroSheet, $this->request);
+
+        // La terecera hoja del archivo se va a llamar indicadoresPorConciliador
+        $indicadoresPorConciliadorSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Indicadores por conciliador');
+        $spreadsheet->addSheet($indicadoresPorConciliadorSheet, 2);
+
+        // Generamos los indicadores por conciliador
+        $excelReporteOperativoService->indicadoresPorConciliador($indicadoresPorConciliadorSheet, $this->request);
+
+        $spreadsheet->setActiveSheetIndex(0);
 
         // Si viene el parámetro query logueamos los querys a pantalla
         if($this->request->exists('querys')) {$res =  ReportesService::debugSql(); dump($res); exit;}

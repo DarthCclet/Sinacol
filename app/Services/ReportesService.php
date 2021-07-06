@@ -28,6 +28,11 @@ class ReportesService
     const SOLICITANTE_ID = 1;
 
     /**
+     * ID de citado en catálogo tipo_partes
+     */
+    const CITADO_ID = 2;
+
+    /**
      * ID de tipo de solicitud individual en catálogo de tipos_solicitudes
      */
     const SOLICITUD_INDIVIDUAL = 1;
@@ -164,8 +169,12 @@ class ReportesService
         if ($request->get('tipo_reporte') == 'agregado') {
             # Seleccionamos la abreviatura del nombre y su cuenta
             $q->select('centros.abreviatura', DB::raw('count(*)'))->groupBy('centros.abreviatura');
+            if(empty($request->get('conciliadores'))) {
+                $q->leftJoin('expedientes', 'expedientes.solicitud_id', '=', 'solicitudes.id');
+                $q->whereNull('expedientes.deleted_at');
+            }
         }else{
-            $q->with(['objeto_solicitudes']);
+            $q->with(['objeto_solicitudes','giroComercial.industria', 'tipoSolicitud']);
             $q->select('solicitudes.id as sid','solicitudes.*','centros.abreviatura');
 
             # Ordenamos por el centro y por la fecha de recepción para mostrar en el listado desagregado
@@ -178,6 +187,10 @@ class ReportesService
             $q->leftJoin('audiencias', 'audiencias.expediente_id', '=', 'expedientes.id');
             $q->leftJoin('conciliadores', 'conciliadores.id', '=', 'audiencias.conciliador_id');
             $q->leftJoin('personas', 'personas.id', '=', 'conciliadores.persona_id');
+
+            $q->whereNull('solicitudes.deleted_at');
+            $q->whereNull('expedientes.deleted_at');
+            $q->whereNull('audiencias.deleted_at');
         }
 
         if ($request->get('tipo_reporte') == 'desagregado') {
@@ -237,9 +250,14 @@ class ReportesService
         if($request->get('tipo_reporte')=='agregado') {
             # Seleccionamos la abreviatura del nombre y su cuenta
             $q->select('centros.abreviatura', 'inmediata');
+            if(empty($request->get('conciliadores'))){
+                $q->leftJoin('expedientes', 'expedientes.solicitud_id', '=', 'solicitudes.id');
+                $q->whereNull('expedientes.deleted_at');
+            }
+
         }else{
-            $q->with(['objeto_solicitudes']);
-            $q->select('solicitudes.id as sid','solicitudes.*','centros.abreviatura');
+            $q->with(['objeto_solicitudes','giroComercial.industria', 'tipoSolicitud']);
+            $q->select('solicitudes.id as sid','solicitudes.*','centros.abreviatura','expedientes.folio as folio_unico');
 
             # Ordenamos por el centro y por la fecha de recepción para mostrar en el listado desagregado
             $q->orderBy('centros.abreviatura')->orderBy('solicitudes.fecha_recepcion');
@@ -251,6 +269,10 @@ class ReportesService
             $q->leftJoin('audiencias', 'audiencias.expediente_id', '=', 'expedientes.id');
             $q->leftJoin('conciliadores', 'conciliadores.id', '=', 'audiencias.conciliador_id');
             $q->leftJoin('personas', 'personas.id', '=', 'conciliadores.persona_id');
+
+            $q->whereNull('solicitudes.deleted_at');
+            $q->whereNull('expedientes.deleted_at');
+            $q->whereNull('audiencias.deleted_at');
         }
 
         if ($request->get('conciliadores')) {
@@ -423,9 +445,9 @@ class ReportesService
     public function incompetencias($request)
     {
         //if ($request->get('tipo_reporte') == 'agregado') {
-            $en_ratificacion = $this->incompetenciasEnEtapa($request, 'ratificacion');
-            $en_audiencia = $this->incompetenciasEnEtapa($request, 'audiencia');
-            return compact('en_ratificacion','en_audiencia');
+        $en_ratificacion = $this->incompetenciasEnEtapa($request, 'ratificacion');
+        $en_audiencia = $this->incompetenciasEnEtapa($request, 'audiencia');
+        return compact('en_ratificacion','en_audiencia');
         //}
     }
 
@@ -456,7 +478,7 @@ class ReportesService
         else {
             $q->select('centros.abreviatura',
                        'expedientes.folio as expediente', 'audiencias.id as audiencia_id', 'solicitudes.id as solicitud_id',
-                        'solicitudes.fecha_ratificacion', 'solicitudes.ratificada'
+                       'solicitudes.fecha_ratificacion', 'solicitudes.ratificada'
             );
         }
         //Hacemos el join con centros para reprotar agrupado por centro
@@ -497,7 +519,7 @@ class ReportesService
         else{
             //$q->whereNotNull('fecha_ratificacion');
             $q->whereHas('expediente.audiencia.documentos', function ($qq){
-               return $qq->where('clasificacion_archivo_id', self::INCOMPETENCIA_EN_AUDIENCIA);
+                return $qq->where('clasificacion_archivo_id', self::INCOMPETENCIA_EN_AUDIENCIA);
             });
         }
 
@@ -574,7 +596,6 @@ class ReportesService
             $q->whereIn('audiencias.conciliador_id', $request->get('conciliadores'));
         }
 
-
         $q->where('resolucion_id', self::ARCHIVADO);
 
         $q->whereNull('expedientes.deleted_at');
@@ -646,7 +667,7 @@ class ReportesService
                    'audiencias.id as audiencia_id',
                    'fecha_audiencia','numero_audiencia',
                    'monto'
-                   // ,'tipo_propuesta_pago_id'
+        // ,'tipo_propuesta_pago_id'
         );
 
         $q->join('expedientes','expedientes.solicitud_id','=','solicitudes.id');
@@ -860,17 +881,17 @@ class ReportesService
             $res = $q->get()->sortByDesc(function ($item) {
                 return $item['solicitud_id'].$item['numero_audiencia'];
             })
-            ->unique(function ($item) {
-                return $item['abreviatura'].$item['solicitud_id'];
-            })->where('resolucion_id',self::RESOLUCIONES_NO_HUBO_CONVENIO)->sortBy('abreviatura');
+                ->unique(function ($item) {
+                    return $item['abreviatura'].$item['solicitud_id'];
+                })->where('resolucion_id',self::RESOLUCIONES_NO_HUBO_CONVENIO)->sortBy('abreviatura');
         }
         else{
             $res = $q->get()->sortByDesc(function ($item) {
                 return $item['abreviatura'].$item['solicitud_id'].$item['numero_audiencia'];
             })
-            ->unique(function ($item) {
-                return $item['abreviatura'].$item['solicitud_id'];
-            })->where('resolucion_id',self::RESOLUCIONES_NO_HUBO_CONVENIO)->sortBy('abreviatura');
+                ->unique(function ($item) {
+                    return $item['abreviatura'].$item['solicitud_id'];
+                })->where('resolucion_id',self::RESOLUCIONES_NO_HUBO_CONVENIO)->sortBy('abreviatura');
         }
 
         return $res;
@@ -948,8 +969,8 @@ class ReportesService
 
         $q->select('audiencias.id as audiencia_id', 'expedientes.folio as expediente', 'centros.abreviatura',
                    'audiencias.fecha_audiencia', 'solicitudes.id as solicitud_id',
-                    'resolucion_pagos_diferidos.fecha_pago', 'resolucion_pagos_diferidos.pagado'
-                   );
+                   'resolucion_pagos_diferidos.fecha_pago', 'resolucion_pagos_diferidos.pagado'
+        );
 
         $q->join('audiencias','audiencias.id','=','resolucion_pagos_diferidos.audiencia_id');
         $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
@@ -1175,7 +1196,7 @@ class ReportesService
     }
 
     /**
-     * Devuelve query por características del solicitante
+     * Devuelve query por características de la persona solicitante
      * @param $q
      * @param $modelo
      * @param $genero_id
@@ -1195,11 +1216,26 @@ class ReportesService
                 }
 
                 # Por el  o los grupos etarios
-                if ($grupo_id) {
+                if (!empty($grupo_id)) {
+
                     $q->where(
                         function ($qq) use ($grupo_id) {
-                            list($ini, $fin) = explode('-', $grupo_id);
+                            if(is_array($grupo_id)) {
+                                $c = 0;
+                                foreach ($grupo_id as $grupo) {
+                                    list($ini, $fin) = explode('-', $grupo);
+                                    if ($c == 0) {
+                                        $qq->whereRaw('edad::integer BETWEEN ? AND ?', [$ini, $fin]);
+                                        $c++;
+                                        continue;
+                                    }
+                                    $qq->orWhereRaw('edad::integer BETWEEN ? AND ?', [$ini, $fin]);
+                                }
+                            }
+                            else {
+                                list($ini, $fin) = explode('-', $grupo_id);
                                 $qq->whereRaw('edad::integer BETWEEN ? AND ?', [$ini, $fin]);
+                            }
                         }
                     );
                 }
@@ -1210,6 +1246,47 @@ class ReportesService
 
                 # Sólo se toman en cuenta los solicitantes
                 $q->where('tipo_parte_id', self::SOLICITANTE_ID);
+                return $q;
+            }
+        );
+    }
+
+    /**
+     * Devuelve query por características de la persona citada
+     * @param $q
+     * @param $modelo
+     * @param $genero_id
+     * @param $grupo_id
+     * @param $tipo_persona_id
+     * @return mixed
+     */
+    public static function caracteristicasCitado($q, $modelo, $genero_id, $grupo_id, $tipo_persona_id)
+    {
+        $modelo = trim($modelo);
+        return $q->whereHas(
+            $modelo,
+            function ($q) use ($genero_id, $grupo_id, $tipo_persona_id) {
+                # Por el género
+                if ($genero_id) {
+                    $q->where('genero_id', $genero_id);
+                }
+
+                # Por el  o los grupos etarios
+                if ($grupo_id) {
+                    $q->where(
+                        function ($qq) use ($grupo_id) {
+                            list($ini, $fin) = explode('-', $grupo_id);
+                            $qq->whereRaw('edad::integer BETWEEN ? AND ?', [$ini, $fin]);
+                        }
+                    );
+                }
+                # Por el tipo de persona
+                if ($tipo_persona_id) {
+                    $q->where('tipo_persona_id', $tipo_persona_id);
+                }
+
+                # Cuando la solicitud es tipo patronal individual, entonces el trabjador es el citado
+                $q->where('tipo_parte_id', self::CITADO_ID);
                 return $q;
             }
         );
@@ -1272,8 +1349,8 @@ class ReportesService
             'tipo_objeto_solicitudes_id',
             [self::SOLICITUD_INDIVIDUAL, self::SOLICITUD_PATRONAL_INDIVIDUAL]
         )
-        ->orderBy('nombre')
-        ->get();
+            ->orderBy('nombre')
+            ->get();
     }
 
     /**

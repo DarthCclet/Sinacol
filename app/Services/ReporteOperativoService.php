@@ -117,6 +117,8 @@ class ReporteOperativoService
 
         //Dejamos fuera los no consultables
         $this->noReportables($q);
+        $q->leftJoin('expedientes', 'expedientes.solicitud_id', '=', 'solicitudes.id');
+        $q->whereNull('expedientes.deleted_at');
         if($tipos) $this->filtroTipoSolicitud($request, $q);
         //dd($this->debugSql($q));
         return $q;
@@ -129,7 +131,6 @@ class ReporteOperativoService
      */
     public function solicitudesRatificacion($request)
     {
-
         $q = (new SolicitudFilter(Solicitud::query(), $request))
             ->searchWith(Solicitud::class)
             ->filter(false);
@@ -144,8 +145,11 @@ class ReporteOperativoService
 
         //Dejamos fuera los no consultables
         $this->noReportables($q);
+        $q->leftJoin('expedientes', 'expedientes.solicitud_id', '=', 'solicitudes.id');
+        $q->whereNull('expedientes.deleted_at');
+
         $this->filtroTipoSolicitud($request, $q);
-        //dd($this->debugSql($q));
+
         return $q;
     }
 
@@ -307,7 +311,7 @@ class ReporteOperativoService
             $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
         }
 
-        $q->select('audiencias.id as audiencia_id',  'centros.abreviatura', 'audiencias.fecha_audiencia',
+        $q->select('audiencias.id as audiencia_id',  'centros.abreviatura', 'audiencias.fecha_audiencia','audiencias.conciliador_id',
                        'solicitudes.id as solicitud_id', 'audiencias.finalizada as audiencia_finalizada', 'audiencias.numero_audiencia');
 
         //Seleccionamos la abreviatura del nombre y su cuenta
@@ -348,6 +352,7 @@ class ReporteOperativoService
 
         //Se filtran las no reportables
         $this->noReportables($q);
+        $q->whereNull('expedientes.deleted_at');
         $q->whereNull('audiencias.deleted_at');
         $q->whereNull('audiencias_partes.deleted_at');
         $this->filtroTipoSolicitud($request, $q);
