@@ -72,13 +72,14 @@ class AudienciaServiceProvider extends ServiceProvider
                         }
                         
                     } else {//solicitante fisica
-                        $compareciente_partes = Parte::where("parte_representada_id", $parteS->id)->get();
-                        if (count($compareciente_partes) > 0) {
-                            foreach ($compareciente_partes as $key => $compareciente_parte) {
-                                $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
-                            }
-                        } else {
-                            $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->where('audiencia_id',$audiencia->id)->first();
+                        $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->where('audiencia_id',$audiencia->id)->first();
+                        if($comparecienteSol == null) {
+                            $compareciente_partes = Parte::where("parte_representada_id", $parteS->id)->get();
+                            if (count($compareciente_partes) > 0) {
+                                foreach ($compareciente_partes as $key => $compareciente_parte) {
+                                    $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
+                                }
+                            } 
                         }
                     }
                     //Se consulta comparecencia de citado

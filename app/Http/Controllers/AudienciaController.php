@@ -1511,10 +1511,8 @@ class AudienciaController extends Controller {
                         $compareciente_partes = Parte::where("parte_representada_id", $solicitado->parte_id)->get();
                         if (count($compareciente_partes) > 0) {
                             foreach ($compareciente_partes as $key => $compareciente_parte) {
-                                $comparecienteSol = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
+                                $comparecienteCit = Compareciente::where('parte_id', $compareciente_parte->id)->where('audiencia_id',$audiencia->id)->first();
                             }
-                        } else {
-                            $comparecienteSol = Compareciente::where('parte_id', $solicitante->parte_id)->where('audiencia_id',$audiencia->id)->first();
                         }
                     }
 
