@@ -1485,6 +1485,7 @@ class AudienciaController extends Controller {
             }
             $convienenTodos = false;
         }
+        $totalPagoC = [];
         foreach ($solicitantes as $solicitante) {
             foreach ($solicitados as $solicitado) {
                 $existeRes = ResolucionPartes::where('parte_solicitante_id',$solicitante->parte_id)->where('parte_solicitada_id',$solicitado->parte_id)->where('audiencia_id',$audiencia->id)->first();
@@ -1612,6 +1613,7 @@ class AudienciaController extends Controller {
             if ($solicitanteComparecio != null) {
                 if (isset($listaConceptos)) {
                     if (count($listaConceptos) > 0) {
+                        $totalPagoC[$solicitante->parte_id] = 0.0;
                         foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
                             if ($key == $solicitante->parte_id) {
                                 foreach ($conceptosSolicitante as $k => $concepto) {
@@ -1623,6 +1625,7 @@ class AudienciaController extends Controller {
                                         "monto" => $concepto["monto"],
                                         "otro" => $concepto["otro"]
                                     ]);
+                                    $totalPagoC[$solicitante->parte_id] =  floatval($totalPagoC[$solicitante->parte_id])  + floatval($concepto["monto"]);
                                 }
                             }
                         }
@@ -1649,7 +1652,9 @@ class AudienciaController extends Controller {
                             "audiencia_id" => $audiencia->id,
                             "solicitante_id" => $fechaPago["idSolicitante"],
                             "monto" => $fechaPago["monto_pago"],
-                            "fecha_pago" => Carbon::createFromFormat('d/m/Y h:i', $fechaPago["fecha_pago"])->format('Y-m-d h:i')
+                            "descripcion_pago" => $fechaPago["descripcion_pago"],
+                            "fecha_pago" => Carbon::createFromFormat('d/m/Y h:i', $fechaPago["fecha_pago"])->format('Y-m-d h:i'),
+                            "diferido"=>true
                         ]);
                     }
                 }
@@ -1666,6 +1671,17 @@ class AudienciaController extends Controller {
                 //Se valida si hubo convenio para esta parte para generar convenio o si se genera acta de no conciliacion
                 $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 3)->first();
                 if ($convenio != null) {
+                    if (!isset($listaFechasPago)) {//si no se registraron pagos diferidos crear pago NO diferido
+                        ResolucionPagoDiferido::create([
+                            "audiencia_id" => $audiencia->id,
+                            "solicitante_id" => $solicitante->parte_id,
+                            "monto" => $totalPagoC[$solicitante->parte_id],
+                            "descripcion_pago" => "Convenio",
+                            "fecha_pago" => $audiencia->fecha_audiencia ." ".$audiencia->hora_fin,
+                            "diferido"=>false
+                        ]);
+                    }
+                    // $pagos = ResolucionPagoDiferido::where('audiencia_id',$audiencia->id)->get();
                     if($convenio->tipo_propuesta_pago_id == 4){
                         //generar convenio reinstalacion
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 43, 9, $solicitante->parte_id));
@@ -1676,6 +1692,15 @@ class AudienciaController extends Controller {
                         //generar convenio
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 16, 2, $solicitante->parte_id));//15
                     }
+
+                    //generar constancia de cumplimiento si no tiene pagos diferidos
+                    // if ($listaFechasPago == null) {
+                    //     if($audiencia->expediente->solicitud->tipo_solicitud_id == 1){//solicitud individual
+                    //         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->solicitud_id, 45, 12,$solicitante->parte_id));
+                    //     }else{
+                    //         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->solicitud_id, 45, 12,null,$solicitante->partte_id));
+                    //     }
+                    // }
                 } else {
                     $noConciliacion = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 5)->first();
                     if ($noConciliacion != null) {
@@ -1726,30 +1751,37 @@ class AudienciaController extends Controller {
         try {
             $solicitud = Solicitud::find($request->solicitud_id);
             $pagoDiferido = ResolucionPagoDiferido::find($request->idPagoDiferido);
+
+            $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->where('solicitante_id',$pagoDiferido->solicitante_id)->orderBy('fecha_pago')->get();
+            $totalPagos = count($pagos);
+            $ultimoPago = $pagos->last()->id;
             if($pagoDiferido){
                 $pagoDiferido->update([
-                    "pagado" => true
+                    "pagado" => true,
+                    "informacion_pago"=> $request->informacionPago,
+                    "fecha_cumplimiento" => Carbon::createFromFormat('d/m/Y', $request->fecha_cumplimiento)->format('Y-m-d'),
                 ]);
-                //generar constacia de pago parcial
-                if($solicitud->tipo_solicitud_id == 1){//solicitud individual
+                //generar constacia de pago parcial si no es ultimo pago
+                if($solicitud->tipo_solicitud_id == 1 && $pagoDiferido->id != $ultimoPago){//solicitud individual
                     event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,$pagoDiferido->solicitante_id));
-                }else{
+                }else if($solicitud->tipo_solicitud_id != 1 && $pagoDiferido->id != $ultimoPago){
                     event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,null,$pagoDiferido->solicitante_id));
                 }
             }
-
             $pagos = ResolucionPagoDiferido::where('audiencia_id', $request->audiencia_id)->where('solicitante_id',$pagoDiferido->solicitante_id)->orderBy('fecha_pago')->get();
-            $ultimoPago = $pagos->last()->id;
             $pagados = true;
             foreach ($pagos as $pago) {
                 if ($pago->pagado == false) {
                     $pagados = false;
                 }
             }
-            //si los pagos anteriores han sido pagados y es el ultimo pago
-            //generar constancia de cumplimiento de convenio
             //if($pagados && ($ultimoPago == $request->idPagoDiferido)){
-            if ($pagados) {
+                //si los pagos anteriores han sido pagados y es el ultimo pago
+            if ($pagados && $ultimoPago == $pagoDiferido->id ) {
+                if($totalPagos > 1){
+                    //generar pago parcial y cumplimiento si son 2 o mas pagos
+                    event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 49, 13,$pagoDiferido->solicitante_id));
+                }
                 //generar constancia de cumplimiento de convenio
                 if($solicitud->tipo_solicitud_id == 1){//solicitud individual
                     event(new GenerateDocumentResolution($request->audiencia_id, $request->solicitud_id, 45, 12,$pagoDiferido->solicitante_id));
