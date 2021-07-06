@@ -2000,7 +2000,7 @@ class AudienciaController extends Controller {
                     "folio" => $folioAudiencia->contador,
                     "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
                     "etapa_notificacion_id" => $etapa->id
-        ]);
+        ]); 
         if ($datos_audiencia["encontro_audiencia"]) {
             // guardamos la sala y el consiliador a la audiencia
             ConciliadorAudiencia::create(["audiencia_id" => $audienciaN->id, "conciliador_id" => $datos_audiencia["conciliador_id"], "solicitante" => true]);
