@@ -2024,9 +2024,11 @@ class AudienciaController extends Controller {
                 foreach ($request->listaRelaciones as $notificar) {
                     if ($parte->id == $notificar) {
                         if(!$parte->notificacion_exitosa){
-                            $tipoNotificacionBuzon = $tipoNotificacion;
-                            $fecha_notificacion = null;
-                            $finalizado = null;
+                            if(!$parte->notificacion_buzon){
+                                $tipoNotificacionBuzon = $tipoNotificacion;
+                                $fecha_notificacion = null;
+                                $finalizado = null;
+                            }
                         }else{
                             $tipoNotificacionBuzon = $tipoNotificacionRenuente;
                             $fecha_notificacion = null;
@@ -2053,12 +2055,12 @@ class AudienciaController extends Controller {
                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->id));
             }
         }
-        DB::commit();
         if ($notificar > 0) {
             foreach ($partes_notificar as $parte) {
                 event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $parte));
             }
         }
+        DB::commit();
         return $audienciaN;
     }
 
@@ -2550,6 +2552,7 @@ class AudienciaController extends Controller {
                             }
                         } else if ($parte_compareciente->tipo_parte_id == 3) {
                             $parte_representada = Parte::find($parte_compareciente->parte_representada_id);
+                            $parte_representada->update(['notificacion_buzon'=>true]);
                             if ($parte_representada->tipo_parte_id == 1) {
                                 $solicitantes = true;
                             } else if ($parte_representada->tipo_parte_id == 2) {
@@ -2557,10 +2560,10 @@ class AudienciaController extends Controller {
                                 $totalCitadosComparecen++;
                             }
                         }
-                        $parteComparece = Parte::find($compareciente);
-                        $parteComparece->update(['notificacion_buzon'=>true]);
-                        if($parteComparece->parte_representada_id != null){
-                            Parte::find($parteComparece->parte_representada_id)->update(['notificacion_buzon'=>true]);
+                        $parte_compareciente = Parte::find($compareciente);
+                        $parte_compareciente->update(['notificacion_buzon'=>true]);
+                        if($parte_compareciente->parte_representada_id != null){
+                            Parte::find($parte_compareciente->parte_representada_id)->update(['notificacion_buzon'=>true]);
                         }
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $this->request->audiencia_id, "presentado" => true]);
                     }
@@ -2632,12 +2635,14 @@ class AudienciaController extends Controller {
                                     $audienciaParte = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id', $solicitado->parte_id)->first();
                                     if($audienciaParte != null){
                                         if($audienciaParte->tipo_notificacion_id != $tipo_notificacion_solicitante->id){
-                                            if ($audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaParte->finalizado == "EXITOSO POR INSTRUCTIVO") {
-                                                if (array_search($solicitado->parte_id, $arrayMultado) === false && $audiencia->expediente->solicitud->tipo_solicitud_id == $tipo_solicitud_individual->id) {
-                                                    // Se genera archivo de acta de multa
-                                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
-                                                    array_push($arrayMultado, $solicitado->parte_id);
-                                                    array_push($arrayMultadoNotificacion, $audienciaParte->id);
+                                            if(!$audienciaParte->parte->multado){
+                                                if ($audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaParte->finalizado == "EXITOSO POR INSTRUCTIVO") {
+                                                    if (array_search($solicitado->parte_id, $arrayMultado) === false && $audiencia->expediente->solicitud->tipo_solicitud_id == $tipo_solicitud_individual->id) {
+                                                        // Se genera archivo de acta de multa
+                                                        event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
+                                                        array_push($arrayMultado, $solicitado->parte_id);
+                                                        array_push($arrayMultadoNotificacion, $audienciaParte->id);
+                                                    }
                                                 }
                                             }
                                         }
@@ -2796,11 +2801,13 @@ class AudienciaController extends Controller {
                                             }
                                         }
                                         if(!$comparecio && ($audienciaP->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaP->finalizado == "EXITOSO POR INSTRUCTIVO") && $audienciaP->parte->tipo_parte_id == $tipo_parte->id){
-                                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
-                                            array_push($arrayMultadoNotificacion, $audienciaP->id);
-                                            $notificar = true;
-                                            $citatorio = false;
-                                            $audiencia_notificar_id = $audiencia->id;
+                                            if(!$audienciaP->parte->multado){
+                                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
+                                                array_push($arrayMultadoNotificacion, $audienciaP->id);
+                                                $notificar = true;
+                                                $citatorio = false;
+                                                $audiencia_notificar_id = $audiencia->id;
+                                            }
                                         }
                                     }
                                 }
@@ -2814,7 +2821,13 @@ class AudienciaController extends Controller {
             DB::commit();
             if ($notificar) {
                 if ($citatorio) {
-                    event(new RatificacionRealizada($audiencia_notificar_id, "citatorio"));
+                    $tipo_parte = TipoParte::whereNombre("CITADO")->first();
+                    $audiencia_nueva = Audiencia::find($audiencia_notificar_id);
+                    foreach($audiencia_nueva->audienciaParte as $audiencia_parte){
+                        if($audiencia_parte->parte->tipo_parte_id == $tipo_parte->id){
+                            event(new RatificacionRealizada($audiencia_nueva->id, "citatorio", false, $audiencia_parte->id));
+                        }
+                    }
                 } else {
                     foreach ($arrayMultadoNotificacion as $parte) {
                         $ap = AudienciaParte::find($parte);
@@ -2885,13 +2898,18 @@ class AudienciaController extends Controller {
                 $acuse->delete();
             }
             $tipo_notificacion = \App\TipoNotificacion::where("nombre","ilike","%D)%")->first();
+            $tipo_parte = TipoParte::whereNombre("CITADO")->first();
+            $arrayCitados = array();
             foreach ($audiencia->audienciaParte as $parte) {
                 if($parte->parte->notificacion_buzon){
                     $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
                 }else{
                     $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
+                    if($parte->parte->tipo_parte_id == $tipo_parte->id){
+                        $arrayCitados[] = $part_aud->id;
+                    }
                 }
-                if ($parte->parte->tipo_parte_id == 2) {
+                if ($parte->parte->tipo_parte_id == $tipo_parte->id) {
                     event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->parte_id));
                 }
             }
@@ -2908,7 +2926,9 @@ class AudienciaController extends Controller {
             $audiencia->resolucion_id = 2;
             $audiencia->fecha_resolucion = now();
             $audiencia->save();
-
+            foreach($arrayCitados as $partes){
+                event(new RatificacionRealizada($audienciaN->id, "citatorio",false,$partes->id));
+            }
             $response = array("tipo" => 3, "response" => $audienciaN);
             DB::commit();
             return $this->sendResponse($response, 'SUCCESS');

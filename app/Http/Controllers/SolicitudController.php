@@ -1640,7 +1640,9 @@ class SolicitudController extends Controller {
                 }
                 DB::commit();
                 if ($request->inmediata != "true" && $audiencia->encontro_audiencia && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)) {
-                    event(new RatificacionRealizada($audiencia->id, "citatorio"));
+                    foreach($audiencia->audienciaParte as $audiencia_parte){
+                        event(new RatificacionRealizada($audiencia->id, "citatorio",false,$audiencia_parte->id));
+                    }
                 }
                 event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
                 return $audiencia;
