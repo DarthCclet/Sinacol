@@ -1446,7 +1446,15 @@ class SolicitudController extends Controller {
                 foreach ($solicitud->partes as $key => $parte) {
                     if (count($parte->documentos) == 0) {
                         $parte->ratifico = true;
+                        $parte->notificacion_buzon = true;
+                        $parte->fecha_aceptacion_buzon = now();
                         $parte->update();
+                        event(new GenerateDocumentResolution("", $solicitud->id, 62, 19,$parte->id));
+                        $identificador = $parte->rfc;
+                        if($parte->tipo_persona_id == $tipo->id){
+                            $identificador = $parte->curp;
+                        }
+                        BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','identificador' => $identificador]);
                     }
                 }
                 $tipo_notificacion_id = null;
