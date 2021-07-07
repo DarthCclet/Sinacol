@@ -842,7 +842,7 @@ class ParteController extends Controller
             if($notificacion_buzon == "true"){
                 $parte->update(['notificacion_buzon'=>$notificacion_buzon, 'fecha_aceptacion_buzon'=>$fechaFin = Carbon::now()]);
                 $identificador = $parte->rfc;
-                if($parte->tipo_persona_id == $tipo->id){
+                if($parte->tipo_persona_id == 1){
                     $identificador = $parte->curp;
                 }
                 //Genera acta de aceptacion de buzón
