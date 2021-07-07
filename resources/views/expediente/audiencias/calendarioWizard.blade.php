@@ -328,7 +328,7 @@
                 var validacion = validarAsignacionResolucion();
                 if(!validacion.error){
                     var listaRelaciones = [];
-                    if(origen == 'audiencias'){
+                    if(origen_vista == 'audiencias'){
                         var url = '/audiencia/nuevaAudienciaCalendario';
                     }else{
                         var url = '/audiencia/calendarizar';
@@ -353,7 +353,7 @@
                             try{
                                 console.log(data);
                                 if(data != null && data != ""){
-                                    if(origen == 'audiencias'){
+                                    if(origen_vista == 'audiencias'){
                                         window.location.href = "/audiencias/"+data.id+"/edit";
                                     }else{
                                         window.location.href = "/audiencias/"+data.id+"/edit";
