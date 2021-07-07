@@ -219,7 +219,7 @@ class BuzonController extends Controller
         $parte = Parte::find($parte_id);
         $solicitud = $parte->solicitud;
         if($parte->tipo_parte_id == 1){
-            event(new GenerateDocumentResolution("", $solicitud->id, 60, 25,$parte->id));
+            event(new GenerateDocumentResolution("", $solicitud->id, 63, 25,$parte->id));
         }else{
             event(new GenerateDocumentResolution("", $solicitud->id, 63, 26,null,$parte->id));
         }
