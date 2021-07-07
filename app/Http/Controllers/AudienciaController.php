@@ -2118,7 +2118,7 @@ class AudienciaController extends Controller {
         $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%d)%")->first()->id;
         foreach ($audiencia->audienciaParte as $parte) {
             if($parte->parte->tipo_parte_id != 3){
-                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionBuzon->id,"finalizada"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionBuzon,"finalizada"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
                 if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
                     event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
                 }
