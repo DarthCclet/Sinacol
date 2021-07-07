@@ -424,11 +424,13 @@ trait GenerateDocument
                     $nombresSolicitantes = [];
                     $nombresSolicitados = [];
                     $solicitantesNSS = [];
+                    $solicitantesCURP = [];
                     $solicitantesIdentificaciones = [];
                     $datoLaboral="";
                     $solicitanteIdentificacion = "";
                     $firmasPartesQR="";
                     $nss="";
+                    $curp="";
                     // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
@@ -444,7 +446,8 @@ trait GenerateDocument
                       }
                       //$parte['datos_laborales'] = $datoLaboral;
                       $parteId = $parte['id'];
-
+                      $curp = $parte['curp'];
+                      
                       $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
                       $parte['datos_laborales'] = $datoLaboral;
                       if($parte['tipo_persona_id'] == 1){ //fisica
@@ -626,6 +629,7 @@ trait GenerateDocument
                           array_push($nombresSolicitantes, $parte['nombre_completo'] );
                           array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
                           array_push($solicitantesNSS, $nss);
+                          array_push($solicitantesCURP, $curp);
                           $countSolicitante += 1;
                         }
 
@@ -643,6 +647,7 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
                     $data = Arr::add( $data, 'nss_solicitantes', implode(", ",$solicitantesNSS));
+                    $data = Arr::add( $data, 'curp_solicitantes', implode(", ",$solicitantesCURP));
                     $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
                     $data = Arr::add( $data, 'firmas_partes_qr', $firmasPartesQR);
                 }elseif ($model == 'Expediente') {
