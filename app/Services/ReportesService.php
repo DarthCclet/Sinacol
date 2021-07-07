@@ -328,6 +328,7 @@ class ReportesService
         //Las solicitudes presentadas se evaluan por fecha de recepcion
         if($request->get('fecha_inicial')){
             $q->whereRaw('audiencias_partes.created_at::date >= ?', $request->get('fecha_inicial'));
+
         }
         if($request->get('fecha_final')){
             $q->whereRaw('audiencias_partes.created_at::date <= ?', $request->get('fecha_final'));
@@ -345,6 +346,7 @@ class ReportesService
                    'audiencias_partes.id as audiencia_parte_id',
                    'audiencias.id as audiencia_id', 'audiencias.folio', 'audiencias.anio','audiencias.expediente_id',
                    'expedientes.folio as expediente_folio','expedientes.anio as expediente_anio','solicitudes.id as solicitud_id', 'parte_id' );
+
         $q->selectRaw('audiencias_partes.created_at::date as fecha_citatorio');
 
         //Se agregan las consultas para conciliador
@@ -366,9 +368,11 @@ class ReportesService
         # Por tipo de industria
         $this->filtroPorIndustrias($request, $q, 'audiencia.expediente.solicitud.');
 
-        $q->whereNull('audiencias.deleted_at');
         $q->whereNull('expedientes.deleted_at');
+        $q->whereNull('audiencias.deleted_at');
         $q->whereNull('solicitudes.deleted_at');
+        $q->whereNull('audiencias_partes.deleted_at');
+
         $q->whereNotNull('audiencias_partes.tipo_notificacion_id');
 
         # Dado que para las solicitudes inmediatas no hay citatorio...
@@ -378,7 +382,8 @@ class ReportesService
         $q->where('partes.tipo_parte_id', self::CITADO);
 
         # Regla que programó Diana.
-        $q->whereRaw('(audiencias_partes.created_at::date > solicitudes.fecha_ratificacion::date and audiencias_partes.tipo_notificacion_id = 1) = false');
+        //TODO: ver implicaciones de quitar esta regla.
+        //$q->whereRaw('(audiencias_partes.created_at::date > solicitudes.fecha_ratificacion::date and audiencias_partes.tipo_notificacion_id = 1) = false');
 
         if ($request->get('tipo_reporte') == 'agregado') {
 

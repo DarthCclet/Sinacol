@@ -322,24 +322,31 @@ class ReporteOperativoService
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
+        $q->whereNull('audiencias.deleted_at');
+        $q->whereNull('solicitudes.deleted_at');
 
         $this->filtroTipoSolicitud($request, $q);
 
         return $q;
     }
 
+    /**
+     * Citatorios
+     * @param $request
+     * @return mixed
+     */
     public function citatorios($request)
     {
         $q = (new AudienciaParteFilter(AudienciaParte::query(), $request))
-            ->searchWith(Solicitud::class)
+            ->searchWith(AudienciaParte::class)
             ->filter(false);
 
         //Las audiencias se evalúan por fecha de audiencia
         if($request->get('fecha_inicial')){
-            $q->whereRaw('fecha_audiencia::date >= ?', $request->get('fecha_inicial'));
+            $q->whereRaw('audiencias_partes.created_at::date >= ?', $request->get('fecha_inicial'));
         }
         if($request->get('fecha_final')){
-            $q->whereRaw('fecha_audiencia::date <= ?', $request->get('fecha_final'));
+            $q->whereRaw('audiencias_partes.created_at::date <= ?', $request->get('fecha_final'));
         }
 
         $q->select('audiencias.id as audiencia_id', 'audiencias.fecha_audiencia',
@@ -353,6 +360,7 @@ class ReporteOperativoService
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
+        $q->whereNull('solicitudes.deleted_at');
         $q->whereNull('audiencias.deleted_at');
         $q->whereNull('audiencias_partes.deleted_at');
         $this->filtroTipoSolicitud($request, $q);

@@ -336,12 +336,18 @@ class ExcelReporteOperativoService
         ///////////////////////////////////////////////////////////
 
         # I2 Primeras audiencias para las que se emitió citatorio
-        $primeras_aud_citatorio = (clone $this->service->audiencias($request))->whereHas('audienciaParte', function ($q){
-            $q->whereIn('tipo_notificacion_id', [
+        $primeras_aud_citatorio = (clone $this->service->citatorios($request))
+            ->where('audiencias.numero_audiencia', 1)
+            ->whereIn('tipo_notificacion_id', [
                 ReportesService::CITATORIO_POR_SOLICITANTE,
                 ReportesService::CITATORIO_POR_NOTIFICADOR,
-                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO]);
-        })->count();
+                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO
+            ])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->get()
+            ->unique('audiencia_id')
+            ->count();
         $sheet->setCellValue('J2', $primeras_aud_citatorio);
 
         # I3 Número de citatorios emitidos para primera audiencia
@@ -349,7 +355,10 @@ class ExcelReporteOperativoService
             ->where('audiencias.numero_audiencia', 1)->whereIn('tipo_notificacion_id', [
                 ReportesService::CITATORIO_POR_SOLICITANTE,
                 ReportesService::CITATORIO_POR_NOTIFICADOR,
-                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])->count();
+                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->count();
         $sheet->setCellValue('J3', $citatorios_para_prim_aud);
 
         # I6 Del total de citatorios emitidos
@@ -357,22 +366,34 @@ class ExcelReporteOperativoService
             ->whereIn('tipo_notificacion_id', [
                 ReportesService::CITATORIO_POR_SOLICITANTE,
                 ReportesService::CITATORIO_POR_NOTIFICADOR,
-                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])->count();
+                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->count();
         $sheet->setCellValue('J6', $total_citatorios_emitidos);
 
         # I7 Número de citatorios notificados por el solicitante
         $citatorios_x_solicitante = (clone $this->service->citatorios($request))
-            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_SOLICITANTE])->count();
+            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_SOLICITANTE])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->count();
         $sheet->setCellValue('J7', $citatorios_x_solicitante);
 
         # I8 Número de citatorios notificados por personal del CFCRL
         $citatorios_x_notificador = (clone $this->service->citatorios($request))
-            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_NOTIFICADOR])->count();
+            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_NOTIFICADOR])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->count();
         $sheet->setCellValue('J8', $citatorios_x_notificador);
 
         # I9 Número de citatorios notificados por personal del CFCRL en compañía del solicitante
         $citatorios_x_notificador_acompaniado = (clone $this->service->citatorios($request))
-            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])->count();
+            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->count();
         $sheet->setCellValue('J9', $citatorios_x_notificador_acompaniado);
 
         //////////////////////////////////////////////////////////////////
