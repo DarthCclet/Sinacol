@@ -1865,7 +1865,7 @@ class AudienciaController extends Controller {
             if ($parte->parte->tipo_parte_id == 2) {
                 $solicitados[] = $parte;
             }
-        }
+        } 
         return $solicitados;
     }
 
