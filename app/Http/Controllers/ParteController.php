@@ -851,7 +851,7 @@ class ParteController extends Controller
                 }else{
                     event(new GenerateDocumentResolution("", $solicitud->id, 62, 20,null,$parte->id));
                 }
-                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','identificador' => $identificador]);
+                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
             }else{
                 $parte->update(['notificacion_buzon'=>$notificacion_buzon]);
                 $existe = $parte->documentos()->where('clasificacion_archivo_id',1)->first();

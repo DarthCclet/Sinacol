@@ -1455,7 +1455,7 @@ class SolicitudController extends Controller {
                         if($parte->tipo_persona_id == $tipo->id){
                             $identificador = $parte->curp;
                         }
-                        BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','identificador' => $identificador]);
+                        BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
                     }
                 }
                 $tipo_notificacion_id = null;
