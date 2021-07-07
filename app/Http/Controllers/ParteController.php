@@ -16,6 +16,7 @@ use App\Filters\ParteFilter;
 use App\Solicitud;
 use Carbon\Carbon;
 use Exception;
+use App\BitacoraBuzon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

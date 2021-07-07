@@ -43,6 +43,7 @@ use App\AudienciaParte;
 use App\CanalFolio;
 use App\Documento;
 use App\TipoPersona;
+use App\BitacoraBuzon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
