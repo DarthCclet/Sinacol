@@ -160,8 +160,8 @@ class ReporteOperativoService
      */
     public function convenios($request)
     {
-        $q = (new SolicitudFilter(Solicitud::query(), $request))
-            ->searchWith(Solicitud::class)
+        $q = (new AudienciaFilter(Audiencia::query(), $request))
+            ->searchWith(Audiencia::class)
             ->filter(false);
 
         //Las solicitudes confirmadas se evaluan por fecha de ratificacion
@@ -174,13 +174,15 @@ class ReporteOperativoService
 
         $q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
                    'audiencias.id as audiencia_id',
-                   'fecha_audiencia','numero_audiencia',
-                   'monto'
+                   'fecha_audiencia','numero_audiencia'
+                   ,'monto'
+            ,'resolucion_parte_conceptos.id as resolucion_parte_conceptos_id'
         // ,'tipo_propuesta_pago_id'
         );
 
-        $q->join('expedientes','expedientes.solicitud_id','=','solicitudes.id');
-        $q->join('audiencias','expedientes.id','=','audiencias.expediente_id');
+        $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
+        $q->join('solicitudes','expedientes.solicitud_id','=','solicitudes.id');
+
         $q->join('centros','solicitudes.centro_id','=','centros.id');
         //$q->leftJoin('tipo_terminacion_audiencias','audiencias.tipo_terminacion_audiencia_id','=','tipo_terminacion_audiencias.id');
         $q->leftJoin('resoluciones','audiencias.resolucion_id','=','resoluciones.id');
@@ -287,10 +289,6 @@ class ReporteOperativoService
 
         return $res;
     }
-
-
-
-
 
     /**
      * Audiencias

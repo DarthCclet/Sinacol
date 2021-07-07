@@ -656,8 +656,8 @@ class ReportesService
      */
     public function conveniosConciliacion($request)
     {
-        $q = (new SolicitudFilter(Solicitud::query(), $request))
-            ->searchWith(Solicitud::class)
+        $q = (new AudienciaFilter(Audiencia::query(), $request))
+            ->searchWith(Audiencia::class)
             ->filter(false);
 
         //Las solicitudes confirmadas se evaluan por fecha de ratificacion
@@ -670,13 +670,14 @@ class ReportesService
 
         $q->select('centros.abreviatura', 'solicitudes.id as solicitud_id', 'expedientes.folio as expediente',
                    'audiencias.id as audiencia_id',
-                   'fecha_audiencia','numero_audiencia',
-                   'monto'
+                   'fecha_audiencia','numero_audiencia'
+                   ,'monto'
         // ,'tipo_propuesta_pago_id'
         );
 
-        $q->join('expedientes','expedientes.solicitud_id','=','solicitudes.id');
-        $q->join('audiencias','expedientes.id','=','audiencias.expediente_id');
+        $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
+        $q->join('solicitudes','expedientes.solicitud_id','=','solicitudes.id');
+        //$q->join('audiencias','expedientes.id','=','audiencias.expediente_id');
         $q->join('centros','solicitudes.centro_id','=','centros.id');
         $q->leftJoin('audiencias_partes','audiencias_partes.audiencia_id','=','audiencias.id');
         $q->leftJoin('resolucion_parte_conceptos','resolucion_parte_conceptos.audiencia_parte_id','=','audiencias_partes.id');
@@ -714,9 +715,10 @@ class ReportesService
 
         $q->where('audiencias.resolucion_id', self::RESOLUCIONES_HUBO_CONVENIO);
 
-        Log::info(self::debugSql($q));
+        //Log::info(self::debugSql($q));
         if ($request->get('tipo_reporte') == 'agregado') {
             $res = $q->get();
+
         }
         else{
             $res = $q->get()->sortBy('abreviatura');
@@ -802,9 +804,9 @@ class ReportesService
 
         //$q->where('audiencias.resolucion_id', self::RESOLUCIONES_HUBO_CONVENIO);
 
-        Log::info(self::debugSql($q));
         if ($request->get('tipo_reporte') == 'agregado') {
-            $res = $q->get();
+            //$res = $q->get();
+            $res = $q;
         }
         else{
             $res = $q->get()->sortBy('abreviatura');
@@ -941,6 +943,8 @@ class ReportesService
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
+        $q->whereNull('audiencias.deleted_at');
+        $q->whereNull('solicitudes.deleted_at');
 
         # Sólo las de trabajador y patron individual por default.
         $this->filtroTipoSolicitud($request, $q);
