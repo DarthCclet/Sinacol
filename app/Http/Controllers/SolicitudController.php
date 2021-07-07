@@ -1441,13 +1441,11 @@ class SolicitudController extends Controller {
                 $folio = $edo_folio . "/CJ/I/" . $folioC->anio . "/" . sprintf("%06d", $folioC->contador);
                 //Creamos el expediente de la solicitud
                 $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
+                $tipo = TipoPersona::whereNombre("FISICA")->first();
                 foreach ($solicitud->partes as $key => $parte) {
                     if (count($parte->documentos) == 0) {
                         $parte->ratifico = true;
-                        $parte->notificacion_buzon = true;
-                        $parte->fecha_aceptacion_buzon = now();
                         $parte->update();
-                        event(new GenerateDocumentResolution("", $solicitud->id, 62, 19,$parte->id));
                     }
                 }
                 $tipo_notificacion_id = null;

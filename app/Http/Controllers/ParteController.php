@@ -840,17 +840,19 @@ class ParteController extends Controller
         if($parte){
             if($notificacion_buzon == "true"){
                 $parte->update(['notificacion_buzon'=>$notificacion_buzon, 'fecha_aceptacion_buzon'=>$fechaFin = Carbon::now()]);
-            }else{
-                $parte->update(['notificacion_buzon'=>$notificacion_buzon]);
-            }
-            if($notificacion_buzon){
+                $identificador = $parte->rfc;
+                if($parte->tipo_persona_id == $tipo->id){
+                    $identificador = $parte->curp;
+                }
                 //Genera acta de aceptacion de buzón
                 if($parte->tipo_parte_id == 1){
                     event(new GenerateDocumentResolution("", $solicitud->id, 62, 19,$parte->id));
                 }else{
                     event(new GenerateDocumentResolution("", $solicitud->id, 62, 20,null,$parte->id));
                 }
+                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','identificador' => $identificador]);
             }else{
+                $parte->update(['notificacion_buzon'=>$notificacion_buzon]);
                 $existe = $parte->documentos()->where('clasificacion_archivo_id',1)->first();
                 if($existe == null){
                     //Genera acta de no aceptacion de buzón

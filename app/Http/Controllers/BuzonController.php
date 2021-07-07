@@ -107,6 +107,7 @@ class BuzonController extends Controller
                     }
                     $solicitudes = [];
                     foreach($partes as $parte){
+                        BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Consulta de buzón','tipo_movimiento'=>'Consulta','clabe_identificacion'=>$busqueda["busqueda"]]);
                         $solicitud = $parte->solicitud;
                         if($solicitud->expediente != null){
                             $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
