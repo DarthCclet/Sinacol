@@ -27,40 +27,46 @@ class BuzonController extends Controller
     }
     public function SolicitarAcceso(){
         $busqueda = array("tipo_persona_id" => $this->request->tipo_persona_id);
-    	if($this->request->tipo_persona_id == 2){
-            $parte = Parte::where("rfc",$this->request->rfc)->orderBy('created_at', 'desc')->first();
-            $busqueda["busqueda"] = $this->request->rfc;
-        }else{
-            $parte = Parte::where("curp",$this->request->curp)->orderBy('created_at', 'desc')->first();
-            $busqueda["busqueda"] = $this->request->curp;
-        }
-        $correo = "";
-        if($parte != null){
-            $mail = $parte->contactos()->where("tipo_contacto_id",3)->orderBy('created_at', 'desc')->first();
-            if($mail != null){
-                $correo = $mail->contacto;
-                $busqueda["correo"] = $correo;
-            }
-            if($correo != ""){
-//                Se crea el token
-                $token = app('hash')->make(str_random(8));
-                if (!Cache::has($token)) {
-                    Cache::put($token, $busqueda,now()->addMinutes(50));
-                }
-                $respuesta = Cache::get($token);
-//                dd($respuesta);
-                $parte->token = $token;
-                $parte->email = $correo;
-                $composicion = base64_encode($token)."/".base64_encode($correo);
-                $liga = env('APP_URL')."/validar_token/".$composicion;
-                Mail::to($correo)->send(new AccesoBuzonMail($parte,$liga));
-                return array(["correo" => true,"mensaje" => 'Se envio un correo con el acceso a la dirección '.$correo]);
+        $expediente = Expediente::whereFolio($this->request->folio)->first();
+        if($expediente != null){
+            if($this->request->tipo_persona_id == 2){
+                $parte = $expediente->solicitud->partes()->where("rfc",$this->request->rfc)->first();
+                $busqueda["busqueda"] = $this->request->rfc;
             }else{
-                return array(["correo" => false,"mensaje" => 'No hay correos registrados']);
+                $parte = $expediente->solicitud->partes()->where("curp",$this->request->curp)->first();
+                $busqueda["busqueda"] = $this->request->curp;
+            }
+            $correo = "";
+            if($parte != null){
+                $mail = $parte->contactos()->where("tipo_contacto_id",3)->orderBy('created_at', 'desc')->first();
+                if($mail != null){
+                    $correo = $mail->contacto;
+                    $busqueda["correo"] = $correo;
+                }
+                if($correo != ""){
+    //                Se crea el token
+                    $token = app('hash')->make(str_random(8));
+                    if (!Cache::has($token)) {
+                        Cache::put($token, $busqueda,now()->addMinutes(50));
+                    }
+                    $respuesta = Cache::get($token);
+    //                dd($respuesta);
+                    $parte->token = $token;
+                    $parte->email = $correo;
+                    $composicion = base64_encode($token)."/".base64_encode($correo);
+                    $liga = env('APP_URL')."/validar_token/".$composicion;
+                    Mail::to($correo)->send(new AccesoBuzonMail($parte,$liga));
+                    return array(["correo" => true,"mensaje" => 'Se envio un correo con el acceso a la dirección '.$correo]);
+                }else{
+                    return array(["correo" => false,"mensaje" => 'No hay correos registrados']);
+                }
+            }else{
+                return $this->sendError('No hay registros con este dato', 'Error');
             }
         }else{
-            return $this->sendError('No hay registros con este dato', 'Error');
+            return $this->sendError('No se encontró el expediente', 'Error');
         }
+    	
     }
     public function AccesoBuzon(){
         $partesBusqueda = Parte::where("correo_buzon", $this->request->correo_buzon)->where("password_buzon",$this->request->password_buzon)->get();
