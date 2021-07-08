@@ -372,6 +372,7 @@ class ReportesService
         $q->whereNull('audiencias.deleted_at');
         $q->whereNull('solicitudes.deleted_at');
         $q->whereNull('audiencias_partes.deleted_at');
+        $q->whereNull('partes.deleted_at');
 
         $q->whereNotNull('audiencias_partes.tipo_notificacion_id');
 
@@ -446,14 +447,16 @@ class ReportesService
         return $q->get();
     }
 
-
+    /**
+     * Incompetencias
+     * @param $request
+     * @return array
+     */
     public function incompetencias($request)
     {
-        //if ($request->get('tipo_reporte') == 'agregado') {
         $en_ratificacion = $this->incompetenciasEnEtapa($request, 'ratificacion');
         $en_audiencia = $this->incompetenciasEnEtapa($request, 'audiencia');
         return compact('en_ratificacion','en_audiencia');
-        //}
     }
 
     /**
@@ -537,7 +540,7 @@ class ReportesService
         $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'partes');
 
         //Dejamos fuera los no consultables
-        $this->noReportables($q);
+        $this->noReportables($q, 'incompetencia');
 
         if ($request->get('tipo_reporte') == 'agregado') {
             $res = $q->get()->sortBy('abreviatura')->pluck('count','abreviatura');
@@ -545,10 +548,7 @@ class ReportesService
         else {
             $res = $q->get()->sortBy('abreviatura')->toArray();
         }
-        //dump($this->debugSql($q));
-        //Log::info($this->debugSql($q));
         return $res;
-
     }
 
     public function archivadoPorFaltaDeInteres($request)
@@ -604,6 +604,8 @@ class ReportesService
         $q->where('resolucion_id', self::ARCHIVADO);
 
         $q->whereNull('expedientes.deleted_at');
+        $q->whereNull('solicitudes.deleted_at');
+        $q->whereNull('audiencias.deleted_at');
 
         $this->filtroTipoSolicitud($request, $q);
 
@@ -702,6 +704,9 @@ class ReportesService
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
+        $q->whereNull('solicitudes.deleted_at');
+        $q->whereNull('audiencias.deleted_at');
+
         $q->whereNull('resolucion_parte_conceptos.deleted_at');
         $q->whereNotNull('resolucion_parte_conceptos.id');
 
@@ -791,6 +796,9 @@ class ReportesService
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
+        $q->whereNull('solicitudes.deleted_at');
+        $q->whereNull('audiencias.deleted_at');
+
         $q->whereNull('resolucion_parte_conceptos.deleted_at');
         $q->whereNotNull('resolucion_parte_conceptos.id');
 
@@ -873,6 +881,8 @@ class ReportesService
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
+        $q->whereNull('solicitudes.deleted_at');
+        $q->whereNull('audiencias.deleted_at');
 
         # Sólo las de trabajador y patron individual por default.
         $this->filtroTipoSolicitud($request, $q);
@@ -995,6 +1005,10 @@ class ReportesService
         //Se filtran las no reportables
         $this->noReportables($q);
         $q->whereNull('expedientes.deleted_at');
+        $q->whereNull('solicitudes.deleted_at');
+        $q->whereNull('audiencias.deleted_at');
+
+        $q->whereNull('resolucion_pagos_diferidos.deleted_at');
 
         # Sólo las de trabajador y patron individual por default.
         $this->filtroTipoSolicitud($request, $q);
@@ -1016,15 +1030,26 @@ class ReportesService
     /**
      * Excluye los no reportables
      * @param $q
+     * @param string $reporte_tipo
      * @return mixed
      */
-    private function noReportables($q)
+    private function noReportables($q, $reporte_tipo = null)
     {
-        //Eliminamos las incidencias duplicadas y errores de captura
-        $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::ERROR_DE_CAPTURA);
-        $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::SOLICITUD_DUPLICADA);
-        $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::OTRA_INCIDENCIA);
-        return $q;
+        //Si consultamos cualquier reporte excepto incompetencias o solicitudes presentadas
+        if(!$reporte_tipo) {
+            $q->whereNull('tipo_incidencia_solicitud_id');
+            return $q;
+        }
+
+        //Si consultamos solicitudes presentadas entonces:
+        if($reporte_tipo == 'solicitudes_presentadas') {
+            //Eliminamos las incidencias duplicadas y errores de captura
+            $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::ERROR_DE_CAPTURA);
+            $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::SOLICITUD_DUPLICADA);
+            $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::OTRA_INCIDENCIA);
+            return $q;
+        }
+
     }
 
     /**
