@@ -1173,16 +1173,6 @@
                     <div class="col-md-12">
                         <h5>Generación de audiencia</h5>
                         <hr>
-                        @if(!$obligar)
-                        <div class="col-md-12 row">
-                            <div class="col-md-1">
-                                <h6>Notificar</h6>
-                            </div>
-                            <div class="col-md-2">
-                                <input type="checkbox" value="1" data-id="" data-render="switchery" data-theme="default" id="notificar" name="notificar"/>
-                            </div>
-                        </div>
-                        @endif
                         <div class="col-md-12" id="divPartesNotificar" style="display:none;">
                             <div class="col-md-12">
                                 <table class="table table-striped table-bordered table-hover">
