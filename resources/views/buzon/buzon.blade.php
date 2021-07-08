@@ -61,7 +61,7 @@
                                         @endif
                                         @foreach($solicitud->documentos as $doc_sol)
                                             @if($doc_sol->clasificacion_archivo_id == 14 || $doc_sol->clasificacion_archivo_id == 18 || $doc_sol->clasificacion_archivo_id == 41 || $doc_sol->clasificacion_archivo_id == 13 || $doc_sol->clasificacion_archivo_id == 62 || $doc_sol->clasificacion_archivo_id == 59 || $doc_sol->clasificacion_archivo_id == 61)
-                                            <li><a href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">{{ isset($documento->clasificacionArchivo->nombre)?$documento->clasificacionArchivo->nombre: "N/A"}}</a></li>
+                                            <li><a href="/api/documentos/getFile/{{$doc_sol->uuid}}" target="_blank">{{ isset($doc_sol->clasificacionArchivo->nombre)?$doc_sol->clasificacionArchivo->nombre: "N/A"}}</a></li>
                                             @endif
                                         @endforeach
                                         </ul>
