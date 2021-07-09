@@ -605,9 +605,11 @@ trait GenerateDocument
                               $representanteLegal['identificacion_expedida_por'] = "---";
                             }
                             $parte['representante_legal'] = $representanteLegal;
+                            $parte['nombre_compareciente'] = $representanteLegal['nombre_completo'] .' C. REPRESENTANTE LEGAL DE '. $parte['nombre_completo'];
                           }else{
                             $countParteAsistencia = Compareciente::where('parte_id', $parteId)->where('audiencia_id',$audienciaId)->count();
                             $parte['asistencia'] =  ($countParteAsistencia >0) ? 'Si':'No';
+                            $parte['nombre_compareciente'] = $parte['nombre_completo'];
                           }
                         }
 
