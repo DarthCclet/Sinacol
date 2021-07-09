@@ -10,7 +10,7 @@
         <div  id="divCitado">
             <input type="hidden" id="recibo_oficial_si" name="recibo_oficial_si" value="1">
         <input type="hidden" id="solicitud_id" name="recibo_oficial_si" value="{{$solicitud_id}}">
-            <div id="datosIdentificacionCitado" style="display: {{$tipo_solicitud_id ==1 ? 'none' : 'block'}};" data-parsley-validate="true">
+            <div id="datosIdentificacionCitado"  data-parsley-validate="true">
 
                 <div class="col-md-12 mt-4">
                     <h4>Datos de identificaci&oacute;n</h4>
@@ -25,7 +25,7 @@
                             <input checked="checked" name="tipo_persona_citado" type="radio" id="tipo_persona_fisica_solicitado" value="1"/>
                             <label for="tipo_persona_fisica_solicitado">Física</label>
                         </div>
-                        <div class="radio radio-css radio-inline">
+                        <div class="radio radio-css radio-inline" style="display: {{$tipo_solicitud_id == 1 ? 'block' : 'none'}};">
                             <input name="tipo_persona_citado" type="radio" id="tipo_persona_moral_solicitado" value="2"/>
                             <label for="tipo_persona_moral_solicitado">Moral</label>
                         </div>
