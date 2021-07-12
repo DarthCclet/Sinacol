@@ -2049,7 +2049,7 @@ class AudienciaController extends Controller {
                     }
                 }
             }
-            if($tipoNotificacionBuzon->id == $tipoBuzon->id && !$parte->notificacion_buzon){
+            if($tipoNotificacionBuzon == $tipoBuzon && !$parte->notificacion_buzon){
                 $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
                 event(new GenerateDocumentResolution($audienciaN->id, $solicitud->id, 56, 18,$parte->id));
             }
