@@ -23,11 +23,9 @@ class LoginController extends Controller
     use AuthenticatesUsers;
 
     /**
-     * Where to redirect users after login.
-     *
-     * @var string
+     * Redirect default
      */
-    protected $redirectTo = '/home';
+    const HOME_DEFAULT = '/home';
 
     /**
      * Create a new controller instance.
@@ -37,6 +35,18 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    /**
+     * En ausencia de la variable redirectTo este método redirecciona dinámicamente al usuario después del login exitoso
+     * @return string
+     */
+    public function redirectTo() {
+        $home = self::HOME_DEFAULT;
+        if (count(Auth::user()->roles) && Auth::user()->roles->first()->home) {
+            $home = Auth::user()->roles->first()->home;
+        }
+        return $home;
     }
 
     /**
