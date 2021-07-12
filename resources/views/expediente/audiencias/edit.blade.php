@@ -1378,7 +1378,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                @include('expediente.solicitudes.agregarParte',['tipo_solicitud_id'=>0])
+                @include('expediente.solicitudes.agregarParte',['tipo_solicitud_id'=>$tipo_solicitud])
             </div>
             <div class="modal-footer">
                 <div class="text-right">
