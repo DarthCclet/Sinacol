@@ -278,27 +278,38 @@ class AudienciaController extends Controller {
         // $audiencia->resolucionPartes->conceptoPagoResolucion;
         foreach ($audiencia->solicitantes as $audienciaParte) {
             $totalConceptos = 0;
+            $totalDeducciones = 0;
             $conceptos = [];
             foreach ($audienciaParte->parteConceptos as $concepto) {
-                $totalConceptos += floatval($concepto->monto);
+                if($concepto->concepto_pago_resoluciones_id ==13){
+                    $totalDeducciones += floatval($concepto->monto);
+                }else{
+                    $totalConceptos += floatval($concepto->monto);
+                }
                 $conceptosP = $concepto;
                 $conceptosP->nombre = $concepto->ConceptoPagoResolucion->nombre;
                 $conceptosP->idSolicitante = $audienciaParte->solicitante_id;
                 array_push($conceptos, $conceptosP);
             }
-            array_push($conceptos_pago, ['idSolicitante' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => $totalConceptos]);
+            array_push($conceptos_pago, ['idSolicitante' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => ($totalConceptos-$totalDeducciones) ]);
         }
         foreach ($audiencia->solicitados as $audienciaParte) {
             $totalConceptos = 0;
+            $totalDeducciones = 0;
             $conceptos = [];
             foreach ($audienciaParte->parteConceptos as $concepto) {
-                $totalConceptos += floatval($concepto->monto);
+                if($concepto->concepto_pago_resoluciones_id == 13){
+                    $totalDeducciones += floatval($concepto->monto);
+                }else{
+                    $totalConceptos += floatval($concepto->monto);
+                }
+                //$totalConceptos += floatval($concepto->monto);
                 $conceptosP = $concepto;
                 $conceptosP->nombre = $concepto->ConceptoPagoResolucion->nombre;
                 $conceptosP->idSolicitante = $audienciaParte->solicitante_id;
                 array_push($conceptos, $conceptosP);
             }
-            array_push($conceptos_pago, ['idCitado' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => $totalConceptos]);
+            array_push($conceptos_pago, ['idCitado' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => ($totalConceptos-$totalDeducciones)]);
             
         }
         // foreach ($audiencia->resolucionPartes as $resolucionParte) {
