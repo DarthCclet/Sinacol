@@ -2030,6 +2030,7 @@ class AudienciaController extends Controller {
         $tipoBuzon = $tipoNotificacionBuzon;
         $tipoNotificacionRenuente = \App\TipoNotificacion::where("nombre", "ilike", "%E)%")->first()->id;
         foreach ($audiencia->expediente->solicitud->partes as $parte) {
+            $notificar_check = false;
             $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%D)%")->first()->id;
             $fecha_notificacion = now();
             $finalizado = "FINALIZADO EXITOSAMENTE";
@@ -2037,22 +2038,29 @@ class AudienciaController extends Controller {
                 foreach ($request->listaRelaciones as $notificar) {
                     if ($parte->id == $notificar) {
                         if(!$parte->notificacion_exitosa){
-                            if(!$parte->notificacion_buzon){
+                            if(!$parte->comparecio){
                                 $tipoNotificacionBuzon = $tipoNotificacion;
                                 $fecha_notificacion = null;
                                 $finalizado = null;
+                            }else{
+                                if(!$parte->notificacion_buzon){
+                                    $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                                }
                             }
                         }else{
                             $tipoNotificacionBuzon = $tipoNotificacionRenuente;
                             $fecha_notificacion = null;
                             $finalizado = null;
                         }
+                        $notificar_check = true;
                     }
                 }
             }
-            if($tipoNotificacionBuzon == $tipoBuzon && !$parte->notificacion_buzon){
-                $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
-                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+            if(!$notificar_check){
+                if(!$parte->notificacion_buzon){
+                    $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                    event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                }
             }
             if($parte->tipo_parte_id != $tipo_parte_representante){
                 $audiencia_parte = AudienciaParte::create([
