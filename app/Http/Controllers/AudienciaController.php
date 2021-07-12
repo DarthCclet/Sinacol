@@ -2037,29 +2037,28 @@ class AudienciaController extends Controller {
             if (isset($request->listaRelaciones)) {
                 foreach ($request->listaRelaciones as $notificar) {
                     if ($parte->id == $notificar) {
-                        if(!$parte->notificacion_exitosa){
-                            if(!$parte->comparecio){
-                                $tipoNotificacionBuzon = $tipoNotificacion;
-                                $fecha_notificacion = null;
-                                $finalizado = null;
-                            }else{
-                                if(!$parte->notificacion_buzon){
-                                    $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
-                                }
-                            }
-                        }else{
+//                        Si se encuantra que la parte se debe notificar se deber{a indicar el tipo
+//                        Si la parte ya fue notificada por notificador de forma exitosa se colocará el tipo renuente
+                        if($parte->notificacion_exitosa){
                             $tipoNotificacionBuzon = $tipoNotificacionRenuente;
                             $fecha_notificacion = null;
                             $finalizado = null;
+                        }else{
+//                            Si no fue notificada de forma exitosa por notificacador evaluamos si ha comparecido
+//                            En el caso de tener una comparecencia validaremos si acepto el buzón
+                            if($parte->comparecio){
+                                if(!$parte->notificacion_buzon){
+                                    $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                                    event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                                }
+                            }else{
+//                                Si no ha sido notificado y no ah comparecido se enviará nuevamente al conciliador
+                                $tipoNotificacionBuzon = $tipoNotificacion;
+                                $fecha_notificacion = null;
+                                $finalizado = null;
+                            }
                         }
-                        $notificar_check = true;
                     }
-                }
-            }
-            if(!$notificar_check){
-                if(!$parte->notificacion_buzon){
-                    $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
-                    event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
                 }
             }
             if($parte->tipo_parte_id != $tipo_parte_representante){
@@ -2585,10 +2584,6 @@ class AudienciaController extends Controller {
                                 $citados = true;
                                 $totalCitadosComparecen++;
                             }
-                        }
-                        $parte_compareciente = Parte::find($compareciente);
-                        if($parte_compareciente->parte_representada_id != null){
-                            Parte::find($parte_compareciente->parte_representada_id)->update(['notificacion_buzon'=>true]);
                         }
                         Compareciente::create(["parte_id" => $compareciente, "audiencia_id" => $this->request->audiencia_id, "presentado" => true]);
                     }
