@@ -2039,12 +2039,19 @@ class AudienciaController extends Controller {
             if (isset($request->listaRelaciones)) {
                 foreach ($request->listaRelaciones as $notificar) {
                     if ($parte->id == $notificar) {
-//                        Si se encuantra que la parte se debe notificar se deber{a indicar el tipo
+//                        Si se encuantra que la parte se debe notificar se deberá indicar el tipo
 //                        Si la parte ya fue notificada por notificador de forma exitosa se colocará el tipo renuente
                         if($parte->notificacion_exitosa){
-                            $tipoNotificacionBuzon = $tipoNotificacionRenuente;
-                            $fecha_notificacion = null;
-                            $finalizado = null;
+                            if(!$parte->comparecio){
+                                $tipoNotificacionBuzon = $tipoNotificacionRenuente;
+                                $fecha_notificacion = null;
+                                $finalizado = null;
+                            }else{
+                                if(!$parte->notificacion_buzon){
+                                    $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                                    event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                                }
+                            }
                         }else{
 //                            Si no fue notificada de forma exitosa por notificacador evaluamos si ha comparecido
 //                            En el caso de tener una comparecencia validaremos si acepto el buzón
