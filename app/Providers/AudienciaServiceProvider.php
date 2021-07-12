@@ -28,6 +28,7 @@ class AudienciaServiceProvider extends ServiceProvider
         $solicitados = self::getSolicitados($audiencia);
         $huboConvenio = false;
         $totalPagoC = [];
+        $totalDeduccionC = [];
         foreach ($solicitados as $solicitado) {
             foreach ($solicitantes as $solicitante) {
                 $bandera = true;
@@ -178,6 +179,7 @@ class AudienciaServiceProvider extends ServiceProvider
                 if (isset($listaConceptos)) {
                     if (count($listaConceptos) > 0) {
                         $totalPagoC[$solicitado->parte_id] = 0;
+                        $totalDeduccionC[$solicitado->parte_id] = 0.0;
                         foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
                             if ($key == $solicitado->parte_id) {
                                 foreach ($conceptosSolicitante as $k => $concepto) {
@@ -189,7 +191,12 @@ class AudienciaServiceProvider extends ServiceProvider
                                         "monto" => $concepto["monto"],
                                         "otro" => $concepto["otro"]
                                     ]);
-                                    $totalPagoC[$solicitado->parte_id] =  floatval($totalPagoC[$solicitado->parte_id])  + floatval($concepto["monto"]);
+                                    //$totalPagoC[$solicitado->parte_id] =  floatval($totalPagoC[$solicitado->parte_id])  + floatval($concepto["monto"]);
+                                    if($concepto["concepto_pago_resoluciones_id"] == 13){
+                                        $totalDeduccionC[$solicitado->parte_id] = floatval($totalDeduccionC[$solicitado->parte_id])  + floatval($concepto["monto"]);
+                                    }else{
+                                        $totalPagoC[$solicitado->parte_id] =  floatval($totalPagoC[$solicitado->parte_id])  + floatval($concepto["monto"]);
+                                    }
                                 }
                             }
                         }
@@ -212,6 +219,7 @@ class AudienciaServiceProvider extends ServiceProvider
         if ($huboConvenio) {
             if (isset($listaFechasPago)) { //se registran pagos diferidos
                 if (count($listaFechasPago) > 0) {
+                    $totalPagoC[$solicitado->parte_id] = $totalPagoC[$solicitado->parte_id] - $totalDeduccionC[$solicitado->parte_id];
                     foreach ($listaFechasPago as $key => $fechaPago) {
                         ResolucionPagoDiferido::create([
                             "audiencia_id" => $audiencia->id,
