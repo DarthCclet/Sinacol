@@ -48,7 +48,7 @@ class ReportesController extends Controller
 
 
     public function __construct(Request $request) {
-        $this->middleware('can:Reportes');
+        $this->middleware('can:Reporteador');
         $this->request = $request;
         $this->imp = Centro::whereNotNull('desde')->orderBy('abreviatura')->get()->pluck('abreviatura')->toArray();
     }
