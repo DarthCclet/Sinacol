@@ -813,7 +813,7 @@ class ParteController extends Controller
     }
 
     public function getCitadosBySolicitudId($solicitud_id){
-        $partes = Solicitud::find($solicitud_id)->partes()->with(['domicilios'=>function($q){$q->orderBy('id','desc');}])->where('tipo_parte_id',2)->get();
+        $partes = Solicitud::find($solicitud_id)->partes()->with(['domicilios'=>function($q){$q->orderBy('id','desc');}])->where('tipo_parte_id',2)->whereComparecio(false)->get();
         return $this->sendResponse($partes, 'SUCCESS');
     }
     public function updateCitadosDomicilio(Request $request){

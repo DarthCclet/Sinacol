@@ -415,7 +415,10 @@ class AudienciaController extends Controller {
             $permitir_crear = true;
         }
         $clasificacion_justificante = ClasificacionArchivo::whereNombre("Otro")->first();
-        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante", "documentos", 'solicitud_id', 'estatus_solicitud_id', 'virtual', 'partes', "estados", 'generos', 'nacionalidades', 'tipos_vialidades', 'tipos_asentamientos', 'lengua_indigena', 'tipo_contacto','obligar','permitir_crear','tipo_solicitud','clasificacion_justificante'));
+        
+//        Obtenemos a los que no comparecieron
+        $no_comparecen = $audiencia->audienciaParte()->whereComparecio(false)->get();
+        return view('expediente.audiencias.edit', compact('audiencia', 'etapa_resolucion', 'resoluciones', 'concepto_pago_resoluciones', "motivos_archivo", "conceptos_pago", "periodicidades", "ocupaciones", "jornadas", "giros_comerciales", "clasificacion_archivos", "clasificacion_archivos_Representante", "documentos", 'solicitud_id', 'estatus_solicitud_id', 'virtual', 'partes', "estados", 'generos', 'nacionalidades', 'tipos_vialidades', 'tipos_asentamientos', 'lengua_indigena', 'tipo_contacto','obligar','permitir_crear','tipo_solicitud','clasificacion_justificante','no_comparecen'));
     }
 
     /**
@@ -2023,8 +2026,10 @@ class AudienciaController extends Controller {
         $tipo_parte = TipoParte::where("nombre", "ilike", "%CITADO%")->first()->id;
         $tipo_parte_representante = TipoParte::where("nombre", "ilike", "%OTRO%")->first()->id;
         $tipoNotificacion = \App\TipoNotificacion::where("nombre", "ilike", "%B)%")->first()->id;
-        $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%d)%")->first()->id;
-        $tipoNotificacionRenuente = \App\TipoNotificacion::where("nombre", "ilike", "%e)%")->first()->id;
+        $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%D)%")->first()->id;
+        $tipoNotificacionComparecencia = \App\TipoNotificacion::where("nombre", "ilike", "%G)%")->first()->id;
+        $tipoBuzon = $tipoNotificacionBuzon;
+        $tipoNotificacionRenuente = \App\TipoNotificacion::where("nombre", "ilike", "%E)%")->first()->id;
         foreach ($audiencia->expediente->solicitud->partes as $parte) {
             $fecha_notificacion = now();
             $finalizado = "FINALIZADO EXITOSAMENTE";
@@ -2044,6 +2049,10 @@ class AudienciaController extends Controller {
                         }
                     }
                 }
+            }
+            if($tipoNotificacionBuzon->id == $tipoBuzon->id && !$parte->notificacion_buzon){
+                $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                event(new GenerateDocumentResolution($audienciaN->id, $solicitud->id, 56, 18,$parte->id));
             }
             if($parte->tipo_parte_id != $tipo_parte_representante){
                 $audiencia_parte = AudienciaParte::create([
@@ -2550,6 +2559,7 @@ class AudienciaController extends Controller {
                 if (isset($this->request->comparecientes)) {
                     foreach ($this->request->comparecientes as $compareciente) {
                         $parte_compareciente = Parte::find($compareciente);
+                        $parte_compareciente->update(["comparecio" => true]);
                         if ($parte_compareciente->tipo_parte_id == 1) {
                             $solicitantes = true;
                         } else if ($parte_compareciente->tipo_parte_id == 2) {
@@ -2560,7 +2570,7 @@ class AudienciaController extends Controller {
                             }
                         } else if ($parte_compareciente->tipo_parte_id == 3) {
                             $parte_representada = Parte::find($parte_compareciente->parte_representada_id);
-                            $parte_representada->update(['notificacion_buzon'=>true]);
+                            $parte_representada->update(["comparecio" => true]);
                             if ($parte_representada->tipo_parte_id == 1) {
                                 $solicitantes = true;
                             } else if ($parte_representada->tipo_parte_id == 2) {
@@ -2569,7 +2579,6 @@ class AudienciaController extends Controller {
                             }
                         }
                         $parte_compareciente = Parte::find($compareciente);
-                        $parte_compareciente->update(['notificacion_buzon'=>true]);
                         if($parte_compareciente->parte_representada_id != null){
                             Parte::find($parte_compareciente->parte_representada_id)->update(['notificacion_buzon'=>true]);
                         }
