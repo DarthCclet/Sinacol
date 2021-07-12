@@ -360,7 +360,9 @@ class AudienciaController extends Controller {
                 $doc->push($documento);
             }
             if(!$parte->asignado || !$parte->notificacion_buzon){
-                $obligar = true;
+                if(!$parte->comparecio){
+                    $obligar = true;
+                }
             }
         }
         $documentos = $solicitud->documentos;
