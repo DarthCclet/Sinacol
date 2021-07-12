@@ -2051,7 +2051,7 @@ class AudienciaController extends Controller {
             }
             if($tipoNotificacionBuzon == $tipoBuzon && !$parte->notificacion_buzon){
                 $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
-                event(new GenerateDocumentResolution($audienciaN->id, $solicitud->id, 56, 18,$parte->id));
+                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
             }
             if($parte->tipo_parte_id != $tipo_parte_representante){
                 $audiencia_parte = AudienciaParte::create([
