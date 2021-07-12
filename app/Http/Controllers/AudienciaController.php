@@ -2030,6 +2030,7 @@ class AudienciaController extends Controller {
         $tipoBuzon = $tipoNotificacionBuzon;
         $tipoNotificacionRenuente = \App\TipoNotificacion::where("nombre", "ilike", "%E)%")->first()->id;
         foreach ($audiencia->expediente->solicitud->partes as $parte) {
+            $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%D)%")->first()->id;
             $fecha_notificacion = now();
             $finalizado = "FINALIZADO EXITOSAMENTE";
             if (isset($request->listaRelaciones)) {
