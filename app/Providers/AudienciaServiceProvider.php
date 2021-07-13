@@ -219,7 +219,7 @@ class AudienciaServiceProvider extends ServiceProvider
         if ($huboConvenio) {
             if (isset($listaFechasPago)) { //se registran pagos diferidos
                 if (count($listaFechasPago) > 0) {
-                    $totalPagoC[$solicitado->parte_id] = $totalPagoC[$solicitado->parte_id] - $totalDeduccionC[$solicitado->parte_id];
+                    //$totalPagoC[$solicitado->parte_id] = $totalPagoC[$solicitado->parte_id] - $totalDeduccionC[$solicitado->parte_id];
                     foreach ($listaFechasPago as $key => $fechaPago) {
                         ResolucionPagoDiferido::create([
                             "audiencia_id" => $audiencia->id,
@@ -244,6 +244,7 @@ class AudienciaServiceProvider extends ServiceProvider
                     $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('parte_solicitada_id', $solicitado->parte_id)->where('terminacion_bilateral_id', 3)->first();
                     if ($convenio != null) {
                         if (!isset($listaFechasPago)) {//si no se registraron pagos diferidos crear pago NO diferido
+                            $totalPagoC[$solicitado->parte_id] = $totalPagoC[$solicitado->parte_id] - $totalDeduccionC[$solicitado->parte_id];
                             ResolucionPagoDiferido::create([
                                 "audiencia_id" => $audiencia->id,
                                 "solicitante_id" => $solicitado->parte_id,
