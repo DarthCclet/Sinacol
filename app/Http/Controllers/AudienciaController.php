@@ -1086,31 +1086,28 @@ class AudienciaController extends Controller {
      * @return array
      */
     public function getTodasAudienciasIndividuales() {
-        $solicitudes = Solicitud::where("centro_id", auth()->user()->centro_id)
-                ->where("ratificada", true)
-                ->where("incidencia", false)
-                ->whereIn("tipo_solicitud_id", [1, 2])
-                ->with(["expediente", "expediente.audiencia"])
-                ->get();
-        $audiencias = [];
-        foreach ($solicitudes as $solicitud) {
-            $audienciasSolicitud = $solicitud->expediente->audiencia;
-            foreach ($audienciasSolicitud as $audiencia) {
-//                if (new Carbon($audiencia->fecha_audiencia) >= date("Y-m-d")) {
-                array_push($audiencias, $audiencia);
-//                }
-            }
-        }
+        $fecha = date("Y-m-d");
+        $query = Audiencia::whereDate("fecha_audiencia", ">=" , $fecha);
+        $data = $query->whereHas('expediente.solicitud', function ($q) {
+            return $q->where('centro_id',auth()->user()->centro_id)->where("ratificada", true)->whereIn("tipo_solicitud_id", [1, 2])->where("incidencia", false);
+        });
+        $audiencias = $data->with('expediente','expediente.solicitud')->get();
+        $pagos = ResolucionPagoDiferido::whereDate("fecha_pago",">=",$fecha);
+        $data_pagos = $pagos->whereHas("audiencia.expediente.solicitud", function ($q) {
+            return $q->where('centro_id',auth()->user()->centro_id)->where("ratificada", true)->whereIn("tipo_solicitud_id", [1, 2])->where("incidencia", false);
+        });
+        $pagos_diferidos = $data_pagos->with('audiencia')->get();
+
         $arrayEventos = [];
         foreach ($audiencias as $audiencia) {
             $start = $audiencia->fecha_audiencia . " " . $audiencia->hora_inicio;
             $end = $audiencia->fecha_audiencia . " " . $audiencia->hora_fin;
             array_push($arrayEventos, array("start" => $start, "end" => $end, "title" => $audiencia->folio . "/" . $audiencia->anio, "color" => "#00ACAC", "audiencia_id" => $audiencia->id,"tipo" => "audiencia"));
-            foreach($audiencia->pagosDiferidos as $pago){
-                $fechaInicio = new Carbon($pago->fecha_pago);
-                $fechaFin = $fechaInicio->addMinutes(15);
-                array_push($arrayEventos, array("start" => $pago->fecha_pago, "end" => $fechaFin->format("Y-m-d H:i:s"), "title" => $audiencia->folio . "/" . $audiencia->anio, "color" => "#ffa500", "audiencia_id" => $audiencia->id,"tipo" => "pago"));
-            }   
+        }
+        foreach($pagos_diferidos as $pago){
+            $fechaInicio = new Carbon($pago->fecha_pago);
+            $fechaFin = $fechaInicio->addMinutes(15);
+            array_push($arrayEventos, array("start" => $pago->fecha_pago, "end" => $fechaFin->format("Y-m-d H:i:s"), "title" => $pago->audiencia->folio . "/" . $pago->audiencia->anio, "color" => "#ffa500", "audiencia_id" => $pago->audiencia->id,"tipo" => "pago"));
         }
         return $arrayEventos;
     }
