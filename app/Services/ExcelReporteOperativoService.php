@@ -531,6 +531,7 @@ class ExcelReporteOperativoService
                     ->orWhereNull('monto');
             })
             ->get()
+            ->unique('resolucion_parte_conceptos_id')
             ->count();
         $sheet->setCellValue('T4', $beneficios);
 
