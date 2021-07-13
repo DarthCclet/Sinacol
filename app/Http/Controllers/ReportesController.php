@@ -101,70 +101,25 @@ class ReportesController extends Controller
         $spreadsheet = new Spreadsheet();
         $writer = new Xlsx($spreadsheet);
 
-        $sheet = $spreadsheet->getActiveSheet();
-
-        // SOLICITUDES PRESENTADAS
-        $sheet->setTitle('Solicitudes presentadas');
-
         // Si viene el parámetro query logueamos los querys a pantalla
         if($this->request->exists('querys')) DB::enableQueryLog();
 
-        $solicitudes = $reportesService->solicitudesPresentadas($this->request);
-        $excelReportesService->solicitudesPresentadas($sheet, $solicitudes, $this->request);
+        $operaciones = [
+            'solicitudesPresentadas',
+            'solicitudesConfirmadas',
+            'citatoriosEmitidos',
+            'incompetencias',
+            'archivadoPorFaltaDeIneres',
+            'conveniosConciliacion',
+            'conveniosRatificacion',
+            'noConciliacion',
+            'audiencias',
+            'pagosDiferidos'
+        ];
 
-        // SOLICITUDES CONFIRMADAS
-        $solicitudes_confirmadas = $reportesService->solicitudesConfirmadas($this->request);
-        $solicitudesPresentadasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Solicitudes confirmadas');
-        $spreadsheet->addSheet($solicitudesPresentadasWorkSheet, 1);
-        $excelReportesService->solicitudesConfirmadas($solicitudesPresentadasWorkSheet, $solicitudes_confirmadas, $this->request);
-
-        // CITATORIOS EMITIDOS
-        $citatorios = $reportesService->citatoriosEmitidos($this->request);
-        $citatoriosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Citatorios');
-        $spreadsheet->addSheet($citatoriosWorkSheet, 3);
-        $excelReportesService->citatoriosEmitidos($citatoriosWorkSheet, $citatorios, $this->request);
-
-        // INCOMPETENCIAS
-        $incompetencias = $reportesService->incompetencias($this->request);
-        $incompetenciasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Incompetencias');
-        $spreadsheet->addSheet($incompetenciasWorkSheet, 2);
-        $excelReportesService->incompetencias($incompetenciasWorkSheet, $incompetencias, $this->request);
-
-        // ARCHIVADOS POR FALTA DE INTERES
-        $archivados = $reportesService->archivadoPorFaltaDeInteres($this->request);
-        $archivadosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Archivo X Falta Interés');
-        $spreadsheet->addSheet($archivadosWorkSheet, 4);
-        $excelReportesService->archivoPorFaltaInteres($archivadosWorkSheet, $archivados, $this->request);
-
-        // CONVENIOS CONCILIACION
-        $convenios = $reportesService->conveniosConciliacion($this->request);
-        $conveniosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Convenios conciliación');
-        $spreadsheet->addSheet($conveniosWorkSheet, 5);
-        $excelReportesService->convenios($conveniosWorkSheet, $convenios, $this->request);
-
-        // CONVENIOS RATIFICACIÓN
-        $conveniosRatificacion = $reportesService->conveniosRatificacion($this->request);
-        $conveniosRatificacionWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Convenios confirmación');
-        $spreadsheet->addSheet($conveniosRatificacionWorkSheet, 6);
-        $excelReportesService->conveniosRatificacion($conveniosRatificacionWorkSheet, $conveniosRatificacion, $this->request);
-
-        // NO CONCILIACIÓN
-        $noConciliacion = $reportesService->noConciliacion($this->request);
-        $noConciliacionWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'No conciliación');
-        $spreadsheet->addSheet($noConciliacionWorkSheet, 7);
-        $excelReportesService->noConciliacion($noConciliacionWorkSheet, $noConciliacion, $this->request);
-
-        // AUDIENCIAS
-        $audiencias = $reportesService->audiencias($this->request);
-        $audienciasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Audiencias');
-        $spreadsheet->addSheet($audienciasWorkSheet, 8);
-        $excelReportesService->audiencias($audienciasWorkSheet, $audiencias, $this->request);
-
-        // PAGOS DIFERIDOS
-        $pagosdiferidos = $reportesService->pagosDiferidos($this->request);
-        $pagosdiferidosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Pagos diferidos');
-        $spreadsheet->addSheet($pagosdiferidosWorkSheet, 9);
-        $excelReportesService->pagosDiferidos($pagosdiferidosWorkSheet, $pagosdiferidos, $this->request);
+        foreach($operaciones as $operacion) {
+            $this->{$operacion}($reportesService, $excelReportesService, $spreadsheet);
+        }
 
         // Si viene el parámetro query logueamos los querys a pantalla
         if($this->request->exists('querys')) {$res =  ReportesService::debugSql(); dump($res); exit;}
@@ -172,7 +127,9 @@ class ReportesController extends Controller
         // Descarga del excel
         $spreadsheet->setActiveSheetIndex(0);
 
-        $nombre_reporte = 'ReporteSINACOL_'.date("Y-m-d_His").".xlsx";
+        $tipo = $this->request->get('tipo_reporte');
+
+        $nombre_reporte = 'ReporteSINACOL_'.$tipo.'_'.date("Y-m-d_His").".xlsx";
 
         return $this->descargaExcel($writer, $nombre_reporte);
     }
@@ -282,6 +239,211 @@ class ReportesController extends Controller
         $writer = new Xlsx($spreadsheet);
         return $this->descargaExcel($writer, $nombre_reporte );
 
+    }
+
+    /**
+     * SOLICITUDES PRESENTADAS
+     *
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @param Spreadsheet $spreadsheet
+     */
+    public function solicitudesPresentadas(
+        ReportesService $reportesService,
+        ExcelReportesService $excelReportesService,
+        Spreadsheet $spreadsheet
+    ): void {
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Solicitudes presentadas');
+        $solicitudes = $reportesService->solicitudesPresentadas($this->request);
+        $excelReportesService->solicitudesPresentadas($sheet, $solicitudes, $this->request);
+    }
+
+    /**
+     * SOLICITUDES CONFIRMADAS
+     *
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @param Spreadsheet $spreadsheet
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    public function solicitudesConfirmadas(
+        ReportesService $reportesService,
+        ExcelReportesService $excelReportesService,
+        Spreadsheet $spreadsheet
+    ): void {
+        $solicitudes_confirmadas = $reportesService->solicitudesConfirmadas($this->request);
+        $solicitudesPresentadasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet(
+            $spreadsheet,
+            'Solicitudes confirmadas'
+        );
+        $spreadsheet->addSheet($solicitudesPresentadasWorkSheet, 1);
+        $excelReportesService->solicitudesConfirmadas(
+            $solicitudesPresentadasWorkSheet,
+            $solicitudes_confirmadas,
+            $this->request
+        );
+    }
+
+    /**
+     * CITATORIOS EMITIDOS
+     *
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @param Spreadsheet $spreadsheet
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    public function citatoriosEmitidos(
+        ReportesService $reportesService,
+        ExcelReportesService $excelReportesService,
+        Spreadsheet $spreadsheet
+    ): void {
+        $citatorios = $reportesService->citatoriosEmitidos($this->request);
+        $citatoriosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Citatorios');
+        $spreadsheet->addSheet($citatoriosWorkSheet, 3);
+        $excelReportesService->citatoriosEmitidos($citatoriosWorkSheet, $citatorios, $this->request);
+    }
+
+    /**
+     * INCOMPETENCIAS
+     *
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @param Spreadsheet $spreadsheet
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    public function incompetencias(
+        ReportesService $reportesService,
+        ExcelReportesService $excelReportesService,
+        Spreadsheet $spreadsheet
+    ): void {
+        $incompetencias = $reportesService->incompetencias($this->request);
+        $incompetenciasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Incompetencias');
+        $spreadsheet->addSheet($incompetenciasWorkSheet, 2);
+        $excelReportesService->incompetencias($incompetenciasWorkSheet, $incompetencias, $this->request);
+    }
+
+    /**
+     * ARCHIVADOS POR FALTA DE INTERES
+     *
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @param Spreadsheet $spreadsheet
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    public function archivadoPorFaltaDeIneres(
+        ReportesService $reportesService,
+        ExcelReportesService $excelReportesService,
+        Spreadsheet $spreadsheet
+    ): void {
+        $archivados = $reportesService->archivadoPorFaltaDeInteres($this->request);
+        $archivadosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet(
+            $spreadsheet, 'Archivo X Falta Interés'
+        );
+        $spreadsheet->addSheet($archivadosWorkSheet, 4);
+        $excelReportesService->archivoPorFaltaInteres($archivadosWorkSheet, $archivados, $this->request);
+    }
+
+    /**
+     * CONVENIOS CONCILIACION
+     *
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @param Spreadsheet $spreadsheet
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    public function conveniosConciliacion(
+        ReportesService $reportesService,
+        ExcelReportesService $excelReportesService,
+        Spreadsheet $spreadsheet
+    ): void {
+        $convenios = $reportesService->conveniosConciliacion($this->request);
+        $conveniosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Convenios conciliación');
+        $spreadsheet->addSheet($conveniosWorkSheet, 5);
+        $excelReportesService->convenios($conveniosWorkSheet, $convenios, $this->request);
+    }
+
+    /**
+     * CONVENIOS RATIFICACIÓN
+     *
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @param Spreadsheet $spreadsheet
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    public function conveniosRatificacion(
+        ReportesService $reportesService,
+        ExcelReportesService $excelReportesService,
+        Spreadsheet $spreadsheet
+    ): void {
+        $conveniosRatificacion = $reportesService->conveniosRatificacion($this->request);
+        $conveniosRatificacionWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet(
+            $spreadsheet,
+            'Convenios confirmación'
+        );
+        $spreadsheet->addSheet($conveniosRatificacionWorkSheet, 6);
+        $excelReportesService->conveniosRatificacion(
+            $conveniosRatificacionWorkSheet,
+            $conveniosRatificacion,
+            $this->request
+        );
+    }
+
+    /**
+     * NO CONCILIACIÓN
+     *
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @param Spreadsheet $spreadsheet
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    public function noConciliacion(
+        ReportesService $reportesService,
+        ExcelReportesService $excelReportesService,
+        Spreadsheet $spreadsheet
+    ): void {
+        $noConciliacion = $reportesService->noConciliacion($this->request);
+        $noConciliacionWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'No conciliación');
+        $spreadsheet->addSheet($noConciliacionWorkSheet, 7);
+        $excelReportesService->noConciliacion($noConciliacionWorkSheet, $noConciliacion, $this->request);
+    }
+
+    /**
+     * AUDIENCIAS
+     *
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @param Spreadsheet $spreadsheet
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    public function audiencias(
+        ReportesService $reportesService,
+        ExcelReportesService $excelReportesService,
+        Spreadsheet $spreadsheet
+    ): void {
+        $audiencias = $reportesService->audiencias($this->request);
+        $audienciasWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Audiencias');
+        $spreadsheet->addSheet($audienciasWorkSheet, 8);
+        $excelReportesService->audiencias($audienciasWorkSheet, $audiencias, $this->request);
+    }
+
+    /**
+     * PAGOS DIFERIDOS
+     *
+     * @param ReportesService $reportesService
+     * @param ExcelReportesService $excelReportesService
+     * @param Spreadsheet $spreadsheet
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     */
+    public function pagosDiferidos(
+        ReportesService $reportesService,
+        ExcelReportesService $excelReportesService,
+        Spreadsheet $spreadsheet
+    ): void {
+        $pagosdiferidos = $reportesService->pagosDiferidos($this->request);
+        $pagosdiferidosWorkSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'Pagos diferidos');
+        $spreadsheet->addSheet($pagosdiferidosWorkSheet, 9);
+        $excelReportesService->pagosDiferidos($pagosdiferidosWorkSheet, $pagosdiferidos, $this->request);
     }
 
 }
