@@ -505,14 +505,14 @@ class ExcelReporteOperativoService
         # S2 Total de convenios
         $total_convenios = (clone $this->service->audiencias($request))
             ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
-            //->whereHas('expediente.solicitud', function ($q){$q->where('inmediata', false);})
+            ->whereHas('expediente.solicitud', function ($q){$q->where('inmediata', false);})
             ->whereHas('audienciaParte.parteConceptos', function ($q){$q->whereNotNull('id');})
             ->count();
         $sheet->setCellValue('T2', $total_convenios);
 
         # S3 Monto desglosado de los convenios
         $monto_convenios = (clone $this->service->convenios($request))
-            //->where('inmediata', false)
+            ->where('inmediata', false)
             ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
             ->whereHas('audienciaParte.parteConceptos', function ($q){$q->whereNotNull('id');})
             ->sum('monto');
@@ -531,6 +531,7 @@ class ExcelReporteOperativoService
                     ->orWhereNull('monto');
             })
             ->get()
+            ->unique('resolucion_parte_conceptos_id')
             ->count();
         $sheet->setCellValue('T4', $beneficios);
 
@@ -538,6 +539,7 @@ class ExcelReporteOperativoService
         # Número de convenios diferidos
         $num_convenios = (clone $this->service->pagosDiferidos($request))
             ->has('pagosDiferidos', '>=', 1)
+            ->whereHas('expediente.solicitud', function ($q){ $q->where('inmediata', false);})
             ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
             ->get()->unique('expediente_id')->count();
         $sheet->setCellValue('T7', $num_convenios);
@@ -545,6 +547,7 @@ class ExcelReporteOperativoService
         # Número de pagos diferidos
         $num_pagos_dif = (clone $this->service->pagosDiferidos($request))
             ->has('pagosDiferidos', '>=', 1)
+            ->whereHas('expediente.solicitud', function ($q){ $q->where('inmediata', false);})
             ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
             ->get()->count();
         $sheet->setCellValue('U7', $num_pagos_dif);
@@ -552,6 +555,7 @@ class ExcelReporteOperativoService
         # Monto pagos diferidos
         $monto_pagos_dif = (clone $this->service->pagosDiferidos($request))
             ->has('pagosDiferidos', '>=', 1)
+            ->whereHas('expediente.solicitud', function ($q){ $q->where('inmediata', false);})
             ->get()
             ->map(function ($k, $v){
                 return $k->pagosDiferidos->sum('monto');
@@ -561,12 +565,12 @@ class ExcelReporteOperativoService
 
         # Número de convenios totales
         $num_convenios_tt = $this->service->convenios($request)
-            //->where('solicitudes.inmediata', false)
+            ->where('solicitudes.inmediata', false)
             ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->get()->unique('solicitud_id');
 
         # Número de pagos totales
         $num_pagos_tt = $this->service->convenios($request)
-            //->where('solicitudes.inmediata', false)
+            ->where('solicitudes.inmediata', false)
             ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->get();
 
         # Monto pagos totales
@@ -589,6 +593,7 @@ class ExcelReporteOperativoService
 
         $num_cumplimientos = (clone $this->service->pagosDiferidos($request))
             ->has('pagosDiferidos', '>=', 1)
+            ->whereHas('expediente.solicitud', function ($q){ $q->where('inmediata', false);})
             ->whereHas('pagosDiferidos', function ($q){
                 $q->where('pagado', true);
             })
@@ -597,6 +602,7 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('T11', $num_cumplimientos);
 
         $num_incumplimientos = (clone $this->service->pagosDiferidos($request))
+            ->whereHas('expediente.solicitud', function ($q){ $q->where('inmediata', false);})
             ->has('pagosDiferidos', '>=', 1)
             ->whereHas('pagosDiferidos', function ($q){
                 $q->where('pagado', false);
@@ -606,6 +612,7 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('T12', $num_incumplimientos);
 
         $num_vencidos = (clone $this->service->pagosDiferidos($request))
+            ->whereHas('expediente.solicitud', function ($q){ $q->where('inmediata', false);})
             ->has('pagosDiferidos', '>=', 1)
             ->whereHas('pagosDiferidos', function ($q){
                 $q->whereNull('pagado');
@@ -616,6 +623,7 @@ class ExcelReporteOperativoService
         $sheet->setCellValue('T13', $num_vencidos);
 
         $num_vigentes = (clone $this->service->pagosDiferidos($request))
+            ->whereHas('expediente.solicitud', function ($q){ $q->where('inmediata', false);})
             ->has('pagosDiferidos', '>=', 1)
             ->whereHas('pagosDiferidos', function ($q){
                 $q->whereNull('pagado');
