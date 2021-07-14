@@ -1855,7 +1855,7 @@ class SolicitudController extends Controller {
             DB::beginTransaction();
             foreach ($this->request->listaCorreos as $listaCorreo) {
                 $parte = Parte::find($listaCorreo["parte_id"]);
-                if($parte->tipo_parte_id == 1){
+                if($parte->tipo_persona_id == 1){
                     $parte->update(['curp'=>$listaCorreo['rfcCurp']]);
                 }else{
                     $parte->update(['rfc'=> $listaCorreo['rfcCurp']]);
