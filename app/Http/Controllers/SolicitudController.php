@@ -1444,17 +1444,18 @@ class SolicitudController extends Controller {
                 //Creamos el expediente de la solicitud
                 $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
                 $tipo = TipoPersona::whereNombre("FISICA")->first();
+                $array_comparecen = array();
                 foreach ($solicitud->partes as $key => $parte) {
                     if (count($parte->documentos) > 0) {
                         $parte->ratifico = true;
                         $parte->notificacion_buzon = true;
                         $parte->fecha_aceptacion_buzon = now();
                         $parte->update();
-                        event(new GenerateDocumentResolution("", $solicitud->id, 62, 19,$parte->id));
                         $identificador = $parte->rfc;
                         if($parte->tipo_persona_id == $tipo->id){
                             $identificador = $parte->curp;
                         }
+                        $array_comparecen[] = $parte->id;
                         BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
                     }
                 }
@@ -1633,6 +1634,9 @@ class SolicitudController extends Controller {
                     //                    event(new RatificacionRealizada($audiencia->id,"citatorio"));
                     //                }
                     $expediente = Expediente::find($request->expediente_id);
+                }
+                foreach($array_comparecen as $comparecen){
+                    event(new GenerateDocumentResolution("", $solicitud->id, 62, 19,$comparecen));
                 }
 
                 $salas = [];
