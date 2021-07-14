@@ -1853,9 +1853,14 @@ class SolicitudController extends Controller {
     public function cargarCorreos() {
         try {
             DB::beginTransaction();
-            foreach ($this->request->listaCorreos as $listaCorreos) {
-                $parte = Parte::find($listaCorreos["parte_id"]);
-                if ($listaCorreos["crearAcceso"]) {
+            foreach ($this->request->listaCorreos as $listaCorreo) {
+                $parte = Parte::find($listaCorreo["parte_id"]);
+                if($parte->tipo_parte_id == 1){
+                    $parte->update(['curp'=>$listaCorreo['rfcCurp']]);
+                }else{
+                    $parte->update(['rfc'=> $listaCorreo['rfcCurp']]);
+                }
+                if ($listaCorreo["crearAcceso"]) {
                     $arrayCorreo = $this->construirCorreo($parte);
                     $parte->update([
                         "correo_buzon" => $arrayCorreo["correo"],
@@ -1864,7 +1869,7 @@ class SolicitudController extends Controller {
                 } else {
                     $parte->contactos()->create([
                         "tipo_contacto_id" => 3,
-                        "contacto" => $listaCorreos["correo"]
+                        "contacto" => $listaCorreo["correo"]
                     ]);
                 }
             }

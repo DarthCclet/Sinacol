@@ -2991,7 +2991,7 @@ class AudienciaController extends Controller {
             $audiencia->fecha_resolucion = now();
             $audiencia->save();
             foreach($arrayCitados as $partes){
-                event(new RatificacionRealizada($audienciaN->id, "citatorio",false,$partes->id));
+                event(new RatificacionRealizada($audienciaN->id, "citatorio",false,$partes));
             }
             $response = array("tipo" => 3, "response" => $audienciaN);
             DB::commit();
