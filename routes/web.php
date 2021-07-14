@@ -261,6 +261,7 @@ Route::Get('partes/representante/{id}','ParteController@GetRepresentanteLegal');
 Route::post('solicitar_acceso','BuzonController@SolicitarAcceso')->name('solicitar_acceso2');
 Route::get('buzon','BuzonController@BuzonElectronico')->name('buzon');
 Route::get('bitacora_buzon/{parte_id}','BuzonController@getBitacoraBuzonParte');
+Route::get('acta_bitacora_interno/{parte_id}','BuzonController@generarConstanciaBuzonInterno');
 Route::get('acta_bitacora/{parte_id}','BuzonController@generarConstanciaBuzon');
 Route::get('validar_token/{token}/{correo}','BuzonController@validar_token');
 Route::resource('etapa_resolucion_audiencia','EtapaResolucionAudienciaController');

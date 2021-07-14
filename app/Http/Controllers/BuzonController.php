@@ -14,10 +14,13 @@ use App\Expediente;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\AccesoBuzonMail;
-
+use App\Traits\GenerateDocument;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class BuzonController extends Controller
 {
+    use GenerateDocument;
 	private $request;
     public function __construct(Request $request){
     	$this->request = $request;
@@ -214,15 +217,43 @@ class BuzonController extends Controller
         $bitacora = BitacoraBuzon::where('parte_id',$parte_id)->get();
         return $this->sendResponse($bitacora, 'SUCCESS');
     }
-    public function generarConstanciaBuzon($parte_id){
-        $parte = Parte::find($parte_id);
-        $solicitud = $parte->solicitud;
-        if($parte->tipo_parte_id == 1){
-            event(new GenerateDocumentResolution("", $solicitud->id, 60, 25,$parte->id));
-        }else{
-            event(new GenerateDocumentResolution("", $solicitud->id, 63, 26,null,$parte->id));
+    public function generarConstanciaBuzonInterno($parte_id){
+        try{
+            $parte = Parte::find($parte_id);
+            $solicitud = $parte->solicitud;
+            $html = "";
+            if($parte->tipo_parte_id == 1){
+                event(new GenerateDocumentResolution("", $solicitud->id, 60, 25,$parte->id));
+            }else{
+                event(new GenerateDocumentResolution("", $solicitud->id, 63, 26,null,$parte->id));
+            }
+            return $this->sendResponse($html, 'SUCCESS');
+        }catch(Exception $e){
+            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+                    " Se emitió el siguiente mensale: " . $e->getMessage() .
+                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => 'No se encontraron datos relacionados', 'data' => null], 200);
         }
-        
-        return $this->sendResponse([], 'SUCCESS');
+    }
+    public function generarConstanciaBuzon(Request $request){
+        try{
+            $parte_id=$request->parte_id;
+            $parte = Parte::find($parte_id);
+            $solicitud = $parte->solicitud;
+            $html = "";
+            if($parte->tipo_parte_id == 1){
+                $plantilla_id = 27;
+                $html = $this->renderDocumento(null,$solicitud->id,$plantilla_id,$parte->id,null,"");
+            }else{
+                $plantilla_id = 28;
+                $html = $this->renderDocumento(null,$solicitud->id,$plantilla_id,null,$parte->id,"");
+            }
+            return $this->renderPDF($html,$plantilla_id );
+        }catch(Exception $e){
+            Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
+                    " Se emitió el siguiente mensale: " . $e->getMessage() .
+                    " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => 'No se encontraron datos relacionados', 'data' => null], 200);
+        }
     }
 }

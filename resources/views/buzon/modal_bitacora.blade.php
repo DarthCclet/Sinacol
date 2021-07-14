@@ -1,5 +1,7 @@
-
 <input type="hidden" id="parte_bitacora_id" value=""/>
+<input type="hidden" id="url_bitacora" value="/acta_bitacora/"/>
+<input type="hidden" id="interno" value="{{$interno}}"/>
+
 <div class="modal" id="modal-bitacora"role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
@@ -19,7 +21,11 @@
                 </div> --}}
             </div>
             <div class="modal-footer">
-                <a class="btn btn-primary m-l-5" onclick="acta_bitacora()" target="_blank" > Generar constancia de historial</a>
+                @if($interno)
+                    <a class="btn btn-primary m-l-5" onclick="acta_bitacora()" target="_blank" > Generar constancia de historial</a>
+                @else
+                    <a class="btn btn-primary m-l-5" id="btn_generar" href="#" target="_blank" > Generar constancia de historial</a>
+                @endif
                 <button class="btn btn-white m-l-5" data-dismiss="modal"> Cerrar</button>
             </div>
         </div>
@@ -30,6 +36,7 @@
     <script type="text/javascript">
         function getBitacoraBuzon(parte_id){
             $("#parte_bitacora_id").val(parte_id);
+            $("#btn_generar").prop("href","/acta_bitacora/"+parte_id);
             $.ajax({
                 url:"/bitacora_buzon/"+parte_id,
                 type:"GET",
@@ -57,7 +64,7 @@
         function acta_bitacora(){
             var parte_id = $("#parte_bitacora_id").val();
             $.ajax({
-                url:"/acta_bitacora/"+parte_id,
+                url:"/acta_bitacora_interno/"+parte_id,
                 type:"GET",
                 dataType:"json",
                 async:true,
@@ -70,6 +77,7 @@
                                 text: 'El acta se genero correctamente',
                                 icon: 'success'
                             });
+                            location.reload();
                         }
                     }catch(error){
                         console.log(error);

@@ -335,7 +335,7 @@
         </div>
     </div>
 </div>
-
+@include('buzon.modal_bitacora',["interno"=>true])
 
 <!--Fin de modal de representante legal-->
 <input type="hidden" id="expediente_id" value='{{$expediente_id  ?? ""}}'>
@@ -630,6 +630,11 @@
                                     html+='</div>';
                                 }
                             html+='</div>';
+                            if(value.notificacion_buzon == true){
+                                html+='<div>';
+                                    html+='<button class="btn btn-primary" onclick="getBitacoraBuzon('+value.id+')">Consultar Bitacora</button>';
+                                html+='</div>';
+                            }
                         html+='</div>';
                     html+='</div>';
                 html+='</div>';
@@ -695,6 +700,11 @@
                                 html+='</div>';
                                 }
                             html+='</div>';
+                            if(value.notificacion_buzon == true){
+                                html+='<div>';
+                                    html+='<button class="btn btn-primary" onclick="getBitacoraBuzon('+value.id+')">Consultar Bitacora</button>';
+                                html+='</div>';
+                            }
                         html+='</div>';
                     html+='</div>';
                 html+='</div>';

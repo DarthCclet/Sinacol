@@ -279,7 +279,7 @@
     </div>
 </div>
 <input type="hidden" id="parte_idHDD">
-@include('buzon.modal_bitacora')
+@include('buzon.modal_bitacora',["interno"=>false])
 @endsection
 @push('scripts')
 <script type="text/javascript">
