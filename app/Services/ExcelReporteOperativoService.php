@@ -336,12 +336,18 @@ class ExcelReporteOperativoService
         ///////////////////////////////////////////////////////////
 
         # I2 Primeras audiencias para las que se emitió citatorio
-        $primeras_aud_citatorio = (clone $this->service->audiencias($request))->whereHas('audienciaParte', function ($q){
-            $q->whereIn('tipo_notificacion_id', [
+        $primeras_aud_citatorio = (clone $this->service->citatorios($request))
+            ->where('audiencias.numero_audiencia', 1)
+            ->whereIn('tipo_notificacion_id', [
                 ReportesService::CITATORIO_POR_SOLICITANTE,
                 ReportesService::CITATORIO_POR_NOTIFICADOR,
-                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO]);
-        })->count();
+                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO
+            ])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->get()
+            ->unique('audiencia_id')
+            ->count();
         $sheet->setCellValue('J2', $primeras_aud_citatorio);
 
         # I3 Número de citatorios emitidos para primera audiencia
@@ -349,7 +355,10 @@ class ExcelReporteOperativoService
             ->where('audiencias.numero_audiencia', 1)->whereIn('tipo_notificacion_id', [
                 ReportesService::CITATORIO_POR_SOLICITANTE,
                 ReportesService::CITATORIO_POR_NOTIFICADOR,
-                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])->count();
+                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->count();
         $sheet->setCellValue('J3', $citatorios_para_prim_aud);
 
         # I6 Del total de citatorios emitidos
@@ -357,22 +366,34 @@ class ExcelReporteOperativoService
             ->whereIn('tipo_notificacion_id', [
                 ReportesService::CITATORIO_POR_SOLICITANTE,
                 ReportesService::CITATORIO_POR_NOTIFICADOR,
-                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])->count();
+                ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->count();
         $sheet->setCellValue('J6', $total_citatorios_emitidos);
 
         # I7 Número de citatorios notificados por el solicitante
         $citatorios_x_solicitante = (clone $this->service->citatorios($request))
-            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_SOLICITANTE])->count();
+            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_SOLICITANTE])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->count();
         $sheet->setCellValue('J7', $citatorios_x_solicitante);
 
         # I8 Número de citatorios notificados por personal del CFCRL
         $citatorios_x_notificador = (clone $this->service->citatorios($request))
-            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_NOTIFICADOR])->count();
+            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_NOTIFICADOR])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->count();
         $sheet->setCellValue('J8', $citatorios_x_notificador);
 
         # I9 Número de citatorios notificados por personal del CFCRL en compañía del solicitante
         $citatorios_x_notificador_acompaniado = (clone $this->service->citatorios($request))
-            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])->count();
+            ->whereIn('tipo_notificacion_id', [ReportesService::CITATORIO_POR_NOTIFICADOR_ACOMPANIADO])
+            ->whereHas('parte', function($q) { $q->where('tipo_parte_id', ReportesService::CITADO_ID );})
+            ->whereHas('audiencia.expediente.solicitud', function ($q) {$q->where('inmediata',false);})
+            ->count();
         $sheet->setCellValue('J9', $citatorios_x_notificador_acompaniado);
 
         //////////////////////////////////////////////////////////////////
@@ -381,57 +402,51 @@ class ExcelReporteOperativoService
 
         # K2 Total de Audiencias de Conciliación
         $total_audiencias = (clone $this->service->audiencias($request))
-            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->count();
-        $sheet->setCellValue('L2', $total_audiencias);
+            ->where('audiencias.finalizada', true)
+            ->whereHas('expediente.solicitud', function ($q){$q->where('inmediata', false);})
+            ->get();
+        $sheet->setCellValue('L2', $total_audiencias->count());
 
         # K3 Conciliacion en 1a audiencia
-        $concilia_en_1a = (clone $this->service->audiencias($request))
-            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
-            ->where('numero_audiencia', 1)
-            ->count();
+        $concilia_en_1a = $total_audiencias->where('numero_audiencia', 1)->count();
         $sheet->setCellValue('L3', $concilia_en_1a);
 
         # K4 Conciliacion en 2a audiencia
-        $concilia_en_2a = (clone $this->service->audiencias($request))
-            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
-            ->where('numero_audiencia', 2)
-            ->count();
+        $concilia_en_2a = $total_audiencias->where('numero_audiencia', 2)->count();
         $sheet->setCellValue('L4', $concilia_en_2a);
 
         # K5 Conciliacion en 3a audiencia
-        $concilia_en_3a = (clone $this->service->audiencias($request))
-            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
-            ->where('numero_audiencia', 3)
-            ->count();
-        $sheet->setCellValue('L4', $concilia_en_3a);
+        $concilia_en_3a = $total_audiencias->where('numero_audiencia', 3)->count();
+        $sheet->setCellValue('L5', $concilia_en_3a);
 
         # K5 Conciliacion en 4a audiencia o mas
-        $concilia_en_4a = (clone $this->service->audiencias($request))
-            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
-            ->where('numero_audiencia', '>=', 4)
-            ->count();
-        $sheet->setCellValue('L5', $concilia_en_4a);
+        $concilia_en_4a = $total_audiencias->where('numero_audiencia', '>',3)->count();
+        $sheet->setCellValue('L6', $concilia_en_4a);
 
         # M3 Archivo por falta de interés
         $archivo_falta_interes = (clone $this->service->audiencias($request))
+            ->whereHas('expediente.solicitud', function ($q){$q->where('inmediata', false);})
             ->where('resolucion_id', ReportesService::RESOLUCIONES_ARCHIVADO)
             ->count();
         $sheet->setCellValue('N3', $archivo_falta_interes);
 
         # M4 solicita nueva audiencia
         $sol_nueva_fecha = (clone $this->service->audiencias($request))
+            ->whereHas('expediente.solicitud', function ($q){$q->where('inmediata', false);})
             ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_CONVENIO_DESEA_AUDIENCIA)
             ->count();
         $sheet->setCellValue('N4', $sol_nueva_fecha);
 
         # M5 No conciliacion
         $no_conciliaciones = (clone $this->service->audiencias($request))
+            ->whereHas('expediente.solicitud', function ($q){$q->where('inmediata', false);})
             ->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)
             ->count();
         $sheet->setCellValue('N5', $no_conciliaciones);
 
         # M6 Convenio
         $hubo_convenios = (clone $this->service->audiencias($request))
+            ->whereHas('expediente.solicitud', function ($q){$q->where('inmediata', false);})
             ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
             ->count();
         $sheet->setCellValue('N6', $hubo_convenios);
@@ -490,14 +505,16 @@ class ExcelReporteOperativoService
         # S2 Total de convenios
         $total_convenios = (clone $this->service->audiencias($request))
             ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
-            //->where('inmediata', false)
+            //->whereHas('expediente.solicitud', function ($q){$q->where('inmediata', false);})
+            ->whereHas('audienciaParte.parteConceptos', function ($q){$q->whereNotNull('id');})
             ->count();
         $sheet->setCellValue('T2', $total_convenios);
 
         # S3 Monto desglosado de los convenios
         $monto_convenios = (clone $this->service->convenios($request))
             //->where('inmediata', false)
-            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->get()
+            ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+            ->whereHas('audienciaParte.parteConceptos', function ($q){$q->whereNotNull('id');})
             ->sum('monto');
         $sheet->setCellValue('T3', $monto_convenios);
 
@@ -516,6 +533,7 @@ class ExcelReporteOperativoService
             ->get()
             ->count();
         $sheet->setCellValue('T4', $beneficios);
+
 #GRAN TODO............ Qué significa número de convenios???
         # Número de convenios diferidos
         $num_convenios = (clone $this->service->pagosDiferidos($request))

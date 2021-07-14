@@ -77,7 +77,9 @@ class BitacoraController extends Controller
             $nombre = "";
             if($audit->user_id != null){
                 $user = User::find($audit->user_id);
-                $nombre = $user->persona->nombre." ".$user->persona->primer_apellido." ".$user->persona->segundo_apellido;
+                if($user){
+                    $nombre = $user->persona->nombre." ".$user->persona->primer_apellido." ".$user->persona->segundo_apellido;
+                }
             }
             $auditable_type = "";
             $modelo = $audit->auditable_type;
@@ -105,7 +107,7 @@ class BitacoraController extends Controller
         if($arreglo->event == "Modificación"){
             $list .= "<ul>";
             foreach($array as $atributo => $valores){
-                $list .= "<li>".$atributo." fue modificado de ".$valores["old"]." a ".$valores["new"]."</li>";
+                $list .= "<li>".$atributo." fue modificado de ".isset($valores["old"])? $valores["old"] : ''." a ".$valores["new"]."</li>";
             }
             $list .= "</ul>";
         }else{

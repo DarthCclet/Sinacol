@@ -291,11 +291,11 @@
 
         domicilio.getDomicilio = function(){
             if($("#asentamiento"+identifier).val() == ""){
-                swal({
-                    title: '',
-                    text: 'seleccione una colonia para continuar',
-                    icon: 'warning'
-                });
+                // swal({
+                //     title: '',
+                //     text: 'seleccione una colonia para continuar',
+                //     icon: 'warning'
+                // });
                 return ;
             }
             var domicilioLoc = {};
