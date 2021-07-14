@@ -42,6 +42,8 @@ use App\ConciliadorAudiencia;
 use App\AudienciaParte;
 use App\CanalFolio;
 use App\Documento;
+use App\TipoPersona;
+use App\BitacoraBuzon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -146,7 +148,7 @@ class SolicitudController extends Controller {
                 } else {
                     $total = Solicitud::count();
                 }
-                
+
                 $draw = $this->request->get('draw');
                 return $this->sendResponseDatatable($total, $filtered, $draw, $solicitud, null);
             }
@@ -161,7 +163,7 @@ class SolicitudController extends Controller {
             return redirect('solicitudes')->with('error', 'Error al consultar la solicitud');
         }
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -1441,10 +1443,19 @@ class SolicitudController extends Controller {
                 $folio = $edo_folio . "/CJ/I/" . $folioC->anio . "/" . sprintf("%06d", $folioC->contador);
                 //Creamos el expediente de la solicitud
                 $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
+                $tipo = TipoPersona::whereNombre("FISICA")->first();
                 foreach ($solicitud->partes as $key => $parte) {
-                    if (count($parte->documentos) == 0) {
+                    if (count($parte->documentos) > 0) {
                         $parte->ratifico = true;
+                        $parte->notificacion_buzon = true;
+                        $parte->fecha_aceptacion_buzon = now();
                         $parte->update();
+                        event(new GenerateDocumentResolution("", $solicitud->id, 62, 19,$parte->id));
+                        $identificador = $parte->rfc;
+                        if($parte->tipo_persona_id == $tipo->id){
+                            $identificador = $parte->curp;
+                        }
+                        BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
                     }
                 }
                 $tipo_notificacion_id = null;
@@ -1637,7 +1648,9 @@ class SolicitudController extends Controller {
                 }
                 DB::commit();
                 if ($request->inmediata != "true" && $audiencia->encontro_audiencia && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)) {
-                    event(new RatificacionRealizada($audiencia->id, "citatorio"));
+                    foreach($audiencia->audienciaParte as $audiencia_parte){
+                        event(new RatificacionRealizada($audiencia->id, "citatorio",false,$audiencia_parte->id));
+                    }
                 }
                 event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
                 return $audiencia;
@@ -2023,7 +2036,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no tiene audiencias, crear incompetencia en proceso de confirmación ', 'Error');
                 }
             }
-            
+
             if($request->tipo_incidencia_solicitud_id == 7){
                 if ($solicitud->expediente && $solicitud->expediente->audiencia) {
                     event(new GenerateDocumentResolution($solicitud->expediente->audiencia()->orderBy('id','desc')->first()->id,$solicitud->id,61,24,null,null));
@@ -2032,7 +2045,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no esta confirmada, no se puede realizar este proceso ', 'Error');
                 }
             }
-            
+
             DB::commit();
             return $this->sendResponse($solicitud, 'SUCCESS');
         } catch (Exception $e) {

@@ -44,15 +44,16 @@ class SendNotificacion
             // Consultamos la audiencia
             $audiencia = Audiencia::find($event->audiencia_id);
             if(isset($audiencia->id)){
-                $tipo_notificacion = self::ObtenerTipoNotificacion($audiencia);
+                $tipo_notificacion = $event->tipo_notificacion;
+                $tipo_notificacion_fecha = self::ObtenerTipoNotificacion($audiencia);
                 // Agregamos al arreglo las generalidades de la audiencia
                 $arreglo["folio"] = $audiencia->folio."/".$audiencia->anio;
                 $arreglo["expediente"] = $audiencia->expediente->folio."/";
                 $arreglo["exhorto_num"] = "";
                 //Validamos el tipo de notificación
                 $fechaIngreso = new \Carbon\Carbon($audiencia->expediente->solicitud->created_at);
-                if($tipo_notificacion["tipo_notificacion"] == "citatorio"){
-                    $fechaRecepcion = new \Carbon\Carbon($tipo_notificacion["fecha_recepcion"]);
+                if($tipo_notificacion == "citatorio"){
+                    $fechaRecepcion = new \Carbon\Carbon($tipo_notificacion_fecha["fecha_recepcion"]);
                     $fechaAudiencia = new \Carbon\Carbon($audiencia->fecha_audiencia);
                     $fechaCita = null;
                     if($audiencia->fecha_cita != null && $audiencia->fecha_cita != ""){
@@ -69,7 +70,7 @@ class SendNotificacion
                     }
                     $arreglo["fecha_limite"] = $fechaLimite->format("d/m/Y");
                 }else{
-                    $fechaRecepcion = new \Carbon\Carbon($tipo_notificacion["fecha_recepcion"]);
+                    $fechaRecepcion = new \Carbon\Carbon($tipo_notificacion_fecha["fecha_recepcion"]);
                     $fechaAudiencia = self::ObtenerFechaAudienciaMulta($audiencia->fecha_audiencia,15);
                     $fechaCita = null;
                     $fechaLimite = new \Carbon\Carbon(self::ObtenerFechaLimiteNotificacionMulta($fechaAudiencia,$audiencia->expediente->solicitud,$audiencia->id));
@@ -82,7 +83,7 @@ class SendNotificacion
                 $arreglo["fecha_ingreso"] = $fechaIngreso->format("d/m/Y");
                 $arreglo["nombre_junta"] = $audiencia->expediente->solicitud->centro->nombre;
                 $arreglo["junta_id"] = $audiencia->expediente->solicitud->centro_id;
-                $arreglo["tipo_notificacion"] = $tipo_notificacion["tipo_notificacion"];
+                $arreglo["tipo_notificacion"] = $tipo_notificacion;
                 //Buscamos a los actores
                 Log::debug('Información de solicitud:'.json_encode($arreglo));
                 $actores = self::getSolicitantes($audiencia);
@@ -123,7 +124,7 @@ class SendNotificacion
                 }
                 Log::debug('Información de actores:'.json_encode($arreglo["Actores"]));
                 //Buscamos a los demandados
-                $demandados = self::getSolicitados($audiencia,$tipo_notificacion["tipo_notificacion"],$event->parte_id);
+                $demandados = self::getSolicitados($audiencia,$tipo_notificacion,$event->parte_id);
                 $etapa_notificacion_null = EtapaNotificacion::whereEtapa("No comparecio el citado")->first();
                 foreach($demandados as $partes){
                     $parte =$partes->parte;
@@ -155,11 +156,11 @@ class SendNotificacion
                         )
                     );
     //                Buscamos si existe un historico de ese tipo de notificación
-                    $historico = HistoricoNotificacion::where("audiencia_parte_id",$partes->id)->where("tipo_notificacion",$event->tipo_notificacion)->first();
+                    $historico = HistoricoNotificacion::where("audiencia_parte_id",$partes->id)->where("tipo_notificacion",$tipo_notificacion)->first();
                     if($historico == null){
                         $historico = HistoricoNotificacion::create([
                             "audiencia_parte_id" => $partes->id,
-                            "tipo_notificacion" => $event->tipo_notificacion,
+                            "tipo_notificacion" => $tipo_notificacion,
                         ]);
                     }
                     if($audiencia->etapa_notificacion_id == null){

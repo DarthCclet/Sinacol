@@ -16,6 +16,7 @@ use App\Filters\ParteFilter;
 use App\Solicitud;
 use Carbon\Carbon;
 use Exception;
+use App\BitacoraBuzon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -827,7 +828,7 @@ class ParteController extends Controller
     }
 
     public function getCitadosBySolicitudId($solicitud_id){
-        $partes = Solicitud::find($solicitud_id)->partes()->with(['domicilios'=>function($q){$q->orderBy('id','desc');}])->where('tipo_parte_id',2)->get();
+        $partes = Solicitud::find($solicitud_id)->partes()->with(['domicilios'=>function($q){$q->orderBy('id','desc');}])->where('tipo_parte_id',2)->whereComparecio(false)->get();
         return $this->sendResponse($partes, 'SUCCESS');
     }
     public function updateCitadosDomicilio(Request $request){
@@ -854,18 +855,20 @@ class ParteController extends Controller
         $notificacion_buzon = $request->acepta_buzon;
         if($parte){
             if($notificacion_buzon == "true"){
-                $parte->update(['notificacion_buzon'=>$notificacion_buzon, 'fecha_aceptacion_buzon'=>$fechaFin = Carbon::now()]);
-            }else{
-                $parte->update(['notificacion_buzon'=>$notificacion_buzon]);
-            }
-            if($notificacion_buzon){
+                $parte->update(['notificacion_buzon'=>true, 'fecha_aceptacion_buzon'=>$fechaFin = Carbon::now()]);
+                $identificador = $parte->rfc;
+                if($parte->tipo_persona_id == 1){
+                    $identificador = $parte->curp;
+                }
                 //Genera acta de aceptacion de buzón
                 if($parte->tipo_parte_id == 1){
                     event(new GenerateDocumentResolution("", $solicitud->id, 62, 19,$parte->id));
                 }else{
                     event(new GenerateDocumentResolution("", $solicitud->id, 62, 20,null,$parte->id));
                 }
+                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
             }else{
+                $parte->update(['notificacion_buzon'=>false]);
                 $existe = $parte->documentos()->where('clasificacion_archivo_id',1)->first();
                 if($existe == null){
                     //Genera acta de no aceptacion de buzón

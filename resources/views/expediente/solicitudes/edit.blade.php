@@ -31,7 +31,7 @@
 @push('scripts')
 <script>
   var edit = true;
-  var origen = 'solicitudes';
+  var origen_vista = 'solicitudes';
   var listaResolucionesIndividuales = [];
 </script>
 @endpush

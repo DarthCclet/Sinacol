@@ -29,6 +29,9 @@
                     <div class="form-group m-b-20" style="display: none;" id="divRfc">
                         <input type="text" class="form-control form-control-lg" placeholder="Ingrese su RFC" id="rfc"/>
                     </div>
+                    <div class="form-group m-b-20">
+                        <input type="text" class="form-control form-control-lg" placeholder="Ingrese su folio de expediente" id="folio"/>
+                    </div>
                     <div class="login-buttons">
                         <button class="btn btn-success btn-block btn-lg" id="btnSolicitar">Solicitar acceso</button>
                     </div>
@@ -88,6 +91,7 @@
                     data:{
                         curp:$("#curp").val(),
                         rfc:$("#rfc").val(),
+                        folio:$("#folio").val(),
                         tipo_persona_id:validar.tipo_persona_id,
                         _token:"{{ csrf_token() }}"
                     },
@@ -136,6 +140,9 @@
                 if($("#curp").val() == ""){
                     error = true;
                 }
+            }
+            if($("#folio").val() == ""){
+                error = true;
             }
             console.log($("#rfc").val());
             console.log($("#curp").val());
