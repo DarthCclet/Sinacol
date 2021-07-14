@@ -10,6 +10,7 @@ use App\Compareciente;
 use App\ConceptoPagoResolucion;
 use App\DatoLaboral;
 use App\Disponibilidad;
+use App\Domicilio;
 use App\Documento;
 use App\EtapaResolucionAudiencia;
 use App\Expediente;
@@ -355,11 +356,12 @@ trait GenerateDocument
             $idBase = "";
             $audienciaId = $idAudiencia;
             $data = [];
-            $solicitud = "";
+            $solicitud = new Solicitud();
             $solicitudVirtual = "";
             $conciliadorId = "";
             $centroId = "";
             $tipoSolicitud = "";
+            $resolucionAudienciaId="";
             foreach ($objetos as $objeto) {
               foreach ($jsonElementos['datos'] as $key=>$element) {
                 if($element['id']==$objeto){
@@ -422,11 +424,13 @@ trait GenerateDocument
                     $nombresSolicitantes = [];
                     $nombresSolicitados = [];
                     $solicitantesNSS = [];
+                    $solicitantesCURP = [];
                     $solicitantesIdentificaciones = [];
                     $datoLaboral="";
                     $solicitanteIdentificacion = "";
                     $firmasPartesQR="";
                     $nss="";
+                    $curp="";
                     // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
@@ -442,7 +446,8 @@ trait GenerateDocument
                       }
                       //$parte['datos_laborales'] = $datoLaboral;
                       $parteId = $parte['id'];
-
+                      $curp = $parte['curp'];
+                      
                       $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
                       $parte['datos_laborales'] = $datoLaboral;
                       if($parte['tipo_persona_id'] == 1){ //fisica
@@ -519,6 +524,38 @@ trait GenerateDocument
                         }
                         // $datoLaboral = DatoLaboral::with('jornada','ocupacion')->where('parte_id', $parteId)->get();
                         if($hayDatosLaborales >0){
+                          $domicilioLaboral = Domicilio::where('domiciliable_id',$datoLaborales->id)->where('domiciliable_type','App\DatoLaboral')->first();
+                          if($domicilioLaboral != null ){
+                            $parte['domicilios_laboral'] = mb_strtoupper($domicilioLaboral->tipo_vialidad.' '.$domicilioLaboral->vialidad.' '.$domicilioLaboral->num_ext.', '.$domicilioLaboral->asentamiento.', '.$domicilioLaboral->municipio.', '.$domicilioLaboral->estado);
+                          }else{
+                            $domicilioLaboral = "";
+                            $tipoParteDom = ($parte['tipo_parte_id'] == 1 )? 2 : 1 ;
+                            $primeraResolucion =null;
+                            if($audienciaId){
+                              $primeraResolucion = ResolucionPartes::where('audiencia_id',$audienciaId)->first();
+                            }
+                            if($primeraResolucion != null){
+                              $contraparte = Parte::with('domicilios')->find($primeraResolucion->parte_solicitada_id);
+                              if($contraparte->tipo_parte_id == 3){//si es representante buscar parte
+                                $contraparte = Parte::with('domicilios')->find($contraparte->parte_representada_id);
+                              }
+                              // $contraparte = Parte::with('domicilios')->where('solicitud_id',$idBase)->where('tipo_parte_id',$tipoParteDom)->first();
+                              $doms_parte = $contraparte->domicilios;
+                              foreach ($doms_parte as $key => $dom_parte) {
+                                $tipo_vialidad =  ($dom_parte->tipo_vialidad !== null)? $dom_parte->tipo_vialidad :"";
+                                $vialidad =  ($dom_parte->vialidad !== null)? $dom_parte->vialidad :"";
+                                $num_ext =  ($dom_parte->num_ext !== null)? "No. " . $dom_parte->num_ext :"";
+                                $num_int =  ($dom_parte->num_int !== null)? " Int. " . $dom_parte->num_int :"";
+                                $num =  $num_int.$num_ext;
+                                $municipio =  ($dom_parte->municipio !== null)? $dom_parte->municipio :"";
+                                $estado =  ($dom_parte->estado !== null)? $dom_parte->estado :"";
+                                $colonia =  ($dom_parte->asentamiento !== null)? $dom_parte->tipo_asentamiento." ". $dom_parte->asentamiento." "  :"";
+                              }
+                              $domicilioLaboral = mb_strtoupper($tipo_vialidad.' '.$vialidad.' '.$num.', '.$colonia.', '.$municipio.', '.$estado);
+                            }
+                            $parte['domicilios_laboral'] = $domicilioLaboral;
+                          }
+
                           $nss = $datoLaborales->nss;
                           $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                           $salarioMensual =number_format($salarioMensual, 2, '.', '');
@@ -592,6 +629,7 @@ trait GenerateDocument
                           array_push($nombresSolicitantes, $parte['nombre_completo'] );
                           array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
                           array_push($solicitantesNSS, $nss);
+                          array_push($solicitantesCURP, $curp);
                           $countSolicitante += 1;
                         }
 
@@ -609,6 +647,7 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
                     $data = Arr::add( $data, 'nss_solicitantes', implode(", ",$solicitantesNSS));
+                    $data = Arr::add( $data, 'curp_solicitantes', implode(", ",$solicitantesCURP));
                     $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
                     $data = Arr::add( $data, 'firmas_partes_qr', $firmasPartesQR);
                 }elseif ($model == 'Expediente') {
@@ -838,6 +877,9 @@ trait GenerateDocument
                         $totalPagosDiferidos = 0;
                         $tablaPagosDiferidos = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         $hayConceptosPago = false;
+                        $resumenPagos='<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
+                        $infoPago  = "";
+                        $fechaCumplimientoPago="";
                         foreach ($audiencia_partes as $key => $audiencia_parte) {
                           if ($audiencia_parte->parte->tipo_parte_id != 3) {
                             $parteID = $audiencia_parte->parte->id;
@@ -1046,24 +1088,54 @@ trait GenerateDocument
                             //Fechas pago resolucion
                             $tablaPagosDiferidos .= '<table class="tbl">';
                             $tablaPagosDiferidos .= '<tbody>';
-                            $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->get();
+                            $resolucion_pagos = ResolucionPagoDiferido::where('audiencia_id',$audienciaId)->orderBy('id')->get();
 
+                            if(count($resolucion_pagos) > 0  && (($parteID == $idSolicitante && $tipoSolicitud == 1) || ($parteID == $idSolicitado && $tipoSolicitud == 2)) ) {
+                              $resumenPagos .= '<table class="tbl">';
+                              $resumenPagos .= '<theader>';
+                              $resumenPagos .= '<th>Fecha cumplimiento</th><th>Concepto</th><th>Monto</th><th>Descripción</th>';
+                              $resumenPagos .= '</theader>';
+                              $resumenPagos .= '<tbody>';
+                            }
                             foreach ($resolucion_pagos as $pago ) {
                               if($tipoSolicitud == 1){
                                 if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitante)){
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
-                                  $totalPagosDiferidos +=1;
+                                  $enPago =($pago->monto != null)?'   $'.number_format($pago->monto, 2, '.', ',') : "$0.00";
+                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;"> '.$enPago.'</td></tr>';
+                                  if($pago->diferido){
+                                    $totalPagosDiferidos +=1;
+                                  }
+                                  if($pago->pagado){
+                                    $infoPago = $pago->informacion_pago;
+                                    // $fechaCumplimientoPago = Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_cumplimiento)->format('d/m/Y');
+                                    $fechaCumplimientoPago = $pago->fecha_cumplimiento;
+                                    // $resumenPagos .= $pago->informacion_pago . " <br>";
+                                    $fechaC = ($pago->fecha_cumplimiento != "" && $pago->fecha_cumplimiento != null)? Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_cumplimiento)->format('d/m/Y') : "N/A";
+                                    $resumenPagos .= '<tr><td class="tbl"> '. $fechaC.' </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;">  '. $enPago .'</td><td style="text-align:justify;">  '. $pago->informacion_pago .'</td></tr>';
+                                  }
                                 }
                               }else{
                                 if(($parteID == $pago->solicitante_id) && ($parteID == $idSolicitado)){
-                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td style="text-align:right;">     $'.number_format($pago->monto, 2, '.', ',').'</td></tr>';
-                                  $totalPagosDiferidos +=1;
+                                  $enPago =($pago->monto != null)?'   $'.number_format($pago->monto, 2, '.', ',') : "$0.00";
+                                  $tablaPagosDiferidos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_pago)->format('d/m/Y h:i').' horas </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;">  '. $enPago .'</td></tr>';
+                                  if($pago->diferido){
+                                    $totalPagosDiferidos +=1;
+                                  }
+                                  if($pago->pagado){
+                                    $infoPago = $pago->informacion_pago;
+                                    $fechaCumplimientoPago = $pago->fecha_cumplimiento;
+                                    $resumenPagos .= '<tr><td class="tbl"> '.Carbon::createFromFormat('Y-m-d H:i:s',$pago->fecha_cumplimiento)->format('d/m/Y').' </td><td> '.$pago->descripcion_pago.'</td><td style="text-align:right;">  '. $enPago .'</td><td style="text-align:justify;">  '. $pago->informacion_pago .'</td></tr>';
+                                  }
                                 }
                               }
                             }
                             $tablaPagosDiferidos .= '</tbody>';
                             $tablaPagosDiferidos .= '</table>';
-
+                            $resumenPagos .= '</tbody>';
+                            $resumenPagos .= '</table>';
+                            $datosResolucion['informacion_pago']= $infoPago;
+                            $datosResolucion['fecha_cumplimiento_pago']= $fechaCumplimientoPago;
+                            $datosResolucion['resumen_pagos']= $resumenPagos;
                             $datosResolucion['total_diferidos']= $totalPagosDiferidos;
                             $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                           }
@@ -1269,8 +1341,9 @@ trait GenerateDocument
                     $datosResolucion['propuesta_configurada'] = (isset($datosResolucion['propuesta_configurada']))? $datosResolucion['propuesta_configurada'] :"";
                     $datosResolucion['pagos_diferidos'] = (isset($datosResolucion['pagos_diferidos']))? $datosResolucion['pagos_diferidos'] :"";
                     $datosResolucion['total_diferidos'] = (isset($datosResolucion['total_diferidos']))? $datosResolucion['total_diferidos'] :"";
+                    $datosResolucion['informacion_pago'] = (isset($datosResolucion['informacion_pago']))? $datosResolucion['informacion_pago'] :"";
+                    $datosResolucion['resumen_pagos'] = (isset($datosResolucion['resumen_pagos']))? $datosResolucion['resumen_pagos'] :"";
                     $data = Arr::add( $data, $model, $datosResolucion );
-                    // dd($data);
                   }else{
                     $objeto = $model_name::first();
                     $objeto = new JsonResponse($objeto);

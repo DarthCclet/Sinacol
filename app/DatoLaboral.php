@@ -60,6 +60,12 @@ public function ocupacion(){
   return $this->belongsTo(Ocupacion::class)->withDefault(["nombre" => "N/A"]);
 
 }
+/**
+ * Relacion con la tabla domicilio
+ * @return type
+ */
+public function domicilios(){
+  return $this->morphMany(Domicilio::class,'domiciliable');
+}
 
-    //
 }

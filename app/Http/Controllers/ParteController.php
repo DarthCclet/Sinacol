@@ -301,7 +301,7 @@ class ParteController extends Controller
      * @return parte
      */
     public function GetDatoLaboral($parte_id){
-        $datos_laborales = DatoLaboral::where('parte_id',$parte_id)->get();
+        $datos_laborales = DatoLaboral::with('domicilios')->where('parte_id',$parte_id)->get();
         if(count($datos_laborales) > 1){
             $datos_laborales = $datos_laborales->where("resolucion",true)->first();
         }else{
@@ -381,11 +381,26 @@ class ParteController extends Controller
                 'prestaciones_adicionales' => $request->prestaciones_adicionales,
             ]);
         }
-
+        $domicilio = $request->get('domicilio_laboral');
+        // dd($domicilio);
+        $this->GuardarActualizarDomicilio($domicilio, $datos_laborales);
         return $datos_laborales;
     }
 
-
+    public function GuardarActualizarDomicilio($domicilioRequest, $datos_laborales){
+        $domicilio = $datos_laborales->domicilios->first();
+        if($domicilio == null){
+            if ($domicilioRequest) {
+                unset($domicilioRequest['activo']);
+                $domicilioSaved = $datos_laborales->domicilios()->create($domicilioRequest);
+            }
+        }else{
+            unset($domicilioRequest["activo"]);
+            $domicilio->update($domicilioRequest);
+        }
+    }
+    
+    
     function GuardarRepresentanteLegal(Request $request){
         DB::beginTransaction();
         try{
