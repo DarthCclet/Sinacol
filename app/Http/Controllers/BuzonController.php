@@ -228,11 +228,12 @@ class BuzonController extends Controller
         try{
             $parte = Parte::find($parte_id);
             $solicitud = $parte->solicitud;
+            $audiencia = $solicitud->expediente->audiencia->last();
             $html = "";
             if($parte->tipo_parte_id == 1){
-                event(new GenerateDocumentResolution("", $solicitud->id, 60, 25,$parte->id));
+                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 25,$parte->id));
             }else{
-                event(new GenerateDocumentResolution("", $solicitud->id, 63, 26,null,$parte->id));
+                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 63, 26,null,$parte->id));
             }
             return $this->sendResponse($html, 'SUCCESS');
         }catch(Exception $e){
