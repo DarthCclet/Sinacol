@@ -257,12 +257,18 @@ class StringTemplate
 
                     $string = $htmlA . $sliceNotificacion . $htmlB;
                   break;
-                  default: //1, 2 y 3
+                  case 7: //NOtificacion por comparecencia
                   // case 2: //El actuario del centro entrega citatorio a solicitados
                     // texto de notificacion por actuario
                     $sliceNotificacion = Str::after($string, '[SI_SOLICITADO_NOTIFICACION_NO_BUZON]');
                     $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITADO_NOTIFICACION]');
                     $string = $htmlA . $sliceNotificacion . $htmlB;
+                  break;
+                  default:
+                  $htmlA = Str::before($string, '[SI_SOLICITADO_NOTIFICACION_BUZON');
+                  $htmlB = Str::after($string, '[FIN_SI_SOLICITADO_NOTIFICACION]');
+                  $sliceNotificacion = "";
+                  $string = $htmlA . $sliceNotificacion . $htmlB;
                   break;
                 }
               }
