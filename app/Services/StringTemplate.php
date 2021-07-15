@@ -243,37 +243,28 @@ class StringTemplate
           }
         }
 
-        $countTipoNotificacion = substr_count($string,'[SI_SOLICITADO_NOTIFICACION_BUZON]');
+        $countTipoNotificacion = substr_count($string,'[SI_SOLICITADO_NOTIFICACION_BUZON_COMPARECENCIA]');
         if (isset($vars['solicitado_tipo_notificacion'])){
           if ($countTipoNotificacion >0 ){
             if($vars['solicitado_tipo_notificacion'] != null && $vars['solicitado_tipo_notificacion'] != "--"){
               for ($i=0; $i < $countTipoNotificacion; $i++) {
-                $htmlA = Str::before($string, '[SI_SOLICITADO_NOTIFICACION_BUZON');
+                $htmlA = Str::before($string, '[SI_SOLICITADO_NOTIFICACION_BUZON_COMPARECENCIA');
                 $htmlB = Str::after($string, '[FIN_SI_SOLICITADO_NOTIFICACION]');
-                switch ($vars['solicitado_tipo_notificacion']) {
-                  case 4: // Notificado por buzón electrónico
-                    $sliceNotificacion = Str::after($string, '[SI_SOLICITADO_NOTIFICACION_BUZON]');
-                    $sliceNotificacion = Str::before($sliceNotificacion, '[SI_SOLICITADO_NOTIFICACION_NO_BUZON]');
+                if($vars['solicitado_tipo_notificacion'] == 4 ||$vars['solicitado_tipo_notificacion']) { // Notificado por buzón electrónico o por comparecencia
+                    $sliceNotificacion = Str::after($string, '[SI_SOLICITADO_NOTIFICACION_BUZON_COMPARECENCIA]');
+                    $sliceNotificacion = Str::before($sliceNotificacion, '[SI_SOLICITADO_NOTIFICACION_NO_BUZON_COMPARECENCIA]');
 
                     $string = $htmlA . $sliceNotificacion . $htmlB;
-                  break;
-                  case 7: //NOtificacion por comparecencia
-                  // case 2: //El actuario del centro entrega citatorio a solicitados
-                    // texto de notificacion por actuario
-                    $sliceNotificacion = Str::after($string, '[SI_SOLICITADO_NOTIFICACION_NO_BUZON]');
-                    $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITADO_NOTIFICACION]');
-                    $string = $htmlA . $sliceNotificacion . $htmlB;
-                  break;
-                  default:
-                  $htmlA = Str::before($string, '[SI_SOLICITADO_NOTIFICACION_BUZON');
-                  $htmlB = Str::after($string, '[FIN_SI_SOLICITADO_NOTIFICACION]');
-                  $sliceNotificacion = "";
-                  $string = $htmlA . $sliceNotificacion . $htmlB;
-                  break;
+                  }else{ //otro tipo de notificacion
+                   
+                     $sliceNotificacion = Str::after($string, '[SI_SOLICITADO_NOTIFICACION_NO_BUZON_COMPARECENCIA]');
+                     $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITADO_NOTIFICACION]');
+                     $string = $htmlA . $sliceNotificacion . $htmlB;
+                 }
                 }
               }
             }else{
-              $htmlA = Str::before($string, '[SI_SOLICITADO_NOTIFICACION_BUZON');
+              $htmlA = Str::before($string, '[SI_SOLICITADO_NOTIFICACION_BUZON_COMPARECENCIA');
               $htmlB = Str::after($string, '[FIN_SI_SOLICITADO_NOTIFICACION]');
               $sliceNotificacion = "";
               $string = $htmlA . $sliceNotificacion . $htmlB;

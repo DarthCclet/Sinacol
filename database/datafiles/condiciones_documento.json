@@ -25,7 +25,7 @@
                   {"catalogo":"Tipo_Persona",
                       "val":["Fisica", "Moral"]},
                   {"catalogo":"Notificacion",
-                    "val":["Buzon", "No_buzon"]}
+                    "val":["Buzon_Comparecencia", "NO_Buzon_Comparecencia"]}
                     ]
           },
           {
