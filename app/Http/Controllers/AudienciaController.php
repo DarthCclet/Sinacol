@@ -51,6 +51,7 @@ use App\Events\RatificacionRealizada;
 use App\Genero;
 use App\LenguaIndigena;
 use App\Mail\CambioFecha;
+use App\Mail\EnviarNotificacionBuzon;
 use App\TipoAsentamiento;
 use App\TipoVialidad;
 use Illuminate\Support\Facades\Mail;
@@ -2117,6 +2118,12 @@ class AudienciaController extends Controller {
                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->id));
             }
         }
+        foreach($audienciaN->audienciaParte as $audiencia_parte){
+            $correo = $audiencia_parte->parte->contactos()->whereTipoContactoId(3)->first();
+            if($correo != null){
+                Mail::to($correo->contacto)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
+            }
+        }
         if ($notificar > 0) {
             foreach ($partes_notificar as $parte) {
                 event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $parte));
@@ -2182,6 +2189,12 @@ class AudienciaController extends Controller {
                 if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
                     event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
                 }
+            }
+        }
+        foreach($audienciaN->audienciaParte as $audiencia_parte){
+            $correo = $audiencia_parte->parte->contactos()->whereTipoContactoId(3)->first();
+            if($correo != null){
+                Mail::to($correo->contacto)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
             }
         }
         DB::commit();
