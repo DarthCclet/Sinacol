@@ -652,7 +652,6 @@ class PlantillasDocumentosController extends Controller
                     $nss="";
                     $curp="";
                     $rfc="";
-                    $tablaConsultaBuzon = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                       // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
@@ -831,19 +830,19 @@ class PlantillasDocumentosController extends Controller
                             $parte['fecha_confirmacion_audiencia'] = "";
                           }
                         }
-                        //$tablaConsultaBuzon = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
-                        
+                        $tablaConsultaBuzon = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         if( sizeof($parte['bitacoras_buzon']) > 0 ){
                           $tablaConsultaBuzon .= '<table class="tbl">';
                           $tablaConsultaBuzon .= '<tbody>';
                           foreach ($parte['bitacoras_buzon'] as $k => $bitacora) {
-                            $tablaConsultaBuzon .= '<tr><td class="tbl"> '.$bitacora['created_at'].' </td><td>'.$bitacora['descripcion'].'</tr>';
+                            $tablaConsultaBuzon .= '<tr><td class="tbl"> '. Carbon::createFromFormat('Y-m-d H:i:s',$bitacora['created_at'])->format('d/m/Y h:i').' </td><td>'.$bitacora['descripcion'].'</tr>';
                           }
                           $tablaConsultaBuzon .= '</tbody>';
                           $tablaConsultaBuzon .= '</table>';
                         }else{
                           $tablaConsultaBuzon .= 'No hay registros en la bitácora';
                         }
+                        $parte['bitacora_consulta_buzon']=$tablaConsultaBuzon;
 
                       if($parte['tipo_parte_id'] == 1 ){//Solicitante
                         array_push($parte1, $parte);

@@ -431,7 +431,6 @@ trait GenerateDocument
                     $firmasPartesQR="";
                     $nss="";
                     $curp="";
-                    $tablaConsultaBuzon = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                     // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
@@ -627,18 +626,19 @@ trait GenerateDocument
                             $parte['fecha_confirmacion_audiencia'] = "";
                           }
                         }
-                        
+                        $tablaConsultaBuzon = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         if( sizeof($parte['bitacoras_buzon']) > 0 ){
                           $tablaConsultaBuzon .= '<table class="tbl">';
                           $tablaConsultaBuzon .= '<tbody>';
                           foreach ($parte['bitacoras_buzon'] as $k => $bitacora) {
-                            $tablaConsultaBuzon .= '<tr><td class="tbl"> '. Carbon::createFromFormat('Y-m-d H:i:s',$bitacora['created_at'])->format('d/m/Y').' </td><td>'.$bitacora['descripcion'].'</tr>';
+                            $tablaConsultaBuzon .= '<tr><td class="tbl"> '. Carbon::createFromFormat('Y-m-d H:i:s',$bitacora['created_at'])->format('d/m/Y h:i').' </td><td>'.$bitacora['descripcion'].'</tr>';
                           }
                           $tablaConsultaBuzon .= '</tbody>';
                           $tablaConsultaBuzon .= '</table>';
                         }else{
                           $tablaConsultaBuzon .= 'No hay registros en la bitácora';
                         }
+                        $parte['bitacora_consulta_buzon']=$tablaConsultaBuzon;
 
                         if($parte['tipo_parte_id'] == 1 ){//Solicitante
                           array_push($parte1, $parte);
@@ -666,7 +666,6 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'curp_solicitantes', implode(", ",$solicitantesCURP));
                     $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
                     $data = Arr::add( $data, 'firmas_partes_qr', $firmasPartesQR);
-                    $data = Arr::add( $data, 'bitacora_consulta_buzon', $tablaConsultaBuzon );
                 }elseif ($model == 'Expediente') {
                     $expediente = Expediente::where('solicitud_id', $idBase)->get();
                     $expedienteId = $expediente[0]->id;
