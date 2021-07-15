@@ -242,6 +242,39 @@ class StringTemplate
             }
           }
         }
+
+        $countTipoNotificacion = substr_count($string,'[SI_NOTIFICACION_BUZON]');
+        if (isset($vars['solicitado_tipo_notificacion'])){
+          if ($countTipoNotificacion >0 ){
+            if($vars['solicitado_tipo_notificacion'] != null && $vars['solicitado_tipo_notificacion'] != "--"){
+              for ($i=0; $i < $countTipoNotificacion; $i++) {
+                $htmlA = Str::before($string, '[SI_NOTIFICACION_BUZON');
+                $htmlB = Str::after($string, '[FIN_SI_NOTIFICACION_BUZON]');
+                switch ($vars['solicitado_tipo_notificacion']) {
+                  case 4: // Notificado por buzón electrónico
+                    $sliceNotificacion = Str::after($string, '[SI_NOTIFICACION_BUZON]');
+                    $sliceNotificacion = Str::before($sliceNotificacion, '[SI_NOTIFICACION_NO_BUZON]');
+
+                    $string = $htmlA . $sliceNotificacion . $htmlB;
+                  break;
+                  default: //1, 2 y 3
+                  // case 2: //El actuario del centro entrega citatorio a solicitados
+                    // texto de notificacion por actuario
+                    $sliceNotificacion = Str::after($string, '[SI_NOTIFICACION_NO_BUZON]');
+                    $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_NOTIFICACION_BUZON]');
+                    $string = $htmlA . $sliceNotificacion . $htmlB;
+                  break;
+                }
+              }
+            }else{
+              $htmlA = Str::before($string, '[SI_SOLICITANTE_N');
+              $htmlB = Str::after($string, '[FIN_SI_SOLICITANTE_NOTIFICA]');
+              $sliceNotificacion = "";
+              $string = $htmlA . $sliceNotificacion . $htmlB;
+            }
+          }
+        }
+
         $partes = ['solicitado','solicitante'];
         foreach ($partes as $key => $parteL) {
           $htmlA ="";
