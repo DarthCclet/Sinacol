@@ -422,6 +422,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'fecha_notificacion');
                 array_push($columnNames,'asistencia');
                 array_push($columnNames,'bitacora_consulta_buzon');
+                array_push($columnNames,'fecha_confirmacion_audiencia');
 
               }
               if($value->nombre =='Conciliador'){
