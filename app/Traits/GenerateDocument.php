@@ -390,13 +390,13 @@ trait GenerateDocument
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
                     if($idSolicitante != "" && $idSolicitado != ""){
-                      $partes = $model_name::with(['nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'=>function($q){$q->where('tipo_movimiento','Consilta');}])->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'=>function($q){$q->where('tipo_movimiento','Consulta');}])->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
                     }else if($idSolicitante != "" && $idSolicitado == ""){
-                      $partes = $model_name::with(['nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'=>function($q){$q->where('tipo_movimiento','Consilta');}])->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id<>?)',[$idSolicitante,1])->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'=>function($q){$q->where('tipo_movimiento','Consulta');}])->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id<>?)',[$idSolicitante,1])->get();
                     }else if($idSolicitante == "" && $idSolicitado != ""){
-                      $partes = $model_name::with(['nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'=>function($q){$q->where('tipo_movimiento','Consilta');}])->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'=>function($q){$q->where('tipo_movimiento','Consulta');}])->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
                     }else{
-                      $partes = $model_name::with(['nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'=>function($q){$q->where('tipo_movimiento','Consilta');}])->where('solicitud_id',intval($idBase))->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'=>function($q){$q->where('tipo_movimiento','Consulta');}])->where('solicitud_id',intval($idBase))->get();
                     }
                     if($idDocumento){
                       foreach($partes as $parteaFirma){
@@ -431,6 +431,7 @@ trait GenerateDocument
                     $firmasPartesQR="";
                     $nss="";
                     $curp="";
+                    $tablaConsultaBuzon = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                     // $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad')->findOrFail(1);
                     foreach ($obj as $key=>$parte ) {
                       if( sizeof($parte['documentos']) > 0 ){
@@ -626,16 +627,17 @@ trait GenerateDocument
                             $parte['fecha_confirmacion_audiencia'] = "";
                           }
                         }
-                        $tablaConsultaBuzon = '<style> .tbl, .tbl th, .tbl td {border: .5px dotted black; border-collapse: collapse; padding:3px;} .amount{ text-align:right} </style>';
                         
                         if( sizeof($parte['bitacoras_buzon']) > 0 ){
                           $tablaConsultaBuzon .= '<table class="tbl">';
                           $tablaConsultaBuzon .= '<tbody>';
                           foreach ($parte['bitacoras_buzon'] as $k => $bitacora) {
-                            $tablaConsultaBuzon .= '<tr><td class="tbl"> '.$bitacora['created_at'].' </td><td>'.$bitacora['descripcion'].'</tr>';
+                            $tablaConsultaBuzon .= '<tr><td class="tbl"> '. Carbon::createFromFormat('Y-m-d H:i:s',$bitacora['created_at'])->format('d/m/Y').' </td><td>'.$bitacora['descripcion'].'</tr>';
                           }
                           $tablaConsultaBuzon .= '</tbody>';
                           $tablaConsultaBuzon .= '</table>';
+                        }else{
+                          $tablaConsultaBuzon .= 'No hay registros en la bitácora';
                         }
 
                         if($parte['tipo_parte_id'] == 1 ){//Solicitante
