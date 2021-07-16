@@ -133,6 +133,7 @@ class StringTemplate
             }
           }
         }
+
         $countSolicitudRatificada = substr_count($string,'[SI_SOLICITUD_RATIFICADA]');
         if (isset($vars['solicitud_estatus_solicitud_id'])&& $countSolicitudRatificada > 0){
           for ($i=0; $i < $countSolicitudRatificada; $i++) {
@@ -152,6 +153,7 @@ class StringTemplate
             }
           }
         }
+
         $countSolicitudVirtual = substr_count($string,'[SI_SOLICITUD_VIRTUAL]');
         if (isset($vars['solicitud_virtual'])&& $countSolicitudVirtual > 0){
           for ($i=0; $i < $countSolicitudVirtual; $i++) {
@@ -172,6 +174,7 @@ class StringTemplate
             }
           }
         }
+
         $countSolicitudIndividual = substr_count($string,'[SI_SOLICITUD_TIPO_INDIVIDUAL]');
         if (isset($vars['solicitud_tipo_solicitud_id'])&& $countSolicitudIndividual > 0){
           for ($i=0; $i < $countSolicitudIndividual; $i++) {
@@ -187,6 +190,7 @@ class StringTemplate
             }
           }
         }
+
         $countCentroVirtual = substr_count($string,'[SI_CENTRO_ATIENDE_VIRTUAL]');
         if (isset($vars['centro_tipo_atencion_centro_id'])&& $countCentroVirtual > 0){
           for ($i=0; $i < $countCentroVirtual; $i++) {
@@ -208,6 +212,7 @@ class StringTemplate
             }
           }
         }
+
         $countTipoNotificacion = substr_count($string,'[SI_SOLICITANTE_NOTIFICA]');
         if (isset($vars['solicitado_tipo_notificacion'])){
           if ($countTipoNotificacion >0 ){
@@ -256,7 +261,7 @@ class StringTemplate
 
                     $string = $htmlA . $sliceNotificacion . $htmlB;
                   }else{ //otro tipo de notificacion
-                   
+
                      $sliceNotificacion = Str::after($string, '[SI_SOLICITADO_NOTIFICACION_NO_BUZON_COMPARECENCIA]');
                      $sliceNotificacion = Str::before($sliceNotificacion, '[FIN_SI_SOLICITADO_NOTIFICACION]');
                      $string = $htmlA . $sliceNotificacion . $htmlB;
@@ -270,7 +275,6 @@ class StringTemplate
               $string = $htmlA . $sliceNotificacion . $htmlB;
             }
           }
-        }
 
         $partes = ['solicitado','solicitante'];
         foreach ($partes as $key => $parteL) {
