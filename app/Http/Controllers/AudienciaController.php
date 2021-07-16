@@ -242,6 +242,8 @@ class AudienciaController extends Controller {
         foreach ($audiencia->audienciaParte as $key => $parte) {
             $parte->parte->tipoParte = $parte->parte->tipoParte;
             $parte->parte->tipo_notificacion = $parte->tipo_notificacion;
+            $parte->parte->finalizado = $parte->finalizado;
+            $parte->parte->fecha_notificacion = $parte->fecha_notificacion;
             $partes[$key] = $parte->parte;
         }
         foreach ($audiencia->conciliadoresAudiencias as $key => $conciliador) {
