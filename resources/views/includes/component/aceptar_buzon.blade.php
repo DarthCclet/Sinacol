@@ -3,14 +3,19 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Representante</h4>
+                <h4 class="modal-title">Buz&oacute;n Electr&oacute;nico</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="parte_correo">
                 <input type="hidden" id="parte_representada_correo">
                 <div class="alert alert-muted">
-                    - Para ingresar al buzón electr&oacute;nico se debe registrar una dirección de correo, los siguientes solicitantes no registraron una cuenta, indica su correo o solicita un acceso del sistema
+                    - Para acceder al buz&oacute;n electr&oacute;nico se deber&aacute; registrar 
+                    <ol>
+                        <li>El CURP o RFC de la persona y </li>
+                        <li>Un correo electr&oacute;nico al cual asociarlo.  </li>
+                    </ol>
+                    En el caso de que no se haya proporcionado un correo electr&oacute;nico con anterioridad podr&aacute; capturarlo en este momento, de lo contrario seleccione "Proporcionar accesos" y el sisteme le proporcionar&aacute; un pseudocorreo y una contrase&ntilde;a para acceder al buz&oacute;n eletr&oacute;nico.
                 </div>
                 <div id="divExisteCorreo">
                     <h3>Ya existe un correo asignado : <span id="correoParte"></span></h3>
@@ -21,7 +26,7 @@
                             <th>Solicitante</th>
                             <th></th>
                             <th>RFC/CURP</th>
-                            <th>Correo electrónico</th>
+                            <th>Correo electr&oacute;nico</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -120,8 +125,8 @@
     });
     $("#btnGuardarCorreos").on("click",function(){
         swal({
-            title: '¿Estas seguró?',
-            text: 'Al aceptar el buzón se genera acta de aceptación',
+            title: '¿Estas seguro?',
+            text: 'Al aceptar el buzón se generará el Acta de Aceptación. En caso de no aceptarlo se generará el Acta de No Aceptación.',
             icon: 'warning',
             buttons: {
                 cancel: {
@@ -160,6 +165,7 @@
                                     text: 'Información almacenada correctamente',
                                     icon: 'success'
                                 });
+                                aceptarBuzon();
                             },error:function(error){
                                 swal({
                                     title: 'Error',
@@ -170,32 +176,9 @@
                         });
                     }else{
                         $("#modal-registro-correos").modal("hide");
+                        aceptarBuzon();
                     }
-                    $.ajax({
-                        url:'/aceptar_buzon',
-                        type:'POST',
-                        dataType:"json",
-                        async:true,
-                        data:{
-                            _token:"{{ csrf_token() }}",
-                            acepta_buzon:$("#aceptar_notif_buzon").is(":checked"),
-                            parte_id:$("#parte_representada_correo").val()
-                        },
-                        success:function(data){
-                            $("#modal-registro-correos").modal("hide");
-                            swal({
-                                title: 'Correcto',
-                                text: 'Información almacenada correctamente',
-                                icon: 'success'
-                            });
-                        },error:function(error){
-                            swal({
-                                title: 'Error',
-                                text: 'Ocurrio un error al guardar los correos',
-                                icon: 'warning'
-                            });
-                        }
-                    });
+                    
                 }else{
                     // if(!$("#aceptar_notif_buzon").is(":checked")){
                     //     swal({
@@ -224,16 +207,38 @@
         
     });
 
+    function aceptarBuzon(){
+        $.ajax({
+            url:'/aceptar_buzon',
+            type:'POST',
+            dataType:"json",
+            async:true,
+            data:{
+                _token:"{{ csrf_token() }}",
+                acepta_buzon:$("#aceptar_notif_buzon").is(":checked"),
+                parte_id:$("#parte_representada_correo").val()
+            },
+            success:function(data){
+                $("#modal-registro-correos").modal("hide");
+                swal({
+                    title: 'Correcto',
+                    text: 'Información almacenada correctamente',
+                    icon: 'success'
+                });
+            },error:function(error){
+                swal({
+                    title: 'Error',
+                    text: 'Ocurrio un error al guardar los correos',
+                    icon: 'warning'
+                });
+            }
+        });
+    }
+
     function validarCorreos(){
         var respuesta = new Array();
         var listaCorreos = [];
         var error = false;
-        // if(!$("#aceptar_notif_buzon").is(":checked") ){
-        //     error = true;
-        //     $("#aceptarNotifLabel").css("color","red !important");
-        // }else{
-        //     $("#aceptarNotifLabel").css("color"," ");
-        // }
         if($("#correoParte").html() == ""){
             $.each($(".checkCorreo"),function(index,element){
                 var id = $(element).data('id');
