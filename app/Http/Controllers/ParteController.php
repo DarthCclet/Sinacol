@@ -850,37 +850,45 @@ class ParteController extends Controller
     }
 
     public function aceptar_buzon(Request $request){
-        $parte = Parte::find($request->parte_id);
-        $solicitud = $parte->solicitud;
-        $notificacion_buzon = $request->acepta_buzon;
-        if($parte){
-            if($notificacion_buzon == "true"){
-                $parte->update(['notificacion_buzon'=>true, 'fecha_aceptacion_buzon'=>$fechaFin = Carbon::now()]);
-                $identificador = $parte->rfc;
-                if($parte->tipo_persona_id == 1){
-                    $identificador = $parte->curp;
-                }
-                //Genera acta de aceptacion de buzón
-                if($parte->tipo_parte_id == 1){
-                    event(new GenerateDocumentResolution("", $solicitud->id, 62, 19,$parte->id));
+        DB::beginTransaction();
+        try{
+            $parte = Parte::find($request->parte_id);
+            $solicitud = $parte->solicitud;
+            $audiencia = $solicitud->expediente->audiencia->last();
+            $notificacion_buzon = $request->acepta_buzon;
+            if($parte){
+                if($notificacion_buzon == "true"){
+                    $parte->update(['notificacion_buzon'=>true, 'fecha_aceptacion_buzon'=>$fechaFin = Carbon::now()]);
+                    $identificador = $parte->rfc;
+                    if($parte->tipo_persona_id == 1){
+                        $identificador = $parte->curp;
+                    }
+                    //Genera acta de aceptacion de buzón
+                    if($parte->tipo_parte_id == 1){
+                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 1, 19,$parte->id));
+                    }else{
+                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 1, 20,null,$parte->id));
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
                 }else{
-                    event(new GenerateDocumentResolution("", $solicitud->id, 62, 20,null,$parte->id));
-                }
-                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
-            }else{
-                $parte->update(['notificacion_buzon'=>false]);
-                $existe = $parte->documentos()->where('clasificacion_archivo_id',1)->first();
-                if($existe == null){
+                    $parte->update(['notificacion_buzon'=>false]);
                     //Genera acta de no aceptacion de buzón
                     if($parte->tipo_parte_id == 1){
-                        event(new GenerateDocumentResolution("", $solicitud->id, 60, 22,$parte->id));
+                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id));
                     }else{
-                        event(new GenerateDocumentResolution("", $solicitud->id, 60, 23,null,$parte->id));
+                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id));
                     }
                 }
+                DB::commit();
+                return $this->sendResponse($parte, 'SUCCESS');
             }
-            return $this->sendResponse($parte, 'SUCCESS');
+            return $this->sendError('Error al aceptar buzón', 'Error');
+        }catch(Exception $e){
+            Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
+                " Se emitió el siguiente mensale: ". $e->getMessage().
+                " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            DB::rollback();
+            return $this->sendError('Error al aceptar buzón', 'Error');
         }
-        return $this->sendError('Error al aceptar buzón', 'Error');
     }
 }
