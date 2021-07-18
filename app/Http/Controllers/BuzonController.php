@@ -231,7 +231,7 @@ class BuzonController extends Controller
             $audiencia = $solicitud->expediente->audiencia->last();
             $html = "";
             if($parte->tipo_parte_id == 1){
-                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 25,$parte->id));
+                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 63, 25,$parte->id));
             }else{
                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 63, 26,null,$parte->id));
             }
