@@ -37,6 +37,7 @@ use App\TerminacionBilateral;
 use App\Documento;
 use App\Estado;
 use App\TipoContacto;
+use App\BitacoraBuzon;
 use App\Traits\ValidateRange;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -1538,6 +1539,18 @@ class AudienciaController extends Controller {
                         //no hubo convenio, guarda resolucion para todas las partes
                         $terminacion = 5;
                         //se genera el acta de no conciliacion para todos los casos
+                        if($solicitante->parte->tipo_persona_id == 1){
+                            $busqueda = $solicitante->parte->curp;
+                        }else{
+                            $busqueda = $solicitante->parte->rfc;
+                        }
+                        BitacoraBuzon::create(['parte_id'=>$solicitante->parte_id,'descripcion'=>'Se genera el documento de constancia de no conciliación','tipo_movimiento'=>'Documento','clabe_identificacion' => $busqueda]);
+                        if($solicitado->parte->tipo_persona_id == 1){
+                            $busqueda = $solicitado->parte->curp;
+                        }else{
+                            $busqueda = $solicitado->parte->rfc;
+                        }
+                        BitacoraBuzon::create(['parte_id'=>$solicitado->parte_id,'descripcion'=>'Se genera el documento de constancia de no conciliación','tipo_movimiento'=>'Documento','clabe_identificacion' => $busqueda]);
                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 17, 1, $solicitante->parte_id, $solicitado->parte_id));
 
                         $parte = $solicitado->parte;
@@ -2723,6 +2736,12 @@ class AudienciaController extends Controller {
                                                     if (array_search($solicitado->parte_id, $arrayMultado) === false && $audiencia->expediente->solicitud->tipo_solicitud_id == $tipo_solicitud_individual->id) {
                                                         // Se genera archivo de acta de multa
                                                         event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
+                                                        if($audienciaParte->parte->tipo_persona_id == 1){
+                                                            $busqueda = $audienciaParte->parte->curp;
+                                                        }else{
+                                                            $busqueda = $audienciaParte->parte->rfc;
+                                                        }
+                                                        BitacoraBuzon::create(['parte_id'=>$audienciaParte->parte_id,'descripcion'=>'Se crea acta de multa','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                                         array_push($arrayMultado, $solicitado->parte_id);
                                                         array_push($arrayMultadoNotificacion, $audienciaParte->id);
                                                     }
@@ -2798,6 +2817,12 @@ class AudienciaController extends Controller {
                         foreach ($audiencia->audienciaParte as $parte) {
                             AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
                             if ($parte->parte->tipo_parte_id == 2) {
+                                if($parte->parte->tipo_persona_id == 1){
+                                    $busqueda = $parte->parte->curp;
+                                }else{
+                                    $busqueda = $parte->parte->rfc;
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea citatorio de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->parte_id));
                             }
                         }
@@ -2843,6 +2868,12 @@ class AudienciaController extends Controller {
                                     }
                                 }
                                 if(!$comparecio){
+                                    if($audienciaP->parte->tipo_persona_id == 1){
+                                        $busqueda = $audienciaP->parte->curp;
+                                    }else{
+                                        $busqueda = $audienciaP->parte->rfc;
+                                    }
+                                    BitacoraBuzon::create(['parte_id'=>$audienciaP->parte_id,'descripcion'=>'Se crea acta de archivado por no comparecencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 41, 8,null, $audienciaP->parte_id));
                                 }
                             }
@@ -2885,6 +2916,12 @@ class AudienciaController extends Controller {
                                         }
                                         if(!$comparecio && ($audienciaP->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaP->finalizado == "EXITOSO POR INSTRUCTIVO") && $audienciaP->parte->tipo_parte_id == $tipo_parte->id){
                                             if(!$audienciaP->parte->multado){
+                                                if($audienciaP->parte->tipo_persona_id == 1){
+                                                    $busqueda = $audienciaP->parte->curp;
+                                                }else{
+                                                    $busqueda = $audienciaP->parte->rfc;
+                                                }
+                                                BitacoraBuzon::create(['parte_id'=>$audienciaP->parte_id,'descripcion'=>'Se crea acta de multa','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 18, 7, null,$audienciaP->parte_id));
                                                 array_push($arrayMultadoNotificacion, $audienciaP->id);
                                                 $notificar = true;

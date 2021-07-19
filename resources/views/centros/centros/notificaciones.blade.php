@@ -282,19 +282,26 @@
                                         div1 += "<td>" + element2.created_at + "</td>";
                                         div1 += ' <td>' + element2.etapa_notificacion.etapa +
                                             '</td>';
-                                        div1 += ' <td>' + element2.fecha_peticion_notificacion + '</td>';
+                                        div1 += ' <td>' + element2.fecha_peticion_notificacion +
+                                            '</td>';
                                         div1 += ' <td>';
                                         div1 += '<ul>';
-                                        var liga_doc = '<a href="/api/documentos/getFile/' +
-                                            element2.historico_notificacion_respuesta.documento
-                                            .uuid +
-                                            '" target="_blank" title="Documento">Documento</a>';
-                                        div1 += '<li><strong>Fecha: </strong>' + element2
-                                            .historico_notificacion_respuesta
-                                            .fecha_notificacion +
-                                            '  -  <strong>Respuesta: </strong>' + element2
-                                            .historico_notificacion_respuesta.finalizado +
-                                            '  -  ' + liga_doc + '</li>';
+                                        if (element2.historico_notificacion_respuesta != null) {
+                                            var liga_doc = "";
+                                            if (element2.historico_notificacion_respuesta.documento != null) {
+                                                liga_doc = '<a href="/api/documentos/getFile/' +
+                                                    element2.historico_notificacion_respuesta
+                                                    .documento.uuid +
+                                                    '" target="_blank" title="Documento">Documento</a>';
+                                            }
+                                            div1 += '<li><strong>Fecha: </strong>' + element2
+                                                .historico_notificacion_respuesta
+                                                .fecha_notificacion +
+                                                '  -  <strong>Respuesta: </strong>' + element2
+                                                .historico_notificacion_respuesta.finalizado +
+                                                '  -  ' + liga_doc + '</li>';
+                                        }
+
                                         div1 += '</ul>';
                                         div1 += '</td>';
                                         div1 += "</tr>";
@@ -303,19 +310,26 @@
                                         div2 += "<td>" + element2.created_at + "</td>";
                                         div2 += ' <td>' + element2.etapa_notificacion.etapa +
                                             '</td>';
-                                        div2 += ' <td>' + element2.fecha_peticion_notificacion + '</td>';
+                                        div2 += ' <td>' + element2.fecha_peticion_notificacion +
+                                            '</td>';
                                         div2 += ' <td>';
                                         div2 += '<ul>';
-                                        var liga_doc = '<a href="/api/documentos/getFile/' +
-                                            element2.historico_notificacion_respuesta.documento
-                                            .uuid +
-                                            '" target="_blank" title="Documento">Documento</a>';
-                                        div2 += '<li><strong>Fecha: </strong>' + element2
-                                            .historico_notificacion_respuesta
-                                            .fecha_notificacion +
-                                            '  -  <strong>Respuesta: </strong>' + element2
-                                            .historico_notificacion_respuesta.finalizado +
-                                            '  -  ' + liga_doc + '</li>';
+                                        if (element2.historico_notificacion_respuesta != null) {
+                                            var liga_doc = "";
+                                            if (element2.historico_notificacion_respuesta
+                                                .documento != null) {
+                                                liga_doc = '<a href="/api/documentos/getFile/' +
+                                                    element2.historico_notificacion_respuesta
+                                                    .documento.uuid +
+                                                    '" target="_blank" title="Documento">Documento</a>';
+                                            }
+                                            div1 += '<li><strong>Fecha: </strong>' + element2
+                                                .historico_notificacion_respuesta
+                                                .fecha_notificacion +
+                                                '  -  <strong>Respuesta: </strong>' + element2
+                                                .historico_notificacion_respuesta.finalizado +
+                                                '  -  ' + liga_doc + '</li>';
+                                        }
                                         div2 += '</ul>';
                                         div2 += '</td>';
                                         div2 += "</tr>";
