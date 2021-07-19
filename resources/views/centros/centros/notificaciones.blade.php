@@ -282,7 +282,7 @@
                                         div1 += "<td>" + element2.created_at + "</td>";
                                         div1 += ' <td>' + element2.etapa_notificacion.etapa +
                                             '</td>';
-                                        div1 += ' <td>' + element2.fecha_peticion + '</td>';
+                                        div1 += ' <td>' + element2.fecha_peticion_notificacion + '</td>';
                                         div1 += ' <td>';
                                         div1 += '<ul>';
                                         var liga_doc = '<a href="/api/documentos/getFile/' +
@@ -303,7 +303,7 @@
                                         div2 += "<td>" + element2.created_at + "</td>";
                                         div2 += ' <td>' + element2.etapa_notificacion.etapa +
                                             '</td>';
-                                        div2 += ' <td>' + element2.fecha_peticion + '</td>';
+                                        div2 += ' <td>' + element2.fecha_peticion_notificacion + '</td>';
                                         div2 += ' <td>';
                                         div2 += '<ul>';
                                         var liga_doc = '<a href="/api/documentos/getFile/' +
