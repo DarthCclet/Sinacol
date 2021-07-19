@@ -3,9 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\ClasificacionArchivo;
 
-class UpdateV4DataToClasificacionArchivosTable extends Migration
+class UpdateClasificacionArchivosV5 extends Migration
 {
     /**
      * Run the migrations.
@@ -45,8 +44,6 @@ class UpdateV4DataToClasificacionArchivosTable extends Migration
      */
     public function down()
     {
-        Schema::table('clasificacion_archivos', function (Blueprint $table) {
-            //
-        });
+        //
     }
 }
