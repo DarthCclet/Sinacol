@@ -147,43 +147,37 @@
                         <h4>Citatorio</h4>
                         <hr class="red">
                         <div class="col-md-12 row">
-                            <div class="col-md-6">
-                                <table class="table table-striped table-bordered table-hover"
-                                    id="tableHistoricoCitatorioEnvios">
-                                    <thead>
-                                        <tr>
-                                            <td>Fecha y hora</td>
-                                            <td>Evento origen</td>
-                                            <td>Fecha de petición</td>
-                                            <td>Respuesta(s)</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <table class="table table-striped table-bordered table-hover"
+                                id="tableHistoricoCitatorioEnvios">
+                                <thead>
+                                    <tr>
+                                        <td>Fecha y hora</td>
+                                        <td>Evento origen</td>
+                                        <td>Fecha de petición</td>
+                                        <td>Respuesta(s)</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div id="divHistoricoMulta">
                         <h4>Multa</h4>
                         <hr class="red">
                         <div class="col-md-12 row">
-                            <div class="col-md-6">
-                                <h5>Envios</h5>
-                                <table class="table table-striped table-bordered table-hover"
-                                    id="tableHistoricoMultaEnvios">
-                                    <thead>
-                                        <tr>
-                                            <td>Fecha y hora</td>
-                                            <td>Evento origen</td>
-                                            <td>Fecha de petición</td>
-                                            <td>Respuesta(s)</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <table class="table table-striped table-bordered table-hover" id="tableHistoricoMultaEnvios">
+                                <thead>
+                                    <tr>
+                                        <td>Fecha y hora</td>
+                                        <td>Evento origen</td>
+                                        <td>Fecha de petición</td>
+                                        <td>Respuesta(s)</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -286,24 +280,42 @@
                                     if (element.tipo_notificacion == "citatorio") {
                                         div1 += "<tr>";
                                         div1 += "<td>" + element2.created_at + "</td>";
-                                        div1 += ' <td>' + element2.etapa_notificacion.etapa + '</td>';
+                                        div1 += ' <td>' + element2.etapa_notificacion.etapa +
+                                            '</td>';
                                         div1 += ' <td>' + element2.fecha_peticion + '</td>';
                                         div1 += ' <td>';
                                         div1 += '<ul>';
-                                        var liga_doc = '<a href="/api/documentos/getFile/' + element2.historico_notificacion_respuesta.documento.uuid + '" target="_blank" title="Documento">Documento</a>';
-                                        div1 +='<li><strong>Fecha: </strong>' + element2.historico_notificacion_respuesta.fecha_notificacion + '  -  <strong>Respuesta: </strong>' + element2.historico_notificacion_respuesta.finalizado + '  -  ' + liga_doc + '</li>';
+                                        var liga_doc = '<a href="/api/documentos/getFile/' +
+                                            element2.historico_notificacion_respuesta.documento
+                                            .uuid +
+                                            '" target="_blank" title="Documento">Documento</a>';
+                                        div1 += '<li><strong>Fecha: </strong>' + element2
+                                            .historico_notificacion_respuesta
+                                            .fecha_notificacion +
+                                            '  -  <strong>Respuesta: </strong>' + element2
+                                            .historico_notificacion_respuesta.finalizado +
+                                            '  -  ' + liga_doc + '</li>';
                                         div1 += '</ul>';
                                         div1 += '</td>';
                                         div1 += "</tr>";
                                     } else {
                                         div2 += "<tr>";
                                         div2 += "<td>" + element2.created_at + "</td>";
-                                        div2 += ' <td>' + element2.etapa_notificacion.etapa + '</td>';
+                                        div2 += ' <td>' + element2.etapa_notificacion.etapa +
+                                            '</td>';
                                         div2 += ' <td>' + element2.fecha_peticion + '</td>';
                                         div2 += ' <td>';
                                         div2 += '<ul>';
-                                        var liga_doc = '<a href="/api/documentos/getFile/' + element2.historico_notificacion_respuesta.documento.uuid + '" target="_blank" title="Documento">Documento</a>';
-                                        div2 +='<li><strong>Fecha: </strong>' + element2.historico_notificacion_respuesta.fecha_notificacion + '  -  <strong>Respuesta: </strong>' + element2.historico_notificacion_respuesta.finalizado + '  -  ' + liga_doc + '</li>';
+                                        var liga_doc = '<a href="/api/documentos/getFile/' +
+                                            element2.historico_notificacion_respuesta.documento
+                                            .uuid +
+                                            '" target="_blank" title="Documento">Documento</a>';
+                                        div2 += '<li><strong>Fecha: </strong>' + element2
+                                            .historico_notificacion_respuesta
+                                            .fecha_notificacion +
+                                            '  -  <strong>Respuesta: </strong>' + element2
+                                            .historico_notificacion_respuesta.finalizado +
+                                            '  -  ' + liga_doc + '</li>';
                                         div2 += '</ul>';
                                         div2 += '</td>';
                                         div2 += "</tr>";
