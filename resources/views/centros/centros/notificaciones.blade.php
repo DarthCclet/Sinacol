@@ -291,7 +291,7 @@
                                         div1 += ' <td>';
                                         div1 += '<ul>';
                                         var liga_doc = '<a href="/api/documentos/getFile/' + element2.historico_notificacion_respuesta.documento.uuid + '" target="_blank" title="Documento">Documento</a>';
-                                        div2 +='<li><strong>Fecha: </strong>' + element2.historico_notificacion_respuesta.fecha_notificacion + '  -  <strong>Respuesta: </strong>' + element2.historico_notificacion_respuesta.finalizado + '  -  ' + liga_doc + '</li>';
+                                        div1 +='<li><strong>Fecha: </strong>' + element2.historico_notificacion_respuesta.fecha_notificacion + '  -  <strong>Respuesta: </strong>' + element2.historico_notificacion_respuesta.finalizado + '  -  ' + liga_doc + '</li>';
                                         div1 += '</ul>';
                                         div1 += '</td>';
                                         div1 += "</tr>";
