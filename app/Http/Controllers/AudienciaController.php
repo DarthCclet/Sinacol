@@ -1571,6 +1571,7 @@ class AudienciaController extends Controller {
                             if ($audienciaParte && ($audienciaParte->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaParte->finalizado == "EXITOSO POR INSTRUCTIVO")) {
                                 if (array_search($solicitado->parte_id, $arrayMultado) === false) {
                                     // Se genera archivo de acta de multa
+
                                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 18, 7, null, $solicitado->parte_id));
                                     array_push($arrayMultado, $solicitado->parte_id);
                                     array_push($arrayMultadoNotificacion, $audienciaParte->id);
@@ -2130,8 +2131,20 @@ class AudienciaController extends Controller {
             }
             $parte->update(["asignado" => true]);
             if ($parte->tipo_parte_id == $tipo_parte && $datos_audiencia["encontro_audiencia"]) {
+                if($parte->tipo_persona_id == 1){
+                    $busqueda = $parte->curp;
+                }else{
+                    $busqueda = $parte->rfc;
+                }
+                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea citatorio de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->id));
             }elseif($parte->tipo_parte_id == 1 && $parte->ratifico){
+                if($parte->tipo_persona_id == 1){
+                    $busqueda = $parte->curp;
+                }else{
+                    $busqueda = $parte->rfc;
+                }
+                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea citatorio de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
             }
         }

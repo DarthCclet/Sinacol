@@ -1690,7 +1690,7 @@ class SolicitudController extends Controller {
                             BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
                         }else{
                             //Genera acta de no aceptacion de buzón
-                            if($parte->tipo_parte_id == 1){
+                            if($parte->tipo_parte_id == 1){ 
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id));
                             }else{
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id));
