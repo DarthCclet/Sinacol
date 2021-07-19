@@ -311,13 +311,11 @@
                                 });
                             });
                             $("#tableHistoricoCitatorioEnvios tbody").html(div1);
-                            $("#tableHistoricoCitatorioRespuestas tbody").html(div2);
-                            $("#tableHistoricoMultaEnvios tbody").html(div3);
-                            $("#tableHistoricoMultaRespuestas tbody").html(div4);
-                            if (div1 != "" || div2 != "") {
+                            $("#tableHistoricoMultaEnvios tbody").html(div2);
+                            if (div1 != "") {
                                 $("#divHistoricoCitatorio").show();
                             }
-                            if (div3 != "" || div4 != "") {
+                            if (div2 != "") {
                                 $("#divHistoricoMulta").show();
                             }
                             $("#modal-historico").modal("show");
@@ -333,7 +331,7 @@
                         swal({
                             title: 'Error',
                             text: 'Algo salio mal con la solicitud',
-                            icon: 'success'
+                            icon: 'error'
                         });
                     }
                 }
