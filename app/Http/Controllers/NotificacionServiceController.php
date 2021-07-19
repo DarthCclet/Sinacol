@@ -15,19 +15,22 @@ use Illuminate\Support\Str;
 use App\HistoricoNotificacion;
 use App\HistoricoNotificacionRespuesta;
 
-class NotificacionServiceController extends Controller {
+class NotificacionServiceController extends Controller
+{
 
     protected $request;
 
-    public function __construct(Request $request) {
+    public function __construct(Request $request)
+    {
         $this->request = $request;
     }
 
-    public function actualizarNotificacion() {
+    public function actualizarNotificacion()
+    {
         DB::beginTransaction();
         try {
             $arreglo = $this->validaEstructuraParametros($this->request->getContent());
-//        Buscamos la audiencia
+            //        Buscamos la audiencia
             $expediente = Expediente::where("folio", $arreglo->expediente)->first();
             foreach ($expediente->audiencia as $audiencia) {
                 $folio = $arreglo->folio;
@@ -41,58 +44,62 @@ class NotificacionServiceController extends Controller {
                             "detalle_id" => $demandado->detalle_id,
                             "fecha_notificacion" => $demandado->fecha_notificacion
                         ]);
-                        if($demandado->finalizado == "FINALIZADO EXITOSAMENTE" || $demandado->finalizado == "EXITOSO POR INSTRUCTIVO"){
+                        if ($demandado->finalizado == "FINALIZADO EXITOSAMENTE" || $demandado->finalizado == "EXITOSO POR INSTRUCTIVO") {
                             Parte::find($parteDemandado->parte_id)->update([
                                 "notificacion_exitosa" => true
                             ]);
                         }
-                        $image = base64_decode($demandado->documento);
-                        $imgMd5 = md5($image);
-                        if ($arreglo->tipo_notificacion == "citatorio") {
-                            $clasificacion = ClasificacionArchivo::where("nombre", "Razón de notificación citatorio")->first();
-                        } else {
-                            $clasificacion = ClasificacionArchivo::where("nombre", "Razón de notificación multa")->first();
-                        }
-                        $encontro_identico = false;
-                        foreach ($parteDemandado->documentos as $documento) {
-                            if ($documento->clasificacion_archivo_id == $clasificacion->id) {
-                                $archivo_existente = Storage::get($documento->ruta);
-                                if ($imgMd5 == md5($archivo_existente)) {
-                                    $encontro_identico = true;
+                        $documentoResolucion = null;
+                        if ($demandado->documento != null && $demandado->documento != "") {
+                            $image = base64_decode($demandado->documento);
+                            $imgMd5 = md5($image);
+                            if ($arreglo->tipo_notificacion == "citatorio") {
+                                $clasificacion = ClasificacionArchivo::where("nombre", "Razón de notificación citatorio")->first();
+                            } else {
+                                $clasificacion = ClasificacionArchivo::where("nombre", "Razón de notificación multa")->first();
+                            }
+                            $encontro_identico = false;
+                            foreach ($parteDemandado->documentos as $documento) {
+                                if ($documento->clasificacion_archivo_id == $clasificacion->id) {
+                                    $archivo_existente = Storage::get($documento->ruta);
+                                    if ($imgMd5 == md5($archivo_existente)) {
+                                        $encontro_identico = true;
+                                    }
                                 }
                             }
-                        }
-                        if (!$encontro_identico) {
-                            $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $audiencia->id;
-                            Storage::makeDirectory($directorio);
+                            if (!$encontro_identico) {
+                                $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $audiencia->id;
+                                Storage::makeDirectory($directorio);
 
-                            $uuid = Str::uuid();
-                            $fullPath = $directorio . '/notificacion' . $uuid . '.pdf';
-                            $dir = Storage::put($fullPath, $image);
-                            $parteDemandado->documentos()->create([
-                                "nombre" => "Notificacion" . $uuid,
-                                "nombre_original" => "Notificacion" . $uuid,
-                                "descripcion" => "documento generado en el sistema de notificaciones",
-                                "nombre" => str_replace($directorio . "/", '', $fullPath),
-                                "nombre_original" => str_replace($directorio . "/", '', $fullPath),
-                                "descripcion" => "Documento de notificacion ",
-                                "ruta" => $fullPath,
-                                "uuid" => $uuid,
-                                "tipo_almacen" => "local",
-                                "uri" => $fullPath,
-                                "longitud" => round(Storage::size($fullPath) / 1024, 2),
-                                "firmado" => "false",
-                                "clasificacion_archivo_id" => $clasificacion->id,
-                            ]);
+                                $uuid = Str::uuid();
+                                $fullPath = $directorio . '/notificacion' . $uuid . '.pdf';
+                                $dir = Storage::put($fullPath, $image);
+                                $parteDemandado->documentos()->create([
+                                    "nombre" => "Notificacion" . $uuid,
+                                    "nombre_original" => "Notificacion" . $uuid,
+                                    "descripcion" => "documento generado en el sistema de notificaciones",
+                                    "nombre" => str_replace($directorio . "/", '', $fullPath),
+                                    "nombre_original" => str_replace($directorio . "/", '', $fullPath),
+                                    "descripcion" => "Documento de notificacion ",
+                                    "ruta" => $fullPath,
+                                    "uuid" => $uuid,
+                                    "tipo_almacen" => "local",
+                                    "uri" => $fullPath,
+                                    "longitud" => round(Storage::size($fullPath) / 1024, 2),
+                                    "firmado" => "false",
+                                    "clasificacion_archivo_id" => $clasificacion->id,
+                                ]);
+                            }
+                            $documentoResolucion = $parteDemandado->documentos()->where("clasificacion_archivo_id", $clasificacion->id)->orderBy("id", "desc")->first()->id;
                         }
-                        $documentoResolucion = $parteDemandado->documentos()->where("clasificacion_archivo_id", $clasificacion->id)->orderBy("id", "desc")->first();
 
-//                        Guardamos la información en el historico
+
+                        //                        Guardamos la información en el historico
                         $historico = HistoricoNotificacion::where("audiencia_parte_id", $parteDemandado->id)->where("tipo_notificacion", $arreglo->tipo_notificacion)->first();
                         if ($historico == null) {
                             $historico = HistoricoNotificacion::create([
-                                        "audiencia_parte_id" => $parteDemandado->id,
-                                        "tipo_notificacion" => $arreglo->tipo_notificacion
+                                "audiencia_parte_id" => $parteDemandado->id,
+                                "tipo_notificacion" => $arreglo->tipo_notificacion
                             ]);
                         }
                         $historico_respuesta = HistoricoNotificacionRespuesta::create([
@@ -102,7 +109,7 @@ class NotificacionServiceController extends Controller {
                             "detalle_id" => $demandado->detalle_id,
                             "detalle" => $demandado->detalle,
                             "fecha_notificacion" => $demandado->fecha_notificacion,
-                            "documento_id" => $documentoResolucion->id
+                            "documento_id" => $documentoResolucion
                         ]);
                         $historico->peticion()->update([
                             "historico_notificacion_respuesta_id" => $historico_respuesta->id
@@ -111,7 +118,7 @@ class NotificacionServiceController extends Controller {
                 }
             }
             DB::commit();
-//Log::info($this->request->getContent());
+            //Log::info($this->request->getContent());
             return response('Se registraron las actualizaciones', 200);
         } catch (Exception $e) {
             DB::rollBack();
@@ -125,7 +132,8 @@ class NotificacionServiceController extends Controller {
      * @return mixed|null
      * @throws ParametroNoValidoException
      */
-    public function validaEstructuraParametros($params) {
+    public function validaEstructuraParametros($params)
+    {
         $paramsJSON = json_decode($params);
         if ($paramsJSON === NULL) {
             throw new ParametroNoValidoException("Los datos enviados no pueden interpretarse como una estructura JSON válida, favor de revisar.", 1000);
@@ -183,11 +191,12 @@ class NotificacionServiceController extends Controller {
         return $paramsJSON;
     }
 
-    public function recuperacionDocumentos() {
+    public function recuperacionDocumentos()
+    {
         $arreglo = $this->validaEstructuraParametros($this->request->getContent());
         try {
             DB::beggintransaction();
-//        Buscamos la audiencia
+            //        Buscamos la audiencia
             $expediente = Expediente::where("folio", $arreglo->expediente)->first();
             foreach ($expediente->audiencia as $audiencia) {
                 $folio = $arreglo->folio;
@@ -200,8 +209,8 @@ class NotificacionServiceController extends Controller {
                         } else {
                             $clasificacion = ClasificacionArchivo::where("nombre", "Razón de notificación multa")->first();
                         }
-//                        Eliminalmos el documento actual
-                        foreach($parteDemandado->documentos()->where("clasificacion_archivo_id", $clasificacion->id) as $doc){
+                        //                        Eliminalmos el documento actual
+                        foreach ($parteDemandado->documentos()->where("clasificacion_archivo_id", $clasificacion->id) as $doc) {
                             $doc->delete();
                         }
                         $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $audiencia->id;
@@ -235,5 +244,4 @@ class NotificacionServiceController extends Controller {
             return response('Ocurrio un error al tratar de actualizar', 500);
         }
     }
-
 }
