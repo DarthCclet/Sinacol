@@ -2118,6 +2118,8 @@ class AudienciaController extends Controller {
             $parte->update(["asignado" => true]);
             if ($parte->tipo_parte_id == $tipo_parte && $datos_audiencia["encontro_audiencia"]) {
                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->id));
+            }elseif($parte->tipo_parte_id == 1 && $parte->ratifico){
+                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
             }
         }
         foreach($audienciaN->audienciaParte as $audiencia_parte){
@@ -2190,6 +2192,8 @@ class AudienciaController extends Controller {
                 }
                 if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
                     event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
+                }elseif($parte->parte->tipo_parte_id == 1 && $parte->parte->ratifico){
+                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->parte->id));
                 }
             }
         }
@@ -2990,6 +2994,8 @@ class AudienciaController extends Controller {
                 }
                 if ($parte->parte->tipo_parte_id == $tipo_parte->id) {
                     event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->parte_id));
+                }elseif($parte->parte->tipo_parte_id == 1 && $parte->parte->ratifico){
+                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
                 }
             }
 
@@ -3008,6 +3014,13 @@ class AudienciaController extends Controller {
             foreach($arrayCitados as $partes){
                 event(new RatificacionRealizada($audienciaN->id, "citatorio",false,$partes));
             }
+            foreach($audienciaN->audienciaParte as $audiencia_parte){
+                $correo = $audiencia_parte->parte->contactos()->whereTipoContactoId(3)->first();
+                if($correo != null){
+                    Mail::to($correo->contacto)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
+                }
+            }
+
             $response = array("tipo" => 3, "response" => $audienciaN);
             DB::commit();
             return $this->sendResponse($response, 'SUCCESS');

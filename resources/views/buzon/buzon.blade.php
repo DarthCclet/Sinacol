@@ -181,11 +181,11 @@
                         <hr class="red">
                     </div>
                     <div class="alert alert-muted">
-                        Esta opción está habilitada para solicitar el reagendado de la audiencia por causa justificada, en conformidad con al Artículo 684-E fracción IX de la LFT.<br><br>
+                        Esta función está habilitada para el cambio de la fecha de la celebración de la audiencia de conciliación en el caso de que las partes o alguna de ellas no pueda compadecer por una causa justificada, de conformidad con la fracción IX del artículo 684-E de la Ley Federal del Trabajo y numeral 22 de los Lineamientos para el Procedimiento de Conciliación Individual Prejudicial. <br><br>
                         <br>
-                        1. Esta petición se encuentra sujeta a aprobación por personal del Centro y sujeta a disponibilidad en su calendario de audiencias.<br>
+                        1. Esta petición se encuentra sujeta a aprobación del conciliador y de la disponibilidad del calendario de la Oficina Estatal correspondiente del CFCRL. <br>
                         2. Usted podrá sugerir la fecha en la que desea llevar la audiencia. En caso de que se deba notificar a alguno de los citados por medio de notificador, la nueva fecha deberá ser después de 15 días a partir de la fecha de hoy; en caso contrario, podrá solicitar que la nueva fecha sea después de 6 días a partir de la fecha de hoy.<br>
-                        3. El justificante que cargue en esta plataforma deberá ser un documento en formato. pdf o .jpg y debe contener su firma, explicando el porqué no puede asistir en la fecha actual.<br>
+                        3. El justificante que cargue deberá estar firmado por usted y en formato .pdf o .jpg. En él deberá explicarla razón por la que no podrá asistir a la audiencia en la fecha programada.<br>
                     </div>
                     <div class="col-md-2">
                     </div>

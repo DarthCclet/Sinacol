@@ -1645,6 +1645,8 @@ class SolicitudController extends Controller {
                         AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
                         if ($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]) {
                             event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                        }elseif($parte->tipo_parte_id == 1 && $parte->ratifico){
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, null, $parte->id));
                         }
                     }
                     //                if($datos_audiencia["encontro_audiencia"] && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
