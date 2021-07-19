@@ -13,6 +13,6 @@ class HistoricoNotificacionPeticion extends Model
         return $this->belongsTo(HistoricoNotificacion::class,'historico_notificacion_id');
     }
     public function historico_notificacion_respuesta(){
-        return $this->hasOne(HistoricoNotificacionRespuesta::class,'historico_notificacion_respuesta_id');
+        return $this->belongsTo(HistoricoNotificacionRespuesta::class,'historico_notificacion_respuesta_id');
     }
 }

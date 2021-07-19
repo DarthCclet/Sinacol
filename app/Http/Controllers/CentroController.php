@@ -383,8 +383,9 @@ class CentroController extends Controller {
         $parte = AudienciaParte::find($this->request->audiencia_parte_id);
         if ($parte != null) {
             foreach ($parte->historialNotificacion as $historico) {
-                foreach ($historico->respuestas as $historico2) {
+                foreach ($historico->peticiones as $historico2) {
                     $historico2->etapa_notificacion;
+                    forea
                     $historico2->documento;
                 }
             }
