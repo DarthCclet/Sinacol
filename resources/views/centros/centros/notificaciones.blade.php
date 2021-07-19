@@ -290,10 +290,8 @@
                                         div1 += ' <td>' + element2.fecha_peticion + '</td>';
                                         div1 += ' <td>';
                                         div1 += '<ul>';
-                                            $.each(element2.respuestas,function(index3,element3){
-                                                var liga_doc = '<a href="/api/documentos/getFile/' + element3.documento.uuid + '" target="_blank" title="Documento">Documento</a>';
-                                                div1 +='<li><strong>Fecha: </strong>' + element3.fecha_notificacion + '  -  <strong>Respuesta: </strong>' + element3.finalizado + '  -  ' + liga_doc + '</li>';
-                                            });    
+                                        var liga_doc = '<a href="/api/documentos/getFile/' + element2.historico_notificacion_respuesta.documento.uuid + '" target="_blank" title="Documento">Documento</a>';
+                                        div2 +='<li><strong>Fecha: </strong>' + element2.historico_notificacion_respuesta.fecha_notificacion + '  -  <strong>Respuesta: </strong>' + element2.historico_notificacion_respuesta.finalizado + '  -  ' + liga_doc + '</li>';
                                         div1 += '</ul>';
                                         div1 += '</td>';
                                         div1 += "</tr>";
@@ -304,10 +302,8 @@
                                         div2 += ' <td>' + element2.fecha_peticion + '</td>';
                                         div2 += ' <td>';
                                         div2 += '<ul>';
-                                            $.each(element2.respuestas,function(index3,element3){
-                                                var liga_doc = '<a href="/api/documentos/getFile/' + element3.documento.uuid + '" target="_blank" title="Documento">Documento</a>';
-                                                div2 +='<li><strong>Fecha: </strong>' + element3.fecha_notificacion + '  -  <strong>Respuesta: </strong>' + element3.finalizado + '  -  ' + liga_doc + '</li>';
-                                            });    
+                                        var liga_doc = '<a href="/api/documentos/getFile/' + element2.historico_notificacion_respuesta.documento.uuid + '" target="_blank" title="Documento">Documento</a>';
+                                        div2 +='<li><strong>Fecha: </strong>' + element2.historico_notificacion_respuesta.fecha_notificacion + '  -  <strong>Respuesta: </strong>' + element2.historico_notificacion_respuesta.finalizado + '  -  ' + liga_doc + '</li>';
                                         div2 += '</ul>';
                                         div2 += '</td>';
                                         div2 += "</tr>";

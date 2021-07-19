@@ -382,14 +382,7 @@ class CentroController extends Controller {
     public function obtenerHistorial() {
         $parte = AudienciaParte::find($this->request->audiencia_parte_id);
         if ($parte != null) {
-            foreach ($parte->historialNotificacion as $historico) {
-                foreach ($historico->peticiones as $historico2) {
-                    $historico2->etapa_notificacion;
-                    forea
-                    $historico2->documento;
-                }
-            }
-            return $parte->historialNotificacion;
+            return $parte->historialNotificacion()->with('peticiones','peticiones.historico_notificacion_respuesta','peticiones.historico_notificacion_respuesta.documento')->get();
         } else {
             return null;
         }
