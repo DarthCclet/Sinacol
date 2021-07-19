@@ -15,4 +15,7 @@ class HistoricoNotificacionPeticion extends Model
     public function historico_notificacion_respuesta(){
         return $this->belongsTo(HistoricoNotificacionRespuesta::class,'historico_notificacion_respuesta_id');
     }
+    public function etapa(){
+        return $this->belongsTo(EtapaNotificacion::class,'etapa_notificacion_id');
+    }
 }
