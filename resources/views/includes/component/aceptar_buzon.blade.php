@@ -15,7 +15,7 @@
                         <li>El CURP o RFC de la persona y </li>
                         <li>Un correo electr&oacute;nico al cual asociarlo.  </li>
                     </ol>
-                    En el caso de que no se haya proporcionado un correo electr&oacute;nico con anterioridad podr&aacute; capturarlo en este momento, de lo contrario seleccione "Proporcionar accesos" y el sisteme le proporcionar&aacute; un pseudocorreo y una contrase&ntilde;a para acceder al buz&oacute;n eletr&oacute;nico.
+                    En el caso de que no se haya proporcionado un correo electr&oacute;nico con anterioridad podr&aacute; capturarlo en este momento, de lo contrario seleccione "Proporcionar accesos" y el sisteme le proporcionar&aacute; un usuario y una contrase&ntilde;a para acceder al buz&oacute;n eletr&oacute;nico.
                 </div>
                 <div id="divExisteCorreo">
                     <h3>Ya existe un correo asignado : <span id="correoParte"></span></h3>
@@ -65,17 +65,17 @@
                 async:true,
                 success:function(data){
                     if(!data.notificacion_buzon){
-                        if(data.tieneCorreo){
-                            $("#tableSolicitantesCorreo").hide();
-                            $("#divExisteCorreo").show();
-                            if(data.correo_buzon != null){
-                                $("#correoParte").html(data.correo_buzon);
-                            }else{
-                                var correo = data.contactos.find(e => e.tipo_contacto_id == 3);
-                                $("#correoParte").html(correo.contacto);
-                            }
-                            $("#modal-registro-correos").modal("show");
-                        }else{
+                        // if(data.tieneCorreo){
+                        //     $("#tableSolicitantesCorreo").hide();
+                        //     $("#divExisteCorreo").show();
+                        //     if(data.correo_buzon != null){
+                        //         $("#correoParte").html(data.correo_buzon);
+                        //     }else{
+                        //         var correo = data.contactos.find(e => e.tipo_contacto_id == 3);
+                        //         $("#correoParte").html(correo.contacto);
+                        //     }
+                        //     $("#modal-registro-correos").modal("show");
+                        // }else{
                             $("#divExisteCorreo").hide();
                             $("#tableSolicitantesCorreo").show();
                             var tableSolicitantes = '';
@@ -104,7 +104,7 @@
                                 tableSolicitantes +='</tr>';
                             $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
                             $("#modal-registro-correos").modal("show");
-                        }
+                        // }
                     }
                 }
             });
@@ -160,11 +160,6 @@
                             },
                             success:function(data){
                                 $("#modal-registro-correos").modal("hide");
-                                swal({
-                                    title: 'Correcto',
-                                    text: 'Información almacenada correctamente',
-                                    icon: 'success'
-                                });
                                 aceptarBuzon();
                             },error:function(error){
                                 swal({
@@ -258,20 +253,34 @@
                         $("#rfcCurpValidar"+id).css("border-color","red");
                     }
                 }else{
-                    respuesta.crearAcceso =false;
-                    if($("#correoValidar"+id).val() != "" && $("#rfcCurpValidar"+id).val() != ""){
-                        listaCorreos.push({
-                            crearAcceso:false,
-                            correo:$("#correoValidar"+id).val(),
-                            rfcCurp:$("#rfcCurpValidar"+id).val(),
-                            parte_id:id
-                        });
+                    if($("#aceptar_notif_buzon").is(":checked") ){
+                        respuesta.crearAcceso =false;
+                        if($("#correoValidar"+id).val() != "" && $("#rfcCurpValidar"+id).val() != ""){
+                            listaCorreos.push({
+                                crearAcceso:false,
+                                correo:$("#correoValidar"+id).val(),
+                                rfcCurp:$("#rfcCurpValidar"+id).val(),
+                                parte_id:id
+                            });
+                        }else{
+                            error = true;
+                            $("#correoValidar"+id).css("border-color","red");
+                            $("#rfcCurpValidar"+id).css("border-color","red");
+                        }
                     }else{
-                        error = true;
-                        $("#correoValidar"+id).css("border-color","red");
-                        $("#rfcCurpValidar"+id).css("border-color","red");
+                        if( $("#rfcCurpValidar"+id).val() != ""){
+                            listaCorreos.push({
+                                crearAcceso:true,
+                                correo:"",
+                                rfcCurp:$("#rfcCurpValidar"+id).val(),
+                                parte_id:id
+                            });
+                        }else{
+                            error = true;
+                            $("#rfcCurpValidar"+id).css("border-color","red");
+                        }
                     }
-                }
+                }   
             });
             respuesta.existeCorreo =false;
         }else{

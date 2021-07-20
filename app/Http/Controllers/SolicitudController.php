@@ -1522,16 +1522,14 @@ class SolicitudController extends Controller {
                     SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id, "solicitante" => true]);
                     // Guardamos todas las Partes en la audiencia
                     $partes = $solicitud->partes;
-                    foreach ($partes as $parte) {
-                        AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
-                        if ($parte->tipo_parte_id == 2) {
-                            // generar citatorio de conciliacion
-                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
-                        }
-                    }
                     $audiencia->tipo_solicitud_id = $audiencia->expediente->solicitud->tipo_solicitud_id;
                     foreach ($solicitud->partes as $key => $parte) {
                         if (count($parte->documentos) > 0 ) {
+                            AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
+                            if ($parte->tipo_parte_id == 2) {
+                                // generar citatorio de conciliacion
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                            }
                             if($acepta_buzon == "true"){
                                 $parte->ratifico = true;
                                 $parte->notificacion_buzon = true;
@@ -1552,9 +1550,9 @@ class SolicitudController extends Controller {
                             }else{
                                 //Genera acta de no aceptacion de buzón
                                 if($parte->tipo_parte_id == 1){
-                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id));
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id,null,null,$parte->id));
                                 }else{
-                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id));
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id,null,$parte->id));
                                 }
                             }
                         }
@@ -1639,14 +1637,16 @@ class SolicitudController extends Controller {
                     //                dd($partes);
 
                     foreach ($partes as $parte) {
-                        if ($parte->tipo_parte_id != 1) {
-                            $tipo_notificacion_id = $this->request->tipo_notificacion_id;
-                        }
-                        AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
-                        if ($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]) {
-                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
-                        }elseif($parte->tipo_parte_id == 1 && $parte->ratifico){
-                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, null, $parte->id));
+                        if (count($parte->documentos) > 0 ) {
+                            if ($parte->tipo_parte_id != 1) {
+                                $tipo_notificacion_id = $this->request->tipo_notificacion_id;
+                            }
+                            AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
+                            if ($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]) {
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                            }elseif($parte->tipo_parte_id == 1 && $parte->ratifico){
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, null, $parte->id));
+                            }
                         }
                     }
                     //                if($datos_audiencia["encontro_audiencia"] && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
@@ -1683,17 +1683,17 @@ class SolicitudController extends Controller {
                             $array_comparecen[] = $parte->id;
                              //Genera acta de aceptacion de buzón
                             if($parte->tipo_parte_id == 1){
-                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 1, 19,$parte->id));
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id));
                             }else{
-                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 1, 20,null,$parte->id));
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id));
                             }
                             BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
                         }else{
                             //Genera acta de no aceptacion de buzón
-                            if($parte->tipo_parte_id == 1){ 
-                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id));
+                            if($parte->tipo_parte_id == 1){
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id,null,null,$parte->id));
                             }else{
-                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id));
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id,null,$parte->id));
                             }
                         }
                     }
@@ -1881,18 +1881,20 @@ class SolicitudController extends Controller {
         $solicitud = Solicitud::find($this->request->solicitud_id);
         $array = array();
         foreach ($solicitud->partes as $parte) {
-            if ($parte->tipo_parte_id == 1) {
+            if(count($parte->documentos) > 0){
+                if ($parte->tipo_parte_id == 1) {
+                    // $pasa = false;
+                    // $tiene_correo = $parte->contactos()->where('tipo_contacto_id',3)->first();
+                    // if($tiene_correo == null){
+                    // }
+                    $pasa = true;
+                    if ($pasa) {//devuelve partes sin email
+                        // if ($parte->correo_buzon == null || $parte->correo_buzon == "") {
+                            $array[] = $parte;
+                        // }
+                    }
+                }
                 $pasa = false;
-                foreach ($parte->contactos as $contacto) {
-                    if ($contacto->tipo_contacto_id == 3) { //si tiene email
-                        $pasa = true;
-                    }
-                }
-                if (!$pasa) {//devuelve partes sin email
-                    if ($parte->correo_buzon == null || $parte->correo_buzon == "") {
-                        $array[] = $parte;
-                    }
-                }
             }
         }
         return $array;
@@ -1910,16 +1912,16 @@ class SolicitudController extends Controller {
                         $parte->update(['rfc'=> $listaCorreo['rfcCurp']]);
                     }
                 }
-                if ($listaCorreo["crearAcceso"]) {
+                if ($listaCorreo["crearAcceso"] == "true") {
                     $arrayCorreo = $this->construirCorreo($parte);
                     $parte->update([
                         "correo_buzon" => $arrayCorreo["correo"],
                         "password_buzon" => $arrayCorreo["password"]
                     ]);
                 } else {
-                    $parte->contactos()->create([
-                        "tipo_contacto_id" => 3,
-                        "contacto" => $listaCorreo["correo"]
+                    $parte->update([
+                        "correo_buzon" => $listaCorreo["correo"],
+                        "password_buzon" => null
                     ]);
                 }
             }
