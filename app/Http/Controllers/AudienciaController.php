@@ -2219,7 +2219,7 @@ class AudienciaController extends Controller {
                 if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
                     event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
                 }elseif($parte->parte->tipo_parte_id == 1 && $parte->parte->ratifico){
-                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->parte->id));
+                    event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, null, $parte->parte->id));
                 }
             }
         }
