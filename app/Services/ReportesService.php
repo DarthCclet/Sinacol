@@ -934,7 +934,7 @@ class ReportesService
         }
 
         $q->select('audiencias.id as audiencia_id', 'expedientes.folio as expediente', 'centros.abreviatura', 'audiencias.fecha_audiencia',
-                   'solicitudes.id as solicitud_id', 'audiencias.finalizada as audiencia_finalizada', 'audiencias.numero_audiencia');
+                   'solicitudes.id as solicitud_id','solicitudes.inmediata', 'audiencias.finalizada as audiencia_finalizada', 'audiencias.numero_audiencia');
 
         //Seleccionamos la abreviatura del nombre y su cuenta
         $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');
