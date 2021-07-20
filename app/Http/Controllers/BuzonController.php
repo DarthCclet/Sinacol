@@ -41,27 +41,23 @@ class BuzonController extends Controller
             }
             $correo = "";
             if($parte != null){
-                $mail = $parte->contactos()->where("tipo_contacto_id",3)->orderBy('created_at', 'desc')->first();
-                if($mail != null){
-                    $correo = $mail->contacto;
+                if($parte->password_buzon != null && $parte->password_buzon != ""){
+                    return array(["correo" => false,"mensaje" => 'No hay correos registrados']);
+                }else{
+                    $correo = $parte->correo_buzon;
                     $busqueda["correo"] = $correo;
-                }
-                if($correo != ""){
-    //                Se crea el token
+
                     $token = app('hash')->make(str_random(8));
                     if (!Cache::has($token)) {
                         Cache::put($token, $busqueda,now()->addMinutes(50));
                     }
                     $respuesta = Cache::get($token);
-    //                dd($respuesta);
                     $parte->token = $token;
                     $parte->email = $correo;
                     $composicion = base64_encode($token)."/".base64_encode($correo);
                     $liga = env('APP_URL')."/validar_token/".$composicion;
                     Mail::to($correo)->send(new AccesoBuzonMail($parte,$liga));
                     return array(["correo" => true,"mensaje" => 'Se envio un correo con el acceso a la dirección '.$correo]);
-                }else{
-                    return array(["correo" => false,"mensaje" => 'No hay correos registrados']);
                 }
             }else{
                 return $this->sendError('No hay registros con este dato', 'Error');
