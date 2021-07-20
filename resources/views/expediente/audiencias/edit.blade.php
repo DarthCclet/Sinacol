@@ -1461,6 +1461,7 @@
         var finalizada=false;
         var listaResolucionesIndividuales=[];
         var origen = 'audiencias';
+        var origen_vista = 'audiencias';
         var url = document.location.toString();
         if (url.match('#')) {
             $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');

@@ -2182,7 +2182,6 @@ class AudienciaController extends Controller {
         $folio = $ContadorController->getContador(3, auth()->user()->centro_id);
         ##creamos la resolución a partir de los datos ya existentes y los nuevos
         $n_audiencia = (int)$audiencia->expediente->audiencia->count() + 1;
-        dd($audiencia);
         $audienciaN = Audiencia::create([
             "expediente_id" => $audiencia->expediente_id,
             "multiple" => $multiple,
