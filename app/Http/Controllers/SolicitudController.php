@@ -1524,7 +1524,7 @@ class SolicitudController extends Controller {
                     $partes = $solicitud->partes;
                     $audiencia->tipo_solicitud_id = $audiencia->expediente->solicitud->tipo_solicitud_id;
                     foreach ($solicitud->partes as $key => $parte) {
-                        if (count($parte->documentos) > 0 ) {
+                        if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 ) {
                             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
                             if ($parte->tipo_parte_id == 2) {
                                 // generar citatorio de conciliacion
@@ -1637,7 +1637,7 @@ class SolicitudController extends Controller {
                     //                dd($partes);
 
                     foreach ($partes as $parte) {
-                        if (count($parte->documentos) > 0 ) {
+                        if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2) {
                             if ($parte->tipo_parte_id != 1) {
                                 $tipo_notificacion_id = $this->request->tipo_notificacion_id;
                             }

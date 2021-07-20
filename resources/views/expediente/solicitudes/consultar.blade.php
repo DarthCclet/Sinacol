@@ -605,7 +605,9 @@
                                     html+='</div>';
                                 }
                                 html+='<div>';
+                                if(value.domicilios[0]){
                                     html+="<b>Dirección:</b><br> &nbsp;&nbsp;&nbsp;&nbsp;"+value.domicilios[0].tipo_vialidad+" "+value.domicilios[0].vialidad+" No. Ext."+(value.domicilios[0].num_ext || '-') +" No. Int. "+(value.domicilios[0].num_int || '-')+", "+value.domicilios[0].asentamiento+", "+value.domicilios[0].municipio+", "+value.domicilios[0].estado.toUpperCase() + " CP. "+(value.domicilios[0].cp || '-');
+                                }
                                 html+='</div>';
                                 html+='<div>';
                                     html+='<label><b>Contactos:</b></label>';
