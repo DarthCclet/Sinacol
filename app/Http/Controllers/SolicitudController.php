@@ -1881,7 +1881,7 @@ class SolicitudController extends Controller {
         $solicitud = Solicitud::find($this->request->solicitud_id);
         $array = array();
         foreach ($solicitud->partes as $parte) {
-            if(count($parte->documentos) > 0){
+            if(count($parte->documentos) > 0 && empty($parte->correo_buzon)){
                 if ($parte->tipo_parte_id == 1) {
                     // $pasa = false;
                     // $tiene_correo = $parte->contactos()->where('tipo_contacto_id',3)->first();
