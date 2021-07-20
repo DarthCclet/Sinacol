@@ -44,11 +44,50 @@ trait GenerateDocument
      * Generar documento a partir de un modelo y de una plantilla
      * @return mixed
      */
-    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null,$idDocumento = null)
+    public function generarConstancia($idAudiencia, $idSolicitud, $clasificacion_id,$plantilla_id, $idSolicitante = null, $idSolicitado = null,$idDocumento = null,$idParteAsociada = null)
     {
     $plantilla = PlantillaDocumento::find($plantilla_id);
         if($plantilla != null){
-            if($idAudiencia != ""){
+          if($idParteAsociada != ""){
+            $padre = Parte::find($idParteAsociada);
+            $directorio = 'expedientes/' . $padre->expediente_id . '/audiencias/' . $idAudiencia;
+            $algo = Storage::makeDirectory($directorio, 0775, true);
+
+            $tipoArchivo = ClasificacionArchivo::find($clasificacion_id);
+            //Creamos el registro
+            $uuid = Str::uuid();
+            if($idDocumento != null){
+              $archivo = Documento::find($idDocumento);
+              if(Storage::exists($archivo->ruta)){
+                Storage::delete($archivo->ruta.".old");
+                Storage::move($archivo->ruta, $archivo->ruta.".old");
+              }
+            }else{
+              $archivo = $padre->documentos()->create(["descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,"uuid"=>$uuid,"clasificacion_archivo_id" => $tipoArchivo->id]);
+            }
+            //generamos html del archivo
+            $html = $this->renderDocumento($idAudiencia,$idSolicitud, $plantilla->id, $idSolicitante, $idSolicitado,$archivo->id);
+            $firmantes = substr_count($html, 'class="qr"');
+            $plantilla = PlantillaDocumento::find($plantilla->id);
+            $nombreArchivo = $plantilla->nombre_plantilla;
+            $nombreArchivo = $this->eliminar_acentos(str_replace(" ","",$nombreArchivo));
+            $path = $directorio . "/".$nombreArchivo . $archivo->id . '.pdf';
+            $fullPath = storage_path('app/' . $directorio) . "/".$nombreArchivo . $archivo->id . '.pdf';
+            //Hacemos el render del pdf y lo guardamos en $fullPath
+            $this->renderPDF($html, $plantilla->id, $fullPath);
+
+            $archivo->update([
+                "nombre" => str_replace($directorio . "/", '', $path),
+                "nombre_original" => str_replace($directorio . "/", '', $path), //str_replace($directorio, '',$path->getClientOriginalName()),
+                "descripcion" => "Documento de audiencia " . $tipoArchivo->nombre,
+                "ruta" => $path,
+                "tipo_almacen" => "local",
+                "uri" => $path,
+                "longitud" => round(Storage::size($path) / 1024, 2),
+                "firmado" => "false",
+                "total_firmantes" => $firmantes,
+            ]);
+          }else if($idAudiencia != ""){
 
                 $padre = Audiencia::find($idAudiencia);
                 $directorio = 'expedientes/' . $padre->expediente_id . '/audiencias/' . $idAudiencia;
