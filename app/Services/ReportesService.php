@@ -654,7 +654,7 @@ class ReportesService
     /**
      * Acerca de los convenios de conciliacion
      * @param $request
-     * @return void
+     * @return
      */
     public function conveniosConciliacion($request)
     {
@@ -699,7 +699,7 @@ class ReportesService
         }
 
         //Se aplican filtros por características del solicitante
-        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q);
+        $this->filtroPorCaracteristicasSolicitanteSolicitud($request, $q, 'expediente.solicitud.partes');
 
         //Se filtran las no reportables
         $this->noReportables($q);
@@ -714,7 +714,7 @@ class ReportesService
         $this->filtroTipoSolicitud($request, $q);
 
         # Por tipo de industria
-        $this->filtroPorIndustrias($request, $q);
+        $this->filtroPorIndustrias($request, $q, 'expediente.solicitud.');
 
         $q->where('solicitudes.inmediata', false);
 
@@ -934,7 +934,7 @@ class ReportesService
         }
 
         $q->select('audiencias.id as audiencia_id', 'expedientes.folio as expediente', 'centros.abreviatura', 'audiencias.fecha_audiencia',
-                   'solicitudes.id as solicitud_id', 'audiencias.finalizada as audiencia_finalizada', 'audiencias.numero_audiencia');
+                   'solicitudes.id as solicitud_id','solicitudes.inmediata', 'audiencias.finalizada as audiencia_finalizada', 'audiencias.numero_audiencia');
 
         //Seleccionamos la abreviatura del nombre y su cuenta
         $q->join('expedientes','expedientes.id','=','audiencias.expediente_id');

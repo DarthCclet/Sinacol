@@ -418,6 +418,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,['nombre'=>'domicilios', 'columns'=>$columnDomicilio]);
                 // $representante = Parte::where("parte_representada_id",$id)->where("representante",true)->get();
                 array_push($columnNames,'nombre_completo');
+                array_push($columnNames,'nombre_compareciente'); //nombre completo representante legal o fisico
                 array_push($columnNames,'qr_firma');
                 array_push($columnNames,'fecha_notificacion');
                 array_push($columnNames,'asistencia');
@@ -814,9 +815,11 @@ class PlantillasDocumentosController extends Controller
                             $representanteLegal['identificacion_expedida_por'] = "---";
                           }
                           $parte['representante_legal'] = $representanteLegal;
+                          $parte['nombre_compareciente'] = $representanteLegal['nombre_completo'] .' C. REPRESENTANTE LEGAL DE '. $parte['nombre_completo'];
                         }else{
                           $countParteAsistencia = Compareciente::where('parte_id', $parteId)->where('audiencia_id',$audienciaId)->count();
                           $parte['asistencia'] =  ($countParteAsistencia >0) ? 'Si':'No';
+                          $parte['nombre_compareciente'] = $parte['nombre_completo'];
                         }
                           //tipoNotificacion solicitado
                         if($audienciaId!=""){

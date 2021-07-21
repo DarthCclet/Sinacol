@@ -287,28 +287,39 @@ class AudienciaController extends Controller {
         // $audiencia->resolucionPartes->conceptoPagoResolucion;
         foreach ($audiencia->solicitantes as $audienciaParte) {
             $totalConceptos = 0;
+            $totalDeducciones = 0;
             $conceptos = [];
             foreach ($audienciaParte->parteConceptos as $concepto) {
-                $totalConceptos += floatval($concepto->monto);
+                if($concepto->concepto_pago_resoluciones_id ==13){
+                    $totalDeducciones += floatval($concepto->monto);
+                }else{
+                    $totalConceptos += floatval($concepto->monto);
+                }
                 $conceptosP = $concepto;
                 $conceptosP->nombre = $concepto->ConceptoPagoResolucion->nombre;
                 $conceptosP->idSolicitante = $audienciaParte->solicitante_id;
                 array_push($conceptos, $conceptosP);
             }
-            array_push($conceptos_pago, ['idSolicitante' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => $totalConceptos]);
+            array_push($conceptos_pago, ['idSolicitante' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => ($totalConceptos-$totalDeducciones) ]);
         }
         foreach ($audiencia->solicitados as $audienciaParte) {
             $totalConceptos = 0;
+            $totalDeducciones = 0;
             $conceptos = [];
             foreach ($audienciaParte->parteConceptos as $concepto) {
-                $totalConceptos += floatval($concepto->monto);
+                if($concepto->concepto_pago_resoluciones_id == 13){
+                    $totalDeducciones += floatval($concepto->monto);
+                }else{
+                    $totalConceptos += floatval($concepto->monto);
+                }
+                //$totalConceptos += floatval($concepto->monto);
                 $conceptosP = $concepto;
                 $conceptosP->nombre = $concepto->ConceptoPagoResolucion->nombre;
                 $conceptosP->idSolicitante = $audienciaParte->solicitante_id;
                 array_push($conceptos, $conceptosP);
             }
-            array_push($conceptos_pago, ['idCitado' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => $totalConceptos]);
-
+            array_push($conceptos_pago, ['idCitado' => $audienciaParte->parte_id, 'conceptos' => $conceptos, 'totalConceptos' => ($totalConceptos-$totalDeducciones)]);
+            
         }
         // foreach ($audiencia->resolucionPartes as $resolucionParte) {
         //     $totalConceptos = 0;
@@ -1500,6 +1511,7 @@ class AudienciaController extends Controller {
             $convienenTodos = false;
         }
         $totalPagoC = [];
+        $totalDeduccionC = [];
         foreach ($solicitantes as $solicitante) {
             foreach ($solicitados as $solicitado) {
                 $existeRes = ResolucionPartes::where('parte_solicitante_id',$solicitante->parte_id)->where('parte_solicitada_id',$solicitado->parte_id)->where('audiencia_id',$audiencia->id)->first();
@@ -1641,6 +1653,7 @@ class AudienciaController extends Controller {
                 if (isset($listaConceptos)) {
                     if (count($listaConceptos) > 0) {
                         $totalPagoC[$solicitante->parte_id] = 0.0;
+                        $totalDeduccionC[$solicitante->parte_id] = 0.0;
                         foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
                             if ($key == $solicitante->parte_id) {
                                 foreach ($conceptosSolicitante as $k => $concepto) {
@@ -1652,7 +1665,11 @@ class AudienciaController extends Controller {
                                         "monto" => $concepto["monto"],
                                         "otro" => $concepto["otro"]
                                     ]);
-                                    $totalPagoC[$solicitante->parte_id] =  floatval($totalPagoC[$solicitante->parte_id])  + floatval($concepto["monto"]);
+                                    if($concepto["concepto_pago_resoluciones_id"] == 13){
+                                        $totalDeduccionC[$solicitante->parte_id] = floatval($totalDeduccionC[$solicitante->parte_id])  + floatval($concepto["monto"]);
+                                    }else{
+                                        $totalPagoC[$solicitante->parte_id] =  floatval($totalPagoC[$solicitante->parte_id])  + floatval($concepto["monto"]);
+                                    }
                                 }
                             }
                         }
@@ -1699,6 +1716,7 @@ class AudienciaController extends Controller {
                 $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('terminacion_bilateral_id', 3)->first();
                 if ($convenio != null) {
                     if (!isset($listaFechasPago)) {//si no se registraron pagos diferidos crear pago NO diferido
+                        $totalPagoC[$solicitante->parte_id] = $totalPagoC[$solicitante->parte_id] - $totalDeduccionC[$solicitante->parte_id];
                         ResolucionPagoDiferido::create([
                             "audiencia_id" => $audiencia->id,
                             "solicitante_id" => $solicitante->parte_id,
