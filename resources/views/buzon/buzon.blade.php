@@ -64,7 +64,7 @@
                                 @if($solicitud->expediente != null)
                                     @if(count($solicitud->expediente->audiencia) > 0)
                                         @if(!$solicitud->expediente->audiencia->last()->solicitud_cancelacion && !$solicitud->expediente->audiencia->last()->finalizada)
-                                        <button class="btn btn-primary btn-small pull-right" onclick="reprogramarAudiencia({{$solicitud->expediente->audiencia[0]->id}},'{{$solicitud->acepto_buzon}}')">Reprogramar audiencia </button>
+                                        <button class="btn btn-primary btn-small pull-right" onclick="reprogramarAudiencia({{$solicitud->expediente->audiencia->last()->id}},'{{$solicitud->acepto_buzon}}')">Reprogramar audiencia </button>
                                         @endif
                                     @endif
                                 @endif
@@ -190,20 +190,13 @@
                     <div class="col-md-2">
                     </div>
                     <div class="col-md-10 form-group" >
-                    @if($solicitudes[0]->expediente != null)
-                    @if(count($solicitudes[0]->expediente->audiencia) > 0)
-                        <input type="hidden" name="audiencia_id" value="{{$solicitud->expediente->audiencia[0]->id}}">
-                        <div class="col-md-8">
-                            <div class="form-group">
-                                <label for="justificante" class="control-label">Justificante</label>
-                                <input type="file" accept=".pdf,.jpg" id="justificante" name="justificante" class="form-control" required>
-                                <p class="help-block">Selecciona el documento que servirá para evaluar la cancelación</p>
-                            </div>
+                    <input type="hidden" name="audiencia_id" id="audiencia_reprogramacion_id">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="justificante" class="control-label">Justificante</label>
+                            <input type="file" accept=".pdf,.jpg" id="justificante" name="justificante" class="form-control" required>
+                            <p class="help-block">Selecciona el documento que servirá para evaluar la cancelación</p>
                         </div>
-                    @endif
-                    @endif
-                    </div>
-                    <div class="col-md-2">
                     </div>
                 </div>
             </div>
@@ -280,6 +273,7 @@
         function reprogramarAudiencia(id,acepto_buzon){
             console.log(acepto_buzon);
             if(acepto_buzon == "si"){
+                $("#audiencia_reprogramacion_id").val(id);
                 $("#modal-cancelar").modal('show');
             }else{
                 swal("Error","Si desea hacer uso de esta herramienta deberá aceptar que las notificaciones personales de esta solicitud se hagan por medio del buzón electrónico. Para que usted pueda aceptar las notificaciones por buzón electrónico deberá comunicarse a la Oficina Estatal que le corresponda del CFCRL.","error");
