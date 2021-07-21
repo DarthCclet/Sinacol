@@ -63,7 +63,7 @@
                             @if($key == 0)
                                 @if($solicitud->expediente != null)
                                     @if(count($solicitud->expediente->audiencia) > 0)
-                                        @if(!$solicitud->expediente->audiencia[0]->solicitud_cancelacion && !$solicitud->expediente->audiencia[0]->finalizada)
+                                        @if(!$solicitud->expediente->audiencia()->last()->solicitud_cancelacion && !$solicitud->expediente->audiencia()->last()->finalizada)
                                         <button class="btn btn-primary btn-small pull-right" onclick="reprogramarAudiencia({{$solicitud->expediente->audiencia[0]->id}},'{{$solicitud->acepto_buzon}}')">Reprogramar audiencia </button>
                                         @endif
                                     @endif
@@ -282,7 +282,7 @@
             if(acepto_buzon == "si"){
                 $("#modal-cancelar").modal('show');
             }else{
-                swal("Error","Si desea solicitar esta acción deberá aceptar las notificaciones personales por medio del Buzón Electrónico para efectos de esta solicitud. Favor de comunicarse con el Centro.","error");
+                swal("Error","Si desea hacer uso de esta herramienta deberá aceptar que las notificaciones personales de esta solicitud se hagan por medio del buzón electrónico. Para que usted pueda aceptar las notificaciones por buzón electrónico deberá comunicarse a la Oficina Estatal que le corresponda del CFCRL.","error");
             }
         }
         function DatosLaborales(parte_id){
