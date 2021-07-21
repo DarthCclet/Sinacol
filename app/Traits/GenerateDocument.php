@@ -617,7 +617,7 @@ trait GenerateDocument
                           $parte['datos_laborales_salario_mensual'] = $salarioMensual;
                           $parte['datos_laborales_salario_mensual_letra'] = $salarioMensualTextual;
                         }
-                        $parte['identificacion_documento']= ($parte['identificacion_documento']!= null && isset($parte['identificacion_documento'])) ?$parte['identificacion_documento'] : "";
+                        $parte['identificacion_documento']= ( isset($parte['identificacion_documento'])) ?$parte['identificacion_documento'] : "";
                         $solicitanteIdentificacion = $parte['nombre_completo'] ." quien se identifica con " .$parte['identificacion_documento']." expedida a su favor por ". $parte['identificacion_expedida_por'];
                         // array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
                         // array_push($parte1, $parte);
