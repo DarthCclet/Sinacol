@@ -86,8 +86,13 @@ class BuzonController extends Controller
                 if($solicitud->expediente != null){
                     $solicitud->acciones = $this->getAcciones($solicitud, $solicitud->partes, $solicitud->expediente);
                     $solicitud->parte = $parte;
+                    $solicitud->acepto_buzon = "no";
+                    if($parte->notificacion_buzon){
+                        $solicitud->acepto_buzon = "si";
+                    }
                     foreach($solicitud->expediente->audiencia as $audiencia){
                         $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
+                        $audiencia->documentos_firmar = $parte->firmas()->where("audiencia_id",$audiencia->id)->get();
                     }
                     $solicitudes[]=$solicitud;
                 }
