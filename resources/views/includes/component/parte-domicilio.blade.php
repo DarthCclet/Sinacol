@@ -63,7 +63,7 @@
                             <h4>Domicilio(s)</h4>
                             <hr class="red">
                         </div>
-                        @include('includes.component.map',['identificador' => 'citado','needsMaps'=>"true", 'instancia' => 2])
+                        @include('includes.component.map',['identificador' => 'citado','needsMaps'=>"true", 'instancia' => 1])
                         <div style="margin-top: 2%;" class="col-md-12">
                         </div>
                     </div>

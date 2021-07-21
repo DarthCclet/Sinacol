@@ -244,13 +244,14 @@ class BuzonController extends Controller
             $parte_id=$request->parte_id;
             $parte = Parte::find($parte_id);
             $solicitud = $parte->solicitud;
+            $audiencia = $parte->solicitud->expediente->audiencia->last();
             $html = "";
             if($parte->tipo_parte_id == 1){
                 $plantilla_id = 27;
-                $html = $this->renderDocumento(null,$solicitud->id,$plantilla_id,$parte->id,null,"");
+                $html = $this->renderDocumento($audiencia->id,$solicitud->id,$plantilla_id,$parte->id,null,"");
             }else{
                 $plantilla_id = 28;
-                $html = $this->renderDocumento(null,$solicitud->id,$plantilla_id,null,$parte->id,"");
+                $html = $this->renderDocumento($audiencia->id,$solicitud->id,$plantilla_id,null,$parte->id,"");
             }
             return $this->renderPDF($html,$plantilla_id );
         }catch(Exception $e){

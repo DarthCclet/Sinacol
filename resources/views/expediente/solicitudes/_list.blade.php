@@ -1217,9 +1217,9 @@
     $("#btnGuardarRatificar").on("click", function () {
         var validarRatificacion = RatificacionValidar();
         if (!validarRatificacion.error) {
-            if(!$("#aceptar_notif_buzon").is(":checked")){
-                    aceptarExpediente(validarRatificacion);
-            }else{
+            // if(!$("#aceptar_notif_buzon").is(":checked")){
+            //         aceptarExpediente(validarRatificacion);
+            // }else{
                 $.ajax({
                     url: '/solicitud/correos/' + $("#solicitud_id").val(),
                     type: 'GET',
@@ -1264,7 +1264,7 @@
                         }
                     }
                 });
-            }
+            // }
         } else {
             swal({
                 title: 'Error',
@@ -2396,7 +2396,7 @@
     $("#btnGuardarConvenio").on("click",function(){
         if("{{auth()->user()->hasRole('Personal conciliador')}}"){
             if(ratifican){
-                if($("#aceptar_notif_buzon").is(":checked")){
+                // if($("#aceptar_notif_buzon").is(":checked")){
                     $.ajax({
                         url: '/solicitud/correos/' + $("#solicitud_id").val(),
                         type: 'GET',
@@ -2442,9 +2442,9 @@
                             }
                         }
                     });
-                }else{
-                    $("#modal-aviso-resolucion-inmediata").modal("show");
-                }
+                // }else{
+                //     $("#modal-aviso-resolucion-inmediata").modal("show");
+                // }
             } else {
                 swal({
                     title: 'Error',
