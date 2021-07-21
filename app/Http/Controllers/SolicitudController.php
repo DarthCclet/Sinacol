@@ -960,7 +960,11 @@ class SolicitudController extends Controller {
                     $documento->id = $documento->id;
                     $documento->clasificacionArchivo = $documento->clasificacionArchivo;
                     $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
-                    $documento->parte = $value->nombre . " " . $value->primer_apellido . " " . $value->segundo_apellido;
+                    if($value->tipo_persona_id == 1){
+                        $documento->parte = $value->nombre . " " . $value->primer_apellido . " " . $value->segundo_apellido;
+                    }else{
+                        $documento->parte = $value->nombre_comercial;
+                    }
                     $documento->tipo_doc = 2;
                     $doc->push($documento);
                 }
