@@ -2080,35 +2080,44 @@ class AudienciaController extends Controller {
             $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%D)%")->first()->id;
             $fecha_notificacion = now();
             $finalizado = "FINALIZADO EXITOSAMENTE";
-            if (isset($request->listaRelaciones)) {
-                foreach ($request->listaRelaciones as $notificar) {
-                    if ($parte->id == $notificar) {
-//                        Si se encuantra que la parte se debe notificar se deberá indicar el tipo
-//                        Si la parte ya fue notificada por notificador de forma exitosa se colocará el tipo renuente
-                        if($parte->notificacion_exitosa){
-                            if(!$parte->comparecio){
-                                $tipoNotificacionBuzon = $tipoNotificacionRenuente;
-                                $fecha_notificacion = null;
-                                $finalizado = null;
-                            }else{
-                                if(!$parte->notificacion_buzon){
-                                    $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
-                                    event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+            //Buscamos si fue multado en la audiencia anterior
+            $ap = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id',$parte->id);
+            if($ap->multa){
+                //Si la multa se genero en la audiencia anterior se deberá enviar al notificador
+                $tipoNotificacionBuzon = $tipoNotificacion;
+                $fecha_notificacion = null;
+                $finalizado = null;
+            }else{
+                if (isset($request->listaRelaciones)) {
+                    foreach ($request->listaRelaciones as $notificar) {
+                        if ($parte->id == $notificar) {
+    //                        Si se encuantra que la parte se debe notificar se deberá indicar el tipo
+    //                        Si la parte ya fue notificada por notificador de forma exitosa se colocará el tipo renuente
+                            if($parte->notificacion_exitosa){
+                                if(!$parte->comparecio){
+                                    $tipoNotificacionBuzon = $tipoNotificacionRenuente;
+                                    $fecha_notificacion = null;
+                                    $finalizado = null;
+                                }else{
+                                    if(!$parte->notificacion_buzon){
+                                        $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                                        event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                                    }
                                 }
-                            }
-                        }else{
-//                            Si no fue notificada de forma exitosa por notificacador evaluamos si ha comparecido
-//                            En el caso de tener una comparecencia validaremos si acepto el buzón
-                            if($parte->comparecio){
-                                if(!$parte->notificacion_buzon){
-                                    $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
-                                    event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
-                                }
                             }else{
-//                                Si no ha sido notificado y no ah comparecido se enviará nuevamente al conciliador
-                                $tipoNotificacionBuzon = $tipoNotificacion;
-                                $fecha_notificacion = null;
-                                $finalizado = null;
+    //                            Si no fue notificada de forma exitosa por notificacador evaluamos si ha comparecido
+    //                            En el caso de tener una comparecencia validaremos si acepto el buzón
+                                if($parte->comparecio){
+                                    if(!$parte->notificacion_buzon){
+                                        $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                                        event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                                    }
+                                }else{
+    //                                Si no ha sido notificado y no ah comparecido se enviará nuevamente al conciliador
+                                    $tipoNotificacionBuzon = $tipoNotificacion;
+                                    $fecha_notificacion = null;
+                                    $finalizado = null;
+                                }
                             }
                         }
                     }
@@ -2208,16 +2217,22 @@ class AudienciaController extends Controller {
         $tipoNotificacionComparecencia = \App\TipoNotificacion::where("nombre", "ilike", "%G)%")->first()->id;
         foreach ($audiencia->audienciaParte as $parte) {
             if($parte->parte->tipo_parte_id != 3){
-                if($parte->parte->notificacion_buzon){
-                    $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionBuzon,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                if($parte->multa && $parte->parte->tipo_parte_id == 2){
+                    $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2,"finalizado"=> null,"fecha_notificacion" => null]);
+                    event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud_id,14,4,null,$parte->parte_id));
+                    event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $parte->id));
                 }else{
-                    $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionComparecencia,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                    event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
-                }
-                if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
-                    event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
-                }elseif($parte->parte->tipo_parte_id == 1 && $parte->parte->ratifico){
-                    event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, null, $parte->parte->id));
+                    if($parte->parte->notificacion_buzon){
+                        $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionBuzon,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                    }else{
+                        $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionComparecencia,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                        event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                    }
+                    if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
+                        event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
+                    }elseif($parte->parte->tipo_parte_id == 1 && $parte->parte->ratifico){
+                        event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, null, $parte->parte->id));
+                    }
                 }
             }
         }
@@ -2755,6 +2770,7 @@ class AudienciaController extends Controller {
                                                         BitacoraBuzon::create(['parte_id'=>$audienciaParte->parte_id,'descripcion'=>'Se crea acta de multa','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                                         array_push($arrayMultado, $solicitado->parte_id);
                                                         array_push($arrayMultadoNotificacion, $audienciaParte->id);
+                                                        $audienciaParte->update(["multa" => true]);
                                                     }
                                                 }
                                             }
@@ -2938,6 +2954,7 @@ class AudienciaController extends Controller {
                                                 $notificar = true;
                                                 $citatorio = false;
                                                 $audiencia_notificar_id = $audiencia->id;
+                                                $audienciaP->update(["multa" => true]);
                                             }
                                         }
                                     }
@@ -3033,31 +3050,36 @@ class AudienciaController extends Controller {
             $arrayCitados = array();
             $comparecientes = $audiencia->comparecientes;
             foreach ($audiencia->audienciaParte as $parte) {
-                $comparecio = false;
-                foreach($comparecientes as $compareciente){
-                    if($compareciente->parte->tipo_parte_id != 3){
-                        if($compareciente->parte_id == $parte->parte_id){
-                            $comparecio = true;
-                        }
-                    }else{
-                        if($compareciente->parte->parte_representada_id == $parte->parte_id){
-                            $comparecio = true;
-                        }
-                    }
-                }
-                if($comparecio){
-                    if($parte->parte->notificacion_buzon){
-                        $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                    }else{
-                        $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 7,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                    }
+                if($parte->multa){
+                    $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
+                    event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $parte->id));
                 }else{
-                    if($parte->parte->notificacion_buzon){
-                        $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                    }elseif($parte->parte->notificacion_exitosa){
-                        $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 5]);
+                    $comparecio = false;
+                    foreach($comparecientes as $compareciente){
+                        if($compareciente->parte->tipo_parte_id != 3){
+                            if($compareciente->parte_id == $parte->parte_id){
+                                $comparecio = true;
+                            }
+                        }else{
+                            if($compareciente->parte->parte_representada_id == $parte->parte_id){
+                                $comparecio = true;
+                            }
+                        }
+                    }
+                    if($comparecio){
+                        if($parte->parte->notificacion_buzon){
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                        }else{
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 7,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                        }
                     }else{
-                        $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
+                        if($parte->parte->notificacion_buzon){
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                        }elseif($parte->parte->notificacion_exitosa){
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 5]);
+                        }else{
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
+                        }
                     }
                 }
                 if ($parte->parte->tipo_parte_id == $tipo_parte->id) {
