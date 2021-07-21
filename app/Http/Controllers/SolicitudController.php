@@ -1542,9 +1542,9 @@ class SolicitudController extends Controller {
                                 $array_comparecen[] = $parte->id;
                                  //Genera acta de aceptacion de buzón
                                 if($parte->tipo_parte_id == 1){
-                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id));
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id,null,null,$parte->id));
                                 }else{
-                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id));
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id,null,$parte->id));
                                 }
                                 BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
                             }else{
@@ -1683,9 +1683,9 @@ class SolicitudController extends Controller {
                             $array_comparecen[] = $parte->id;
                              //Genera acta de aceptacion de buzón
                             if($parte->tipo_parte_id == 1){
-                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id));
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id,null,null,$parte->id));
                             }else{
-                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id));
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id,null,$parte->id));
                             }
                             BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
                         }else{
