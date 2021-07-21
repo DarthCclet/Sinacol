@@ -590,6 +590,7 @@
 
 	<script>
 		var domicilioObj =  DomicilioObject;
+        domicilioObj.initMap();
 	</script>
 @else
 <script src="https://maps.googleapis.com/maps/api/js?callback=DomicilioObject.initMap&libraries=places&key={{env('API_KEY_MAPS')}}"></script>
