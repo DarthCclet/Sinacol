@@ -63,8 +63,8 @@
                             @if($key == 0)
                                 @if($solicitud->expediente != null)
                                     @if(count($solicitud->expediente->audiencia) > 0)
-                                        @if(!$solicitud->expediente->audiencia->orderBy("id","desc")->first()->solicitud_cancelacion && !$solicitud->expediente->audiencia->orderBy("id","desc")->first()->finalizada)
-                                        <button class="btn btn-primary btn-small pull-right" onclick="reprogramarAudiencia({{$solicitud->expediente->audiencia->orderBy("id","desc")->first()->id}},'{{$solicitud->acepto_buzon}}')">Reprogramar audiencia </button>
+                                        @if(!$solicitud->expediente->audiencia()->orderBy("id","desc")->first()->solicitud_cancelacion && !$solicitud->expediente->audiencia()->orderBy("id","desc")->first()->finalizada)
+                                        <button class="btn btn-primary btn-small pull-right" onclick="reprogramarAudiencia({{$solicitud->expediente->audiencia()->orderBy("id","desc")->first()->id}},'{{$solicitud->acepto_buzon}}')">Reprogramar audiencia </button>
                                         @endif
                                     @endif
                                 @endif
