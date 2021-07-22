@@ -2149,12 +2149,12 @@ class AudienciaController extends Controller {
                     "fecha_notificacion" => $fecha_notificacion,
                     "finalizado" => $finalizado
                 ]);
+                if ($tipoNotificacionBuzon == $tipoNotificacion && $parte->tipo_parte_id == $tipo_parte) {
+                    $notificar++;
+                    $partes_notificar[] = $audiencia_parte->id;
+                }
+                $parte->update(["asignado" => true]);
             }
-            if ($tipoNotificacionBuzon == $tipoNotificacion && $parte->tipo_parte_id == $tipo_parte) {
-                $notificar++;
-                $partes_notificar[] = $audiencia_parte->id;
-            }
-            $parte->update(["asignado" => true]);
             if ($parte->tipo_parte_id == $tipo_parte && $datos_audiencia["encontro_audiencia"]) {
                 if($parte->tipo_persona_id == 1){
                     $busqueda = $parte->curp;
@@ -2238,7 +2238,7 @@ class AudienciaController extends Controller {
                 if($parte->multa && $parte->parte->tipo_parte_id == 2){
                     $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2,"finalizado"=> null,"fecha_notificacion" => null]);
                     event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud_id,14,4,null,$parte->parte_id));
-                    event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $parte->id));
+                    event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $part_aud->id));
                 }else{
                     if($parte->parte->notificacion_buzon){
                         $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionBuzon,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
@@ -3070,7 +3070,7 @@ class AudienciaController extends Controller {
             foreach ($audiencia->audienciaParte as $parte) {
                 if($parte->multa){
                     $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
-                    event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $parte->id));
+                    event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $part_aud->id));
                 }else{
                     $comparecio = false;
                     foreach($comparecientes as $compareciente){
@@ -3232,6 +3232,7 @@ class AudienciaController extends Controller {
     public function negarCancelacion() {
         $audiencia = Audiencia::find($this->request->audiencia_id);
         $audiencia->update(["cancelacion_atendida" => true]);
+
         return $audiencia;
     }
 
