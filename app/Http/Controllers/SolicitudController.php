@@ -1541,6 +1541,14 @@ class SolicitudController extends Controller {
                             if ($parte->tipo_parte_id == 2) {
                                 // generar citatorio de conciliacion
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                            }elseif($parte->tipo_parte_id == 1){
+                                if($parte->tipo_persona_id == 1){
+                                    $busqueda = $parte->curp;
+                                }else{
+                                    $busqueda = $parte->rfc;
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea la notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
                             }
                             if($acepta_buzon == "true"){
                                 $parte->ratifico = true;

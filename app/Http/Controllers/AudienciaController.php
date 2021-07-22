@@ -2169,7 +2169,7 @@ class AudienciaController extends Controller {
                 }else{
                     $busqueda = $parte->rfc;
                 }
-                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea citatorio de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea la notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
             }
         }
