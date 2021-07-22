@@ -39,10 +39,10 @@ class SendNotificacion
     {
         try{
             DB::beginTransaction();
-            //Creamos una instancia a solicitudesController para usar las funciones que contiene
             $arreglo = array();
             // Consultamos la audiencia
             $audiencia = Audiencia::find($event->audiencia_id);
+            Log::debug('Se recibio esta información:'.json_encode($event));
             if(isset($audiencia->id)){
                 $tipo_notificacion = $event->tipo_notificacion;
                 $tipo_notificacion_fecha = self::ObtenerTipoNotificacion($audiencia);
