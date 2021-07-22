@@ -34,7 +34,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use NumberFormatter;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use App\Events\RatificacionRealizada;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -128,9 +127,6 @@ trait GenerateDocument
                     "firmado" => "false",
                     "total_firmantes" => $firmantes,
                 ]);
-                if($tipoArchivo->id == 18){
-                    event(new RatificacionRealizada($padre->id,"multa"));
-                }
             }else{
                 $padre = Solicitud::find($idSolicitud);
                 if($padre->expediente != null){

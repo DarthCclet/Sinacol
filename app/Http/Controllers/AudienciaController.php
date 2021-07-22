@@ -2931,8 +2931,9 @@ class AudienciaController extends Controller {
                          *
                          */
                          //Obtenemos a los citados
+                         $arrayMultadoNotificacion = [];
                         if($tipo_solicitud_individual->id == $audiencia->expediente->solicitud->tipo_solicitud_id){
-                            $arrayMultadoNotificacion = [];
+                            
                             $tipo_parte = TipoParte::whereNombre("CITADO")->first();
                             $tipo_parte_solicitante = TipoParte::whereNombre("SOLICITANTE")->first();
 
@@ -2951,7 +2952,7 @@ class AudienciaController extends Controller {
 
                             $audiencia_partes = AudienciaParte::where('audiencia_id', $audiencia_id)->get();
                             foreach ($audiencia_partes as $key => $audienciaP) {
-                                if ($audienciaP->parte->tipo_parte_id == 2) {
+                                if ($audienciaP->parte->tipo_parte_id == $tipo_parte->id) {
                                     if(!$audienciaP->parte->multado){
                                         $comparecio = false;
                                         foreach ($comp as $comp_aud) {
@@ -2959,8 +2960,8 @@ class AudienciaController extends Controller {
                                                 $comparecio = true;
                                             }
                                         }
-                                        if(!$comparecio && ($audienciaP->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaP->finalizado == "EXITOSO POR INSTRUCTIVO") && $audienciaP->parte->tipo_parte_id == $tipo_parte->id){
-                                            if(!$audienciaP->parte->multado){
+                                        if(!$comparecio){
+                                            if($audienciaP->finalizado == "FINALIZADO EXITOSAMENTE" || $audienciaP->finalizado == "EXITOSO POR INSTRUCTIVO"){
                                                 if($audienciaP->parte->tipo_persona_id == 1){
                                                     $busqueda = $audienciaP->parte->curp;
                                                 }else{
