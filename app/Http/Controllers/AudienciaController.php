@@ -3090,7 +3090,7 @@ class AudienciaController extends Controller {
                             $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
                         }else{
                             $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 7,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->parte_id));
                         }
                     }else{
                         if($parte->parte->notificacion_buzon){
