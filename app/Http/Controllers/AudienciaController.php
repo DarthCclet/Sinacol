@@ -2099,7 +2099,7 @@ class AudienciaController extends Controller {
             $fecha_notificacion = now();
             $finalizado = "FINALIZADO EXITOSAMENTE";
             //Buscamos si fue multado en la audiencia anterior
-            $ap = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id',$parte->id);
+            $ap = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id',$parte->id)->first();
             if($ap->multa){
                 //Si la multa se genero en la audiencia anterior se deberá enviar al notificador
                 $tipoNotificacionBuzon = $tipoNotificacion;
