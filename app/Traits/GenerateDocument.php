@@ -696,6 +696,33 @@ trait GenerateDocument
                           array_push($parte2, $parte);
                         }
                     }
+
+                    $partesGral = Parte::where('solicitud_id',intval($idBase))->get();
+                    //dd($partesGral);
+                    $countSolicitado = 0;
+                    $countSolicitante = 0;
+                    $nombresSolicitantes = [];
+                    $nombresSolicitados = [];
+                    //$solicitantesNSS = [];
+                    //$solicitantesCURP = [];
+                    //dd($partesGral);
+                    foreach($partesGral as $parteGral){
+                      if($parteGral->tipo_persona_id == 1){ //fisica
+                        $nombre_completo = $parteGral->nombre.' '.$parteGral->primer_apellido.' '.$parteGral->segundo_apellido;
+                      }else{//moral
+                        $nombre_completo = $parteGral->nombre_comercial;
+                      }
+                      if($parteGral->tipo_parte_id == 1){//Solicitante
+                        array_push($nombresSolicitantes, $nombre_completo );
+                        $countSolicitante += 1;
+                      }else if($parteGral->tipo_parte_id == 2){//Citado
+                        array_push($nombresSolicitados, $nombre_completo );
+                        $countSolicitado += 1;
+                      }else{//representante
+
+                      }
+
+                    }
                     $data = Arr::add( $data, 'solicitante', $parte1 );
                     $data = Arr::add( $data, 'solicitado', $parte2 );
                     $data = Arr::add( $data, 'total_solicitantes', $countSolicitante );
