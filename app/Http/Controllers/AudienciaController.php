@@ -2163,7 +2163,7 @@ class AudienciaController extends Controller {
                 }
                 BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea citatorio de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->id));
-            }elseif($parte->tipo_parte_id == 1 && $parte->ratifico){
+            }elseif($parte->tipo_parte_id == 1){
                 if($parte->tipo_persona_id == 1){
                     $busqueda = $parte->curp;
                 }else{
@@ -2248,7 +2248,7 @@ class AudienciaController extends Controller {
                     }
                     if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
                         event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
-                    }elseif($parte->parte->tipo_parte_id == 1 && $parte->parte->ratifico){
+                    }elseif($parte->parte->tipo_parte_id == 1){
                         event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, null, $parte->parte->id));
                     }
                 }
@@ -3090,6 +3090,7 @@ class AudienciaController extends Controller {
                             $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
                         }else{
                             $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 7,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
                         }
                     }else{
                         if($parte->parte->notificacion_buzon){
@@ -3103,7 +3104,7 @@ class AudienciaController extends Controller {
                 }
                 if ($parte->parte->tipo_parte_id == $tipo_parte->id) {
                     event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->parte_id));
-                }elseif($parte->parte->tipo_parte_id == 1 && $parte->parte->ratifico){
+                }elseif($parte->parte->tipo_parte_id == 1){
                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->parte_id));
                 }
             }
