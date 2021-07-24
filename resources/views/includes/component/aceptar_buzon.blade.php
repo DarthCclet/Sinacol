@@ -99,7 +99,8 @@
                                 }
                                 tableSolicitantes += '  </td>';
                                 tableSolicitantes += '  <td>';
-                                tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+data.id+'" value="'+data.correo_buzon+'">';
+                                var correo = element.correo_buzon != null ? element.correo_buzon : "";
+                                tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+data.id+'" value="'+correo+'">';
                                 tableSolicitantes += '  </td>';
                                 tableSolicitantes +='</tr>';
                             $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
