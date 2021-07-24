@@ -190,12 +190,13 @@
                     <div class="col-md-2">
                     </div>
                     <div class="col-md-10 form-group" >
-                    <input type="hidden" name="audiencia_id" id="audiencia_reprogramacion_id">
-                    <div class="col-md-8">
-                        <div class="form-group">
-                            <label for="justificante" class="control-label">Justificante</label>
-                            <input type="file" accept=".pdf,.jpg" id="justificante" name="justificante" class="form-control" required>
-                            <p class="help-block">Selecciona el documento que servirá para evaluar la cancelación</p>
+                        <input type="hidden" name="audiencia_id" id="audiencia_reprogramacion_id">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="justificante" class="control-label">Justificante</label>
+                                <input type="file" accept=".pdf,.jpg" id="justificante" name="justificante" class="form-control" required>
+                                <p class="help-block">Selecciona el documento que servirá para evaluar la cancelación</p>
+                            </div>
                         </div>
                     </div>
                 </div>

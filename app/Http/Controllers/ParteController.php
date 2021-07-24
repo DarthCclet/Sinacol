@@ -813,12 +813,12 @@ class ParteController extends Controller
         $parte = Parte::find($this->request->parte_id);
         $array = array();
         $pasa = false;
-        foreach($parte->contactos as $contacto){
-            if($contacto->tipo_contacto_id == 3){ //si tiene email
-                $pasa = true;
-            }
-        }
-        if($parte->correo_buzon){
+        // foreach($parte->contactos as $contacto){
+        //     if($contacto->tipo_contacto_id == 3){ //si tiene email
+        //         $pasa = true;
+        //     }
+        // }
+        if($parte->notificacion_buzon){
             $pasa = true;
         }
             //devuelve partes sin email

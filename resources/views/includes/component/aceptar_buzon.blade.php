@@ -99,7 +99,7 @@
                                 }
                                 tableSolicitantes += '  </td>';
                                 tableSolicitantes += '  <td>';
-                                tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+data.id+'">';
+                                tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+data.id+'" value="'+data.correo_buzon+'">';
                                 tableSolicitantes += '  </td>';
                                 tableSolicitantes +='</tr>';
                             $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
@@ -269,9 +269,13 @@
                         }
                     }else{
                         if( $("#rfcCurpValidar"+id).val() != ""){
+                            var crear = false;
+                            if($("#correoValidar"+id).val() == ""){
+                                crear = true;
+                            }
                             listaCorreos.push({
-                                crearAcceso:true,
-                                correo:"",
+                                crearAcceso:crear,
+                                correo:$("#correoValidar"+id).val(),
                                 rfcCurp:$("#rfcCurpValidar"+id).val(),
                                 parte_id:id
                             });

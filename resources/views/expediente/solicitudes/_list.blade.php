@@ -1252,7 +1252,8 @@
                                     }
                                     tableSolicitantes += '  </td>';
                                     tableSolicitantes += '  <td>';
-                                    tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar' + element.id + '">';
+                                    var correo = element.correo_buzon != null ? element.correo_buzon : "";
+                                    tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar' + element.id + '" value="'+ correo +'">';
                                     tableSolicitantes += '  </td>';
                                     tableSolicitantes += '</tr>';
                                 });
