@@ -2869,6 +2869,15 @@ class AudienciaController extends Controller {
                                 }
                                 BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea citatorio de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->parte_id));
+                            }elseif($parte->parte->tipo_parte_id == 2){
+                                if($parte->parte->tipo_persona_id == 1){
+                                    $busqueda = $parte->parte->curp;
+                                }else{
+                                    $busqueda = $parte->parte->rfc;
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea notificación del solicitante de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                                Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte->id);
+                                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, null, $parte->parte_id));
                             }
                         }
 
