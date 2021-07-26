@@ -2100,77 +2100,79 @@ class AudienciaController extends Controller {
             $finalizado = "FINALIZADO EXITOSAMENTE";
             //Buscamos si fue multado en la audiencia anterior
             $ap = AudienciaParte::where('audiencia_id', $audiencia->id)->where('parte_id',$parte->id)->first();
-            if($ap->multa){
-                //Si la multa se genero en la audiencia anterior se deberá enviar al notificador
-                $tipoNotificacionBuzon = $tipoNotificacion;
-                $fecha_notificacion = null;
-                $finalizado = null;
-            }else{
-                if (isset($request->listaRelaciones)) {
-                    foreach ($request->listaRelaciones as $notificar) {
-                        if ($parte->id == $notificar) {
-    //                        Si se encuantra que la parte se debe notificar se deberá indicar el tipo
-    //                        Si la parte ya fue notificada por notificador de forma exitosa se colocará el tipo renuente
-                            if($parte->notificacion_exitosa){
-                                if(!$parte->comparecio){
-                                    $tipoNotificacionBuzon = $tipoNotificacionRenuente;
-                                    $fecha_notificacion = null;
-                                    $finalizado = null;
-                                }else{
-                                    if(!$parte->notificacion_buzon){
-                                        $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
-                                        event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
-                                    }
-                                }
-                            }else{
-    //                            Si no fue notificada de forma exitosa por notificacador evaluamos si ha comparecido
-    //                            En el caso de tener una comparecencia validaremos si acepto el buzón
-                                if($parte->comparecio){
-                                    if(!$parte->notificacion_buzon){
-                                        $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
-                                        event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+            if($ap != null){
+                if($ap->multa){
+                    //Si la multa se genero en la audiencia anterior se deberá enviar al notificador
+                    $tipoNotificacionBuzon = $tipoNotificacion;
+                    $fecha_notificacion = null;
+                    $finalizado = null;
+                }else{
+                    if (isset($request->listaRelaciones)) {
+                        foreach ($request->listaRelaciones as $notificar) {
+                            if ($parte->id == $notificar) {
+        //                        Si se encuantra que la parte se debe notificar se deberá indicar el tipo
+        //                        Si la parte ya fue notificada por notificador de forma exitosa se colocará el tipo renuente
+                                if($parte->notificacion_exitosa){
+                                    if(!$parte->comparecio){
+                                        $tipoNotificacionBuzon = $tipoNotificacionRenuente;
+                                        $fecha_notificacion = null;
+                                        $finalizado = null;
+                                    }else{
+                                        if(!$parte->notificacion_buzon){
+                                            $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                                        }
                                     }
                                 }else{
-    //                                Si no ha sido notificado y no ah comparecido se enviará nuevamente al conciliador
-                                    $tipoNotificacionBuzon = $tipoNotificacion;
-                                    $fecha_notificacion = null;
-                                    $finalizado = null;
+        //                            Si no fue notificada de forma exitosa por notificacador evaluamos si ha comparecido
+        //                            En el caso de tener una comparecencia validaremos si acepto el buzón
+                                    if($parte->comparecio){
+                                        if(!$parte->notificacion_buzon){
+                                            $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                                        }
+                                    }else{
+        //                                Si no ha sido notificado y no ah comparecido se enviará nuevamente al conciliador
+                                        $tipoNotificacionBuzon = $tipoNotificacion;
+                                        $fecha_notificacion = null;
+                                        $finalizado = null;
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            if($parte->tipo_parte_id != $tipo_parte_representante){
-                $audiencia_parte = AudienciaParte::create([
-                    "audiencia_id" => $audienciaN->id,
-                    "parte_id" => $parte->id,
-                    "tipo_notificacion_id" => $tipoNotificacionBuzon,
-                    "fecha_notificacion" => $fecha_notificacion,
-                    "finalizado" => $finalizado
-                ]);
-                if ($tipoNotificacionBuzon == $tipoNotificacion && $parte->tipo_parte_id == $tipo_parte) {
-                    $notificar++;
-                    $partes_notificar[] = $audiencia_parte->id;
+                if($parte->tipo_parte_id != $tipo_parte_representante){
+                    $audiencia_parte = AudienciaParte::create([
+                        "audiencia_id" => $audienciaN->id,
+                        "parte_id" => $parte->id,
+                        "tipo_notificacion_id" => $tipoNotificacionBuzon,
+                        "fecha_notificacion" => $fecha_notificacion,
+                        "finalizado" => $finalizado
+                    ]);
+                    if ($tipoNotificacionBuzon == $tipoNotificacion && $parte->tipo_parte_id == $tipo_parte) {
+                        $notificar++;
+                        $partes_notificar[] = $audiencia_parte->id;
+                    }
+                    $parte->update(["asignado" => true]);
                 }
-                $parte->update(["asignado" => true]);
-            }
-            if ($parte->tipo_parte_id == $tipo_parte && $datos_audiencia["encontro_audiencia"]) {
-                if($parte->tipo_persona_id == 1){
-                    $busqueda = $parte->curp;
-                }else{
-                    $busqueda = $parte->rfc;
+                if ($parte->tipo_parte_id == $tipo_parte && $datos_audiencia["encontro_audiencia"]) {
+                    if($parte->tipo_persona_id == 1){
+                        $busqueda = $parte->curp;
+                    }else{
+                        $busqueda = $parte->rfc;
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea citatorio de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                    event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->id));
+                }elseif($parte->tipo_parte_id == 1){
+                    if($parte->tipo_persona_id == 1){
+                        $busqueda = $parte->curp;
+                    }else{
+                        $busqueda = $parte->rfc;
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea la notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
                 }
-                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea citatorio de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
-                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->id));
-            }elseif($parte->tipo_parte_id == 1){
-                if($parte->tipo_persona_id == 1){
-                    $busqueda = $parte->curp;
-                }else{
-                    $busqueda = $parte->rfc;
-                }
-                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea la notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
-                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
             }
         }
         foreach($audienciaN->audienciaParte as $audiencia_parte){
