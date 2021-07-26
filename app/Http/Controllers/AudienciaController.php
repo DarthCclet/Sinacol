@@ -3110,7 +3110,7 @@ class AudienciaController extends Controller {
                                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->parte_id));
                             }
                         }elseif($parte->parte->tipo_parte_id == 1){
-                            Log::debug('Se crea el documento de notificación del solicitante para la parte:'.json_encode($event));
+                            Log::debug('Se crea el documento de notificación del solicitante para la parte:'.($parte->parte->id);
                             event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->parte_id));
                         }
                     }else{
@@ -3123,7 +3123,7 @@ class AudienciaController extends Controller {
                                 $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
                             }
                         }elseif($parte->parte->tipo_parte_id == 1){
-                            Log::debug('Se crea el documento de Acta de archivado para la parte:'.json_encode($event));
+                            Log::debug('Se crea el documento de Acta de archivado para la parte:'.$parte->parte->id);
                             event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 41, 8, null, $parte->parte_id));
                         }
                     }
