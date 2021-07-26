@@ -1643,18 +1643,17 @@ class SolicitudController extends Controller {
                                 $tipo_notificacion_id = $this->request->tipo_notificacion_id;
                             }
                             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
-                            if ($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]) {
-                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
-                                Log::debug('Generador de archivos para citatorio y la parte: '.$parte->id);
-                            }elseif($parte->tipo_parte_id == 1 && $parte->ratifico){
-                                Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte->id);
-                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, null, $parte->id));
-                            }
                         }
                     }
-                    //                if($datos_audiencia["encontro_audiencia"] && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
-                    //                    event(new RatificacionRealizada($audiencia->id,"citatorio"));
-                    //                }
+                    foreach ($audiencia->audienciaParte as $parte_audiencia) {
+                        if ($parte_audiencia->tipo_parte_id == 2) {
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                            Log::debug('Generador de archivos para citatorio y la parte: '.$parte->id);
+                        }elseif($parte->tipo_parte_id == 1){
+                            Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte->id);
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, null, $parte->id));
+                        }
+                    }
                     $expediente = Expediente::find($request->expediente_id);
                 }
                 foreach($array_comparecen as $comparecen){
