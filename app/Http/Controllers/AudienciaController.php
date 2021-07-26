@@ -2878,7 +2878,7 @@ class AudienciaController extends Controller {
                                     $busqueda = $parte->parte->rfc;
                                 }
                                 BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea notificación del solicitante de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
-                                Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte->id);
+                                Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte->parte_id);
                                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, null, $parte->parte_id));
                             }
                         }
