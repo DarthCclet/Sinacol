@@ -1514,12 +1514,12 @@ class SolicitudController extends Controller {
                     foreach ($solicitud->partes as $key => $parte) {
                         if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
                             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
-                            $parte->ratifico = true;
+                            $parte->update(["ratifico" => true]);
                             if ($parte->tipo_parte_id == 2) {
                                 // generar citatorio de conciliacion
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
                             }elseif($parte->tipo_parte_id == 1){
-                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, null, $parte->id));
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
                                 if($parte->tipo_persona_id == 1){
                                     $busqueda = $parte->curp;
                                 }else{
@@ -1554,7 +1554,7 @@ class SolicitudController extends Controller {
                             }
                             $parte->update();
                         }else{
-                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, null, $parte->id));
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parte->id,null,null,$parte->id));
                         }
                     }    
                     DB::commit();
@@ -1884,7 +1884,7 @@ class SolicitudController extends Controller {
         $solicitud = Solicitud::find($this->request->solicitud_id);
         $array = array();
         foreach ($solicitud->partes as $parte) {
-            if(count($parte->documentos) > 0 && empty($parte->correo_buzon)){
+            if((count($parte->documentos) > 0 || $parte->tipo_persona_id == 2) && empty($parte->correo_buzon) ){
                 if ($parte->tipo_parte_id == 1) {
                     // $pasa = false;
                     // $tiene_correo = $parte->contactos()->where('tipo_contacto_id',3)->first();
