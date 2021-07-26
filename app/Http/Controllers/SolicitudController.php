@@ -1646,12 +1646,12 @@ class SolicitudController extends Controller {
                         }
                     }
                     foreach ($audiencia->audienciaParte as $parte_audiencia) {
-                        if ($parte_audiencia->tipo_parte_id == 2) {
-                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
-                            Log::debug('Generador de archivos para citatorio y la parte: '.$parte->id);
-                        }elseif($parte->tipo_parte_id == 1){
-                            Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte->id);
-                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, null, $parte->id));
+                        if ($parte_audiencia->parte->tipo_parte_id == 2) {
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte_audiencia->parte_id));
+                            Log::debug('Generador de archivos para citatorio y la parte: '.$parte_audiencia->parte_id);
+                        }elseif($parte_audiencia->parte->tipo_parte_id == 1){
+                            Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte_audiencia->parte_id);
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, null, $parte_audiencia->parte_id));
                         }
                     }
                     $expediente = Expediente::find($request->expediente_id);
