@@ -52,7 +52,7 @@
                 <form action="{{route('acceso_buzon')}}" method="GET" name="form_acceso_buzon">
                     {{csrf_field()}}
                     <div class="form-group m-b-20">
-                        <input type="text" class="form-control form-control-lg" placeholder="Correo" id="correo_buzon" name="correo_buzon"/>
+                        <input type="text" class="form-control form-control-lg" placeholder="Usuario" id="correo_buzon" name="correo_buzon"/>
                     </div>
                     <div class="form-group m-b-20">
                         <input type="password" class="form-control form-control-lg" placeholder="Contraseña" id="password_buzon" name="password_buzon"/>

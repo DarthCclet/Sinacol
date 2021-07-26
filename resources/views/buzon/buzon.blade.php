@@ -60,15 +60,6 @@
                         @if($solicitud->expediente->audiencia != null)
                         @foreach($solicitud->expediente->audiencia as $key => $audiencia)
                         <li><strong>Audiencia:</strong> {{$audiencia->folio}}/{{$audiencia->anio}}
-                            @if($key == 0)
-                                @if($solicitud->expediente != null)
-                                    @if(count($solicitud->expediente->audiencia) > 0)
-                                        @if(!$solicitud->expediente->audiencia()->orderBy("id","desc")->first()->solictud_cancelcacion && !$solicitud->expediente->audiencia()->orderBy("id","desc")->first()->finalizada )
-                                        <button class="btn btn-primary btn-small pull-right" onclick="reprogramarAudiencia({{$solicitud->expediente->audiencia()->orderBy("id","desc")->first()->id}},'{{$solicitud->acepto_buzon}}')">Reprogramar audiencia </button>
-                                        @endif
-                                    @endif
-                                @endif
-                            @endif
                             <br>
                             <table class="table table-striped table-bordered table-td-valign-middle">
                                 <tr>

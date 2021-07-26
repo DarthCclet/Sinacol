@@ -1484,30 +1484,6 @@ class SolicitudController extends Controller {
                             return $this->sendError('El usuario no esta dado de alta en la lista de conciliadores', 'Error');
                         }
                     }
-
-                    //obtenemos al conciliador disponible
-                    //                $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
-                    //                $conciliadoresDisponibles = array();
-                    //                foreach($conciliadores as $conciliador){
-                    //                    $conciliadorDisponible = false;
-                    //                    foreach($conciliador->rolesConciliador as $roles){
-                    //                        if($roles->rol_atencion_id == 2){
-                    //                            $conciliadorDisponible = true;
-                    //                        }
-                    //                    }
-                    //                    if($conciliadorDisponible){
-                    //                        $conciliadoresDisponibles[]=$conciliador;
-                    //                    }
-                    //                }
-                    //                $conciliador_id = null;
-                    //                if(count($conciliadoresDisponibles) > 0){
-                    //                    $conciliador = Arr::random($conciliadoresDisponibles);
-                    //                }else{
-                    //                    DB::rollBack();
-                    //                    return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
-                    //                }
-                    // Registramos la audiencia
-                    //Obtenemos el contador
                     //creamos el registro de la audiencia
                     if ($request->fecha_cita == "" || $request->fecha_cita == null) {
                         $fecha_cita = null;
@@ -1669,7 +1645,9 @@ class SolicitudController extends Controller {
                             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
                             if ($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]) {
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                                Log::debug('Generador de archivos para citatorio y la parte: '.$parte->id);
                             }elseif($parte->tipo_parte_id == 1 && $parte->ratifico){
+                                Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte->id);
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, null, $parte->id));
                             }
                         }
