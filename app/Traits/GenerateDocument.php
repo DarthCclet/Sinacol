@@ -698,11 +698,12 @@ trait GenerateDocument
                     }
 
                     $partesGral = Parte::where('solicitud_id',intval($idBase))->get();
-                    //dd($partesGral);
                     $countSolicitado = 0;
                     $countSolicitante = 0;
                     $nombresSolicitantes = [];
                     $nombresSolicitados = [];
+                    $nombresSolicitantesConfirmaron = [];
+                    //$nombresSolicitadosConfi = [];
                     //$solicitantesNSS = [];
                     //$solicitantesCURP = [];
                     //dd($partesGral);
@@ -715,6 +716,9 @@ trait GenerateDocument
                       if($parteGral->tipo_parte_id == 1){//Solicitante
                         array_push($nombresSolicitantes, $nombre_completo );
                         $countSolicitante += 1;
+                        if($parteGral->ratifico){
+                          array_push($nombresSolicitantesConfirmaron, $nombre_completo );
+                        }
                       }else if($parteGral->tipo_parte_id == 2){//Citado
                         array_push($nombresSolicitados, $nombre_completo );
                         $countSolicitado += 1;
@@ -729,6 +733,7 @@ trait GenerateDocument
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
+                    $data = Arr::add( $data, 'nombres_solicitantes_confirmados', implode(", ",$nombresSolicitantesConfirmaron));
                     $data = Arr::add( $data, 'nss_solicitantes', implode(", ",$solicitantesNSS));
                     $data = Arr::add( $data, 'curp_solicitantes', implode(", ",$solicitantesCURP));
                     $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));

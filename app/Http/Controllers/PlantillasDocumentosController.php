@@ -354,6 +354,7 @@ class PlantillasDocumentosController extends Controller
                 array_push($columnNames,'total_solicitantes');
                 array_push($columnNames,'nombres_solicitados');
                 array_push($columnNames,'nombres_solicitantes');
+                array_push($columnNames,'nombres_solicitantes_confirmados');
                 array_push($columnNames,'nss_solicitantes');
                 array_push($columnNames,'curp_solicitantes');
                 array_push($columnNames,'objeto_solicitudes');
@@ -791,7 +792,8 @@ class PlantillasDocumentosController extends Controller
                           $parte['datos_laborales_salario_mensual_letra'] = $salarioMensualTextual;
                           $nss = $datoLaborales->nss;
                         }
-
+                        $parte['identificacion_documento'] = ( isset($parte['identificacion_documento'])) ?$parte['identificacion_documento'] : "";
+                        $parte['identificacion_expedida_por'] = ( isset($parte['identificacion_expedida_por'])) ?$parte['identificacion_expedida_por'] : "";
                         $solicitanteIdentificacion = $parte['nombre_completo'] ." quien se identifica con " .$parte['identificacion_documento']." expedida a su favor por ". $parte['identificacion_expedida_por'];
                       //}elseif ($parte['tipo_parte_id'] == 2 ) {//Citado
                         //representante legal de parte
@@ -865,12 +867,38 @@ class PlantillasDocumentosController extends Controller
                         array_push($parte2, $parte);
                       }
                     }
+
+                    $partesGral = Parte::where('solicitud_id',intval($idBase))->get();
+                    $countSolicitado = 0;
+                    $countSolicitante = 0;
+                    $nombresSolicitantes = [];
+                    $nombresSolicitados = [];
+                    $nombresSolicitantesConfirmaron = [];
+                    foreach($partesGral as $parteGral){
+                      if($parteGral->tipo_persona_id == 1){ //fisica
+                        $nombre_completo = $parteGral->nombre.' '.$parteGral->primer_apellido.' '.$parteGral->segundo_apellido;
+                      }else{//moral
+                        $nombre_completo = $parteGral->nombre_comercial;
+                      }
+                      if($parteGral->tipo_parte_id == 1){//Solicitante
+                        array_push($nombresSolicitantes, $nombre_completo );
+                        $countSolicitante += 1;
+                        if($parteGral->ratifico){//Si el solicitante confirmo su solicitud
+                          array_push($nombresSolicitantesConfirmaron, $nombre_completo );
+                        }
+                      }else if($parteGral->tipo_parte_id == 2){//Citado
+                        array_push($nombresSolicitados, $nombre_completo );
+                        $countSolicitado += 1;
+                      }else{//representante
+                      }
+                    }
                     $data = Arr::add( $data, 'solicitante', $parte1 );
                     $data = Arr::add( $data, 'solicitado', $parte2 );
                     $data = Arr::add( $data, 'total_solicitantes', $countSolicitante );
                     $data = Arr::add( $data, 'total_solicitados', $countSolicitado );
                     $data = Arr::add( $data, 'nombres_solicitantes', implode(", ",$nombresSolicitantes));
                     $data = Arr::add( $data, 'nombres_solicitados', implode(", ",$nombresSolicitados));
+                    $data = Arr::add( $data, 'nombres_solicitantes_confirmados', implode(", ",$nombresSolicitantesConfirmaron));
                     $data = Arr::add( $data, 'nss_solicitantes', implode(", ",$solicitantesNSS));
                     $data = Arr::add( $data, 'curp_solicitantes', implode(", ",$solicitantesCURP));
                     $data = Arr::add( $data, 'solicitantes_identificaciones', implode(", ",$solicitantesIdentificaciones));
