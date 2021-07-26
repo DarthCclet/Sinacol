@@ -500,7 +500,8 @@
                         <li>El CURP o RFC de la persona y </li>
                         <li>Un correo electr&oacute;nico al cual asociarlo.  </li>
                     </ol>
-                    En el caso de que usted no haya proporcionado un correo electr&oacute;nico con anterioridad, podr&aacute; capturarlo en este momento, de lo contrario seleccione "Proporcionar accesos" y el sistema le proporcionar&aacute; un usuario y una contrase&ntilde;a para acceder al buz&oacute;n electr&oacute;nico.
+                    <p>En el caso de que usted no haya proporcionado un correo electr&oacute;nico con anterioridad, podr&aacute; capturarlo en este momento, de lo contrario seleccione "Proporcionar accesos" y el sistema le proporcionar&aacute; un usuario y una contrase&ntilde;a para acceder al buz&oacute;n electr&oacute;nico.</p>
+                    <p>El correo electrónico que usted asocie a su buzón electrónico servirá para recibir correos con el asunto de avisos, en el caso de que no haya aceptado las notificaciones por este medio; o con el asunto de notificaciones, en el caso de que sí haya aceptado las notificaicones por buzón electrónico. Estos correos electrónicos son una herramienta auxiliar del buzón electrónico, no son notificaciones.</p>
                 </div>
                 <table class="table table-bordered table-striped table-hover" id="tableSolicitantesCorreo">
                     <thead>

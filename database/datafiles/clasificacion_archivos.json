@@ -384,6 +384,18 @@
             "nombre": "Notificación del solicitante",
             "tipo_archivo_id":5,
             "entidad_emisora_id":8
+        },
+        {
+            "id": "65",
+            "nombre": "Acuse de solicitud confirmada",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
+        },
+        {
+            "id": "66",
+            "nombre": "Archivado por falta de confirmación",
+            "tipo_archivo_id":5,
+            "entidad_emisora_id":8
         }
     ],
 

@@ -1536,12 +1536,14 @@ class SolicitudController extends Controller {
                     $partes = $solicitud->partes;
                     $audiencia->tipo_solicitud_id = $audiencia->expediente->solicitud->tipo_solicitud_id;
                     foreach ($solicitud->partes as $key => $parte) {
-                        if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 ) {
+                        if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
                             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
+                            $parte->ratifico = true;
                             if ($parte->tipo_parte_id == 2) {
                                 // generar citatorio de conciliacion
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
                             }elseif($parte->tipo_parte_id == 1){
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, null, $parte->id));
                                 if($parte->tipo_persona_id == 1){
                                     $busqueda = $parte->curp;
                                 }else{
@@ -1551,10 +1553,9 @@ class SolicitudController extends Controller {
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
                             }
                             if($acepta_buzon == "true"){
-                                $parte->ratifico = true;
                                 $parte->notificacion_buzon = true;
                                 $parte->fecha_aceptacion_buzon = now();
-                                $parte->update();
+                                
                                 $identificador = $parte->rfc;
                                 if($parte->tipo_persona_id == $tipo->id){
                                     $identificador = $parte->curp;
@@ -1575,6 +1576,9 @@ class SolicitudController extends Controller {
                                     event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id,null,$parte->id));
                                 }
                             }
+                            $parte->update();
+                        }else{
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, null, $parte->id));
                         }
                     }    
                     DB::commit();
@@ -1657,7 +1661,8 @@ class SolicitudController extends Controller {
                     //                dd($partes);
 
                     foreach ($partes as $parte) {
-                        if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2) {
+                        if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
+                            $parte->update(["ratifico" => true]);
                             if ($parte->tipo_parte_id != 1) {
                                 $tipo_notificacion_id = $this->request->tipo_notificacion_id;
                             }

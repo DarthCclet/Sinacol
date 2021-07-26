@@ -15,7 +15,8 @@
                         <li>El CURP o RFC de la persona y </li>
                         <li>Un correo electr&oacute;nico al cual asociarlo.  </li>
                     </ol>
-                    En el caso de que no se haya proporcionado un correo electr&oacute;nico con anterioridad podr&aacute; capturarlo en este momento, de lo contrario seleccione "Proporcionar accesos" y el sisteme le proporcionar&aacute; un usuario y una contrase&ntilde;a para acceder al buz&oacute;n eletr&oacute;nico.
+                    <p>En el caso de que no se haya proporcionado un correo electr&oacute;nico con anterioridad podr&aacute; capturarlo en este momento, de lo contrario seleccione "Proporcionar accesos" y el sisteme le proporcionar&aacute; un usuario y una contrase&ntilde;a para acceder al buz&oacute;n eletr&oacute;nico.</p>
+                    <p>El correo electrónico que usted asocie a su buzón electrónico servirá para recibir correos con el asunto de avisos, en el caso de que no haya aceptado las notificaciones por este medio; o con el asunto de notificaciones, en el caso de que sí haya aceptado las notificaicones por buzón electrónico. Estos correos electrónicos son una herramienta auxiliar del buzón electrónico, no son notificaciones.</p>
                 </div>
                 <div id="divExisteCorreo">
                     <h3>Ya existe un correo asignado : <span id="correoParte"></span></h3>
@@ -269,7 +270,7 @@
                             $("#rfcCurpValidar"+id).css("border-color","red");
                         }
                     }else{
-                        if( $("#rfcCurpValidar"+id).val() != ""){
+                        if( $("#rfcCurpValidar"+id).val() != "" && $("#correoValidar"+id).val() != "" ){
                             var crear = false;
                             if($("#correoValidar"+id).val() == ""){
                                 crear = true;
@@ -283,6 +284,7 @@
                         }else{
                             error = true;
                             $("#rfcCurpValidar"+id).css("border-color","red");
+                            $("#correoValidar"+id).css("border-color","red");
                         }
                     }
                 }   
