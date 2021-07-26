@@ -2871,7 +2871,7 @@ class AudienciaController extends Controller {
                                 }
                                 BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea citatorio de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->parte_id));
-                            }elseif($parte->parte->tipo_parte_id == 2){
+                            }elseif($parte->parte->tipo_parte_id == 1){
                                 if($parte->parte->tipo_persona_id == 1){
                                     $busqueda = $parte->parte->curp;
                                 }else{
