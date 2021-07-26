@@ -3079,44 +3079,55 @@ class AudienciaController extends Controller {
             $tipo_parte = TipoParte::whereNombre("CITADO")->first();
             $arrayCitados = array();
             $comparecientes = $audiencia->comparecientes;
+            $array_comparecientes = [];
+            foreach($comparecientes as $compareciente){
+                if($compareciente->parte->tipo_parte_id == 1 || $compareciente->parte->tipo_parte_id == 2){
+                    $array_comparecientes[]=$compareciente->parte; 
+                }else{
+                    $parte_representada = Parte::find($compareciente->parte->parte_representada_id);
+                    if($parte_representada != null){
+                        $array_comparecientes[]=$parte_representada;
+                    }
+                }
+            }
             foreach ($audiencia->audienciaParte as $parte) {
                 if($parte->multa){
                     $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
                     event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $part_aud->id));
                 }else{
                     $comparecio = false;
-                    foreach($comparecientes as $compareciente){
-                        if($compareciente->parte->tipo_parte_id != 3){
-                            if($compareciente->parte_id == $parte->parte_id){
-                                $comparecio = true;
-                            }
-                        }else{
-                            if($compareciente->parte->parte_representada_id == $parte->parte_id){
-                                $comparecio = true;
-                            }
+                    foreach($array_comparecientes as $compareciente){
+                        if($compareciente->id == $parte->parte_id){
+                            $comparecio = true;
                         }
                     }
                     if($comparecio){
-                        if($parte->parte->notificacion_buzon){
-                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                        }else{
-                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 7,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->parte_id));
+                        if($parte->parte->tipo_parte_id == 2){
+                            if($parte->parte->notificacion_buzon){
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                            }else{
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 7,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->parte_id));
+                            }
+                        }elseif($parte->parte->tipo_parte_id == 1){
+                            event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->parte_id));
                         }
                     }else{
-                        if($parte->parte->notificacion_buzon){
-                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                        }elseif($parte->parte->notificacion_exitosa){
-                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 5]);
-                        }else{
-                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
+                        if($parte->parte->tipo_parte_id == 2){
+                            if($parte->parte->notificacion_buzon){
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                            }elseif($parte->parte->notificacion_exitosa){
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 5]);
+                            }else{
+                                $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
+                            }
+                        }elseif($parte->parte->tipo_parte_id == 1){
+                            event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 41, 8, null, $parte->parte_id));
                         }
                     }
                 }
                 if ($parte->parte->tipo_parte_id == $tipo_parte->id) {
                     event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->parte_id));
-                }elseif($parte->parte->tipo_parte_id == 1){
-                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->parte_id));
                 }
             }
 
