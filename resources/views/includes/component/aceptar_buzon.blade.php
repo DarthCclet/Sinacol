@@ -99,7 +99,7 @@
                                 }
                                 tableSolicitantes += '  </td>';
                                 tableSolicitantes += '  <td>';
-                                var correo = element.correo_buzon != null ? element.correo_buzon : "";
+                                var correo = data.correo_buzon != null ? data.correo_buzon : "";
                                 tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+data.id+'" value="'+correo+'">';
                                 tableSolicitantes += '  </td>';
                                 tableSolicitantes +='</tr>';
