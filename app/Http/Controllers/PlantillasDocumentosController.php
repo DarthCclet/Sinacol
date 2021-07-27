@@ -854,9 +854,9 @@ class PlantillasDocumentosController extends Controller
                         array_push($parte1, $parte);
                         array_push($nombresSolicitantes, $parte['nombre_completo'] );
                         array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
-                        array_push($solicitantesNSS, $nss);
+                        //array_push($solicitantesNSS, $nss);
                         //if ($curp!= "" && $curp!= null ){
-                          array_push($solicitantesCURP, $curp);
+                          //array_push($solicitantesCURP, $curp);
                         //} 
                         $countSolicitante += 1;
                       }
@@ -876,6 +876,11 @@ class PlantillasDocumentosController extends Controller
                     $nombresSolicitantesConfirmaron = [];
                     foreach($partesGral as $parteGral){
                       if($parteGral->tipo_persona_id == 1){ //fisica
+                        if(count($parteGral->dato_laboral)>0){
+                          foreach($parteGral->dato_laboral as $dato_laboral){
+                            $nss = $dato_laboral->nss;
+                          }
+                        }
                         $nombre_completo = $parteGral->nombre.' '.$parteGral->primer_apellido.' '.$parteGral->segundo_apellido;
                       }else{//moral
                         $nombre_completo = $parteGral->nombre_comercial;
@@ -885,6 +890,8 @@ class PlantillasDocumentosController extends Controller
                         $countSolicitante += 1;
                         if($parteGral->ratifico){//Si el solicitante confirmo su solicitud
                           array_push($nombresSolicitantesConfirmaron, $nombre_completo );
+                          array_push($solicitantesNSS, $nss);
+                          array_push($solicitantesCURP, $parteGral->curp);
                         }
                       }else if($parteGral->tipo_parte_id == 2){//Citado
                         array_push($nombresSolicitados, $nombre_completo );
