@@ -2879,7 +2879,7 @@ class AudienciaController extends Controller {
                                 }
                                 BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea notificación del solicitante de audiencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                 Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte->parte_id);
-                                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, null, $parte->parte_id));
+                                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, $parte->parte_id,null));
                             }
                         }
 
@@ -3110,8 +3110,9 @@ class AudienciaController extends Controller {
                                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$parte->parte_id));
                             }
                         }elseif($parte->parte->tipo_parte_id == 1){
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
                             Log::debug('Se crea el documento de notificación del solicitante para la parte:'.$parte->parte->id);
-                            event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 64, 29, $parte->parte_id,null));
+                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, $parte->parte_id,null));
                         }
                     }else{
                         if($parte->parte->tipo_parte_id == 2){
@@ -3123,8 +3124,9 @@ class AudienciaController extends Controller {
                                 $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
                             }
                         }elseif($parte->parte->tipo_parte_id == 1){
-                            Log::debug('Se crea el documento de Acta de archivado para la parte:'.$parte->parte->id);
-                            event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 41, 8,  $parte->parte_id, null));
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                            Log::debug('Se crea el documento de Acta de archivado para la parte:'.$parte->parte_id);
+                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 41, 8,  $parte->parte_id, null));
                         }
                     }
                 }
