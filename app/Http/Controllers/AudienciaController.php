@@ -2120,7 +2120,7 @@ class AudienciaController extends Controller {
                                     }else{
                                         if(!$parte->notificacion_buzon){
                                             $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
-                                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$parte->id));
                                         }
                                     }
                                 }else{
@@ -2129,7 +2129,7 @@ class AudienciaController extends Controller {
                                     if($parte->comparecio){
                                         if(!$parte->notificacion_buzon){
                                             $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
-                                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                                            event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$parte->id));
                                         }
                                     }else{
         //                                Si no ha sido notificado y no ah comparecido se enviará nuevamente al conciliador
@@ -2246,12 +2246,12 @@ class AudienciaController extends Controller {
                         $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionBuzon,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
                     }else{
                         $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionComparecencia,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                        event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->id));
+                        event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$part_aud->parte->id));
                     }
                     if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
                         event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
-                    }elseif($parte->parte->tipo_parte_id == 1){
-                        event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, null, $parte->parte->id));
+                    }elseif($part_aud->parte->tipo_parte_id == 1){
+                        event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, $part_aud->parte->id,null));
                     }
                 }
             }
@@ -3107,10 +3107,11 @@ class AudienciaController extends Controller {
                                 $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
                             }else{
                                 $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 7,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,$parte->parte_id));
+                                event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$parte->parte_id));
                             }
                         }elseif($parte->parte->tipo_parte_id == 1){
-                            event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->parte_id));
+                            Log::debug('Se crea el documento de notificación del solicitante para la parte:'.$parte->parte->id);
+                            event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 64, 29, $parte->parte_id,null));
                         }
                     }else{
                         if($parte->parte->tipo_parte_id == 2){
@@ -3122,7 +3123,8 @@ class AudienciaController extends Controller {
                                 $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2]);
                             }
                         }elseif($parte->parte->tipo_parte_id == 1){
-                            event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 41, 8, null, $parte->parte_id));
+                            Log::debug('Se crea el documento de Acta de archivado para la parte:'.$parte->parte->id);
+                            event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 41, 8,  $parte->parte_id, null));
                         }
                     }
                 }
