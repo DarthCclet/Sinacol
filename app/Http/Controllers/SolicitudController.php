@@ -1514,7 +1514,12 @@ class SolicitudController extends Controller {
                     foreach ($partes as $key => $parte) {
                         if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
                             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
-                            $parte->update(["ratifico" => true]);
+                            if($parte->tipo_parte_id == 3){
+                                $representado = Parte::find($parte->parte_representada_id);
+                                $representado->update(["ratifico" => true]);
+                            }else if($parte->tipo_parte_id == 1){
+                                $parte->update(["ratifico" => true]);
+                            }
                             if ($parte->tipo_parte_id == 2) {
                                 // generar citatorio de conciliacion
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
@@ -1539,16 +1544,30 @@ class SolicitudController extends Controller {
                                  //Genera acta de aceptacion de buzón
                                 if($parte->tipo_parte_id == 1){
                                     event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id,null,null,$parte->id));
-                                }else{
+                                }else if($parte->tipo_parte_id == 2){
                                     event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id,null,$parte->id));
+                                }else{
+                                    $representado = Parte::find($parte->parte_representada_id);
+                                    if($representado->tipo_parte_id == 1){
+                                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$representado->id,null,null,$representado->id));
+                                    }else{
+                                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$representado->id,null,$representado->id));
+                                    }
                                 }
                                 BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
                             }else{
                                 //Genera acta de no aceptacion de buzón
                                 if($parte->tipo_parte_id == 1){
                                     event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id,null,null,$parte->id));
-                                }else{
+                                }else if($parte->tipo_parte_id == 2){
                                     event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id,null,$parte->id));
+                                }else{
+                                    $representado = Parte::find($parte->parte_representada_id);
+                                    if($representado->tipo_parte_id == 1){
+                                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$representado->id,null,null,$representado->id));
+                                    }else{
+                                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$representado->id,null,$representado->id));
+                                    }
                                 }
                             }
                             $parte->update();
@@ -1644,9 +1663,14 @@ class SolicitudController extends Controller {
 
                     foreach ($partes as $parte) {
                         if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
-                            $parte->update(["ratifico" => true]);
                             if ($parte->tipo_parte_id != 1) {
                                 $tipo_notificacion_id = $this->request->tipo_notificacion_id;
+                            }
+                            if($parte->tipo_parte_id == 3){
+                                $representado = Parte::find($parte->parte_representada_id);
+                                $representado->update(["ratifico" => true]);
+                            }else if($parte->tipo_parte_id == 1){
+                                $parte->update(["ratifico" => true]);
                             }
                             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
                         }
@@ -1702,16 +1726,30 @@ class SolicitudController extends Controller {
                              //Genera acta de aceptacion de buzón
                             if($parte->tipo_parte_id == 1){
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id,null,null,$parte->id));
-                            }else{
+                            }else if($parte->tipo_parte_id == 2){
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id,null,$parte->id));
+                            }else{
+                                $representado = Parte::find($parte->parte_representada_id);
+                                if($representado->tipo_parte_id == 1){
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$representado->id,null,null,$representado->id));
+                                }else{
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$representado->id,null,$representado->id));
+                                }
                             }
                             BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
                         }else{
                             //Genera acta de no aceptacion de buzón
                             if($parte->tipo_parte_id == 1){
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id,null,null,$parte->id));
-                            }else{
+                            }else if($parte->tipo_parte_id == 2){
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id,null,$parte->id));
+                            }else{
+                                $representado = Parte::find($parte->parte_representada_id);
+                                if($representado->tipo_parte_id == 1){
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$representado->id,null,null,$representado->id));
+                                }else{
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$representado->id,null,$representado->id));
+                                }
                             }
                         }
                     }
