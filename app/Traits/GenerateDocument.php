@@ -684,8 +684,6 @@ trait GenerateDocument
                           array_push($parte1, $parte);
                           array_push($nombresSolicitantes, $parte['nombre_completo'] );
                           array_push($solicitantesIdentificaciones, $solicitanteIdentificacion);
-                          array_push($solicitantesNSS, $nss);
-                          array_push($solicitantesCURP, $curp);
                           $countSolicitante += 1;
                         }
 
@@ -710,6 +708,12 @@ trait GenerateDocument
                     foreach($partesGral as $parteGral){
                       if($parteGral->tipo_persona_id == 1){ //fisica
                         $nombre_completo = $parteGral->nombre.' '.$parteGral->primer_apellido.' '.$parteGral->segundo_apellido;
+                        $curp = $parteGral->curp;
+                        if(count($parteGral->dato_laboral)>0){
+                          foreach($parteGral->dato_laboral as $dato_laboral){
+                            $nss = $dato_laboral->nss;
+                          }
+                        }
                       }else{//moral
                         $nombre_completo = $parteGral->nombre_comercial;
                       }
@@ -717,6 +721,8 @@ trait GenerateDocument
                         array_push($nombresSolicitantes, $nombre_completo );
                         $countSolicitante += 1;
                         if($parteGral->ratifico){
+                          array_push($solicitantesNSS, $nss);
+                          array_push($solicitantesCURP, $curp);
                           array_push($nombresSolicitantesConfirmaron, $nombre_completo );
                         }
                       }else if($parteGral->tipo_parte_id == 2){//Citado
@@ -725,7 +731,6 @@ trait GenerateDocument
                       }else{//representante
 
                       }
-
                     }
                     $data = Arr::add( $data, 'solicitante', $parte1 );
                     $data = Arr::add( $data, 'solicitado', $parte2 );
