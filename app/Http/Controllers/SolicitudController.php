@@ -1651,7 +1651,7 @@ class SolicitudController extends Controller {
                             Log::debug('Generador de archivos para citatorio y la parte: '.$parte_audiencia->parte_id);
                         }elseif($parte_audiencia->parte->tipo_parte_id == 1){
                             Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte_audiencia->parte_id);
-                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, null, $parte_audiencia->parte_id));
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, $parte_audiencia->parte_id,null));
                         }
                     }
                     $expediente = Expediente::find($request->expediente_id);
