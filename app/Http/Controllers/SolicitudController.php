@@ -1580,6 +1580,15 @@ class SolicitudController extends Controller {
                             }else{
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parte->id,null,null,$parte->id));
                             }
+                        }else if($parte->tipo_parte_id == 3){
+                            $parteConfirma = Parte::find($parte->parte_representada_id);
+                            if($parteConfirma->tipo_parte_id == 1){
+                                if($parteConfirma->ratifico == true){
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parteConfirma->id,null, null,$parteConfirma->id));
+                                }else{
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parteConfirma->id,null,null,$parteConfirma->id));
+                                }
+                            }
                         }
                     }
                     DB::commit();
@@ -1681,6 +1690,15 @@ class SolicitudController extends Controller {
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
                             }else{
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parte->id,null,null,$parte->id));
+                            }
+                        }else if($parte->tipo_parte_id == 3){
+                            $parteConfirma = Parte::find($parte->parte_representada_id);
+                            if($parteConfirma->tipo_parte_id == 1){
+                                if($parteConfirma->ratifico == true){
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parteConfirma->id,null, null,$parteConfirma->id));
+                                }else{
+                                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parteConfirma->id,null,null,$parteConfirma->id));
+                                }
                             }
                         }
                     }
