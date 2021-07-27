@@ -1511,7 +1511,7 @@ class SolicitudController extends Controller {
                     // Guardamos todas las Partes en la audiencia
                     $partes = $solicitud->partes;
                     $audiencia->tipo_solicitud_id = $audiencia->expediente->solicitud->tipo_solicitud_id;
-                    foreach ($solicitud->partes as $key => $parte) {
+                    foreach ($partes as $key => $parte) {
                         if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
                             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
                             $parte->update(["ratifico" => true]);
@@ -1519,7 +1519,6 @@ class SolicitudController extends Controller {
                                 // generar citatorio de conciliacion
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
                             }elseif($parte->tipo_parte_id == 1){
-                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
                                 if($parte->tipo_persona_id == 1){
                                     $busqueda = $parte->curp;
                                 }else{
@@ -1553,10 +1552,17 @@ class SolicitudController extends Controller {
                                 }
                             }
                             $parte->update();
-                        }else{
-                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parte->id,null,null,$parte->id));
                         }
                     }    
+                    foreach ($partes as $parte) {
+                        if($parte->tipo_parte_id == 1 ){
+                            if($parte->ratifico == true){
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
+                            }else{
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parte->id,null,null,$parte->id));
+                            }
+                        }
+                    }
                     DB::commit();
                     return $audiencia;
                 } else {
@@ -1647,14 +1653,21 @@ class SolicitudController extends Controller {
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
                                 Log::debug('Generador de archivos para citatorio y la parte: '.$parte->id);
                             }elseif($parte->tipo_parte_id == 1 && $parte->ratifico){
-                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
                                 Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte->id);
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, null, $parte->id));
                             }
-                        }else{
-                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parte->id,null,null,$parte->id));
                         }
                     }
+                    foreach ($partes as $parte) {
+                        if($parte->tipo_parte_id == 1 ){
+                            if($parte->ratifico == true){
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
+                            }else{
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parte->id,null,null,$parte->id));
+                            }
+                        }
+                    }
+
                     foreach ($audiencia->audienciaParte as $parte_audiencia) {
                         if ($parte_audiencia->parte->tipo_parte_id == 2) {
                             event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte_audiencia->parte_id));
