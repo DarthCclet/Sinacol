@@ -866,8 +866,15 @@ class ParteController extends Controller
                     //Genera acta de aceptacion de buzón
                     if($parte->tipo_parte_id == 1){
                         event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id,null,null,$parte->id));
-                    }else{
+                    }else if($parte->tipo_parte_id == 2){
                         event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id,null,$parte->id));
+                    }else{
+                        $representado = Parte::find($parte->parte_representada_id);
+                        if($representado->tipo_parte_id == 1){
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$representado->id,null,null,$representado->id));
+                        }else{
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id,null,$parte->id));
+                        }
                     }
                     BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
                 }else{
@@ -877,8 +884,15 @@ class ParteController extends Controller
                     if($existe_doc_buzon == null){
                         if($parte->tipo_parte_id == 1){
                             event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id,null,null,$parte->id));
-                        }else{
+                        }else if($parte->tipo_parte_id == 2){
                             event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id,null,$parte->id));
+                        }else{
+                            $representado = Parte::find($parte->parte_representada_id);
+                            if($representado->tipo_parte_id == 1){
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$representado->id,null,null,$representado->id));
+                            }else{
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$representado->id,null,$representado->id));
+                            }
                         }
                     }
                 }
