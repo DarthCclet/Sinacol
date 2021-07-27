@@ -1515,10 +1515,9 @@ class SolicitudController extends Controller {
                         if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
                             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
                             if($parte->tipo_parte_id == 3){
-                                $representado = Parte::find($parte->parte_representada_id);
-                                $representado->update(["ratifico" => true]);
-                            }else if($parte->tipo_parte_id == 1){
-                                $parte->update(["ratifico" => true]);
+                                if($parte->tipo_parte_id == 1){
+                                    $parte = Parte::find($parte->parte_representada_id);
+                                }
                             }
                             if ($parte->tipo_parte_id == 2) {
                                 // generar citatorio de conciliacion
@@ -1570,6 +1569,7 @@ class SolicitudController extends Controller {
                                     }
                                 }
                             }
+                            $parte->ratifico = true;
                             $parte->update();
                         }
                     }    
@@ -1730,12 +1730,15 @@ class SolicitudController extends Controller {
                     $acuse->delete();
                 }
                 foreach ($solicitud->partes as $key => $parte) {
-                    if (count($parte->documentos) > 0 ) {
+                    if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 3) {
+                        if($parte->tipo_parte_id == 3){
+                            if($parte->tipo_parte_id == 1){
+                                $parte = Parte::find($parte->parte_representada_id);
+                            }
+                        }
                         if($acepta_buzon == "true"){
-                            $parte->ratifico = true;
                             $parte->notificacion_buzon = true;
                             $parte->fecha_aceptacion_buzon = now();
-                            $parte->update();
                             $identificador = $parte->rfc;
                             if($parte->tipo_persona_id == $tipo->id){
                                 $identificador = $parte->curp;
@@ -1770,6 +1773,8 @@ class SolicitudController extends Controller {
                                 }
                             }
                         }
+                        $parte->ratifico = true;
+                        $parte->update();
                     }
                 }
                 DB::commit();
