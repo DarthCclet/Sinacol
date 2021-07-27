@@ -1647,9 +1647,12 @@ class SolicitudController extends Controller {
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
                                 Log::debug('Generador de archivos para citatorio y la parte: '.$parte->id);
                             }elseif($parte->tipo_parte_id == 1 && $parte->ratifico){
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
                                 Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte->id);
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, null, $parte->id));
                             }
+                        }else{
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parte->id,null,null,$parte->id));
                         }
                     }
                     //                if($datos_audiencia["encontro_audiencia"] && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){

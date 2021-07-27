@@ -233,6 +233,7 @@ class HerramientaServiceProvider extends ServiceProvider
                             $audiencia->delete();
                         }
                         foreach ($partes as $key => $parte) {
+                            $parte->update(['ratifico'=>false,'correo_buzon'=>null,'password_buzon'=>null]);
                             $documentosParte = $parte->documentos;
                             foreach ($documentosParte as $key => $document) {
                                 $document->delete();
