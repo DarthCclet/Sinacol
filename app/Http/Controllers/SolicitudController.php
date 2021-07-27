@@ -1513,13 +1513,14 @@ class SolicitudController extends Controller {
                     $audiencia->tipo_solicitud_id = $audiencia->expediente->solicitud->tipo_solicitud_id;
                     foreach ($partes as $key => $parte) {
                         if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
-                            $parte->update(['ratifico'=>true]);
                             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
                             if($parte->tipo_parte_id == 3){
-                                if($parte->tipo_parte_id == 1){
-                                    $parte = Parte::find($parte->parte_representada_id);
+                                $parteRep = Parte::find($parte->parte_representada_id);
+                                if($parteRep->tipo_parte_id == 1){
+                                    $parte = $parteRep;
                                 }
                             }
+                            $parte->update(['ratifico'=>true]);
                             if ($parte->tipo_parte_id == 2) {
                                 // generar citatorio de conciliacion
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
@@ -1706,8 +1707,9 @@ class SolicitudController extends Controller {
                 foreach ($solicitud->partes as $key => $parte) {
                     if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 3) {
                         if($parte->tipo_parte_id == 3){
-                            if($parte->tipo_parte_id == 1){
-                                $parte = Parte::find($parte->parte_representada_id);
+                            $parteRep = Parte::find($parte->parte_representada_id);
+                            if($parteRep->tipo_parte_id == 1){
+                                $parte = $parteRep;
                             }
                         }
                         $parte->update(['ratifico'=>true]);
