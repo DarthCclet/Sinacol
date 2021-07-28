@@ -843,7 +843,7 @@ class AudienciaController extends Controller {
             foreach ($solicitud->partes as $key => $parte) {
                 if (count($parte->documentos) == 0) {
                     $parte->ratifico = true;
-                    $parte->update();
+                    $parte->save();
                 }
             }
 //                obtenemos el domicilio del centro

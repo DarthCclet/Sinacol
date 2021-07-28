@@ -1380,7 +1380,7 @@ class SolicitudController extends Controller {
             foreach ($solicitud->partes as $key => $parte) {
                 if (count($parte->documentos) == 0) {
                     $parte->ratifico = true;
-                    $parte->update();
+                    $parte->save();
                 }
             }
             $user_id = Auth::user()->id;
@@ -1460,6 +1460,18 @@ class SolicitudController extends Controller {
                 $array_comparecen = array();
                 
                 $tipo_notificacion_id = null;
+                foreach ($solicitud->partes as $key => $parte) {
+                    if (count($parte->documentos) == 0 || $parte->tipo_parte_id == 3) {
+                        if($parte->tipo_parte_id == 3){
+                            $parteRep = Parte::find($parte->parte_representada_id);
+                            if($parteRep->tipo_parte_id == 1){
+                                $parte = $parteRep;
+                            }
+                        }
+                        $parte->ratifico = true;
+                        $parte->save();
+                    }
+                }
                 if ($request->inmediata == "true") {
                     $user_id = Auth::user()->id;
                     $solicitud->update(["estatus_solicitud_id" => 2, "url_virtual" => null, "ratificada" => true, "fecha_ratificacion" => now(), "inmediata" => true, 'user_id' => $user_id]);
@@ -1509,7 +1521,7 @@ class SolicitudController extends Controller {
                     ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id, "solicitante" => true]);
                     SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id, "solicitante" => true]);
                     // Guardamos todas las Partes en la audiencia
-                    $partes = $solicitud->partes;
+                    $partes = $solicitud->partes()->orderby('tipo_parte_id','asc')->get();
                     $audiencia->tipo_solicitud_id = $audiencia->expediente->solicitud->tipo_solicitud_id;
                     foreach ($partes as $key => $parte) {
                         if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
@@ -1518,9 +1530,9 @@ class SolicitudController extends Controller {
                                 $parteRep = Parte::find($parte->parte_representada_id);
                                 if($parteRep->tipo_parte_id == 1){
                                     $parte = $parteRep;
+                                    AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
                                 }
                             }
-                            $parte->update(['ratifico'=>true]);
                             if ($parte->tipo_parte_id == 2) {
                                 // generar citatorio de conciliacion
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
@@ -1546,13 +1558,10 @@ class SolicitudController extends Controller {
                                 if($parte->tipo_parte_id == 1){
                                     event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id,null,null,$parte->id));
                                 }else if($parte->tipo_parte_id == 2){
-                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id,null,$parte->id));
                                 }else{
                                     $representado = Parte::find($parte->parte_representada_id);
                                     if($representado->tipo_parte_id == 1){
                                         event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$representado->id,null,null,$representado->id));
-                                    }else{
-                                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$representado->id,null,$representado->id));
                                     }
                                 }
                                 BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
@@ -1561,20 +1570,17 @@ class SolicitudController extends Controller {
                                 if($parte->tipo_parte_id == 1){
                                     event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id,null,null,$parte->id));
                                 }else if($parte->tipo_parte_id == 2){
-                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id,null,$parte->id));
                                 }else{
                                     $representado = Parte::find($parte->parte_representada_id);
                                     if($representado->tipo_parte_id == 1){
                                         event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$representado->id,null,null,$representado->id));
-                                    }else{
-                                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$representado->id,null,$representado->id));
                                     }
                                 }
                             }
-                            $parte->update();
+                            $parte->save();
                         }
-                    }    
-                    foreach ($partes as $parte) {
+                    }   
+                    foreach ($solicitud->partes as $parte) {
                         if($parte->tipo_parte_id == 1 ){
                             if($parte->ratifico == true){
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
@@ -1596,9 +1602,8 @@ class SolicitudController extends Controller {
                     //                obtenemos el domicilio del centro
                     $domicilio_centro = auth()->user()->centro->domicilio;
                     //                obtenemos el domicilio del citado
-                    $partes = $solicitud->partes;
                     $domicilio_citado = null;
-                    foreach ($partes as $parte) {
+                    foreach ($solicitud->partes as $parte) {
                         if ($parte->tipo_parte_id == 2) {
                             $domicilio_citado = $parte->domicilios->last();
                             break;
@@ -1661,7 +1666,7 @@ class SolicitudController extends Controller {
                     }
                     // Guardamos todas las Partes en la audiencia
                     //                dd($partes);
-
+                    $partes = $solicitud->partes()->orderby('tipo_parte_id','asc')->get();
                     foreach ($partes as $parte) {
                         if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
                             if ($parte->tipo_parte_id != 1) {
@@ -1669,9 +1674,7 @@ class SolicitudController extends Controller {
                             }
                             if($parte->tipo_parte_id == 3){
                                 $representado = Parte::find($parte->parte_representada_id);
-                                $representado->update(["ratifico" => true]);
-                            }else if($parte->tipo_parte_id == 1){
-                                $parte->update(["ratifico" => true]);
+                                AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $representado   ->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
                             }
                             AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
                         }
@@ -1704,15 +1707,15 @@ class SolicitudController extends Controller {
                 if ($acuse != null) {
                     $acuse->delete();
                 }
-                foreach ($solicitud->partes as $key => $parte) {
-                    if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 3) {
+                $partes = $solicitud->partes()->orderby('tipo_parte_id','asc')->get();
+                foreach ($partes as $key => $parte) {
+                    if ((count($parte->documentos) > 0 && $parte->tipo_parte_id == 1) || $parte->tipo_parte_id == 3) {
                         if($parte->tipo_parte_id == 3){
                             $parteRep = Parte::find($parte->parte_representada_id);
                             if($parteRep->tipo_parte_id == 1){
                                 $parte = $parteRep;
                             }
                         }
-                        $parte->update(['ratifico'=>true]);
                         if($acepta_buzon == "true"){
                             $parte->notificacion_buzon = true;
                             $parte->fecha_aceptacion_buzon = now();
@@ -1725,13 +1728,11 @@ class SolicitudController extends Controller {
                             if($parte->tipo_parte_id == 1){
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id,null,null,$parte->id));
                             }else if($parte->tipo_parte_id == 2){
-                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$parte->id,null,$parte->id));
+
                             }else{
                                 $representado = Parte::find($parte->parte_representada_id);
                                 if($representado->tipo_parte_id == 1){
                                     event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$representado->id,null,null,$representado->id));
-                                }else{
-                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 20,null,$representado->id,null,$representado->id));
                                 }
                             }
                             BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
@@ -1740,20 +1741,18 @@ class SolicitudController extends Controller {
                             if($parte->tipo_parte_id == 1){
                                 event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id,null,null,$parte->id));
                             }else if($parte->tipo_parte_id == 2){
-                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$parte->id,null,$parte->id));
                             }else{
                                 $representado = Parte::find($parte->parte_representada_id);
                                 if($representado->tipo_parte_id == 1){
                                     event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$representado->id,null,null,$representado->id));
-                                }else{
-                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 23,null,$representado->id,null,$representado->id));
                                 }
                             }
                         }
-                        $parte->update();
+                        $parte->save();
                     }
                 }
-                foreach ($partes as $parte) {
+
+                foreach ($solicitud->partes as $parte) {
                     if($parte->tipo_parte_id == 1 ){
                         if($parte->ratifico == true){
                             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
@@ -1845,7 +1844,7 @@ class SolicitudController extends Controller {
             }
         }
         $solicitud->estatus_solicitud_id = 3;
-        $solicitud->update();
+        $solicitud->save();
         return redirect('solicitudes')->with('success', 'Se guardo todo');
     }
 
