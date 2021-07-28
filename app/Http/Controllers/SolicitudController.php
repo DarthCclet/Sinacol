@@ -1461,7 +1461,7 @@ class SolicitudController extends Controller {
                 
                 $tipo_notificacion_id = null;
                 foreach ($solicitud->partes as $key => $parte) {
-                    if (count($parte->documentos) == 0 || $parte->tipo_parte_id == 3) {
+                    if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 3) {
                         if($parte->tipo_parte_id == 3){
                             $parteRep = Parte::find($parte->parte_representada_id);
                             if($parteRep->tipo_parte_id == 1){
