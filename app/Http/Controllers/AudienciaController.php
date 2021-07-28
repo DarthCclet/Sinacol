@@ -2917,7 +2917,7 @@ class AudienciaController extends Controller {
                             }
                         }
                         foreach($audienciaN->audienciaParte as $audiencia_parte){
-                            if($audiencia_p                          arte->parte->password_buzon == null){
+                            if($audiencia_parte->parte->password_buzon == null){
                                 Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
                             }
                         }
