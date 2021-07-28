@@ -2120,6 +2120,12 @@ class AudienciaController extends Controller {
                                     }else{
                                         if(!$parte->notificacion_buzon){
                                             $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                                            if($parte->tipo_persona_id == 1){
+                                                $busqueda = $parte->curp;
+                                            }else{
+                                                $busqueda = $parte->rfc;
+                                            }
+                                            BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea nofificación por comparecencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                             event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$parte->id));
                                         }
                                     }
@@ -2129,6 +2135,12 @@ class AudienciaController extends Controller {
                                     if($parte->comparecio){
                                         if(!$parte->notificacion_buzon){
                                             $tipoNotificacionBuzon = $tipoNotificacionComparecencia;
+                                            if($parte->tipo_persona_id == 1){
+                                                $busqueda = $parte->curp;
+                                            }else{
+                                                $busqueda = $parte->rfc;
+                                            }
+                                            BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea nofificación por comparecencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                             event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$parte->id));
                                         }
                                     }else{
@@ -2176,9 +2188,8 @@ class AudienciaController extends Controller {
             }
         }
         foreach($audienciaN->audienciaParte as $audiencia_parte){
-            $correo = $audiencia_parte->parte->contactos()->whereTipoContactoId(3)->first();
-            if($correo != null){
-                Mail::to($correo->contacto)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
+            if($audiencia_parte->parte->password_buzon == null){
+                Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
             }
         }
         if ($notificar > 0) {
@@ -2239,6 +2250,12 @@ class AudienciaController extends Controller {
             if($parte->parte->tipo_parte_id != 3){
                 if($parte->multa && $parte->parte->tipo_parte_id == 2){
                     $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 2,"finalizado"=> null,"fecha_notificacion" => null]);
+                    if($parte->parte->tipo_persona_id == 1){
+                        $busqueda = $parte->parte->curp;
+                    }else{
+                        $busqueda = $parte->parte->rfc;
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea citatorio','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                     event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud_id,14,4,null,$parte->parte_id));
                     event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $part_aud->id));
                 }else{
@@ -2246,20 +2263,37 @@ class AudienciaController extends Controller {
                         $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionBuzon,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
                     }else{
                         $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionComparecencia,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                        if($parte->parte->tipo_persona_id == 1){
+                            $busqueda = $parte->parte->curp;
+                        }else{
+                            $busqueda = $parte->parte->rfc;
+                        }
+                        BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea notificación por comparecencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                         event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$part_aud->parte->id));
                     }
                     if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
+                        if($parte->parte->tipo_persona_id == 1){
+                            $busqueda = $parte->parte->curp;
+                        }else{
+                            $busqueda = $parte->parte->rfc;
+                        }
+                        BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea citatorio','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                         event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud->id,14,4,null,$part_aud->parte->id));
                     }elseif($part_aud->parte->tipo_parte_id == 1){
+                        if($parte->parte->tipo_persona_id == 1){
+                            $busqueda = $parte->parte->curp;
+                        }else{
+                            $busqueda = $parte->parte->rfc;
+                        }
+                        BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                         event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, $part_aud->parte->id,null));
                     }
                 }
             }
         }
         foreach($audienciaN->audienciaParte as $audiencia_parte){
-            $correo = $audiencia_parte->parte->contactos()->whereTipoContactoId(3)->first();
-            if($correo != null){
-                Mail::to($correo->contacto)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
+            if($audiencia_parte->parte->password_buzon == null){
+                Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
             }
         }
         DB::commit();
@@ -2882,6 +2916,11 @@ class AudienciaController extends Controller {
                                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, $parte->parte_id,null));
                             }
                         }
+                        foreach($audienciaN->audienciaParte as $audiencia_parte){
+                            if($audiencia_p                          arte->parte->password_buzon == null){
+                                Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
+                            }
+                        }
 
                         event(new GenerateDocumentResolution("", $audienciaN->expediente->solicitud_id, 40, 6));
                         foreach ($audienciaN->salasAudiencias as $sala) {
@@ -3107,11 +3146,22 @@ class AudienciaController extends Controller {
                                 $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
                             }else{
                                 $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => 7,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                                if($part_aud->parte->tipo_persona_id == 1){
+                                    $busqueda = $part_aud->parte->curp;
+                                }else{
+                                    $busqueda = $part_aud->parte->rfc;
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$part_aud->parte_id,'descripcion'=>'Se crea nofificación por comparecencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                 event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$parte->parte_id));
                             }
                         }elseif($parte->parte->tipo_parte_id == 1){
                             $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                            Log::debug('Se crea el documento de notificación del solicitante para la parte:'.$parte->parte->id);
+                            if($part_aud->parte->tipo_persona_id == 1){
+                                $busqueda = $part_aud->parte->curp;
+                            }else{
+                                $busqueda = $part_aud->parte->rfc;
+                            }
+                            BitacoraBuzon::create(['parte_id'=>$part_aud->parte_id,'descripcion'=>'Se crea nofificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                             event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 64, 29, $parte->parte_id,null));
                         }
                     }else{
@@ -3125,12 +3175,23 @@ class AudienciaController extends Controller {
                             }
                         }elseif($parte->parte->tipo_parte_id == 1){
                             $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipo_notificacion->id,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                            Log::debug('Se crea el documento de Acta de archivado para la parte:'.$parte->parte_id);
+                            if($part_aud->parte->tipo_persona_id == 1){
+                                $busqueda = $part_aud->parte->curp;
+                            }else{
+                                $busqueda = $part_aud->parte->rfc;
+                            }
+                            BitacoraBuzon::create(['parte_id'=>$part_aud->parte_id,'descripcion'=>'Se crea nofificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                             event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 41, 8,  $parte->parte_id, null));
                         }
                     }
                 }
                 if ($parte->parte->tipo_parte_id == $tipo_parte->id) {
+                    if($parte->parte->tipo_persona_id == 1){
+                        $busqueda = $part_aud->parte->curp;
+                    }else{
+                        $busqueda = $parte->parte->rfc;
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea citatorio','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                     event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 14, 4, null, $parte->parte_id));
                 }
             }
@@ -3148,9 +3209,8 @@ class AudienciaController extends Controller {
             $audiencia->fecha_resolucion = now();
             $audiencia->save();
             foreach($audienciaN->audienciaParte as $audiencia_parte){
-                $correo = $audiencia_parte->parte->contactos()->whereTipoContactoId(3)->first();
-                if($correo != null){
-                    Mail::to($correo->contacto)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
+                if($audiencia_parte->parte->password_buzon == null){
+                    Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
                 }
             }
             $response = array("tipo" => 3, "response" => $audienciaN);

@@ -62,6 +62,8 @@ use Illuminate\Support\Str;
 use App\Providers\HerramientaServiceProvider;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
+use App\Mail\EnviarNotificacionBuzon;
+use Illuminate\Support\Facades\Mail;
 
 class SolicitudController extends Controller {
 
@@ -1683,10 +1685,20 @@ class SolicitudController extends Controller {
 
                     foreach ($audiencia->audienciaParte as $parte_audiencia) {
                         if ($parte_audiencia->parte->tipo_parte_id == 2) {
+                            if($parte_audiencia->parte->tipo_persona_id == 1){
+                                $busqueda = $parte_audiencia->parte->curp;
+                            }else{
+                                $busqueda = $parte_audiencia->parte->rfc;
+                            }
+                            BitacoraBuzon::create(['parte_id'=>$parte_audiencia->parte_id,'descripcion'=>'Se crea acta de multa','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                             event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte_audiencia->parte_id));
-                            Log::debug('Generador de archivos para citatorio y la parte: '.$parte_audiencia->parte_id);
                         }elseif($parte_audiencia->parte->tipo_parte_id == 1){
-                            Log::debug('Generador de archivos para notificación del solicitante y la parte: '.$parte_audiencia->parte_id);
+                            if($parte_audiencia->parte->tipo_persona_id == 1){
+                                $busqueda = $parte_audiencia->parte->curp;
+                            }else{
+                                $busqueda = $parte_audiencia->parte->rfc;
+                            }
+                            BitacoraBuzon::create(['parte_id'=>$parte_audiencia->parte_id,'descripcion'=>'Se crea nofificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                             event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, $parte_audiencia->parte_id,null));
                         }
                     }
@@ -1761,6 +1773,13 @@ class SolicitudController extends Controller {
                         }
                     }
                 }
+
+                foreach($audiencia->audienciaParte as $audiencia_parte){
+                    if($audiencia_parte->parte->password_buzon == null){
+                        Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audiencia, $audiencia_parte->parte));
+                    }
+                }
+
                 DB::commit();
                 if ($request->inmediata != "true" && $audiencia->encontro_audiencia && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)) {
                     foreach($audiencia->audienciaParte as $audiencia_parte){
