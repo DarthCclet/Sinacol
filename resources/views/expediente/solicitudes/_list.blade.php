@@ -1483,6 +1483,7 @@
                         id: $("#solicitud_id").val(),
                         inmediata: true,
                         url_virtual: $("#url_virtual").val(),
+                        acepta_buzon: $("#aceptar_notif_buzon").is(":checked"),
                         _token: "{{ csrf_token() }}"
                     },
                     success: function (data) {
