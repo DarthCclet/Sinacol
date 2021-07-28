@@ -1582,7 +1582,7 @@ class SolicitudController extends Controller {
                             $parte->save();
                         }
                     }   
-                    foreach ($solicitud->partes as $parte) {
+                    foreach ($solicitud->partes()->get() as $parte) {
                         if($parte->tipo_parte_id == 1 ){
                             if($parte->ratifico == true){
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
@@ -1764,7 +1764,7 @@ class SolicitudController extends Controller {
                     }
                 }
 
-                foreach ($solicitud->partes as $parte) {
+                foreach ($solicitud->partes()->get() as $parte) {
                     if($parte->tipo_parte_id == 1 ){
                         if($parte->ratifico == true){
                             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
@@ -1775,7 +1775,7 @@ class SolicitudController extends Controller {
                 }
 
                 foreach($audiencia->audienciaParte as $audiencia_parte){
-                    if($audiencia_parte->parte->password_buzon == null){
+                    if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
                         Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audiencia, $audiencia_parte->parte));
                     }
                 }
