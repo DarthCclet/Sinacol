@@ -1550,7 +1550,7 @@ class SolicitudController extends Controller {
                             if($acepta_buzon == "true"){
                                 $parte->notificacion_buzon = true;
                                 $parte->fecha_aceptacion_buzon = now();
-                                
+                                $parte->save();
                                 $identificador = $parte->rfc;
                                 if($parte->tipo_persona_id == $tipo->id){
                                     $identificador = $parte->curp;
@@ -1579,7 +1579,7 @@ class SolicitudController extends Controller {
                                     }
                                 }
                             }
-                            $parte->save();
+                            
                         }
                     }   
                     foreach ($solicitud->partes()->get() as $parte) {
@@ -1731,6 +1731,7 @@ class SolicitudController extends Controller {
                         if($acepta_buzon == "true"){
                             $parte->notificacion_buzon = true;
                             $parte->fecha_aceptacion_buzon = now();
+                            $parte->save();
                             $identificador = $parte->rfc;
                             if($parte->tipo_persona_id == $tipo->id){
                                 $identificador = $parte->curp;
@@ -1760,7 +1761,7 @@ class SolicitudController extends Controller {
                                 }
                             }
                         }
-                        $parte->save();
+                        
                     }
                 }
 
