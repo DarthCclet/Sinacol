@@ -2188,7 +2188,7 @@ class AudienciaController extends Controller {
             }
         }
         foreach($audienciaN->audienciaParte as $audiencia_parte){
-            if($audiencia_parte->parte->password_buzon == null){
+            if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
                 Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
             }
         }
@@ -2292,7 +2292,7 @@ class AudienciaController extends Controller {
             }
         }
         foreach($audienciaN->audienciaParte as $audiencia_parte){
-            if($audiencia_parte->parte->password_buzon == null){
+            if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
                 Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
             }
         }
@@ -3209,7 +3209,7 @@ class AudienciaController extends Controller {
             $audiencia->fecha_resolucion = now();
             $audiencia->save();
             foreach($audienciaN->audienciaParte as $audiencia_parte){
-                if($audiencia_parte->parte->password_buzon == null){
+                if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
                     Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audienciaN, $audiencia_parte->parte));
                 }
             }
