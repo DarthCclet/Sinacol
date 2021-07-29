@@ -134,7 +134,6 @@
                                                 </li>
                                                 @endif
                                                 @endif
-                                                @endif
                                                 @endforeach
                                             @endif
                                         </ul>
