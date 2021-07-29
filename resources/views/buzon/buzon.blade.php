@@ -49,7 +49,7 @@
                                         <strong>Documentos:</strong><br>
                                         <ul>
                                         @foreach($solicitud->documentos as $doc_sol)
-                                            @if($doc_sol->clasificacion_archivo_id == 14 || $doc_sol->clasificacion_archivo_id == 18 || $doc_sol->clasificacion_archivo_id == 41 || $doc_sol->clasificacion_archivo_id == 13 || $doc_sol->clasificacion_archivo_id == 62 || $doc_sol->clasificacion_archivo_id == 59 || $doc_sol->clasificacion_archivo_id == 61)
+                                            @if($doc_sol->clasificacion_archivo_id == 13 || $doc_sol->clasificacion_archivo_id == 62 || $doc_sol->clasificacion_archivo_id == 59 || $doc_sol->clasificacion_archivo_id == 61)
                                             <li><a href="/api/documentos/getFile/{{$doc_sol->uuid}}" target="_blank">{{ isset($doc_sol->clasificacionArchivo->nombre)?$doc_sol->clasificacionArchivo->nombre: "N/A"}}</a></li>
                                             @endif
                                         @endforeach
@@ -129,10 +129,24 @@
                                                 @foreach($audiencia->documentos_firmar as $doc)
                                                 @if($doc->firma == "" && $doc->firma == null)
                                                 @if(isset($doc->documento->clasificacionArchivo) && $doc->documento->clasificacionArchivo->nombre != "Citatorio")
-                                                <li>
-                                                    <a href="#" onclick="validarFirma({{$doc->id}},'{{$doc->firma}}','{{$doc->documento->uuid}}')">{{$doc->documento->clasificacionArchivo->nombre}}</a>
-                                                </li>
+                                                @if($documento->clasificacion_archivo_id == 15 || $documento->clasificacion_archivo_id == 16 || $documento->clasificacion_archivo_id == 17)
+                                                    <li><a href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">{{ isset($documento->clasificacionArchivo->nombre)?$documento->clasificacionArchivo->nombre: "N/A"}}</a></li>
                                                 @endif
+                                                @endif
+                                                @endif
+                                                @endforeach
+                                            @endif
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <strong>Documentos por firmar:</strong>
+                                        <ul>
+                                            @if($audiencia->documentos != null)
+                                                @foreach($audiencia->documentos as $doc_audiencia)
+                                                @if($doc_sol->clasificacion_archivo_id == 14 || $doc_sol->clasificacion_archivo_id == 18 || $doc_sol->clasificacion_archivo_id == 41)
+                                                    <li><a href="/api/documentos/getFile/{{$doc_sol->uuid}}" target="_blank">{{ isset($doc_sol->clasificacionArchivo->nombre)?$doc_sol->clasificacionArchivo->nombre: "N/A"}}</a></li>
                                                 @endif
                                                 @endforeach
                                             @endif

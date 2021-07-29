@@ -127,8 +127,9 @@ class BuzonController extends Controller
                                 $solicitud->acepto_buzon = "si";
                             }
                             foreach($solicitud->expediente->audiencia as $audiencia){
-                                $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
+//                                $solicitud->documentos = $solicitud->documentos->merge($audiencia->documentos);
                                 $audiencia->documentos_firmar = $parte->firmas()->where("audiencia_id",$audiencia->id)->get();
+                                $audiencia->documentos()->with('clasificacionArchivo')->get();
                             }
                             $solicitudes[]=$solicitud;
                         }
