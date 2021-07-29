@@ -140,8 +140,8 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2">
-                                        <strong>Documentos por firmar:</strong>
+                                    <td colspan="3">
+                                        <strong>Documentos de la audiencia:</strong>
                                         <ul>
                                             @if($audiencia->documentos != null)
                                                 @foreach($audiencia->documentos as $doc_audiencia)
