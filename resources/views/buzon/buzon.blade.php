@@ -142,15 +142,7 @@
                                 <tr>
                                     <td colspan="2">
                                         <strong>Documentos por firmar:</strong>
-                                        <ul>
-                                            @if($audiencia->documentos != null)
-                                                @foreach($audiencia->documentos as $doc_audiencia)
-                                                @if($doc_sol->clasificacion_archivo_id == 14 || $doc_sol->clasificacion_archivo_id == 18 || $doc_sol->clasificacion_archivo_id == 41)
-                                                    <li><a href="/api/documentos/getFile/{{$doc_sol->uuid}}" target="_blank">{{ isset($doc_sol->clasificacionArchivo->nombre)?$doc_sol->clasificacionArchivo->nombre: "N/A"}}</a></li>
-                                                @endif
-                                                @endforeach
-                                            @endif
-                                        </ul>
+                                        
                                     </td>
                                 </tr>
                             </table>
