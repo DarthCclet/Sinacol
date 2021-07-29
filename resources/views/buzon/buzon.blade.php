@@ -145,7 +145,7 @@
                                         <ul>
                                             @if($audiencia->documentos != null)
                                                 @foreach($audiencia->documentos as $doc_audiencia)
-                                                @if($doc_audiencia->clasificacion_archivo_id == 14 || $doc_audiencia->clasificacion_archivo_id == 18 || $doc_audiencia->clasificacion_archivo_id == 41)
+                                                @if($doc_audiencia->clasificacion_archivo_id == 14 || $doc_audiencia->clasificacion_archivo_id == 18 || $doc_audiencia->clasificacion_archivo_id == 41 || $doc_audiencia->clasificacion_archivo_id == 64)
                                                     <li><a href="/api/documentos/getFile/{{$doc_audiencia->uuid}}" target="_blank">{{ isset($doc_audiencia->clasificacionArchivo->nombre)?$doc_audiencia->clasificacionArchivo->nombre: "N/A"}}</a></li>
                                                 @endif
                                                 @endforeach
