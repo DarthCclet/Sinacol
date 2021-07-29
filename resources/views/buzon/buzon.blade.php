@@ -129,8 +129,9 @@
                                                 @foreach($audiencia->documentos_firmar as $doc)
                                                 @if($doc->firma == "" && $doc->firma == null)
                                                 @if(isset($doc->documento->clasificacionArchivo) && $doc->documento->clasificacionArchivo->nombre != "Citatorio")
-                                                @if($documento->clasificacion_archivo_id == 15 || $documento->clasificacion_archivo_id == 16 || $documento->clasificacion_archivo_id == 17)
-                                                    <li><a href="/api/documentos/getFile/{{$documento->uuid}}" target="_blank">{{ isset($documento->clasificacionArchivo->nombre)?$documento->clasificacionArchivo->nombre: "N/A"}}</a></li>
+                                                <li>
+                                                    <a href="#" onclick="validarFirma({{$doc->id}},'{{$doc->firma}}','{{$doc->documento->uuid}}')">{{$doc->documento->clasificacionArchivo->nombre}}</a>
+                                                </li>
                                                 @endif
                                                 @endif
                                                 @endif
@@ -142,7 +143,15 @@
                                 <tr>
                                     <td colspan="2">
                                         <strong>Documentos por firmar:</strong>
-                                        
+                                        <ul>
+                                            @if($audiencia->documentos != null)
+                                                @foreach($audiencia->documentos as $doc_audiencia)
+                                                @if($doc_audiencia->clasificacion_archivo_id == 14 || $doc_audiencia->clasificacion_archivo_id == 18 || $doc_audiencia->clasificacion_archivo_id == 41)
+                                                    <li><a href="/api/documentos/getFile/{{$doc_audiencia->uuid}}" target="_blank">{{ isset($doc_audiencia->clasificacionArchivo->nombre)?$doc_audiencia->clasificacionArchivo->nombre: "N/A"}}</a></li>
+                                                @endif
+                                                @endforeach
+                                            @endif
+                                        </ul>
                                     </td>
                                 </tr>
                             </table>
