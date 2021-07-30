@@ -28,6 +28,9 @@
                     <a class="btn btn-xs btn-primary disponibilidad" onclick="getRolesConciliador({{$conciliador->id}})">
                         <i class="fa fa-user-cog"></i>
                     </a>
+                    <a class="btn btn-xs btn-primary horario" onclick="getHorarioComida({{$conciliador->id}})">
+                        <i class="fa fa-utensils"></i>
+                    </a>
                     <a class="btn btn-xs btn-primary disponibilidad" onclick="getConciliadorDisponibilidad({{$conciliador->id}})">
                         <i class="fa fa-calendar"></i>
                     </a>
