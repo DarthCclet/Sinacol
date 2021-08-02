@@ -509,14 +509,16 @@ class AudienciaController extends Controller {
         }
         $conciliadores = [];
         foreach(auth()->user()->centro->conciliadores as $conciliador){
-            $pasa = false;
-            foreach($conciliador->rolesConciliador as $rol_atencion){
-                if($rol_atencion->rol_atencion_id == $rol->id){
-                    $pasa = true;
+            if(FechaAudienciaService::validarHoraComida($conciliador, $horaInicio, $horaFin)){
+                $pasa = false;
+                foreach($conciliador->rolesConciliador as $rol_atencion){
+                    if($rol_atencion->rol_atencion_id == $rol->id){
+                        $pasa = true;
+                    }
                 }
-            }
-            if($pasa){
-                $conciliadores[] = $conciliador;
+                if($pasa){
+                    $conciliadores[] = $conciliador;
+                }
             }
         }
         foreach ($conciliadores as $conciliadorE) {
@@ -587,48 +589,50 @@ class AudienciaController extends Controller {
         $conciliadores = Conciliador::where("centro_id", $centro->id)->get();
         $conciliadoresResponse = [];
         foreach ($conciliadores as $conciliador) {
-            $pasa = false;
-            if (count($conciliador->disponibilidades) > 0) {
-                foreach ($conciliador->disponibilidades as $disp) {
-                    if ($disp["dia"] == $diaSemana) {
-                        $pasa = true;
-                    }
-                }
-            } else {
+            if(FechaAudienciaService::validarHoraComida($conciliador, $hora_inicio, $hora_fin)){
                 $pasa = false;
-            }
-            if ($pasa) {
-                foreach ($conciliador->incidencias as $inci) {
-                    if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
-                        $pasa = false;
+                if (count($conciliador->disponibilidades) > 0) {
+                    foreach ($conciliador->disponibilidades as $disp) {
+                        if ($disp["dia"] == $diaSemana) {
+                            $pasa = true;
+                        }
                     }
+                } else {
+                    $pasa = false;
                 }
                 if ($pasa) {
-                    $ConciliadorExiste = ConciliadorAudiencia::join('audiencias', "audiencia_id", "audiencias.id")
-                            ->where("conciliadores_audiencias.conciliador_id", $conciliador->id)
-                            ->where("audiencias.fecha_audiencia", $fechaInicioSola)
-                            ->where("hora_inicio", $horaInicio)
-                            ->where("hora_fin", $horaFin)
-                            ->first();
-                    if ($ConciliadorExiste != null) {
-                        $pasa = false;
+                    foreach ($conciliador->incidencias as $inci) {
+                        if ($fechaInicio >= $inci["fecha_inicio"] && $fechaFin <= $inci["fecha_fin"]) {
+                            $pasa = false;
+                        }
                     }
+                    if ($pasa) {
+                        $ConciliadorExiste = ConciliadorAudiencia::join('audiencias', "audiencia_id", "audiencias.id")
+                                ->where("conciliadores_audiencias.conciliador_id", $conciliador->id)
+                                ->where("audiencias.fecha_audiencia", $fechaInicioSola)
+                                ->where("hora_inicio", $horaInicio)
+                                ->where("hora_fin", $horaFin)
+                                ->first();
+                        if ($ConciliadorExiste != null) {
+                            $pasa = false;
+                        }
+                    }
+    //                if ($pasa) {
+    //                    $conciliadoresAudiencia = array();
+    //                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
+    //                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
+    //                            //Buscamos que la hora inicio no este entre una audiencia
+    //                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
+    //                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
+    //                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
+    //                        }
+    //                    }
+    //                }
                 }
-//                if ($pasa) {
-//                    $conciliadoresAudiencia = array();
-//                    foreach ($conciliador->conciliadorAudiencia as $conciliadorAudiencia) {
-//                        if ($conciliadorAudiencia->audiencia->fecha_audiencia == $fechaInicioSola) {
-//                            //Buscamos que la hora inicio no este entre una audiencia
-//                            $horaInicioAudiencia = $conciliadorAudiencia->audiencia->hora_inicio;
-//                            $horaFinAudiencia = $conciliadorAudiencia->audiencia->hora_fin;
-//                            $pasa = $this->rangesNotOverlapOpen($horaInicioAudiencia, $horaFinAudiencia, $horaInicio, $horaFin);
-//                        }
-//                    }
-//                }
-            }
-            if ($pasa) {
-                $conciliador->persona = $conciliador->persona;
-                $conciliadoresResponse[] = $conciliador;
+                if ($pasa) {
+                    $conciliador->persona = $conciliador->persona;
+                    $conciliadoresResponse[] = $conciliador;
+                }
             }
         }
         return $conciliadoresResponse;
