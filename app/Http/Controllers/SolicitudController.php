@@ -1690,7 +1690,7 @@ class SolicitudController extends Controller {
                             }else{
                                 $busqueda = $parte_audiencia->parte->rfc;
                             }
-                            BitacoraBuzon::create(['parte_id'=>$parte_audiencia->parte_id,'descripcion'=>'Se crea acta de multa','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                            BitacoraBuzon::create(['parte_id'=>$parte_audiencia->parte_id,'descripcion'=>'Se crea citatorio','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
                             event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte_audiencia->parte_id));
                         }elseif($parte_audiencia->parte->tipo_parte_id == 1){
                             if($parte_audiencia->parte->tipo_persona_id == 1){
@@ -1698,7 +1698,7 @@ class SolicitudController extends Controller {
                             }else{
                                 $busqueda = $parte_audiencia->parte->rfc;
                             }
-                            BitacoraBuzon::create(['parte_id'=>$parte_audiencia->parte_id,'descripcion'=>'Se crea nofificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                            BitacoraBuzon::create(['parte_id'=>$parte_audiencia->parte_id,'descripcion'=>'Se crea nofificación del solicitante','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
                             event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, $parte_audiencia->parte_id,null));
                         }
                     }
