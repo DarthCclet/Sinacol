@@ -1166,10 +1166,9 @@
                     <div class="alert alert-warning col-md-12">
                         <h5><i class="fa fa-warning"></i> Atención</h5>
                         <p>
-                            Esta opción permite crear audiencias a partir de otra audiencia derivado de una resolición que así lo requiera<br>
-                            - Seleccione las partes que deberán ser programadas para la nueva audiencia<br>
-                            - Al desactivar el campo calendarizar se generará la audiencia con la calendarizacion actual dado que ya no se requiere agendar una nueva<br>
-                            - En caso de requerir una nueva audiencia seleccione en el calendario las nuevas fechas y la forma en la que se llevará a cabo la audiencia<br>
+                            A continuación, podrás fijar una nueva fecha y hora para la celebración de la audiencia de conciliación.<br>
+                            Deberás tomar en cuenta que la duración del procedimiento de conciliación no puede exceder de 45 días naturales.<br> 
+                            Cuando el sistema registre que hay un nuevo citado, la fecha y hora de la audiencia se programará automáticamente con la finalidad de darle un plazo razonable a los notificadores para que puedan entregar el citatorio con un mínimo de 5 días previos a la celebración de la audiencia de conciliación.
                         </p>
                     </div>
                     <div class="col-md-12">
