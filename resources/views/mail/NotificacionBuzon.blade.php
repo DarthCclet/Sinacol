@@ -64,9 +64,11 @@
                     @if($parte->notificacion_buzon)
                     Nueva notificación sobre su expediente número {{$expediente->folio}} en su buzón electrónico. Para consultar, favor de ingresar a su buzón electrónico.
                     @else
-                    Nuevo aviso sobre su expediente número {{$expediente->folio}} en su buzón electrónico. Para consultar, favor de ingresar a su buzón electrónico.
+                    Nuevo aviso sobre su expediente número {{$expediente->folio}} en su buzón electrónico. Favor de presentarse al Centro Estatal correspondiente para darse por notificado personalmente de su contenido.<br>
+                    En el caso de que quiera aceptar que las notificaciones, incluyendo aquellas de carácter personal, se hagan por medio del buzón electrónico, podrá hacerlo en su siguiente comparecencia a la audiencia de conciliación de esta solicitud.
                     @endif
                     <br>
+                    El presente correo electrónico no constituye una notificación personal.
                     <br>
                 </p>      
                 <p>
