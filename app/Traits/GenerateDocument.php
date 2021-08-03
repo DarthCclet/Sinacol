@@ -587,10 +587,11 @@ trait GenerateDocument
                       // }elseif ($parte['tipo_parte_id'] == 2 ) {//Citado
                         //representante legal solicitado
                         if($audienciaId != "" && $audienciaId != null){
-                          $representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
+                          $representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora','compareciente')->whereHas('compareciente',function($q)use($idAudiencia){$q->where('audiencia_id',$idAudiencia);})->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
                           if(count($representanteLegal) > 0){
-                            $comparecenciaAudiencia = $representanteLegal[0]->compareciente()->where('audiencia_id',$idAudiencia)->get();
-                            $parte['asistencia'] =  (count($comparecenciaAudiencia)>0) ? 'Si':'No';
+                            // $comparecenciaAudiencia = $representanteLegal[0]->compareciente()->where('audiencia_id',$idAudiencia)->get();
+                            // $parte['asistencia'] =  (count($comparecenciaAudiencia)>0) ? 'Si':'No';
+                            $parte['asistencia'] =  'Si';
                             $objeto = new JsonResponse($representanteLegal);
                             $representanteLegal = json_decode($objeto->content(),true);
                             $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);
