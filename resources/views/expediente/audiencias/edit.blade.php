@@ -1216,7 +1216,7 @@
                                                     <input type="hidden" id="parte_id{{$parte->id}}" class="parte_id" value="{{$parte->id}}">
                                                     <div class="custom-control custom-radio">
                                                         @if(!$parte->asignado)
-                                                        <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" checked="checked">
+                                                        <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" checked="checked" disabled="disabled">
                                                         @else
                                                             @if($parte->notificacion_buzon)
                                                                 <input type="checkbox" id="radioNotificacionNo{{$parte->id}}" value="99" name="radioNotificacion{{$parte->id}}" disabled="disabled">
