@@ -2315,9 +2315,10 @@ class SolicitudController extends Controller {
         $fecha_solicitada = $this->request->fecha_solicitada;
         $dt = new Carbon($audiencia->expediente->solicitud->fecha_ratificacion);
         $dt2 = new Carbon($fecha_solicitada);
-        $dias = $dt->diffInDaysFiltered(function(Carbon $date) {
+        /*$dias = $dt->diffInDaysFiltered(function(Carbon $date) {
             return !$date->isWeekend();
-        }, $dt2);
+        }, $dt2);*/
+        $dias = $dt->diffInDays($dt2);
         return $dias;
     }
 }
