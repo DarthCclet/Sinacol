@@ -153,7 +153,7 @@
                                     @endif
                                 @endforeach
                                 </td>
-                                <td><button class="btn btn-sm btn-primary" title="Asignar" onclick="obtenerAudiencia({{$audiencia->id}},'NoCalendarizada')"><i class="fa fa-calendar"></i></button></td>
+                                <td><button class="btn btn-sm btn-primary" title="Asignar" onclick="obtenerAudiencia({{$audiencia->id}},'audiencia','NoCalendarizada')"><i class="fa fa-calendar"></i></button></td>
                             </tr>
                             @endforeach
                         </tbody>

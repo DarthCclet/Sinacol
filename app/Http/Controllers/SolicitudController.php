@@ -2310,4 +2310,14 @@ class SolicitudController extends Controller {
         $solicitudes = HerramientaServiceProvider::getSolicitudesPorCaducar(true);
         return view('expediente.solicitudes.porCaducar',compact("solicitudes"));
     }
+    public function validarFechasAsignables(){
+        $audiencia = Audiencia::find($this->request->audiencia_id);
+        $fecha_solicitada = $this->request->fecha_solicitada;
+        $dt = new Carbon($audiencia->expediente->solicitud->fecha_ratificacion);
+        $dt2 = new Carbon($fecha_solicitada);
+        $dias = $dt->diffInDaysFiltered(function(Carbon $date) {
+            return !$date->isWeekend();
+        }, $dt2);
+        return $dias;
+    }
 }
