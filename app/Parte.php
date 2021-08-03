@@ -345,4 +345,10 @@ class Parte extends Model implements Auditable
     {
         return $this->hasMany(BitacoraBuzon::class, 'parte_id', 'id');
     }
+
+    public function getDocumentosFirmarAttribute()
+    {
+        return Documento::whereHas('firma_documentos',function($q){ $q->where('firmable_type','App\Parte')->where('firmable_id',$this->id)->where('firma_electronicamente',true); })->get();    
+    }
+
 }

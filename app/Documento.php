@@ -37,4 +37,12 @@ class Documento extends Model implements AuditableContract
     {
         return $this->belongsTo(ClasificacionArchivo::class);
     }
+    /**
+     * Relación con la clasificación del archivo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function firma_documentos()
+    {
+        return $this->hasMany(FirmaDocumento::class);
+    }
 }

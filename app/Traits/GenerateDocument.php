@@ -502,6 +502,9 @@ trait GenerateDocument
                         }
                       }
                       if($solicitudVirtual && $solicitudVirtual!="" && $idDocumento){
+                        if((substr_count($plantilla->plantilla_body,'SOLICITANTE_QR_FIRMA') > 0 && $parte['tipo_parte_id'] == 1) || (substr_count($plantilla->plantilla_body,'SOLICITADO_QR_FIRMA') > 0 && $parte['tipo_parte_id'] == 2)){
+                          $firmaDocumento->update(['firma_electronicamente'=>true]);
+                        }
                         if($firmaDocumento && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
                           $parte['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
                         } elseif ($firmaDocumento && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
@@ -518,7 +521,11 @@ trait GenerateDocument
                           if($idPlantilla == 2 && $parte['tipo_parte_id']!=1){
                             $parte_solicitada = $parteId;
                             if($parte['tipo_parte_id'] == 3){
-                              $parte_solicitada = $parte['parte_representada_id'];
+								$parte_solicitada = $parte['parte_representada_id'];
+								$firmaDocumentoRepresentada = FirmaDocumento::where('firmable_id',$parte_solicitada)->where('firmable_type','App\Parte')->where('plantilla_id',$idPlantilla)->where('solicitud_id',$idBase)->where('documento_id',$idDocumento)->first();
+								if((substr_count($plantilla->plantilla_body,'SOLICITUD_FIRMAS_PARTES_QR') > 0)){
+									$firmaDocumentoRepresentada->update(['firma_electronicamente'=>true]);
+								}
                             }
                             $resolucionParteRepresentada = ResolucionPartes::where('audiencia_id',$audienciaId)->where('parte_solicitada_id',$parte_solicitada)->first();
                             if($resolucionParteRepresentada && $resolucionParteRepresentada->terminacion_bilateral_id !=3){
@@ -526,6 +533,9 @@ trait GenerateDocument
                             }
                           }
                           if($siFirma){
+                            if((substr_count($plantilla->plantilla_body,'SOLICITUD_FIRMAS_PARTES_QR') > 0)){
+                              $firmaDocumento->update(['firma_electronicamente'=>true]);
+                            }
                             $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">'.$parte['qr_firma'].' </span></p>';
                             $firmasPartesQR .= '<p style="text-align: center;"><span style="font-size: 10pt;">_________________________________________</span></p>';
                             $firmasPartesQR .= '<p style="text-align: center;"><strong><span style="font-size: 10pt;">'.mb_strtoupper($parte['nombre_completo']).'</span></strong></p>';
@@ -812,6 +822,9 @@ trait GenerateDocument
                       $nombreConciliador = $conciliador['persona']['nombre']." ".$conciliador['persona']['primer_apellido']." ".$conciliador['persona']['segundo_apellido'];
                       if($solicitudVirtual && $solicitudVirtual!="" && $idDocumento){
                         $firmaDocumento = FirmaDocumento::where('firmable_id',$conciliadorId)->where('firmable_type','App\Conciliador')->where('plantilla_id',$idPlantilla)->where('audiencia_id',$idAudiencia)->where('documento_id',$idDocumento)->first();
+                          if(substr_count($plantilla->plantilla_body,'CONCILIADOR_QR_FIRMA') > 0){
+                            $firmaDocumento->update(['firma_electronicamente'=>true]);
+                          }
                           if($firmaDocumento != null && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
                             $conciliador['qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
                           } elseif ($firmaDocumento != null && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
@@ -927,7 +940,9 @@ trait GenerateDocument
                       }else{
                         $firmaDocumento = FirmaDocumento::where('firmable_id',$personaId)->where('firmable_type','App\Persona')->where('plantilla_id',$idPlantilla)->where('documento_id',$idDocumento)->first();
                       }
-                      //dd($firmaDocumento);
+                      if(substr_count($plantilla->plantilla_body,'CENTRO_ADMINISTRADOR_QR_FIRMA') > 0 ){
+                        $firmaDocumento->update(['firma_electronicamente'=>true]);
+                      }
                       if($firmaDocumento != null && $firmaDocumento->firma != null && $firmaDocumento->tipo_firma == 'autografa'){
                           $centro['administrador_qr_firma'] = '<div style="text-align:center" class="qr"> <img style="max-height:80px" src="'.$firmaDocumento->firma.'" /></div>';
                         } elseif ($firmaDocumento != null && $firmaDocumento->firma != null && ($firmaDocumento->tipo_firma == 'llave-publica' || $firmaDocumento->tipo_firma == '' )){
