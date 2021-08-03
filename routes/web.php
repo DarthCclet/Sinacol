@@ -129,7 +129,6 @@ Route::middleware(['auth'])->group(function () {
     Route::Get('partes/getParteSolicitud/{parte_id}','ParteController@getParteSolicitud');
     Route::Get('partes/getCitados/{solicitud_id}','ParteController@getCitadosBySolicitudId');
     Route::Post('aceptar_buzon','ParteController@aceptar_buzon');
-    Route::Post('aceptar_buzon','ParteController@aceptar_buzon');
     Route::resource('roles-atencion','RolAtencionController');
     Route::resource('objeto-solicitud','ObjetoSolicitudController');
     Route::resource('estatus-solicitud','EstatusSolicitudController');
