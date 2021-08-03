@@ -2264,6 +2264,7 @@ class AudienciaController extends Controller {
         $tipoNotificacionBuzon = \App\TipoNotificacion::where("nombre", "ilike", "%d)%")->first()->id;
         $tipoNotificacionComparecencia = \App\TipoNotificacion::where("nombre", "ilike", "%G)%")->first()->id;
         $tipoNotificacionRenuente = \App\TipoNotificacion::where("nombre", "ilike", "%E)%")->first()->id;
+        $tipoNotificacionNoNotificable = \App\TipoNotificacion::where("nombre", "ilike", "%F)%")->first()->id;
         foreach ($audiencia->audienciaParte as $parte) {
             if($parte->parte->tipo_parte_id != 3){
                 if($parte->multa && $parte->parte->tipo_parte_id == 2){
@@ -2277,16 +2278,16 @@ class AudienciaController extends Controller {
                     event(new GenerateDocumentResolution($audienciaN->id,$audienciaN->expediente->solicitud_id,14,4,null,$parte->parte_id));
                     event(new RatificacionRealizada($audienciaN->id, "citatorio", false, $part_aud->id));
                 }else{
-                    if($parte->parte->notificacion_buzon){
-                        $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionBuzon,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
-                    }else{
-                        $comparece = false;
-                        foreach($array_comparecientes as $compareciente){
-                            if($compareciente->id == $parte->parte_id){
-                                $comparece = true;
-                            }
+                    $comparece = false;
+                    foreach ($array_comparecientes as $compareciente) {
+                        if ($compareciente->id == $parte->parte_id) {
+                            $comparece = true;
                         }
-                        if($comparece){
+                    }
+                    if ($comparece) {
+                        if($parte->parte->notificacion_buzon){
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionBuzon,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                        }else{
                             $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionComparecencia,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
                             if($parte->parte->tipo_persona_id == 1){
                                 $busqueda = $parte->parte->curp;
@@ -2295,10 +2296,15 @@ class AudienciaController extends Controller {
                             }
                             BitacoraBuzon::create(['parte_id'=>$parte->parte_id,'descripcion'=>'Se crea notificación por comparecencia','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                             event(new GenerateDocumentResolution($audienciaN->id, $audienciaN->expediente->solicitud_id, 56, 18,null,$part_aud->parte->id));
+                        }
+                    }else{
+                        if($parte->parte->notificacion_exitosa){
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionRenuente]);
                         }else{
-                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionRenuente,"finalizado"=> "FINALIZADO EXITOSAMENTE","fecha_notificacion" => now()]);
+                            $part_aud = AudienciaParte::create(["audiencia_id" => $audienciaN->id, "parte_id" => $parte->parte_id, "tipo_notificacion_id" => $tipoNotificacionNoNotificable]);
                         }
                     }
+
                     if($part_aud->parte->tipo_parte_id == $tipo_citado->id){
                         if($parte->parte->tipo_persona_id == 1){
                             $busqueda = $parte->parte->curp;

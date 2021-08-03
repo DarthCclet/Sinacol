@@ -189,8 +189,6 @@
                     dataType:"json",
                     success:function(data){
                         try{
-                            console.log(data.minTime);
-                            console.log(data.maxtime);
                             if(data.minTime == "23:59:59" && data.maxtime == "00:00:00"){
                                 swal({
                                     title: 'Error',
@@ -200,11 +198,40 @@
                             }
                             construirCalendarioResolicion(data);
                         }catch(error){
-                            console.log(error);
+                            
                         }
                     }
                 });
             });
+            function validarFechaAsignacion(start, end, a, b) {
+                $.get("/validarFechaAsignable/" + $("#audiencia_id").val() + "/" + moment(start).format('Y-MM-DD'), function(
+                    data) {
+                    if (data <= 45) {
+                        var ahora = new Date();
+                        end=moment(end).format('Y-MM-DD HH:mm:ss');
+                        start=moment(start).format('Y-MM-DD HH:mm:ss');
+                        var startVal = new Date(start);
+                        $("#fecha_audiencia").val(start);
+                        if(startVal > ahora){ //validar si la fecha es mayor que hoy
+                            if(b.type == "month"){ // si es la vista de mes, abrir la vista de semana
+                                $('#calendarReagendar').fullCalendar("gotoDate",start);
+                                $(".fc-agendaWeek-button").click();
+                            }else{
+                                CargarModalResolucion(start,end);
+                            }
+                        }else{
+                            swal({
+                                title: 'Error',
+                                text: 'No puedes seleccionar una fecha previa',
+                                icon: 'warning'
+                            });
+                        }
+                        $('#calendarReagendar').fullCalendar('unselect');
+                    } else {
+                        swal("Error", "La fecha seleccionada rebasa los 45 días hábiles permitidos", "error");
+                    }
+                })
+            }
             function construirCalendarioResolicion(arregloGeneral){
                 $('#external-events .fc-event').each(function() {
                     // store data so the calendar knows to render an event upon drop
@@ -224,27 +251,7 @@
                     minTime: arregloGeneral.minTime,
                     maxTime: arregloGeneral.maxtime,
                     select: function(start, end,a,b) {
-                        var ahora = new Date();
-                        end=moment(end).format('Y-MM-DD HH:mm:ss');
-                        console.log(end);
-                        start=moment(start).format('Y-MM-DD HH:mm:ss');
-                        var startVal = new Date(start);
-                        $("#fecha_audiencia").val(start);
-                        if(startVal > ahora){ //validar si la fecha es mayor que hoy
-                            if(b.type == "month"){ // si es la vista de mes, abrir la vista de semana
-                                $('#calendarReagendar').fullCalendar("gotoDate",start);
-                                $(".fc-agendaWeek-button").click();
-                            }else{
-                                CargarModalResolucion(start,end);
-                            }
-                        }else{
-                            swal({
-                                title: 'Error',
-                                text: 'No puedes seleccionar una fecha previa',
-                                icon: 'warning'
-                            });
-                        }
-                        $('#calendarReagendar').fullCalendar('unselect');
+                        validarFechaAsignacion(start, end, a, b);
                     },
                     selectOverlap: function(event) {
                         return event.rendering !== 'background';
@@ -293,7 +300,7 @@
                             }
                             $("#conciliador_id,#conciliador_solicitado_id,#conciliador_solicitante_id").select2();
                         }catch(error){
-                            console.log(error);
+                            
                         }
                     }
                 });
@@ -319,7 +326,7 @@
                             }
                             $("#sala_id,#sala_solicitado_id,#sala_solicitante_id,#sala_cambio_id").select2();
                         }catch(error){
-                            console.log(error);
+                            
                         }
                     }
                 });
@@ -351,7 +358,7 @@
                         dataType:"json",
                         success:function(data){
                             try{
-                                console.log(data);
+                                
                                 if(data != null && data != ""){
                                     if(origen_vista == 'audiencias'){
                                         window.location.href = "/audiencias/"+data.id+"/edit";
@@ -367,7 +374,7 @@
                                     });
                                 }
                             }catch(error){
-                                console.log(error);
+                                
                             }
                         }
                     });

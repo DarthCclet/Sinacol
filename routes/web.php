@@ -248,6 +248,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('reportes/reporte','ReportesController@reporte')->name('reportes.reporte');
     Route::get('reportes/reporte-operativo','ReportesController@reporteOperativo')->name('reportes.reporte-opeativo');
 
+    /*
+     * Validación de fechas asignables desde el calendario
+     */
+    Route::get('validarFechaAsignable/{audiencia_id}/{fecha_solicitada}','SolicitudController@validarFechasAsignables');
+
 });
 
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
@@ -271,7 +276,6 @@ Route::get('validar_token/{token}/{correo}','BuzonController@validar_token');
 Route::resource('etapa_resolucion_audiencia','EtapaResolucionAudienciaController');
 Route::get('acceso_buzon','BuzonController@AccesoBuzon')->name('acceso_buzon');
 Route::post('buzon/uploadJustificante', 'AudienciaController@uploadJustificante');
-
 
 Auth::routes(['register' => false]);
 
