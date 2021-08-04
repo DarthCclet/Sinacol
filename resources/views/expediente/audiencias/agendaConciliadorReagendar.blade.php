@@ -29,7 +29,7 @@
                     }
                 });
             });
-            function validarFechaAsignacion(start, end, a, b) {
+            function validarFechaAsignacionReagendar(start, end, a, b) {
                 $.get("/validarFechaAsignable/" + $("#audiencia_id").val() + "/" + moment(start).format('Y-MM-DD'), function(
                     data) {
                     if (data <= 45) {
@@ -77,7 +77,7 @@
                     minTime: arregloGeneral.minTime,
                     maxTime: arregloGeneral.maxTime,
                     select: function(start, end,a,b) {
-                        validarFechaAsignacion(start, end, a, b);
+                        validarFechaAsignacionReagendar(start, end, a, b);
                     },
                     selectOverlap: function(event) {
                         return event.rendering !== 'background';
