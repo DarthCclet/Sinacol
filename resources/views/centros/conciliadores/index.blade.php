@@ -57,7 +57,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="text-right">
-                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-check"></i> Aceptar</a>
                     </div>
                 </div>
             </div>
