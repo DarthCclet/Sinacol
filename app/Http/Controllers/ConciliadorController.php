@@ -9,6 +9,7 @@ use App\Persona;
 use App\Disponibilidad;
 use App\Incidencia;
 use App\RolConciliador;
+use App\HorarioInhabil;
 use Validator;
 use Illuminate\Support\Collection;
 use App\Services\FechaAudienciaService;
