@@ -217,6 +217,7 @@
                                 $('#calendarReagendar').fullCalendar("gotoDate",start);
                                 $(".fc-agendaWeek-button").click();
                             }else{
+                                console.log("hasta aquí bien");
                                 CargarModalResolucion(start,end);
                             }
                         }else{
