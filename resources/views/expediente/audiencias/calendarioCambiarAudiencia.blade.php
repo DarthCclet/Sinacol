@@ -144,25 +144,10 @@
                     }
                 });
             });
-            function construirCalendario2(arregloGeneral){
-                $('#external-events .fc-event').each(function() {
-                    // store data so the calendar knows to render an event upon drop
-                    $(this).data('event', {
-                            title: $.trim($(this).text()), // use the element's text as the event title
-                            stick: true // maintain when user navigates (see docs on the renderEvent method)
-                    });
-                });
-                $('#calendarioCambioAudiencia').fullCalendar({
-                    header: {
-                        left: 'month,agendaWeek',
-                        center: 'title',
-                        right: 'prev,today,next '
-                    },
-                    selectable: true,
-                    selectHelper: true,
-                    minTime: arregloGeneral.minTime,
-                    maxTime: arregloGeneral.maxtime,
-                    select: function(start, end,a,b) {
+            function validarFechaAsignacion(start, end, a, b) {
+                $.get("/validarFechaAsignable/" + $("#audiencia_id").val() + "/" + moment(start).format('Y-MM-DD'), function(
+                    data) {
+                    if (data <= 45) {
                         var ahora = new Date();
                         end=moment(end).format('Y-MM-DD HH:mm:ss');
                         console.log(end);
@@ -184,6 +169,31 @@
 //                                }
                         }
                         $('#calendarioCambioAudiencia').fullCalendar('unselect');
+                    } else {
+                        swal("Error", "La fecha seleccionada rebasa los 45 días hábiles permitidos", "error");
+                    }
+                })
+            }
+            function construirCalendario2(arregloGeneral){
+                $('#external-events .fc-event').each(function() {
+                    // store data so the calendar knows to render an event upon drop
+                    $(this).data('event', {
+                            title: $.trim($(this).text()), // use the element's text as the event title
+                            stick: true // maintain when user navigates (see docs on the renderEvent method)
+                    });
+                });
+                $('#calendarioCambioAudiencia').fullCalendar({
+                    header: {
+                        left: 'month,agendaWeek',
+                        center: 'title',
+                        right: 'prev,today,next '
+                    },
+                    selectable: true,
+                    selectHelper: true,
+                    minTime: arregloGeneral.minTime,
+                    maxTime: arregloGeneral.maxtime,
+                    select: function(start, end,a,b) {
+                        validarFechaAsignacion(start, end, a, b)
                     },
                     selectOverlap: function(event) {
                         return event.rendering !== 'background';

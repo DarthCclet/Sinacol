@@ -243,6 +243,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('reportes/reporte','ReportesController@reporte')->name('reportes.reporte');
     Route::get('reportes/reporte-operativo','ReportesController@reporteOperativo')->name('reportes.reporte-opeativo');
 
+    /*
+     * Validación de fechas asignables desde el calendario
+     */
+    Route::get('validarFechaAsignable/{audiencia_id}/{fecha_solicitada}','SolicitudController@validarFechasAsignables');
+
 });
 
 Route::post('externo/giros_comerciales/filtrarGirosComerciales','GiroComercialController@filtrarGirosComerciales');
