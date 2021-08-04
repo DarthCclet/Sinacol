@@ -486,14 +486,16 @@ class AudienciaController extends Controller {
         }
         $conciliadores = [];
         foreach(auth()->user()->centro->conciliadores as $conciliador){
-            $pasa = false;
-            foreach($conciliador->rolesConciliador as $rol_atencion){
-                if($rol_atencion->rol_atencion_id == $rol->id){
-                    $pasa = true;
+            if(FechaAudienciaService::validarHoraComida($conciliador, $horaInicio, $horaFin)){
+                $pasa = false;
+                foreach($conciliador->rolesConciliador as $rol_atencion){
+                    if($rol_atencion->rol_atencion_id == $rol->id){
+                        $pasa = true;
+                    }
                 }
-            }
-            if($pasa){
-                $conciliadores[] = $conciliador;
+                if($pasa){
+                    $conciliadores[] = $conciliador;
+                }
             }
         }
         foreach ($conciliadores as $conciliadorE) {

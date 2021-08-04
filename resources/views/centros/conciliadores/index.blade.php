@@ -2,8 +2,8 @@
 
 @section('title', 'Conciliadores')
 
-@include('includes.component.datatables')
-@include('includes.component.pickers')
+    @include('includes.component.datatables')
+    @include('includes.component.pickers')
 
 @section('content')
 
@@ -32,236 +32,286 @@
             @include('centros.conciliadores._list')
         </div>
     </div>
-<!-- inicio Modal de disponibilidad-->
-<div class="modal" id="modal-disponinbilidad" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Disponibilidad de <span id='nombreConciliador'></span></h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-muted">
-                    - Activa el día que será laborable para el centro.<br>
-                    - Coloca la hora de inicio y fin de servicios en el centro.<br>
-                    - Da clik en guardar para registrar los cambios
+    <!-- inicio Modal de horario de comida-->
+    <div class="modal" id="modal-horario-comida" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Horario de comida</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
-                <form id="formDisponibilidad">
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch1'>Lunes</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="1" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch1" name='switch1'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioLunes" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioLunes"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finLunes" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finLunes"/>
-                        </div>
+                <div class="modal-body">
+                    <table class="table table-hover table-borderless" id="table-horario-comida" style="text-align: center">
+                        <thead>
+                            <tr>
+                                <th class="with-checkbox">
+                                    Activar
+                                </th>
+                                <th>Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
                     </div>
-                    <hr>
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch2'>Martes</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="2" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch2" name='switch2'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioMartes" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioMartes"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finMartes" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finMartes"/>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch3'>Miercoles</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="3" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch3" name='switch3'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioMartes" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioMiercoles"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finMiercoles" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finMiercoles"/>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch4'>Jueves</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="4" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch4" name='switch4'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioJueves" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioJueves"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finJueves" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finJueves"/>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch5'>Viernes</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="5" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch5" name='switch15'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioViernes" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioViernes"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finViernes" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finViernes"/>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="col-md-12 row">
-                        <div class="col-md-2">
-                            <span class="text-muted m-l-5 m-r-20" for='switch6'>Sabado</span>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="hidden" class="hddDisponibilidad"/>
-                            <input type="checkbox" value="6" data-id="" data-render="switchery" data-theme="default" data-change="switchDia" id="switch6" name='switch6'/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_inicioSabado" class="control-label">Hora de inicio</label>
-                            <input type="text" class="form-control horas" id="hora_inicioSabado"/>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="hora_finSabado" class="control-label">Hora fin</label>
-                            <input type="text" class="form-control horas" id="hora_finSabado"/>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardar"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<!-- Fin Modal de disponibilidad-->
-
-<!-- inicio Modal de incidencias-->
-<div class="modal" id="modal-incidencias" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Incidencias de <span id='nombreConciliadorIncidencia'></span></h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div id="divConsultaIncidencias">
-                    <div id="table_incidencias"></div>
+    <!-- fin Modal de horario de comida-->
+    <!-- inicio Modal de disponibilidad-->
+    <div class="modal" id="modal-disponinbilidad" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Disponibilidad</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
-                <div id="divRegistroIncidencias">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>Justificación</label>
-                            <input type="text" id="justificacion" class="form-control" />
-                        </div>
+                <div class="modal-body">
+                    <div class="alert alert-muted">
+                        - Activa el día que será laborable para el centro.<br>
+                        - Coloca la hora de inicio y fin de servicios en el centro.<br>
+                        - Da clik en guardar para registrar los cambios
                     </div>
-                    <div class="col-md-12 row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Fecha y hora de inicio</label>
-                                <input type="text" id="fecha_inicio" class="form-control" />
+                    <form id="formDisponibilidad">
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch1'>Lunes</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad" />
+                                <input type="checkbox" value="1" data-id="" data-render="switchery" data-theme="default"
+                                    data-change="switchDia" id="switch1" name='switch1' />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioLunes" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioLunes" />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finLunes" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finLunes" />
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <hr>
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch2'>Martes</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad" />
+                                <input type="checkbox" value="2" data-id="" data-render="switchery" data-theme="default"
+                                    data-change="switchDia" id="switch2" name='switch2' />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioMartes" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioMartes" />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finMartes" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finMartes" />
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch3'>Miercoles</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad" />
+                                <input type="checkbox" value="3" data-id="" data-render="switchery" data-theme="default"
+                                    data-change="switchDia" id="switch3" name='switch3' />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioMartes" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioMiercoles" />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finMiercoles" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finMiercoles" />
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch4'>Jueves</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad" />
+                                <input type="checkbox" value="4" data-id="" data-render="switchery" data-theme="default"
+                                    data-change="switchDia" id="switch4" name='switch4' />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioJueves" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioJueves" />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finJueves" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finJueves" />
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch5'>Viernes</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad" />
+                                <input type="checkbox" value="5" data-id="" data-render="switchery" data-theme="default"
+                                    data-change="switchDia" id="switch5" name='switch15' />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioViernes" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioViernes" />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finViernes" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finViernes" />
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="col-md-12 row">
+                            <div class="col-md-2">
+                                <span class="text-muted m-l-5 m-r-20" for='switch6'>Sabado</span>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="hidden" class="hddDisponibilidad" />
+                                <input type="checkbox" value="6" data-id="" data-render="switchery" data-theme="default"
+                                    data-change="switchDia" id="switch6" name='switch6' />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_inicioSabado" class="control-label">Hora de inicio</label>
+                                <input type="text" class="form-control horas" id="hora_inicioSabado" />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="hora_finSabado" class="control-label">Hora fin</label>
+                                <input type="text" class="form-control horas" id="hora_finSabado" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin Modal de disponibilidad-->
+
+    <!-- inicio Modal de incidencias-->
+    <div class="modal" id="modal-incidencias" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Incidencias de <span id='nombreConciliadorIncidencia'></span></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="divConsultaIncidencias">
+                        <div id="table_incidencias"></div>
+                    </div>
+                    <div id="divRegistroIncidencias">
+                        <div class="col-md-12">
                             <div class="form-group">
-                                <label>Fecha y hora fin</label>
-                                <input type="text" id="fecha_fin" class="form-control" />
+                                <label>Justificación</label>
+                                <input type="text" id="justificacion" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-12 row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Fecha y hora de inicio</label>
+                                    <input type="text" id="fecha_inicio" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Fecha y hora fin</label>
+                                    <input type="text" id="fecha_fin" class="form-control" />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-sign-out"></i> Cerrar</a>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnNuevaIncidencia"><i class="fa fa-plus-circle"></i> Nueva incidencia</button>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnRegresarIncidencia"><i class="fa fa-arrow-left"></i> Regresar</button>
-                    <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarIncidencia"><i class="fa fa-save"></i> Guardar</button>
+                <div class="modal-footer">
+                    <div class="text-right">
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-sign-out"></i> Cerrar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnNuevaIncidencia"><i
+                                class="fa fa-plus-circle"></i> Nueva incidencia</button>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnRegresarIncidencia"><i
+                                class="fa fa-arrow-left"></i> Regresar</button>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarIncidencia"><i class="fa fa-save"></i>
+                            Guardar</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<!-- Fin Modal de disponibilidad-->
+    <!-- Fin Modal de disponibilidad-->
 
-<!-- inicio Modal de disponibilidad-->
-<div class="modal" id="modal-roles" aria-hidden="true" style="display:none;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Roles para <span id='nombreConciliador'></span></h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-muted">
-                    - Marca cada uno de los roles que atenderá el conciliador
+    <!-- inicio Modal de disponibilidad-->
+    <div class="modal" id="modal-roles" aria-hidden="true" style="display:none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Roles para <span id='nombreConciliador'></span></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
-                <table class="table table-hover table-borderless" id="table-roles" style="text-align: center">
-                    <thead>
-                        <tr>
-                            <th class="with-checkbox">
-                                Activar
-                            </th>
-                            <th>Rol</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div class="modal-body">
+                    <div class="alert alert-muted">
+                        - Marca cada uno de los roles que atenderá el conciliador
+                    </div>
+                    <table class="table table-hover table-borderless" id="table-roles" style="text-align: center">
+                        <thead>
+                            <tr>
+                                <th class="with-checkbox">
+                                    Activar
+                                </th>
+                                <th>Rol</th>
+                            </tr>
+                        </thead>
+                        <tbody>
 
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<!-- Fin Modal de disponibilidad-->
-<input type="hidden" id="id" name="id">
-<input type="hidden" id="incidencia_id" name="incidencia_id">
+    <!-- Fin Modal de disponibilidad-->
+    <input type="hidden" id="id" name="id">
+    <input type="hidden" id="incidencia_id" name="incidencia_id">
+    <input type="hidden" id="horario_inhabil_id">
 @endsection
 
 @push('scripts')
     <script type="text/javascript">
         $(document).ready(function() {
-            $(".horas").datetimepicker({format:"HH:mm"});
-            $('#fecha_fin,#fecha_inicio').datetimepicker({useCurrent: false,format:'DD/MM/YYYY'});
-            $("#fecha_inicio").on("dp.change", function (e) {
+            $(".horas").datetimepicker({
+                format: "HH:mm"
+            });
+            $('#fecha_fin,#fecha_inicio').datetimepicker({
+                useCurrent: false,
+                format: 'DD/MM/YYYY'
+            });
+            $("#fecha_inicio").on("dp.change", function(e) {
                 $('#fecha_fin').data("DateTimePicker").minDate(e.date);
             });
-            $("#fecha_fin").on("dp.change", function (e) {
+            $("#fecha_fin").on("dp.change", function(e) {
                 $('#fecha_inicio').data("DateTimePicker").maxDate(e.date);
             });
-            $('#data-table-default').DataTable({language: {url: "/assets/plugins/datatables.net/dataTable.es.json"}});
-            $('.btn-borrar').on('click', function (e) {
+            $('#data-table-default').DataTable({
+                language: {
+                    url: "/assets/plugins/datatables.net/dataTable.es.json"
+                }
+            });
+            $('.btn-borrar').on('click', function(e) {
                 let that = this;
                 console.log('boton clic');
                 e.preventDefault();
@@ -285,8 +335,8 @@
                             closeModal: true
                         }
                     }
-                }).then(function(isConfirm){
-                    if(isConfirm){
+                }).then(function(isConfirm) {
+                    if (isConfirm) {
                         $(that).closest('form').submit();
                     }
                 });
@@ -295,47 +345,48 @@
             getRoles();
             limpiarModal();
         });
-        $(document).on("change",'[data-change="switchDia"]',function(){
-            if($(this).is(":checked")){
-                $(this).parent().next().children().next().prop("disabled",false);
-                $(this).parent().next().next().children().next().prop("disabled",false);
-            }else{
-                $(this).parent().next().children().next().prop("disabled",true);
+        $(document).on("change", '[data-change="switchDia"]', function() {
+            if ($(this).is(":checked")) {
+                $(this).parent().next().children().next().prop("disabled", false);
+                $(this).parent().next().next().children().next().prop("disabled", false);
+            } else {
+                $(this).parent().next().children().next().prop("disabled", true);
                 $(this).parent().next().children().next().val("");
-                $(this).parent().next().next().children().next().prop("disabled",true);
+                $(this).parent().next().next().children().next().prop("disabled", true);
                 $(this).parent().next().next().children().next().val("");
             }
         });
-        function limpiarModal(){
+        function limpiarModal() {
             $("input[data-change='switchDia']").each(function() {
-                if($(this).is(":checked")){
+                if ($(this).is(":checked")) {
                     $(this).trigger('click');
                 }
             });
             $(".hddDisponibilidad").val("");
             $(".horas").val("");
-            $(".horas").prop("disabled",true);
-            $(".horas").css("border-color","");
+            $(".horas").prop("disabled", true);
+            $(".horas").css("border-color", "");
         }
-        function getConciliadorDisponibilidad(id){
+        function getConciliadorDisponibilidad(id) {
             $.ajax({
-                url:"/conciliadores/disponibilidades",
-                type:"POST",
-                dataType:"json",
-                async:false,
-                data:{
-                    id:id,
-                    _token:"{{ csrf_token() }}"
+                url: "/conciliadores/disponibilidades",
+                type: "POST",
+                dataType: "json",
+                async: false,
+                data: {
+                    id: id,
+                    _token: "{{ csrf_token() }}"
                 },
-                success:function(data){
-                    try{
+                success: function(data) {
+                    try {
                         console.log(data);
-                        if(data != null){
+                        if (data != null) {
                             $("#id").val(data.id);
-                            $("#nombreConciliador").text(data.persona.nombre+' '+data.persona.primer_apellido+' '+(data.persona.segundo_apellido|| ""));
+                            $("#nombreConciliador").text(data.persona.nombre + ' ' + data.persona
+                                .primer_apellido + ' ' + (data.persona.segundo_apellido || ""));
                             limpiarModal();
-                            $.each(data.disponibilidades,function(index,data){
-                                var elm = $("#switch"+data.dia);
+                            $.each(data.disponibilidades, function(index, data) {
+                                var elm = $("#switch" + data.dia);
                                 $(elm).trigger('click');
                                 $(elm).prev().val(data.id);
                                 $(elm).parent().next().children().next().val(data.hora_inicio);
@@ -343,25 +394,25 @@
                             });
                             $("#modal-disponinbilidad").modal("show");
                         }
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
             });
         }
-        $("#btnGuardar").on("click",function(){
+        $("#btnGuardar").on("click", function() {
             var validar = validarCampos();
-            if(!validar.error){
+            if (!validar.error) {
                 $.ajax({
-                    url:"/conciliadores/disponibilidad",
-                    type:"POST",
-                    dataType:"json",
-                    data:{
-                        id:$("#id").val(),
-                        datos:validar.datos,
-                        _token:"{{ csrf_token() }}"
+                    url: "/conciliadores/disponibilidad",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        id: $("#id").val(),
+                        datos: validar.datos,
+                        _token: "{{ csrf_token() }}"
                     },
-                    success:function(data){
+                    success: function(data) {
                         $("#modal-disponinbilidad").modal("hide");
                         swal({
                             title: 'Éxito',
@@ -370,7 +421,7 @@
                         });
                     }
                 });
-            }else{
+            } else {
                 swal({
                     title: 'Algo salió mal',
                     text: validar.errorMsg,
@@ -378,85 +429,85 @@
                 });
             }
         });
-        function validarCampos(){
-            var error=false;
-            var errorMsg="";
+        function validarCampos() {
+            var error = false;
+            var errorMsg = "";
             var count = 0;
             var datos = new Array();
-            $(".horas").css("border-color","");
+            $(".horas").css("border-color", "");
             $("input[data-change='switchDia']").each(function() {
                 var hora_inicio = $(this).parent().next().children().next();
                 var hora_fin = $(this).parent().next().next().children().next();
-                if($(this).is(":checked")){
+                if ($(this).is(":checked")) {
                     datos.push({
-                        dia:$(this).val(),
-                        disponibilidad_id:$(this).prev().val(),
-                        hora_inicio:$(hora_inicio).val(),
-                        hora_fin:$(hora_fin).val(),
-                        borrar:false
+                        dia: $(this).val(),
+                        disponibilidad_id: $(this).prev().val(),
+                        hora_inicio: $(hora_inicio).val(),
+                        hora_fin: $(hora_fin).val(),
+                        borrar: false
                     });
                     count++;
-                    if($(hora_inicio).val() == ""){
-                        error=true;
+                    if ($(hora_inicio).val() == "") {
+                        error = true;
                         errorMsg = "Indica la hora inicio";
-                        $(hora_inicio).css("border-color","red");
-                    }else{
-                        if($(hora_fin).val() == ""){
-                            error=true;
+                        $(hora_inicio).css("border-color", "red");
+                    } else {
+                        if ($(hora_fin).val() == "") {
+                            error = true;
                             errorMsg = "Indica la hora fin";
-                            $(hora_fin).css("border-color","red");
-                        }else{
-                            if($(hora_inicio).val() >= $(hora_fin).val()){
-                                error=true;
+                            $(hora_fin).css("border-color", "red");
+                        } else {
+                            if ($(hora_inicio).val() >= $(hora_fin).val()) {
+                                error = true;
                                 errorMsg = "La hora de inicio no puede ser mayor o igual que la hora fin";
-                                $(hora_inicio).css("border-color","red");
-                                $(hora_fin).css("border-color","red");
+                                $(hora_inicio).css("border-color", "red");
+                                $(hora_fin).css("border-color", "red");
                             }
                         }
                     }
-                }else{
-                    if($(this).prev().val() != ""){
+                } else {
+                    if ($(this).prev().val() != "") {
                         count++;
                         datos.push({
-                            disponibilidad_id:$(this).prev().val(),
-                            borrar:true
+                            disponibilidad_id: $(this).prev().val(),
+                            borrar: true
                         });
                     }
                 }
             });
             console.log(datos);
-            if(count == 0){
-                error=true;
+            if (count == 0) {
+                error = true;
             }
             var arreglo = new Array();
-            arreglo.datos=datos;
-            arreglo.error=error;
-            arreglo.errorMsg=errorMsg;
+            arreglo.datos = datos;
+            arreglo.error = error;
+            arreglo.errorMsg = errorMsg;
             return arreglo;
         }
-
-        function limpiarModalIncidencia(){
+        function limpiarModalIncidencia() {
             $("#incidencia_id").val("");
-            $("#justificacion").val("").css("border-color","");
-            $("#fecha_inicio").val("").css("border-color","");
-            $("#fecha_fin").val("").css("border-color","");
+            $("#justificacion").val("").css("border-color", "");
+            $("#fecha_inicio").val("").css("border-color", "");
+            $("#fecha_fin").val("").css("border-color", "");
         }
-        function getConciliadorIncidencias(id){
+        function getConciliadorIncidencias(id) {
             $.ajax({
-                url:"/conciliadores/disponibilidades",
-                type:"POST",
-                dataType:"json",
-                async:false,
-                data:{
-                    id:id,
-                    _token:"{{ csrf_token() }}"
+                url: "/conciliadores/disponibilidades",
+                type: "POST",
+                dataType: "json",
+                async: false,
+                data: {
+                    id: id,
+                    _token: "{{ csrf_token() }}"
                 },
-                success:function(data){
-                    try{
+                success: function(data) {
+                    try {
                         console.log(data);
-                        if(data != null){
+                        if (data != null) {
                             $("#id").val(data.id);
-                            $("#nombreConciliadorIncidencia").text(data.persona.nombre+' '+data.persona.primer_apellido+' '+(data.persona.segundo_apellido|| ""));
+                            $("#nombreConciliadorIncidencia").text(data.persona.nombre + ' ' + data.persona
+                                .primer_apellido + ' ' + (data.persona.segundo_apellido || ""));
                             limpiarModalIncidencia();
                             var table = `
                                 <table id="data-table-incidencias" class="table table-striped table-bordered table-condensed table-td-valign-middle">
@@ -470,88 +521,90 @@
                                     </thead>
                                     <tbody>
                             `;
-                            $.each(data.incidencias,function(index,data){
-                                table +='<tr>';
-                                table +='   <td>'+data.justificacion+'</td>';
-                                table +='   <td>'+data.fecha_inicio+'</td>';
-                                table +='   <td>'+data.fecha_fin+'</td>';
-                                table +='   <td>';
-                                table +='       <a class="btn btn-xs btn-primary incidencia" onclick="cargarIncidencia('+data.id+')">';
-                                table +='           <i class="fa fa-edit"></i>';
-                                table +='       </a>';
-                                table +='       <a class="btn btn-xs btn-warning incidencia" onclick="eliminarIncidencia('+data.id+')">';
-                                table +='           <i class="fa fa-trash"></i>';
-                                table +='       </a>';
-                                table +='   </td>';
-                                table +='</tr>';
+                            $.each(data.incidencias, function(index, data) {
+                                table += '<tr>';
+                                table += '   <td>' + data.justificacion + '</td>';
+                                table += '   <td>' + data.fecha_inicio + '</td>';
+                                table += '   <td>' + data.fecha_fin + '</td>';
+                                table += '   <td>';
+                                table +=
+                                    '       <a class="btn btn-xs btn-primary incidencia" onclick="cargarIncidencia(' +
+                                    data.id + ')">';
+                                table += '           <i class="fa fa-edit"></i>';
+                                table += '       </a>';
+                                table +=
+                                    '       <a class="btn btn-xs btn-warning incidencia" onclick="eliminarIncidencia(' +
+                                    data.id + ')">';
+                                table += '           <i class="fa fa-trash"></i>';
+                                table += '       </a>';
+                                table += '   </td>';
+                                table += '</tr>';
                             });
-                            table +='</tbody>';
-                            table +='</table>';
+                            table += '</tbody>';
+                            table += '</table>';
                             $("#table_incidencias").html(table);
                             $('#data-table-incidencias').DataTable();
                             cambiarDivIncidencias(1);
                             $("#modal-incidencias").modal("show");
                         }
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
             });
         }
-        function cambiarDivIncidencias(aux){
-            if(aux == 1){
+        function cambiarDivIncidencias(aux) {
+            if (aux == 1) {
                 $("#btnGuardarIncidencia").hide();
                 $("#btnRegresarIncidencia").hide();
                 $("#divRegistroIncidencias").hide();
                 $("#btnNuevaIncidencia").show();
                 $("#divConsultaIncidencias").show();
-            }else{
+            } else {
                 $("#btnGuardarIncidencia").show();
                 $("#btnRegresarIncidencia").show();
                 $("#divRegistroIncidencias").show();
                 $("#btnNuevaIncidencia").hide();
                 $("#divConsultaIncidencias").hide();
-
             }
         }
-        $("#btnNuevaIncidencia").on("click",function(){
+        $("#btnNuevaIncidencia").on("click", function() {
             limpiarModalIncidencia();
             cambiarDivIncidencias(2);
         });
-        $("#btnRegresarIncidencia").on("click",function(){
+        $("#btnRegresarIncidencia").on("click", function() {
             cambiarDivIncidencias(1);
         });
-        $("#btnGuardarIncidencia").on("click",function(){
+        $("#btnGuardarIncidencia").on("click", function() {
             var validacion = validarCamposIncidencia();
             console.log(validacion);
-            if(!validacion.error){
+            if (!validacion.error) {
                 $.ajax({
-                    url:"/conciliadores/incidencias",
-                    type:"POST",
-                    dataType:"json",
-                    data:{
-                        id:$("#id").val(),
-                        incidencia_id:$("#incidencia_id").val(),
-                        justificacion:$("#justificacion").val(),
-                        fecha_inicio:dateFormat($("#fecha_inicio").val()),
-                        fecha_fin:dateFormat($("#fecha_fin").val()),
-                        _token:"{{ csrf_token() }}"
+                    url: "/conciliadores/incidencias",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        id: $("#id").val(),
+                        incidencia_id: $("#incidencia_id").val(),
+                        justificacion: $("#justificacion").val(),
+                        fecha_inicio: dateFormat($("#fecha_inicio").val()),
+                        fecha_fin: dateFormat($("#fecha_fin").val()),
+                        _token: "{{ csrf_token() }}"
                     },
-                    success:function(data){
-                        try{
-
+                    success: function(data) {
+                        try {
                             getConciliadorIncidencias($("#id").val());
                             swal({
                                 title: 'Éxito',
                                 text: 'Se guardarón los datos de la disponibilidad',
                                 icon: 'success'
                             });
-                        }catch(error){
+                        } catch (error) {
                             console.log(error);
                         }
                     }
                 });
-            }else{
+            } else {
                 swal({
                     title: 'Algo salió mal',
                     text: validacion.msgError,
@@ -559,57 +612,59 @@
                 });
             }
         });
-        function validarCamposIncidencia(){
-            var error=false;
-            var msgError='';
-            $("#justificacion,#fecha_inicio,#fecha_fin").css("border-color","");
-            if($("#justificacion").val() == ""){
-                $("#justificacion").css("border-color","red");
+        function validarCamposIncidencia() {
+            var error = false;
+            var msgError = '';
+            $("#justificacion,#fecha_inicio,#fecha_fin").css("border-color", "");
+            if ($("#justificacion").val() == "") {
+                $("#justificacion").css("border-color", "red");
                 error = true;
                 msgError = "Agrega una justificación";
             }
-            if($("#fecha_inicio").val() == ""){
-                $("#fecha_inicio").css("border-color","red");
+            if ($("#fecha_inicio").val() == "") {
+                $("#fecha_inicio").css("border-color", "red");
                 error = true;
                 msgError = "Agrega una fecha y hora de inicio";
             }
-            if($("#fecha_fin").val() == ""){
-                $("#fecha_fin").css("border-color","red");
+            if ($("#fecha_fin").val() == "") {
+                $("#fecha_fin").css("border-color", "red");
                 error = true;
                 msgError = "Agrega una fecha y hora fin";
             }
-            return {error:error,msgError:msgError};
+            return {
+                error: error,
+                msgError: msgError
+            };
         }
-        function cargarIncidencia(id){
+        function cargarIncidencia(id) {
             $.ajax({
-                url:"/incidencia/"+id,
-                type:"GET",
-                dataType:"json",
-                async:true,
-                success:function(data){
-                    try{
-
-                        if(data != null && data != ""){
+                url: "/incidencia/" + id,
+                type: "GET",
+                dataType: "json",
+                async: true,
+                success: function(data) {
+                    try {
+                        if (data != null && data != "") {
                             limpiarModalIncidencia();
                             $("#incidencia_id").val(data.id);
                             $("#justificacion").val(data.justificacion);
                             $("#fecha_inicio").val(data.fecha_inicio);
                             $("#fecha_fin").val(data.fecha_fin);
                             cambiarDivIncidencias(2);
-                        }else{
+                        } else {
                             swal({
                                 title: 'Algo salió mal',
                                 text: 'No pudimos traer la información',
                                 icon: 'warning'
                             });
                         }
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
             });
         }
-        function eliminarIncidencia(id){
+        function eliminarIncidencia(id) {
             swal({
                 title: '¿Está seguro?',
                 text: 'Al oprimir el botón de aceptar se eliminará el registro',
@@ -630,29 +685,28 @@
                         closeModal: true
                     }
                 }
-            }).then(function(isConfirm){
-                if(isConfirm){
+            }).then(function(isConfirm) {
+                if (isConfirm) {
                     $.ajax({
-                        url:"/incidencia/"+id,
-                        type:"DELETE",
-                        dataType:"json",
-                        async:true,
-                        data:{
-                            _token:"{{ csrf_token() }}"
+                        url: "/incidencia/" + id,
+                        type: "DELETE",
+                        dataType: "json",
+                        async: true,
+                        data: {
+                            _token: "{{ csrf_token() }}"
                         },
-                        success:function(data){
-                            try{
-
-                                if(data != null && data != ""){
+                        success: function(data) {
+                            try {
+                                if (data != null && data != "") {
                                     getConciliadorIncidencias($("#id").val());
-                                }else{
+                                } else {
                                     swal({
                                         title: 'Algo salió mal',
                                         text: 'No pudimos traer la información',
                                         icon: 'warning'
                                     });
                                 }
-                            }catch(error){
+                            } catch (error) {
                                 console.log(error);
                             }
                         }
@@ -660,98 +714,148 @@
                 }
             });
         }
-
         //funciones para roles
-        function getRolesConciliador(id){
+        function getRolesConciliador(id) {
             $.ajax({
-                url:"/conciliadores/disponibilidades",
-                type:"POST",
-                dataType:"json",
-                async:false,
-                data:{
-                    id:id,
-                    _token:"{{ csrf_token() }}"
+                url: "/conciliadores/disponibilidades",
+                type: "POST",
+                dataType: "json",
+                async: false,
+                data: {
+                    id: id,
+                    _token: "{{ csrf_token() }}"
                 },
-                success:function(data){
-                    try{
-
-                        if(data != null){
+                success: function(data) {
+                    try {
+                        if (data != null) {
                             $("#id").val(data.id);
                             limpiarRoles();
-                            $.each(data.RolesConciliador, function(index,element){
-                                $("#check"+element.rol_atencion_id).prop("checked",true);
-                                $("#rol_conciliador_id"+element.rol_atencion_id).val(element.id);
+                            $.each(data.RolesConciliador, function(index, element) {
+                                $("#check" + element.rol_atencion_id).prop("checked", true);
+                                $("#rol_conciliador_id" + element.rol_atencion_id).val(element.id);
                             });
                             $("#modal-roles").modal("show");
                         }
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
             });
         }
-        function getRoles(){
+        function getRoles() {
             $.ajax({
-                url:"/roles-atencion",
-                type:"GET",
-                dataType:"json",
-                success:function(data){
-                    try{
+                url: "/roles-atencion",
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    try {
                         console.log(data);
-                        if(data.data.data != null && data.data.data != ""){
-                            var table='';
-                            $.each(data.data.data,function(index,element){
-                                table +='<tr>';
-                                table +='   <td class="with-checkbox">';
-                                table +='       <input type="hidden" class="hddRoles" id="rol_conciliador_id'+element.id+'">';
-                                table +='       <div class="checkbox checkbox-css" >';
-                                table +='           <input class="checkRol" type="checkbox" value="'+element.id+'" id="check'+element.id+'" onchange="cambio(this.value)"/>';
-                                table +='           <label for="check'+element.id+'"></label>';
-                                table +='       </div>';
-                                table +='   </td>';
-                                table +='   <td>'+element.nombre+'</td>';
-                                table +='</tr>';
+                        if (data.data.data != null && data.data.data != "") {
+                            var table = '';
+                            $.each(data.data.data, function(index, element) {
+                                table += '<tr>';
+                                table += '   <td class="with-checkbox">';
+                                table +=
+                                    '       <input type="hidden" class="hddRoles" id="rol_conciliador_id' +
+                                    element.id + '">';
+                                table += '       <div class="checkbox checkbox-css" >';
+                                table += '           <input class="checkRol" type="checkbox" value="' +
+                                    element.id + '" id="check' + element.id +
+                                    '" onchange="cambio(this.value)"/>';
+                                table += '           <label for="check' + element.id + '"></label>';
+                                table += '       </div>';
+                                table += '   </td>';
+                                table += '   <td>' + element.nombre + '</td>';
+                                table += '</tr>';
                             });
                             $("#table-roles tbody").html(table);
-                        }else{
+                        } else {
                             $("#table-roles tbody").html("");
                         }
-                    }catch(error){
+                    } catch (error) {
                         console.log(error);
                     }
                 }
             });
         }
-        function cambio(id){
+        function cambio(id) {
             var borrar = false;
-            if($("#rol_conciliador_id"+id).val() != "" && !$("#check"+id).is(":checked")){
+            if ($("#rol_conciliador_id" + id).val() != "" && !$("#check" + id).is(":checked")) {
                 borrar = true;
             }
             $.ajax({
-                url:"/conciliadores/roles",
-                type:"POST",
-                dataType:"json",
-                data:{
-                    rol_atencion_id:id,
-                    rol_conciliador_id:$("#rol_conciliador_id"+id).val(),
-                    id:$("#id").val(),
-                    borrar:borrar,
-                    _token:"{{ csrf_token() }}"
+                url: "/conciliadores/roles",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    rol_atencion_id: id,
+                    rol_conciliador_id: $("#rol_conciliador_id" + id).val(),
+                    id: $("#id").val(),
+                    borrar: borrar,
+                    _token: "{{ csrf_token() }}"
                 },
-                success:function(data){
-                    if(data != "" && data != null){
-//                        swal({
-//                            title: 'Éxito',
-//                            text: 'Se guardarón los datos de la disponibilidad',
-//                            icon: 'success'
-//                        });
-                    }
+                success: function(data) {
+                    if (data != "" && data != null) {}
                 }
             });
         }
-        function limpiarRoles(){
-            $(".checkRol").prop("checked",false);
+        function limpiarRoles() {
+            $(".checkRol").prop("checked", false);
             $(".hddRoles").val("");
+        }
+        function getHorarioComida(conciliador_id) {
+            $.get("/conciliador/horario_comida/" + conciliador_id, function(data) {
+                if (data.horas != "" && data.horas) {
+                    if(data.horario != null){
+                        $("#horario_inhabil_id").val(data.horario.id);
+                    }else{
+                        $("#horario_inhabil_id").val("");
+                    }
+                    $('#id').val(conciliador_id);
+                    var table = '';
+                    $.each(data.horas, function(index, element) {
+                        if(data.horas[index + 1] != "undefined" && data.horas[index + 1] != undefined){
+                            var cheched= "";
+                            if(data.horario != null){
+                                if(element == data.horario.hora_inicio){
+                                    cheched= "checked='checked'";
+                                }
+                            }
+                            table += '<tr>';
+                            table += '   <td class="with-checkbox">';
+                            table += '       <div class="radio radio-css" >';
+                            table += '           <input name="radio_horario" type="radio" value="' + element + '" data-horaFin="'+data.horas[index + 1]+'" id="checkHorario' + index + '" onclick="cambioHorario('+index+')" '+cheched+'/>';
+                            table += '           <label for="checkHorario' + index + '"></label>';
+                            table += '       </div>';
+                            table += '   </td>';
+                            table += '   <td>' + element + ' - ' + data.horas[index + 1] +'</td>';
+                            table += '</tr>';
+                        }
+                    });
+                    $("#table-horario-comida tbody").html(table);
+                    $("#modal-horario-comida").modal("show");
+                } else {
+                    swal({
+                        title: 'Error',
+                        text: 'Agregar la disponibilidad del centro',
+                        icon: 'error'
+                    });
+                }
+            });
+        }
+        function cambioHorario(index){
+            var hora_inicio = $("#checkHorario"+index).val();
+            var hora_fin = $("#checkHorario"+index).data('horafin');
+            var data = {
+                conciliador_id:$('#id').val(),
+                hora_inicio:hora_inicio,
+                hora_fin:hora_fin,
+                horario_inhabil_id:$('#horario_inhabil_id').val(),
+                _token: "{{ csrf_token() }}"
+            };
+            $.post('/conciliador/horario_comida',data,function(datas){
+                $("#horario_inhabil_id").val(datas.id)
+            });
         }
     </script>
 @endpush
