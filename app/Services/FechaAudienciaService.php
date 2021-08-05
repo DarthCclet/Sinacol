@@ -6,6 +6,7 @@ use App\Sala;
 use App\Conciliador;
 use App\Audiencia;
 use App\Incidencia;
+use App\Solicitud;
 use Carbon\Carbon;
 use App\Traits\ValidateRange;
 use Illuminate\Support\Facades\DB;
@@ -756,5 +757,17 @@ class FechaAudienciaService{
         }
         return true;
     }
-
+    public static function validarFechasAsignables(Solicitud $solicitud,$fecha_solicitada){
+        if($solicitud->tipo_solicitud_id == 1){
+            $dt = new Carbon($solicitud->created_at);
+            $dt2 = new Carbon($fecha_solicitada);
+            /*$dias = $dt->diffInDaysFiltered(function(Carbon $date) {
+                return !$date->isWeekend();
+            }, $dt2);*/
+            $dias = $dt->diffInDays($dt2);
+            return $dias;
+        }else{
+            return 1;
+        }
+    }
 }
