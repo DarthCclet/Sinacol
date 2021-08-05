@@ -2657,6 +2657,13 @@ class AudienciaController extends Controller {
                             $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro, $diasHabilesMin, $diasHabilesMax, $conciliador, $audiencia->expediente->solicitud->virtual);
                             $multiple = false;
                         }
+                        if($datos_audiencia['encontro_audiencia']){
+                            if(FechaAudienciaService::validarFechasAsignables($solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                                DB::rollback();
+                                return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
+                            }
+                        }
+
                         //Obtenemos el contador
                         $ContadorController = new ContadorController();
                         $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
@@ -2835,6 +2842,12 @@ class AudienciaController extends Controller {
                 $conciliador = $audiencia->conciliadoresAudiencias()->first()->conciliador;
                 $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro, $diasHabilesMin, $diasHabilesMax, $conciliador, $audiencia->expediente->solicitud->virtual);
                 $multiple = false;
+            }
+            if($datos_audiencia['encontro_audiencia']){
+                if(FechaAudienciaService::validarFechasAsignables($audiencia->expediente->solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                    DB::rollback();
+                    return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
+                }
             }
             //Obtenemos el contador
             $ContadorController = new ContadorController();
