@@ -2343,6 +2343,12 @@
                                 }catch(error){
                                     console.log(error);
                                 }
+                            }, error: function (data) {
+                                swal({
+                                    title: 'Error',
+                                    text: data.responseJSON.message,
+                                    icon: 'error'
+                                });
                             }
                         });
                     }
