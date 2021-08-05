@@ -3385,6 +3385,23 @@ class AudienciaController extends Controller {
                     $audiencia->update(["conciliador_id" => $id_conciliador, "reprogramada" => true, "etapa_notificacion_id" => $etapa->id]);
                 }
             }
+            foreach($audiencia->audienciaParte as $aud_parte){
+                if($aud_parte->parte->tipo_parte_id == 2){
+                    if($aud_parte->tipo_notificacion_id == 2 || $aud_parte->tipo_notificacion_id == 3){ // Notificación por citado con y sin cita
+                        // Se envia una notificación a signo si no ha habido respuesta
+                        if($aud_parte->finalizado == "FINALIZADO EXITOSAMENTE" || $aud_parte->finalizado == "EXITOSO POR INSTRUCTIVO"){
+                            event(new RatificacionRealizada($audiencia->id, "citatorio",false,$aud_parte->id));
+                        }
+                    }elseif($aud_parte->tipo_notificacion_id == 7){ // Notificación por comparecencia
+                        //Se cambia el tipo de notificación para enviar notificador
+                        $aud_parte->update(["finalizado" => null,"fecha_notificacion" => null,"tipo_notificacion_id" => 2]);
+                        event(new RatificacionRealizada($audiencia->id, "citatorio",false,$aud_parte->id));
+                    }elseif($aud_parte->tipo_notificacion_id == 4){ // Notificación por buzón
+                        // Se cambia la fecha de notificación
+                        $aud_parte->update(["fecha_notificacion" => now()]);
+                    }
+                }
+            }
             // generar citatorio de conciliacion
             $partes = $audiencia->expediente->solicitud->partes;
             foreach ($partes as $parte) {
