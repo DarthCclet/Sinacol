@@ -97,4 +97,7 @@ class Conciliador extends Model implements Auditable
     public function firmas(){
         return $this->morphMany(FirmaDocumento::class,'firmable');
     }
+    public function horario_comida(){
+        return $this->morphOne(HorarioInhabil::class,'inhabilitable');
+    }
 }

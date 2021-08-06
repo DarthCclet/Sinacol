@@ -1550,6 +1550,12 @@ class SolicitudController extends Controller {
                         $datos_audiencia = FechaAudienciaService::obtenerFechaAudiencia(date("Y-m-d"), $centroResponsable, $diasHabilesMin, $diasHabilesMax, $solicitud->virtual);
                         $multiple = false;
                     }
+                    if($datos_audiencia['encontro_audiencia']){
+                        if(FechaAudienciaService::validarFechasAsignables($solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                            DB::rollback();
+                            return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
+                        }
+                    }
                     //                Solicitamos la fecha limite de notificacion solo cuando el tipo de notificación es por notificador sin cita
                     $fecha_notificacion = null;
                     if ((int) $request->tipo_notificacion_id == 2) {
@@ -2138,5 +2144,20 @@ class SolicitudController extends Controller {
     public function showPorCaducar(){
         $solicitudes = HerramientaServiceProvider::getSolicitudesPorCaducar(true);
         return view('expediente.solicitudes.porCaducar',compact("solicitudes"));
+    }
+    public function validarFechasAsignables(){
+        $audiencia = Audiencia::find($this->request->audiencia_id);
+        if($audiencia->expediente->solicitud->tipo_solicitud_id == 1){
+            $fecha_solicitada = $this->request->fecha_solicitada;
+            $dt = new Carbon($audiencia->expediente->solicitud->created_at);
+            $dt2 = new Carbon($fecha_solicitada);
+            /*$dias = $dt->diffInDaysFiltered(function(Carbon $date) {
+                return !$date->isWeekend();
+            }, $dt2);*/
+            $dias = $dt->diffInDays($dt2);
+            return $dias;
+        }else{
+            return 1;
+        }
     }
 }
