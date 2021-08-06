@@ -2691,6 +2691,7 @@ class AudienciaController extends Controller {
                         $audiencia_notificar_id = $audiencia->id;
                         $response = array("tipo" => 2, "response" => $audiencia);
                     } else {
+                        $solicitud = Solicitud::find($audiencia->expediente->solicitud_id);
                         $audiencia->update(array("resolucion_id" => 2, "finalizada" => true, "tipo_terminacion_audiencia_id" => 3,'fecha_resolucion'=>now()));
                         /*
                          * Aqui se cumple el caso 2 dónde no acudieron las partes citadas con solicitante
