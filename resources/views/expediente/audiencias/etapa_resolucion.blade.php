@@ -2087,7 +2087,7 @@
                 error:function(data){
                     swal({
                         title: 'Algo salió mal',
-                        text: 'No se guardo el registro',
+                        text: data.responseJSON.message,
                         icon: 'warning'
                     });
 
@@ -2207,6 +2207,13 @@
                 }catch(error){
                     console.log(error);
                 }
+            },
+            error:function(data){
+                swal({
+                    title: 'Algo salió mal',
+                    text: data.responseJSON.message,
+                    icon: 'warning'
+                });
             }
         });
     }
