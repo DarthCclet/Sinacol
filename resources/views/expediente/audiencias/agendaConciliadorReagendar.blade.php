@@ -29,29 +29,12 @@
                     }
                 });
             });
-            function construirCalendario(arregloGeneral){
-                console.log(arregloGeneral);
-                $('#external-events .fc-event').each(function() {
-                    // store data so the calendar knows to render an event upon drop
-                    $(this).data('event', {
-                            title: $.trim($(this).text()), // use the element's text as the event title
-                            stick: true // maintain when user navigates (see docs on the renderEvent method)
-                    });
-                });
-                $('#calendario').fullCalendar({
-                    header: {
-                        left: 'month,agendaWeek',
-                        center: 'title',
-                        right: 'prev,today,next '
-                    },
-                    selectable: true,
-                    selectHelper: true,
-                    minTime: arregloGeneral.minTime,
-                    maxTime: arregloGeneral.maxTime,
-                    select: function(start, end,a,b) {
+            function validarFechaAsignacionReagendar(start, end, a, b) {
+                $.get("/validarFechaAsignable/" + $("#audiencia_id").val() + "/" + moment(start).format('Y-MM-DD'), function(
+                    data) {
+                    if (data <= 45) {
                         var ahora = new Date();
                         end=moment(end).format('Y-MM-DD HH:mm:ss');
-                        console.log(end);
                         start=moment(start).format('Y-MM-DD HH:mm:ss');
                         var startVal = new Date(start);
                         if(startVal > ahora){ //validar si la fecha es mayor que hoy
@@ -70,6 +53,31 @@
                             });
                         }
                         $('#calendario').fullCalendar('unselect');
+                    } else {
+                        swal("Error", "La fecha seleccionada rebasa los 45 días hábiles permitidos", "error");
+                    }
+                })
+            }
+            function construirCalendario(arregloGeneral){
+                $('#external-events .fc-event').each(function() {
+                    // store data so the calendar knows to render an event upon drop
+                    $(this).data('event', {
+                            title: $.trim($(this).text()), // use the element's text as the event title
+                            stick: true // maintain when user navigates (see docs on the renderEvent method)
+                    });
+                });
+                $('#calendario').fullCalendar({
+                    header: {
+                        left: 'month,agendaWeek',
+                        center: 'title',
+                        right: 'prev,today,next '
+                    },
+                    selectable: true,
+                    selectHelper: true,
+                    minTime: arregloGeneral.minTime,
+                    maxTime: arregloGeneral.maxTime,
+                    select: function(start, end,a,b) {
+                        validarFechaAsignacionReagendar(start, end, a, b);
                     },
                     selectOverlap: function(event) {
                         return event.rendering !== 'background';
@@ -158,7 +166,7 @@
                             }
                             $("#sala_cambio_fecha_id").select2();
                         }catch(error){
-                            console.log(error);
+
                         }
                     }
                 });
@@ -206,7 +214,7 @@
                                     });
                                 }
                             }catch(error){
-                                console.log(error);
+                                
                             }
                         },error: function(){
                             v

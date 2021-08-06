@@ -54,6 +54,8 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('conciliadores/disponibilidades','ConciliadorController@getDisponibilidades');
     Route::Post('conciliadores/incidencias','ConciliadorController@incidencia');
     Route::Post('conciliadores/roles','ConciliadorController@roles');
+    Route::Get('conciliador/horario_comida/{conciliador_id}','ConciliadorController@GetHorarioComida');
+    Route::Post('conciliador/horario_comida','ConciliadorController@GuardarHorarioComida');
     Route::Post('conciliadores/ConciliadoresDisponibles','ConciliadorController@conciliadoresDisponibles');
     Route::Get('conciliadores/ConciliadorAudiencias','ConciliadorController@conciliadorAudiencias');
     Route::resource('disponibilidad','DisponibilidadController');
@@ -242,6 +244,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('reportes','ReportesController@index')->name('reportes.forma');
     Route::get('reportes/reporte','ReportesController@reporte')->name('reportes.reporte');
     Route::get('reportes/reporte-operativo','ReportesController@reporteOperativo')->name('reportes.reporte-opeativo');
+
+    /*
+     * Validación de fechas asignables desde el calendario
+     */
+    Route::get('validarFechaAsignable/{audiencia_id}/{fecha_solicitada}','SolicitudController@validarFechasAsignables');
 
 });
 
