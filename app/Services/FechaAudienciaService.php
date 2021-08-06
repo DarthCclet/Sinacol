@@ -754,4 +754,14 @@ class FechaAudienciaService{
         }
         return true;
     }
+    public static function calcularFechaNotificador($fecha){
+        $fecha_d = new Carbon($fecha);
+        $fecha_nueva = $fecha_d;
+        for ($i = 1; $i <= 15; $i++) {
+            if(!$fecha_nueva->isWeekend()){
+                $fecha_nueva = $fecha_nueva->addDay();
+            }
+        }
+        return $fecha_nueva->format("d/m/y");
+    }
 }

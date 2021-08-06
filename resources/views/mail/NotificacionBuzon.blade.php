@@ -50,7 +50,7 @@
             </div>
             <!-- end brand -->
             <!-- begin login-content -->
-            <div class="login-content" style="background: #f2f4f5 !important;Margin:-10px;">
+            <div class="login-content" style="background: #f2f4f5 !important;">
                 <br>
                 <h1>Centro Federal de Conciliación y Registro Laboral.<br><small>Sistema de conciliación</small></h1>
                 <p>

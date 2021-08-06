@@ -1471,6 +1471,7 @@ class SolicitudController extends Controller {
                             }
                         }
                         $parte->ratifico = true;
+                        $parte->notificacion_buzon = $acepta_buzon;
                         $parte->save();
                     }
                 }
