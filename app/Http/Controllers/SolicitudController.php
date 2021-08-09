@@ -2,20 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Centro;
-use App\DatoLaboral;
-use App\Domicilio;
-use App\Estado;
-use App\Expediente;
 use App\Audiencia;
+use App\AudienciaParte;
+use App\CanalFolio;
+use App\Centro;
+use App\CentroMunicipio;
 use App\ClasificacionArchivo;
 use App\Conciliador;
+use App\ConciliadorAudiencia;
 use App\Contacto;
+use App\DatoLaboral;
+use App\Documento;
+use App\Domicilio;
+use App\Estado;
 use App\EstatusSolicitud;
 use App\Events\GenerateDocumentResolution;
-use Illuminate\Http\Request;
-use \App\Solicitud;
-use Validator;
+use App\Events\RatificacionRealizada;
+use App\Expediente;
 use App\Filters\SolicitudFilter;
 use App\Genero;
 use App\GiroComercial;
@@ -29,37 +32,35 @@ use App\ObjetoSolicitud;
 use App\Ocupacion;
 use App\Parte;
 use App\Periodicidad;
+use App\Providers\HerramientaServiceProvider;
 use App\ResolucionParteExcepcion;
 use App\Rules\Curp;
-use App\TipoAsentamiento;
-use App\TipoContacto;
-use App\TipoVialidad;
-use App\CentroMunicipio;
-use App\User;
 use App\Sala;
 use App\SalaAudiencia;
-use App\ConciliadorAudiencia;
-use App\AudienciaParte;
-use App\CanalFolio;
-use App\Documento;
+use App\Services\ContadorService;
+use App\Services\FechaAudienciaService;
+use App\Services\FolioService;
+use App\Solicitud;
+use App\TipoAsentamiento;
+use App\TipoContacto;
+use App\TipoIncidenciaSolicitud;
+use App\TipoSolicitud;
+use App\TipoVialidad;
+use App\Traits\FechaNotificacion;
+use App\User;
+use Carbon\Carbon;
+use Exception;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use App\Services\FechaAudienciaService;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
-use App\Events\RatificacionRealizada;
-use App\TipoIncidenciaSolicitud;
-use App\TipoSolicitud;
-use Carbon\Carbon;
-use App\Traits\FechaNotificacion;
-use Exception;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-use App\Providers\HerramientaServiceProvider;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Validator;
 
 class SolicitudController extends Controller {
 
@@ -70,14 +71,45 @@ class SolicitudController extends Controller {
     const DIAS_EXPIRAR = 44;
 
     /**
+     * Tipos de contador solicitud
+     */
+    const TIPO_CONTADOR_SOLICITUD = 1;
+
+    /**
+     * Tipo de contador expediente
+     */
+    const TIPO_CONTADOR_EXPEDIENTE = 2;
+
+    /**
+     * Tipos de contador audiencia
+     */
+    const TIPO_CONTADOR_AUDIENCIA = 3;
+
+    /**
+     * Centro default para contador en solicitud
+     */
+    const CENTRO_DEFAULT_CONTADOR_ID = 1;
+
+    /**
      * Instancia del request
      * @var Request
      */
     protected $request;
 
-    public function __construct(Request $request) {
+    protected $folioService;
+    protected $contadorService;
+
+    /**
+     * SolicitudController constructor.
+     * @param Request $request El request REST
+     * @param ContadorService $contadorService Es el servicio que se encarga de proveer contadores consecutivos
+     * @param FolioService $folioService Es el servicio que se encarga de generar folios de expedientes con un formato específico
+     */
+    public function __construct(Request $request, ContadorService $contadorService, FolioService $folioService) {
         // $this->middleware("auth");
         $this->request = $request;
+        $this->folioService = $folioService;
+        $this->contadorService = $contadorService;
     }
 
     public function index() {
@@ -146,7 +178,7 @@ class SolicitudController extends Controller {
                 } else {
                     $total = Solicitud::count();
                 }
-                
+
                 $draw = $this->request->get('draw');
                 return $this->sendResponseDatatable($total, $filtered, $draw, $solicitud, null);
             }
@@ -161,7 +193,7 @@ class SolicitudController extends Controller {
             return redirect('solicitudes')->with('error', 'Error al consultar la solicitud');
         }
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -465,9 +497,8 @@ class SolicitudController extends Controller {
             ]);
         }
 
-        $ContadorController = new ContadorController();
-        $folio = $ContadorController->getContador(1, 1);
         DB::beginTransaction();
+        $consecutivo_solicitud = $this->contadorService->getContador(date("Y"), self::TIPO_CONTADOR_SOLICITUD, self::CENTRO_DEFAULT_CONTADOR_ID);
         try {
             // Solicitud
             $userAuth = Auth::user();
@@ -486,8 +517,8 @@ class SolicitudController extends Controller {
             $solicitud['fecha_recepcion'] = $date->format('Y-m-d H:i:s');
             $solicitud['centro_id'] = $this->getCentroId();
             //Obtenemos el contador para solicitud, se manda tipo contador (1 solicitud) y centro_id
-            $solicitud['folio'] = $folio->contador;
-            $solicitud['anio'] = $folio->anio;
+            $solicitud['folio'] = $consecutivo_solicitud;
+            $solicitud['anio'] = date("Y");
             $solicitud['ratificada'] = false;
             // Si es solicitud virtual se asigna canal unico para liga unica
             if ($solicitud['virtual'] == "true") {
@@ -1329,25 +1360,38 @@ class SolicitudController extends Controller {
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Solicitud  $solicitud
+     * @param Solicitud $solicitud
      * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
+     * @throws Exception
      */
     public function destroy(Solicitud $solicitud) {
         $solicitud->delete();
         return response()->json(null, 204);
     }
 
+    /**
+     * Ratificar con incompetencia
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Routing\Redirector
+     */
     public function ratificarIncompetencia(Request $request) {
         DB::beginTransaction();
         try {
             $solicitud = Solicitud::find($request->id);
-            $ContadorController = new ContadorController();
-            //Obtenemos el contador
-            $folioC = $ContadorController->getContador(1, $solicitud->centro->id);
-            $edo_folio = $solicitud->centro->abreviatura;
-            $folio = $edo_folio . "/CJ/I/" . $folioC->anio . "/" . sprintf("%06d", $folioC->contador);
+
             //Creamos el expediente de la solicitud
-            $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
+            $anio = date("Y");
+
+            //Obtenemos el folio y su consecutivo
+            $parametrosFolioExpediente = $solicitud->toArray();
+            $parametrosFolioExpediente['tipo_contador_id'] = self::TIPO_CONTADOR_SOLICITUD;
+            list($consecutivo, $folio) = $this->folioService->getFolio((object) $parametrosFolioExpediente);
+
+            $expediente = Expediente::create([
+                "solicitud_id" => $request->id, "folio" => $folio, "anio" => $anio, "consecutivo" => $consecutivo
+            ]);
+
             //ratificacion de las partes
             foreach ($solicitud->partes as $key => $parte) {
                 if (count($parte->documentos) == 0) {
@@ -1355,6 +1399,7 @@ class SolicitudController extends Controller {
                     $parte->update();
                 }
             }
+
             $user_id = Auth::user()->id;
             $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"fecha_incidencia"=>now(),"justificacion_incidencia"=>$this->request->justificacion,"tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
 
@@ -1397,7 +1442,7 @@ class SolicitudController extends Controller {
             return $solicitud;
         } catch (\Throwable $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
-                    " Se emitió el siguiente mensale: " . $e->getMessage() .
+                    " Se emitió el siguiente mensaje: " . $e->getMessage() .
                     " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
             DB::rollback();
             // dd($e);
@@ -1408,25 +1453,34 @@ class SolicitudController extends Controller {
         }
     }
 
+    /**
+     * Controlador para el proceso de ratificación
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Routing\Redirector
+     */
     public function Ratificar(Request $request) {
         if (!self::validarCentroAsignacion()) {
             return $this->sendError('No se ha configurado el centro', 'Error');
             exit;
         }
-        $ContadorController = new ContadorController();
-        $folioC = $ContadorController->getContador(1,auth()->user()->centro_id);
-        $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
+
+        // Año para solicitiar contadores y folios
+        $anio = date("Y");
+
         DB::beginTransaction();
+        $consecutivo_audiencia = $this->contadorService->getContador($anio, self::TIPO_CONTADOR_AUDIENCIA, auth()->user()->centro_id);
         $solicitud = Solicitud::find($request->id);
         try {
 //            Validamos si ya hay un expediente
             if ($solicitud->expediente == null) {
 
-                //Obtenemos el contador
-                $edo_folio = $solicitud->centro->abreviatura;
-                $folio = $edo_folio . "/CJ/I/" . $folioC->anio . "/" . sprintf("%06d", $folioC->contador);
+                //Obtenemos el folio y su consecutivo
+                $parametrosFolioExpediente = $solicitud->toArray();
+                $parametrosFolioExpediente['tipo_contador_id'] = self::TIPO_CONTADOR_SOLICITUD;
+                list($consecutivo, $folio) = $this->folioService->getFolio((object) $parametrosFolioExpediente);
+
                 //Creamos el expediente de la solicitud
-                $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
+                $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => date("Y"), "consecutivo" => $consecutivo]);
                 foreach ($solicitud->partes as $key => $parte) {
                     if (count($parte->documentos) == 0) {
                         $parte->ratifico = true;
@@ -1498,8 +1552,8 @@ class SolicitudController extends Controller {
                                 "conciliador_id" => $conciliador->id,
                                 "numero_audiencia" => 1,
                                 "reprogramada" => false,
-                                "anio" => $folioAudiencia->anio,
-                                "folio" => $folioAudiencia->contador,
+                                "anio" => $anio,
+                                "folio" => $consecutivo_audiencia,
                                 "fecha_cita" => $fecha_cita
                     ]);
 
@@ -1583,8 +1637,8 @@ class SolicitudController extends Controller {
                                 "conciliador_id" => $datos_audiencia["conciliador_id"],
                                 "numero_audiencia" => 1,
                                 "reprogramada" => false,
-                                "anio" => $folioAudiencia->anio,
-                                "folio" => $folioAudiencia->contador,
+                                "anio" => $anio,
+                                "folio" => $consecutivo_audiencia,
                                 "encontro_audiencia" => $datos_audiencia["encontro_audiencia"],
                                 "fecha_cita" => $fecha_cita,
                                 "etapa_notificacion_id" => $etapa->id,
@@ -2015,7 +2069,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no tiene audiencias, crear incompetencia en proceso de confirmación ', 'Error');
                 }
             }
-            
+
             if($request->tipo_incidencia_solicitud_id == 7){
                 if ($solicitud->expediente && $solicitud->expediente->audiencia) {
                     event(new GenerateDocumentResolution($solicitud->expediente->audiencia()->orderBy('id','desc')->first()->id,$solicitud->id,61,24,null,null));
@@ -2024,7 +2078,7 @@ class SolicitudController extends Controller {
                     return $this->sendError(' Esta solicitud no esta confirmada, no se puede realizar este proceso ', 'Error');
                 }
             }
-            
+
             DB::commit();
             return $this->sendResponse($solicitud, 'SUCCESS');
         } catch (Exception $e) {

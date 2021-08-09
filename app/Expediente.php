@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Exceptions\FolioExpedienteExistenteException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -19,6 +20,7 @@ class Expediente extends Model implements Auditable
         $data = $this->cambiarEvento($data);
         return $data;
     }
+
     /**
      * Funcion para asociar con modelo Audiencia
      * Utilizando belongsTo para relaciones 1 a 1
@@ -28,12 +30,28 @@ class Expediente extends Model implements Auditable
 		return $this->hasMany('App\Audiencia');
 	}
 
-  /**
-   * Funcion para asociar con modelo Solicitud
-   * Utilizando belongsTo para relaciones 1 a 1
-   * * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-   */
-  public function solicitud(){
-    return $this->belongsTo('App\Solicitud');
-  }
+    /**
+     * Funcion para asociar con modelo Solicitud
+     * Utilizando belongsTo para relaciones 1 a 1
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function solicitud(){
+        return $this->belongsTo('App\Solicitud');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        // Antes de crear el expediente revisamos si el folio ya existe en otro expediente
+        static::creating(function ($model) {
+            // Si existe ya el folio del expediente enviamos excepción
+            if(self::whereFolio($model->folio)->first()){
+                throw new FolioExpedienteExistenteException();
+            }
+        });
+    }
 }

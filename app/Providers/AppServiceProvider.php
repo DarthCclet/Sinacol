@@ -17,11 +17,21 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+
+        // Proveedor de contadores
+        $this->app->register(ContadorServiceProvider::class);
+
+        // Proveedor de folios
+        $this->app->register(FolioServiceProvider::class);
+
+
         //
         $baseURL = "https://devnotifica.lxl.mx/api/v1/notificaciones";
         $this->app->singleton(Client::class,function($app) use ($baseURL){
             return new Client(['base_uri' => $baseUrl]);
         });
+
+
     }
 
     /**
@@ -41,6 +51,6 @@ class AppServiceProvider extends ServiceProvider
                         ->withPath('');
                 });
         }
-        
+
     }
 }

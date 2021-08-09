@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Audiencia;
 use App\Exceptions\FechaInvalidaException;
 use App\Exceptions\ParametroNoValidoException;
-use App\Http\Controllers\ContadorController;
 use App\DatoLaboral;
 use App\ObjetoSolicitud;
 use App\Parte;
@@ -22,33 +21,52 @@ use Illuminate\Support\Str;
  */
 class RegistroSolicitudExterna
 {
+    /**
+     * Tipo de contador para consecutivo
+     */
+    const TIPO_CONTADOR_SOLICITUD = 1;
+
+    /**
+     * @var ContadorService
+     */
+    protected $contadorService;
+
+    /**
+     * RegistroSolicitudExterna constructor.
+     * @param ContadorService $contadorService
+     */
+    public function __construct(ContadorService $contadorService) {
+        $this->contadorService = $contadorService;
+    }
+
     public function registro($datosSolicitud, $limit=15, $page=1)
     {
         //Obtenemos el contador
-        $ContadorController = new ContadorController();
-        $folio = $ContadorController->getContador(1,$datosSolicitud->centro_id);
+        $anio = date("Y");
+        $consecutivo = $this->contadorService->getContador($anio, self::TIPO_CONTADOR_SOLICITUD, $datosSolicitud->centro_id);
+
         $solicitud = array();
-        
+
         // Construimos la solicitud
         $solicitud['user_id'] = 1;
         $solicitud['estatus_solicitud_id'] = 1;
-        $solicitud['folio'] = $folio->contador;
-        $solicitud['anio'] = $folio->anio;
+        $solicitud['folio'] = $consecutivo;
+        $solicitud['anio'] = $anio;
         $solicitud['centro_id'] = $datosSolicitud->centro_id;
         $solicitud['ratificada'] = false;
         $solicitud['solicita_excepcion'] = false;
         $solicitud['fecha_recepcion'] = date("Y-m-d");
         $solicitud['fecha_conflicto'] = $datosSolicitud->fecha_conflicto;
         $solicitud['observaciones'] = $datosSolicitud->observaciones;
-        
-        
-        
+
+
+
         $solicitudSaved = Solicitud::create($solicitud);
         // Recorremos todos los objetos de la solicitus
         foreach($datosSolicitud->objetos_solicitud as $objeto_id){
             $solicitudSaved->objeto_solicitudes()->attach($objeto_id);
         }
-        
+
         // Recorremos los actores
         $partes = array_merge($datosSolicitud->parte_actora, $datosSolicitud->parte_demandada);
         foreach($partes as $parte){
@@ -62,7 +80,7 @@ class RegistroSolicitudExterna
             $parteArray["curp"] = $parte->curp;
             $parteArray["rfc"] = $parte->rfc;
             $parteArray["fecha_nacimiento"] = $parte->fecha_nacimiento;
-            
+
             $parteArray["nacionalidad_id"] = $parte->nacionalidad_id;
             $parteArray["entidad_nacimiento_id"] = $parte->entidad_nacimiento_id;
             $parteArray["solicitud_id"] = $solicitudSaved->id;
@@ -84,7 +102,7 @@ class RegistroSolicitudExterna
                 DatoLaboral::create((array)$datosLaborales);
             }
         }
-        
+
         # Sección para guardar documentos
         $documento = $datosSolicitud->documento;
         $directorio = 'solicitudes/'.$solicitudSaved->id;
@@ -107,7 +125,7 @@ class RegistroSolicitudExterna
             "firmado" => "false",
             "clasificacion_archivo_id" => $tipoArchivo->id ,
         ]);
-        
+
         $respuesta = array();
         $respuesta["folio_solicitud"] = $solicitudSaved->folio;
         $respuesta["anio"] = $solicitudSaved->anio;
@@ -138,7 +156,7 @@ class RegistroSolicitudExterna
             throw new ParametroNoValidoException("Se debe agregar al menos un objeto de la solicitud.", 1020);
             return null;
         }
-        
+
         // validar parte_actora
         if(!isset($paramsJSON->parte_actora) || !$paramsJSON->parte_actora || !count($paramsJSON->parte_actora) ){
             throw new ParametroNoValidoException("Se debe agregar al menos una parte actora.", 1020);
@@ -211,7 +229,7 @@ class RegistroSolicitudExterna
                 throw new ParametroNoValidoException("El rfc de la persona moral es requerido.", 1021);
                 return null;
             }
-            
+
             $parte->domicilio = $this->validarDomicilio($parte->domicilio);
         }else{
             throw new ParametroNoValidoException("Agrega un tipo de persona valido.", 1020);
@@ -226,7 +244,7 @@ class RegistroSolicitudExterna
             $parte->tipo_parte_id = 1;
         }else{
             $parte->tipo_parte_id = 2;
-            
+
         }
         $contacto = $this->validarContacto($parte->contactos);
         return $parte;
@@ -296,7 +314,7 @@ class RegistroSolicitudExterna
                 throw new ParametroNoValidoException("La ocupación es obligatoria para los datos laborales.", 1021);
                 return null;
             }
-            
+
             if(!isset($datos_laborales->labora_actualmente)){
                 throw new ParametroNoValidoException("Se debe indicar si aun se labora para los datos laborales.", 1021);
                 return null;
