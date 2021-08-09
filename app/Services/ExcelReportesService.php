@@ -124,7 +124,7 @@ class ExcelReportesService
                 # Rechazamos cualquier dato no previsto en la primera etapa
                 return in_array($valor->abreviatura, $this->noImp);
             }
-        )->map(
+        )->unique('id')->map(
             function ($v, $k) {
                 # Extraemos los valores de los datos que vamos a poner en las columnas desagregadas únicamente
                 $objeto = null;
@@ -213,6 +213,7 @@ class ExcelReportesService
             'CENTRO',
             'FOLIO',
             'AÑO',
+            'EXPEDIENTE',
             'FECHA RECEPCIÓN',
             'FECHA CONFIRMACIÓN',
             'FECHA CONFLICTO',
@@ -226,7 +227,7 @@ class ExcelReportesService
 
         # Seteo de encabezados
         $sheet->getStyle('A1')->applyFromArray($this->tituloH1());
-        $sheet->getStyle('A3:L3')->applyFromArray($this->th1());
+        $sheet->getStyle('A3:M3')->applyFromArray($this->th1());
         $sheet->setCellValue('A1', 'SOLICITUDES CONFIRMADAS (DESAGREGADO)');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $sheet->getColumnDimension($columna)->setAutoSize(true);
@@ -240,7 +241,7 @@ class ExcelReportesService
                 # Rechazamos cualquier dato no previsto en la primera etapa
                 return in_array($valor->abreviatura, $this->noImp);
             }
-        )->map(
+        )->unique('id')->map(
             function ($v, $k) {
                 # Extraemos los valores de los datos que vamos a poner en las columnas desagregadas únicamente
                 $objeto = null;
@@ -251,6 +252,7 @@ class ExcelReportesService
                     'abreviatura' => $v->abreviatura,
                     'folio' => $v->folio,
                     'anio' => $v->anio,
+                    'expediente' => $v->folio_unico,
                     'fecha_recepcion' => $v->fecha_recepcion,
                     'fecha_confirmacion' => $v->fecha_ratificacion,
                     'fecha_conflicto' => $v->fecha_conflicto,
@@ -259,7 +261,8 @@ class ExcelReportesService
                     'objeto_solicitud' => $objeto_solicitud,
                     'industria' => $industria,
                     'codigo_scian' => $codigo_scian,
-                    'id' => $v->sid
+                    'id' => $v->sid,
+                    'deleted_at' => $v->deleted_at
                 ];
             }
         );
@@ -740,39 +743,53 @@ class ExcelReportesService
             $conveniosWorkSheet->setCellValue('H4', 'Sin resolución');
 
             //$solicitudes = $convenios->unique('solicitud_id')->groupBy('abreviatura');
-            $solicitudes = $convenios->unique('solicitud_id')->groupBy('abreviatura')->map(
+            $solicitudes = $convenios->get()
+                ->unique('solicitud_id')
+                ->groupBy('abreviatura')
+                ->map(
                 function ($item, $k) {
                     return $item->count();
                 }
             );
 
-            $hubo_convenio = $convenios->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->unique('solicitud_id')->groupBy('abreviatura')->map(
+            $hubo_convenio = $convenios
+                ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+                ->get()
+                ->unique('solicitud_id')->groupBy('abreviatura')->map(
                 function ($item, $k) {
                     return $item->count();
                 }
             );
 
-
-            $monto_convenio = $convenios->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)->groupBy('abreviatura')->map(
+            $monto_convenio = $convenios
+                ->where('resolucion_id', ReportesService::RESOLUCIONES_HUBO_CONVENIO)
+                ->get()
+                ->groupBy('abreviatura')->map(
                 function ($item, $k) {
                     return $item->sum('monto');
                 }
             );
 
-            $archivados = $convenios->where('resolucion_id', ReportesService::RESOLUCIONES_ARCHIVADO)->groupBy('abreviatura')->map(
+            $archivados = $convenios
+                ->where('resolucion_id', ReportesService::RESOLUCIONES_ARCHIVADO)
+                ->get()
+                ->groupBy('abreviatura')->map(
                 function ($item, $k) {
                     return $item->unique('solicitud_id')->count();
                 }
             );
 
             //TODO ?
-            $sin_resolucion = $convenios->where('resolucion_id', ReportesService::RESOLUCIONES_ARCHIVADO)->groupBy('abreviatura')->map(
+            $sin_resolucion = $convenios->where('resolucion_id', ReportesService::RESOLUCIONES_ARCHIVADO)
+                ->get()->groupBy('abreviatura')->map(
                 function ($item, $k) {
                     return $item->count();
                 }
             );
 
-            $no_hubo_convenio = $convenios->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)->groupBy('abreviatura')->map(
+            $no_hubo_convenio = $convenios->where('resolucion_id', ReportesService::RESOLUCIONES_NO_HUBO_CONVENIO)
+                ->get()
+                ->groupBy('abreviatura')->map(
                 function ($item, $k) {
                     return $item->unique('solicitud_id')->count();
                 }
@@ -1004,13 +1021,13 @@ class ExcelReportesService
         }
 
         # Desagregado
-        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,CONCILIADOR ID,CONCILIADOR,FECHA AUDIENCIA,NÚMERO AUDIENCIA,FINALIZADA');
+        $encabezado = explode(',','CENTRO,SOLICITUD_ID,AUDIENCIA_ID,EXPEDIENTE,CONCILIADOR ID,CONCILIADOR,FECHA AUDIENCIA,NÚMERO AUDIENCIA,INMEDIATA,FINALIZADA');
         foreach ($this->excelColumnasRango(count($encabezado) - 1, 'B') as $columna) {
             $workSheet->getColumnDimension($columna)->setAutoSize(true);
         }
         $this->arrayToExcel([$encabezado], $workSheet, 3);
 
-        $workSheet->getStyle('A3:I3')->applyFromArray($this->th1());
+        $workSheet->getStyle('A3:J3')->applyFromArray($this->th1());
         $workSheet->setCellValue('A1', 'AUDIENCIAS (DESAGREGADO)');
 
         $res = $audiencias->map(function($item){
@@ -1023,6 +1040,7 @@ class ExcelReportesService
                 'conciliador' => trim($item->conciliador_nombre." ".$item->conciliador_primer_apellido." ".$item->conciliador_segundo_apellido),
                 'fecha_audiencia' => $item->fecha_audiencia,
                 'numero_audiencia' => $item->numero_audiencia,
+                'tipo_solicitud' => $item->inmediata,
                 'finalizada' => $item->audiencia_finalizada,
             ];
         });

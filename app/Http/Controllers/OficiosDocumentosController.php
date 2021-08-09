@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\ClasificacionArchivo;
 use App\Expediente;
 use App\Services\StringTemplate;
 use App\Traits\GenerateDocument;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use PhpParser\Node\Expr\Cast\Object_;
 
 class OficiosDocumentosController extends Controller
@@ -102,11 +106,42 @@ class OficiosDocumentosController extends Controller
     public function imprimirPDF(Request $request)
     {
         $idExpediente =isset($request->id) ? $request->id :1;
+        $nombre_documento =isset($request->nombre_documento) ? $request->nombre_documento : "Oficio";
         // $idExpediente =1;
         $datos = $request->all();
         
         $html = $this->renderDocumento($datos,$idExpediente);
-        return $this->renderPDF($html,2); // plantilla 2 para header y footer
+        if($request->type == "generate"){
+            $solicitud = $this->guardarDocumento($idExpediente,$html,37,$nombre_documento);
+            return redirect()->route('solicitudes.consulta', ['id' => $solicitud->id]);
+        }
+        return $this->sendResponse($html, "Correcto"); // plantilla 2 para header y footer
+    }
+
+    public function guardarDocumento($idExpediente, $html, $tipo_archivo_id,$nombre_documento) {
+        $solicitud = Expediente::find($idExpediente)->solicitud;
+        $tipoArchivo = ClasificacionArchivo::find($tipo_archivo_id);
+        $uuid = Str ::uuid();
+        $archivo = $solicitud->documentos()->create(["descripcion" => $nombre_documento , 'uuid' => $uuid]);
+        $directorio = 'expedientes/' . $solicitud->expediente->id . '/solicitud/' . $solicitud->id;
+
+        $nombreArchivo = $tipoArchivo->nombre;
+        $nombreArchivo = $this->eliminar_acentos(str_replace(" ", "", $nombreArchivo));
+        $path = $directorio . "/" . $nombreArchivo . $archivo->id . '.pdf';
+        $fullPath = storage_path('app/' . $directorio) . "/" . $nombreArchivo . $archivo->id . '.pdf';
+        $this->renderPDF($html,1, $fullPath);
+
+        $archivo->update([
+            "nombre" => $nombre_documento,
+            "nombre_original" => str_replace($directorio . "/", '', $path), //str_replace($directorio, '',$path->getClientOriginalName()),
+            "ruta" => $path,
+            "tipo_almacen" => "local",
+            "uri" => $path,
+            "longitud" => round(Storage::size($path) / 1024, 2),
+            "firmado" => "false",
+            "clasificacion_archivo_id" => $tipoArchivo->id,
+        ]);
+        return $solicitud;
     }
     
     private function renderDocumento(array $request,$id)
@@ -132,11 +167,11 @@ class OficiosDocumentosController extends Controller
                     ";
             $end = "</body></html>";
     
-            $header = '<div class="header">' . $request['oficio-header'] . '</div>';
+            // $header = '<div class="header">' . $request['oficio-header'] . '</div>';
             $body = '<div class="body">' . $request['oficio-body']. '</div>';
             $footer = '<div class="footer">' . $request['oficio-footer'] . '</div>';
     
-            $blade = $style . $header . $body . $footer . $end;
+            $blade = $style . $body . $footer . $end;
             // $html = StringTemplate::renderPlantillaPlaceholders($blade, $vars);
             $html = StringTemplate::renderOficioPlaceholders($blade, $vars);
         }else{
