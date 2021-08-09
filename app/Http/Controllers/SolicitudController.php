@@ -1536,18 +1536,7 @@ class SolicitudController extends Controller {
                                     AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
                                 }
                             }
-                            if ($parte->tipo_parte_id == 2) {
-                                // generar citatorio de conciliacion
-                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
-                            }elseif($parte->tipo_parte_id == 1){
-                                if($parte->tipo_persona_id == 1){
-                                    $busqueda = $parte->curp;
-                                }else{
-                                    $busqueda = $parte->rfc;
-                                }
-                                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea la notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
-                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
-                            }
+                            
                             if($acepta_buzon == "true"){
                                 $parte->notificacion_buzon = true;
                                 $parte->fecha_aceptacion_buzon = now();
@@ -1579,6 +1568,18 @@ class SolicitudController extends Controller {
                                         event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$representado->id,null,null,$representado->id));
                                     }
                                 }
+                            }
+                            if ($parte->tipo_parte_id == 2) {
+                                // generar citatorio de conciliacion
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                            }elseif($parte->tipo_parte_id == 1){
+                                if($parte->tipo_persona_id == 1){
+                                    $busqueda = $parte->curp;
+                                }else{
+                                    $busqueda = $parte->rfc;
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea la notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
                             }
                             
                         }
