@@ -1218,31 +1218,36 @@
     $("#btnGuardarRatificar").on("click", function () {
         var validarRatificacion = RatificacionValidar();
         if (!validarRatificacion.error) {
-            // if(!$("#aceptar_notif_buzon").is(":checked")){
-            //         aceptarExpediente(validarRatificacion);
-            // }else{
-                $.ajax({
-                    url: '/solicitud/correos/' + $("#solicitud_id").val(),
-                    type: 'GET',
-                    dataType: "json",
-                    async: true,
-                    success: function (data) {
-                        try {
-                            if (data == null || data == "") {
-                                aceptarExpediente(validarRatificacion);
-                            } else {
-                                var tableSolicitantes = '';
-                                $.each(data, function (index, element) {
-                                    tableSolicitantes += '<tr>';
-                                    if (element.tipo_persona_id == 1) {
-                                        tableSolicitantes += '<td>' + element.nombre + ' ' + element.primer_apellido + ' ' + (element.segundo_apellido || "") + '</td>';
-                                    } else {
-                                        tableSolicitantes += '<td>' + element.nombre_comercial + '</td>';
+            $.ajax({
+                url: '/solicitud/correos/' + $("#solicitud_id").val(),
+                type: 'GET',
+                dataType: "json",
+                async: true,
+                success: function (data) {
+                    try {
+                        if (data == null || data == "") {
+                            swal({
+                                title: '¿Estas seguro?',
+                                text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
+                                icon: 'warning',
+                                buttons: {
+                                    cancel: {
+                                        text: 'Cancelar',
+                                        value: null,
+                                        visible: true,
+                                        className: 'btn btn-default',
+                                        closeModal: true,
+                                    },
+                                    confirm: {
+                                        text: 'Aceptar',
+                                        value: true,
+                                        visible: true,
+                                        className: 'btn btn-danger',
+                                        closeModal: true
                                     }
                                 }
                             }).then(function (isConfirm) {
                                 if (isConfirm) {
-
                                     swal({
                                         title: '¿Las partes concilian en la misma sala?',
                                         text: 'Selecciona el tipo de conciliación que se llevará a cabo',
@@ -1384,9 +1389,11 @@
                             $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
                             $("#modal-registro-correos").modal("show");
                         }
+                    } catch (error) {
+                        console.log(error);
                     }
-                });
-            // }
+                }
+            });
         } else {
             swal({
                 title: 'Error',
