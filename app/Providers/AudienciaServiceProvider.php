@@ -27,6 +27,8 @@ class AudienciaServiceProvider extends ServiceProvider
         $solicitantes = self::getSolicitantes($audiencia);
         $solicitados = self::getSolicitados($audiencia);
         $huboConvenio = false;
+        $totalPagoC = [];
+        $totalDeduccionC = [];
         foreach ($solicitados as $solicitado) {
             foreach ($solicitantes as $solicitante) {
                 $bandera = true;
@@ -58,6 +60,7 @@ class AudienciaServiceProvider extends ServiceProvider
                         ]);
                     }
                 }
+                
                 if ($bandera) {
                     //Se consulta comparecencia de solicitante
                     $parteS = $solicitante->parte;
@@ -175,6 +178,8 @@ class AudienciaServiceProvider extends ServiceProvider
             if ($solicitanteComparecio != null) {
                 if (isset($listaConceptos)) {
                     if (count($listaConceptos) > 0) {
+                        $totalPagoC[$solicitado->parte_id] = 0;
+                        $totalDeduccionC[$solicitado->parte_id] = 0.0;
                         foreach ($listaConceptos as $key => $conceptosSolicitante) {//solicitantes
                             if ($key == $solicitado->parte_id) {
                                 foreach ($conceptosSolicitante as $k => $concepto) {
@@ -186,6 +191,12 @@ class AudienciaServiceProvider extends ServiceProvider
                                         "monto" => $concepto["monto"],
                                         "otro" => $concepto["otro"]
                                     ]);
+                                    //$totalPagoC[$solicitado->parte_id] =  floatval($totalPagoC[$solicitado->parte_id])  + floatval($concepto["monto"]);
+                                    if($concepto["concepto_pago_resoluciones_id"] == 13){
+                                        $totalDeduccionC[$solicitado->parte_id] = floatval($totalDeduccionC[$solicitado->parte_id])  + floatval($concepto["monto"]);
+                                    }else{
+                                        $totalPagoC[$solicitado->parte_id] =  floatval($totalPagoC[$solicitado->parte_id])  + floatval($concepto["monto"]);
+                                    }
                                 }
                             }
                         }
@@ -208,12 +219,15 @@ class AudienciaServiceProvider extends ServiceProvider
         if ($huboConvenio) {
             if (isset($listaFechasPago)) { //se registran pagos diferidos
                 if (count($listaFechasPago) > 0) {
+                    //$totalPagoC[$solicitado->parte_id] = $totalPagoC[$solicitado->parte_id] - $totalDeduccionC[$solicitado->parte_id];
                     foreach ($listaFechasPago as $key => $fechaPago) {
                         ResolucionPagoDiferido::create([
                             "audiencia_id" => $audiencia->id,
                             "solicitante_id" => $fechaPago["idCitado"],
                             "monto" => $fechaPago["monto_pago"],
-                            "fecha_pago" => Carbon::createFromFormat('d/m/Y h:i', $fechaPago["fecha_pago"])->format('Y-m-d h:i')
+                            "descripcion_pago" => $fechaPago["descripcion_pago"],
+                            "fecha_pago" => Carbon::createFromFormat('d/m/Y h:i', $fechaPago["fecha_pago"])->format('Y-m-d h:i'),
+                            "diferido"=>true
                         ]);
                     }
                 }
@@ -229,6 +243,18 @@ class AudienciaServiceProvider extends ServiceProvider
                     }
                     $convenio = ResolucionPartes::where('parte_solicitante_id', $solicitante->parte_id)->where('parte_solicitada_id', $solicitado->parte_id)->where('terminacion_bilateral_id', 3)->first();
                     if ($convenio != null) {
+                        if (!isset($listaFechasPago)) {//si no se registraron pagos diferidos crear pago NO diferido
+                            $totalPagoC[$solicitado->parte_id] = $totalPagoC[$solicitado->parte_id] - $totalDeduccionC[$solicitado->parte_id];
+                            ResolucionPagoDiferido::create([
+                                "audiencia_id" => $audiencia->id,
+                                "solicitante_id" => $solicitado->parte_id,
+                                "monto" => $totalPagoC[$solicitado->parte_id],
+                                "descripcion_pago" => "Convenio",
+                                "fecha_pago" => $audiencia->fecha_audiencia ." ".$audiencia->hora_fin,
+                                "diferido"=>false
+                            ]);
+                        }
+
                         if($convenio->tipo_propuesta_pago_id == 4){
                             //generar convenio reinstalacion
                             event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 43, 15, $solicitante->parte_id, $solicitado->parte_id));

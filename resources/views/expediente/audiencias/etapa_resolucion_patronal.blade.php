@@ -409,9 +409,14 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                <label>Descripción de los pagos</label>
+                                <div id="textAdicional" >
+                                    <textarea class="form-control textarea" placeholder="Describir..." type="text" id="evidencia{{$etapa->paso}}">
+                                    </textarea>
+                                </div><br>
                                 <div class="col-md-12" style="margin-bottom: 5%">
                                     <div >
-                                    <input type="checkbox" data-render="switchery" data-theme="default" id="switchAdicionales" name='elementosAdicionales' onchange=" if($('#switchAdicionales').is(':checked')){ $('#modal-pago-diferido').modal('show'); $('#textAdicional').show(); $('#pagosDiferidos').show(); }else{$('#textAdicional').hide(); $('#pagosDiferidos').hide();}"/>
+                                    <input type="checkbox" data-render="switchery" data-theme="default" id="switchAdicionales" name='elementosAdicionales' onchange=" if($('#switchAdicionales').is(':checked')){ $('#modal-pago-diferido').modal('show'); $('#pagosDiferidos').show(); }else{ $('#pagosDiferidos').hide();}"/>
                                     </div>
                                     <div >
                                         <span class="text-muted m-l-5 m-r-20" for='switchAdicionales'>Señalar en este espacio las fechas de pagos diferidos con el monto a pagar en cada fecha. Se permiten fechas diferidas hasta un mes natural a partir de la fecha de convenio.</span>
@@ -436,6 +441,7 @@
                                                         <th>Citado</th>
                                                         <th>Fecha de pago</th>
                                                         <th>Monto</th>
+                                                        <th>Descripción</th>
                                                         <th>Acciones</th>
                                                     </tr>
                                                 </thead>
@@ -877,11 +883,18 @@
                             <p class="help-block needed">Otras prestaciones en especie (bonos, vales de despensa, seguros de gastos médicos mayores etc)</p>
                         </div>
                     </div>
+                    <div class="col-md-12 row">
+                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="domicilio_laboral"/>
+                        <p class="help-block needed"> &nbsp;El trabajador prestó los servicios en un domicilio distinto al del solicitante con el que hace el convenio. </p>
+                    </div>
+                    <div id="domicilioLaboral" style="display: none" >
+                        @include('includes.component.map',['identificador' => 'laboral','needsMaps'=>"false", 'instancia' => '1', 'tipo_solicitud' => 1])
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="text-right">
-                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                    <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times" onclick="closeDatoLaboral()"></i> Cancelar</a>
                     <button class="btn btn-primary btn-sm m-l-5" id="btnGuardarDatoLaboral"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
@@ -1396,6 +1409,14 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="form-group col-md-7">
+                                <label for="descripcion_pago" class="col-sm-12 control-label labelResolucion">Descripción de pago</label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="descripcion_pago" placeholder="Descripción de pago o derecho " class="form-control" />
+                                </div>
+                            </div>
+                        </div>
                         <div>
                             <div class="text-center">
                                 <button class="btn btn-warning text-white btn-sm" id='btnAgregarFechaPago'><i class="fa fa-plus"></i> Agregar Fecha</button>
@@ -1409,6 +1430,7 @@
                                         <th>Citado</th>
                                         <th>Fecha</th>
                                         <th>Monto</th>
+                                        <th>Descripción</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -1826,6 +1848,7 @@
                     // $('.btnPaso').hide();
                     break;
                 case 6:
+                $("#evidencia"+pasoActual).data("wysihtml5").editor.setValue(value.evidencia);
                 if(value.elementos_adicionales == "true"){
                         if(!$("#switchAdicionales").is(":checked")){
                             $("#switchAdicionales").click();
@@ -2987,8 +3010,10 @@
     $("#resolucion_id").on("change",function(){
         if($("#resolucion_id").val() == 1){
             $('#divLaboralesExtras').show();
+            $('#textAdicional').show(); 
         }else{
             $('#divLaboralesExtras').hide();
+            $('#textAdicional').hide(); 
         }
     });
 
@@ -3031,11 +3056,27 @@
                         $("#dias_vacaciones").val(data.dias_vacaciones);
                         $("#dias_aguinaldo").val(data.dias_aguinaldo);
                         $("#prestaciones_adicionales").val(data.prestaciones_adicionales);
+                        if(data.domicilios.length > 0){
+                            if(!($("#domicilio_laboral").is(":checked") )){
+                                $("#domicilio_laboral").click();
+                            }
+                            domicilioObj.cargarDomicilio(data.domicilios[0]);
+                        }else{
+                            if($("#domicilio_laboral").is(":checked") ){
+                                $("#domicilio_laboral").click();
+                            }
+                            domicilioObj.limpiarDomicilios();
+                        }
                     }
                     $("#modal-dato-laboral").modal("show");
                     if(extra){
                         $('#datosBasicos').hide();
                         $('#datosExtras').show();
+                        if($("#domicilio_laboral").is(":checked")){
+                            $("#domicilioLaboral").show();
+                        }else{
+                            $("#domicilioLaboral").hide();
+                        }
                     }else{
                         $('#datosBasicos').show();
                         $('#datosExtras').hide();
@@ -3046,6 +3087,15 @@
             }
         });
     }
+
+    $("#domicilio_laboral").change(function(){
+        if($("#domicilio_laboral").is(":checked")){
+            $("#domicilioLaboral").show();
+        }else{
+            $("#domicilioLaboral").hide();
+        }
+    });
+
     function highlightText(string){
         return string.replace($("#term").val().trim(),'<span class="highlighted">'+$("#term").val().trim()+"</span>");
     }
@@ -3207,7 +3257,47 @@
         }
         return error;
     }
+    function closeDatoLaboral(){
+        if($("#domicilio_laboral").is(":checked")){
+            $("#domicilio_laboral").click();
+        }
+        domicilioObj.limpiarDomicilios();
+        $("#dato_laboral_id").val("")
+        // $("#ocupacion_id").val(),
+        // $("#puesto").val(),
+        // $("#nss").val(),
+        // $("#remuneracion").val(),
+        // $("#periodicidad_id").val(),
+        // $("#labora_actualmente").is(":checked"),
+        // $("#fecha_ingreso").val()),
+        // $("#fecha_salida").val()),
+        // $("#jornada_id").val(),
+        // $("#horas_semanales").val(),
+        // $("#parte_id").val(),
+        // ("#resolucion_dato_laboral").val(),
+        //datos laborales extra
+        $("#horario_laboral").val("");
+        $("#horario_comida").val("");
+        if($("#comida_dentro").is(":checked")){
+            $("#comida_dentro").click();
+        }
+        $("#dias_descanso").val("");
+        $("#dias_vacaciones").val("");
+        $("#dias_aguinaldo").val("");
+        $("#prestaciones_adicionales").val("");
+    }
+
+
     $("#btnGuardarDatoLaboral").on("click",function(){
+        var domicilio =domicilioObj.getDomicilio();
+        if($("#domicilio_laboral").is(":checked") && domicilio == undefined ){
+            swal({
+                title: 'Error',
+                text: ' Domicilio incorrecto revise los datos ingresados.',
+                icon: 'error',
+            });
+            return;
+        }
         if(!validarDatosLaborales()){
             $.ajax({
                 url:"/partes/datoLaboral",
@@ -3236,6 +3326,7 @@
                     dias_vacaciones:$("#dias_vacaciones").val(),
                     dias_aguinaldo:$("#dias_aguinaldo").val(),
                     prestaciones_adicionales:$("#prestaciones_adicionales").val(),
+                    domicilio_laboral: domicilio,
                     _token:"{{ csrf_token() }}"
                 },
                 success:function(data){
@@ -3864,7 +3955,8 @@
 
             if(fpago <= _45dias){
                 let idCitado =$("#pago_citado_id").val();
-                if( $("#fecha_pago").val() != "" && $("#monto_pago").val() != ""){
+                //if( $("#fecha_pago").val() != "" && $("#monto_pago").val() != ""){
+                if( ($("#fecha_pago").val() != "" && $("#monto_pago").val() != "" ) || ($("#fecha_pago").val() != "" && $("#descripcion_pago").val() != "") ){
                     let existe = false;
                     $.each(listaConfigFechas,function(index,fecha){
                         if(fecha.fecha_pago == $("#fecha_pago").val() && fecha.idCitado ==idCitado ){
@@ -3888,14 +3980,18 @@
                                 idCitado:$("#pago_citado_id").val(),
                                 fecha_pago:$("#fecha_pago").val(),
                                 monto_pago:$("#monto_pago").val(),
+                                informacion_pago:"",
+                                pagado:false,
+                                descripcion_pago:$("#descripcion_pago").val(),
                             });
                         }
                         $("#fecha_pago").val('');
                         $("#monto_pago").val('');
+                        $("#descripcion_pago").val('');
                         cargarTablaFechasPago(listaConfigFechas);
                     }
                 }else{
-                    swal({title: 'Error',text: 'Debe ingresar fecha y monto de pago',icon: 'warning'});
+                    swal({title: 'Error',text: 'Debe ingresar fecha y monto de pago o descripcion',icon: 'warning'});
                 }
             }else{
                 swal({title: 'Error',text: 'La fecha de pago no puede exceder 45 d&iacute;as',icon: 'warning'});
@@ -3918,6 +4014,7 @@
                 table +='<td>'+$("#pago_citado_id option:selected").text(),+'</td>';
                 table +='<td>'+fechaPago.fecha_pago+'</td>';
                 table +='<td>'+(fechaPago.monto_pago)+'</td>';
+                table +='<td>'+(fechaPago.descripcion_pago)+'</td>';
                 table +='<td>';
                 // table +='<button onclick="eliminarFechaPago('+idCitado+','+index+')" class="btn btn-xs btn-success btnConfirmarPago" title="Registrar pago" style="display:none;">';
                 //     table +='<i class="fa fa-eye"></i>';
@@ -3927,7 +4024,8 @@
                 table +='</button>';
                 table +='</td>';
             table +='</tr>';
-            totalPagoFechas+=parseFloat(fechaPago.monto_pago);
+            //totalPagoFechas+=parseFloat(fechaPago.monto_pago);
+            totalPagoFechas+=(fechaPago.monto_pago!= null)? parseFloat(fechaPago.monto_pago): 0;
         });
 
         $("#totalPagosDiferidos").val(totalPagoFechas);
@@ -4245,6 +4343,7 @@
                 listaRelacion:listaResolucionesIndividuales,
                 listaConceptos:listaPropuestaConceptos,
                 listaFechasPago:listaConfigFechas,
+                descripcion_pagos: $('#evidencia6').val(),
                 elementos_adicionales: $('#switchAdicionales').is(':checked'),
                 _token:"{{ csrf_token() }}"
             },
