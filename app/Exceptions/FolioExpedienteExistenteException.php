@@ -11,7 +11,7 @@ class FolioExpedienteExistenteException extends Exception
 {
     public function __construct($message = "", $code = 0, Throwable $previous = null)
     {
-        if(!$message) $message = 'ERROR: FOLIO DEL EXPEDIENTE YA EXISTE PARA OTRO EXPEDIENTE. INTENTE GUARDAR NUEVAMENTE LA OPERACIÓN.A';
+        if(!$message) $message = 'ERROR: FOLIO DEL EXPEDIENTE YA EXISTE PARA OTRO EXPEDIENTE. INTENTE GUARDAR NUEVAMENTE LA OPERACIÓN.';
         parent::__construct($message, $code, $previous);
     }
 }
