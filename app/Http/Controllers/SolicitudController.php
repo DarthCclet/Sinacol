@@ -1626,6 +1626,12 @@ class SolicitudController extends Controller {
                         $datos_audiencia = FechaAudienciaService::obtenerFechaAudiencia(date("Y-m-d"), $centroResponsable, $diasHabilesMin, $diasHabilesMax, $solicitud->virtual);
                         $multiple = false;
                     }
+                    if($datos_audiencia['encontro_audiencia']){
+                        if(FechaAudienciaService::validarFechasAsignables($solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                            DB::rollback();
+                            return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
+                        }
+                    }
                     //                Solicitamos la fecha limite de notificacion solo cuando el tipo de notificación es por notificador sin cita
                     $fecha_notificacion = null;
                     if ((int) $request->tipo_notificacion_id == 2) {

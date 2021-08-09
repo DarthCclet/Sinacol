@@ -234,7 +234,6 @@ class ConciliadorController extends Controller
     public function conciliadorAudiencias(){
         return view('centros.conciliadores.agenda');
     }
-
     public function GetHorarioComida(){
         $conciliador = Conciliador::find($this->request->conciliador_id);
         $centro = $conciliador->centro;

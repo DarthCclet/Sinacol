@@ -150,22 +150,29 @@
                     }
                 });
             });
-
             function validarFechaAsignacion(start, end, a, b) {
                 $.get("/validarFechaAsignable/" + $("#audiencia_id").val() + "/" + moment(start).format('Y-MM-DD'), function(
                     data) {
                     if (data <= 45) {
                         var ahora = new Date();
-                        end = moment(end).format('Y-MM-DD HH:mm:ss');
+                        end=moment(end).format('Y-MM-DD HH:mm:ss');
                         console.log(end);
-                        start = moment(start).format('Y-MM-DD HH:mm:ss');
+                        start=moment(start).format('Y-MM-DD HH:mm:ss');
                         var startVal = new Date(start);
                         $("#fecha_audiencia").val(start);
-                        if (b.type == "month") { // si es la vista de mes, abrir la vista de semana
-                            $('#calendarioCambioAudiencia').fullCalendar("gotoDate", start);
+                        if(b.type == "month"){ // si es la vista de mes, abrir la vista de semana
+                            $('#calendarioCambioAudiencia').fullCalendar("gotoDate",start);
                             $(".fc-agendaWeek-button").click();
-                        } else {
-                            SolicitarAudiencia(start, end);
+                        }else{
+//                                if(startVal >= ahora){ //validar si la fecha es mayor que hoy
+                            SolicitarAudiencia(start,end);
+//                                }else{
+//                                    swal({
+//                                        title: 'Error',
+//                                        text: 'No puedes seleccionar una fecha previa',
+//                                        icon: 'warning'
+//                                    });
+//                                }
                         }
                         $('#calendarioCambioAudiencia').fullCalendar('unselect');
                     } else {
@@ -173,16 +180,14 @@
                     }
                 })
             }
-
-            function construirCalendario2(arregloGeneral) {
+            function construirCalendario2(arregloGeneral){
                 $('#external-events .fc-event').each(function() {
                     // store data so the calendar knows to render an event upon drop
                     $(this).data('event', {
-                        title: $.trim($(this).text()), // use the element's text as the event title
-                        stick: true // maintain when user navigates (see docs on the renderEvent method)
+                            title: $.trim($(this).text()), // use the element's text as the event title
+                            stick: true // maintain when user navigates (see docs on the renderEvent method)
                     });
                 });
-
                 $('#calendarioCambioAudiencia').fullCalendar({
                     header: {
                         left: 'month,agendaWeek',
@@ -193,8 +198,8 @@
                     selectHelper: true,
                     minTime: arregloGeneral.minTime,
                     maxTime: arregloGeneral.maxtime,
-                    select: function(start, end, a, b) {
-                        validarFechaAsignacion(start, end, a, b);
+                    select: function(start, end,a,b) {
+                        validarFechaAsignacion(start, end, a, b)
                     },
                     selectOverlap: function(event) {
                         return event.rendering !== 'background';

@@ -57,7 +57,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="text-right">
-                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-check"></i> Aceptar</a>
                     </div>
                 </div>
             </div>
@@ -356,7 +356,6 @@
                 $(this).parent().next().next().children().next().val("");
             }
         });
-
         function limpiarModal() {
             $("input[data-change='switchDia']").each(function() {
                 if ($(this).is(":checked")) {
@@ -368,7 +367,6 @@
             $(".horas").prop("disabled", true);
             $(".horas").css("border-color", "");
         }
-
         function getConciliadorDisponibilidad(id) {
             $.ajax({
                 url: "/conciliadores/disponibilidades",
@@ -431,7 +429,6 @@
                 });
             }
         });
-
         function validarCampos() {
             var error = false;
             var errorMsg = "";
@@ -488,14 +485,12 @@
             arreglo.errorMsg = errorMsg;
             return arreglo;
         }
-
         function limpiarModalIncidencia() {
             $("#incidencia_id").val("");
             $("#justificacion").val("").css("border-color", "");
             $("#fecha_inicio").val("").css("border-color", "");
             $("#fecha_fin").val("").css("border-color", "");
         }
-
         function getConciliadorIncidencias(id) {
             $.ajax({
                 url: "/conciliadores/disponibilidades",
@@ -558,7 +553,6 @@
                 }
             });
         }
-
         function cambiarDivIncidencias(aux) {
             if (aux == 1) {
                 $("#btnGuardarIncidencia").hide();
@@ -572,7 +566,6 @@
                 $("#divRegistroIncidencias").show();
                 $("#btnNuevaIncidencia").hide();
                 $("#divConsultaIncidencias").hide();
-
             }
         }
         $("#btnNuevaIncidencia").on("click", function() {
@@ -600,7 +593,6 @@
                     },
                     success: function(data) {
                         try {
-
                             getConciliadorIncidencias($("#id").val());
                             swal({
                                 title: 'Éxito',
@@ -620,7 +612,6 @@
                 });
             }
         });
-
         function validarCamposIncidencia() {
             var error = false;
             var msgError = '';
@@ -645,7 +636,6 @@
                 msgError: msgError
             };
         }
-
         function cargarIncidencia(id) {
             $.ajax({
                 url: "/incidencia/" + id,
@@ -654,7 +644,6 @@
                 async: true,
                 success: function(data) {
                     try {
-
                         if (data != null && data != "") {
                             limpiarModalIncidencia();
                             $("#incidencia_id").val(data.id);
@@ -675,7 +664,6 @@
                 }
             });
         }
-
         function eliminarIncidencia(id) {
             swal({
                 title: '¿Está seguro?',
@@ -709,7 +697,6 @@
                         },
                         success: function(data) {
                             try {
-
                                 if (data != null && data != "") {
                                     getConciliadorIncidencias($("#id").val());
                                 } else {
@@ -727,7 +714,6 @@
                 }
             });
         }
-
         //funciones para roles
         function getRolesConciliador(id) {
             $.ajax({
@@ -741,7 +727,6 @@
                 },
                 success: function(data) {
                     try {
-
                         if (data != null) {
                             $("#id").val(data.id);
                             limpiarRoles();
@@ -757,7 +742,6 @@
                 }
             });
         }
-
         function getRoles() {
             $.ajax({
                 url: "/roles-atencion",
@@ -794,7 +778,6 @@
                 }
             });
         }
-
         function cambio(id) {
             var borrar = false;
             if ($("#rol_conciliador_id" + id).val() != "" && !$("#check" + id).is(":checked")) {
@@ -816,12 +799,10 @@
                 }
             });
         }
-
         function limpiarRoles() {
             $(".checkRol").prop("checked", false);
             $(".hddRoles").val("");
         }
-
         function getHorarioComida(conciliador_id) {
             $.get("/conciliador/horario_comida/" + conciliador_id, function(data) {
                 if (data.horas != "" && data.horas) {
@@ -831,7 +812,6 @@
                         $("#horario_inhabil_id").val("");
                     }
                     $('#id').val(conciliador_id);
-
                     var table = '';
                     $.each(data.horas, function(index, element) {
                         if(data.horas[index + 1] != "undefined" && data.horas[index + 1] != undefined){

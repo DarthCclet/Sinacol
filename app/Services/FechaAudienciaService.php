@@ -6,6 +6,7 @@ use App\Sala;
 use App\Conciliador;
 use App\Audiencia;
 use App\Incidencia;
+use App\Solicitud;
 use Carbon\Carbon;
 use App\Traits\ValidateRange;
 use Illuminate\Support\Facades\DB;
@@ -105,7 +106,6 @@ class FechaAudienciaService{
                                             $hora_fin_audiencia = $audienciaQ->hora_fin;
                                             $hora_inicio_audiencia_nueva = $hora_inicio;
                                             $hora_fin_audiencia_nueva = $hora_fin;
-    
                                             if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
                                                 $choca_audiencia = true;
                                             }
@@ -256,7 +256,7 @@ class FechaAudienciaService{
                     "encontro_audiencia" => true
                 );
             }else{
-                return self::obtenerFechaAudiencia($diaHabilCentro["dia"], $centro, 0,$diaHabilCentro["max"]);
+                return self::obtenerFechaAudienciaDoble($diaHabilCentro["dia"], $centro, 0,$diaHabilCentro["max"]);
             }
         }else{
             return array(
@@ -622,32 +622,34 @@ class FechaAudienciaService{
         foreach($conciliador->centro->conciliadores()->inRandomOrder()->get() as $conciliador2){
             if($conciliador2->id != $conciliador->id){
                 if(self::validarIncidencia($dia, $conciliador2->id, "App\Conciliador")){
-                    foreach($conciliador2->disponibilidades as $disponibilidad){
-                        if($d->weekday() == $disponibilidad->dia){
-                            $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
-                                ->select('audiencias.*')
-                                ->where("audiencias.fecha_audiencia",$dia)
-                                ->where("conciliadores_audiencias.conciliador_id",$conciliador2->id)
-                                ->get();
-                            if(count($audiencias) > 0){
-                                $choca_audiencia = false;
-                                foreach($audiencias as $audiencia){
-                                    $hora_inicio_audiencia = $audiencia->hora_inicio;
-                                    $hora_fin_audiencia = $audiencia->hora_fin;
-                                    $hora_inicio_audiencia_nueva = $hora_inicio;
-                                    $hora_fin_audiencia_nueva = $hora_fin;
+                    if(self::validarHoraComida($conciliador2,$hora_inicio,$hora_fin)){
+                        foreach($conciliador2->disponibilidades as $disponibilidad){
+                            if($d->weekday() == $disponibilidad->dia){
+                                $audiencias = Audiencia::join('conciliadores_audiencias', 'audiencias.id', '=', 'conciliadores_audiencias.audiencia_id')
+                                    ->select('audiencias.*')
+                                    ->where("audiencias.fecha_audiencia",$dia)
+                                    ->where("conciliadores_audiencias.conciliador_id",$conciliador2->id)
+                                    ->get();
+                                if(count($audiencias) > 0){
+                                    $choca_audiencia = false;
+                                    foreach($audiencias as $audiencia){
+                                        $hora_inicio_audiencia = $audiencia->hora_inicio;
+                                        $hora_fin_audiencia = $audiencia->hora_fin;
+                                        $hora_inicio_audiencia_nueva = $hora_inicio;
+                                        $hora_fin_audiencia_nueva = $hora_fin;
 
-                                    if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
-                                        $choca_audiencia = true;
+                                        if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
+                                            $choca_audiencia = true;
+                                        }
                                     }
-                                }
-                                if(!$choca_audiencia){
+                                    if(!$choca_audiencia){
+                                        return array("segundo_conciliador" => true,"segundo_conciliador_id" => $conciliador2->id);
+                                        break;
+                                    }
+                                }else{
                                     return array("segundo_conciliador" => true,"segundo_conciliador_id" => $conciliador2->id);
                                     break;
                                 }
-                            }else{
-                                return array("segundo_conciliador" => true,"segundo_conciliador_id" => $conciliador2->id);
-                                break;
                             }
                         }
                     }
@@ -763,5 +765,19 @@ class FechaAudienciaService{
             }
         }
         return $fecha_nueva->format("d/m/y");
+    }
+    
+    public static function validarFechasAsignables(Solicitud $solicitud,$fecha_solicitada){
+        if($solicitud->tipo_solicitud_id == 1){
+            $dt = new Carbon($solicitud->created_at);
+            $dt2 = new Carbon($fecha_solicitada);
+            /*$dias = $dt->diffInDaysFiltered(function(Carbon $date) {
+                return !$date->isWeekend();
+            }, $dt2);*/
+            $dias = $dt->diffInDays($dt2);
+            return $dias;
+        }else{
+            return 1;
+        }
     }
 }

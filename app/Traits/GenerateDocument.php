@@ -552,11 +552,13 @@ trait GenerateDocument
                         $vialidad =  ($dom_parte['vialidad'] !== null)? $dom_parte['vialidad'] :"";
                         $num_ext =  ($dom_parte['num_ext'] !== null)? "No. " . $dom_parte['num_ext'] :"";
                         $num_int =  ($dom_parte['num_int'] !== null)? " Int. " . $dom_parte['num_int'] :"";
-                        $num =  $num_int.$num_ext;
+                        $num =  $num_ext.$num_int;
                         $municipio =  ($dom_parte['municipio'] !== null)? $dom_parte['municipio'] :"";
+                        $cp =  ($dom_parte['cp'] !== null)? " CP. " . $dom_parte['cp'] :"";
+
                         $estado =  ($dom_parte['estado'] !== null)? $dom_parte['estado'] :"";
                         $colonia =  ($dom_parte['asentamiento'] !== null)? $dom_parte['tipo_asentamiento']." ". $dom_parte['asentamiento']." "  :"";
-                        $parte['domicilios_completo'] = mb_strtoupper($tipo_vialidad.' '.$vialidad.' '.$num.', '.$colonia.', '.$municipio.', '.$estado);
+                        $parte['domicilios_completo'] = mb_strtoupper($tipo_vialidad.' '.$vialidad.' '.$num.', '.$colonia.', '.$municipio.', ' .$estado. ', '. $cp);
                       }
 
                       // if($parte['tipo_parte_id'] == 1 ){//Solicitante
@@ -572,7 +574,7 @@ trait GenerateDocument
                         if($hayDatosLaborales >0){
                           $domicilioLaboral = Domicilio::where('domiciliable_id',$datoLaborales->id)->where('domiciliable_type','App\DatoLaboral')->first();
                           if($domicilioLaboral != null ){
-                            $parte['domicilios_laboral'] = mb_strtoupper($domicilioLaboral->tipo_vialidad.' '.$domicilioLaboral->vialidad.' '.$domicilioLaboral->num_ext.', '.$domicilioLaboral->asentamiento.', '.$domicilioLaboral->municipio.', '.$domicilioLaboral->estado);
+                            $parte['domicilios_laboral'] = mb_strtoupper($domicilioLaboral->tipo_vialidad.' '.$domicilioLaboral->vialidad.' '.$domicilioLaboral->num_ext.', '.$domicilioLaboral->asentamiento.', '.$domicilioLaboral->municipio.', '.$domicilioLaboral->estado.', '.$domicilioLaboral->cp);
                           }else{
                             $domicilioLaboral = "";
                             $tipoParteDom = ($parte['tipo_parte_id'] == 1 )? 2 : 1 ;
@@ -592,7 +594,7 @@ trait GenerateDocument
                                 $vialidad =  ($dom_parte->vialidad !== null)? $dom_parte->vialidad :"";
                                 $num_ext =  ($dom_parte->num_ext !== null)? "No. " . $dom_parte->num_ext :"";
                                 $num_int =  ($dom_parte->num_int !== null)? " Int. " . $dom_parte->num_int :"";
-                                $num =  $num_int.$num_ext;
+                                $num =  $num_ext.$num_int;
                                 $municipio =  ($dom_parte->municipio !== null)? $dom_parte->municipio :"";
                                 $estado =  ($dom_parte->estado !== null)? $dom_parte->estado :"";
                                 $colonia =  ($dom_parte->asentamiento !== null)? $dom_parte->tipo_asentamiento." ". $dom_parte->asentamiento." "  :"";
@@ -633,10 +635,11 @@ trait GenerateDocument
                       // }elseif ($parte['tipo_parte_id'] == 2 ) {//Citado
                         //representante legal solicitado
                         if($audienciaId != "" && $audienciaId != null){
-                          $representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
+                          $representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora','compareciente')->whereHas('compareciente',function($q)use($idAudiencia){$q->where('audiencia_id',$idAudiencia);})->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
                           if(count($representanteLegal) > 0){
-                            $comparecenciaAudiencia = $representanteLegal[0]->compareciente()->where('audiencia_id',$idAudiencia)->get();
-                            $parte['asistencia'] =  (count($comparecenciaAudiencia)>0) ? 'Si':'No';
+                            // $comparecenciaAudiencia = $representanteLegal[0]->compareciente()->where('audiencia_id',$idAudiencia)->get();
+                            // $parte['asistencia'] =  (count($comparecenciaAudiencia)>0) ? 'Si':'No';
+                            $parte['asistencia'] =  'Si';
                             $objeto = new JsonResponse($representanteLegal);
                             $representanteLegal = json_decode($objeto->content(),true);
                             $representanteLegal = Arr::except($representanteLegal[0], ['id','updated_at','created_at','deleted_at']);

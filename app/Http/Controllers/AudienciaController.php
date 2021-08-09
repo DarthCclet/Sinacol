@@ -2058,6 +2058,12 @@ class AudienciaController extends Controller {
             $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro, $diasHabilesMin, $diasHabilesMax, $conciliador, $audiencia->expediente->solicitud->virtual);
             $multiple = false;
         }
+        if($datos_audiencia['encontro_audiencia']){
+            if(FechaAudienciaService::validarFechasAsignables($audiencia->expediente->solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                DB::rollback();
+                return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
+            }
+        }
 
         //Obtenemos el contador
         $ContadorController = new ContadorController();
@@ -2882,6 +2888,7 @@ class AudienciaController extends Controller {
                         $audiencia_notificar_id = $audiencia->id;
                         $response = array("tipo" => 2, "response" => $audiencia);
                     } else {
+                        $solicitud = Solicitud::find($audiencia->expediente->solicitud_id);
                         $audiencia->update(array("resolucion_id" => 2, "finalizada" => true, "tipo_terminacion_audiencia_id" => 3,'fecha_resolucion'=>now()));
                         /*
                          * Aqui se cumple el caso 2 dónde no acudieron las partes citadas con solicitante
@@ -2901,6 +2908,13 @@ class AudienciaController extends Controller {
                             $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro, $diasHabilesMin, $diasHabilesMax, $conciliador, $audiencia->expediente->solicitud->virtual);
                             $multiple = false;
                         }
+                        if($datos_audiencia['encontro_audiencia']){
+                            if(FechaAudienciaService::validarFechasAsignables($solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                                DB::rollback();
+                                return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
+                            }
+                        }
+
                         //Obtenemos el contador
                         $ContadorController = new ContadorController();
                         $folioAudiencia = $ContadorController->getContador(3, auth()->user()->centro_id);
@@ -3121,6 +3135,12 @@ class AudienciaController extends Controller {
                 $conciliador = $audiencia->conciliadoresAudiencias()->first()->conciliador;
                 $datos_audiencia = FechaAudienciaService::proximaFechaCita($audiencia->fecha_audiencia, auth()->user()->centro, $diasHabilesMin, $diasHabilesMax, $conciliador, $audiencia->expediente->solicitud->virtual);
                 $multiple = false;
+            }
+            if($datos_audiencia['encontro_audiencia']){
+                if(FechaAudienciaService::validarFechasAsignables($audiencia->expediente->solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                    DB::rollback();
+                    return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
+                }
             }
             //Obtenemos el contador
             $ContadorController = new ContadorController();
