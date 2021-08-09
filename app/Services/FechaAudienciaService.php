@@ -759,12 +759,17 @@ class FechaAudienciaService{
     public static function calcularFechaNotificador($fecha){
         $fecha_d = new Carbon($fecha);
         $fecha_nueva = $fecha_d;
-        for ($i = 1; $i <= 15; $i++) {
+        $num = 0; 
+        for ($i = 1; $i <= 50; $i++) {
+            $fecha_nueva = $fecha_nueva->addDay();
             if(!$fecha_nueva->isWeekend()){
-                $fecha_nueva = $fecha_nueva->addDay();
+                $num++;
+                if($num >= 15){
+                    break;
+                }
             }
         }
-        return $fecha_nueva->format("d/m/y");
+        return $fecha_nueva->format("d/m/Y");
     }
     
     public static function validarFechasAsignables(Solicitud $solicitud,$fecha_solicitada){

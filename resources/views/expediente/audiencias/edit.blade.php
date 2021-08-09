@@ -2348,7 +2348,7 @@
                                 if(tipo == 1){
                                     $("#modal-parte").modal("show");
                                 }else{
-                                    swal("¡Alerta!","Si alguno de los citados a la siguiente audiencia debe ser notificado por notificador del centro, recuerde que debe considerar que la fecha seleccionada debe ser mayor a 15 días, para dar tiempo a realizar el proceso de notificación. Esta fecha sería a partir del","info");
+                                    swal("¡Alerta!","Si alguno de los citados a la siguiente audiencia debe ser notificado por notificador del centro, recuerde que debe considerar que la fecha seleccionada debe ser mayor a 15 días, para dar tiempo a realizar el proceso de notificación. Esta fecha sería a partir del {{ $fecha_notificador }}","info");
                                     $("#modalNuevaAudiencia").modal("show");
                                 }
                             }
