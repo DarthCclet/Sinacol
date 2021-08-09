@@ -92,7 +92,8 @@ trait GenerateDocument
                 if($tipoArchivo->id == 18){
                     event(new RatificacionRealizada($padre->id,"multa"));
                 }
-            }else{
+            }
+            else{
                 $padre = Solicitud::find($idSolicitud);
                 if($padre->expediente != null){
                   $directorio = 'expedientes/' . $padre->expediente->id . '/solicitud/' . $idSolicitud;
@@ -268,6 +269,7 @@ trait GenerateDocument
             }
             $vars[strtolower('fecha_actual')] = $this->formatoFecha(Carbon::now(),1);
             $vars[strtolower('hora_actual')] = $this->formatoFecha(Carbon::now(),2);
+            $vars[strtolower('clave_nomenclatura')] = $this->nomenclaturaDocumento($idPlantilla);
           }
           //dd($vars);
           $vars = Arr::except($vars, ['conciliador_persona']);
@@ -332,9 +334,8 @@ trait GenerateDocument
      */
     public function getFooter($id)
     {
-        $html = '';
         $config = PlantillaDocumento::find($id);
-        $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> </head> <body>';
+        $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> <style>body{border: thin solid white;} .clave-nomenclatura{ margin-left: 1cm;position:absolute; top:0px;font-size: small;}</style> </head> <body>';
         if(!$config){
             $html .= view('documentos._footer_documentos_default');
         }
@@ -342,7 +343,9 @@ trait GenerateDocument
             $html .= $config->plantilla_footer;
           }
         $html .= "</body></html>";
-        return StringTemplate::renderPlantillaPlaceholders($html,[]);
+        $vars = [];
+        $vars[strtolower('clave_nomenclatura')] = $this->nomenclaturaDocumento($id);
+        return StringTemplate::renderPlantillaPlaceholders($html,$vars);
     }
 
     private function getDataModelos($idAudiencia,$idSolicitud, $idPlantilla, $idSolicitante, $idSolicitado,$idDocumento)
@@ -447,7 +450,7 @@ trait GenerateDocument
                       //$parte['datos_laborales'] = $datoLaboral;
                       $parteId = $parte['id'];
                       $curp = $parte['curp'];
-                      
+
                       $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
                       $parte['datos_laborales'] = $datoLaboral;
                       if($parte['tipo_persona_id'] == 1){ //fisica
@@ -1192,7 +1195,7 @@ trait GenerateDocument
                       $clausula2citadosConvenio = "";
                       $clausula2solicitantesConvenio = "";
 
-                      foreach ($partes_convenio as $key => $parteConvenio) { 
+                      foreach ($partes_convenio as $key => $parteConvenio) {
                         $nombreCitadoComparecientes = "";
                         $nombreSolicitanteComparecientes = "";
                         $nombreCitadoConvenio = "";
@@ -1481,6 +1484,22 @@ trait GenerateDocument
 
 		return $cadena;
 	}
+
+    /**
+     * Devuelve la cadena de clave de nomenclatura para un documento. Esto para el "control" documental
+     * del CFCRL
+     *
+     * @param $plantilla_id
+     * @return string
+     */
+	public function nomenclaturaDocumento($plantilla_id){
+        $plantilla = PlantillaDocumento::find($plantilla_id);
+        if(!$plantilla->clave_nomenclatura){
+            return '';
+        }
+        return sprintf('<div class="clave-nomenclatura">%s/%s</div>', $plantilla->clave_nomenclatura, date("YmdHis"));
+    }
+
     /*
     Convertir fechas yyyy-mm-dd hh to dd de Monthname de yyyy
     */
@@ -1539,8 +1558,8 @@ trait GenerateDocument
         $pdf = App::make('snappy.pdf.wrapper');
         $pdf->loadHTML($html);
         $pdf->setOption('page-size', 'Letter')
-            ->setOption('margin-top', '25mm')
-            ->setOption('margin-bottom', '11mm')
+            ->setOption('margin-top', '24mm')
+            ->setOption('margin-bottom', '15mm')
             ->setOption('header-html', env('APP_URL').'/header/'.$plantilla_id)
             ->setOption('footer-html', env('APP_URL').'/footer/'.$plantilla_id)
         ;

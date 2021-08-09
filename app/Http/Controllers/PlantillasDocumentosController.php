@@ -2,46 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Requests\ConfiguracionResponsivasRequest;
-use App\Services\StringTemplate;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\JsonResponse;
-
-use App\Filters\CatalogoFilter;
-use Barryvdh\DomPDF\PDF;
-use Dompdf\Dompdf;
-use App\PlantillaDocumento;
-use App\TipoDocumento;
-use App\Parte;
-use App\Centro;
-use App\Expediente;
 use App\Audiencia;
 use App\AudienciaParte;
-use App\ClasificacionArchivo;
+use App\Centro;
 use App\Compareciente;
 use App\ConceptoPagoResolucion;
 use App\DatoLaboral;
 use App\Disponibilidad;
 use App\Domicilio;
-use App\EtapaResolucion;
 use App\EtapaResolucionAudiencia;
+use App\Expediente;
+use App\Filters\CatalogoFilter;
 use App\FirmaDocumento;
-use App\Periodicidad;
+use App\Http\Requests\ConfiguracionResponsivasRequest;
+use App\Parte;
+use App\PlantillaDocumento;
 use App\ResolucionPagoDiferido;
 use App\ResolucionParteConcepto;
-use App\ResolucionPartes;
 use App\SalaAudiencia;
 use App\SalarioMinimo;
+use App\Services\StringTemplate;
 use App\Solicitud;
+use App\TipoDocumento;
 use App\VacacionesAnio;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Schema;
 use NumberFormatter;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PlantillasDocumentosController extends Controller
 {
@@ -132,6 +124,7 @@ class PlantillasDocumentosController extends Controller
 
         $datos["nombre-plantilla"] = $datos["nombre-plantilla"] == "" ? "Plantilla default" : $datos["nombre-plantilla"];
         $datosP['nombre_plantilla'] = $datos["nombre-plantilla"];
+        $datosP['clave_nomenclatura'] = isset($datos['clave_nomenclatura']) ? mb_strtoupper($datos['clave_nomenclatura']) : '';
         $datosP['tipo_documento_id'] = $datos['tipo-plantilla-id'];
         $datosP['plantilla_header'] = $header;
         $datosP['plantilla_body'] = $body;
@@ -253,7 +246,7 @@ class PlantillasDocumentosController extends Controller
          $datosP['plantilla_body'] = $datos["plantilla-body"];
          $datosP['plantilla_footer'] = $datos["plantilla-footer"];
          $datosP['tipo_documento_id'] = $datos['tipo-plantilla-id'];
-
+         $datosP['clave_nomenclatura'] = isset($datos['clave_nomenclatura']) ? mb_strtoupper($datos['clave_nomenclatura']) :'';
          $plantilla->update($datosP);
          return redirect('plantilla-documentos/'.$id.'/edit')->with('success', 'Se ha actualizado exitosamente');
      }
@@ -771,7 +764,7 @@ class PlantillasDocumentosController extends Controller
                             $domicilioLaboral = mb_strtoupper($tipo_vialidad.' '.$vialidad.' '.$num.', '.$colonia.', '.$municipio.', '.$estado);
                             $parte['domicilios_laboral'] = $domicilioLaboral;
                           }
-                          
+
                           $salarioMensual = round( (($datoLaborales->remuneracion / $datoLaborales->periodicidad->dias)*30),2);
                           $salarioMensual =number_format($salarioMensual, 2, '.', '');
                           $salario = explode('.', $salarioMensual);
@@ -796,7 +789,7 @@ class PlantillasDocumentosController extends Controller
                         //$representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora')->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
                         $representanteLegal = Parte::with('documentos.clasificacionArchivo.entidad_emisora','compareciente')->whereHas('compareciente',function($q)use($idAudiencia){$q->where('audiencia_id',$idAudiencia);})->where('parte_representada_id', $parteId)->where('tipo_parte_id',3)->get();
                         if(count($representanteLegal) > 0){
-                          //$comparecenciaAudiencia = $representanteLegal[0]->compareciente()->where('audiencia_id',$idAudiencia)->get();   
+                          //$comparecenciaAudiencia = $representanteLegal[0]->compareciente()->where('audiencia_id',$idAudiencia)->get();
                           $parte['asistencia'] = 'Si';
                           $objeto = new JsonResponse($representanteLegal);
                           $representanteLegal = json_decode($objeto->content(),true);
@@ -838,7 +831,7 @@ class PlantillasDocumentosController extends Controller
                         array_push($solicitantesNSS, $nss);
                         //if ($curp!= "" && $curp!= null ){
                           array_push($solicitantesCURP, $curp);
-                        //} 
+                        //}
                         $countSolicitante += 1;
                       }
                       if ($parte['tipo_parte_id'] == 2 ) {//Citado
@@ -1132,7 +1125,7 @@ class PlantillasDocumentosController extends Controller
                                         }
                                         // $hayConceptosPago = ($concepto['concepto_pago_resoluciones_id'] == 9) ? true : $hayConceptosPago;
                                       }
-                                    }  
+                                    }
                                     ($concepto['concepto_pago_resoluciones_id'] == 9 && $idPlantilla == 3 ) ? array_push($conceptosEspecie, $concepto['otro'] ): array_push($conceptosDerechos, $concepto['otro'] );
                                     //$tablaConceptosEActa .= $concepto['otro'].' ';
                                   }
@@ -1238,7 +1231,7 @@ class PlantillasDocumentosController extends Controller
                             $datosResolucion['pagos_diferidos']= $tablaPagosDiferidos;
                             $datosResolucion['resumen_pagos']= $resumenPagos;
                             $datosResolucion['informacion_pago']= $infoPago;
-                            
+
                           }
                         }
                         // $cantidadTextual = (new NumberFormatter("es", NumberFormatter::SPELLOUT))->format((float)$totalPercepciones);
@@ -1349,7 +1342,7 @@ class PlantillasDocumentosController extends Controller
                                       $clausulaCitadoConvenio = $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                                     }else{
                                       $nombreSolicitanteConvenio = $nombreRepresentada.' representada por '.$nombreRepresentanteLegal .' en carácter de apoderado legal';
-                                      $clausulaSolicitanteConvenio = $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;  
+                                      $clausulaSolicitanteConvenio = $nombreRepresentanteLegal. $representanteIdentificacion .', que es apoderado legal de '. $nombreRepresentada .' y que cuenta con facultades suficientes para convenir a nombre de su representada'. $representantePoder ;
                                     }
                                   }
                                 }
@@ -1449,7 +1442,7 @@ class PlantillasDocumentosController extends Controller
                       if($hayPartesConvenio > 1){
                         $clausulacitadosConvenioA =  implode(", ",$clausulacitadosConvenio);
                         $clausula2citadosConvenio = $clausulacitadosConvenioA;
-                        
+
                         $clausulasolicitantesConvenioA =  implode(", ",$clausulasolicitantesConvenio);
                         $clausula2solicitantesConvenio = $clausulasolicitantesConvenioA;
 

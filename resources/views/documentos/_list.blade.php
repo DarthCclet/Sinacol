@@ -4,6 +4,7 @@
         <th width="1%"></th>
         <!-- <th class="text-nowrap">Folio</th> -->
         <th class="text-nowrap">Nombre</th>
+        <th class="text-nowrap">Clave Nomenclatura</th>
         <!-- <th class="text-nowrap">consecutivo</th> -->
         <th >Acciones</th>
     </tr>
@@ -13,6 +14,7 @@
         <tr class="odd gradeX">
             <td width="1%" class="f-s-600 text-inverse">{{$plantilla->id}}</td>
             <td>{{$plantilla->nombre_plantilla}}</td>
+            <td>{{$plantilla->clave_nomenclatura}}</td>
             <td class="all">
                 {!! Form::open(['action' => ['PlantillasDocumentosController@destroy', $plantilla->id], 'method'=>'DELETE']) !!}
                 <div style="display: inline-block;">

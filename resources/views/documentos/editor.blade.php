@@ -1,14 +1,25 @@
 <h4 class="offset-2"><i class="fa fa-cog"></i>  Configuración de plantillas</h4><br>
 
-    <label for="nombre-plantilla" class="control-label offset-2">Nombre de plantilla </label>
-    {!! Form::text('nombre-plantilla', isset($plantillaDocumento->nombre_plantilla) ? $plantillaDocumento->nombre_plantilla : null, ['class'=>'form-control offset-2 col-md-8 ', 'id'=>'nombre-plantilla', 'placeholder'=>'Nombre de la plantilla', 'maxlength'=>'60', 'size'=>'10', 'autofocus'=>true]) !!}
-    <br>
-     <label for="tipo-plantilla-id" class="control-label offset-2">Tipo de plantilla </label>
+<div class="row">
+    <div class="col-md-6 offset-2">
+        <label for="nombre-plantilla" class="control-label">Nombre de plantilla </label>
+        {!! Form::text('nombre-plantilla', isset($plantillaDocumento->nombre_plantilla) ? $plantillaDocumento->nombre_plantilla : null, ['class'=>'form-control col-md-6 ', 'id'=>'nombre-plantilla', 'placeholder'=>'Nombre de la plantilla', 'maxlength'=>'60', 'size'=>'10', 'autofocus'=>true]) !!}
+    </div>
+    <div class="col-md-4">
+        <label for="clave-nomenclatura" class="control-label">Clave nomenclatura </label>
+        {!! Form::text('clave_nomenclatura', isset($plantillaDocumento->clave_nomenclatura) ? $plantillaDocumento->clave_nomenclatura : null, ['class'=>'form-control col-md-6 ', 'id'=>'clave-nomenclatura', 'placeholder'=>'Clave nomenclatura', 'maxlength'=>'60', 'size'=>'10', 'autofocus'=>true]) !!}
+    </div>
+</div>
 
-  <div class="col-md-8 offset-2">
-      {!! Form::select('tipo-plantilla-id', isset($tipo_plantilla) ? $tipo_plantilla : [] ,  isset($plantillaDocumento)? $plantillaDocumento->tipo_documento_id: null , ['id'=>'tipo-plantilla-id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
-      {!! $errors->first('tipo-plantilla-id', '<span class=text-danger>:message</span>') !!}
-  </div>
+<br>
+
+<div class="row">
+    <div class="col-md-8 offset-2">
+        <label for="tipo-plantilla-id" class="control-label">Tipo de plantilla </label>
+        {!! Form::select('tipo-plantilla-id', isset($tipo_plantilla) ? $tipo_plantilla : [] ,  isset($plantillaDocumento)? $plantillaDocumento->tipo_documento_id: null , ['id'=>'tipo-plantilla-id','placeholder' => 'Seleccione una opción','required', 'class' => 'form-control catSelect']);  !!}
+        {!! $errors->first('tipo-plantilla-id', '<span class=text-danger>:message</span>') !!}
+    </div>
+</div>
 
     <br><br><br>
     <label for="nombre-plantilla" class="control-label offset-2">Contenido de plantilla </label>
@@ -320,6 +331,13 @@
                                 editor.insertContent('<strong class="mceNonEditable" data-nombre="hora_actual">[HORA_ACTUAL]</strong>');
                               }
                           },
+                          {
+                              type: 'menuitem',
+                              text: 'Clave Nomenclatura',
+                              onAction: function (_) {
+                                editor.insertContent('<strong class="mceNonEditable" data-nombre="clave_nomenclatura">[CLAVE_NOMENCLATURA]</strong>');
+                              }
+                          },
                         ]
                         callback(itemsF);
                       }
@@ -347,6 +365,13 @@
                               text: 'Lugar',
                               onAction: function (_) {
                                 editor.insertContent("Ciudad de Mexico ");
+                              }
+                          },
+                          {
+                              type: 'menuitem',
+                              text: 'Clave Nomenclatura',
+                              onAction: function (_) {
+                                editor.insertContent('<strong class="mceNonEditable" data-nombre="clave_nomenclatura">[CLAVE_NOMENCLATURA]</strong>');
                               }
                           },
                         ]
