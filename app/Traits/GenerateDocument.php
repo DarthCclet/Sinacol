@@ -1553,6 +1553,7 @@ trait GenerateDocument
      * @param $path string Ruta del archivo a guardar. Si no existe entonces regresa el PDF inline para mostrar en browser
      * @ToDo  Agregar opciones desde variable de ambiente como tamaño de página, margen, etc.
      * @return mixed
+     * @throws \Symfony\Component\Debug\Exception\FatalThrowableError
      */
     public function renderPDF($html, $plantilla_id, $path=null){
         $pdf = App::make('snappy.pdf.wrapper');
@@ -1560,8 +1561,8 @@ trait GenerateDocument
         $pdf->setOption('page-size', 'Letter')
             ->setOption('margin-top', '24mm')
             ->setOption('margin-bottom', '20mm')
-            ->setOption('header-html', env('APP_URL').'/header/'.$plantilla_id)
-            ->setOption('footer-html', env('APP_URL').'/footer/'.$plantilla_id)
+            ->setOption('header-html', $this->getHeader($plantilla_id))
+            ->setOption('footer-html', $this->getFooter($plantilla_id))
         ;
         if($path){
             return $pdf->generateFromHtml($html, $path);
