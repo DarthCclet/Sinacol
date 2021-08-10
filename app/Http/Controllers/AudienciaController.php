@@ -3435,9 +3435,13 @@ class AudienciaController extends Controller {
                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 14, 4, null, $parte->id));
                 }
             }
+            foreach($audiencia->audienciaParte as $audiencia_parte){
+                if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
+                    Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audiencia, $audiencia_parte->parte));
+                }
+            }
             DB::commit();
-            $sin_contactar = self::NotificarCambioFecha($audiencia);
-            return array("sin_contactar" => $sin_contactar);
+            return array("sin_contactar" => array());
         } catch (\Throwable $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
                     " Se emitió el siguiente mensaje: " . $e->getMessage() .
