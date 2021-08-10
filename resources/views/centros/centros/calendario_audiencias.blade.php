@@ -461,6 +461,15 @@
                 });
             }
             $("#btnFinalizarRatificacion").on("click",function(){
+                $.get("validarCambioNotificacion/"+$("#audiencia_id").val(),function(data){
+                    if(!data.cambiar){
+                        swal({
+                            title: 'Advertencia',
+                            text: 'Esta audiencia ya fue notificada, no se enviará petición de notificación si aplica un cambio.',
+                            icon: 'warning'
+                        });
+                    }
+                });
                 $("#calendarioReagendar").show();
             });
             $("#btnNoAudiencia").on("click",function(){

@@ -3589,6 +3589,19 @@ class AudienciaController extends Controller {
         return $audiencia;
     }
 
+    function validarCambioNotificacion(){
+        $audiencia = Audiencia::find($this->request->audiencia_id);
+        $cambiar = true;
+        foreach($audiencia->audienciaParte as $aud_parte){
+            if($aud_parte->parte->tipo_parte_id == 2){
+                if(($aud_parte->tipo_notificacion_id == 2 || $aud_parte->tipo_notificacion_id == 3) && ($aud_parte->finalizado == "FINALIZADO EXITOSAMENTE" || $aud_parte->finalizado == "EXITOSO POR INSTRUCTIVO")){
+                    $cambiar = false;
+                }
+            }
+        }
+        return array("cambiar" => $cambiar);
+    }
+
     public function renderPDF($html, $plantilla_id, $path = null) {
         $pdf = App::make('snappy.pdf.wrapper');
         $pdf->loadHTML($html);

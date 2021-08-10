@@ -252,6 +252,7 @@ Route::middleware(['auth'])->group(function () {
      * Validación de fechas asignables desde el calendario
      */
     Route::get('validarFechaAsignable/{audiencia_id}/{fecha_solicitada}','SolicitudController@validarFechasAsignables');
+    Route::get('validarCambioNotificacion/{audiencia_id}','AudienciaController@validarCambioNotificacion');
 
 });
 
