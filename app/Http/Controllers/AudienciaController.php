@@ -3439,6 +3439,15 @@ class AudienciaController extends Controller {
                 if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
                     Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audiencia, $audiencia_parte->parte));
                 }
+                if($audiencia_parte->parte->tipo_parte_id == 1){
+                    if($audiencia_parte->parte->tipo_persona_id == 1){
+                        $busqueda = $audiencia_parte->parte->curp;
+                    }else{
+                        $busqueda = $audiencia_parte->parte->rfc;
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$audiencia_parte->parte_id,'descripcion'=>'Se crea la notificación del solicitante','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
+                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
+                }
             }
             DB::commit();
             return array("sin_contactar" => array());
