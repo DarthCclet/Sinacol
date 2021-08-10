@@ -291,7 +291,7 @@ class HerramientaServiceProvider extends ServiceProvider
         $dias_rango_superior = self::DIAS_EXPIRACION;
         $fecha_fin = Carbon::now()->subDays($dias_rango_inferior);
         $centro_id = auth()->user()->centro_id;
-        $solicitudes = Solicitud::where('fecha_recepcion','<',$fecha_fin->toDateString())->where('estatus_solicitud_id',2)->where('centro_id',$centro_id)->with(["partes","expediente","expediente.audiencia"=>function($query){ return $query->orderBy('fecha_audiencia','desc');}])->whereRaw('incidencia is not true');
+        $solicitudes = Solicitud::where('fecha_recepcion','<',$fecha_fin->toDateString())->where('estatus_solicitud_id',2)->whereIn('tipo_solicitud_id',[1,2])->where('centro_id',$centro_id)->with(["partes","expediente","expediente.audiencia"=>function($query){ return $query->orderBy('fecha_audiencia','desc');}])->whereRaw('incidencia is not true');
         if($validar){
             if (session()->exists('rolActual')) {
                 $rolActual = session('rolActual')->name;
