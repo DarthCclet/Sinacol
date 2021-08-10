@@ -32,7 +32,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
-use NumberFormatter;  
+use NumberFormatter;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -483,7 +483,7 @@ trait GenerateDocument
                       //$parte['datos_laborales'] = $datoLaboral;
                       $parteId = $parte['id'];
                       $curp = $parte['curp'];
-                      
+
                       $parte = Arr::except($parte, ['id','updated_at','created_at','deleted_at']);
                       $parte['datos_laborales'] = $datoLaboral;
                       if($parte['tipo_persona_id'] == 1){ //fisica
@@ -1298,7 +1298,7 @@ trait GenerateDocument
                       $clausula2citadosConvenio = "";
                       $clausula2solicitantesConvenio = "";
 
-                      foreach ($partes_convenio as $key => $parteConvenio) { 
+                      foreach ($partes_convenio as $key => $parteConvenio) {
                         $nombreCitadoComparecientes = "";
                         $nombreSolicitanteComparecientes = "";
                         $nombreCitadoConvenio = "";
@@ -1640,15 +1640,16 @@ trait GenerateDocument
      * @param $path string Ruta del archivo a guardar. Si no existe entonces regresa el PDF inline para mostrar en browser
      * @ToDo  Agregar opciones desde variable de ambiente como tamaño de página, margen, etc.
      * @return mixed
+     * @throws \Symfony\Component\Debug\Exception\FatalThrowableError
      */
     public function renderPDF($html, $plantilla_id, $path=null){
         $pdf = App::make('snappy.pdf.wrapper');
         $pdf->loadHTML($html);
         $pdf->setOption('page-size', 'Letter')
             ->setOption('margin-top', '25mm')
-            ->setOption('margin-bottom', '11mm')
-            ->setOption('header-html', env('APP_URL').'/header/'.$plantilla_id)
-            ->setOption('footer-html', env('APP_URL').'/footer/'.$plantilla_id)
+            ->setOption('margin-bottom', '20mm')
+            ->setOption('header-html', $this->getHeader($plantilla_id))
+            ->setOption('footer-html', $this->getFooter($plantilla_id))
         ;
         if($path){
             return $pdf->generateFromHtml($html, $path);
