@@ -335,7 +335,7 @@ trait GenerateDocument
     public function getFooter($id)
     {
         $config = PlantillaDocumento::find($id);
-        $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> <style>body{border: thin solid white;} .clave-nomenclatura{ margin-left: 1cm;position:absolute; top:0px;font-size: small;}</style> </head> <body>';
+        $html = '<!DOCTYPE html> <html> <head> <meta charset="utf-8"> <style>body{border: thin solid white;} .clave-nomenclatura{ position:absolute; top:0px; right:0px; margin-right:1cm; font-size: small;}</style> </head> <body>';
         if(!$config){
             $html .= view('documentos._footer_documentos_default');
         }
@@ -1559,7 +1559,7 @@ trait GenerateDocument
         $pdf->loadHTML($html);
         $pdf->setOption('page-size', 'Letter')
             ->setOption('margin-top', '24mm')
-            ->setOption('margin-bottom', '15mm')
+            ->setOption('margin-bottom', '20mm')
             ->setOption('header-html', env('APP_URL').'/header/'.$plantilla_id)
             ->setOption('footer-html', env('APP_URL').'/footer/'.$plantilla_id)
         ;

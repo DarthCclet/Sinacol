@@ -18,6 +18,7 @@ use App\Estado;
 use App\EstatusSolicitud;
 use App\Events\GenerateDocumentResolution;
 use App\Events\RatificacionRealizada;
+use App\Exceptions\FolioExpedienteExistenteException;
 use App\Expediente;
 use App\Filters\SolicitudFilter;
 use App\Genero;
@@ -1440,7 +1441,15 @@ class SolicitudController extends Controller {
             }
             DB::commit();
             return $solicitud;
-        } catch (\Throwable $e) {
+        }
+        catch (FolioExpedienteExistenteException $e) {
+            DB::rollback();
+            // Si hay folio de expediente duplicado entonces aumentamos en 1 el contador
+            $contexto = $e->getContext();
+            Log::error($e->getMessage()." ".$contexto->folio);
+            $this->contadorService->getContador($contexto->anio, self::TIPO_CONTADOR_SOLICITUD, $contexto->solicitud->centro_id);
+        }
+        catch (\Throwable $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
                     " Se emitió el siguiente mensaje: " . $e->getMessage() .
                     " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
@@ -1691,7 +1700,15 @@ class SolicitudController extends Controller {
                 DB::rollback();
                 return $solicitud->expediente->audiencia()->with('audienciaParte','conciliadoresAudiencias','conciliadoresAudiencias.conciliador.persona','salasAudiencias','salasAudiencias.sala')->first();;
             }
-        } catch (\Throwable $e) {
+        }
+        catch (FolioExpedienteExistenteException $e) {
+            DB::rollback();
+            // Si hay folio de expediente duplicado entonces aumentamos en 1 el contador
+            $contexto = $e->getContext();
+            Log::error($e->getMessage()." ".$contexto->folio);
+            $this->contadorService->getContador($contexto->anio, self::TIPO_CONTADOR_SOLICITUD, $contexto->solicitud->centro_id);
+        }
+        catch (\Throwable $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
                     " Se emitió el siguiente mensale: " . $e->getMessage() .
                     " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());

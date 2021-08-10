@@ -50,7 +50,7 @@ class Expediente extends Model implements Auditable
         static::creating(function ($model) {
             // Si existe ya el folio del expediente enviamos excepción
             if(self::whereFolio($model->folio)->first()){
-                throw new FolioExpedienteExistenteException();
+                throw new FolioExpedienteExistenteException($model);
             }
         });
     }

@@ -244,7 +244,7 @@ class Solicitud extends Model implements Auditable
         static::creating(function ($model) {
             // Si existe ya el folioenviamos excepción
             if(self::whereFolio($model->folio)->whereAnio($model->anio)->first()){
-                throw new FolioSolicitudExistenteException();
+                throw new FolioSolicitudExistenteException($model);
             }
         });
     }

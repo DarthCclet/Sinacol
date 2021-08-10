@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\FolioExpedienteExistenteException;
 use App\Services\ContadorService;
 use App\Services\FolioService;
 use Illuminate\Http\Request;
@@ -956,7 +957,15 @@ class AudienciaController extends Controller {
             event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
             DB::commit();
             return $audiencia;
-        } catch (\Throwable $e) {
+        }
+        catch (FolioExpedienteExistenteException $e) {
+            DB::rollback();
+            // Si hay folio de expediente duplicado entonces aumentamos en 1 el contador
+            $contexto = $e->getContext();
+            Log::error($e->getMessage()." ".$contexto->folio);
+            $this->contadorService->getContador($contexto->anio, self::TIPO_CONTADOR_SOLICITUD, $contexto->solicitud->centro_id);
+        }
+        catch (\Throwable $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
                     " Se emitió el siguiente mensaje: " . $e->getMessage() .
                     " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
