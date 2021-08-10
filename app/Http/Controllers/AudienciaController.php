@@ -2194,7 +2194,7 @@ class AudienciaController extends Controller {
                         $busqueda = $parte->rfc;
                     }
                     BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea la notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
-                    event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
+                    event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 64, 29, $parte->id, null));
                 }
             }
         }
@@ -3446,7 +3446,7 @@ class AudienciaController extends Controller {
                         $busqueda = $audiencia_parte->parte->rfc;
                     }
                     BitacoraBuzon::create(['parte_id'=>$audiencia_parte->parte_id,'descripcion'=>'Se crea la notificación del solicitante','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
-                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
+                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, $audiencia_parte->parte_id,null));
                 }
             }
             DB::commit();
