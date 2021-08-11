@@ -53,8 +53,8 @@
                         {{$parte->nombre_comercial}}
                     @endif
                     <br><br>
-                    Recibimos tu solicitud para ingreasar a tu buzón electronico sobre las conciliaciones realizadas.
-                    <br> a través de el siguiente botón podrás ingresar a tu buzón
+                    Recibimos tu solicitud para ingresar a tu buzón electronico sobre las conciliaciones realizadas.
+                    <br> A través de el siguiente botón podrás ingresar a tu buzón
                 </p>
                 <center>
                     <a href="{{$liga}}" class="btn">BUZON ELECTRONICO</a>

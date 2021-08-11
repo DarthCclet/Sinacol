@@ -1623,7 +1623,7 @@ class SolicitudController extends Controller {
                                 }else{
                                     $busqueda = $parte->rfc;
                                 }
-                                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea la notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
                                 event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
                             }
                             
@@ -1772,11 +1772,12 @@ class SolicitudController extends Controller {
                             if ($parte->tipo_parte_id != 1) {
                                 $tipo_notificacion_id = $this->request->tipo_notificacion_id;
                             }
-                            if($parte->tipo_parte_id == 3){
-                                $representado = Parte::find($parte->parte_representada_id);
-                                AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $representado   ->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
+                            if($parte->tipo_parte_id != 3){
+                            //     $representado = Parte::find($parte->parte_representada_id);
+                            //     AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $representado  ->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
+                            // }else{
+                                AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
                             }
-                            AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
                         }
                     }
                     

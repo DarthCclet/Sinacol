@@ -26,9 +26,9 @@ class EnviarNotificacionBuzon extends Mailable
         $this->audiencia = $audiencia;
         $this->parte = $parte;
         if($parte->notificacion_buzon){
-            $this->subject = "Notificación de buzón electrónico";
+            $this->subject = "Notificación en buzón electrónico";
         }else{
-            $this->subject = "Aviso de buzón electrónico";
+            $this->subject = "Aviso en buzón electrónico";
         }
         
     }
