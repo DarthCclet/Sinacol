@@ -1803,9 +1803,6 @@ class SolicitudController extends Controller {
                     }
                     $expediente = Expediente::find($request->expediente_id);
                 }
-                foreach($array_comparecen as $comparecen){
-                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 61, 19,$comparecen));
-                }
 
                 $salas = [];
                 foreach ($audiencia->salasAudiencias as $sala) {
