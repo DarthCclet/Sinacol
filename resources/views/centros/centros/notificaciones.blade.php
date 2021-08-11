@@ -55,10 +55,10 @@
                         <th>Solicitud</th>
                         <th>Partes a notificar</th>
                         <th>Tipo de notificación</th>
-                        <th>Evento origén</th>
+                        <th>Evento origen</th>
                         <th>Fecha de petición</th>
                         <th>Notificada</th>
-                        <th>Cambios</th>
+                        {{-- <th>Cambios</th> --}}
                         <th>Envio de petición</th>
                     </tr>
                 </thead>
@@ -102,12 +102,12 @@
                         @else
                             <td>No</td>
                         @endif
-                        <td>
+                        {{-- <td>
                             <button onclick="cambiarDatos({{ $parte->audiencia->expediente->solicitud_id }})"
                                 class="btn btn-xs btn-primary incidencia" title="Cambiar Nombre">
                                 <i class="fa fa-user"></i>
                             </button>
-                        </td>
+                        </td> --}}
                         <td>
                             @if ($parte->audiencia->expediente->solicitud->fecha_peticion_notificacion != null)
                                 Enviada

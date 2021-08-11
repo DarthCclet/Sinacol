@@ -103,7 +103,8 @@
                                     @endif
                                 </tr>
                                 <tr>
-                                    <td class="text-nowrap" colspan="2">
+                                    {{-- <td class="text-nowrap" colspan="2"> --}}
+                                    <td class="text-nowrap">
                                         <strong>Movimientos:</strong>
                                         <ul>
                                             @foreach($audiencia->etapasResolucionAudiencia as $etapas)
@@ -122,7 +123,7 @@
                                             @endforeach
                                         </ul>
                                     </td>
-                                    <td class="text-nowrap">
+                                    {{-- <td class="text-nowrap">
                                         <strong>Documentos por firmar:</strong>
                                         <ul>
                                             @if($audiencia->documentos_firmar)
@@ -137,7 +138,7 @@
                                                 @endforeach
                                             @endif
                                         </ul>
-                                    </td>
+                                    </td> --}}
                                 </tr>
                                 <tr>
                                     <td colspan="3">

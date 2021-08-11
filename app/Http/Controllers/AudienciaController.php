@@ -2193,8 +2193,8 @@ class AudienciaController extends Controller {
                     }else{
                         $busqueda = $parte->rfc;
                     }
-                    BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea la notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
-                    event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
+                    BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                    event(new GenerateDocumentResolution($audienciaN->id, $audiencia->expediente->solicitud_id, 64, 29, $parte->id, null));
                 }
             }
         }
@@ -3435,9 +3435,22 @@ class AudienciaController extends Controller {
                     event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 14, 4, null, $parte->id));
                 }
             }
+            foreach($audiencia->audienciaParte as $audiencia_parte){
+                if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
+                    Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audiencia, $audiencia_parte->parte));
+                }
+                if($audiencia_parte->parte->tipo_parte_id == 1){
+                    if($audiencia_parte->parte->tipo_persona_id == 1){
+                        $busqueda = $audiencia_parte->parte->curp;
+                    }else{
+                        $busqueda = $audiencia_parte->parte->rfc;
+                    }
+                    BitacoraBuzon::create(['parte_id'=>$audiencia_parte->parte_id,'descripcion'=>'Se crea notificación del solicitante','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
+                    event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, $audiencia_parte->parte_id,null));
+                }
+            }
             DB::commit();
-            $sin_contactar = self::NotificarCambioFecha($audiencia);
-            return array("sin_contactar" => $sin_contactar);
+            return array("sin_contactar" => array());
         } catch (\Throwable $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
                     " Se emitió el siguiente mensaje: " . $e->getMessage() .
@@ -3587,6 +3600,19 @@ class AudienciaController extends Controller {
             $conciliador->delete();
         }
         return $audiencia;
+    }
+
+    function validarCambioNotificacion(){
+        $audiencia = Audiencia::find($this->request->audiencia_id);
+        $cambiar = true;
+        foreach($audiencia->audienciaParte as $aud_parte){
+            if($aud_parte->parte->tipo_parte_id == 2){
+                if(($aud_parte->tipo_notificacion_id == 2 || $aud_parte->tipo_notificacion_id == 3) && ($aud_parte->finalizado == "FINALIZADO EXITOSAMENTE" || $aud_parte->finalizado == "EXITOSO POR INSTRUCTIVO")){
+                    $cambiar = false;
+                }
+            }
+        }
+        return array("cambiar" => $cambiar);
     }
 
     public function renderPDF($html, $plantilla_id, $path = null) {

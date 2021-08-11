@@ -175,32 +175,33 @@ class SendNotificacion
                     ]);
                     $historico->update(["historico_notificacion_peticion_id" => $historico_peticion->id]);
                 }
-                Log::debug('Información de demandados:'.json_encode($arreglo["Demandados"]));
-                Log::debug('Se envia esta peticion:'.json_encode($arreglo));
                 $client = new Client();
-                if(env('NOTIFICACION_DRY_RUN') == "YES"){
-                    $baseURL = env('APP_URL_NOTIFICACIONES');
+                if(env("APP_ENV") != null){
+                    if(env('NOTIFICACION_DRY_RUN')){
+                        $baseURL = env('APP_URL_NOTIFICACIONES');
+                    }else{
+                        $baseURL = $audiencia->expediente->solicitud->centro->url_instancia_notificacion;
+                    }
+                    if($baseURL != null){
+                        $response = $client->request('POST',$baseURL ,[
+                            'headers' => ['foo' => 'bar'],
+                            'verify' => false,
+                            'body' => json_encode($arreglo),
+                        ]);
+                    }
+            //        Cambiamos el estatus de notificación
+                    $solicitud = $audiencia->expediente->solicitud;
+                    $solicitud->update(["fecha_peticion_notificacion" => now()]);
                 }else{
-                    $baseURL = $audiencia->expediente->solicitud->centro->url_instancia_notificacion;
+                    throw new Exception('No se encuentra el ambiente');
                 }
-                if($baseURL != null){
-                    $response = $client->request('POST',$baseURL ,[
-                        'headers' => ['foo' => 'bar'],
-                        'verify' => false,
-                        'body' => json_encode($arreglo),
-                    ]);
-                }
-        //        Cambiamos el estatus de notificación
-                $solicitud = $audiencia->expediente->solicitud;
-                $solicitud->update(["fecha_peticion_notificacion" => now()]);
             }
-
             DB::commit();
-//        }catch (\Throwable $e) {
-//            DB::rollBack();
-//            Log::error('En scriptt:'.$e->getFile()." En línea: ".$e->getLine().
-//                       " Se emitió el siguiente mensale: ". $e->getMessage().
-//                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+        }catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('En scriptt:'.$e->getFile()." En línea: ".$e->getLine().
+                       " Se emitió el siguiente mensale: ". $e->getMessage().
+                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
         }catch (\GuzzleHttp\Exception\ClientException $e) {
             $response = $e->getResponse();
             $respuesta = $response->getBody()->getContents();
@@ -220,12 +221,8 @@ class SendNotificacion
         }catch (\GuzzleHttp\Exception\RequestException $e){
             DB::rollBack();
             $response = $e->getResponse();
-            $respuesta = $response->getBody()->getContents();
-            Log::error("Error en respuesta al enviar datos a signo: Respuesta SIGNO status: ". $response->getStatusCode()." => ".$respuesta);
-        }catch (\Exception $e){
-            DB::rollBack();
-            Log::error('php En scripts:'.$e->getFile()." En línea: ".$e->getLine().
-                       " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
+            //$respuesta = $response->getBody()->getContents();
+            //Log::error("Error en respuesta al enviar datos a signo: Respuesta SIGNO status: ". $response->getStatusCode()." => ".$respuesta);
         }
 
     }
