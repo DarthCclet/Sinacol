@@ -308,16 +308,16 @@
                                         div2 += ' <td>' + element2.fecha_peticion_notificacion +
                                             '</td>';
                                         div2 += ' <td>';
-                                        div2 += '<ul>';
+                                        div2 += '   <ul>';
                                         if (element2.historico_notificacion_respuesta != null) {
                                             var liga_doc = "";
                                             if (element2.historico_notificacion_respuesta.documento != null) {
                                                 liga_doc = '<a href="/api/documentos/getFile/' +element2.historico_notificacion_respuesta.documento.uuid +'" target="_blank" title="Documento">Documento</a>';
                                             }
-                                            div1 += '<li><strong>Fecha: </strong>' + element2.historico_notificacion_respuesta.fecha_notificacion +  ' -  <strong>Respuesta: </strong>' + element2.historico_notificacion_respuesta.finalizado +'  -  ' + liga_doc + '</li>';
+                                            div2 += '   <li><strong>Fecha: </strong>' + element2.historico_notificacion_respuesta.fecha_notificacion +  ' -  <strong>Respuesta: </strong>' + element2.historico_notificacion_respuesta.finalizado +'  -  ' + liga_doc + '</li>';
                                         }
-                                        div2 += '</ul>';
-                                        div2 += '</td>';
+                                        div2 += '   </ul>';
+                                        div2 += ' </td>';
                                         div2 += "</tr>";
                                     }
                                 });
