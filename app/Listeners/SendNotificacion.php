@@ -175,8 +175,6 @@ class SendNotificacion
                     ]);
                     $historico->update(["historico_notificacion_peticion_id" => $historico_peticion->id]);
                 }
-                Log::debug('Información de demandados:'.json_encode($arreglo["Demandados"]));
-                Log::debug('Se envia esta peticion:'.json_encode($arreglo));
                 $client = new Client();
                 if(env('NOTIFICACION_DRY_RUN') == "YES"){
                     $baseURL = env('APP_URL_NOTIFICACIONES');
