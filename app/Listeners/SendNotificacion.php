@@ -219,6 +219,7 @@ class SendNotificacion
             }
         }catch (\GuzzleHttp\Exception\RequestException $e){
             DB::rollBack();
+            dd($e->getMessage());
             $response = $e->getResponse();
             //$respuesta = $response->getBody()->getContents();
             //Log::error("Error en respuesta al enviar datos a signo: Respuesta SIGNO status: ". $response->getStatusCode()." => ".$respuesta);
