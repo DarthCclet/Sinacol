@@ -709,7 +709,7 @@ class SolicitudController extends Controller {
      */
     public function show($id) {
         $solicitud = Solicitud::with('expediente', 'giroComercial', 'estatusSolicitud', 'centro', 'tipoIncidenciaSolicitud', 'giroComercial.ambito', 'objeto_solicitudes')->find($id);
-        $partes = $solicitud->partes()->with(['dato_laboral', 'domicilios', 'contactos', 'lenguaIndigena'])->get();
+        $partes = $solicitud->partes()->with(['dato_laboral', 'domicilios'=>function($q){$q->orderByDesc('id');}, 'contactos', 'lenguaIndigena'])->get();
 
         $solicitantes = $partes->where('tipo_parte_id', 1);
 

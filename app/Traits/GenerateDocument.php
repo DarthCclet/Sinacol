@@ -425,14 +425,14 @@ trait GenerateDocument
                     $data = ['solicitud' => $obj];
                   }elseif ($model == 'Parte') {
                     if($idSolicitante != "" && $idSolicitado != ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon')->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios'=>function($q){$q->orderByDesc('id');},'lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'])->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
                       // $partes = $model_name::with(['nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'=>function($q){$q->where('tipo_movimiento','Consulta');}])->where('solicitud_id',intval($idBase))->whereIn('id',[$idSolicitante,$idSolicitado])->get();
                     }else if($idSolicitante != "" && $idSolicitado == ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id<>?)',[$idSolicitante,1])->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios'=>function($q){$q->orderByDesc('id');},'lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'])->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id<>?)',[$idSolicitante,1])->get();
                     }else if($idSolicitante == "" && $idSolicitado != ""){
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon')->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios'=>function($q){$q->orderByDesc('id');},'lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'])->where('solicitud_id',intval($idBase))->whereRaw('(id=? or tipo_parte_id=?)',[$idSolicitado,1])->get();
                     }else{
-                      $partes = $model_name::with('nacionalidad','domicilios','lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon')->where('solicitud_id',intval($idBase))->get();
+                      $partes = $model_name::with(['nacionalidad','domicilios'=>function($q){$q->orderByDesc('id');},'lenguaIndigena','tipoDiscapacidad','documentos.clasificacionArchivo.entidad_emisora','contactos.tipo_contacto','tipoParte','compareciente','bitacoras_buzon'])->where('solicitud_id',intval($idBase))->get();
                     }
                     if($idDocumento){
                       foreach($partes as $parteaFirma){
@@ -583,9 +583,9 @@ trait GenerateDocument
                               $primeraResolucion = ResolucionPartes::where('audiencia_id',$audienciaId)->first();
                             }
                             if($primeraResolucion != null){
-                              $contraparte = Parte::with('domicilios')->find($primeraResolucion->parte_solicitada_id);
+                              $contraparte = Parte::with(['domicilios'=>function($q){$q->orderBy('id');}])->find($primeraResolucion->parte_solicitada_id);
                               if($contraparte->tipo_parte_id == 3){//si es representante buscar parte
-                                $contraparte = Parte::with('domicilios')->find($contraparte->parte_representada_id);
+                                $contraparte = Parte::with(['domicilios'=>function($q){$q->orderBy('id');}])->find($contraparte->parte_representada_id);
                               }
                               // $contraparte = Parte::with('domicilios')->where('solicitud_id',$idBase)->where('tipo_parte_id',$tipoParteDom)->first();
                               $doms_parte = $contraparte->domicilios;
