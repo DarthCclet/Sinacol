@@ -925,7 +925,7 @@ class SolicitudController extends Controller {
         try {
             $doc = collect();
             $solicitud = Solicitud::with('expediente', 'giroComercial', 'estatusSolicitud', 'centro', 'tipoIncidenciaSolicitud', 'giroComercial.ambito', 'objeto_solicitudes')->find($id);
-            $partes = $solicitud->partes()->with(['dato_laboral', 'domicilios'=>function($q){$q->limit(1);}, 'contactos', 'lenguaIndigena'])->get();
+            $partes = $solicitud->partes()->with(['dato_laboral', 'domicilios'=>function($q){$q->orderByDesc('id')->limit(1);}, 'contactos', 'lenguaIndigena'])->get();
             //Consulta de solicitud con relaciones
 
             $solicitantes = $partes->where('tipo_parte_id', 1);
