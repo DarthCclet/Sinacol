@@ -54,7 +54,11 @@ class PlantillasDocumentosController extends Controller
          $plantillas = (new PlantillaDocumentoFilter(PlantillaDocumento::query(), $this->request))
              ->searchWith(PlantillaDocumento::class)
              ->filter();
-         // Si en el request viene el parametro all entonces regresamos todos los elementos de lo contrario paginamos
+
+         if(!$this->request->exists('sort_by')) {
+             $plantillas->orderBy('id');
+         }
+
          $plantillas = $plantillas->paginate($this->request->get('per_page', 10));
 
          if ($this->request->wantsJson()) {

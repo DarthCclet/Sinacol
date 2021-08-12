@@ -27,11 +27,11 @@
         <div class="col-md-2"></div>
         <div class="col-md-8">
           <div id="objeto"></div>
-            <div id="plantilla-header" class="sectionPlantilla" style="border:solid 1px lightgray;" contenteditable="true" >{!! isset($plantillaDocumento->plantilla_header) ? $plantillaDocumento->plantilla_header : "" !!}</div>
+            <div id="plantilla-header" class="sectionPlantilla" style="padding:10px; border:solid 1px lightgray;" contenteditable="true" >{!! isset($plantillaDocumento->plantilla_header) ? $plantillaDocumento->plantilla_header : "" !!}</div>
 
-            <div id="plantilla-body" class="sectionPlantilla" style="border:solid 1px lightgray;" contenteditable="true">{!! isset($plantillaDocumento->plantilla_body) ? $plantillaDocumento->plantilla_body : "" !!}</div>
+            <div id="plantilla-body" class="sectionPlantilla" style="padding:10px; border:solid 1px lightgray;" contenteditable="true">{!! isset($plantillaDocumento->plantilla_body) ? $plantillaDocumento->plantilla_body : "" !!}</div>
 
-            <div id="plantilla-footer" style="border:solid 1px lightgray;">{!! isset($plantillaDocumento->plantilla_footer) ? $plantillaDocumento->plantilla_footer : "" !!}</div>
+            <div id="plantilla-footer" style="padding:10px; border:solid 1px lightgray;">{!! isset($plantillaDocumento->plantilla_footer) ? $plantillaDocumento->plantilla_footer : "" !!}</div>
 
         </div>
         <div class="col-md-2"></div>
