@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\ClasificacionArchivo;
 use App\Expediente;
+use App\PlantillaDocumento;
 use App\Services\StringTemplate;
 use App\Traits\GenerateDocument;
-use Dompdf\Dompdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use PhpParser\Node\Expr\Cast\Object_;
 
 class OficiosDocumentosController extends Controller
 {
@@ -24,7 +22,7 @@ class OficiosDocumentosController extends Controller
     public function index()
     {
 
-       
+
     }
 
     /**
@@ -59,10 +57,10 @@ class OficiosDocumentosController extends Controller
         $expediente = Expediente::find($id);
         if($expediente != null){
 
-            $plantilla['plantilla_header'] = view('documentos._header_documentos_default');
+            $plantilla['plantilla_header'] = "";
             $plantilla['plantilla_body'] = view('documentos._body_documentos_default');
-            $plantilla['plantilla_footer'] = view('documentos._footer_documentos_default');
-            
+            $plantilla['plantilla_footer'] = "";
+
             return view('documentos.oficios.index', compact('plantilla','id'));
         }else{
             return redirect()->route('solicitudes.index')->with('error', 'No existe el expediente');
@@ -109,10 +107,12 @@ class OficiosDocumentosController extends Controller
         $nombre_documento =isset($request->nombre_documento) ? $request->nombre_documento : "Oficio";
         // $idExpediente =1;
         $datos = $request->all();
-        
+
         $html = $this->renderDocumento($datos,$idExpediente);
         if($request->type == "generate"){
-            $solicitud = $this->guardarDocumento($idExpediente,$html,37,$nombre_documento);
+            $clasificacion = ClasificacionArchivo::where('nombre','ilike','%oficio especial%')->first();
+            $clasificacion_id = ($clasificacion) ? $clasificacion->id : 20;
+            $solicitud = $this->guardarDocumento($idExpediente,$html,$clasificacion_id, $nombre_documento);
             return redirect()->route('solicitudes.consulta', ['id' => $solicitud->id]);
         }
         return $this->sendResponse($html, "Correcto"); // plantilla 2 para header y footer
@@ -129,7 +129,11 @@ class OficiosDocumentosController extends Controller
         $nombreArchivo = $this->eliminar_acentos(str_replace(" ", "", $nombreArchivo));
         $path = $directorio . "/" . $nombreArchivo . $archivo->id . '.pdf';
         $fullPath = storage_path('app/' . $directorio) . "/" . $nombreArchivo . $archivo->id . '.pdf';
-        $this->renderPDF($html,1, $fullPath);
+
+        $plantilla = PlantillaDocumento::where('nombre_plantilla', 'OFICIO ESPECIAL')->first();
+        $plantilla_id = ($plantilla) ? $plantilla->id : 1;
+
+        $this->renderPDF($html, $plantilla_id, $fullPath);
 
         $archivo->update([
             "nombre" => $nombre_documento,
@@ -143,7 +147,7 @@ class OficiosDocumentosController extends Controller
         ]);
         return $solicitud;
     }
-    
+
     private function renderDocumento(array $request,$id)
     {
         $expediente = Expediente::find($id);
@@ -166,13 +170,11 @@ class OficiosDocumentosController extends Controller
                     <body>
                     ";
             $end = "</body></html>";
-    
-            // $header = '<div class="header">' . $request['oficio-header'] . '</div>';
+
             $body = '<div class="body">' . $request['oficio-body']. '</div>';
-            $footer = '<div class="footer">' . $request['oficio-footer'] . '</div>';
-    
-            $blade = $style . $body . $footer . $end;
-            // $html = StringTemplate::renderPlantillaPlaceholders($blade, $vars);
+
+            $blade = $style . $body . $end;
+
             $html = StringTemplate::renderOficioPlaceholders($blade, $vars);
         }else{
             $html = 'No existe expediente';

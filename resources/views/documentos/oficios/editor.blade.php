@@ -1,8 +1,16 @@
 <h4 class="offset-2"><i class="fa fa-cog"></i>  Creación de oficio</h4><br>
 
   {!! Form::open([ 'route' => 'oficio-documento.imprimirPDF' ]) !!}
-    <div class="">
-    </div><br>
+    <div class="row">
+        <input type="hidden" name='id' id="id_expediente" value='{{(isset($id))?$id:''}}'>
+        <input type="hidden" name='type' id="type" value='pre'>
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+          <div id="oficio-body" name="oficio-body" class="sectionPlantilla" style="padding: 10px; border:solid 1px lightgray;" >{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+    <br>
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-4">
@@ -10,22 +18,7 @@
             <p class="help-block needed">Nombre del documento</p>
         </div>
     </div>
-    <br>
-    <br>
-    <br>
-    <div class="row">
-        <input type="hidden" name='id' id="id_expediente" value='{{(isset($id))?$id:''}}'>
-        <input type="hidden" name='type' id="type" value='pre'>
-        <div class="col-md-1"></div>
-        <div class="col-md-10">
-          <div id="oficio-header" name="oficio-header" class="sectionPlantilla" style="border:solid 1px lightgray;" >{!! isset($plantilla['plantilla_header']) ? $plantilla['plantilla_header'] : "<br>" !!}</div>
 
-          <div id="oficio-body" name="oficio-body" class="sectionPlantilla" style="border:solid 1px lightgray;" contenteditable="true">{!! isset($plantilla['plantilla_body']) ? $plantilla['plantilla_body'] : "<br><br>" !!}</div>
-
-          <div id="oficio-footer" name="oficio-footer" style="border:solid 1px lightgray;" contenteditable="true">{!! isset($plantilla['plantilla_footer']) ? $plantilla['plantilla_footer'] : "" !!}</div>
-        </div>
-        <div class="col-md-2"></div>
-    </div>
     <br>
     <br>
     <div class="form-group">
@@ -60,9 +53,9 @@
 
     <script>
 
+
         var config_tmce = function(selector) {
             return {
-                auto_focus: 'plantilla-body',
                 selector: selector,
                 language: 'es_MX',
                 width: "670",
@@ -115,7 +108,7 @@
         };
         // tinymce.init(config_tmce('#oficio-header'));
         tinymce.init(config_tmce('#oficio-body'));
-        tinymce.init(config_tmce('#oficio-footer'));
+        //tinymce.init(config_tmce('#oficio-footer'));
         function preview(){
             $.ajax({
             url:"/oficio-documento/imprimirPDF",
@@ -145,5 +138,7 @@
             }
         });
         }
+
+
     </script>
 @endpush

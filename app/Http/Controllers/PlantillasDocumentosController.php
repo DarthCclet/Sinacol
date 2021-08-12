@@ -13,6 +13,7 @@ use App\Domicilio;
 use App\EtapaResolucionAudiencia;
 use App\Expediente;
 use App\Filters\CatalogoFilter;
+use App\Filters\PlantillaDocumentoFilter;
 use App\FirmaDocumento;
 use App\Http\Requests\ConfiguracionResponsivasRequest;
 use App\Parte;
@@ -50,15 +51,11 @@ class PlantillasDocumentosController extends Controller
      */
      public function index()
      {
-         $plantillas = (new CatalogoFilter(PlantillaDocumento::query(), $this->request))
+         $plantillas = (new PlantillaDocumentoFilter(PlantillaDocumento::query(), $this->request))
              ->searchWith(PlantillaDocumento::class)
              ->filter();
          // Si en el request viene el parametro all entonces regresamos todos los elementos de lo contrario paginamos
-         if ($this->request->get('all')) {
-             $plantillas = $plantillas->get();
-         } else {
-             $plantillas = $plantillas->paginate($this->request->get('per_page', 10));
-         }
+         $plantillas = $plantillas->paginate($this->request->get('per_page', 10));
 
          if ($this->request->wantsJson()) {
              return $this->sendResponse($plantillas, 'SUCCESS');
