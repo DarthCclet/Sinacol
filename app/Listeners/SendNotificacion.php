@@ -48,7 +48,7 @@ class SendNotificacion
                 $tipo_notificacion_fecha = self::ObtenerTipoNotificacion($audiencia);
                 // Agregamos al arreglo las generalidades de la audiencia
                 $arreglo["folio"] = $audiencia->folio."/".$audiencia->anio;
-                $arreglo["expediente"] = $audiencia->expediente->folio."/";
+                $arreglo["expediente"] = $audiencia->expediente->folio;
                 $arreglo["exhorto_num"] = "";
                 //Validamos el tipo de notificación
                 $fechaIngreso = new \Carbon\Carbon($audiencia->expediente->solicitud->created_at);
