@@ -250,7 +250,7 @@ class StringTemplate
               for ($i=0; $i < $countTipoNotificacion; $i++) {
                 $htmlA = Str::before($string, '[SI_SOLICITADO_NOTIFICACION_BUZON_COMPARECENCIA');
                 $htmlB = Str::after($string, '[FIN_SI_SOLICITADO_NOTIFICACION]');
-                if($vars['solicitado_tipo_notificacion'] == 4 ||$vars['solicitado_tipo_notificacion']) { // Notificado por buzón electrónico o por comparecencia
+                if($vars['solicitado_tipo_notificacion'] == 4 || $vars['solicitado_tipo_notificacion'] == 7) { // Notificado por buzón electrónico o por comparecencia
                   $sliceNotificacion = Str::after($string, '[SI_SOLICITADO_NOTIFICACION_BUZON_COMPARECENCIA]');
                   $sliceNotificacion = Str::before($sliceNotificacion, '[SI_SOLICITADO_NOTIFICACION_NO_BUZON_COMPARECENCIA]');
 
