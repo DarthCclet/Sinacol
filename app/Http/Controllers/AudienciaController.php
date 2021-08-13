@@ -590,7 +590,7 @@ class AudienciaController extends Controller {
         $conciliadores = Conciliador::where("centro_id", $centro->id)->get();
         $conciliadoresResponse = [];
         foreach ($conciliadores as $conciliador) {
-            if(FechaAudienciaService::validarHoraComida($conciliador, $hora_inicio, $hora_fin)){
+            if(FechaAudienciaService::validarHoraComida($conciliador, $horaInicio, $horaFin)){
                 $pasa = false;
                 if (count($conciliador->disponibilidades) > 0) {
                     foreach ($conciliador->disponibilidades as $disp) {
