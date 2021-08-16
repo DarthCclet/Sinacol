@@ -475,7 +475,7 @@ class ReportesService
             ->searchWith(Solicitud::class)
             ->filter(false);
 
-        $q->whereRaw("'INCOMET-$etapa'='INCOMET-$etapa'");
+        //$q->whereRaw("'INCOMET-$etapa'='INCOMET-$etapa'");
 
         //Las solicitudes confirmadas se evaluan por fecha de ratificacion
         if ($request->get('fecha_inicial')) {
