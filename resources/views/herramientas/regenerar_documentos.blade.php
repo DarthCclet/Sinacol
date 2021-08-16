@@ -592,10 +592,22 @@
                     response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante y un citado para continuar";
                 }
             break;
+            case "56":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitado_id").val() == ""  ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia y un citado para continuar";
+                }
+            break;
             case "64":
                 if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == "" ){
                     response.success = false;
                     response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante para continuar";
+                }
+            break;
+            case "61":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud y Audiencia para continuar";
                 }
             break;
             case "65":
