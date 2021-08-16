@@ -592,6 +592,24 @@
                     response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante y un citado para continuar";
                 }
             break;
+            case "64":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante para continuar";
+                }
+            break;
+            case "65":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitado_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia y un citado para continuar";
+                }
+            break;
+            case "66":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante y un citado para continuar";
+                }
+            break;
             default:
                 response.success = false;
                 response.msj = " No se seleccionó el tipo de documento a generar";

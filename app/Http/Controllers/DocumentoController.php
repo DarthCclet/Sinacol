@@ -495,7 +495,7 @@ class DocumentoController extends Controller
 
         try{
 
-            $clasificacion_archivos = array_pluck(ClasificacionArchivo::whereIn('id',[13,14,15,16,17,18,40,45,41,19,43,52,54,49])->orderBy('nombre')->get(),'nombre','id');
+            $clasificacion_archivos = array_pluck(ClasificacionArchivo::whereIn('id',[13,14,15,16,17,18,40,45,41,19,43,52,54,49,64,66,65])->orderBy('nombre')->get(),'nombre','id');
             return view('herramientas.regenerar_documentos', compact('clasificacion_archivos'));
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
@@ -508,15 +508,23 @@ class DocumentoController extends Controller
     public function storeRegenerarDocumento(Request $request){
 
         try{
-            $arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10,19=>11,41=>8,43=>9,52=>14,54=>15,45=>12,49=>13]
-            ;
+            
+            $arrayPlantilla = [40=>6,18=>7,17=>1,16=>2,15=>3,14=>4,13=>10,19=>11,41=>8,43=>9,52=>14,54=>15,45=>12,49=>13,64=>29,66=>30,65=>31];
+            $arrayPlantillaParte = [65,66];
             $idSolicitud = $request->get('solicitud_id',1);
             $idAudiencia = $request->get('audiencia_id');
             $clasificacion_archivo_id = $request->get('clasificacion_archivo_id');
             $idSolicitante = $request->get('solicitante_id');
             $idSolicitado = $request->get('solicitado_id');
             $plantilla_id = $arrayPlantilla[$clasificacion_archivo_id];
-            event(new GenerateDocumentResolution($idAudiencia, $idSolicitud, $clasificacion_archivo_id, $plantilla_id, $idSolicitante, $idSolicitado));
+            $id_parte_asociada = null;
+            if(in_array($clasificacion_archivo_id,$arrayPlantillaParte)){
+                $id_parte_asociada = $idSolicitado;
+                if(!empty($idSolicitante)){
+                    $id_parte_asociada = $idSolicitante;
+                }
+            }
+            event(new GenerateDocumentResolution($idAudiencia, $idSolicitud, $clasificacion_archivo_id, $plantilla_id, $idSolicitante, $idSolicitado,null,$id_parte_asociada));
             return response()->json(['success' => true, 'message' => 'Se genero el documento correctamente', 'data' => null], 200);
         }catch(Exception $e){
             Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
