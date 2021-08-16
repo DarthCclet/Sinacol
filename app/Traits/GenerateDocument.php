@@ -31,6 +31,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use NumberFormatter;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -1493,11 +1494,24 @@ trait GenerateDocument
      * @return string
      */
 	public function nomenclaturaDocumento($plantilla_id){
-        $plantilla = PlantillaDocumento::find($plantilla_id);
+
+        $plantilla = Cache::remember('plantilla_'.$plantilla_id, 600, function () use ($plantilla_id) {
+            return PlantillaDocumento::find($plantilla_id);
+        });
+
         if(!$plantilla->clave_nomenclatura){
             return '';
         }
-        return sprintf('<div class="clave-nomenclatura">%s/%s</div>', $plantilla->clave_nomenclatura, date("YmdHis"));
+
+        $timestamp = date("YmdHis");
+        $nomenclatura = $plantilla->clave_nomenclatura;
+        $visto_veces = Cache::increment($nomenclatura.$timestamp);
+
+        if($visto_veces > 1) {
+            $timestamp =  $timestamp.($visto_veces -1);
+        }
+
+        return sprintf('<div class="clave-nomenclatura">%s/%s</div>', $nomenclatura, $timestamp);
     }
 
     /*
