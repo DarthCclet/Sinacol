@@ -153,6 +153,8 @@ class ReportesService
             ->searchWith(Solicitud::class)
             ->filter(false);
 
+        //$q->whereRaw("'SOLICITUDES PRESENTADAS'='SOLICITUDES PRESENTADAS'");
+
         # Las solicitudes presentadas se evaluan por fecha de recepcion
         if($request->get('fecha_inicial')){
             $q->whereRaw('fecha_recepcion::date >= ?', $request->get('fecha_inicial'));
@@ -189,8 +191,10 @@ class ReportesService
             $q->leftJoin('personas', 'personas.id', '=', 'conciliadores.persona_id');
 
             $q->whereNull('solicitudes.deleted_at');
-            $q->whereNull('expedientes.deleted_at');
-            $q->whereNull('audiencias.deleted_at');
+
+            // Se hace notar que al reportar solicitudes presentadas es deseable incluir las de expediente y audiencia eliminadas
+            // $q->whereNull('expedientes.deleted_at');
+            // $q->whereNull('audiencias.deleted_at');
         }
 
         if ($request->get('tipo_reporte') == 'desagregado') {
@@ -470,6 +474,8 @@ class ReportesService
         $q = (new SolicitudFilter(Solicitud::query(), $request))
             ->searchWith(Solicitud::class)
             ->filter(false);
+
+        $q->whereRaw("'INCOMET-$etapa'='INCOMET-$etapa'");
 
         //Las solicitudes confirmadas se evaluan por fecha de ratificacion
         if ($request->get('fecha_inicial')) {
