@@ -34,7 +34,7 @@ class SolicitudMasiva extends Command
      */
     protected $signature = 'solicitudMasiva {nombre? : Path al archivo xlsx que trae los datos de los citados}
                                 {--cadena-solicitante= : Cadena separada por comas de los datos del solicitante: "Tipo Persona","Nombre empresa","RFC","tel1","tel2","correo","Estado","tipo vialidad","vialidad","num_ext","num_int","asentamiento","municipio","codigo postal"}
-                                {--fecha-conficto= : Fecha del conficto en formato Y-m-d}
+                                {--fecha-conflicto= : Fecha del conficto en formato Y-m-d}
                                 {--tipo-solicitud= : Tipo solicitud patrón inviduvual, trabajador individual, colectivo}
                                 {--objeto-solicitud= : Objeto solicitud}
                                 {--industria= : Giro industrial}
@@ -97,13 +97,13 @@ class SolicitudMasiva extends Command
                 return;
             }
             $objeto_solicitud = ObjetoSolicitud::where("nombre",'ilike', '%'.$this->option('objeto-solicitud').'%')
-                ->where('tipo_objeto_solicitud_id', $tipo_objeto_solicitud->id)
+                ->where('tipo_objeto_solicitudes_id', $tipo_objeto_solicitud->id)
                 ->first();
             if(!$objeto_solicitud){
                 $this->error("No existe el objeto de la solicitud: ".$this->option('objeto-solicitud'));
                 return;
             }
-            $partesSolicitante = explode(",", $this->option('cadena-solicitante'));
+            $partesSolicitante = str_getcsv($this->option('cadena-solicitante'));
 
 
             $correctos = 0;
