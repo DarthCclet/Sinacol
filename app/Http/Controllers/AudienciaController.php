@@ -964,6 +964,9 @@ class AudienciaController extends Controller {
             $contexto = $e->getContext();
             Log::error($e->getMessage()." ".$contexto->folio);
             $this->contadorService->getContador($contexto->anio, self::TIPO_CONTADOR_SOLICITUD, $contexto->solicitud->centro_id);
+            if ($this->request->wantsJson()) {
+                return $this->sendError('Error al confirmar la solicitud', $e->getMessage());
+            }
         }
         catch (\Throwable $e) {
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
