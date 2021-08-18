@@ -197,6 +197,7 @@
                 <div class="modal-footer">
                     <div class="text-right">
                         <a class="btn btn-white btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</a>
+                        <button class="btn btn-primary btn-sm m-l-5" id="btnGuardar"><i class="fa fa-save"></i> Guardar</button>
                     </div>
                 </div>
             </div>

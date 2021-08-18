@@ -106,7 +106,6 @@ class FechaAudienciaService{
                                             $hora_fin_audiencia = $audienciaQ->hora_fin;
                                             $hora_inicio_audiencia_nueva = $hora_inicio;
                                             $hora_fin_audiencia_nueva = $hora_fin;
-
                                             if(!self::rangesNotOverlapOpen($hora_inicio_audiencia, $hora_fin_audiencia, $hora_inicio_audiencia_nueva, $hora_fin_audiencia_nueva)){
                                                 $choca_audiencia = true;
                                             }
@@ -757,6 +756,22 @@ class FechaAudienciaService{
         }
         return true;
     }
+    public static function calcularFechaNotificador($fecha){
+        $fecha_d = new Carbon($fecha);
+        $fecha_nueva = $fecha_d;
+        $num = 0; 
+        for ($i = 1; $i <= 50; $i++) {
+            $fecha_nueva = $fecha_nueva->addDay();
+            if(!$fecha_nueva->isWeekend()){
+                $num++;
+                if($num >= 15){
+                    break;
+                }
+            }
+        }
+        return $fecha_nueva->format("d/m/Y");
+    }
+    
     public static function validarFechasAsignables(Solicitud $solicitud,$fecha_solicitada){
         if($solicitud->tipo_solicitud_id == 1){
             $dt = new Carbon($solicitud->created_at);

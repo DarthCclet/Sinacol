@@ -54,6 +54,8 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use App\TipoPersona;
+use App\BitacoraBuzon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -62,6 +64,9 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Validator;
+use Illuminate\Support\Facades\File;
+use App\Mail\EnviarNotificacionBuzon;
+use Illuminate\Support\Facades\Mail;
 
 class SolicitudController extends Controller {
 
@@ -737,35 +742,19 @@ class SolicitudController extends Controller {
      */
     public function show($id) {
         $solicitud = Solicitud::with('expediente', 'giroComercial', 'estatusSolicitud', 'centro', 'tipoIncidenciaSolicitud', 'giroComercial.ambito', 'objeto_solicitudes')->find($id);
-        $partes = $solicitud->partes()->with('dato_laboral', 'domicilios', 'contactos', 'lenguaIndigena')->get();
+        $partes = $solicitud->partes()->with(['dato_laboral', 'domicilios'=>function($q){$q->orderByDesc('id');}, 'contactos', 'lenguaIndigena'])->get();
 
         $solicitantes = $partes->where('tipo_parte_id', 1);
 
         foreach ($solicitantes as $key => $value) {
-            // $value->dato_laboral;
-            // $value->domicilios;
-            // $value->contactos;
-            // $value->lenguaIndigena;
             $solicitantes[$key]["activo"] = 1;
         }
         $solicitados = $partes->where('tipo_parte_id', 2);
         foreach ($solicitados as $key => $value) {
-            // $value->dato_laboral;
-            // $value->domicilios;
-            // $value->contactos;
             $solicitados[$key]["activo"] = 1;
         }
         $solicitud["solicitados"] = $solicitados;
         $solicitud["solicitantes"] = $solicitantes;
-        //$solicitud->objeto_solicitudes;
-        // $solicitud->expediente = $solicitud->expediente;
-        // $solicitud->giroComercial = $solicitud->giroComercial;
-        // $solicitud->estatusSolicitud = $solicitud->estatusSolicitud;
-        // $solicitud->centro = $solicitud->centro;
-        // $solicitud->tipoIncidenciaSolicitud = $solicitud->tipoIncidenciaSolicitud;
-        // if($solicitud->giroComercial){
-        //     $solicitud->giroComercial->ambito;
-        // }
         return $solicitud;
     }
 
@@ -918,12 +907,12 @@ class SolicitudController extends Controller {
         } else {
             $audiencias = array();
         }
-        $partes = array();
-        foreach ($solicitud->partes as $key => $parte) {
-            $parte->tipoParte = $parte->tipoParte;
-            $parte->domicilios = $parte->domicilios()->first();
-            $partes[$key] = $parte;
-        }
+        // $partes = array();
+        // foreach ($solicitud->partes as $key => $parte) {
+        //     $parte->tipoParte = $parte->tipoParte;
+        //     $parte->domicilios = $parte->domicilios->last();
+        //     $partes[$key] = $parte;
+        // }
 
         $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ? $solicitud->tipo_solicitud_id : 1;
         if ($tipo_solicitud_id == 1) {
@@ -956,7 +945,7 @@ class SolicitudController extends Controller {
         $conciliadores = array_pluck(Conciliador::with('persona')->get(), "persona.nombre", 'id');
         $giros = GiroComercial::where("parent_id", 1)->orderBy('nombre')->get();
         // consulta de documentos
-        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits', 'municipios', 'partes', 'motivo_excepciones', 'conciliadores', 'clasificacion_archivo', 'tipo_solicitud_id', 'clasificacion_archivos_Representante', 'giros'));
+        return view('expediente.solicitudes.edit', compact('solicitud', 'objeto_solicitudes', 'estatus_solicitudes', 'tipos_vialidades', 'tipos_asentamientos', 'estados', 'jornadas', 'generos', 'nacionalidades', 'giros_comerciales', 'ocupaciones', 'expediente', 'audiencias', 'grupo_prioritario', 'lengua_indigena', 'tipo_contacto', 'periodicidades', 'audits', 'municipios', 'motivo_excepciones', 'conciliadores', 'clasificacion_archivo', 'tipo_solicitud_id', 'clasificacion_archivos_Representante', 'giros'));
     }
 
     /**
@@ -969,17 +958,59 @@ class SolicitudController extends Controller {
         try {
             $doc = collect();
             $solicitud = Solicitud::with('expediente', 'giroComercial', 'estatusSolicitud', 'centro', 'tipoIncidenciaSolicitud', 'giroComercial.ambito', 'objeto_solicitudes')->find($id);
-            $partes = $solicitud->partes()->with('dato_laboral', 'domicilios', 'contactos', 'lenguaIndigena')->get();
+            $partes = $solicitud->partes()->with(['dato_laboral', 'domicilios'=>function($q){$q->orderByDesc('id')->limit(1);}, 'contactos', 'lenguaIndigena'])->get();
             //Consulta de solicitud con relaciones
 
             $solicitantes = $partes->where('tipo_parte_id', 1);
 
             foreach ($solicitantes as $key => $value) {
                 $solicitantes[$key]["activo"] = 1;
+                $documentos = $value->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->id = $documento->id;
+                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                    if($value->tipo_persona_id == 1){
+                        $documento->parte = $value->nombre . " " . $value->primer_apellido . " " . $value->segundo_apellido;
+                    }else{
+                        $documento->parte = $value->nombre_comercial;
+                    }
+                    $documento->tipo_doc = 2;
+                    $doc->push($documento);
+                }
             }
             $solicitados = $partes->where('tipo_parte_id', 2);
             foreach ($solicitados as $key => $value) {
                 $solicitados[$key]["activo"] = 1;
+                $documentos = $value->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->id = $documento->id;
+                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                    if($value->tipo_persona_id == 1){
+                        $documento->parte = $value->nombre . " " . $value->primer_apellido . " " . $value->segundo_apellido;
+                    }else{
+                        $documento->parte = $value->nombre_comercial;
+                    }
+                    $documento->tipo_doc = 2;
+                    $doc->push($documento);
+                }
+            }
+            $representantes = $partes->where('tipo_parte_id', 3);
+            foreach ($representantes as $key => $value) {
+                $documentos = $value->documentos;
+                foreach ($documentos as $documento) {
+                    $documento->id = $documento->id;
+                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+                    if($value->tipo_persona_id == 1){
+                        $documento->parte = $value->nombre . " " . $value->primer_apellido . " " . $value->segundo_apellido;
+                    }else{
+                        $documento->parte = $value->nombre_comercial;
+                    }
+                    $documento->tipo_doc = 2;
+                    $doc->push($documento);
+                }
             }
             $solicitud["solicitados"] = $solicitados;
             $solicitud["solicitantes"] = $solicitantes;
@@ -1011,31 +1042,31 @@ class SolicitudController extends Controller {
             } else {
                 $audiencias = array();
             }
-            $partes = array();
-            foreach ($solicitud->partes as $key => $parte) {
-                $parte->tipoParte = $parte->tipoParte;
-                $parte->domicilios = $parte->domicilios()->first();
-                //            dd($parte);
-                $partes[$key] = $parte;
-                $documentos = $parte->documentos;
-                foreach ($documentos as $documento) {
-                    $documento->id = $documento->id;
-                    $documento->clasificacionArchivo = $documento->clasificacionArchivo;
-                    $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
-                    $documento->parte = $parte->nombre . " " . $parte->primer_apellido . " " . $parte->segundo_apellido;
-                    $documento->tipo_doc = 2;
-                    $doc->push($documento);
-                }
-            }
+            // $partes = array();
+            // foreach ($solicitud->partes as $key => $parte) {
+            //     $parte->tipoParte = $parte->tipoParte;
+            //     // $parte->domicilios = $parte->domicilios->last();
+            //     //            dd($parte);
+            //     // $partes[$key] = $parte;
+            //     $documentos = $value->documentos;
+            //     foreach ($documentos as $documento) {
+            //         $documento->id = $documento->id;
+            //         $documento->clasificacionArchivo = $documento->clasificacionArchivo;
+            //         $documento->tipo = pathinfo($documento->ruta, PATHINFO_EXTENSION);
+            //         $documento->parte = $value->nombre . " " . $value->primer_apellido . " " . $value->segundo_apellido;
+            //         $documento->tipo_doc = 2;
+            //         $doc->push($documento);
+            //     }
+            // }
 
-            $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ? $solicitud->tipo_solicitud_id : 1;
-            if ($tipo_solicitud_id == 1) {
-                $tipo_objeto_solicitudes_id = 1;
-            } else if ($tipo_solicitud_id == 2) {
-                $tipo_objeto_solicitudes_id = 2;
-            } else {
-                $tipo_objeto_solicitudes_id = 3;
-            }
+            // $tipo_solicitud_id = isset($solicitud->tipo_solicitud_id) ? $solicitud->tipo_solicitud_id : 1;
+            // if ($tipo_solicitud_id == 1) {
+            //     $tipo_objeto_solicitudes_id = 1;
+            // } else if ($tipo_solicitud_id == 2) {
+            //     $tipo_objeto_solicitudes_id = 2;
+            // } else {
+            //     $tipo_objeto_solicitudes_id = 3;
+            // }
 
             // dd(Conciliador::all()->persona->full_name());
             $conciliadores = array_pluck(Conciliador::with('persona')->get(), "persona.nombre", 'id');
@@ -1397,10 +1428,9 @@ class SolicitudController extends Controller {
             foreach ($solicitud->partes as $key => $parte) {
                 if (count($parte->documentos) == 0) {
                     $parte->ratifico = true;
-                    $parte->update();
+                    $parte->save();
                 }
             }
-
             $user_id = Auth::user()->id;
             $solicitud->update(["estatus_solicitud_id" => 3, "ratificada" => true,"url_virtual" => null, "incidencia" => true,"fecha_incidencia"=>now(),"justificacion_incidencia"=>$this->request->justificacion,"tipo_incidencia_solicitud_id"=>4, "fecha_ratificacion" => now(),"inmediata" => false,'user_id'=>$user_id]);
 
@@ -1480,6 +1510,7 @@ class SolicitudController extends Controller {
         $anio = date("Y");
 
         DB::beginTransaction();
+        $acepta_buzon= $request->acepta_buzon;
         $consecutivo_audiencia = $this->contadorService->getContador($anio, self::TIPO_CONTADOR_AUDIENCIA, auth()->user()->centro_id);
         $solicitud = Solicitud::find($request->id);
         try {
@@ -1493,13 +1524,23 @@ class SolicitudController extends Controller {
 
                 //Creamos el expediente de la solicitud
                 $expediente = Expediente::create(["solicitud_id" => $request->id, "folio" => $folio, "anio" => date("Y"), "consecutivo" => $consecutivo]);
+                $tipo = TipoPersona::whereNombre("FISICA")->first();
+                $array_comparecen = array();
+
+                $tipo_notificacion_id = null;
                 foreach ($solicitud->partes as $key => $parte) {
-                    if (count($parte->documentos) == 0) {
+                    if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 3) {
+                        if($parte->tipo_parte_id == 3){
+                            $parteRep = Parte::find($parte->parte_representada_id);
+                            if($parteRep->tipo_parte_id == 1){
+                                $parte = $parteRep;
+                            }
+                        }
                         $parte->ratifico = true;
-                        $parte->update();
+                        $parte->notificacion_buzon = $acepta_buzon;
+                        $parte->save();
                     }
                 }
-                $tipo_notificacion_id = null;
                 if ($request->inmediata == "true") {
                     $user_id = Auth::user()->id;
                     $solicitud->update(["estatus_solicitud_id" => 2, "url_virtual" => null, "ratificada" => true, "fecha_ratificacion" => now(), "inmediata" => true, 'user_id' => $user_id]);
@@ -1524,30 +1565,6 @@ class SolicitudController extends Controller {
                             return $this->sendError('El usuario no esta dado de alta en la lista de conciliadores', 'Error');
                         }
                     }
-
-                    //obtenemos al conciliador disponible
-                    //                $conciliadores = Conciliador::where("centro_id",$solicitud->centro_id)->get();
-                    //                $conciliadoresDisponibles = array();
-                    //                foreach($conciliadores as $conciliador){
-                    //                    $conciliadorDisponible = false;
-                    //                    foreach($conciliador->rolesConciliador as $roles){
-                    //                        if($roles->rol_atencion_id == 2){
-                    //                            $conciliadorDisponible = true;
-                    //                        }
-                    //                    }
-                    //                    if($conciliadorDisponible){
-                    //                        $conciliadoresDisponibles[]=$conciliador;
-                    //                    }
-                    //                }
-                    //                $conciliador_id = null;
-                    //                if(count($conciliadoresDisponibles) > 0){
-                    //                    $conciliador = Arr::random($conciliadoresDisponibles);
-                    //                }else{
-                    //                    DB::rollBack();
-                    //                    return $this->sendError('No hay conciliadores con rol de previo acuerdo', 'Error');
-                    //                }
-                    // Registramos la audiencia
-                    //Obtenemos el contador
                     //creamos el registro de la audiencia
                     if ($request->fecha_cita == "" || $request->fecha_cita == null) {
                         $fecha_cita = null;
@@ -1569,19 +1586,124 @@ class SolicitudController extends Controller {
                                 "fecha_cita" => $fecha_cita
                     ]);
 
+                $partes = $solicitud->partes()->orderby('tipo_parte_id','asc')->get();
+                foreach ($partes as $key => $parte) {
+                    if ((count($parte->documentos) > 0 && $parte->tipo_parte_id == 1) || $parte->tipo_parte_id == 3) {
+                        if($parte->tipo_parte_id == 3){
+                            $parteRep = Parte::find($parte->parte_representada_id);
+                            if($parteRep->tipo_parte_id == 1){
+                                $parte = $parteRep;
+                            }
+                        }
+                        if($acepta_buzon == "true"){
+                            $parte->notificacion_buzon = true;
+                            $parte->fecha_aceptacion_buzon = now();
+                            $parte->save();
+                            $identificador = $parte->rfc;
+                            if($parte->tipo_persona_id == $tipo->id){
+                                $identificador = $parte->curp;
+                            }
+                            $array_comparecen[] = $parte->id;
+                             //Genera acta de aceptacion de buzón
+                            if($parte->tipo_parte_id == 1){
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id,null,null,$parte->id));
+                            }else if($parte->tipo_parte_id == 2){
+
+                            }else{
+                                $representado = Parte::find($parte->parte_representada_id);
+                                if($representado->tipo_parte_id == 1){
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$representado->id,null,null,$representado->id));
+                                }
+                            }
+                            BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
+                        }else{
+                            //Genera acta de no aceptacion de buzón
+                            if($parte->tipo_parte_id == 1){
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id,null,null,$parte->id));
+                            }else if($parte->tipo_parte_id == 2){
+                            }else{
+                                $representado = Parte::find($parte->parte_representada_id);
+                                if($representado->tipo_parte_id == 1){
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$representado->id,null,null,$representado->id));
+                                }
+                            }
+                        }
+
+                    }
+                }
                     // guardamos la sala y el conciliador a la audiencia
                     ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id, "solicitante" => true]);
                     SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id, "solicitante" => true]);
                     // Guardamos todas las Partes en la audiencia
-                    $partes = $solicitud->partes;
-                    foreach ($partes as $parte) {
-                        AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
-                        if ($parte->tipo_parte_id == 2) {
-                            // generar citatorio de conciliacion
-                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                    $partes = $solicitud->partes()->orderby('tipo_parte_id','asc')->get();
+                    $audiencia->tipo_solicitud_id = $audiencia->expediente->solicitud->tipo_solicitud_id;
+                    foreach ($partes as $key => $parte) {
+                        if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
+                            AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
+                            if($parte->tipo_parte_id == 3){
+                                $parteRep = Parte::find($parte->parte_representada_id);
+                                if($parteRep->tipo_parte_id == 1){
+                                    $parte = $parteRep;
+                                    AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
+                                }
+                            }
+
+                            if($acepta_buzon == "true"){
+                                $parte->notificacion_buzon = true;
+                                $parte->fecha_aceptacion_buzon = now();
+                                $parte->save();
+                                $identificador = $parte->rfc;
+                                if($parte->tipo_persona_id == $tipo->id){
+                                    $identificador = $parte->curp;
+                                }
+                                $array_comparecen[] = $parte->id;
+                                 //Genera acta de aceptacion de buzón
+                                if($parte->tipo_parte_id == 1){
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id,null,null,$parte->id));
+                                }else if($parte->tipo_parte_id == 2){
+                                }else{
+                                    $representado = Parte::find($parte->parte_representada_id);
+                                    if($representado->tipo_parte_id == 1){
+                                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$representado->id,null,null,$representado->id));
+                                    }
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
+                            }else{
+                                //Genera acta de no aceptacion de buzón
+                                if($parte->tipo_parte_id == 1){
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id,null,null,$parte->id));
+                                }else if($parte->tipo_parte_id == 2){
+                                }else{
+                                    $representado = Parte::find($parte->parte_representada_id);
+                                    if($representado->tipo_parte_id == 1){
+                                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$representado->id,null,null,$representado->id));
+                                    }
+                                }
+                            }
+                            if ($parte->tipo_parte_id == 2) {
+                                // generar citatorio de conciliacion
+                                event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                            }elseif($parte->tipo_parte_id == 1){
+                                if($parte->tipo_persona_id == 1){
+                                    $busqueda = $parte->curp;
+                                }else{
+                                    $busqueda = $parte->rfc;
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se crea notificación del solicitante','tipo_movimiento'=>'Registro','clabe_identificacion'=>$busqueda]);
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 64, 29, null, $parte->id));
+                            }
+
                         }
                     }
-                    $audiencia->tipo_solicitud_id = $audiencia->expediente->solicitud->tipo_solicitud_id;
+                    foreach ($solicitud->partes()->get() as $parte) {
+                        if($parte->tipo_parte_id == 1 ){
+                            if($parte->ratifico == true){
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
+                            }else{
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parte->id,null,null,$parte->id));
+                            }
+                        }
+                    }
                     DB::commit();
                     return $audiencia;
                 } else {
@@ -1595,11 +1717,10 @@ class SolicitudController extends Controller {
                     //                obtenemos el domicilio del centro
                     $domicilio_centro = auth()->user()->centro->domicilio;
                     //                obtenemos el domicilio del citado
-                    $partes = $solicitud->partes;
                     $domicilio_citado = null;
-                    foreach ($partes as $parte) {
+                    foreach ($solicitud->partes as $parte) {
                         if ($parte->tipo_parte_id == 2) {
-                            $domicilio_citado = $parte->domicilios()->first();
+                            $domicilio_citado = $parte->domicilios->last();
                             break;
                         }
                     }
@@ -1664,21 +1785,88 @@ class SolicitudController extends Controller {
                             SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $datos_audiencia["sala2_id"], "solicitante" => false]);
                         }
                     }
-                    // Guardamos todas las Partes en la audiencia
-                    //                dd($partes);
 
-                    foreach ($partes as $parte) {
-                        if ($parte->tipo_parte_id != 1) {
-                            $tipo_notificacion_id = $this->request->tipo_notificacion_id;
-                        }
-                        AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
-                        if ($parte->tipo_parte_id == 2 && $datos_audiencia["encontro_audiencia"]) {
-                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
+                    $partes = $solicitud->partes()->orderby('tipo_parte_id','asc')->get();
+                    foreach ($partes as $key => $parte) {
+                        if ((count($parte->documentos) > 0 && $parte->tipo_parte_id == 1) || $parte->tipo_parte_id == 3) {
+                            if($parte->tipo_parte_id == 3){
+                                $parteRep = Parte::find($parte->parte_representada_id);
+                                if($parteRep->tipo_parte_id == 1){
+                                    $parte = $parteRep;
+                                }
+                            }
+                            if($acepta_buzon == "true"){
+                                $parte->notificacion_buzon = true;
+                                $parte->fecha_aceptacion_buzon = now();
+                                $parte->save();
+                                $identificador = $parte->rfc;
+                                if($parte->tipo_persona_id == $tipo->id){
+                                    $identificador = $parte->curp;
+                                }
+                                $array_comparecen[] = $parte->id;
+                                //Genera acta de aceptacion de buzón
+                                if($parte->tipo_parte_id == 1){
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$parte->id,null,null,$parte->id));
+                                }else if($parte->tipo_parte_id == 2){
+
+                                }else{
+                                    $representado = Parte::find($parte->parte_representada_id);
+                                    if($representado->tipo_parte_id == 1){
+                                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 62, 19,$representado->id,null,null,$representado->id));
+                                    }
+                                }
+                                BitacoraBuzon::create(['parte_id'=>$parte->id,'descripcion'=>'Se genera el documento de aceptación de buzón electrónico','tipo_movimiento'=>'Documento','clabe_identificacion' => $identificador]);
+                            }else{
+                                //Genera acta de no aceptacion de buzón
+                                if($parte->tipo_parte_id == 1){
+                                    event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$parte->id,null,null,$parte->id));
+                                }else if($parte->tipo_parte_id == 2){
+                                }else{
+                                    $representado = Parte::find($parte->parte_representada_id);
+                                    if($representado->tipo_parte_id == 1){
+                                        event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 60, 22,$representado->id,null,null,$representado->id));
+                                    }
+                                }
+                            }
+
                         }
                     }
-                    //                if($datos_audiencia["encontro_audiencia"] && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)){
-                    //                    event(new RatificacionRealizada($audiencia->id,"citatorio"));
-                    //                }
+
+                    $partes = $solicitud->partes()->orderby('tipo_parte_id','asc')->get();
+                    foreach ($partes as $parte) {
+                        if (count($parte->documentos) > 0 || $parte->tipo_parte_id == 2 || $parte->tipo_parte_id == 3) {
+                            if ($parte->tipo_parte_id != 1) {
+                                $tipo_notificacion_id = $this->request->tipo_notificacion_id;
+                            }
+                            if($parte->tipo_parte_id != 3){
+                            //     $representado = Parte::find($parte->parte_representada_id);
+                            //     AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $representado  ->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
+                            // }else{
+                                AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => $tipo_notificacion_id]);
+                            }
+                        }
+                    }
+
+
+                    foreach ($audiencia->audienciaParte as $parte_audiencia) {
+                        if ($parte_audiencia->parte->tipo_parte_id == 2) {
+                            if($parte_audiencia->parte->tipo_persona_id == 1){
+                                $busqueda = $parte_audiencia->parte->curp;
+                            }else{
+                                $busqueda = $parte_audiencia->parte->rfc;
+                            }
+                            BitacoraBuzon::create(['parte_id'=>$parte_audiencia->parte_id,'descripcion'=>'Se crea citatorio','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte_audiencia->parte_id));
+                        }elseif($parte_audiencia->parte->tipo_parte_id == 1){
+                            if($parte_audiencia->parte->tipo_persona_id == 1){
+                                $busqueda = $parte_audiencia->parte->curp;
+                            }else{
+                                $busqueda = $parte_audiencia->parte->rfc;
+                            }
+                            BitacoraBuzon::create(['parte_id'=>$parte_audiencia->parte_id,'descripcion'=>'Se crea notificación del solicitante','tipo_movimiento'=>'Documento','clabe_identificacion'=>$busqueda]);
+                            event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 64, 29, $parte_audiencia->parte_id,null));
+                        }
+                    }
                     $expediente = Expediente::find($request->expediente_id);
                 }
 
@@ -1693,9 +1881,30 @@ class SolicitudController extends Controller {
                 if ($acuse != null) {
                     $acuse->delete();
                 }
+
+                foreach ($solicitud->partes()->get() as $parte) {
+                    if($parte->tipo_parte_id == 1 ){
+                        if($parte->ratifico == true){
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 65, 31, $parte->id,null, null,$parte->id));
+                        }else{
+                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud_id, 66, 30, $parte->id,null,null,$parte->id));
+                        }
+                    }
+                }
+
+                foreach($audiencia->audienciaParte as $audiencia_parte){
+                    if($audiencia_parte->parte->password_buzon == null && $audiencia_parte->parte->correo_buzon != null){
+                        Mail::to($audiencia_parte->parte->correo_buzon)->send(new EnviarNotificacionBuzon($audiencia, $audiencia_parte->parte));
+                    }
+                }
+
                 DB::commit();
                 if ($request->inmediata != "true" && $audiencia->encontro_audiencia && ($tipo_notificacion_id != 1 && $tipo_notificacion_id != null)) {
-                    event(new RatificacionRealizada($audiencia->id, "citatorio"));
+                    foreach($audiencia->audienciaParte as $audiencia_parte){
+                        if($audiencia_parte->parte->tipo_parte_id == 2){
+                            event(new RatificacionRealizada($audiencia->id, "citatorio",false,$audiencia_parte->id));
+                        }
+                    }
                 }
                 event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
                 return $audiencia;
@@ -1785,7 +1994,7 @@ class SolicitudController extends Controller {
             }
         }
         $solicitud->estatus_solicitud_id = 3;
-        $solicitud->update();
+        $solicitud->save();
         return redirect('solicitudes')->with('success', 'Se guardo todo');
     }
 
@@ -1885,18 +2094,20 @@ class SolicitudController extends Controller {
         $solicitud = Solicitud::find($this->request->solicitud_id);
         $array = array();
         foreach ($solicitud->partes as $parte) {
-            if ($parte->tipo_parte_id == 1) {
+            if((count($parte->documentos) > 0 || $parte->tipo_persona_id == 2) && empty($parte->correo_buzon) ){
+                if ($parte->tipo_parte_id == 1) {
+                    // $pasa = false;
+                    // $tiene_correo = $parte->contactos()->where('tipo_contacto_id',3)->first();
+                    // if($tiene_correo == null){
+                    // }
+                    $pasa = true;
+                    if ($pasa) {//devuelve partes sin email
+                        // if ($parte->correo_buzon == null || $parte->correo_buzon == "") {
+                            $array[] = $parte;
+                        // }
+                    }
+                }
                 $pasa = false;
-                foreach ($parte->contactos as $contacto) {
-                    if ($contacto->tipo_contacto_id == 3) { //si tiene email
-                        $pasa = true;
-                    }
-                }
-                if (!$pasa) {//devuelve partes sin email
-                    if ($parte->correo_buzon == null || $parte->correo_buzon == "") {
-                        $array[] = $parte;
-                    }
-                }
             }
         }
         return $array;
@@ -1905,18 +2116,25 @@ class SolicitudController extends Controller {
     public function cargarCorreos() {
         try {
             DB::beginTransaction();
-            foreach ($this->request->listaCorreos as $listaCorreos) {
-                $parte = Parte::find($listaCorreos["parte_id"]);
-                if ($listaCorreos["crearAcceso"]) {
+            foreach ($this->request->listaCorreos as $listaCorreo) {
+                $parte = Parte::find($listaCorreo["parte_id"]);
+                if(isset($listaCorreo['rfcCurp'])){
+                    if($parte->tipo_persona_id == 1){
+                        $parte->update(['curp'=>$listaCorreo['rfcCurp']]);
+                    }else{
+                        $parte->update(['rfc'=> $listaCorreo['rfcCurp']]);
+                    }
+                }
+                if ($listaCorreo["crearAcceso"] == "true") {
                     $arrayCorreo = $this->construirCorreo($parte);
                     $parte->update([
                         "correo_buzon" => $arrayCorreo["correo"],
                         "password_buzon" => $arrayCorreo["password"]
                     ]);
                 } else {
-                    $parte->contactos()->create([
-                        "tipo_contacto_id" => 3,
-                        "contacto" => $listaCorreos["correo"]
+                    $parte->update([
+                        "correo_buzon" => $listaCorreo["correo"],
+                        "password_buzon" => null
                     ]);
                 }
             }

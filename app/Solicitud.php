@@ -179,7 +179,10 @@ class Solicitud extends Model implements Auditable
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function documentosComentadosComoIncompetencia(){
-        return $this->morphMany(Documento::class,'documentable')->whereRaw('documentos.descripcion ilike '."'%incompetencia%'");
+        return $this->morphMany(Documento::class,'documentable')
+            ->whereRaw('documentos.descripcion ilike '."'%incompetencia%'")
+            ->withTrashed()
+            ;
     }
 
     /**

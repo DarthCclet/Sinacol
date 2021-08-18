@@ -20,6 +20,14 @@
                 line-height: 1.5;
                 border-radius: 4px;
             }
+            .table td,.table th {
+              border: 1px solid black;
+            }
+
+            .table {
+              width: 60%;
+              border-collapse: collapse;
+            }
         </style>
     </head>
     <body style="margin-top: 5%;
@@ -42,27 +50,32 @@
             </div>
             <!-- end brand -->
             <!-- begin login-content -->
-            <div class="login-content" style="background: #f2f4f5 !important;Margin:-10px;">
+            <div class="login-content" style="background: #f2f4f5 !important;">
                 <br>
                 <h1>Centro Federal de Conciliación y Registro Laboral.<br><small>Sistema de conciliación</small></h1>
                 <p>
-                    Bienvenido
+                    Estimado
                     @if($parte->tipo_persona_id == 1)
                         {{$parte->nombre}} {{$parte->primer_apellido}} {{$parte->segundo_apellido}}
                     @else
                         {{$parte->nombre_comercial}}
                     @endif
                     <br><br>
-                    Recibimos tu solicitud para ingresar a tu buzón electrónico sobre las conciliaciones realizadas.
-                    <br> A través del siguiente botón podrás ingresar a tu buzón.
-                </p>
-                <center>
-                    <a href="{{$liga}}" class="btn">BUZON ELECTRÓNICO</a>
-                </center>
+                    @if($parte->notificacion_buzon)
+                    Nueva notificación sobre su expediente número {{$expediente->folio}} en su buzón electrónico. Para consultar, favor de ingresar a su buzón electrónico.
+                    @else
+                    Nuevo aviso sobre su expediente número {{$expediente->folio}} en su buzón electrónico. Favor de presentarse al Centro Estatal correspondiente para darse por notificado personalmente de su contenido.<br>
+                    En el caso de que quiera aceptar que las notificaciones, incluyendo aquellas de carácter personal, se hagan por medio del buzón electrónico, podrá hacerlo en su siguiente comparecencia a la audiencia de conciliación de esta solicitud.
+                    @endif
+                    <br>
+                    El presente correo electrónico no constituye una notificación personal.
+                    <br>
+                </p>      
+                <p>
                     <small>
-                        En caso de no poder ver el mensaje de forma correcta copia y pega la siguiente liga en tu navegador:
-                        <a href="{{$liga}}">{{$liga}}</a>.
+                        En caso de no poder ver el mensaje de forma correcta te invitamos a consultar la información en tu buzón electrónico dando click <a href="{{route('solicitud_buzon')}}">Aqui</a>
                     </small>
+                </p>
             </div>
             <!-- end login-content -->
         </div>

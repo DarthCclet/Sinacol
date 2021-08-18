@@ -65,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('solicitudes/folio','SolicitudController@getSolicitudByFolio');
     Route::get('solicitud/porCaducar','SolicitudController@showPorCaducar');
     Route::POST('solicitud/ratificar','SolicitudController@Ratificar');
+    Route::Get('parte/correo/{parte_id}','ParteController@validarCorreoParte');
     Route::POST('solicitud/ratificarIncompetencia','SolicitudController@ratificarIncompetencia');
     Route::POST('solicitud/excepcion','SolicitudController@ExcepcionConciliacion');
     Route::Get('solicitud/correos/{solicitud_id}','SolicitudController@validarCorreos');
@@ -126,6 +127,8 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('partes/representante/contacto/eliminar','ParteController@EliminarContactoRepresentante');
     Route::GET('partes/getComboDocumentos/{solicitud_id}','ParteController@getPartesComboDocumentos');
     Route::Get('partes/getParteSolicitud/{parte_id}','ParteController@getParteSolicitud');
+    Route::Get('partes/getCitados/{solicitud_id}','ParteController@getCitadosBySolicitudId');
+    Route::Post('aceptar_buzon','ParteController@aceptar_buzon');
     Route::resource('roles-atencion','RolAtencionController');
     Route::resource('objeto-solicitud','ObjetoSolicitudController');
     Route::resource('estatus-solicitud','EstatusSolicitudController');
@@ -249,6 +252,7 @@ Route::middleware(['auth'])->group(function () {
      * Validación de fechas asignables desde el calendario
      */
     Route::get('validarFechaAsignable/{audiencia_id}/{fecha_solicitada}','SolicitudController@validarFechasAsignables');
+    Route::get('validarCambioNotificacion/{audiencia_id}','AudienciaController@validarCambioNotificacion');
 
 });
 
@@ -266,9 +270,13 @@ Route::Get('partes/datoLaboral/{id}','ParteController@GetDatoLaboral');
 Route::Get('partes/representante/{id}','ParteController@GetRepresentanteLegal');
 Route::post('solicitar_acceso','BuzonController@SolicitarAcceso')->name('solicitar_acceso2');
 Route::get('buzon','BuzonController@BuzonElectronico')->name('buzon');
+Route::get('bitacora_buzon/{parte_id}','BuzonController@getBitacoraBuzonParte');
+Route::get('acta_bitacora_interno/{parte_id}','BuzonController@generarConstanciaBuzonInterno');
+Route::get('acta_bitacora/{parte_id}','BuzonController@generarConstanciaBuzon');
 Route::get('validar_token/{token}/{correo}','BuzonController@validar_token');
 Route::resource('etapa_resolucion_audiencia','EtapaResolucionAudienciaController');
 Route::get('acceso_buzon','BuzonController@AccesoBuzon')->name('acceso_buzon');
+Route::post('buzon/uploadJustificante', 'AudienciaController@uploadJustificante');
 
 Auth::routes(['register' => false]);
 

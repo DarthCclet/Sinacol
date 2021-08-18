@@ -264,6 +264,14 @@
                         <tbody>
                     </table>
                 </div>
+                <div class="col-md-4">
+                    <div >
+                        <span class="text-muted m-l-5 m-r-20" for='switch1'>Acepto notificacion por buzon</span>
+                    </div>
+                    <div >
+                        <input type="checkbox" value="1" data-render="switchery" data-theme="default" id="aceptar_notif_buzon" name='aceptar_notif_buzon'/>
+                    </div>
+                </div>
                 <div class="col-md-12" id="divCalendarioCentral">
                     <h5>Calendario de oficina central</h5>
                     <hr class="red">
@@ -482,18 +490,25 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Representante</h4>
+                <h4 class="modal-title">Buz&oacute;n Electr&oacute;nico</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-muted">
-                    - Para ingresar al buzón electr&oacute;nico se debe registrar una dirección de correo, los siguientes solicitantes no registraron una cuenta, indica su correo o solicita un acceso del sistema
+                    - Para acceder al buz&oacute;n electr&oacute;nico se deber&aacute; registrar 
+                    <ol>
+                        <li>El CURP o RFC de la persona y </li>
+                        <li>Un correo electr&oacute;nico al cual asociarlo.  </li>
+                    </ol>
+                    <p>En el caso de que usted no haya proporcionado un correo electr&oacute;nico con anterioridad, podr&aacute; capturarlo en este momento, de lo contrario seleccione "Proporcionar accesos" y el sistema le proporcionar&aacute; un usuario y una contrase&ntilde;a para acceder al buz&oacute;n electr&oacute;nico.</p>
+                    <p>El correo electrónico que usted asocie a su buzón electrónico servirá para recibir correos con el asunto de avisos, en el caso de que no haya aceptado las notificaciones por este medio; o con el asunto de notificaciones, en el caso de que sí haya aceptado las notificaicones por buzón electrónico. Estos correos electrónicos son una herramienta auxiliar del buzón electrónico, no son notificaciones.</p>
                 </div>
                 <table class="table table-bordered table-striped table-hover" id="tableSolicitantesCorreo">
                     <thead>
                         <tr>
                             <th>Solicitante</th>
                             <th></th>
+                            <th>RFC/CURP</th>
                             <th>Correo electrónico</th>
                         </tr>
                     </thead>
@@ -533,11 +548,11 @@
             <div class="modal-body">
                 <div class="alert alert-muted">
                     <p>
-                        Usted está a punto de confirmar la solicitud para que se de resolución inmediatamente, las indicaciones para esta resolución son las siguientes.<br><br>
+                        Usted est&aacute; a punto de confirmar la solicitud para que se de resolución inmediatamente, las indicaciones para esta resolución son las siguientes.<br><br>
                     <ul>
-                        <li>Debido a que no se requiere sala para realizar la audiencia, se asignará una sala virtual y el conciliador será asignado de acuerdo a la disponibilidad</li>
-                        <li>Debido a que ya hay un convenio entré las partes, la unica labor del conciliador será dar fe de lo acordado</li>
-                        <li>Se deberá acceder a la guia de audiencia donde se llenarán los datos requerido para extender la confirmaci&oacute;n y el documento que de esta resulte</li>
+                        <li>Debido a que no se requiere sala para realizar la audiencia, se asignar&aacute; una sala virtual y el conciliador ser&aacute; asignado de acuerdo a la disponibilidad</li>
+                        <li>Debido a que ya hay un convenio entré las partes, la unica labor del conciliador ser&aacute; dar fe de lo acordado</li>
+                        <li>Se deber&aacute; acceder a la guia de audiencia donde se llenar&aacute;n los datos requerido para extender la confirmaci&oacute;n y el documento que de esta resulte</li>
                         <li>Si desea continuar con el proceso de confirmaci&oacute;n inmediata presione confirmar</li>
                         <li>Si desea agendar una audiencia para conciliar, presione cancelar</li>
                     </ul>
@@ -1160,6 +1175,13 @@
                                     tableSolicitantes += '      </div>';
                                     tableSolicitantes += '  </td>';
                                     tableSolicitantes += '  <td>';
+                                    if(element.tipo_persona_id == 1){
+                                        tableSolicitantes += '      <input type="text" class="form-control upper" value="'+(element.curp || '') +'" id="rfcCurpValidar'+element.id+'">';
+                                    }else{
+                                        tableSolicitantes += '      <input type="text" class="form-control upper" value="'+(element.rfc || '') +'" id="rfcCurpValidar'+element.id+'">';
+                                    }
+                                    tableSolicitantes += '  </td>';
+                                    tableSolicitantes += '  <td>';
                                     tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar' + element.id + '">';
                                     tableSolicitantes += '  </td>';
                                     tableSolicitantes += '</tr>';
@@ -1193,233 +1215,58 @@
         }
     });
 
-    /**
-     *  ratificar solicitud con incompetencia y generar constancia de incompetencia y buzon
-     */
-    // $("#btnRatificarIncompetencia").on("click",function(){
-    //     if(ratifican){
-    //         $.ajax({
-    //             url:'/solicitud/correos/'+$("#solicitud_id").val(),
-    //             type:'GET',
-    //             dataType:"json",
-    //             async:true,
-    //             success:function(data){
-    //                 if(data == null || data == ""){
-    //                     $("#modal-aviso-resolucion-inmediata").modal("show");
-    //                 }else{
-    //                     var tableSolicitantes = '';
-    //                     $.each(data, function(index,element){
-    //                         tableSolicitantes +='<tr>';
-    //                         if(element.tipo_persona_id == 1){
-    //                             tableSolicitantes +='<td>'+element.nombre+' '+element.primer_apellido+' '+(element.segundo_apellido|| "")+'</td>';
-    //                         }else{
-    //                             tableSolicitantes +='<td>'+element.nombre_comercial+'</td>';
-    //                         }
-    //                         tableSolicitantes += '  <td>';
-    //                         tableSolicitantes += '      <div class="col-md-12">';
-    //                         tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo'+element.id+'">Proporcionar accesos</span>';
-    //                         tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="'+element.id+'" checked="checked" id="checkCorreo'+element.id+'" name="checkCorreo'+element.id+'" onclick="checkCorreo('+element.id+')"/>';
-    //                         tableSolicitantes += '      </div>';
-    //                         tableSolicitantes += '  </td>';
-    //                         tableSolicitantes += '  <td>';
-    //                         tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar'+element.id+'">';
-    //                         tableSolicitantes += '  </td>';
-    //                         tableSolicitantes +='</tr>';
-    //                     });
-    //                     $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
-    //                     $("#modal-registro-correos").modal("show");
-    //                 }
-    //             }
-    //         });
-    //     }else{
-    //         swal({
-    //             title: 'Error',
-    //             text: 'Al menos un solicitante debe presentar documentos para ratificar',
-    //             icon: 'warning'
-    //         });
-    //     }
-    // });
-
     $("#btnGuardarRatificar").on("click", function () {
         var validarRatificacion = RatificacionValidar();
         if (!validarRatificacion.error) {
-            $.ajax({
-                url: '/solicitud/correos/' + $("#solicitud_id").val(),
-                type: 'GET',
-                dataType: "json",
-                async: true,
-                success: function (data) {
-                    try {
-                        if (data == null || data == "") {
-                            swal({
-                                title: '¿Estas seguro?',
-                                text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
-                                icon: 'warning',
-                                buttons: {
-                                    cancel: {
-                                        text: 'Cancelar',
-                                        value: null,
-                                        visible: true,
-                                        className: 'btn btn-default',
-                                        closeModal: true,
-                                    },
-                                    confirm: {
-                                        text: 'Aceptar',
-                                        value: true,
-                                        visible: true,
-                                        className: 'btn btn-danger',
-                                        closeModal: true
+            // if(!$("#aceptar_notif_buzon").is(":checked")){
+            //         aceptarExpediente(validarRatificacion);
+            // }else{
+                $.ajax({
+                    url: '/solicitud/correos/' + $("#solicitud_id").val(),
+                    type: 'GET',
+                    dataType: "json",
+                    async: true,
+                    success: function (data) {
+                        try {
+                            if (data == null || data == "") {
+                                aceptarExpediente(validarRatificacion);
+                            } else {
+                                var tableSolicitantes = '';
+                                $.each(data, function (index, element) {
+                                    tableSolicitantes += '<tr>';
+                                    if (element.tipo_persona_id == 1) {
+                                        tableSolicitantes += '<td>' + element.nombre + ' ' + element.primer_apellido + ' ' + (element.segundo_apellido || "") + '</td>';
+                                    } else {
+                                        tableSolicitantes += '<td>' + element.nombre_comercial + '</td>';
                                     }
-                                }
-                            }).then(function (isConfirm) {
-                                if (isConfirm) {
-
-                                    swal({
-                                        title: '¿Las partes concilian en la misma sala?',
-                                        text: 'Selecciona el tipo de conciliación que se llevará a cabo',
-                                        icon: 'warning',
-                                        buttons: {
-                                            cancel: {
-                                                text: 'cancelar',
-                                                value: null,
-                                                visible: true,
-                                                className: 'btn btn-default',
-                                                closeModal: true,
-                                            },
-                                            roll: {
-                                                text: "Separados",
-                                                value: 2,
-                                                className: 'btn btn-warning',
-                                                visible: !esSindical,
-                                                closeModal: true
-                                            },
-                                            confirm: {
-                                                text: 'Juntos',
-                                                value: 1,
-                                                visible: true,
-                                                className: 'btn btn-warning',
-                                                closeModal: true
-                                            }
-                                        }
-                                    }).then(function (tipo) {
-                                        if (tipo == 1 || tipo == 2) {
-                                            if (tipo == 1) {
-                                                var separados = false;
-                                            } else {
-                                                var separados = true;
-                                            }
-                                            $.ajax({
-                                                url: '/solicitud/ratificar',
-                                                type: 'POST',
-                                                dataType: "json",
-                                                async: true,
-                                                data: {
-                                                    id: $("#solicitud_id").val(),
-                                                    tipo_notificacion_id: validarRatificacion.tipo_notificacion_id,
-                                                    inmediata: false,
-                                                    fecha_cita: $("#fecha_cita").val(),
-                                                    url_virtual: $("#url_virtual").val(),
-                                                    separados: separados,
-                                                    _token: "{{ csrf_token() }}"
-                                                },
-                                                success: function (data) {
-                                                    try {
-                                                        if (data != null && data != "") {
-                                                            if (data.encontro_audiencia) {
-                                                                $("#spanFolio").text(data.folio + "/" + data.anio);
-                                                                $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia, 4));
-                                                                $("#spanHoraInicio").text(data.hora_inicio);
-                                                                $("#spanHoraFin").text(data.hora_fin);
-                                                                var table = "";
-                                                                if (data.multiple) {
-                                                                    $.each(data.conciliadores_audiencias, function (index, element) {
-                                                                        table += '<tr>';
-                                                                        if (element.solicitante) {
-                                                                            table += '   <td>Solicitante(s)</td>';
-                                                                        } else {
-                                                                            table += '   <td>Citado(s)</td>';
-                                                                        }
-                                                                        table += '   <td>' + element.conciliador.persona.nombre + ' ' + element.conciliador.persona.primer_apellido + ' ' + element.conciliador.persona.segundo_apellido + '</td>';
-                                                                        $.each(data.salas_audiencias, function (index2, element2) {
-                                                                            if (element2.solicitante == element.solicitante) {
-                                                                                table += '<td>' + element2.sala.sala + '</td>';
-                                                                            }
-                                                                        });
-                                                                        table += '</tr>';
-                                                                    });
-                                                                } else {
-                                                                    table += '<tr>';
-                                                                    table += '   <td>Solicitante(s) y citado(s)</td>';
-                                                                    table += '   <td>' + data.conciliadores_audiencias[0].conciliador.persona.nombre + ' ' + data.conciliadores_audiencias[0].conciliador.persona.primer_apellido + ' ' + data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido + '</td>';
-                                                                    table += '   <td>' + data.salas_audiencias[0].sala.sala + '</td>';
-                                                                    table += '</tr>';
-                                                                }
-                                                                $("#tableAudienciaSuccess tbody").html(table);
-                                                                $("#modalRatificacion").modal("hide");
-                                                                $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
-                                                                swal({
-                                                                    title: 'Correcto',
-                                                                    text: 'Solicitud confirmada correctamente',
-                                                                    icon: 'success'
-                                                                });
-                                                            } else {
-                                                                swal({
-                                                                    title: 'Correcto',
-                                                                    text: 'Se genero la audiencia con el folio: ' + data.folio + '/' + data.anio + ', la cual no encontró espacio en la agenda y deberá ser asignada por el supervisor del centro',
-                                                                    icon: 'success'
-                                                                });
-                                                            }
-                                                        } else {
-                                                            swal({
-                                                                title: 'Error',
-                                                                text: 'No se pudo ratificar',
-                                                                icon: 'error'
-                                                            });
-                                                        }
-                                                    } catch (error) {
-                                                        console.log(error);
-                                                    }
-                                                }, error: function (data) {
-                                                    console.log(data);
-                                                    swal({
-                                                        title: 'Error',
-                                                        text: data.responseJSON.message,
-                                                        icon: 'error'
-                                                    });
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                            });
-                        } else {
-                            var tableSolicitantes = '';
-                            $.each(data, function (index, element) {
-                                tableSolicitantes += '<tr>';
-                                if (element.tipo_persona_id == 1) {
-                                    tableSolicitantes += '<td>' + element.nombre + ' ' + element.primer_apellido + ' ' + (element.segundo_apellido || "") + '</td>';
-                                } else {
-                                    tableSolicitantes += '<td>' + element.nombre_comercial + '</td>';
-                                }
-                                tableSolicitantes += '  <td>';
-                                tableSolicitantes += '      <div class="col-md-12">';
-                                tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo' + element.id + '">Proporcionar accesos</span>';
-                                tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="' + element.id + '" checked="checked" id="checkCorreo' + element.id + '" name="checkCorreo' + element.id + '" onclick="checkCorreo(' + element.id + ')"/>';
-                                tableSolicitantes += '      </div>';
-                                tableSolicitantes += '  </td>';
-                                tableSolicitantes += '  <td>';
-                                tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar' + element.id + '">';
-                                tableSolicitantes += '  </td>';
-                                tableSolicitantes += '</tr>';
-                            });
-                            $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
-                            $("#modal-registro-correos").modal("show");
+                                    tableSolicitantes += '  <td>';
+                                    tableSolicitantes += '      <div class="col-md-12">';
+                                    tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo' + element.id + '">Proporcionar accesos</span>';
+                                    tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="' + element.id + '" checked="checked" id="checkCorreo' + element.id + '" name="checkCorreo' + element.id + '" onclick="checkCorreo(' + element.id + ')"/>';
+                                    tableSolicitantes += '      </div>';
+                                    tableSolicitantes += '  </td>';
+                                    tableSolicitantes += '  <td>';
+                                    if(element.tipo_persona_id == 1){
+                                        tableSolicitantes += '      <input type="text" class="form-control upper" value="'+(element.curp || '') +'" id="rfcCurpValidar'+element.id+'">';
+                                    }else{
+                                        tableSolicitantes += '      <input type="text" class="form-control upper" value="'+(element.rfc || '') +'" id="rfcCurpValidar'+element.id+'">';
+                                    }
+                                    tableSolicitantes += '  </td>';
+                                    tableSolicitantes += '  <td>';
+                                    var correo = element.correo_buzon != null ? element.correo_buzon : "";
+                                    tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar' + element.id + '" value="'+ correo +'">';
+                                    tableSolicitantes += '  </td>';
+                                    tableSolicitantes += '</tr>';
+                                });
+                                $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
+                                $("#modal-registro-correos").modal("show");
+                            }
+                        } catch (error) {
+                            console.log(error);
                         }
-                    } catch (error) {
-                        console.log(error);
                     }
-                }
-            });
+                });
+            // }
         } else {
             swal({
                 title: 'Error',
@@ -1428,6 +1275,157 @@
             });
         }
     });
+
+    function aceptarExpediente(validarRatificacion){
+        swal({
+            title: '¿Estas seguro?',
+            text: 'Al oprimir aceptar se creará un expediente y se podrán agendar audiencias para conciliación',
+            icon: 'warning',
+            buttons: {
+                cancel: {
+                    text: 'Cancelar',
+                    value: null,
+                    visible: true,
+                    className: 'btn btn-default',
+                    closeModal: true,
+                },
+                confirm: {
+                    text: 'Aceptar',
+                    value: true,
+                    visible: true,
+                    className: 'btn btn-danger',
+                    closeModal: true
+                }
+            }
+        }).then(function (isConfirm) {
+            if (isConfirm) {
+                elegirSala(validarRatificacion);
+            }
+        });
+    }
+
+    function elegirSala(validarRatificacion){
+        swal({
+            title: '¿Las partes concilian en la misma sala?',
+            text: 'Selecciona el tipo de conciliación que se llevará a cabo',
+            icon: 'warning',
+            buttons: {
+                cancel: {
+                    text: 'cancelar',
+                    value: null,
+                    visible: true,
+                    className: 'btn btn-default',
+                    closeModal: true,
+                },
+                roll: {
+                    text: "Separados",
+                    value: 2,
+                    className: 'btn btn-warning',
+                    visible: !esSindical,
+                    closeModal: true
+                },
+                confirm: {
+                    text: 'Juntos',
+                    value: 1,
+                    visible: true,
+                    className: 'btn btn-warning',
+                    closeModal: true
+                }
+            }
+        }).then(function (tipo) {
+            if (tipo == 1 || tipo == 2) {
+                if (tipo == 1) {
+                    var separados = false;
+                } else {
+                    var separados = true;
+                }
+                aceptarRatificacion(validarRatificacion,separados);
+            }
+        });
+    }
+
+    function aceptarRatificacion(validarRatificacion,separados){
+        $.ajax({
+                    url: '/solicitud/ratificar',
+                    type: 'POST',
+                    dataType: "json",
+                    async: true,
+                    data: {
+                        id: $("#solicitud_id").val(),
+                        tipo_notificacion_id: validarRatificacion.tipo_notificacion_id,
+                        inmediata: false,
+                        fecha_cita: $("#fecha_cita").val(),
+                        url_virtual: $("#url_virtual").val(),
+                        separados: separados,
+                        acepta_buzon: $("#aceptar_notif_buzon").is(":checked"),
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function (data) {
+                        try {
+                            if (data != null && data != "") {
+                                if (data.encontro_audiencia) {
+                                    $("#spanFolio").text(data.folio + "/" + data.anio);
+                                    $("#spanFechaAudiencia").text(dateFormat(data.fecha_audiencia, 4));
+                                    $("#spanHoraInicio").text(data.hora_inicio);
+                                    $("#spanHoraFin").text(data.hora_fin);
+                                    var table = "";
+                                    if (data.multiple) {
+                                        $.each(data.conciliadores_audiencias, function (index, element) {
+                                            table += '<tr>';
+                                            if (element.solicitante) {
+                                                table += '   <td>Solicitante(s)</td>';
+                                            } else {
+                                                table += '   <td>Citado(s)</td>';
+                                            }
+                                            table += '   <td>' + element.conciliador.persona.nombre + ' ' + element.conciliador.persona.primer_apellido + ' ' + element.conciliador.persona.segundo_apellido + '</td>';
+                                            $.each(data.salas_audiencias, function (index2, element2) {
+                                                if (element2.solicitante == element.solicitante) {
+                                                    table += '<td>' + element2.sala.sala + '</td>';
+                                                }
+                                            });
+                                            table += '</tr>';
+                                        });
+                                    } else {
+                                        table += '<tr>';
+                                        table += '   <td>Solicitante(s) y citado(s)</td>';
+                                        table += '   <td>' + data.conciliadores_audiencias[0].conciliador.persona.nombre + ' ' + data.conciliadores_audiencias[0].conciliador.persona.primer_apellido + ' ' + data.conciliadores_audiencias[0].conciliador.persona.segundo_apellido + '</td>';
+                                        table += '   <td>' + data.salas_audiencias[0].sala.sala + '</td>';
+                                        table += '</tr>';
+                                    }
+                                    $("#tableAudienciaSuccess tbody").html(table);
+                                    $("#modalRatificacion").modal("hide");
+                                    $("#modal-ratificacion-success").modal({backdrop: 'static', keyboard: false});
+                                    swal({
+                                        title: 'Correcto',
+                                        text: 'Solicitud confirmada correctamente',
+                                        icon: 'success'
+                                    });
+                                } else {
+                                    swal({
+                                        title: 'Correcto',
+                                        text: 'Se genero la audiencia con el folio: ' + data.folio + '/' + data.anio + ', la cual no encontró espacio en la agenda y deberá ser asignada por el supervisor del centro',
+                                        icon: 'success'
+                                    });
+                                }
+                            } else {
+                                swal({
+                                    title: 'Error',
+                                    text: 'No se pudo ratificar',
+                                    icon: 'error'
+                                });
+                            }
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    }, error: function (data) {
+                        swal({
+                            title: 'Error',
+                            text: data.responseJSON.message,
+                            icon: 'error'
+                        });
+                    }
+                });
+    }
     function RatificacionValidar() {
         var error = false;
         var listaNotificaciones = [];
@@ -1436,13 +1434,13 @@
             error = true;
             msg = "Al menos un solicitante debe presentar documentos para confirmar";
         }
-        if ($("#aradioNotificacionA1").is(":checked")) {
-            var tipo_notificacion_id = 1;
-        } else if ($("#aradioNotificacionB1").is(":checked")) {
-            var tipo_notificacion_id = 2;
-        } else if ($("#aradioNotificacionB2").is(":checked")) {
-            var tipo_notificacion_id = 3;
-        } else {
+        if($("#aradioNotificacionA1").is(":checked")){
+            var tipo_notificacion_id=1;
+        }else if($("#aradioNotificacionB1").is(":checked")){
+            var tipo_notificacion_id=2;
+        }else if($("#aradioNotificacionB2").is(":checked")){
+           var tipo_notificacion_id=3;
+        }else{
             var tipo_notificacion_id = null;
             msg = "Indica el tipo de notificación para los citados";
             error = true;
@@ -1485,6 +1483,7 @@
                         id: $("#solicitud_id").val(),
                         inmediata: true,
                         url_virtual: $("#url_virtual").val(),
+                        acepta_buzon: $("#aceptar_notif_buzon").is(":checked"),
                         _token: "{{ csrf_token() }}"
                     },
                     success: function (data) {
@@ -1551,7 +1550,7 @@
         } else {
             swal({
                 title: 'Error',
-                text: 'Si no se desea generar accesos, se deben proporcionar los correos',
+                text: 'Es necesario complementar la información solicitada',
                 icon: 'warning'
             });
         }
@@ -1571,21 +1570,30 @@
         $.each($(".checkCorreo"), function (index, element) {
             var id = $(element).data('id');
             $("#correoValidar" + id).css("border-color", "");
+            $("#rfcCurpValidar" + id).css("border-color", "");
             if ($(element).is(":checked")) {
-                listaCorreos.push({
-                    crearAcceso: true,
-                    correo: "",
-                    parte_id: id
-                });
+                if($("#rfcCurpValidar"+id).val() != ""){
+                    listaCorreos.push({
+                        crearAcceso: true,
+                        correo: "",
+                        rfcCurp:$("#rfcCurpValidar"+id).val(),
+                        parte_id: id
+                    });
+                }else{
+                    error = true;
+                    $("#rfcCurpValidar" + id).css("border-color", "red");
+                }
             } else {
-                if ($("#correoValidar" + id).val() != "") {
+                if ($("#correoValidar" + id).val() != "" && $("#rfcCurpValidar"+id).val() != "") {
                     listaCorreos.push({
                         crearAcceso: false,
                         correo: $("#correoValidar" + id).val(),
+                        rfcCurp:$("#rfcCurpValidar"+id).val(),
                         parte_id: id
                     });
                 } else {
                     error = true;
+                    $("#rfcCurpValidar" + id).css("border-color", "red");
                     $("#correoValidar" + id).css("border-color", "red");
                 }
             }
@@ -2388,47 +2396,58 @@
             }
         });
     }
-    $("#btnGuardarConvenio").on("click", function () {
-        if ("{{auth()->user()->hasRole('Personal conciliador')}}") {
-            if (ratifican) {
-                $.ajax({
-                    url: '/solicitud/correos/' + $("#solicitud_id").val(),
-                    type: 'GET',
-                    dataType: "json",
-                    async: true,
-                    success: function (data) {
-                        try {
+    $("#btnGuardarConvenio").on("click",function(){
+        if("{{auth()->user()->hasRole('Personal conciliador')}}"){
+            if(ratifican){
+                // if($("#aceptar_notif_buzon").is(":checked")){
+                    $.ajax({
+                        url: '/solicitud/correos/' + $("#solicitud_id").val(),
+                        type: 'GET',
+                        dataType: "json",
+                        async: true,
+                        success: function (data) {
+                            try {
 
-                            if (data == null || data == "") {
-                                $("#modal-aviso-resolucion-inmediata").modal("show");
-                            } else { //si parte no proporciono correo
-                                var tableSolicitantes = '';
-                                $.each(data, function (index, element) {
-                                    tableSolicitantes += '<tr>';
-                                    if (element.tipo_persona_id == 1) {
-                                        tableSolicitantes += '<td>' + element.nombre + ' ' + element.primer_apellido + ' ' + (element.segundo_apellido || "") + '</td>';
-                                    } else {
-                                        tableSolicitantes += '<td>' + element.nombre_comercial + '</td>';
+                                if (data == null || data == "") {
+                                    $("#modal-aviso-resolucion-inmediata").modal("show");
+                                } else { //si parte no proporciono correo
+                                    var tableSolicitantes = '';
+                                    $.each(data, function (index, element) {
+                                        tableSolicitantes += '<tr>';
+                                        if (element.tipo_persona_id == 1) {
+                                            tableSolicitantes += '<td>' + element.nombre + ' ' + element.primer_apellido + ' ' + (element.segundo_apellido || "") + '</td>';
+                                        } else {
+                                            tableSolicitantes += '<td>' + element.nombre_comercial + '</td>';
+                                        }
+                                        tableSolicitantes += '  <td>';
+                                        tableSolicitantes += '      <div class="col-md-12">';
+                                        tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo' + element.id + '">Proporcionar accesos</span>';
+                                        tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="' + element.id + '" checked="checked" id="checkCorreo' + element.id + '" name="checkCorreo' + element.id + '" onclick="checkCorreo(' + element.id + ')"/>';
+                                        tableSolicitantes += '      </div>';
+                                        tableSolicitantes += '  </td>';
+                                        tableSolicitantes += '  <td>';
+                                    if(element.tipo_persona_id == 1){
+                                        tableSolicitantes += '      <input type="text" class="form-control upper" value="'+(element.curp || '') +'" id="rfcCurpValidar'+element.id+'">';
+                                    }else{
+                                        tableSolicitantes += '      <input type="text" class="form-control upper" value="'+(element.rfc || '') +'" id="rfcCurpValidar'+element.id+'">';
                                     }
-                                    tableSolicitantes += '  <td>';
-                                    tableSolicitantes += '      <div class="col-md-12">';
-                                    tableSolicitantes += '          <span class="text-muted m-l-5 m-r-20" for="checkCorreo' + element.id + '">Proporcionar accesos</span>';
-                                    tableSolicitantes += '          <input type="checkbox" class="checkCorreo" data-id="' + element.id + '" checked="checked" id="checkCorreo' + element.id + '" name="checkCorreo' + element.id + '" onclick="checkCorreo(' + element.id + ')"/>';
-                                    tableSolicitantes += '      </div>';
                                     tableSolicitantes += '  </td>';
-                                    tableSolicitantes += '  <td>';
-                                    tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar' + element.id + '">';
-                                    tableSolicitantes += '  </td>';
-                                    tableSolicitantes += '</tr>';
-                                });
-                                $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
-                                $("#modal-registro-correos").modal("show");
+                                        tableSolicitantes += '  <td>';
+                                        tableSolicitantes += '      <input type="text" class="form-control" disabled="disabled" id="correoValidar' + element.id + '">';
+                                        tableSolicitantes += '  </td>';
+                                        tableSolicitantes += '</tr>';
+                                    });
+                                    $("#tableSolicitantesCorreo tbody").html(tableSolicitantes);
+                                    $("#modal-registro-correos").modal("show");
+                                }
+                            } catch (error) {
+                                console.log(error);
                             }
-                        } catch (error) {
-                            console.log(error);
                         }
-                    }
-                });
+                    });
+                // }else{
+                //     $("#modal-aviso-resolucion-inmediata").modal("show");
+                // }
             } else {
                 swal({
                     title: 'Error',
@@ -2436,7 +2455,7 @@
                     icon: 'warning'
                 });
             }
-        } else {
+        }else{
             swal({
                 title: 'Error',
                 text: 'La confirmaci&oacute;n de esta solicitud solo se puede realizar por el conciliador que la llevará acabo',

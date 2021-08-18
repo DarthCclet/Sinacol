@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class HistoricoNotificacionPeticion extends Model
 {
@@ -13,6 +14,9 @@ class HistoricoNotificacionPeticion extends Model
         return $this->belongsTo(HistoricoNotificacion::class,'historico_notificacion_id');
     }
     public function historico_notificacion_respuesta(){
-        return $this->hasOne(HistoricoNotificacionRespuesta::class,'historico_notificacion_respuesta_id');
+        return $this->belongsTo(HistoricoNotificacionRespuesta::class,'historico_notificacion_respuesta_id');
+    }
+    public function etapa_notificacion(){
+        return $this->belongsTo(EtapaNotificacion::class,'etapa_notificacion_id');
     }
 }
