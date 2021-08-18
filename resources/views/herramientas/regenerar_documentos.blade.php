@@ -296,10 +296,10 @@
         var html = "";
         html += "<hr class='red'><div><div><h2>Solicitantes</h2></div>";
         var selected = false;
-        if(arraySolicitantes.length == 1){
-            $("#solicitante_id").val(arraySolicitantes[0].id);
-            selected = true;
-        }
+        // if(arraySolicitantes.length == 1){
+        //     $("#solicitante_id").val(arraySolicitantes[0].id);
+        //     selected = true;
+        // }
         $.each(arraySolicitantes,function(key, value){
             html += "<div class='col-md-10 card' style='margin:1%;' >";
                 html+='<div >';
@@ -357,10 +357,10 @@
         var html = "";
         html += "<hr class='red'><div><div><h2>Citados</h2></div>";
         var selected = false;
-        if(arraySolicitados.length == 1){
-            $("#solicitado_id").val(arraySolicitados[0].id);
-            selected = true;
-        }
+        // if(arraySolicitados.length == 1){
+        //     $("#solicitado_id").val(arraySolicitados[0].id);
+        //     selected = true;
+        // }
         $.each(arraySolicitados,function(key, value){
             html += "<div class='col-md-10 card' style='margin:1%;' >";
             html += "<div >";
@@ -610,6 +610,12 @@
                     response.msj = " Es necesario seleccionar Solicitud y Audiencia para continuar";
                 }
             break;
+            case "62":
+                if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" ){
+                    response.success = false;
+                    response.msj = " Es necesario seleccionar Solicitud y Audiencia para continuar";
+                }
+            break;
             case "65":
                 if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitado_id").val() == "" ){
                     response.success = false;
@@ -619,7 +625,7 @@
             case "66":
                 if($("#solicitud_id").val() == "" || $("#audiencia_id").val() == "" || $("#solicitante_id").val() == "" ){
                     response.success = false;
-                    response.msj = " Es necesario seleccionar Solicitud, Audiencia, un solicitante y un citado para continuar";
+                    response.msj = " Es necesario seleccionar Solicitud, Audiencia y un solicitante para continuar";
                 }
             break;
             default:
