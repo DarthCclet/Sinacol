@@ -90,7 +90,7 @@ class SolicitudMasiva extends Command
                 $this->error("No existe el tipo de solicitud: ".$this->option('tipo-solicitud'));
                 return;
             }
-            $objeto_solicitud = ObjetoSolicitud::where("nombre",'ilike', '%'.$this->option('objeto-solicitud').'%')
+            $objeto_solicitud = ObjetoSolicitud::whereRaw("unaccent(nombre)",'ilike', '%'.$this->option('objeto-solicitud').'%')
                 ->where('tipo_objeto_solicitudes_id', $tipo_objeto_solicitud->id)
                 ->first();
             if(!$objeto_solicitud){
@@ -185,9 +185,9 @@ class SolicitudMasiva extends Command
             "horas_semanales" => $citado[25],
             "resolucion" => "false",
         );
-        $estado = Estado::whereRaw("nombre ilike '%".$citado[12]."%'")->first();
-        $tipo_vialidad = TipoVialidad::where('nombre','like','%'.$citado[13].'%')->first();
-        $municipio = Municipio::whereRaw("municipio ilike '".$citado[18]."'")->first();
+        $estado = Estado::whereRaw("unaccent(nombre) ilike '%".$citado[12]."%'")->first();
+        $tipo_vialidad = TipoVialidad::whereRaw("unaccent(nombre) ilike '%$citado[13]%'")->first();
+        $municipio = Municipio::whereRaw("unaccent(municipio) ilike '".$citado[18]."'")->first();
         $domicilioCitado = array(
             "id" => null,
             "num_ext" => $citado[15],
