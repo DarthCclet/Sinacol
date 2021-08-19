@@ -85,12 +85,6 @@ class SolicitudMasiva extends Command
             $savedSol = fopen(__DIR__."/../../../public/savedSol.txt", 'w');
             $failedSol = fopen(__DIR__."/../../../public/failedSol.txt", 'w');
 
-            $solicitudObj = [
-                "fecha_conflicto" => $this->option('fecha-conflicto'),
-                "giro_comercial"  => $this->option('industria'),
-                "virtual"         => (strtolower($this->option('virtual')) === 'si'),
-            ];
-
             $tipo_objeto_solicitud = TipoObjetoSolicitud::where('nombre','ilike', '%'.$this->option('tipo-solicitud').'%')->first();
             if(!$tipo_objeto_solicitud) {
                 $this->error("No existe el tipo de solicitud: ".$this->option('tipo-solicitud'));
@@ -105,6 +99,12 @@ class SolicitudMasiva extends Command
             }
             $partesSolicitante = str_getcsv($this->option('cadena-solicitante'));
 
+            $solicitudObj = [
+                "fecha_conflicto" => $this->option('fecha-conflicto'),
+                "giro_comercial"  => $this->option('industria'),
+                "virtual"         => (strtolower($this->option('virtual')) === 'si'),
+                "tipo_solicitud_id" => $tipo_objeto_solicitud->id
+            ];
 
             $correctos = 0;
             $erroneos = 0;
@@ -152,14 +152,14 @@ class SolicitudMasiva extends Command
     }
 
     private function getSolicitud($solicitud){
-        GiroComercial::where('nombre',$solicitud["giro_comercial"])->first();
+        $giro = GiroComercial::where('nombre','ilike',$solicitud["giro_comercial"])->first();
         return array(
             "id" => null,
             "observaciones" => null,
             "solicita_excepcion" => "false",
             "fecha_conflicto" => $solicitud["fecha_conflicto"],
-            "tipo_solicitud_id" => "2",
-            "giro_comercial_id" => "1722",
+            "tipo_solicitud_id" => $solicitud["tipo_solicitud_id"],
+            "giro_comercial_id" => $giro->id,
             "virtual" => $solicitud["virtual"],
             "recibo_oficial" => "false",
             "recibo_pago" => "false",
