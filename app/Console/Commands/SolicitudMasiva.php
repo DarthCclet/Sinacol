@@ -11,12 +11,14 @@ use App\Municipio;
 use App\Nacionalidad;
 use App\ObjetoSolicitud;
 use App\Periodicidad;
+use App\Services\ReportesService;
 use App\TipoObjetoSolicitud;
 use App\TipoVialidad;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -70,7 +72,7 @@ class SolicitudMasiva extends Command
     public function handle()
     {
         $nombreArchivo = $this->argument('nombre');
-
+        DB::enableQueryLog();
         $archivo = __DIR__."/../../../".$nombreArchivo;
         $existe = file_exists($archivo);
         if(!empty($nombreArchivo) && $existe){
@@ -90,11 +92,13 @@ class SolicitudMasiva extends Command
                 $this->error("No existe el tipo de solicitud: ".$this->option('tipo-solicitud'));
                 return;
             }
-            $objeto_solicitud = ObjetoSolicitud::whereRaw("unaccent(nombre)",'ilike', '%'.$this->option('objeto-solicitud').'%')
+
+            $objeto_solicitud = ObjetoSolicitud::whereRaw("unaccent(nombre) ilike unaccent('".$this->option('objeto-solicitud')."')")
                 ->where('tipo_objeto_solicitudes_id', $tipo_objeto_solicitud->id)
                 ->first();
             if(!$objeto_solicitud){
                 $this->error("No existe el objeto de la solicitud: ".$this->option('objeto-solicitud'));
+                dd(ReportesService::debugSql());
                 return;
             }
             $partesSolicitante = str_getcsv($this->option('cadena-solicitante'));
@@ -185,9 +189,9 @@ class SolicitudMasiva extends Command
             "horas_semanales" => $citado[25],
             "resolucion" => "false",
         );
-        $estado = Estado::whereRaw("unaccent(nombre) ilike '%".$citado[12]."%'")->first();
-        $tipo_vialidad = TipoVialidad::whereRaw("unaccent(nombre) ilike '%$citado[13]%'")->first();
-        $municipio = Municipio::whereRaw("unaccent(municipio) ilike '".$citado[18]."'")->first();
+        $estado = Estado::whereRaw("unaccent(nombre) ilike unaccent('".$citado[12]."')")->first();
+        $tipo_vialidad = TipoVialidad::whereRaw("unaccent(nombre) ilike unaccent('$citado[13]')")->first();
+        $municipio = Municipio::whereRaw("unaccent(municipio) ilike unaccent('".$citado[18]."')")->first();
         $domicilioCitado = array(
             "id" => null,
             "num_ext" => $citado[15],
