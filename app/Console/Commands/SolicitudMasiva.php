@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Akeneo\Component\SpreadsheetParser\SpreadsheetParser;
 use App\Estado;
 use App\Genero;
 use App\GiroComercial;
@@ -10,14 +11,20 @@ use App\Municipio;
 use App\Nacionalidad;
 use App\ObjetoSolicitud;
 use App\Periodicidad;
+use App\TipoObjetoSolicitud;
 use App\TipoVialidad;
-use Exception;
-use Illuminate\Console\Command;
-use GuzzleHttp\Client;
-use Akeneo\Component\SpreadsheetParser\SpreadsheetParser;
 use Carbon\Carbon;
+use Exception;
+use GuzzleHttp\Client;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Crea solicitudes masivas a partir de un archivo con datos de los citados y opciones de solicitante
+ *
+ * Class SolicitudMasiva
+ * @package App\Console\Commands
+ */
 class SolicitudMasiva extends Command
 {
     /**
@@ -25,7 +32,14 @@ class SolicitudMasiva extends Command
      *
      * @var string
      */
-    protected $signature = 'solicitudMasiva {nombre}';
+    protected $signature = 'solicitudMasiva {nombre? : Path al archivo xlsx que trae los datos de los citados}
+                                {--cadena-solicitante= : Cadena separada por comas de los datos del solicitante: "Tipo Persona","Nombre empresa","RFC","tel1","tel2","correo","Estado","tipo vialidad","vialidad","num_ext","num_int","asentamiento","municipio","codigo postal"}
+                                {--fecha-conflicto= : Fecha del conficto en formato Y-m-d}
+                                {--tipo-solicitud= : Tipo solicitud patrón inviduvual, trabajador individual, colectivo}
+                                {--objeto-solicitud= : Objeto solicitud}
+                                {--industria= : Giro industrial}
+                                {--virtual= : Indica SI o NO si la solicitud es virtual o presencial}
+    ';
 
     /**
      * The console command description.
@@ -43,45 +57,55 @@ class SolicitudMasiva extends Command
     public function __construct()
     {
         parent::__construct();
-        // Nuevo cliente con un url base
-        
     }
-    
+
 
     /**
      * Execute the console command.
      *
      * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     //
     public function handle()
     {
         $nombreArchivo = $this->argument('nombre');
+
         $archivo = __DIR__."/../../../".$nombreArchivo;
         $existe = file_exists($archivo);
         if(!empty($nombreArchivo) && $existe){
 
-            $partesCitado = array(
-            );
+            $partesCitado = [];
             $workbook = SpreadsheetParser::open($archivo, 'xlsx');
-            
+
             foreach ($workbook->createRowIterator(0) as $rowIndex => $values) {
                 array_push($partesCitado,$values);
             }
             $client = new Client(['base_uri' => env('APP_URL')]);
             $savedSol = fopen(__DIR__."/../../../public/savedSol.txt", 'w');
             $failedSol = fopen(__DIR__."/../../../public/failedSol.txt", 'w');
-            
-            $solicitudObj = array(
-                "fecha_conflicto"=>"2021-04-06",
-                "giro_comercial"=>"Automot",
-                "virtual"=>false,
-            );
-            $objeto_solicitud = ObjetoSolicitud::whereRaw("nombre ilike '%Terminación voluntaria de la relación de trabajo%'")->first();
-            $partesSolicitante = array(
-                "Moral","FCA MÉXICO S.A DE C.V.","CME720930GM9","5579503914","7222795000","nombre@ejemplo.com","Estado de México","CARRETERA","MEXICO -TOLUCA KM","60.5","","ZONA INDUSTRIAL","TOLUCA","50071"
-            );
-            
+
+            $solicitudObj = [
+                "fecha_conflicto" => $this->option('fecha-conflicto'),
+                "giro_comercial"  => $this->option('industria'),
+                "virtual"         => (strtolower($this->option('virtual')) === 'si'),
+            ];
+
+            $tipo_objeto_solicitud = TipoObjetoSolicitud::where('nombre','ilike', '%'.$this->option('tipo-solicitud').'%')->first();
+            if(!$tipo_objeto_solicitud) {
+                $this->error("No existe el tipo de solicitud: ".$this->option('tipo-solicitud'));
+                return;
+            }
+            $objeto_solicitud = ObjetoSolicitud::where("nombre",'ilike', '%'.$this->option('objeto-solicitud').'%')
+                ->where('tipo_objeto_solicitudes_id', $tipo_objeto_solicitud->id)
+                ->first();
+            if(!$objeto_solicitud){
+                $this->error("No existe el objeto de la solicitud: ".$this->option('objeto-solicitud'));
+                return;
+            }
+            $partesSolicitante = str_getcsv($this->option('cadena-solicitante'));
+
+
             $correctos = 0;
             $erroneos = 0;
             foreach ($partesCitado as $key => $value) {
@@ -93,7 +117,7 @@ class SolicitudMasiva extends Command
                         "activo" => "1"
                     );
                     $citado = self::getCitado($value);
-                    $solicitante = self::getSolicitante($partesSolicitante); 
+                    $solicitante = self::getSolicitante($partesSolicitante);
                     $resp = $client->request('POST','api/solicitud',[
                     "json" => [
                         "solicitud"=>$solicitud,
@@ -108,20 +132,22 @@ class SolicitudMasiva extends Command
                     ],
                     ]);
                     $correctos++;
-                    echo ($resp->getBody()."\n");
+                    $this->info($resp->getBody());
                     fputs($savedSol, "Num. Correcto: ".$correctos." ".$resp->getBody()."\n");
                 }catch(Exception $e){
                     Log::error('En script:'.$e->getFile()." En línea: ".$e->getLine().
                     " Se emitió el siguiente mensale: ". $e->getMessage().
                     " Con código: ".$e->getCode()." La traza es: ". $e->getTraceAsString());
                     $erroneos++;
-                    $error = "Num. erroneo: ".$erroneos." Renglon: ".($key+1)." CURP: ".$value[0]." Error:".$e->getMessage();
-                    echo ($error."\n");
+                    $error = "Num. erroneo: ".$erroneos." Renglon: ".($key+1)." CURP: ".$value[0]." Error:".$e->getMessage()." LCOD: ".$e->getLine();
+                    $this->error($error);
                     fputs($failedSol, $error."\n");
                 }
+
+
             }
         }else{
-            echo "No se encontro el archivo";
+            $this->error("No se encontró el archivo");
         }
     }
 
@@ -142,7 +168,7 @@ class SolicitudMasiva extends Command
 
     private function getCitado($citado){
         $periodicidad = Periodicidad::whereRaw("nombre ilike '%".strtoupper($citado[24])."%'")->first();
-        
+
         $jornada = Jornada::whereRaw("nombre ilike '%".strtoupper($citado[29])."%'")->first();
         $dato_laboral = array(
             "id" => null,
@@ -211,9 +237,9 @@ class SolicitudMasiva extends Command
                 "tipo_contacto_id" => "3"
             ]);
         }
-        
+
         $abreviaturaGenero = $citado[6][0];
-        $genero = Genero::where('abreviatura',$abreviaturaGenero)->first();
+        $genero = Genero::where('abreviatura','ilike',$abreviaturaGenero)->first();
         $nacionalidad = Nacionalidad::where('nombre','like','%'.$citado[7].'%')->first();
         $estado_nacimiento = Estado::where('nombre','like','%'.$citado[8].'%')->first();
         $citadoObj = array(
@@ -306,7 +332,7 @@ class SolicitudMasiva extends Command
                 $domSolicitante
             ],
             "contactos" => $contactosSolicitante
-            
+
         );
         return $solicitante;
     }
