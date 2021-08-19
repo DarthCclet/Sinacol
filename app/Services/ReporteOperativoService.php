@@ -44,6 +44,10 @@ class ReporteOperativoService
      * ID de solicitud deuplicada en catálogo de tipo_incidencias_solicitudes
      */
     const SOLICITUD_DUPLICADA = 2;
+    /**
+     * ID de solicitud deuplicada en catálogo de tipo_incidencias_solicitudes
+     */
+    const SOLICITUD_NO_RATIFICADA = 3;
 
     /**
      * ID de otros en catálogo de tipo_incidencias_solicitudes
@@ -119,6 +123,32 @@ class ReporteOperativoService
         $this->noReportables($q);
         $q->leftJoin('expedientes', 'expedientes.solicitud_id', '=', 'solicitudes.id');
         $q->whereNull('expedientes.deleted_at');
+        if($tipos) $this->filtroTipoSolicitud($request, $q);
+        //dd($this->debugSql($q));
+        return $q;
+    }
+
+    public function solicitudesPresentadas($request, $tipos = true)
+    {
+
+        $q = (new SolicitudFilter(Solicitud::query(), $request))
+            ->searchWith(Solicitud::class)
+            ->filter(false);
+
+        # Las solicitudes
+        if($request->get('fecha_inicial')){
+            $q->whereRaw('fecha_recepcion::date >= ?', $request->get('fecha_inicial'));
+        }
+        if($request->get('fecha_final')){
+            $q->whereRaw('fecha_recepcion::date <= ?', $request->get('fecha_final'));
+        }
+
+        //Dejamos fuera los no consultables
+        $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::ERROR_DE_CAPTURA);
+        $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::SOLICITUD_DUPLICADA);
+        $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::SOLICITUD_NO_RATIFICADA);
+        $q->whereRaw('tipo_incidencia_solicitud_id is distinct from ?', self::OTRA_INCIDENCIA);
+
         if($tipos) $this->filtroTipoSolicitud($request, $q);
         //dd($this->debugSql($q));
         return $q;
