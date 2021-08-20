@@ -22,6 +22,7 @@ use App\Solicitud;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -32,7 +33,15 @@ class ConveniosMasivos extends Command
      *
      * @var string
      */
-    protected $signature = 'convenioMasivo';
+    protected $signature = 'convenioMasivo {nombre? : Path al archivo xlsx que trae los datos de los convenios}
+                        {fecha-audiencia : Fecha del conficto en formato Y-m-d} 
+                        {hora-fin-audiencia : hora fin de la audiencia en formato Y-m-d HH:mm:ss} 
+                        {hora-inicio-audiencia : Hora de inicio de la audiencia del conficto en formato HH:mm:ss} 
+                        {fecha-resolucion-audiencia : Fecha del conficto en formato Y-m-d HH:mm:ss}
+                        {cadena-representante : Cadena separada por comas de los datos del representante: "Nombre","Primer Apellido","Segundo apellido","fecha de nacimiento","Genero (H-M)","fecha de instrumento notarial","CURP"}
+                        {cadena-manifestaciones : Cadena separada por comas de los datos de las manifestaciones: "Primera Manifestacion","Propuesta de convenio","Segunda manifestacion"}
+                        {cadena-dato-laboral : Cadena separada por comas de los datos laborales extra del trabajador "horario_laboral","horario_comida","comida_dentro","dias_descanso","dias_vacaciones","dias_aguinaldo","prestaciones_adicionales")}
+                        {cadena-concepto-resolucion : Cadena separada por comas de los conceptos de resolucion separados por coma, segun catalogo ConceptoPagoResolucion }';
 
     /**
      * The console command description.
@@ -61,8 +70,9 @@ class ConveniosMasivos extends Command
         $savedConv = fopen(__DIR__."/../../../public/savedConv.txt", 'w');
         $failedConv = fopen(__DIR__."/../../../public/failedConv.txt", 'w');
         $ratificConv = fopen(__DIR__."/../../../public/ratificConv.txt", 'w');
+        $nombreArchivo = $this->argument('nombre');
         //            Obtenemos el documento que contiene las CURP
-        $arreglo = $this->obtenerCurp();
+        $arreglo = $this->obtenerCurp($nombreArchivo);
         //            Recorremos todas las curp
         $array = [];
         foreach ($arreglo as $key => $curp) {
@@ -110,10 +120,10 @@ class ConveniosMasivos extends Command
             
 //            Colocamos los parametros en variables
             $tipoParte = \App\TipoParte::whereNombre("SOLICITANTE")->first();
-            $fecha_audiencia = "2021-04-06";
-            $hora_inicio_audiencia = "09:00:00";
-            $hora_fin_audiencia = "10:30:00";
-            $fecha_resolucion = "2021-04-06 10:30:00";
+            $fecha_audiencia = $this->option('fecha-audiencia');
+            $hora_inicio_audiencia = $this->option('hora-inicio-audiencia');
+            $hora_fin_audiencia = $this->option('hora-fin-audiencia');
+            $fecha_resolucion = $this->option('fecha-resolucion-audiencia');
             $resolucion_id = 1;
 //            
 ////        Obtenemos la sala virtual
@@ -198,30 +208,34 @@ class ConveniosMasivos extends Command
                     }
                 }
                 
-
+                $representante_data = str_getcsv($this->option('cadena-representante'));
+                $genero = $representante_data[4] =="H" ? 1 : 2 ;
                 $representante = Parte::create([
                     "solicitud_id" => $solicitud->id,
                     "tipo_parte_id" => 3,
                     "tipo_persona_id" => 1,
                     "rfc" => "",
-                    "curp" => "CURP",
-                    "nombre" => "MICHELLE",
-                    "primer_apellido" => "LIBIEN",
-                    "segundo_apellido" => "ROGEL",
-                    "fecha_nacimiento" => "2000-01-01",
-                    "genero_id" => 2,
+                    "curp" => $representante_data[6],
+                    "nombre" => $representante_data[0],
+                    "primer_apellido" => $representante_data[1],
+                    "segundo_apellido" => $representante_data[2],
+                    "fecha_nacimiento" => $representante_data[3],
+                    "genero_id" => $genero,
                     "clasificacion_archivo_id" => null,
                     "detalle_instrumento" => null,
-                    "feha_instrumento" => "2000-01-01",
+                    "feha_instrumento" => $representante_data[5],
                     "detalle_instrumento" => null,
                     "parte_representada_id" => $parteRepresentada,
                     "representante" => true
                 ]);
                 Compareciente::create(["parte_id" => $representante->id, "audiencia_id" => $audiencia->id, "presentado" => true]);
-
+                
                 $solicitante = $solicitud->partes()->where('tipo_parte_id',1)->first();
                 $citado = $solicitud->partes()->where('tipo_parte_id',2)->first();
-                $manifestaciones = ["1","true","Los comparecientes están de acuerdo en continuar con el procedimiento de conciliación prejudicial"," Ambas PARTES están conformes con lo señalado en la presente Cláusula ","Las partes están de acuerdo en la propuesta señalada y, en este acto , la EMPLEADORA le entrega una carta de recomendación al TRABAJADOR. ","1"];
+                $manifestaciones = str_getcsv($this->option('cadena-manifestaciones'));
+                $manifestaciones = Arr::prepend($manifestaciones,"true");
+                $manifestaciones = Arr::prepend($manifestaciones,"1");
+                $manifestaciones[] = "1";
                 $row = 1;
                 foreach($manifestaciones as $manifestacion){
                     EtapaResolucionAudiencia::create([
@@ -238,18 +252,19 @@ class ConveniosMasivos extends Command
                     "terminacion_bilateral_id" => 3
                 ]);
                 $dato_laboral = $citado->dato_laboral->first();
+                $datos_laborales_cadena = str_getcsv($this->option('cadena-dato-laboral'));
                 $dato_laboral->update(
-                    ['horario_laboral'=>"09:00 a 18:00",
-                    "horario_comida"=>"13:00 a 14:00",
-                    "comida_dentro"=>false,
-                    "dias_descanso"=>"1 día",
-                    "dias_vacaciones"=>"6 días",
-                    "dias_aguinaldo"=>"15 días",
-                    "prestaciones_adicionales"=>"Ninguna"]
+                    ['horario_laboral'=>$datos_laborales_cadena[0],
+                    "horario_comida"=>$datos_laborales_cadena[1],
+                    "comida_dentro"=>$datos_laborales_cadena[2],
+                    "dias_descanso"=>$datos_laborales_cadena[3],
+                    "dias_vacaciones"=>$datos_laborales_cadena[4],
+                    "dias_aguinaldo"=>$datos_laborales_cadena[5],
+                    "prestaciones_adicionales"=>$datos_laborales_cadena[6]]
                 );
-                $resoluciones = [5,7,6,2,3,4,12,12,12,13,13,13];
+                $resoluciones = str_getcsv($this->option('cadena-concepto-resolucion'));
                 
-                $filename = storage_path('/app/convenios.csv');
+                $filename = storage_path('/app/'.$nombreArchivo);
                 $file = fopen($filename, "r");
                 $conceptos = array();
                 while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
@@ -329,8 +344,8 @@ class ConveniosMasivos extends Command
             return array("exito" => false,"audiencia_id" => null);
         }
     }
-    function obtenerCurp() {
-        $filename = storage_path('/app/convenios.csv');
+    function obtenerCurp($nombreArchivo) {
+        $filename = storage_path('/app/'.$nombreArchivo);
         $file = fopen($filename, "r");
         $curp = array();
         while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {

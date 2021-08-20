@@ -20,7 +20,7 @@ class CargarConvenios extends Command
      *
      * @var string
      */
-    protected $signature = 'cargarConvenios';
+    protected $signature = 'cargarConvenios {nombre? : Path al archivo xlsx que trae los datos de los convenios}';
 
     /**
      * The console command description.
@@ -51,8 +51,8 @@ class CargarConvenios extends Command
             $savedIdent = fopen(__DIR__."/../../../public/loadedIdent.txt", 'w');
             $failedConv = fopen(__DIR__."/../../../public/failedConv.txt", 'w');
             $failedIdent = fopen(__DIR__."/../../../public/failedIdent.txt", 'w');
-
-            $arreglo = $this->obtenerCurp();
+            $nombreArchivo = $this->argument('nombre');
+            $arreglo = $this->obtenerCurp($nombreArchivo);
             //Recorremos todas las curp
             foreach ($arreglo as $key => $curp) {
                 $parte = Parte::whereCurp($curp)->first();
@@ -165,8 +165,8 @@ class CargarConvenios extends Command
             fputs($failedConv, $error."\n");
         }
     }
-    function obtenerCurp() {
-        $filename = storage_path('/app/convenios.csv');
+    function obtenerCurp($nombreArchivo) {
+        $filename = storage_path('/app/'.$nombreArchivo);
         $file = fopen($filename, "r");
         $curp = array();
         while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
