@@ -88,7 +88,7 @@ class ExcelReporteOperativoService
             ->whereRaw("(solicitudes.fecha_recepcion::date + '". self::DIAS_PARA_ARCHIVAR." days'::interval)::date  > CURRENT_DATE" )->count());
 
         # Solicitudes presentadas
-        $qSolicitudesPresentadas = (clone $this->service->solicitudes($request));
+        $qSolicitudesPresentadas = (clone $this->service->solicitudesPresentadas($request));
         $sheet->setCellValue('B5', $qSolicitudesPresentadas->count());
 
         # Solicitudes por concepto: total, confirmadas, archivadas por no confirmar, por confirmar

@@ -401,8 +401,17 @@ class CentroController extends Controller {
         $todos = true;
         if ($this->request->audiencia_parte_id != null && $this->request->audiencia_parte_id != "") {
             $todos = false;
+            $audiencia_parte = AudienciaParte::find($this->request->audiencia_parte_id);
         }
-        event(new RatificacionRealizada($audiencia->id, "citatorio", $todos, $this->request->audiencia_parte_id));
+        if(!$todos){
+            if($audiencia_parte->multa){
+                event(new RatificacionRealizada($audiencia->id, "multa", $todos, $this->request->audiencia_parte_id));
+            }else{
+                event(new RatificacionRealizada($audiencia->id, "citatorio", $todos, $this->request->audiencia_parte_id));
+            }
+        }else{
+            event(new RatificacionRealizada($audiencia->id, "citatorio", $todos, $this->request->audiencia_parte_id));
+        }
 
 
 
