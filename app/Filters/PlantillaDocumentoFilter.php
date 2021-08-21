@@ -20,7 +20,7 @@ class PlantillaDocumentoFilter extends Filter
 
     /**
      * Cuando se pasa el nombre_plantilla como parametro
-     * @param $nombre
+     * @param string $nombre Nombre o fragmento del nombre de la plantilla a consultar
      */
     public function handleNombrePlantillaFilter($nombre)
     {

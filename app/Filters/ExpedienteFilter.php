@@ -3,6 +3,10 @@
 
 namespace App\Filters;
 
+/**
+ * Métodos para filtrar consultas mediante la petición HTTP de Expediente
+ * @package App\Filters
+ */
 
 class ExpedienteFilter extends Filter
 {

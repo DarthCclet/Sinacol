@@ -4,8 +4,7 @@
 namespace App\Filters;
 
 /**
- * Implementa las consultas a la base de datos correspondientes a salas y sus relaciones
- * Class SalasFilter
+ * Métodos para filtrar consultas mediante la petición HTTP de todos los modelos que hereden la clase Catalogo
  * @package App\Filters
  */
 class CatalogoFilter extends Filter
@@ -22,7 +21,7 @@ class CatalogoFilter extends Filter
 
     /**
      * Se permite filtrar por updated_at >=
-     * @param $fecha_de
+     * @param string $fecha_de Fecha en formato Y-m-d H:i:s
      */
     public function handleFechaDeFilter($fecha_de)
     {
@@ -31,7 +30,7 @@ class CatalogoFilter extends Filter
 
     /**
      * Se permite filtrar por updated_at <=
-     * @param $fecha_a
+     * @param string $fecha_a Fecha en formato Y-m-d H:i:s
      */
     public function handleFechaAFilter($fecha_a)
     {
