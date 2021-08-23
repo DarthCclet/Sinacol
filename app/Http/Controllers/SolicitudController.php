@@ -49,6 +49,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FechaAudienciaService;
+use App\Services\DiasSolicitudService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use App\Events\RatificacionRealizada;
@@ -78,10 +79,12 @@ class SolicitudController extends Controller {
      * @var Request
      */
     protected $request;
+    protected $dias_solicitud;
 
-    public function __construct(Request $request) {
+    public function __construct(Request $request, DiasSolicitudService $dias) {
         // $this->middleware("auth");
         $this->request = $request;
+        $this->dias_solicitud = $dias;
     }
 
     public function index() {
@@ -1672,7 +1675,7 @@ class SolicitudController extends Controller {
                         $multiple = false;
                     }
                     if($datos_audiencia['encontro_audiencia']){
-                        if(FechaAudienciaService::validarFechasAsignables($solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                        if($this->dias_solicitud->getSolicitudOperante($solicitud->id, $datos_audiencia["fecha_audiencia"])){
                             DB::rollback();
                             return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
                         }
