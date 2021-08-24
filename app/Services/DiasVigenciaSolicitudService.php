@@ -3,9 +3,9 @@ namespace App\Services;
 
 /**
  * Interfase que define el numero de días de una solicitud
- * Interface DiasSolicitudService
+ * Interface DiasVigenciaSolicitudService
  */
-interface DiasSolicitudService {
+interface DiasVigenciaSolicitudService {
 
     /**
      * define si una solicitud aun esta vigente dentro de los días definidos
@@ -13,6 +13,6 @@ interface DiasSolicitudService {
      * @param string $fecha_solicitada Fecha en la que se solicita realizar la acción
      * @return bool
      */
-    public function getSolicitudOperante($solicitud_id,$fecha_solicitada);
+    public function getSolicitudVigente($solicitud_id,$fecha_solicitada);
 
 }

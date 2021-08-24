@@ -18,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         // Proveedor de dias de solicitud
-        $this->app->register(DiasSolicitudServiceProvider::class);
+        $this->app->register(DiasVigenciaSolicitudServiceProvider::class);
 
         //
         $baseURL = "https://devnotifica.lxl.mx/api/v1/notificaciones";

@@ -4,9 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
-use App\Services\DiasSolicitudService;
+use App\Services\DiasVigenciaSolicitudService;
 
-class DiasSolicitudServiceProvider extends ServiceProvider
+class DiasVigenciaSolicitudServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -15,7 +15,7 @@ class DiasSolicitudServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(DiasSolicitudService::class, Config::get('dias-solicitud.proveedor_dias_solicitud'));
+        $this->app->bind(DiasVigenciaSolicitudService::class, Config::get('dias-solicitud.proveedor_dias_solicitud'));
     }
 
     /**

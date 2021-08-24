@@ -46,6 +46,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FechaAudienciaService;
+use App\Services\DiasVigenciaSolicitudService;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\FechaNotificacion;
 use App\Events\RatificacionRealizada;
@@ -69,11 +70,14 @@ class AudienciaController extends Controller {
 
     protected $request;
 
-    public function __construct(Request $request) {
+    protected $dias_solicitud;
+
+    public function __construct(Request $request,DiasVigenciaSolicitudService $dias) {
         if (!$request->is("*buzon/*")) {
             $this->middleware('auth');
         }
         $this->request = $request;
+        $this->dias_solicitud = $dias;
     }
 
     /**
@@ -2059,7 +2063,7 @@ class AudienciaController extends Controller {
             $multiple = false;
         }
         if($datos_audiencia['encontro_audiencia']){
-            if(FechaAudienciaService::validarFechasAsignables($audiencia->expediente->solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+            if(!$this->dias_solicitud->getSolicitudVigente($audiencia->expediente->solicitud_id, $datos_audiencia["fecha_audiencia"])){
                 DB::rollback();
                 return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
             }
@@ -2913,7 +2917,7 @@ class AudienciaController extends Controller {
                             $multiple = false;
                         }
                         if($datos_audiencia['encontro_audiencia']){
-                            if(FechaAudienciaService::validarFechasAsignables($solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                            if(!$this->dias_solicitud->getSolicitudVigente($solicitud->id, $datos_audiencia["fecha_audiencia"])){
                                 DB::rollback();
                                 return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
                             }
@@ -3141,7 +3145,7 @@ class AudienciaController extends Controller {
                 $multiple = false;
             }
             if($datos_audiencia['encontro_audiencia']){
-                if(FechaAudienciaService::validarFechasAsignables($audiencia->expediente->solicitud,$datos_audiencia["fecha_audiencia"]) > 45){
+                if(!$this->dias_solicitud->getSolicitudVigente($audiencia->expediente->solicitud_id, $datos_audiencia["fecha_audiencia"])){
                     DB::rollback();
                     return response()->json(['message' => 'La fecha de la audiencia de conciliación excede de los 45 días naturales que señala la Ley Federal del Trabajo.'],403);
                 }

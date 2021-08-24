@@ -5,5 +5,5 @@
  */
 return [
     // Clase que provee los días con las reglas de Centro Federal
-    'proveedor_dias_solicitud' => env('PROVEEDOR_DIAS_SOLICITUD',App\Services\DiasSolicitudServiceFederal::class)
+    'proveedor_dias_solicitud' => env('PROVEEDOR_DIAS_SOLICITUD',App\Services\DiasVigenciaSolicitudServiceFederal::class)
 ];
