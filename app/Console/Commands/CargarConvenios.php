@@ -52,109 +52,115 @@ class CargarConvenios extends Command
             $failedConv = fopen(__DIR__."/../../../public/failedConv.txt", 'w');
             $failedIdent = fopen(__DIR__."/../../../public/failedIdent.txt", 'w');
             $nombreArchivo = $this->argument('nombre');
-            $arreglo = $this->obtenerCurp($nombreArchivo);
-            //Recorremos todas las curp
-            foreach ($arreglo as $key => $curp) {
-                $parte = Parte::whereCurp($curp)->first();
-                if($parte){
-                    $origenConv = storage_path('/app/convenios/'.$curp.".pdf");
-                    $origenIne = storage_path('/app/identificaciones/'.$curp.".pdf");
-                    if($parte->solicitud->expediente && $parte->solicitud->expediente->audiencia){
-                        $solicitud = $parte->solicitud;
-                        $audiencia = $parte->solicitud->expediente->audiencia->first();
+            $archivo = __DIR__."/../../../".$nombreArchivo;
+            $existe = file_exists($archivo);
+            if(!empty($nombreArchivo) && $existe){
+                $arreglo = $this->obtenerCurp($nombreArchivo);
+                //Recorremos todas las curp
+                foreach ($arreglo as $key => $curp) {
+                    $parte = Parte::whereCurp($curp)->first();
+                    if($parte){
+                        $origenConv = storage_path('/app/convenios/'.$curp.".pdf");
+                        $origenIne = storage_path('/app/identificaciones/'.$curp.".pdf");
+                        if($parte->solicitud->expediente && $parte->solicitud->expediente->audiencia){
+                            $solicitud = $parte->solicitud;
+                            $audiencia = $parte->solicitud->expediente->audiencia->first();
 
-                        $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $audiencia->id;
-                        $path = $directorio."/".$curp.".pdf";
-                        $fullPath = storage_path().'/app/' .$directorio."/".$curp.".pdf";
-                        $tipoArchivo = ClasificacionArchivo::find(52);
-                        //Se carga convenio
-                        if(file_exists($origenConv)){
-                            Storage::makeDirectory($directorio);
-                            File::move($origenConv,$fullPath);
-                            $uuid = Str::uuid();
-                            $documento = $audiencia->documentos()->create([
-                                "nombre" => $curp.".pdf",
-                                "nombre_original" => $curp.".pdf",
-                                "descripcion" => "Identificacion ".$curp.".pdf",
-                                "ruta" => $path,
-                                "uuid" => $uuid,
-                                "tipo_almacen" => "local",
-                                "uri" => $path,
-                                "longitud" => round(Storage::size($path) / 1024, 2),
-                                "firmado" => "false",
-                                "clasificacion_archivo_id" => $tipoArchivo->id ,
-                            ]);
-                            if($documento){
-                                $correcto = "Se guardo convenio CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                                dump($correcto); 
-                                fputs($savedConv, $correcto."\n");
+                            $directorio = 'expedientes/' . $audiencia->expediente_id . '/audiencias/' . $audiencia->id;
+                            $path = $directorio."/".$curp.".pdf";
+                            $fullPath = storage_path().'/app/' .$directorio."/".$curp.".pdf";
+                            $tipoArchivo = ClasificacionArchivo::find(52);
+                            //Se carga convenio
+                            if(file_exists($origenConv)){
+                                Storage::makeDirectory($directorio);
+                                File::move($origenConv,$fullPath);
+                                $uuid = Str::uuid();
+                                $documento = $audiencia->documentos()->create([
+                                    "nombre" => $curp.".pdf",
+                                    "nombre_original" => $curp.".pdf",
+                                    "descripcion" => "Identificacion ".$curp.".pdf",
+                                    "ruta" => $path,
+                                    "uuid" => $uuid,
+                                    "tipo_almacen" => "local",
+                                    "uri" => $path,
+                                    "longitud" => round(Storage::size($path) / 1024, 2),
+                                    "firmado" => "false",
+                                    "clasificacion_archivo_id" => $tipoArchivo->id ,
+                                ]);
+                                if($documento){
+                                    $correcto = "Se guardo convenio CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
+                                    dump($correcto);
+                                    fputs($savedConv, $correcto."\n");
+                                }else{
+                                    $error = "No se pudo guardar convenio de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
+                                    dump($error);
+                                    fputs($failedConv, $error."\n");
+                                }
                             }else{
-                                $error = "No se pudo guardar convenio de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                                dump($error); 
+                                $error = "No se encontro archivo convenio con curp: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
+                                dump($error);
                                 fputs($failedConv, $error."\n");
                             }
-                        }else{
-                            $error = "No se encontro archivo convenio con curp: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                            dump($error); 
-                            fputs($failedConv, $error."\n");    
-                        }
-                        //Se carga ine
-                        $directorioIdentif = 'solicitud/' . $solicitud->id.'/parte/'.$parte->id;
-                        $pathIdentif = $directorioIdentif."/".$curp.".pdf";
-                        $fullPathIdentif = storage_path().'/app/' .$directorioIdentif."/".$curp.".pdf";
-                        $tipoArchivoIdentif = ClasificacionArchivo::find(1);
-                        if(file_exists($origenIne)){
-                            Storage::makeDirectory($directorioIdentif);
-                            File::move($origenIne,$fullPathIdentif);
-                            $uuidIdentif = Str::uuid();
-                            $documento = $parte->documentos()->create([
-                                "nombre" => $curp.".pdf",
-                                "nombre_original" => $curp.".pdf",
-                                "descripcion" => "Documento de audiencia ".$curp.".pdf",
-                                "ruta" => $pathIdentif,
-                                "uuid" => $uuidIdentif,
-                                "tipo_almacen" => "local",
-                                "uri" => $pathIdentif,
-                                "longitud" => round(Storage::size($pathIdentif) / 1024, 2),
-                                "firmado" => "false",
-                                "clasificacion_archivo_id" => $tipoArchivoIdentif->id ,
-                            ]);
-                            if($documento){
-                                $correcto = "Se guardo identificacion CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
+                            //Se carga ine
+                            $directorioIdentif = 'solicitud/' . $solicitud->id.'/parte/'.$parte->id;
+                            $pathIdentif = $directorioIdentif."/".$curp.".pdf";
+                            $fullPathIdentif = storage_path().'/app/' .$directorioIdentif."/".$curp.".pdf";
+                            $tipoArchivoIdentif = ClasificacionArchivo::find(1);
+                            if(file_exists($origenIne)){
+                                Storage::makeDirectory($directorioIdentif);
+                                File::move($origenIne,$fullPathIdentif);
+                                $uuidIdentif = Str::uuid();
+                                $documento = $parte->documentos()->create([
+                                    "nombre" => $curp.".pdf",
+                                    "nombre_original" => $curp.".pdf",
+                                    "descripcion" => "Documento de audiencia ".$curp.".pdf",
+                                    "ruta" => $pathIdentif,
+                                    "uuid" => $uuidIdentif,
+                                    "tipo_almacen" => "local",
+                                    "uri" => $pathIdentif,
+                                    "longitud" => round(Storage::size($pathIdentif) / 1024, 2),
+                                    "firmado" => "false",
+                                    "clasificacion_archivo_id" => $tipoArchivoIdentif->id ,
+                                ]);
+                                if($documento){
+                                    $correcto = "Se guardo identificacion CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
+                                    dump($correcto); 
+                                    fputs($savedIdent, $correcto."\n");
+                                }else{
+                                    $error = "No se pudo guardar identificacion de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
+                                    dump($error); 
+                                    fputs($failedConv, $error."\n");
+                                }
+                            }else{
+                                $error = "No se encontro archivo de identificacion con curp: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
+                                dump($error); 
+                                fputs($failedIdent, $error."\n");    
+                            }
+                            $actaAudiencia = $audiencia->documentos()->where('clasificacion_archivo_id',15)->first();
+                            if($actaAudiencia == null){
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3)); 
+                                $correcto = " Se genera acta de audiencia CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
                                 dump($correcto); 
                                 fputs($savedIdent, $correcto."\n");
                             }else{
-                                $error = "No se pudo guardar identificacion de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
+                                $error = "Ya existe acta de audiencia de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio." en la linea ".($key+1);
                                 dump($error); 
                                 fputs($failedConv, $error."\n");
                             }
+                            
                         }else{
-                            $error = "No se encontro archivo de identificacion con curp: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
+                            $error = "No se encontro audiencia con curp: ".$curp. "  en la linea ".($key+1);
                             dump($error); 
-                            fputs($failedIdent, $error."\n");    
+                            fputs($failedConv, $error."\n");    
                         }
-                        $actaAudiencia = $audiencia->documentos()->where('clasificacion_archivo_id',15)->first();
-                        if($actaAudiencia == null){
-                            event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3)); 
-                            $correcto = " Se genera acta de audiencia CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                            dump($correcto); 
-                            fputs($savedIdent, $correcto."\n");
-                        }else{
-                            $error = "Ya existe acta de audiencia de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio." en la linea ".($key+1);
-                            dump($error); 
-                            fputs($failedConv, $error."\n");
-                        }
-                        
                     }else{
-                        $error = "No se encontro audiencia con curp: ".$curp. "  en la linea ".($key+1);
+                        $error = "No se encontro CURP: ".$curp. "  en la linea ".($key+1);
                         dump($error); 
-                        fputs($failedConv, $error."\n");    
+                        fputs($failedConv, $error."\n");
                     }
-                }else{
-                    $error = "No se encontro CURP: ".$curp. "  en la linea ".($key+1);
-                    dump($error); 
-                    fputs($failedConv, $error."\n");
                 }
+            }else{
+                $this->error("No se encontró el archivo");
             }
         }catch(Exception $e){
             Log::error('En script:' . $e->getFile() . " En línea: " . $e->getLine() .
@@ -166,12 +172,12 @@ class CargarConvenios extends Command
         }
     }
     function obtenerCurp($nombreArchivo) {
-        $filename = storage_path('/app/'.$nombreArchivo);
+        $filename = $nombreArchivo;
         $file = fopen($filename, "r");
         $curp = array();
         while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
-            if ($this->curpValida($data[2])) {
-                $curp[] = $data[2];
+            if ($this->curpValida($data[0])) {
+                $curp[] = $data[0];
             }
         }
         return $curp;

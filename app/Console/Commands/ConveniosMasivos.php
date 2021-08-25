@@ -6,6 +6,7 @@ use App\Audiencia;
 use App\AudienciaParte;
 use App\Centro;
 use App\Compareciente;
+use App\ConceptoPagoResolucion;
 use App\ConciliadorAudiencia;
 use App\Documento;
 use App\EtapaResolucionAudiencia;
@@ -33,15 +34,7 @@ class ConveniosMasivos extends Command
      *
      * @var string
      */
-    protected $signature = 'convenioMasivo {nombre? : Path al archivo xlsx que trae los datos de los convenios}
-                        {fecha-audiencia : Fecha del conficto en formato Y-m-d} 
-                        {hora-fin-audiencia : hora fin de la audiencia en formato Y-m-d HH:mm:ss} 
-                        {hora-inicio-audiencia : Hora de inicio de la audiencia del conficto en formato HH:mm:ss} 
-                        {fecha-resolucion-audiencia : Fecha del conficto en formato Y-m-d HH:mm:ss}
-                        {cadena-representante : Cadena separada por comas de los datos del representante: "Nombre","Primer Apellido","Segundo apellido","fecha de nacimiento","Genero (H-M)","fecha de instrumento notarial","CURP"}
-                        {cadena-manifestaciones : Cadena separada por comas de los datos de las manifestaciones: "Primera Manifestacion","Propuesta de convenio","Segunda manifestacion"}
-                        {cadena-dato-laboral : Cadena separada por comas de los datos laborales extra del trabajador "horario_laboral","horario_comida","comida_dentro","dias_descanso","dias_vacaciones","dias_aguinaldo","prestaciones_adicionales")}
-                        {cadena-concepto-resolucion : Cadena separada por comas de los conceptos de resolucion separados por coma, segun catalogo ConceptoPagoResolucion }';
+    protected $signature = 'convenioMasivo {nombre : Path al archivo xlsx que trae los datos de los convenios} {--fecha-audiencia= : Fecha de la audiencia en formato Y-m-d} {--hora-inicio-audiencia= : Hora de inicio de la audiencia del conficto en formato HH:mm:ss} {--hora-fin-audiencia= : hora fin de la audiencia en formato Y-m-d HH:mm:ss} {--fecha-resolucion-audiencia= : Fecha del conficto en formato Y-m-d HH:mm:ss} {--cadena-representante= : Cadena separada por comas de los datos del representante: "Nombre","Primer Apellido","Segundo apellido","fecha de nacimiento","Genero (H-M)","fecha de instrumento notarial","CURP"} {--cadena-manifestaciones= : Cadena separada por comas de los datos de las manifestaciones: "Primera Manifestacion","Propuesta de convenio","Segunda manifestacion"} {--cadena-dato-laboral= : Cadena separada por comas de los datos laborales extra del trabajador "horario_laboral","horario_comida","comida_dentro","dias_descanso","dias_vacaciones","dias_aguinaldo","prestaciones_adicionales"} {--cadena-concepto-resolucion= : Cadena separada por comas de los conceptos de resolucion separados por coma, segun catalogo ConceptoPagoResolucion}';
 
     /**
      * The console command description.
@@ -71,46 +64,59 @@ class ConveniosMasivos extends Command
         $failedConv = fopen(__DIR__."/../../../public/failedConv.txt", 'w');
         $ratificConv = fopen(__DIR__."/../../../public/ratificConv.txt", 'w');
         $nombreArchivo = $this->argument('nombre');
-        //            Obtenemos el documento que contiene las CURP
-        $arreglo = $this->obtenerCurp($nombreArchivo);
-        //            Recorremos todas las curp
-        $array = [];
-        foreach ($arreglo as $key => $curp) {
-        //Localizamos la Parte para obtener la solicitud
-            $parte = Parte::whereCurp($curp)->first();
-        //Aquí comienza el proceso de confirmación y generación del expediente
-            if ($parte != null) {
-                $solicitud = $parte->solicitud;
-                if($solicitud->expediente == null){
+        $archivo = __DIR__."/../../../".$nombreArchivo;
+        $existe = file_exists($archivo);
+        if(!empty($nombreArchivo) && $existe){
+            //            Obtenemos el documento que contiene las CURP
+            $arreglo = $this->obtenerCurp($archivo);
 
-                    $registro = $this->ConfirmarSolicitudMultiple($solicitud,$curp);
-                    // dd($registro);
-                    if($registro["exito"]){
-                        $array[] = array("solicitud_id" => $solicitud->id , "audiencia_id" => $registro["audiencia_id"],"curp" => $curp);
-                        $correcto = "Se ratifico la solicitud con el folio: ".$solicitud->folio."/".$solicitud->anio;
-                        dump($correcto); 
-                        fputs($savedConv, $correcto."\n");
+            $array_conceptos = $this->obtenerConceptos($archivo);
+            if(empty($array_conceptos)){
+                $error = "Los conceptos no esta correctamente configurados";
+                $this->error($error);
+                fputs($failedConv, $error."\n");
+                return;
+            }
+            //            Recorremos todas las curp
+            $array = [];
+            foreach ($arreglo as $key => $curp) {
+            //Localizamos la Parte para obtener la solicitud
+                $parte = Parte::whereCurp($curp)->first();
+            //Aquí comienza el proceso de confirmación y generación del expediente
+                if ($parte != null) {
+                    $solicitud = $parte->solicitud;
+                    if($solicitud->expediente == null){
+                        $registro = $this->ConfirmarSolicitudMultiple($solicitud,$curp,$array_conceptos);
+                        // dd($registro);
+                        if($registro["exito"]){
+                            $array[] = array("solicitud_id" => $solicitud->id , "audiencia_id" => $registro["audiencia_id"],"curp" => $curp);
+                            $correcto = "Se ratifico la solicitud con el folio: ".$solicitud->folio."/".$solicitud->anio;
+                            dump($correcto); 
+                            fputs($savedConv, $correcto."\n");
+                        }else{
+                            $error = "Ocurrio un error en la solicitud con el folio: ".$solicitud->folio."/".$solicitud->anio;
+                            dump($error); 
+                            fputs($failedConv, $error."\n");
+                        }
                     }else{
-                        $error = "Ocurrio un error en la solicitud con el folio: ".$solicitud->folio."/".$solicitud->anio;
+                        $error = " La solicitud con el folio: ".$solicitud->folio."/".$solicitud->anio. " Ya esta ratificada";
                         dump($error); 
-                        fputs($failedConv, $error."\n");
+                        fputs($ratificConv, $error."\n");
                     }
                 }else{
-                    $error = " La solicitud con el folio: ".$solicitud->folio."/".$solicitud->anio. " Ya esta ratificada";
-                    dump($error); 
-                    fputs($ratificConv, $error."\n");
+                    $error = "Se encontro una curp erronea en la linea ".($key+1);
+                    dump($error);
+                    fputs($failedConv, $error."\n");
                 }
-            }else{
-                $error = "Se encontro una curp erronea en la linea ".($key+1);
-                dump($error);
-                fputs($failedConv, $error."\n");
             }
+            dd($array);
+        }else{
+            $this->error("No se encontró el archivo");
         }
-        dd($array);
     }
 
 
-    private function ConfirmarSolicitudMultiple(Solicitud $solicitud,$curp) {
+    private function ConfirmarSolicitudMultiple(Solicitud $solicitud,$curp,$array_conceptos) {
         try {
             DB::beginTransaction();
             //obtenemos los folios 
@@ -125,7 +131,7 @@ class ConveniosMasivos extends Command
             $hora_fin_audiencia = $this->option('hora-fin-audiencia');
             $fecha_resolucion = $this->option('fecha-resolucion-audiencia');
             $resolucion_id = 1;
-//            
+            
 ////        Obtenemos la sala virtual
             $sala = Sala::where("centro_id", $solicitud->centro_id)->where("virtual", true)->first();
             if ($sala == null) {
@@ -253,67 +259,50 @@ class ConveniosMasivos extends Command
                 ]);
                 $dato_laboral = $citado->dato_laboral->first();
                 $datos_laborales_cadena = str_getcsv($this->option('cadena-dato-laboral'));
-                $dato_laboral->update(
-                    ['horario_laboral'=>$datos_laborales_cadena[0],
-                    "horario_comida"=>$datos_laborales_cadena[1],
-                    "comida_dentro"=>$datos_laborales_cadena[2],
-                    "dias_descanso"=>$datos_laborales_cadena[3],
-                    "dias_vacaciones"=>$datos_laborales_cadena[4],
-                    "dias_aguinaldo"=>$datos_laborales_cadena[5],
-                    "prestaciones_adicionales"=>$datos_laborales_cadena[6]]
-                );
-                $resoluciones = str_getcsv($this->option('cadena-concepto-resolucion'));
+                if($dato_laboral){
+                    $dato_laboral->update(
+                        ['horario_laboral'=>$datos_laborales_cadena[0],
+                        "horario_comida"=>$datos_laborales_cadena[1],
+                        "comida_dentro"=>$datos_laborales_cadena[2],
+                        "dias_descanso"=>$datos_laborales_cadena[3],
+                        "dias_vacaciones"=>$datos_laborales_cadena[4],
+                        "dias_aguinaldo"=>$datos_laborales_cadena[5],
+                        "prestaciones_adicionales"=>$datos_laborales_cadena[6]]
+                    );
+                }
+                //$resoluciones = str_getcsv($this->option('cadena-concepto-resolucion'));
                 
-                $filename = storage_path('/app/'.$nombreArchivo);
+                $nombreArchivo = $this->argument('nombre');
+                $filename = __DIR__."/../../../".$nombreArchivo;
                 $file = fopen($filename, "r");
                 $conceptos = array();
+                $row = 0;
                 while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
-                    if($data[2] == $curp){
-                        $repla = array("$",",","(",")","-");
-                        $conceptos = 
-                        [trim(str_replace($repla,"",$data[8])),
-                        trim(str_replace($repla,"",$data[10])),
-                        trim(str_replace($repla,"",$data[9])),
-                        trim(str_replace($repla,"",$data[11])),
-                        trim(str_replace($repla,"",$data[12])),
-                        trim(str_replace($repla,"",$data[13])),
-                        trim(str_replace($repla,"",$data[14])),
-                        trim(str_replace($repla,"",$data[15])),
-                        trim(str_replace($repla,"",$data[16])),
-                        trim(str_replace($repla,"",$data[18])),
-                        trim(str_replace($repla,"",$data[20])),
-                        trim(str_replace($repla,"",$data[21]))];
+                    if( $data[0] == $curp){
+                        foreach($data as $key=> $concepto){
+                            if($key > 1){
+                                $repla = array("$",",","(",")","-");
+                                $conceptos[] = trim(str_replace($repla,"",$concepto));
+                            }
+                        }
+                        break;
                     }
+                    $row++;
                 }
                 $audiencia_parte = $citado->audienciaParte->first();
                 $montoTotal = 0;
-                foreach($conceptos as $key => $concepto){
-                    $otro = "";
-                    if($key == 6){
-                        $otro = "Salarios devengados";
-                    }else if($key == 7){
-                        $otro = "Fondo de ahorro";
-                    }else if($key == 8 ){
-                        $otro = "Vales de despensa";
-                    }else if($key == 9 ){
-                        $otro = "ISR";
-                    }else if($key == 10 ){
-                        $otro = "VACACIONES PAGADAS PREVIAMENTE";
-                    }else if($key == 11 ){
-                        $otro = "PRIMA VACACIONAL PAGADA PREVIAMENTE";
-                    }
+                foreach($array_conceptos as $key => $concepto){
+                    
                     if(!empty($concepto)){
                         $resolucion_parte = ResolucionParteConcepto::create([
                             "resolucion_partes_id" => null, //$resolucionParte->id,
                             "audiencia_parte_id" => $audiencia_parte->id,
-                            "concepto_pago_resoluciones_id" => $resoluciones[$key],//$concepto["concepto_pago_resoluciones_id"],
+                            "concepto_pago_resoluciones_id" => $concepto,//$concepto["concepto_pago_resoluciones_id"],
                             "dias" => null,//intval($concepto["dias"]),
-                            "monto" => $concepto,//$concepto["monto"],
-                            "otro" => $otro//$concepto["otro"]
+                            "monto" => $conceptos[$key],//$concepto["monto"],
+                            "otro" => ""
                         ]);
-                        if($key != 9){
                             $montoTotal += floatval($concepto);
-                        }
                     }
                 }
                 ResolucionPagoDiferido::create([
@@ -344,13 +333,31 @@ class ConveniosMasivos extends Command
             return array("exito" => false,"audiencia_id" => null);
         }
     }
+    function obtenerConceptos($nombreArchivo) {
+        $arreglo_conceptos = [];
+        $file = fopen($nombreArchivo, "r");
+        while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
+                foreach($data as $key=> $concepto){
+                    if($key > 1 && !empty($concepto)){
+                        $concepto_pago = ConceptoPagoResolucion::where('nombre',$concepto)->first();
+                        if($concepto_pago){
+                            $arreglo_conceptos[] = $concepto_pago->id;
+                        }else{
+                            $this->error("No se encontro el concepto".$concepto);
+                            return [];
+                        }
+                    }
+                }
+            break;
+        }
+        return $arreglo_conceptos;
+    }
     function obtenerCurp($nombreArchivo) {
-        $filename = storage_path('/app/'.$nombreArchivo);
-        $file = fopen($filename, "r");
+        $file = fopen($nombreArchivo, "r");
         $curp = array();
         while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
-            if ($this->curpValida($data[2])) {
-                $curp[] = $data[2];
+            if ($this->curpValida($data[0])) {
+                $curp[] = $data[0];
             }
         }
         return $curp;
