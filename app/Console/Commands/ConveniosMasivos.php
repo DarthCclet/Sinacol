@@ -34,7 +34,7 @@ class ConveniosMasivos extends Command
      *
      * @var string
      */
-    protected $signature = 'convenioMasivo {nombre : Path al archivo xlsx que trae los datos de los convenios} {--fecha-audiencia= : Fecha de la audiencia en formato Y-m-d} {--hora-inicio-audiencia= : Hora de inicio de la audiencia del conficto en formato HH:mm:ss} {--hora-fin-audiencia= : hora fin de la audiencia en formato Y-m-d HH:mm:ss} {--fecha-resolucion-audiencia= : Fecha del conficto en formato Y-m-d HH:mm:ss} {--cadena-representante= : Cadena separada por comas de los datos del representante: "Nombre","Primer Apellido","Segundo apellido","fecha de nacimiento","Genero (H-M)","fecha de instrumento notarial","CURP"} {--cadena-manifestaciones= : Cadena separada por comas de los datos de las manifestaciones: "Primera Manifestacion","Propuesta de convenio","Segunda manifestacion"} {--cadena-dato-laboral= : Cadena separada por comas de los datos laborales extra del trabajador "horario_laboral","horario_comida","comida_dentro","dias_descanso","dias_vacaciones","dias_aguinaldo","prestaciones_adicionales"} {--cadena-concepto-resolucion= : Cadena separada por comas de los conceptos de resolucion separados por coma, segun catalogo ConceptoPagoResolucion}';
+    protected $signature = 'convenioMasivo {nombre : Path al archivo xlsx que trae los datos de los convenios} {--fecha-audiencia= : Fecha de la audiencia en formato Y-m-d} {--hora-inicio-audiencia= : Hora de inicio de la audiencia del conficto en formato HH:mm:ss} {--hora-fin-audiencia= : hora fin de la audiencia en formato Y-m-d HH:mm:ss} {--fecha-resolucion-audiencia= : Fecha del conficto en formato Y-m-d HH:mm:ss} {--cadena-representante= : Cadena separada por comas de los datos del representante: "Nombre","Primer Apellido","Segundo apellido","fecha de nacimiento","Genero (H-M)","fecha de instrumento notarial","CURP"} {--cadena-manifestaciones= : Cadena separada por comas de los datos de las manifestaciones: "Primera Manifestacion","Propuesta de convenio","Segunda manifestacion"} {--cadena-dato-laboral= : Cadena separada por comas de los datos laborales extra del trabajador "horario_laboral","horario_comida","comida_dentro","dias_descanso","dias_vacaciones","dias_aguinaldo","prestaciones_adicionales"} {--cadena-concepto-resolucion= : Cadena separada por comas de los conceptos de resolucion separados por coma, segun catalogo ConceptoPagoResolucion} {--cadena-conciliador= : Cadena separada por comas de los datos del conciliador separados por coma, segun catalogo Conciliador "Nombre","Apellidos"}';
 
     /**
      * The console command description.
@@ -77,6 +77,14 @@ class ConveniosMasivos extends Command
                 fputs($failedConv, $error."\n");
                 return;
             }
+            $conciliador_data = str_getcsv($this->option('cadena-conciliador'));
+            $conciliador = \App\Persona::whereNombre($conciliador_data[0])->where("primer_apellido",$conciliador_data[1])->first()->conciliador;
+            if(empty($conciliador)){
+                $error = "Los conceptos no esta correctamente configurados";
+                $this->error($error);
+                fputs($failedConv, $error."\n");
+                return;
+            }
             //            Recorremos todas las curp
             $array = [];
             foreach ($arreglo as $key => $curp) {
@@ -86,7 +94,7 @@ class ConveniosMasivos extends Command
                 if ($parte != null) {
                     $solicitud = $parte->solicitud;
                     if($solicitud->expediente == null){
-                        $registro = $this->ConfirmarSolicitudMultiple($solicitud,$curp,$array_conceptos);
+                        $registro = $this->ConfirmarSolicitudMultiple($solicitud,$curp,$array_conceptos,$conciliador);
                         // dd($registro);
                         if($registro["exito"]){
                             $array[] = array("solicitud_id" => $solicitud->id , "audiencia_id" => $registro["audiencia_id"],"curp" => $curp);
@@ -116,7 +124,7 @@ class ConveniosMasivos extends Command
     }
 
 
-    private function ConfirmarSolicitudMultiple(Solicitud $solicitud,$curp,$array_conceptos) {
+    private function ConfirmarSolicitudMultiple(Solicitud $solicitud,$curp,$array_conceptos,$conciliador) {
         try {
             DB::beginTransaction();
             //obtenemos los folios 
@@ -142,7 +150,7 @@ class ConveniosMasivos extends Command
             
 //            Obtenemos un conciliador central
             $oficinaCentral = Centro::whereAbreviatura("OCCFCRL")->first();
-            $conciliador = \App\Persona::whereNombre("ANA KAREN")->where("primer_apellido","NAVA HERNÁNDEZ")->first()->conciliador;
+
             if ($conciliador == null) {
                 DB::rollBack();
                 return array("exito" => false,"audiencia_id" => null);
