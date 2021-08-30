@@ -312,7 +312,7 @@ class ConveniosMasivos extends Command
                             "monto" => $conceptos[$key],//$concepto["monto"],
                             "otro" => ""
                         ]);
-                        $montoTotal += floatval($concepto);
+                        $montoTotal += floatval($conceptos[$key]);
                     }
                 }
                 ResolucionPagoDiferido::create([
