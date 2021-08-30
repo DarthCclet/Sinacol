@@ -60,10 +60,9 @@ class CargarConvenios extends Command
             $nombreArchivo = $this->argument('nombre');
             $this->nombreArchivo = $nombreArchivo;
 
-            $archivo = __DIR__."/../../../".$nombreArchivo;
-            $existe = file_exists($archivo);
+            $existe = file_exists($nombreArchivo);
             if(!empty($nombreArchivo) && $existe){
-                $arreglo = $this->obtenerCurp($nombreArchivo);
+                $arreglo = $this->obtenerCurp();
                 //Recorremos todas las curp
                 foreach ($arreglo as $key => $curp) {
                     $parte = Parte::whereCurp($curp)->first();
