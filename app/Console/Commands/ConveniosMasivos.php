@@ -63,6 +63,11 @@ class ConveniosMasivos extends Command
     protected $nombreArchivo;
 
     /**
+     * El concepto de pago de deducciones es el ID 13 en el catálogo concepto_pago_resoluciones
+     */
+    const CONCEPTO_PAGO_DEDUCCION_ID = 13;
+
+    /**
      * Execute the console command.
      *
      * @return mixed
@@ -312,6 +317,10 @@ class ConveniosMasivos extends Command
                             "monto" => $conceptos[$key],//$concepto["monto"],
                             "otro" => ""
                         ]);
+                        if($concepto == self::CONCEPTO_PAGO_DEDUCCION_ID){
+                            $montoTotal -= floatval($conceptos[$key]);
+                            continue;
+                        }
                         $montoTotal += floatval($conceptos[$key]);
                     }
                 }
