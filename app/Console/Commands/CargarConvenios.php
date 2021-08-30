@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Akeneo\Component\SpreadsheetParser\SpreadsheetParser;
 use App\Audiencia;
 use App\ClasificacionArchivo;
 use App\Events\GenerateDocumentResolution;
@@ -30,6 +31,11 @@ class CargarConvenios extends Command
     protected $description = 'Comando para cargar convenios masivos';
 
     /**
+     * @var string Nombre y path del archivo xlsx
+     */
+    protected $nombreArchivo;
+
+    /**
      * Create a new command instance.
      *
      * @return void
@@ -52,6 +58,8 @@ class CargarConvenios extends Command
             $failedConv = fopen(__DIR__."/../../../public/failedConv.txt", 'w');
             $failedIdent = fopen(__DIR__."/../../../public/failedIdent.txt", 'w');
             $nombreArchivo = $this->argument('nombre');
+            $this->nombreArchivo = $nombreArchivo;
+
             $archivo = __DIR__."/../../../".$nombreArchivo;
             $existe = file_exists($archivo);
             if(!empty($nombreArchivo) && $existe){
@@ -89,16 +97,16 @@ class CargarConvenios extends Command
                                 ]);
                                 if($documento){
                                     $correcto = "Se guardo convenio CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                                    dump($correcto);
+                                    $this->info($correcto);
                                     fputs($savedConv, $correcto."\n");
                                 }else{
                                     $error = "No se pudo guardar convenio de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                                    dump($error);
+                                    $this->error($error);
                                     fputs($failedConv, $error."\n");
                                 }
                             }else{
                                 $error = "No se encontro archivo convenio con curp: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                                dump($error);
+                                $this->error($error);
                                 fputs($failedConv, $error."\n");
                             }
                             //Se carga ine
@@ -124,38 +132,38 @@ class CargarConvenios extends Command
                                 ]);
                                 if($documento){
                                     $correcto = "Se guardo identificacion CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                                    dump($correcto); 
+                                    $this->info($correcto);
                                     fputs($savedIdent, $correcto."\n");
                                 }else{
                                     $error = "No se pudo guardar identificacion de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                                    dump($error); 
+                                    $this->error($error);
                                     fputs($failedConv, $error."\n");
                                 }
                             }else{
                                 $error = "No se encontro archivo de identificacion con curp: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                                dump($error); 
-                                fputs($failedIdent, $error."\n");    
+                                $this->error($error);
+                                fputs($failedIdent, $error."\n");
                             }
                             $actaAudiencia = $audiencia->documentos()->where('clasificacion_archivo_id',15)->first();
                             if($actaAudiencia == null){
-                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3)); 
+                                event(new GenerateDocumentResolution($audiencia->id, $audiencia->expediente->solicitud->id, 15, 3));
                                 $correcto = " Se genera acta de audiencia CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio."  en la linea ".($key+1);
-                                dump($correcto); 
+                                $this->info($correcto);
                                 fputs($savedIdent, $correcto."\n");
                             }else{
                                 $error = "Ya existe acta de audiencia de CURP: ".$curp. " de solicitud: ".$solicitud->folio."/".$solicitud->anio." en la linea ".($key+1);
-                                dump($error); 
+                                $this->error($error);
                                 fputs($failedConv, $error."\n");
                             }
-                            
+
                         }else{
                             $error = "No se encontro audiencia con curp: ".$curp. "  en la linea ".($key+1);
-                            dump($error); 
-                            fputs($failedConv, $error."\n");    
+                            $this->error($error);
+                            fputs($failedConv, $error."\n");
                         }
                     }else{
                         $error = "No se encontro CURP: ".$curp. "  en la linea ".($key+1);
-                        dump($error); 
+                        $this->error($error);
                         fputs($failedConv, $error."\n");
                     }
                 }
@@ -167,24 +175,35 @@ class CargarConvenios extends Command
                     " Se emitió el siguiente mensaje: " . $e->getMessage() .
                     " Con código: " . $e->getCode() . " La traza es: " . $e->getTraceAsString());
             $error = "No se encontro Audiencia: ".$curp. " en la linea ".($key+1);
-            dump($error); 
+            $this->error($error);
             fputs($failedConv, $error."\n");
         }
     }
-    function obtenerCurp($nombreArchivo) {
-        $filename = $nombreArchivo;
-        $file = fopen($filename, "r");
-        $curp = array();
-        while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
-            if ($this->curpValida($data[0])) {
-                $curp[] = $data[0];
+
+    /**
+     * Retorna un arreglo de CURPS que extrae del archivo excel de la hoja "CONCEPTOS"
+     * @return array
+     */
+    function obtenerCurp() {
+        $nombreArchivo = $this->nombreArchivo;
+        $workbook = SpreadsheetParser::open($nombreArchivo, 'xlsx');
+        $curp = [];
+        foreach ($workbook->createRowIterator($workbook->getWorksheetIndex('CONCEPTOS')) as $rowIndex => $values) {
+            if ($this->curpValida($values[0])) {
+                $curp[] = $values[0];
             }
         }
         return $curp;
     }
 
+    /**
+     * Valida las CURP
+     * @param string $str CURP
+     * @return false|int
+     */
     function curpValida($str) {
         $pattern = '/^([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$/';
         return preg_match($pattern, $str);
     }
+
 }

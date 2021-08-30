@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Akeneo\Component\SpreadsheetParser\SpreadsheetParser;
 use App\Audiencia;
 use App\AudienciaParte;
-use App\Centro;
 use App\Compareciente;
 use App\ConceptoPagoResolucion;
 use App\ConciliadorAudiencia;
@@ -27,6 +27,10 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Lee información de un archivo xlsx y crea convenios inmediatos masivamente.
+ * @package App\Console\Commands
+ */
 class ConveniosMasivos extends Command
 {
     /**
@@ -34,7 +38,7 @@ class ConveniosMasivos extends Command
      *
      * @var string
      */
-    protected $signature = 'convenioMasivo {nombre : Path al archivo xlsx que trae los datos de los convenios} {--fecha-audiencia= : Fecha de la audiencia en formato Y-m-d} {--hora-inicio-audiencia= : Hora de inicio de la audiencia del conficto en formato HH:mm:ss} {--hora-fin-audiencia= : hora fin de la audiencia en formato Y-m-d HH:mm:ss} {--fecha-resolucion-audiencia= : Fecha del conficto en formato Y-m-d HH:mm:ss} {--cadena-representante= : Cadena separada por comas de los datos del representante: "Nombre","Primer Apellido","Segundo apellido","fecha de nacimiento","Genero (H-M)","fecha de instrumento notarial","CURP"} {--cadena-manifestaciones= : Cadena separada por comas de los datos de las manifestaciones: "Primera Manifestacion","Propuesta de convenio","Segunda manifestacion"} {--cadena-dato-laboral= : Cadena separada por comas de los datos laborales extra del trabajador "horario_laboral","horario_comida","comida_dentro","dias_descanso","dias_vacaciones","dias_aguinaldo","prestaciones_adicionales"} {--cadena-concepto-resolucion= : Cadena separada por comas de los conceptos de resolucion separados por coma, segun catalogo ConceptoPagoResolucion} {--cadena-conciliador= : Cadena separada por comas de los datos del conciliador separados por coma, segun catalogo Conciliador "Nombre","Apellidos"}';
+    protected $signature = 'convenioMasivo {nombre : Path al archivo xlsx que trae los datos de los convenios}';
 
     /**
      * The console command description.
@@ -54,6 +58,11 @@ class ConveniosMasivos extends Command
     }
 
     /**
+     * @var string Nombre del archivo xlsx
+     */
+    protected $nombreArchivo;
+
+    /**
      * Execute the console command.
      *
      * @return mixed
@@ -64,28 +73,33 @@ class ConveniosMasivos extends Command
         $failedConv = fopen(__DIR__."/../../../public/failedConv.txt", 'w');
         $ratificConv = fopen(__DIR__."/../../../public/ratificConv.txt", 'w');
         $nombreArchivo = $this->argument('nombre');
+        $this->nombreArchivo = $nombreArchivo;
         $archivo = __DIR__."/../../../".$nombreArchivo;
         $existe = file_exists($archivo);
+
         if(!empty($nombreArchivo) && $existe){
-            //            Obtenemos el documento que contiene las CURP
+
+            // Obtenemos el documento que contiene las CURP
             $arreglo = $this->obtenerCurp($archivo);
 
+            // Se obtienen los ids de conceptos
             $array_conceptos = $this->obtenerConceptos($archivo);
+
             if(empty($array_conceptos)){
                 $error = "Los conceptos no esta correctamente configurados";
                 $this->error($error);
                 fputs($failedConv, $error."\n");
                 return;
             }
-            $conciliador_data = str_getcsv($this->option('cadena-conciliador'));
-            $conciliador = \App\Persona::whereNombre($conciliador_data[0])->where("primer_apellido",$conciliador_data[1])->first()->conciliador;
+
+            $conciliador = $this->obtenerDatosConciliador($archivo);
             if(empty($conciliador)){
-                $error = "Los conceptos no esta correctamente configurados";
+                $error = "No se encontró al conciliador, favor de revisar que el nombre coincida como está dado de alta";
                 $this->error($error);
                 fputs($failedConv, $error."\n");
                 return;
             }
-            //            Recorremos todas las curp
+            // Recorremos todas las curp
             $array = [];
             foreach ($arreglo as $key => $curp) {
             //Localizamos la Parte para obtener la solicitud
@@ -99,16 +113,16 @@ class ConveniosMasivos extends Command
                         if($registro["exito"]){
                             $array[] = array("solicitud_id" => $solicitud->id , "audiencia_id" => $registro["audiencia_id"],"curp" => $curp);
                             $correcto = "Se ratifico la solicitud con el folio: ".$solicitud->folio."/".$solicitud->anio;
-                            dump($correcto); 
+                            dump($correcto);
                             fputs($savedConv, $correcto."\n");
                         }else{
                             $error = "Ocurrio un error en la solicitud con el folio: ".$solicitud->folio."/".$solicitud->anio;
-                            dump($error); 
+                            dump($error);
                             fputs($failedConv, $error."\n");
                         }
                     }else{
                         $error = " La solicitud con el folio: ".$solicitud->folio."/".$solicitud->anio. " Ya esta ratificada";
-                        dump($error); 
+                        dump($error);
                         fputs($ratificConv, $error."\n");
                     }
                 }else{
@@ -123,56 +137,57 @@ class ConveniosMasivos extends Command
         }
     }
 
-
+    /**
+     * Confirma una solicitud
+     * @param Solicitud $solicitud La solicitud a confirmar
+     * @param string $curp La CURP del citado
+     * @param array $array_conceptos Arreglo de conceptos
+     * @param array $conciliador Datos del conciliador que llevó la conciliación
+     * @return array
+     */
     private function ConfirmarSolicitudMultiple(Solicitud $solicitud,$curp,$array_conceptos,$conciliador) {
         try {
             DB::beginTransaction();
-            //obtenemos los folios 
+            //obtenemos los folios
             $ContadorController = new ContadorController();
             $folioC = $ContadorController->getContador(1, $solicitud->centro->id);
             $folioAudiencia = $ContadorController->getContador(3, 15);
-            
-//            Colocamos los parametros en variables
+
+            // Colocamos los parametros en variables
             $tipoParte = \App\TipoParte::whereNombre("SOLICITANTE")->first();
-            $fecha_audiencia = $this->option('fecha-audiencia');
-            $hora_inicio_audiencia = $this->option('hora-inicio-audiencia');
-            $hora_fin_audiencia = $this->option('hora-fin-audiencia');
-            $fecha_resolucion = $this->option('fecha-resolucion-audiencia');
-            $resolucion_id = 1;
-            
-////        Obtenemos la sala virtual
+
+            list($fecha_audiencia, $hora_inicio_audiencia, $hora_fin_audiencia, $fecha_resolucion) = $this->getDatosFechasAudiencia();
+
+            // Obtenemos la sala virtual
             $sala = Sala::where("centro_id", $solicitud->centro_id)->where("virtual", true)->first();
             if ($sala == null) {
                 DB::rollBack();
                 return array("exito" => false,"audiencia_id" => null);
             }
             $sala_id = $sala->id;
-            
-//            Obtenemos un conciliador central
-            $oficinaCentral = Centro::whereAbreviatura("OCCFCRL")->first();
 
             if ($conciliador == null) {
                 DB::rollBack();
                 return array("exito" => false,"audiencia_id" => null);
             }
-//            
-////            Validamos si ya hay un expediente de la solicitud
+
+            // Validamos si ya hay un expediente de la solicitud
             if ($solicitud->expediente == null) {
-//            Creamos la estructura del folio
+                // Creamos la estructura del folio
                 $edo_folio = $solicitud->centro->abreviatura;
                 $folio = $edo_folio . "/CJ/I/" . $folioC->anio . "/" . sprintf("%06d", $folioC->contador);
-                //Creamos el expediente de la solicitud
+                // Creamos el expediente de la solicitud
                 $expediente = Expediente::create(["solicitud_id" => $solicitud->id, "folio" => $folio, "anio" => $folioC->anio, "consecutivo" => $folioC->contador]);
-//                Indicamos que el solicitante esta ratificando
+                // Indicamos que el solicitante esta ratificando
                 foreach ($solicitud->partes as $key => $parte) {
                     if ($tipoParte->id == $parte->tipo_parte_id) {
                         $parte->update(["ratifico" => true]);
                     }
                 }
-//                Modificamos la solicitud para indicar que ya se ratifico
+                // Modificamos la solicitud para indicar que ya se ratifico
                 $solicitud->update(["estatus_solicitud_id" => 3, "url_virtual" => null, "ratificada" => true, "fecha_ratificacion" => now(), "inmediata" => true]);
 
-//            Hacemos el registro de la audiencia
+                // Hacemos el registro de la audiencia
                 $audiencia = Audiencia::create([
                     "expediente_id" => $expediente->id,
                     "multiple" => false,
@@ -194,10 +209,12 @@ class ConveniosMasivos extends Command
                     "fecha_resolucion" => $fecha_resolucion,
                     "resolucion_id" => 1
                 ]);
+
                 // guardamos la sala y el conciliador a la audiencia
                 ConciliadorAudiencia::create(["audiencia_id" => $audiencia->id, "conciliador_id" => $conciliador->id, "solicitante" => true]);
                 SalaAudiencia::create(["audiencia_id" => $audiencia->id, "sala_id" => $sala_id, "solicitante" => true]);
-//                Registramos las partes a la audiencia
+
+                // Registramos las partes a la audiencia
                 foreach ($solicitud->partes as $parte) {
                     AudienciaParte::create(["audiencia_id" => $audiencia->id, "parte_id" => $parte->id, "tipo_notificacion_id" => null]);
                     if ($parte->tipo_parte_id == 2) {
@@ -205,24 +222,26 @@ class ConveniosMasivos extends Command
                         event(new GenerateDocumentResolution($audiencia->id, $solicitud->id, 14, 4, null, $parte->id));
                     }
                 }
-//                Eliminamos el acuse de la solicitud
+
+                // Eliminamos el acuse de la solicitud
                 $acuse = Documento::where('documentable_type', 'App\Solicitud')->where('documentable_id', $solicitud->id)->where('clasificacion_archivo_id', 40)->first();
                 if ($acuse != null) {
                     $acuse->delete();
                 }
-//                Creamos el nuevo acuse
+
+                // Creamos el nuevo acuse
                 event(new GenerateDocumentResolution("", $solicitud->id, 40, 6));
-                
-                
-//                Registramos el representante legal
+
+
+                // Registramos el representante legal
                 $parteRepresentada = null;
                 foreach($solicitud->partes as $parte){
                     if($parte->tipo_parte_id == 1){
                         $parteRepresentada = $parte->id;
                     }
                 }
-                
-                $representante_data = str_getcsv($this->option('cadena-representante'));
+
+                $representante_data = $this->obtenerDatosRepresentante();
                 $genero = $representante_data[4] =="H" ? 1 : 2 ;
                 $representante = Parte::create([
                     "solicitud_id" => $solicitud->id,
@@ -243,10 +262,10 @@ class ConveniosMasivos extends Command
                     "representante" => true
                 ]);
                 Compareciente::create(["parte_id" => $representante->id, "audiencia_id" => $audiencia->id, "presentado" => true]);
-                
+
                 $solicitante = $solicitud->partes()->where('tipo_parte_id',1)->first();
                 $citado = $solicitud->partes()->where('tipo_parte_id',2)->first();
-                $manifestaciones = str_getcsv($this->option('cadena-manifestaciones'));
+                $manifestaciones = $this->obtenerManifestaciones();
                 $manifestaciones = Arr::prepend($manifestaciones,"true");
                 $manifestaciones = Arr::prepend($manifestaciones,"1");
                 $manifestaciones[] = "1";
@@ -266,7 +285,7 @@ class ConveniosMasivos extends Command
                     "terminacion_bilateral_id" => 3
                 ]);
                 $dato_laboral = $citado->dato_laboral->first();
-                $datos_laborales_cadena = str_getcsv($this->option('cadena-dato-laboral'));
+                $datos_laborales_cadena = $this->obtenerDatosLaborales();
                 if($dato_laboral){
                     $dato_laboral->update(
                         ['horario_laboral'=>$datos_laborales_cadena[0],
@@ -278,29 +297,12 @@ class ConveniosMasivos extends Command
                         "prestaciones_adicionales"=>$datos_laborales_cadena[6]]
                     );
                 }
-                //$resoluciones = str_getcsv($this->option('cadena-concepto-resolucion'));
-                
-                $nombreArchivo = $this->argument('nombre');
-                $filename = __DIR__."/../../../".$nombreArchivo;
-                $file = fopen($filename, "r");
-                $conceptos = array();
-                $row = 0;
-                while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
-                    if( $data[0] == $curp){
-                        foreach($data as $key=> $concepto){
-                            if($key > 1){
-                                $repla = array("$",",","(",")","-");
-                                $conceptos[] = trim(str_replace($repla,"",$concepto));
-                            }
-                        }
-                        break;
-                    }
-                    $row++;
-                }
+
+                $conceptos = $this->obtenerConceptosPorCurp($curp);
+
                 $audiencia_parte = $citado->audienciaParte->first();
                 $montoTotal = 0;
                 foreach($array_conceptos as $key => $concepto){
-                    
                     if(!empty($concepto)){
                         $resolucion_parte = ResolucionParteConcepto::create([
                             "resolucion_partes_id" => null, //$resolucionParte->id,
@@ -310,7 +312,7 @@ class ConveniosMasivos extends Command
                             "monto" => $conceptos[$key],//$concepto["monto"],
                             "otro" => ""
                         ]);
-                            $montoTotal += floatval($concepto);
+                        $montoTotal += floatval($concepto);
                     }
                 }
                 ResolucionPagoDiferido::create([
@@ -320,7 +322,7 @@ class ConveniosMasivos extends Command
                     "fecha_pago" => Carbon::createFromFormat('Y-m-d h:i', $fecha_audiencia." 09:00")->format('Y-m-d h:i')
                 ]);
 
-//              Guardamos los comparecientes a la audiencia
+                // Guardamos los comparecientes a la audiencia
                 foreach($solicitud->partes as $parte){
                     if($parte->tipo_persona_id == 1){
                         Compareciente::create(["parte_id" => $parte->id, "audiencia_id" => $audiencia->id, "presentado" => true]);
@@ -341,38 +343,223 @@ class ConveniosMasivos extends Command
             return array("exito" => false,"audiencia_id" => null);
         }
     }
-    function obtenerConceptos($nombreArchivo) {
+
+    /**
+     * Regresa un arreglo con los ID de los conceptos leyendo del archivo excel la hoja "CONCEPTOS" el rengón
+     * de encabezados
+     * @return array
+     */
+    public function obtenerConceptos() {
+        $nombreArchivo = $this->nombreArchivo;
+        $workbook = SpreadsheetParser::open($nombreArchivo, 'xlsx');
         $arreglo_conceptos = [];
-        $file = fopen($nombreArchivo, "r");
-        while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
-                foreach($data as $key=> $concepto){
-                    if($key > 1 && !empty($concepto)){
-                        $concepto_pago = ConceptoPagoResolucion::where('nombre',$concepto)->first();
-                        if($concepto_pago){
-                            $arreglo_conceptos[] = $concepto_pago->id;
-                        }else{
-                            $this->error("No se encontro el concepto".$concepto);
-                            return [];
-                        }
+        foreach ($workbook->createRowIterator($workbook->getWorksheetIndex('CONCEPTOS')) as $rowIndex => $conceptos) {
+            if ($rowIndex == 1 && !empty($conceptos)) {
+                foreach ($conceptos as $key => $concepto) {
+                    if($key == 0) continue;
+                    $concepto_pago = ConceptoPagoResolucion::where('nombre', $concepto)->first();
+                    if ($concepto_pago) {
+                        $arreglo_conceptos[] = $concepto_pago->id;
+                    }
+                    else {
+                        $this->error("No se encontro el concepto" . $concepto);
+                        return [];
                     }
                 }
-            break;
+            }
         }
         return $arreglo_conceptos;
     }
-    function obtenerCurp($nombreArchivo) {
-        $file = fopen($nombreArchivo, "r");
-        $curp = array();
-        while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
-            if ($this->curpValida($data[0])) {
-                $curp[] = $data[0];
+
+    /**
+     * Retorna un arreglo de CURPS que extrae del archivo excel de la hoja "CONCEPTOS"
+     * @return array
+     */
+    function obtenerCurp() {
+        $nombreArchivo = $this->nombreArchivo;
+        $workbook = SpreadsheetParser::open($nombreArchivo, 'xlsx');
+        $curp = [];
+        foreach ($workbook->createRowIterator($workbook->getWorksheetIndex('CONCEPTOS')) as $rowIndex => $values) {
+            if ($this->curpValida($values[0])) {
+                $curp[] = $values[0];
             }
         }
         return $curp;
     }
 
+    /**
+     * Valida las CURP
+     * @param string $str CURP
+     * @return false|int
+     */
     function curpValida($str) {
         $pattern = '/^([A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HM](?:AS|B[CS]|C[CLMSH]|D[FG]|G[TR]|HG|JC|M[CNS]|N[ETL]|OC|PL|Q[TR]|S[PLR]|T[CSL]|VZ|YN|ZS)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d])(\d)$/';
         return preg_match($pattern, $str);
+    }
+
+    /**
+     * Regresa un arreglo con los datos del conciliador que se extraen de la hoja "DATOS CONCILIADOR"
+     * @return array
+     */
+    public function obtenerDatosConciliador(){
+        $nombreArchivo = $this->nombreArchivo;
+        $workbook = SpreadsheetParser::open($nombreArchivo, 'xlsx');
+        $conciliador = null;
+        foreach ($workbook->createRowIterator($workbook->getWorksheetIndex('DATOS CONCILIADOR')) as $rowIndex => $values) {
+            if($rowIndex == 2){
+                $conciliador = \App\Persona::where('nombre', 'ilike', $values[0]);
+                if(isset($values[1])) $conciliador->where("primer_apellido", 'ilike', $values[1]);
+                if(isset($values[2])) $conciliador->where("segundo_apellido", 'ilike', $values[2]);
+                $conc = $conciliador->first();
+                if($conc){
+                    $conciliador = $conc->conciliador;
+                }
+                break;
+            }
+        }
+        return $conciliador;
+    }
+
+    /**
+     * Regresa un arreglo con los datos de las fechas involucradas en la audiencia como fecha_audiencia, hora_inicio_audiencia,
+     * hora_fin_audiencia, fecha_resolucion
+     *
+     * @return array
+     */
+    private function getDatosFechasAudiencia(): array {
+        $nombreArchivo = $this->nombreArchivo;
+        $workbook = SpreadsheetParser::open($nombreArchivo, 'xlsx');
+        $fecha_audiencia = '';
+        $hora_inicio_audiencia = '';
+        $hora_fin_audiencia = '';
+        $fecha_resolucion = '';
+
+        try {
+            foreach ($workbook->createRowIterator($workbook->getWorksheetIndex('FECHAS AUDIENCIA')) as $rowIndex =>
+                     $values) {
+                if ($rowIndex == 2) {
+
+                    $fecha_audiencia = $values[0];
+                    if (!is_a($fecha_audiencia, \DateTime::class)) {
+                        $fecha_audiencia = Carbon::createFromFormat('d/m/Y', $fecha_audiencia);
+                    }
+                    $fecha_audiencia = $fecha_audiencia->format("Y-m-d");
+
+                    $hora_inicio_audiencia = $values[1];
+                    if (!is_a($hora_inicio_audiencia, \DateTime::class)) {
+                        $hora_inicio_audiencia = Carbon::createFromFormat('H:i', $hora_inicio_audiencia);
+                    }
+                    $hora_inicio_audiencia = $hora_inicio_audiencia->format("H:i");
+
+                    $hora_fin_audiencia = $values[2];
+                    if (!is_a($hora_fin_audiencia, \DateTime::class)) {
+                        $hora_fin_audiencia = Carbon::createFromFormat('d/m/Y H:i', $hora_fin_audiencia);
+                    }
+                    $hora_fin_audiencia = $hora_fin_audiencia->format("Y-m-d H:i:00");
+
+                    $fecha_resolucion = $values[3];
+                    if (!is_a($fecha_resolucion, \DateTime::class)) {
+                        $fecha_resolucion = Carbon::createFromFormat('d/m/Y H:i', $fecha_resolucion);
+                    }
+                    $fecha_resolucion = $fecha_resolucion->format("Y-m-d H:i:00");
+                    break;
+                }
+            }
+        }
+        catch (Exception $e){
+
+        }
+        return array($fecha_audiencia, $hora_inicio_audiencia, $hora_fin_audiencia, $fecha_resolucion);
+    }
+
+    /**
+     * Regresa en un arreglo los datos del representante que se extraen del archivo xlsx de la hoja DATOS REPRESENTANTE
+     * @return array
+     */
+    private function obtenerDatosRepresentante(): array {
+
+        $representante_data = [];
+        $nombreArchivo = $this->nombreArchivo;
+        $workbook = SpreadsheetParser::open($nombreArchivo, 'xlsx');
+        foreach ($workbook->createRowIterator($workbook->getWorksheetIndex('DATOS REPRESENTANTE')) as $rowIndex => $values)
+        {
+            if ($rowIndex == 2) {
+                $representante_data = $values;
+
+                if (!is_a($values[3], \DateTime::class)) {
+                    $values[3] = Carbon::createFromFormat('d/m/Y', $values[3]);
+                }
+                $representante_data[3] = $values[3]->format("Y-m-d");
+
+                if (!is_a($values[5], \DateTime::class)) {
+                    $values[5] = Carbon::createFromFormat('d/m/Y', $values[5]);
+                }
+                $representante_data[5] = $values[5]->format("Y-m-d");
+                break;
+            }
+        }
+        return $representante_data;
+    }
+
+    /**
+     * Obtiene las manifestaciones del archivo xlsx de la hoja "MANIFESTACIONES"
+     * @return array
+     */
+    private function obtenerManifestaciones(): array {
+        $manifestaciones = [];
+        $nombreArchivo = $this->nombreArchivo;
+        $workbook = SpreadsheetParser::open($nombreArchivo, 'xlsx');
+        foreach ($workbook->createRowIterator($workbook->getWorksheetIndex('MANIFESTACIONES')) as $rowIndex => $values)
+        {
+            if ($rowIndex == 2) {
+                $manifestaciones = $values;
+                break;
+            }
+        }
+        return $manifestaciones;
+    }
+
+    /**
+     * Obtiene los datos laborales del archivo xlsx de la hoja "DATOS LABORALES"
+     * @return array
+     */
+    private function obtenerDatosLaborales(): array {
+        $datos_laborales_cadena = [];
+        $nombreArchivo = $this->nombreArchivo;
+        $workbook = SpreadsheetParser::open($nombreArchivo, 'xlsx');
+        foreach ($workbook->createRowIterator($workbook->getWorksheetIndex('DATOS LABORALES')) as $rowIndex => $values)
+        {
+            if ($rowIndex == 2) {
+                $datos_laborales_cadena = $values;
+                $datos_laborales_cadena[2] = (strtoupper($values[2]) == 'SI');
+                break;
+            }
+        }
+        return $datos_laborales_cadena;
+    }
+
+    /**
+     * Obtiene los conceptos por cada CURP del archivo xlsx de la hoja "CONCEPTOS"
+     * @param string $curp La CURP llave de la fila.
+     * @return array
+     */
+    private function obtenerConceptosPorCurp($curp): array {
+
+        $nombreArchivo = $this->nombreArchivo;
+        $workbook = SpreadsheetParser::open($nombreArchivo, 'xlsx');
+        $conceptos = [];
+        foreach ($workbook->createRowIterator($workbook->getWorksheetIndex('CONCEPTOS')) as $rowIndex => $values)
+        {
+            if($values[0] == $curp) {
+                foreach ($values as $key => $concepto) {
+                    if ($key > 0) {
+                        $repla = array("$", ",", "(", ")", "-");
+                        $conceptos[] = trim(str_replace($repla, "", $concepto));
+                    }
+                }
+                break;
+            }
+        }
+        return $conceptos;
     }
 }
