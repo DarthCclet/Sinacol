@@ -81,6 +81,7 @@ class SolicitudMasiva extends Command
             $workbook = SpreadsheetParser::open($archivo, 'xlsx');
 
             foreach ($workbook->createRowIterator(0) as $rowIndex => $values) {
+                if($rowIndex < 5) continue;
                 array_push($partesCitado,$values);
             }
             $client = new Client(['base_uri' => env('APP_URL')]);
