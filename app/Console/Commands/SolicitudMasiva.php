@@ -245,8 +245,8 @@ class SolicitudMasiva extends Command
 
         $abreviaturaGenero = $citado[6][0];
         $genero = Genero::where('abreviatura','ilike',$abreviaturaGenero)->first();
-        $nacionalidad = Nacionalidad::where('nombre','like','%'.$citado[7].'%')->first();
-        $estado_nacimiento = Estado::where('nombre','like','%'.$citado[8].'%')->first();
+        $nacionalidad = Nacionalidad::where('nombre','ilike','%'.$citado[7].'%')->first();
+        $estado_nacimiento = Estado::where('nombre','ilike','%'.$citado[8].'%')->first();
         $citadoObj = array(
             "id" => null,
             "nombre" => $citado[1],
