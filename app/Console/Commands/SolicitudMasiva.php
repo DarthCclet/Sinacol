@@ -11,12 +11,14 @@ use App\Municipio;
 use App\Nacionalidad;
 use App\ObjetoSolicitud;
 use App\Periodicidad;
+use App\Services\ReportesService;
 use App\TipoObjetoSolicitud;
 use App\TipoVialidad;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -70,7 +72,7 @@ class SolicitudMasiva extends Command
     public function handle()
     {
         $nombreArchivo = $this->argument('nombre');
-
+        DB::enableQueryLog();
         $archivo = __DIR__."/../../../".$nombreArchivo;
         $existe = file_exists($archivo);
         if(!empty($nombreArchivo) && $existe){
@@ -85,26 +87,28 @@ class SolicitudMasiva extends Command
             $savedSol = fopen(__DIR__."/../../../public/savedSol.txt", 'w');
             $failedSol = fopen(__DIR__."/../../../public/failedSol.txt", 'w');
 
-            $solicitudObj = [
-                "fecha_conflicto" => $this->option('fecha-conflicto'),
-                "giro_comercial"  => $this->option('industria'),
-                "virtual"         => (strtolower($this->option('virtual')) === 'si'),
-            ];
-
             $tipo_objeto_solicitud = TipoObjetoSolicitud::where('nombre','ilike', '%'.$this->option('tipo-solicitud').'%')->first();
             if(!$tipo_objeto_solicitud) {
                 $this->error("No existe el tipo de solicitud: ".$this->option('tipo-solicitud'));
                 return;
             }
-            $objeto_solicitud = ObjetoSolicitud::where("nombre",'ilike', '%'.$this->option('objeto-solicitud').'%')
+
+            $objeto_solicitud = ObjetoSolicitud::whereRaw("unaccent(nombre) ilike unaccent('".$this->option('objeto-solicitud')."')")
                 ->where('tipo_objeto_solicitudes_id', $tipo_objeto_solicitud->id)
                 ->first();
             if(!$objeto_solicitud){
                 $this->error("No existe el objeto de la solicitud: ".$this->option('objeto-solicitud'));
+                dd(ReportesService::debugSql());
                 return;
             }
             $partesSolicitante = str_getcsv($this->option('cadena-solicitante'));
 
+            $solicitudObj = [
+                "fecha_conflicto" => $this->option('fecha-conflicto'),
+                "giro_comercial"  => $this->option('industria'),
+                "virtual"         => (strtolower($this->option('virtual')) === 'si'),
+                "tipo_solicitud_id" => $tipo_objeto_solicitud->id
+            ];
 
             $correctos = 0;
             $erroneos = 0;
@@ -152,14 +156,14 @@ class SolicitudMasiva extends Command
     }
 
     private function getSolicitud($solicitud){
-        GiroComercial::where('nombre',$solicitud["giro_comercial"])->first();
+        $giro = GiroComercial::where('nombre','ilike',$solicitud["giro_comercial"])->first();
         return array(
             "id" => null,
             "observaciones" => null,
             "solicita_excepcion" => "false",
             "fecha_conflicto" => $solicitud["fecha_conflicto"],
-            "tipo_solicitud_id" => "2",
-            "giro_comercial_id" => "1722",
+            "tipo_solicitud_id" => $solicitud["tipo_solicitud_id"],
+            "giro_comercial_id" => $giro->id,
             "virtual" => $solicitud["virtual"],
             "recibo_oficial" => "false",
             "recibo_pago" => "false",
@@ -185,9 +189,9 @@ class SolicitudMasiva extends Command
             "horas_semanales" => $citado[25],
             "resolucion" => "false",
         );
-        $estado = Estado::whereRaw("nombre ilike '%".$citado[12]."%'")->first();
-        $tipo_vialidad = TipoVialidad::where('nombre','like','%'.$citado[13].'%')->first();
-        $municipio = Municipio::whereRaw("municipio ilike '".$citado[18]."'")->first();
+        $estado = Estado::whereRaw("unaccent(nombre) ilike unaccent('".$citado[12]."')")->first();
+        $tipo_vialidad = TipoVialidad::whereRaw("unaccent(nombre) ilike unaccent('$citado[13]')")->first();
+        $municipio = Municipio::whereRaw("unaccent(municipio) ilike unaccent('".$citado[18]."')")->first();
         $domicilioCitado = array(
             "id" => null,
             "num_ext" => $citado[15],
