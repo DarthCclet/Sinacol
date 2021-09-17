@@ -29,7 +29,7 @@ class ConciliadorController extends Controller
      */
     public function index()
     {
-        Conciliador::with('persona','centro')->get();
+        //Conciliador::with('persona','centro')->get();
 
         // Filtramos las salas con los parametros que vengan en el request
         $conciliadores = (new CatalogoFilter(Conciliador::query(), $this->request))
@@ -43,7 +43,7 @@ class ConciliadorController extends Controller
                         $conciliadoresResponse[] = $conciliador;
                     }
                 }
-                
+
             }
             $conciliadoresResponse = new Collection($conciliadoresResponse);
         }else{
@@ -173,7 +173,7 @@ class ConciliadorController extends Controller
         }
         return $conciliador;
     }
-    
+
     /**
      * Funcion para guardar y modificar incidencias
      * @param Request $request
@@ -189,7 +189,7 @@ class ConciliadorController extends Controller
         }
         return $conciliador;
     }
-    
+
     /**
      * Funcion para obtener el objeto centro con sus disponibilidades e incidencias
      * @param Request $request
@@ -210,7 +210,7 @@ class ConciliadorController extends Controller
      */
     public function roles(Request $request){
         $conciliador = Conciliador::find($request->id);
-        if($request->rol_conciliador_id != "" && $request->borrar){            
+        if($request->rol_conciliador_id != "" && $request->borrar){
             $roles = RolConciliador::find($request->rol_conciliador_id)->delete();
         }else{
             $conciliadorRol = RolConciliador::create(["conciliador_id" => $request->id, "rol_atencion_id" => $request->rol_atencion_id]);
@@ -230,7 +230,7 @@ class ConciliadorController extends Controller
         }
         return $conciliadores;
     }
-    
+
     public function conciliadorAudiencias(){
         return view('centros.conciliadores.agenda');
     }
