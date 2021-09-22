@@ -9,7 +9,9 @@
     <input type="hidden" id="centro_nombre" value="{{ isset(auth()->user()->centro->abreviatura) ? auth()->user()->centro->abreviatura : ''}}">
     <nav class="navbar navbar-expand-lg navbar-dark" style="width: 100%;">
     <div class="navbar-header">
-        <a href="/" class="navbar-brand"><span class=""><img src="{{asset('assets/img/logo/LogoEncabezado.png')}}"></span></a>
+        <a href="/" class="navbar-brand"><span class=""><img src="{{config('logotipos.logotipo-encabezado')}}"
+                                                             height="{{config('logotipos.logotipo-encabezado-height')}}"
+                                                             width="{{config('logotipos.logotipo-encabezado-width')}}"></span></a>
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#subenlaces">
             <span class="sr-only">Interruptor de Navegación</span>
             <span class="icon-bar"></span>
