@@ -7,7 +7,6 @@
 <!-- ================== BEGIN BASE CSS STYLE ================== -->
 <link href="/assets/css/default/app.min.css" rel="stylesheet" />
 <!-- ================== END BASE CSS STYLE ================== -->
-
 @stack('css')
 <style>
     @if( strpos(env('APP_URL'), 'lxl') )
@@ -85,5 +84,26 @@
 		100% { transform: rotate(360deg); }
 	}
 
-
 </style>
+
+@if(config('colores.default') === 'NO')
+    <style>
+        .header {background-color: {{config('colores.encabezado-color-fondo')}} !important;}
+        .btn-primary {
+            color: #32a932 !important;
+            background-color: #ffffff !important;
+            border-color: #90ca4b !important;
+            box-shadow: 0 0 0 0 #1e6d1e !important;
+        }
+        .btn-primary:hover {
+            color: #fff !important;
+            background-color: #32a932 !important;
+            border-color: #90ca4b !important;
+        }
+        .selectedButton {
+            color: #fff !important;
+            background-color: #32a932 !important;
+            border-color: #90ca4b !important;
+        }
+    </style>
+@endif
