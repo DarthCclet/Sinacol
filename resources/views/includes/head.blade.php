@@ -90,17 +90,12 @@
     <style>
         .header {background-color: {{config('colores.encabezado-color-fondo')}} !important;}
         .btn-primary {
-            color: #32a932 !important;
-            background-color: #ffffff !important;
-            border-color: #90ca4b !important;
-            box-shadow: 0 0 0 0 #1e6d1e !important;
+            color: {{config('colores.btn-primary-color')}} !important;
+            background-color: {{config('colores.btn-primary-background-color')}} !important;
+            border-color: {{config('colores.btn-primary-border-color')}} !important;
+            box-shadow: {{config('colores.btn-primary-shadow-color')}} !important;
         }
         .btn-primary:hover {
-            color: #fff !important;
-            background-color: #32a932 !important;
-            border-color: #90ca4b !important;
-        }
-        .selectedButton {
             color: #fff !important;
             background-color: #32a932 !important;
             border-color: #90ca4b !important;
