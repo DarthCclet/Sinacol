@@ -9,7 +9,7 @@
             <div class="login-header" align="center">
                 <div class="brand">
                     <span>
-                        <img src="{{asset(config('logotipos.logotipo-encabezado'))}}" width="360px">
+                        <img src="{{config('logotipos.logotipo-encabezado')}}" width="360px">
                     </span>
                     <small>Acceso al Buzón electrónico</small>
                 </div>
