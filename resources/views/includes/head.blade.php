@@ -20,6 +20,12 @@
     .sw-main.sw-theme-default .step-anchor > li.active > a small {
         color: #B38E5D;
     }
+    .sw-main.sw-theme-default .step-anchor > li.active{
+        background: {{config('colores.btn-primary-color')}} !important
+    }
+    .wizard-steps li.active::after, .wizard-steps li.active::before, .wizard-steps li.current::after, .wizard-steps li.current::before, .wizard-steps li.success::after, .wizard-steps li.success::before {
+        background: {{config('colores.btn-primary-color')}} !important
+    }
     .sw-theme-default > ul.step-anchor > li.clickable > a:hover {
         color: white !important;
         background: transparent !important;
@@ -77,6 +83,14 @@
         top: 50%;
         left:50%;
         animation: spin 2s linear infinite;
+    }
+
+    .wizard-steps li.completed,
+    .wizard-steps li.current,
+    .wizard-steps-extensive li.active,
+    .wizard-steps-extensive li.current {
+        background-color: {{config('colores.btn-primary-color')}} !important;
+        color: #fff
     }
 
 	@keyframes spin {

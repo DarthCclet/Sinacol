@@ -9,8 +9,8 @@
     #ui-datepicker-div {z-index:9999 !important}
     .selectedButton{
         color: #fff !important;
-        background-color: #9D2449 !important;
-        border-color: #9D2449 !important;
+        background-color: {{config('colores.btn-primary-color')}} !important;
+        border-color: {{config('colores.btn-primary-color')}} !important;
     }
 </style>
 

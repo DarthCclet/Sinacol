@@ -4,12 +4,12 @@
 
 @include('includes.component.datatables')
 @section('content')
-	<div class="login login-v2" data-pageload-addclass="animated fadeIn" style="background: #9d2449 !important; top: 20%;bottom: 20%;">
+	<div class="login login-v2" data-pageload-addclass="animated fadeIn" style="background: {{config('colores.btn-primary-color')}} !important; top: 20%;bottom: 20%;">
             <!-- begin brand -->
             <div class="login-header" align="center">
                 <div class="brand">
                     <span>
-                        <img src="{{asset('assets/img/logo/LogoEncabezado.png')}}" width="360px">
+                        <img src="{{config('logotipos.logotipo-encabezado')}}" width="360px">
                     </span>
                     <small>Acceso al Buzón electrónico</small>
                 </div>

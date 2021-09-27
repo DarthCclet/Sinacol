@@ -16,8 +16,8 @@
             height:100% !important;
         }
         .card-header{
-            border: 1px solid #9c2449 !important;
-            background: #9c2449 !important;
+            border: 1px solid {{config('colores.btn-primary-color')}} !important;
+            background: {{config('colores.btn-primary-color')}} !important;
             color: white !important;
             font-size: 65% !important;
             padding: 4px !important;

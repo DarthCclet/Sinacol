@@ -126,7 +126,7 @@
                     $.each(data.roles,function(i,e){
                         var selected='';
                         if(e.id === data.rolActual.id){
-                            selected = '<i class="fa fa-check-circle" style="color:#9d2449;"></i>';
+                            selected = '<i class="fa fa-check-circle" style="color:{{config('colores.btn-primary-color')}};"></i>';
                         }
                     div +='                 <li><a class="dropdown-item rolChange" data-rol="'+e.id+'" href="#">'+e.name+selected+'</a>';
                     });
@@ -138,7 +138,7 @@
                     $.each(data.centros,function(i,e){
                         var selected='';
                         if(e.id === data.centroActual){
-                            selected = '<i class="fa fa-check-circle" style="color:#9d2449;"></i>';
+                            selected = '<i class="fa fa-check-circle" style="color:{{config('colores.btn-primary-color')}};"></i>';
                         }
                     div +='                 <li><a class="dropdown-item centroChange" data-id="'+e.usuario_centro_id+'" data-centro_id="'+e.id+'" href="#">'+e.nombre+selected+'</a>';
                     });

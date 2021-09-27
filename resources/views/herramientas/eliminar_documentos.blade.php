@@ -57,7 +57,7 @@
                             </div>
                             <div id="divDocumentos">
                             </div>
-                            <h4 style="color: #9d2449;" id="folio_solicitud_asociar"></h4>
+                            <h4 style="color: {{config('colores.btn-primary-color')}};" id="folio_solicitud_asociar"></h4>
                         </div>
                         <div>
                             <h2></h2>
